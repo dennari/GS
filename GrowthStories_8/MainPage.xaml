@@ -106,7 +106,7 @@
         			<TranslateTransform/>
         		</phone:PanoramaItem.RenderTransform>
         		<Grid x:Name="ContentPanel">
-        			<ListBox ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding Collection}" ItemContainerStyle="{StaticResource ListBoxItemStyle1}"/>
+        			<ListBox ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding Collection}" ItemContainerStyle="{StaticResource ListBoxItemStyle1}" SelectionChanged="ListBox_SelectionChanged"/>
         		</Grid>
         	</phone:PanoramaItem>
         	<phone:PanoramaItem x:Name="Friends" CacheMode="{x:Null}" Header="Friends">
