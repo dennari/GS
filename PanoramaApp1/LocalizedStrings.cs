@@ -1,6 +1,6 @@
-﻿using Growthstories.WP8.Resources;
+﻿using PanoramaApp1.Resources;
 
-namespace Growthstories.WP8
+namespace PanoramaApp1
 {
     /// <summary>
     /// Provides access to string resources.

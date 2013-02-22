@@ -1,6 +1,6 @@
-﻿using Tests.Resources;
+﻿using Growthstories.Tests.Resources;
 
-namespace Tests
+namespace Growthstories.Tests
 {
     /// <summary>
     /// Provides access to string resources.
