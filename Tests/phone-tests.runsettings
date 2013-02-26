@@ -43,4 +43,5 @@
   <MSPhoneTest>
 	<TargetDevice>Device</TargetDevice>
   </MSPhoneTest>
+  
 </RunSettings>

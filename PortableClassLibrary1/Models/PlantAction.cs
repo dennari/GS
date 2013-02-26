@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -8,22 +7,20 @@ using System.Text;
 
 namespace Growthstories.PCL.Models
 {
-    public class Garden : INotifyPropertyChanged
+    public abstract class PlantAction : INotifyPropertyChanged
     {
-        private User _owner;
+        private Plant _plant;
 
+        private DateTime? _createDate;
 
-        public ObservableCollection<Plant> Plants { get; private set; }
+        private String _note;
 
-        /// <summary>
-        /// Occurs when [property changed].
-        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
         
-        public Garden(User owner)
+        public PlantAction(Plant plant)
         {
-            _owner = owner;
-            Plants = new ObservableCollection<Plant>();
+            this._plant = plant;
+
         }
 
         /// <summary>
@@ -32,27 +29,36 @@ namespace Growthstories.PCL.Models
         /// <value>
         /// The label.
         /// </value>
-        public User Owner
+        public Plant Plant
         {
             get
             {
-                return this._owner;
+                return this._plant;
+            }
+            private set
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the label.
+        /// </summary>
+        /// <value>
+        /// The label.
+        /// </value>
+        public String Note
+        {
+            get
+            {
+                return this._note;
             }
             set
             {
-                this._owner = value;
+                this._note = value;
                 this.OnPropertyChanged();
             }
         }
-
-        public void ActOnSelected()
-        {
-        }
-
-        public void ActOnAll()
-        {
-        }
-               
 
         /// <summary>
         /// Called when [property changed].
@@ -66,6 +72,7 @@ namespace Growthstories.PCL.Models
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
 
 
     }
