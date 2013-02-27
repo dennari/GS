@@ -19,7 +19,7 @@ namespace Growthstories.WP8
     using Microsoft.Phone.Shell;
 
     using Growthstories.WP8.Resources;
-    using Growthstories.WP8.ViewModel;
+    using Growthstories.PCL.ViewModel;
     using Growthstories.WP8.View;
 
     /// <summary>
@@ -113,6 +113,9 @@ namespace Growthstories.WP8
         /// <param name="e">The <see cref="LaunchingEventArgs" /> instance containing the event data.</param>
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
+            // Got this awesome snippit from http://www.trynull.com/?p=607
+
+            RootFrame.Navigate(new Uri("/View/GardenPage.xaml", UriKind.Relative));
         }
 
         /// <summary>

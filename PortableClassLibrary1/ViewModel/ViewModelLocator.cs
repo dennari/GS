@@ -17,9 +17,19 @@ namespace Growthstories.PCL.ViewModel
             }
         }
 
+
         public ViewModelLocator(IKernel kernel)
         {
-            kernel.Bind<GalleryViewModel>().ToSelf().InSingletonScope();
+           
+            _kernel = kernel;
+            bind();
+            //SimpleIoc.Default.Register<INavigationService, NavigationService>();
+            //SimpleIoc.Default.Register<MainViewModel>();
+        }
+
+        private void bind()
+        {
+            _kernel.Bind<GalleryViewModel>().ToSelf().InSingletonScope();
 
             if (ViewModelBase.IsInDesignModeStatic)
             {
@@ -29,9 +39,7 @@ namespace Growthstories.PCL.ViewModel
             {
                 //SimpleIoc.Default.Register<IRssService, RssService>();
             }
-            _kernel = kernel;
-            //SimpleIoc.Default.Register<INavigationService, NavigationService>();
-            //SimpleIoc.Default.Register<MainViewModel>();
         }
+
     }
 }

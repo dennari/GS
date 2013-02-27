@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using Microsoft.Phone.Controls;
+using Growthstories.PCL.Helpers;
 
 namespace RssReader.Helpers
 {

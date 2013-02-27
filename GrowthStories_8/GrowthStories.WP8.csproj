@@ -21,7 +21,7 @@
     <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
     <XapFilename>GrowthStories_WP8_Debug_AnyCPU.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
-    <SilverlightAppEntry>GrowthStories_8.App</SilverlightAppEntry>
+    <SilverlightAppEntry>Growthstories.WP8.App</SilverlightAppEntry>
     <ValidateXaml>true</ValidateXaml>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
@@ -90,6 +90,36 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Netflix|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Netflix\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Netflix|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Netflix\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Netflix|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Netflix\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -104,6 +134,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\GardenPage.xaml.cs">
       <DependentUpon>GardenPage.xaml</DependentUpon>
     </Compile>
@@ -193,11 +224,16 @@
     <Reference Include="Microsoft.Threading.Tasks.Extensions.Phone">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.14-rc\lib\wp8\Microsoft.Threading.Tasks.Extensions.Phone.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject.Common">
+      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.WP">
+      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.WP.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Services\" />
-    <Folder Include="ViewModel\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortableClassLibrary1\GrowthStories.PCL.csproj">

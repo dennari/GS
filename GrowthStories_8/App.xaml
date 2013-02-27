@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:local="clr-namespace:Growthstories.WP8.View"
-    xmlns:locator="clr-namespace:Growthstories.WP8.ViewModel">
+    xmlns:vm="clr-namespace:Growthstories.WP8.ViewModel">
 
     <!--Application Resources-->
     <Application.Resources>
@@ -12,7 +12,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/Templates.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <locator:ViewModelLocator x:Key="Locator" />
+            <vm:ViewModelLocator x:Key="Locator" />
         </ResourceDictionary>
     </Application.Resources>
 
