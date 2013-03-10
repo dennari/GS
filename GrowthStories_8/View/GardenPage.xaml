@@ -1,33 +1,147 @@
 ﻿<phone:PhoneApplicationPage
-    x:Class="Growthstories.WP8.View.GardenPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP8"
+    xmlns:ViewModel="clr-namespace:Growthstories.PCL.ViewModel;assembly=Growthstories.PCL"
+    x:Class="Growthstories.WP8.View.GardenPage"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="True"
+    shell:SystemTray.IsVisible="False"
     DataContext="{Binding Gallery, Source={StaticResource Locator}}">
 
+
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar>
+            <shell:ApplicationBarIconButton 
+                IconUri="/Images/appbar.add.rest.png" 
+                Text="add" 
+                x:Name="newPlantAppBarButton" 
+                Click="newPlantAppBarButton_Click"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <!--Pivot Control-->
-        <phone:Pivot Title="MY APPLICATION">
-            <!--Pivot item one-->
-            <phone:PivotItem Header="item1">
-                <Grid/>
-            </phone:PivotItem>
+        <controls:Panorama Title="GROWTHSTORIES">
 
-            <!--Pivot item two-->
-            <phone:PivotItem Header="item2">
+            <controls:PanoramaItem CacheMode="{x:Null}" Header="my garden">
+                <controls:PanoramaItem.RenderTransform>
+                    <TranslateTransform/>
+                </controls:PanoramaItem.RenderTransform>
+
+
+                <ListBox ItemsSource="{Binding MyGarden.Plants}" ItemTemplate="{StaticResource ResourceKey=GardenPlantTemplate}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Tap">
+                            <command:EventToCommand Command="{Binding NavigateToPlant, Mode=OneWay}"
+                                                CommandParameter="{Binding Mode=OneWay}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+                <!--<ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>-->
+                         
+
+
+
+
+
+                <!--<Grid Width="370" HorizontalAlignment="Left" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <toolkit:HubTile Grid.Row="1" Grid.Column="0" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/Dessert.jpg"
+                                         Title="Dessert"
+                                         Notification="2 New&#x0d;&#x0a;Receipes"
+                                         DisplayNotification="True"
+                                         GroupTag="Food"/>
+                    <toolkit:HubTile Grid.Row="1" Grid.Column="1" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/Fruits.jpg"
+                                         Title="Fruits"
+                                         GroupTag="Food"/>
+                    <toolkit:HubTile Grid.Row="2" Grid.Column="0" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/Pretzel.jpg"
+                                         Title="Pretzel"
+                                         Notification="w/fixings"
+                                         DisplayNotification="True"
+                                         GroupTag="Food"/>
+                    <toolkit:HubTile Grid.Row="2" Grid.Column="1" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/Shrimp.jpg"
+                                         Title="Shrimp"
+                                         Message="&quot;Just an amazing work by the chef&quot;"
+                                         GroupTag="Food"/>
+                    <toolkit:HubTile Grid.Row="3" Grid.Column="0" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/SteakSandwich.jpg"
+                                         Title="Steak&#x0d;&#x0a;Sandwich"
+                                         Message="@ a great cafe"
+                                         GroupTag="Food"/>
+                    <toolkit:HubTile Grid.Row="3" Grid.Column="1" 
+                                         Margin="12,12,0,0"
+                                         Source="/Images/Beignets.jpg"
+                                         Title="Beignets"
+                                         Notification="New&#x0d;&#x0a;Orleans"
+                                         DisplayNotification="True"
+                                         GroupTag="Food"/>
+                </Grid>-->
+            </controls:PanoramaItem>
+
+            <controls:PanoramaItem CacheMode="{x:Null}" Header="item2">
+                <controls:PanoramaItem.RenderTransform>
+                    <TranslateTransform/>
+                </controls:PanoramaItem.RenderTransform>
                 <Grid/>
-            </phone:PivotItem>
-        </phone:Pivot>
+            </controls:PanoramaItem>
+        </controls:Panorama>
+        <!--Pivot Control-->
     </Grid>
-    
+
 </phone:PhoneApplicationPage>

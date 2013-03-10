@@ -7,25 +7,31 @@ using Ninject;
 using Growthstories.PCL.Services;
 using Growthstories.PCL.ViewModel;
 using GalaSoft.MvvmLight;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Growthstories.Tests
 {
-    
-   
+
+
 
     [TestClass]
     public class GrowthstoriesTest
     {
-        
+
         public IKernel kernel;
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
             this.kernel = new StandardKernel();
             this.kernel.Bind<IPlantDataService>()
                        .To<FakePlantDataService>()
-                       .InTransientScope();
+                       .InSingletonScope();
+            //this.kernel.Bind<FakePictureService>()
+            //           .ToSelf()
+            //           .InSingletonScope();
         }
 
 
@@ -64,11 +70,11 @@ namespace Growthstories.Tests
             Assert.IsNull(plant.Info);
             try
             {
-                plant.load();
+                // plant.load();
             }
             catch (MissingMemberException)
             {
-                
+
             }
             plant.Genus = "Aloe vera";
             plant.load();
@@ -79,23 +85,25 @@ namespace Growthstories.Tests
 
 
         [TestMethod]
-        public void Plant_Name_Photo()
+        public void Timeline_Actions()
         {
+            User gardener = new User();
+            Garden garden = new Garden(gardener);
+
             Plant plant = this.kernel.Get<Plant>();
             plant.Name = "Sepi";
+            plant.Genus = "Aloe Vera";
 
-            plant.ProfilePicture = new ProfilePicture();
+            garden.Plants.Add(plant);
+            int notified = 0;
+            plant.Actions.CollectionChanged += (o, e) => notified++;
+            plant.Actions.Add(new WateringAction(plant));
+            plant.Actions.Add(new PhotoAction(plant));
+            plant.Actions.Add(new FertilizerAction(plant));
 
-            plant.Schedule = new SimpleSchedule();
+            Assert.AreEqual(plant.Actions.Count, 3);
+            Assert.AreEqual(plant.Actions.Count, notified);
 
-        }
-
-        [TestMethod]
-        public void ViewModel_from_Locator()
-        {
-
-            ViewModelLocator loc = new ViewModelLocator(kernel);
-            Assert.IsNotNull(loc.Gallery);
 
         }
 

@@ -21,6 +21,10 @@ namespace Growthstories.WP8
     using Growthstories.WP8.Resources;
     using Growthstories.PCL.ViewModel;
     using Growthstories.WP8.View;
+    using Windows.Storage;
+    using SQLite;
+    using System.IO;
+    using Growthstories.PCL.Models;
 
     /// <summary>
     /// The app.
@@ -50,6 +54,9 @@ namespace Growthstories.WP8
             // Language display initialization
             InitializeLanguage();
 
+            // Set the Data-Context and provide RootFrame
+            //RootFrame.DataContext
+
             // Show graphics profiling information while debugging.
             if (Debugger.IsAttached)
             {
@@ -70,7 +77,7 @@ namespace Growthstories.WP8
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
         }
-        
+
         /// <summary>
         /// Gets the root frame.
         /// </summary>
@@ -105,17 +112,40 @@ namespace Growthstories.WP8
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
         }
-   
+
+        public static SQLiteAsyncConnection Connection { get; set; }
+
         /// <summary>
         /// Handles the Launching event of the Application control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="LaunchingEventArgs" /> instance containing the event data.</param>
-        private void Application_Launching(object sender, LaunchingEventArgs e)
+        private async void Application_Launching(object sender, LaunchingEventArgs e)
         {
+
+            try
+            {
+                await ApplicationData.Current.LocalFolder.GetFileAsync("gsDB.db");
+                Connection = new SQLiteAsyncConnection("gsDB.db");
+            }
+            catch (FileNotFoundException)
+            {
+                CreateDB();
+            }
+
             // Got this awesome snippit from http://www.trynull.com/?p=607
 
             RootFrame.Navigate(new Uri("/View/GardenPage.xaml", UriKind.Relative));
+        }
+
+        private async void CreateDB()
+        {
+            Connection = new SQLiteAsyncConnection("gsDB.db");
+
+            await Connection.CreateTableAsync<Garden>();
+            await Connection.CreateTableAsync<Plant>();
+            await Connection.CreateTableAsync<WateringAction>();
+
         }
 
         /// <summary>

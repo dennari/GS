@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Growthstories.PCL.Models
 {
@@ -15,31 +17,63 @@ namespace Growthstories.PCL.Models
     public class Plant : INotifyPropertyChanged
     {
         private PlantData _data;
-        
+
         private IPlantDataService _dservice;
-        
+
+        private IPictureService _pservice;
+
         private string _genus;
 
-        public string Name { get; set; }
+        private string _name;
 
-        public IImage ProfilePicture { get; set; }
+        private string _picpath;
+
+        private Stream _pic;
+
+        public ObservableCollection<PlantAction> Actions { get; private set; }
+
 
         public ISchedule Schedule { get; set; }
+
+        public Plant()
+        {
+
+        }
 
         public Plant(IPlantDataService dservice)
         {
             this._dservice = dservice;
-
+            this.Actions = new ObservableCollection<PlantAction>();
         }
 
-        public Plant(string genus, IPlantDataService dservice) : this(dservice)
+        public Plant(string genus, IPlantDataService dservice)
+            : this(dservice)
         {
             this._genus = genus;
         }
 
 
         /// <summary>
-        /// Gets or sets the plant info.
+        /// Gets or sets the plant name.
+        /// </summary>
+        /// <value>
+        /// The label.
+        /// </value>
+        public string Name
+        {
+            get
+            {
+                return this._name;
+            }
+            set
+            {
+                this._name = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the plant genus.
         /// </summary>
         /// <value>
         /// The label.
@@ -53,10 +87,48 @@ namespace Growthstories.PCL.Models
             set
             {
                 this._genus = value;
-                
                 this.OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Gets or sets the plant genus.
+        /// </summary>
+        /// <value>
+        /// The label.
+        /// </value>
+        public string ProfilePicturePath
+        {
+            get
+            {
+                return this._picpath;
+            }
+            set
+            {
+                this._picpath = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the plant genus.
+        /// </summary>
+        /// <value>
+        /// The label.
+        /// </value>
+        public Stream ProfilePicture
+        {
+            get
+            {
+                return this._pic;
+            }
+            set
+            {
+                this._pic = value;
+                this.OnPropertyChanged();
+            }
+        }
+
 
         public async void load()
         {
@@ -74,7 +146,7 @@ namespace Growthstories.PCL.Models
         /// Gets or sets the plant info.
         /// </summary>
         /// <value>
-        /// The label.
+        /// <typeparamref name="" />
         /// </value>
         public PlantData Info
         {

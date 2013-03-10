@@ -11,15 +11,26 @@ namespace Growthstories.PCL.Models
     {
         private Plant _plant;
 
-        private DateTime? _createDate;
+        private DateTimeOffset? _createdAt;
+
+        private DateTimeOffset? _modifiedAt;
 
         private String _note;
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
+        public PlantAction()
+        {
+
+        }
+
         public PlantAction(Plant plant)
         {
             this._plant = plant;
+            this._createdAt = DateTimeOffset.Now;
+            this._modifiedAt = this._createdAt;
+
+
 
         }
 

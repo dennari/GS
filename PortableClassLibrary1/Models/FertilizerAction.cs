@@ -5,14 +5,9 @@ using System.Text;
 
 namespace Growthstories.PCL.Models
 {
-    public class WateringAction : PlantAction
+    public class FertilizerAction : PlantAction
     {
-        public WateringAction()
-        {
-
-        }
-
-        public WateringAction(Plant plant)
+        public FertilizerAction(Plant plant)
             : base(plant)
         {
 

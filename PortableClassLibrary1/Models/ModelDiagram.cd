@@ -3,7 +3,7 @@
   <Class Name="Growthstories.PCL.Models.Garden" BaseTypeListCollapsed="true">
     <Position X="0.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAAQgACAAAAAAAAAIAAAAAAAgAAAAAAAgAAAAAAAAAA=</HashCode>
+      <HashCode>IAAQgACAAAAAAAAAoAAAAAAAgAAAAAAAgAAAAAAAAAA=</HashCode>
       <FileName>Models\Garden.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -18,28 +18,28 @@
     <Position X="3.75" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
-      <Compartment Name="Properties" Collapsed="true" />
-      <Compartment Name="Methods" Collapsed="true" />
-      <Compartment Name="Events" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAEAABIAAAAAAIAAAAAQAgEAAAAACBAAAAEAAQAA=</HashCode>
+      <HashCode>AAAAIEAAJIAAAAAAJAAAAAQAwEAAAAACBAAAIEBAQAA=</HashCode>
       <FileName>Models\Plant.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
-      <Property Name="Info" />
-      <Property Name="ProfilePicture" />
       <Property Name="Schedule" />
+      <Property Name="Info" />
     </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Actions" />
+    </ShowAsCollectionAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Growthstories.PCL.Models.PlantAction">
     <Position X="6.5" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Events" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>BAAQAAAAEAAAAAAAIAAAAAAAgAAAAAAAAAAAAAEAAAA=</HashCode>
+      <HashCode>BAAQAAAAAAAAAAAAIAAAAAAAgABAAAAACAAAAAEAAAA=</HashCode>
       <FileName>Models\PlantAction.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -47,8 +47,12 @@
     </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Growthstories.PCL.Models.User" Collapsed="true">
-    <Position X="0.75" Y="4.5" Width="1.5" />
+  <Class Name="Growthstories.PCL.Models.User">
+    <Position X="0.75" Y="3.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
       <HashCode>AAAAAhAARAAEAIYACAADAAgAgAAAAIAAAYABAAEIAAA=</HashCode>
       <FileName>Models\User.cs</FileName>
@@ -62,19 +66,26 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Growthstories.PCL.Models.PlantData" Collapsed="true">
-    <Position X="3.75" Y="4.25" Width="1.5" />
+    <Position X="3.5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\PlantData.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Interface Name="Growthstories.PCL.Models.IImage" Collapsed="true">
-    <Position X="3.75" Y="5" Width="1.5" />
+  <Class Name="Growthstories.PCL.Models.PhotoAction" Collapsed="true">
+    <Position X="6.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Models\IImage.cs</FileName>
+      <FileName>Models\PhotoAction.cs</FileName>
     </TypeIdentifier>
-  </Interface>
+  </Class>
+  <Class Name="Growthstories.PCL.Models.FertilizerAction" Collapsed="true">
+    <Position X="6.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\FertilizerAction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Interface Name="Growthstories.PCL.Models.ISchedule" Collapsed="true">
     <Position X="3.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>

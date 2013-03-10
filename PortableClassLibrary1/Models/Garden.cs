@@ -19,11 +19,22 @@ namespace Growthstories.PCL.Models
         /// Occurs when [property changed].
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
+        public Garden()
+        {
+
+        }
+
         public Garden(User owner)
         {
             _owner = owner;
             Plants = new ObservableCollection<Plant>();
+            Plants.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Plants_CollectionChanged);
+        }
+
+        void Plants_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //throw new NotImplementedException();
         }
 
         /// <summary>
@@ -52,7 +63,7 @@ namespace Growthstories.PCL.Models
         public void ActOnAll()
         {
         }
-               
+
 
         /// <summary>
         /// Called when [property changed].

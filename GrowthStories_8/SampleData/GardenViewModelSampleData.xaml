@@ -1,0 +1,15 @@
+﻿<vm:GardenViewModel
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:Growthstories.PCL.ViewModel;assembly=Growthstories.PCL"
+    xmlns:m="clr-namespace:Growthstories.PCL.Models;assembly=Growthstories.PCL">
+
+    <vm:GardenViewModel.MyGarden>
+        <m:Garden>
+            <m:Garden.Plants>
+                <m:Plant Name="Sepi" Genus="Aloe Vera"/>
+            </m:Garden.Plants>
+        </m:Garden>
+    </vm:GardenViewModel.MyGarden>
+
+</vm:GardenViewModel>

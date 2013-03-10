@@ -3,7 +3,7 @@ using System.Windows;
 using Microsoft.Phone.Controls;
 using Growthstories.PCL.Helpers;
 
-namespace RssReader.Helpers
+namespace Growthstories.WP8.Helpers
 {
     public class NavigationService : INavigationService
     {

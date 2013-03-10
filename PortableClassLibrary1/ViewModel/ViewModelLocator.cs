@@ -1,45 +1,56 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
+using Growthstories.PCL.Models;
+using Growthstories.PCL.Services;
 using Ninject;
 
 namespace Growthstories.PCL.ViewModel
 {
-    public class ViewModelLocator
+    public abstract class ViewModelLocator
     {
-        private IKernel _kernel;
-        
-        
-        public GalleryViewModel Gallery
+        protected IKernel _kernel;
+
+
+        public GardenViewModel Garden
         {
             get
             {
-                return _kernel.Get<GalleryViewModel>();
+
+                return _kernel.Get<GardenViewModel>();
+            }
+        }
+
+        public PlantViewModel Plant
+        {
+            get
+            {
+
+                return _kernel.Get<PlantViewModel>();
+            }
+        }
+
+        public AddPlantViewModel AddPlant
+        {
+            get
+            {
+
+                return _kernel.Get<AddPlantViewModel>();
             }
         }
 
 
         public ViewModelLocator(IKernel kernel)
         {
-           
+
             _kernel = kernel;
             bind();
+
+
             //SimpleIoc.Default.Register<INavigationService, NavigationService>();
             //SimpleIoc.Default.Register<MainViewModel>();
         }
 
-        private void bind()
-        {
-            _kernel.Bind<GalleryViewModel>().ToSelf().InSingletonScope();
-
-            if (ViewModelBase.IsInDesignModeStatic)
-            {
-                // SimpleIoc.Default.Register<IRssService, DesignRssService>();
-            }
-            else
-            {
-                //SimpleIoc.Default.Register<IRssService, RssService>();
-            }
-        }
+        protected abstract void bind();
 
     }
 }
