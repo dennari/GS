@@ -19,6 +19,14 @@ namespace Growthstories.PCL.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public String MyType
+        {
+            get
+            {
+                return this.GetType().ToString();
+            }
+        }
+
         public PlantAction()
         {
 
@@ -29,9 +37,32 @@ namespace Growthstories.PCL.Models
             this._plant = plant;
             this._createdAt = DateTimeOffset.Now;
             this._modifiedAt = this._createdAt;
+        }
 
+        public DateTimeOffset? CreatedAt
+        {
+            get
+            {
+                return _createdAt;
+            }
+            set
+            {
+                _createdAt = value;
+                OnPropertyChanged();
+            }
+        }
 
-
+        public DateTimeOffset? ModifiedAt
+        {
+            get
+            {
+                return _modifiedAt;
+            }
+            set
+            {
+                _modifiedAt = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>

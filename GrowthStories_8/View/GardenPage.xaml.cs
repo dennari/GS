@@ -34,12 +34,13 @@ namespace Growthstories.WP8.View
             NavigationService.Navigate(new Uri("/View/AddPlant.xaml", UriKind.Relative));
         }
 
-        //override protected void OnNavigatedTo(NavigationEventArgs e)
-        //{
-        //    var vm = this.DataContext as GardenViewModel;
-        //    this.DataContext = null;
-        //    this.DataContext = vm;
-        //}
+
+        override protected void OnNavigatedTo(NavigationEventArgs e)
+        {
+            var vm = this.DataContext as GardenViewModel;
+            this.DataContext = null;
+            this.DataContext = vm;
+        }
 
 
 

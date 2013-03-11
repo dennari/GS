@@ -48,14 +48,12 @@
     <Compile Include="Helpers\INavigationService.cs" />
     <Compile Include="Models\FertilizerAction.cs" />
     <Compile Include="Models\Garden.cs" />
-    <Compile Include="Models\IImage.cs" />
     <Compile Include="Models\ISchedule.cs" />
     <Compile Include="Models\Photo.cs" />
     <Compile Include="Models\PhotoAction.cs" />
     <Compile Include="Models\Plant.cs" />
     <Compile Include="Models\PlantAction.cs" />
     <Compile Include="Models\PlantData.cs" />
-    <Compile Include="Models\ProfilePicture.cs" />
     <Compile Include="Models\Schedule.cs" />
     <Compile Include="Models\SimpleSchedule.cs" />
     <Compile Include="Models\User.cs" />
@@ -64,11 +62,14 @@
     <Compile Include="Services\FakePlantDataService.cs" />
     <Compile Include="Services\IPictureService.cs" />
     <Compile Include="Services\IPlantDataService.cs" />
+    <Compile Include="ViewModel\ActionViewModel.cs" />
     <Compile Include="ViewModel\AddPlantViewModel.cs" />
     <Compile Include="ViewModel\GardenViewModel.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewModel\PlantViewModel.cs" />
+    <Compile Include="ViewModel\PlantViewModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>

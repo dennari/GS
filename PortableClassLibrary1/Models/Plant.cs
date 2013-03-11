@@ -1,4 +1,5 @@
 ﻿using Growthstories.PCL.Services;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -40,6 +41,7 @@ namespace Growthstories.PCL.Models
 
         }
 
+        [Inject]
         public Plant(IPlantDataService dservice)
         {
             this._dservice = dservice;

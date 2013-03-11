@@ -10,9 +10,9 @@ using Microsoft.Phone.Shell;
 
 namespace Growthstories.WP8.View
 {
-    public partial class Page1 : PhoneApplicationPage
+    public partial class ActionPage : PhoneApplicationPage
     {
-        public Page1()
+        public ActionPage()
         {
             InitializeComponent();
         }

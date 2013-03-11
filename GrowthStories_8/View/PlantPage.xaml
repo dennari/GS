@@ -8,17 +8,16 @@
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:ViewModel="clr-namespace:Growthstories.PCL.ViewModel;assembly=Growthstories.PCL"
-    x:Class="Growthstories.WP8.View.GardenPage"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP8"
+    x:Class="Growthstories.WP8.View.PlantPage"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="False"
-    DataContext="{Binding Garden, Source={StaticResource Locator}}">
-
+    DataContext="{Binding Plant, Source={StaticResource Locator}}">
 
 
     <toolkit:TransitionService.NavigationInTransition>
@@ -42,59 +41,47 @@
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
 
+    
+    
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar>
             <shell:ApplicationBarIconButton 
                 IconUri="/Assets/AppBar/add.png" 
                 Text="add" 
                 x:Name="newPlantAppBarButton" 
-                Click="newPlantAppBarButton_Click"/>
+                />
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <controls:Panorama Title="GROWTHSTORIES">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="my garden">
-                <controls:PanoramaItem.RenderTransform>
-                    <TranslateTransform/>
-                </controls:PanoramaItem.RenderTransform>
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock Text="MY APPLICATION" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock Text="page name" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+        </StackPanel>
 
-
-                <ListBox ItemsSource="{Binding MyGarden.Plants}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="202" Height="202">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Tap">
-                                        <command:EventToCommand Command="{Binding Garden.NavigateToPlant, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                <Image x:Name="ProfilePicture" Source="{Binding Path='', Converter={StaticResource ImagePathConverter}}" Width="100" Height="100"/>
-
-                                <TextBlock HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Bottom" Foreground="{StaticResource PhoneForegroundBrush}" Style="{StaticResource PhoneTextNormalStyle}"/>
-                                <TextBlock HorizontalAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding Genus}" VerticalAlignment="Top" Foreground="{StaticResource PhoneSubtleBrush}" Style="{StaticResource PhoneTextSmallStyle}" FontSize="16"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-
-            </controls:PanoramaItem>
-
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="Notifications">
-                <controls:PanoramaItem.RenderTransform>
-                    <TranslateTransform/>
-                </controls:PanoramaItem.RenderTransform>
-                <Grid/>
-            </controls:PanoramaItem>
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="Gardens">
-                <controls:PanoramaItem.RenderTransform>
-                    <TranslateTransform/>
-                </controls:PanoramaItem.RenderTransform>
-                <Grid/>
-            </controls:PanoramaItem>
-        </controls:Panorama>
-        <!--Pivot Control-->
+        <!--ContentPanel - place additional content here-->
+        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+            <ListBox ItemsSource="{Binding CurrentPlant.Actions}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Width="202" Height="202">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Tap">
+                                    <command:EventToCommand Command="{Binding Plant.NavigateToAction, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <TextBlock HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" Text="{Binding MyType}" VerticalAlignment="Bottom" Foreground="{StaticResource PhoneForegroundBrush}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
     </Grid>
 
 </phone:PhoneApplicationPage>

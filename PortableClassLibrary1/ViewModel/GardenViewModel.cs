@@ -23,7 +23,30 @@ namespace Growthstories.PCL.ViewModel
 
         private RelayCommand<Plant> _navigateToPlant;
 
-        private const string PlantPageUrl = "/PlantPage.xaml?item={0}";
+        /// <summary>
+        /// The <see cref="SelectedPlant" /> property's name.
+        /// </summary>
+        public const string PlantPropertyName = "SelectedPlant";
+
+        private Plant _selectedPlant;
+
+        /// <summary>
+        /// Sets and gets the Plant property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public Plant SelectedPlant
+        {
+            get
+            {
+                return _selectedPlant;
+            }
+            set
+            {
+                Set(PlantPropertyName, ref _selectedPlant, value);
+            }
+        }
+
+        private const string PlantPageUrl = "PlantPage";
 
 
         public GardenViewModel([Named("My")] Garden myGarden, INavigationService nav)
@@ -39,17 +62,17 @@ namespace Growthstories.PCL.ViewModel
         {
             get
             {
-                return _navigateToPlant
-                    ?? (_navigateToPlant = new RelayCommand<Plant>(
-                        (plant) =>
-                        {
-#if NETFX_CORE
-                            _navigationService.NavigateTo(typeof (DetailsPage), article);
-#else
-                           
-                            _nav.NavigateTo(new Uri(string.Format(PlantPageUrl, url), UriKind.Relative));
-#endif
-                        }));
+                if (_navigateToPlant == null)
+                {
+                    _navigateToPlant = new RelayCommand<Plant>((plant) =>
+                    {
+
+                        SelectedPlant = plant;
+                        _nav.NavigateTo(new Uri(string.Format("/View/{0}.xaml", PlantPageUrl), UriKind.Relative));
+                    });
+                }
+                return _navigateToPlant;
+
             }
         }
 
@@ -71,6 +94,7 @@ namespace Growthstories.PCL.ViewModel
                 this.RaisePropertyChanged(() => this.MyGarden);
             }
         }
+
 
     }
 }

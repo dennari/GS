@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ninject;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -25,6 +26,7 @@ namespace Growthstories.PCL.Models
 
         }
 
+        [Inject]
         public Garden(User owner)
         {
             _owner = owner;

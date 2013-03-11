@@ -22,7 +22,7 @@ namespace Growthstories.WP8
     using Growthstories.PCL.ViewModel;
     using Growthstories.WP8.View;
     using Windows.Storage;
-    using SQLite;
+    //using SQLite;
     using System.IO;
     using Growthstories.PCL.Models;
 
@@ -76,6 +76,8 @@ namespace Growthstories.WP8
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
+            var loc = this.Resources["Locator"] as Growthstories.WP8.ViewModel.ViewModelLocator;
+            loc.LoadTestData().Execute(null);
         }
 
         /// <summary>
@@ -113,7 +115,7 @@ namespace Growthstories.WP8
         {
         }
 
-        public static SQLiteAsyncConnection Connection { get; set; }
+        //public static SQLiteAsyncConnection Connection { get; set; }
 
         /// <summary>
         /// Handles the Launching event of the Application control.
@@ -123,30 +125,30 @@ namespace Growthstories.WP8
         private async void Application_Launching(object sender, LaunchingEventArgs e)
         {
 
-            try
-            {
-                await ApplicationData.Current.LocalFolder.GetFileAsync("gsDB.db");
-                Connection = new SQLiteAsyncConnection("gsDB.db");
-            }
-            catch (FileNotFoundException)
-            {
-                CreateDB();
-            }
+            //try
+            //{
+            //    await ApplicationData.Current.LocalFolder.GetFileAsync("gsDB.db");
+            //    Connection = new SQLiteAsyncConnection("gsDB.db");
+            //}
+            //catch (FileNotFoundException)
+            //{
+            //    CreateDB();
+            //}
 
             // Got this awesome snippit from http://www.trynull.com/?p=607
 
             RootFrame.Navigate(new Uri("/View/GardenPage.xaml", UriKind.Relative));
         }
 
-        private async void CreateDB()
-        {
-            Connection = new SQLiteAsyncConnection("gsDB.db");
+        //private async void CreateDB()
+        //{
+        //    Connection = new SQLiteAsyncConnection("gsDB.db");
 
-            await Connection.CreateTableAsync<Garden>();
-            await Connection.CreateTableAsync<Plant>();
-            await Connection.CreateTableAsync<WateringAction>();
+        //    await Connection.CreateTableAsync<Garden>();
+        //    await Connection.CreateTableAsync<Plant>();
+        //    await Connection.CreateTableAsync<WateringAction>();
 
-        }
+        //}
 
         /// <summary>
         /// Handles the UnhandledException event of the Application control.

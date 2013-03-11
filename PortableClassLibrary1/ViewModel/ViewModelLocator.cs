@@ -29,6 +29,16 @@ namespace Growthstories.PCL.ViewModel
             }
         }
 
+        public ActionViewModel PlantAction
+        {
+            get
+            {
+
+                return _kernel.Get<ActionViewModel>();
+            }
+        }
+
+
         public AddPlantViewModel AddPlant
         {
             get
