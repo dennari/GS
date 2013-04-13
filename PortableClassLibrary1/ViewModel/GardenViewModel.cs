@@ -46,8 +46,15 @@ namespace Growthstories.PCL.ViewModel
             }
         }
 
-        private const string PlantPageUrl = "PlantPage";
+        public const string PlantPageName = "PlantPage";
 
+        public static Uri PlantPageUri = new Uri(string.Format("/View/{0}.xaml", PlantPageName), UriKind.Relative);
+
+
+        public GardenViewModel()
+        {
+
+        }
 
         public GardenViewModel([Named("My")] Garden myGarden, INavigationService nav)
         {
@@ -68,7 +75,7 @@ namespace Growthstories.PCL.ViewModel
                     {
 
                         SelectedPlant = plant;
-                        _nav.NavigateTo(new Uri(string.Format("/View/{0}.xaml", PlantPageUrl), UriKind.Relative));
+                        _nav.NavigateTo(PlantPageUri);
                     });
                 }
                 return _navigateToPlant;

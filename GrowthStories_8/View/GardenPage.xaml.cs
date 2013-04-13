@@ -8,8 +8,6 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.PCL.ViewModel;
-using Growthstories.PCL.Models;
-using Growthstories.PCL.Services;
 
 namespace Growthstories.WP8.View
 {
@@ -19,13 +17,7 @@ namespace Growthstories.WP8.View
         {
 
             InitializeComponent();
-            var vm = this.DataContext as GardenViewModel;
-            vm.MyGarden.Plants.Add(new Plant(new FakePlantDataService())
-            {
-                Genus = "Phytoliforus",
-                Name = "Kipa",
-                ProfilePicturePath = "/Assets/ApplicationIcon.png"
-            });
+
         }
 
 

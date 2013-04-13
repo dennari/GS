@@ -1,8 +1,9 @@
 ﻿using GalaSoft.MvvmLight;
 using Growthstories.PCL.Helpers;
 using Growthstories.PCL.Models;
-using Ninject;
-using System;
+using Growthstories.PCL.Services;
+
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -16,41 +17,58 @@ namespace Growthstories.PCL.ViewModel
         /// <summary>
         /// A collection for ItemViewModel objects.
         /// </summary>
-        private Garden _myGarden;
-        private Plant _newPlant;
-        private INavigationService _nav;
-
-        public AddPlantViewModel([Named("My")] Garden myGarden, Plant newPlant, INavigationService nav)
-        {
-            this._myGarden = myGarden;
-            this._newPlant = newPlant;
-            this._nav = nav;
-        }
+        private Stream _photo;
 
 
 
+        public INavigationService Nav { get; private set; }
 
-        public Plant NewPlant
+        public IDataService Data { get; private set; }
+
+        public Stream ProfilePhoto
         {
             get
             {
-                return this._newPlant;
+                return _photo;
             }
-            private set
+            set
             {
+                _photo = value;
+                RaisePropertyChanged("ProfilePhoto");
             }
+
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="newPlant"></param>
-        public void save()
+        public AddPlantViewModel(IDataService data, INavigationService nav)
         {
-            this._myGarden.Plants.Add(this._newPlant);
+            Data = data;
+            Nav = nav;
         }
 
+        public void save(string name, string genus)
+        {
+            if (!validName(name) || !validGenus(genus))
+            {
+                /// <todo>
+                /// 
+                /// </todo>
+                return;
+            }
+            Plant p = Data.getNewPlant();
+            p.Name = name;
+            p.Genus = genus;
+            Data.AddCommand(new NewPlantCommand());
 
+        }
+
+        private bool validGenus(string genus)
+        {
+            return genus.Length > 0;
+        }
+
+        private bool validName(string name)
+        {
+            return validGenus(name);
+        }
     }
 }

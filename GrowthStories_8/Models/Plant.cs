@@ -1,51 +1,55 @@
-﻿using Growthstories.PCL.Services;
+﻿using Growthstories.PCL.Models;
+using Growthstories.PCL.Services;
 using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+//using System.Collections.Generic;
+//using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Growthstories.PCL.Models
+namespace Growthstories.WP8.Models
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class Plant : INotifyPropertyChanged
+
+    [Table]
+    public class Plant : ModelBase
     {
+
+        private string _genus;
+
+        private string _name;
+
         private PlantData _data;
 
         private IPlantDataService _dservice;
 
         private IPictureService _pservice;
 
-        private string _genus;
-
-        private string _name;
-
         private string _picpath;
 
         private Stream _pic;
 
-        public ObservableCollection<PlantAction> Actions { get; private set; }
+        private ObservableCollection<PlantAction> _actions;
 
+        // Internal column for the associated Garden ID value
+        [Column]
+        internal int _gardenId;
 
-        public ISchedule Schedule { get; set; }
-
-        public Plant()
-        {
-
-        }
+        // Entity reference, to identify the ToDoCategory "storage" table
+        private EntityRef<Garden> _garden;
 
         [Inject]
         public Plant(IPlantDataService dservice)
         {
             this._dservice = dservice;
-            this.Actions = new ObservableCollection<PlantAction>();
+            this._actions = new ObservableCollection<PlantAction>();
         }
 
         public Plant(string genus, IPlantDataService dservice)
@@ -55,12 +59,33 @@ namespace Growthstories.PCL.Models
         }
 
 
+
+
+
+
+        // Association, to describe the relationship between this key and that "storage" table
+        [Association(Storage = "_garden", ThisKey = "_gardenId", OtherKey = "Id", IsForeignKey = true)]
+        public Garden Garden
+        {
+            get
+            {
+                return _garden.Entity;
+            }
+            set
+            {
+                OnPropertyChanging();
+                _garden.Entity = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Gets or sets the plant name.
         /// </summary>
         /// <value>
         /// The label.
         /// </value>
+        [Column]
         public string Name
         {
             get
@@ -69,6 +94,7 @@ namespace Growthstories.PCL.Models
             }
             set
             {
+                OnPropertyChanging();
                 this._name = value;
                 this.OnPropertyChanged();
             }
@@ -80,6 +106,7 @@ namespace Growthstories.PCL.Models
         /// <value>
         /// The label.
         /// </value>
+        [Column]
         public string Genus
         {
             get
@@ -88,10 +115,26 @@ namespace Growthstories.PCL.Models
             }
             set
             {
+                OnPropertyChanging();
                 this._genus = value;
                 this.OnPropertyChanged();
             }
         }
+
+
+
+
+        public ObservableCollection<PlantAction> Actions
+        {
+            get
+            {
+                return this._actions;
+            }
+            private set { }
+        }
+
+
+        public ISchedule Schedule { get; set; }
 
         /// <summary>
         /// Gets or sets the plant genus.
@@ -139,8 +182,8 @@ namespace Growthstories.PCL.Models
             {
                 throw new MissingMemberException("Cannot load plant data until genus is set");
             }
-            IList<PlantData> d = await this._dservice.LoadPlantDataAsync(this._genus);
-            this._data = d[0];
+            //IList<PlantData> d = await this._dservice.LoadPlantDataAsync(this._genus);
+            //this._data = d[0];
 
         }
 
@@ -161,27 +204,6 @@ namespace Growthstories.PCL.Models
                 this._data = value;
                 this.OnPropertyChanged();
             }
-        }
-
-
-        /// <summary>
-        /// Occurs when [property changed].
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Called when [property changed].
-        /// </summary>
-        /// <param name="propertyName">Name of the property.</param>
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChangedEventHandler handler = this.PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-
         }
 
 

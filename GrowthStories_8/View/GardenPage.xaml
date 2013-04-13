@@ -18,6 +18,17 @@
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="False"
     DataContext="{Binding Garden, Source={StaticResource Locator}}">
+    <phone:PhoneApplicationPage.Resources>
+        <Style x:Key="ListBoxItemStyle1" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Grid/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </phone:PhoneApplicationPage.Resources>
 
 
 
@@ -53,41 +64,80 @@
     </phone:PhoneApplicationPage.ApplicationBar>
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <controls:Panorama Title="GROWTHSTORIES">
+        <controls:Panorama>
+            <controls:Panorama.Background>
+                <ImageBrush ImageSource="/Growthstories.WP8;component/Assets/ui/garden_all.png" Stretch="UniformToFill"/>
+            </controls:Panorama.Background>
+            <!--
+            <controls:Panorama.TitleTemplate>
+                <DataTemplate>
+                    <Image Source="/Growthstories.WP8;component/Assets/ui/panorama_logo.png" Stretch="UniformToFill" Width="400"/>	
+                </DataTemplate>
+            </controls:Panorama.TitleTemplate>
+            -->
+            <controls:Panorama.Title>
+                    <Image Source="/Growthstories.WP8;component/Assets/ui/panorama_logo.png" Stretch="UniformToFill" Width="800" Margin="0,80,0,0"/>	
+            </controls:Panorama.Title>
 
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="my garden">
+            <controls:PanoramaItem CacheMode="{x:Null}" Header="my garden" Orientation="Horizontal">
                 <controls:PanoramaItem.RenderTransform>
                     <TranslateTransform/>
                 </controls:PanoramaItem.RenderTransform>
 
 
-                <ListBox ItemsSource="{Binding MyGarden.Plants}">
+                <ListBox ItemsSource="{Binding MyGarden.Plants}" Margin="12,0,0,0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid Width="202" Height="202">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Tap">
+
+                                <Border BorderBrush="#B2FFFFFF" BorderThickness="0" Margin="0,0,6,6" Width="173" Height="173">
+                                                                    <i:Interaction.Triggers>
+                                 <i:EventTrigger EventName="Tap">
                                         <command:EventToCommand Command="{Binding Garden.NavigateToPlant, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                                <Image x:Name="ProfilePicture" Source="{Binding Path='', Converter={StaticResource ImagePathConverter}}" Width="100" Height="100"/>
-
-                                <TextBlock HorizontalAlignment="Center" Margin="0,0,0,12" TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Bottom" Foreground="{StaticResource PhoneForegroundBrush}" Style="{StaticResource PhoneTextNormalStyle}"/>
-                                <TextBlock HorizontalAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding Genus}" VerticalAlignment="Top" Foreground="{StaticResource PhoneSubtleBrush}" Style="{StaticResource PhoneTextSmallStyle}" FontSize="16"/>
-                            </Grid>
+                                <!--<Image 
+                                    x:Name="ProfilePicture" 
+                                    Source="{Binding Path='', Converter={StaticResource ImagePathConverter}}"
+                                    Width="173" Height="173" 
+                                    Stretch="UniformToFill"/>-->
+                                <toolkit:HubTile
+                                    Source="{Binding Path='', Converter={StaticResource ImagePathConverter}}"
+                                    Title="{Binding Name}" 
+                                    Notification="{Binding Genus}"
+                                    Message="dfsds"
+                                    DisplayNotification="True"
+                                    />
+                            </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <toolkit:WrapPanel Orientation="Horizontal"
+                           Width="555"
+                           HorizontalAlignment="Left"
+                           />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
                 </ListBox>
 
             </controls:PanoramaItem>
 
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="Notifications">
+            <controls:PanoramaItem CacheMode="{x:Null}" Header="notifications">
                 <controls:PanoramaItem.RenderTransform>
                     <TranslateTransform/>
                 </controls:PanoramaItem.RenderTransform>
-                <Grid/>
+                <phone:LongListSelector Margin="0,0,-22,0" ItemsSource="{Binding MyGarden.Notifications}">
+                    <phone:LongListSelector.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="12,0,0,12">
+                                <Image Width="40" Source="{Binding Icon}" Stretch="Uniform"/>
+                                <TextBlock Text="{Binding Msg}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </phone:LongListSelector.ItemTemplate>
+                </phone:LongListSelector>
             </controls:PanoramaItem>
-            <controls:PanoramaItem CacheMode="{x:Null}" Header="Gardens">
+            <controls:PanoramaItem CacheMode="{x:Null}" Header="friends">
                 <controls:PanoramaItem.RenderTransform>
                     <TranslateTransform/>
                 </controls:PanoramaItem.RenderTransform>

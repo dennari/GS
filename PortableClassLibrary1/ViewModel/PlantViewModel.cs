@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.Command;
 using Growthstories.PCL.Helpers;
 using Growthstories.PCL.Models;
+using Ninject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,13 @@ namespace Growthstories.PCL.ViewModel
         private RelayCommand<PlantAction> _navigateToSelectedAction;
         private const string SelectedActionPageUrl = "ActionPage";
 
+        public PlantViewModel()
+            : base()
+        {
+
+        }
+
+        [Inject]
         public PlantViewModel(INavigationService nav)
         {
             this._nav = nav;
@@ -47,7 +55,10 @@ namespace Growthstories.PCL.ViewModel
             }
             set
             {
-                Set("CurrentPlant", ref _plant, value);
+                if (value != null)
+                {
+                    Set("CurrentPlant", ref _plant, value);
+                }
             }
         }
 

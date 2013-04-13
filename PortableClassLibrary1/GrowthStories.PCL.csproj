@@ -46,19 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\INavigationService.cs" />
-    <Compile Include="Models\FertilizerAction.cs" />
-    <Compile Include="Models\Garden.cs" />
+    <Compile Include="Helpers\FakeNavigationService.cs" />
     <Compile Include="Models\ISchedule.cs" />
-    <Compile Include="Models\Photo.cs" />
-    <Compile Include="Models\PhotoAction.cs" />
-    <Compile Include="Models\Plant.cs" />
-    <Compile Include="Models\PlantAction.cs" />
-    <Compile Include="Models\PlantData.cs" />
-    <Compile Include="Models\Schedule.cs" />
-    <Compile Include="Models\SimpleSchedule.cs" />
-    <Compile Include="Models\User.cs" />
-    <Compile Include="Models\WateringAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IDataService.cs" />
     <Compile Include="Services\FakePlantDataService.cs" />
     <Compile Include="Services\IPictureService.cs" />
     <Compile Include="Services\IPlantDataService.cs" />
@@ -74,10 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight">
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.1\lib\portable-net45+sl4+wp71+win8\GalaSoft.MvvmLight.dll</HintPath>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\portable-net45+sl4+wp71+win8\GalaSoft.MvvmLight.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Extras">
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.1\lib\portable-net45+sl4+wp71+win8\GalaSoft.MvvmLight.Extras.dll</HintPath>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\portable-net45+sl4+wp71+win8\GalaSoft.MvvmLight.Extras.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>

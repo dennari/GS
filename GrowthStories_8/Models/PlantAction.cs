@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Growthstories.PCL.Models
+namespace Growthstories.WP8.Models
 {
     public abstract class PlantAction : INotifyPropertyChanged
     {
@@ -28,15 +28,17 @@ namespace Growthstories.PCL.Models
         }
 
         public PlantAction()
+            : base()
         {
-
+            this._createdAt = DateTimeOffset.Now;
+            this._modifiedAt = this._createdAt;
         }
 
         public PlantAction(Plant plant)
+            : this()
         {
             this._plant = plant;
-            this._createdAt = DateTimeOffset.Now;
-            this._modifiedAt = this._createdAt;
+
         }
 
         public DateTimeOffset? CreatedAt
@@ -77,8 +79,10 @@ namespace Growthstories.PCL.Models
             {
                 return this._plant;
             }
-            private set
+            set
             {
+                _plant = value;
+                OnPropertyChanged();
 
             }
         }

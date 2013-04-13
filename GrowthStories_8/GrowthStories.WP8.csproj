@@ -127,15 +127,36 @@
     <Compile Include="Converters\BooleanNegationConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ImagePathConverter.cs" />
+    <Compile Include="Helpers\ActionTemplateSelector.cs" />
+    <Compile Include="Helpers\DataTemplateSelector.cs" />
     <Compile Include="Helpers\NavigationService.cs" />
     <Compile Include="LocalizedStrings.cs" />
+    <Compile Include="Models\Commands\CommandFactory.cs" />
+    <Compile Include="Models\Commands\IHandler.cs" />
+    <Compile Include="Models\Commands\NewPlantCommand.cs" />
+    <Compile Include="Models\FertilizerAction.cs" />
+    <Compile Include="Models\Garden.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\ModelBase.cs" />
+    <Compile Include="Models\Photo.cs" />
+    <Compile Include="Models\PhotoAction.cs" />
+    <Compile Include="Models\Plant.cs" />
+    <Compile Include="Models\PlantAction.cs" />
+    <Compile Include="Models\PlantData.cs" />
+    <Compile Include="Models\Schedule.cs" />
+    <Compile Include="Models\SimpleSchedule.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\WateringAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\FakeDataService.cs" />
     <Compile Include="Services\FakePictureService.cs" />
+    <Compile Include="Services\FakeWP8DataService.cs" />
     <Compile Include="Services\PictureService.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\ActionPage.xaml.cs">
@@ -156,10 +177,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <CodeAnalysisDictionary Include="SampleData\GardenViewModelSampleData.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </CodeAnalysisDictionary>
     <Page Include="Styles\Templates.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -210,6 +227,39 @@
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Assets\ui\panorama_logo.png" />
+    <Content Include="Assets\Garden-copy_07.png" />
+    <Content Include="Assets\Garden-copy_11.png" />
+    <Content Include="Assets\growthstories_visual_designs_03.png" />
+    <Content Include="Assets\gs_ikoneita.png" />
+    <Content Include="Assets\gs_ikoneita_03.png" />
+    <Content Include="Assets\gs_ikoneita_05.png" />
+    <Content Include="Assets\gs_ikoneita_07.png" />
+    <Content Include="Assets\gs_ikoneita_11.png" />
+    <Content Include="Assets\gs_ikoneita_14.png" />
+    <Content Include="Assets\gs_ikoneita_17.png" />
+    <Content Include="Assets\gs_ikoneita_20.png" />
+    <Content Include="Assets\gs_ikoneita_22.png" />
+    <Content Include="Assets\gs_ikoneita_25.png" />
+    <Content Include="Assets\gs_ikoneita_28.png" />
+    <Content Include="Assets\gs_ikoneita_31.png" />
+    <Content Include="Assets\gs_ikoneita_34.png" />
+    <Content Include="Assets\gs_ikoneita_37.png" />
+    <Content Include="Assets\Photos\3547545731_efd5a20872_o.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Photos\4256637373_e828423506_o.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Photos\7530054972_6e987e8540_o.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Photos\7568630428_b68d55a317_o.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Photos\7813862886_abaa022b57_o.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\rose.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -228,7 +278,14 @@
     <Content Include="Assets\Tiles\IconicTileSmall.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Assets\ui\garden_all.png" />
+    <Resource Include="Assets\ui\garden_wvga.png" />
+    <Resource Include="Assets\ui\timeline_all.png" />
+    <Resource Include="Assets\ui\timeline_wvga.png" />
+    <Content Include="IconImage_03.png" />
     <Content Include="README_FIRST.txt" />
+    <Content Include="SmallIconImage_03.png" />
+    <Content Include="SplashScreenImage.jpg" />
     <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
   </ItemGroup>
@@ -239,25 +296,26 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GalaSoft.MvvmLight">
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.1\lib\wp8\GalaSoft.MvvmLight.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight, Version=4.1.27.18601, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras">
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.1\lib\wp8\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight.Extras, Version=4.1.27.18602, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.Extras.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras.WP8">
+    <Reference Include="GalaSoft.MvvmLight.Extras.WP8, Version=4.1.27.22645, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MvvmLightLibs.4.1.27.0\lib\WindowsPhone8\GalaSoft.MvvmLight.Extras.WP8.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Platform.WP8">
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.1\lib\wp8\GalaSoft.MvvmLight.Platform.WP8.dll</HintPath>
+    <Reference Include="GalaSoft.MvvmLight.Platform.WP8, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.Platform.WP8.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Controls, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Phone.Controls.Toolkit">
-      <HintPath>..\packages\WPtoolkit.4.2012.10.30\lib\wp8\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -282,15 +340,14 @@
     <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\WPToolkit\Microsoft.Phone.Controls.Toolkit.WP8\Microsoft.Phone.Controls.Toolkit.WP8.csproj">
+      <Project>{486642F0-AB94-4F28-B49C-106CA3134239}</Project>
+      <Name>Microsoft.Phone.Controls.Toolkit.WP8</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PortableClassLibrary1\GrowthStories.PCL.csproj">
       <Project>{6B438313-5A18-456D-B514-0A34D9005D64}</Project>
       <Name>GrowthStories.PCL</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <DesignData Include="SampleData\PlantActionSamples.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-    </DesignData>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

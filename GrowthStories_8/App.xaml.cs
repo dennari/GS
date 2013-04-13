@@ -24,7 +24,7 @@ namespace Growthstories.WP8
     using Windows.Storage;
     //using SQLite;
     using System.IO;
-    using Growthstories.PCL.Models;
+    using Growthstories.WP8.Models;
 
     /// <summary>
     /// The app.
@@ -76,8 +76,7 @@ namespace Growthstories.WP8
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
-            var loc = this.Resources["Locator"] as Growthstories.WP8.ViewModel.ViewModelLocator;
-            loc.LoadTestData().Execute(null);
+
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 using System.Text;
 using System.IO;
 
-namespace Growthstories.PCL.Models
+namespace Growthstories.WP8.Models
 {
     /// <summary>
     /// <para>The User data type contains information about a user.</para> <para> This data type is used as a response element in the following
@@ -30,9 +30,9 @@ namespace Growthstories.PCL.Models
     /// 
     /// </ul>
     /// </summary>
-    public class User  
+    public class User
     {
-        
+
         private string path;
         private string userName;
         private string userId;
@@ -74,12 +74,12 @@ namespace Growthstories.PCL.Models
             this.path = path;
             return this;
         }
-            
+
 
         // Check to see if Path property is set
         internal bool IsSetPath()
         {
-            return this.path != null;       
+            return this.path != null;
         }
 
         /// <summary>
@@ -115,12 +115,12 @@ namespace Growthstories.PCL.Models
             this.userName = userName;
             return this;
         }
-            
+
 
         // Check to see if UserName property is set
         internal bool IsSetUserName()
         {
-            return this.userName != null;       
+            return this.userName != null;
         }
 
         /// <summary>
@@ -158,12 +158,12 @@ namespace Growthstories.PCL.Models
             this.userId = userId;
             return this;
         }
-            
+
 
         // Check to see if UserId property is set
         internal bool IsSetUserId()
         {
-            return this.userId != null;       
+            return this.userId != null;
         }
 
         /// <summary>
@@ -197,12 +197,12 @@ namespace Growthstories.PCL.Models
             this.arn = arn;
             return this;
         }
-            
+
 
         // Check to see if Arn property is set
         internal bool IsSetArn()
         {
-            return this.arn != null;       
+            return this.arn != null;
         }
 
         /// <summary>
@@ -225,12 +225,12 @@ namespace Growthstories.PCL.Models
             this.createDate = createDate;
             return this;
         }
-            
+
 
         // Check to see if CreateDate property is set
         internal bool IsSetCreateDate()
         {
-            return this.createDate.HasValue;       
+            return this.createDate.HasValue;
         }
     }
 }

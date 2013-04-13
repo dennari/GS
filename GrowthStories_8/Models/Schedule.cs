@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Growthstories.PCL.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Growthstories.PCL.Models
+namespace Growthstories.WP8.Models
 {
     public abstract class Schedule : ISchedule
     {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using System.Windows.Media.Imaging;
 using System.Windows.Data;
-using Growthstories.PCL.Models;
+using Growthstories.WP8.Models;
 
 namespace Growthstories.WP8.Converters
 {
@@ -40,8 +40,8 @@ namespace Growthstories.WP8.Converters
             Plant p = value as Plant;
             //Uri uri = new Uri(path, path.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
             BitmapImage img = new BitmapImage();
-            img.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-            img.CreateOptions = BitmapCreateOptions.BackgroundCreation;
+            //img.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            //img.CreateOptions = BitmapCreateOptions.BackgroundCreation;
             if (p.ProfilePicture == null)
             {
 
@@ -64,8 +64,33 @@ namespace Growthstories.WP8.Converters
 
         void img_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
         {
-            if (true) { }
+            throw e.ErrorException;
         }
+
+    }
+
+    public class StreamToBmp : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+
+            if (value == null)
+            {
+                return null;
+            }
+            var bmp = new System.Windows.Media.Imaging.BitmapImage();
+            bmp.SetSource(value as Stream);
+            return bmp;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
 
     }
 

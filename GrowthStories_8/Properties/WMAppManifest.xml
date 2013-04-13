@@ -19,22 +19,28 @@
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="GrowthStories_8Token" TaskName="_default">
-        <TemplateFlip>
-          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileSmall.png</SmallImageURI>
-          <Count>0</Count>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileMedium.png</BackgroundImageURI>
-          <Title>GrowthStories_8</Title>
-          <BackContent>
-          </BackContent>
-          <BackBackgroundImageURI>
-          </BackBackgroundImageURI>
-          <BackTitle>
-          </BackTitle>
-          <DeviceLockImageURI>
+        <TemplateIconic>
+          <SmallImageURI IsRelative="true" IsResource="false">SmallIconImage_03.png</SmallImageURI>
+          <Count>2</Count>
+          <IconImageURI IsRelative="true" IsResource="false">IconImage_03.png</IconImageURI>
+          <Title>
+            Growth Stories
+          </Title>
+          <Message>
+            Sepi needs watering
+          </Message>
+          <BackgroundColor>s
+          </BackgroundColor>
+          <HasLarge>false</HasLarge>
+          <LargeContent1>
+          </LargeContent1>
+          <LargeContent2>
+          </LargeContent2>
+          <LargeContent3>
+          </LargeContent3>
+          <DeviceLockImageURI IsRelative="true" IsResource="false">
           </DeviceLockImageURI>
-          <HasLarge>
-          </HasLarge>
-        </TemplateFlip>
+        </TemplateIconic>
       </PrimaryToken>
     </Tokens>
     <ScreenResolutions>

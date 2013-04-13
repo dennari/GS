@@ -16,6 +16,9 @@ namespace Growthstories.PCL.ViewModel
 
         private PlantAction _action;
 
+        public const string ActionPageName = "ActionPage";
+        public static Uri ActionPageUri = new Uri(string.Format("/View/{0}.xaml", ActionPageName), UriKind.Relative);
+
         public ActionViewModel(INavigationService nav)
         {
             this._nav = nav;

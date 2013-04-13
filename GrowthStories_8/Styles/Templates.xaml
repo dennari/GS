@@ -11,7 +11,56 @@
     <converters:ImagePathConverter x:Key="ImagePathConverter"/>
 
 
-
-
+    <DataTemplate x:Key="PhotoActionTemplate">
+        <StackPanel Orientation="Vertical" Width="*" Margin="10" >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Tap">
+                    <command:EventToCommand Command="{Binding Plant.NavigateToAction, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <!--<Image Source="{Binding PhotoUri}" Width="*"/>-->
+            <TextBlock Text="{Binding Note}"
+                   Margin="0,0,0,12" 
+                   TextWrapping="Wrap"  
+                   Foreground="{StaticResource PhoneForegroundBrush}" 
+                   Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="WateringActionTemplate">
+        <StackPanel Orientation="Vertical" Width="*" Margin="10" >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Tap">
+                    <command:EventToCommand Command="{Binding Plant.NavigateToAction, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TextBlock Text="{Binding Note}"
+                   Margin="0,0,0,12" 
+                   TextWrapping="Wrap"  
+                   Foreground="{StaticResource PhoneForegroundBrush}" 
+                   Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="FertilizerActionTemplate">
+        <StackPanel Orientation="Vertical" Width="*" Margin="10" >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Tap">
+                    <command:EventToCommand Command="{Binding Plant.NavigateToAction, Mode=OneWay, Source={StaticResource Locator}}" CommandParameter="{Binding Path='', Mode=OneWay}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TextBlock Text="{Binding Note}"
+                   Margin="0,0,0,12" 
+                   TextWrapping="Wrap"  
+                   Foreground="{StaticResource PhoneForegroundBrush}" 
+                   Style="{StaticResource PhoneTextNormalStyle}"/>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="PlantActionTemplate">
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="{Binding Note}" 
+    			TextWrapping="NoWrap"  
+    			Foreground="{StaticResource PhoneForegroundBrush}" 
+    			Style="{StaticResource PhoneTextSubtleStyle}" Margin="10"/>
+        </StackPanel>
+    </DataTemplate>
 
 </ResourceDictionary>
