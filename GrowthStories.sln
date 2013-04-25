@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.WP7", "GrowthStories\GrowthStories.WP7.csproj", "{270ED929-B07B-4B89-AE01-41556AF1272F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.WP8", "GrowthStories_8\GrowthStories.WP8.csproj", "{1D82D438-661C-4220-A248-A146E881E71E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Growthstories.Tests", "Tests\Growthstories.Tests.csproj", "{66CEED54-2A26-4FC2-AA33-8CB44B10E185}"
@@ -77,59 +75,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Any CPU.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|ARM.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|Mixed Platforms.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|x64.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug Phone Device|x86.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Any CPU.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|ARM.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|Mixed Platforms.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|x64.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug PhoneApp|x86.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Any CPU.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|ARM.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|Mixed Platforms.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|x64.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug StoreApp|x86.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|Mixed Platforms.Deploy.0 = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|Any CPU.ActiveCfg = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|Any CPU.Deploy.0 = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|ARM.ActiveCfg = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|Mixed Platforms.ActiveCfg = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|Mixed Platforms.Build.0 = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|Mixed Platforms.Deploy.0 = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|x64.ActiveCfg = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Netflix|x86.ActiveCfg = Netflix|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|ARM.ActiveCfg = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|x64.ActiveCfg = Release|Any CPU
-		{270ED929-B07B-4B89-AE01-41556AF1272F}.Release|x86.ActiveCfg = Release|Any CPU
 		{1D82D438-661C-4220-A248-A146E881E71E}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D82D438-661C-4220-A248-A146E881E71E}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
 		{1D82D438-661C-4220-A248-A146E881E71E}.Debug Phone Device|Any CPU.Deploy.0 = Debug|Any CPU
@@ -1391,5 +1336,7 @@ Global
 		{486642F0-AB94-4F28-B49C-106CA3134239} = {76C7E8C4-647F-4A57-88A9-639B1784EB4A}
 		{2926895D-90C8-4DD8-99AA-8F9B3ECE4DC6} = {76C7E8C4-647F-4A57-88A9-639B1784EB4A}
 		{1C6379C1-9D5E-4254-8F4C-BE7EA24057D1} = {76C7E8C4-647F-4A57-88A9-639B1784EB4A}
+		{9C26C4AD-AF90-45DB-921B-9FF9EE8771DC} = {76C7E8C4-647F-4A57-88A9-639B1784EB4A}
+		{41607C65-8A06-41B3-B070-79A64A46B05A} = {76C7E8C4-647F-4A57-88A9-639B1784EB4A}
 	EndGlobalSection
 EndGlobal

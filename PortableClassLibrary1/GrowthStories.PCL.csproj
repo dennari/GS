@@ -43,25 +43,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\INavigationService.cs" />
     <Compile Include="Helpers\FakeNavigationService.cs" />
     <Compile Include="Models\ISchedule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\IDataService.cs" />
-    <Compile Include="Services\FakePlantDataService.cs" />
-    <Compile Include="Services\IPictureService.cs" />
-    <Compile Include="Services\IPlantDataService.cs" />
-    <Compile Include="ViewModel\ActionViewModel.cs" />
-    <Compile Include="ViewModel\AddPlantViewModel.cs" />
-    <Compile Include="ViewModel\GardenViewModel.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ViewModel\PlantViewModel.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight">

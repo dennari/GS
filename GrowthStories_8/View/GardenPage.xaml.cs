@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using Growthstories.PCL.ViewModel;
+using Growthstories.WP8.ViewModel;
 
 namespace Growthstories.WP8.View
 {

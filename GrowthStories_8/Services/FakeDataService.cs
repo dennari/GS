@@ -1,4 +1,4 @@
-﻿using Growthstories.WP8.Models;
+﻿using Growthstories.WP8.Domain.Entities;
 using Growthstories.PCL.Services;
 using Ninject;
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ninject.Parameters;
 
 
 namespace Growthstories.WP8.Services
@@ -99,6 +100,27 @@ namespace Growthstories.WP8.Services
 
             return garden;
 
+
+        }
+
+        public T Get<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Get<T>(params IParameter[] parameters)
+        {
+
+            throw new NotImplementedException();
+
+        }
+
+        public EntityChanges<ModelBase> Changes
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
 
         }
 

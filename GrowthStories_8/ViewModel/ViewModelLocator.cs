@@ -1,10 +1,9 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Ninject;
-using Growthstories.PCL.ViewModel;
-using Growthstories.WP8.Models;
-using Growthstories.PCL.Services;
+using Growthstories.WP8.Domain.Entities;
 using Growthstories.WP8.Services;
+using Growthstories.PCL.Services;
 using Growthstories.PCL.Helpers;
 using Growthstories.WP8.Helpers;
 using System;
@@ -17,7 +16,7 @@ using System.Windows;
 
 namespace Growthstories.WP8.ViewModel
 {
-    public class ViewModelLocator : Growthstories.PCL.ViewModel.ViewModelLocator
+    public class ViewModelLocator : Growthstories.WP8.ViewModel.ViewModelLocatorBase
     {
         private static IKernel GetKernel()
         {
@@ -43,6 +42,7 @@ namespace Growthstories.WP8.ViewModel
             k.Bind<Plant>().ToSelf();
             k.Bind<IPlantDataService>().To<FakePlantDataService>().InSingletonScope();
             k.Bind<IDataService>().To<FakeDataService>().InSingletonScope();
+            //k.Get<IDataService>().SetKernel(k);
             k.Bind<IPictureService>().To<PictureService>().InSingletonScope();
             k.Bind<INavigationService>().To<NavigationService>().InSingletonScope();
 
@@ -54,8 +54,8 @@ namespace Growthstories.WP8.ViewModel
 
             if (ViewModelBase.IsInDesignModeStatic)
             {
-                this.Garden.SelectedPlant = this.Garden.MyGarden.Plants[1];
-                this.Plant.SelectedAction = this.Plant.CurrentPlant.Actions[0];
+                this.Garden.SelectedPlant = this.Garden.MyGarden.Plants[1] as Plant;
+                this.Plant.SelectedAction = this.Plant.CurrentPlant.Actions[0] as PlantAction;
             }
             else
             {

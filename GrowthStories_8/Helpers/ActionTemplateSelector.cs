@@ -1,4 +1,4 @@
-﻿using Growthstories.WP8.Models;
+﻿using Growthstories.WP8.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using System.Windows.Media.Imaging;
 using System.Windows.Data;
-using Growthstories.WP8.Models;
+using Growthstories.WP8.Domain.Entities;
 
 namespace Growthstories.WP8.Converters
 {

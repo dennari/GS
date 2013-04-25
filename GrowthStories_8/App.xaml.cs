@@ -19,12 +19,12 @@ namespace Growthstories.WP8
     using Microsoft.Phone.Shell;
 
     using Growthstories.WP8.Resources;
-    using Growthstories.PCL.ViewModel;
+    using Growthstories.WP8.ViewModel;
     using Growthstories.WP8.View;
     using Windows.Storage;
     //using SQLite;
     using System.IO;
-    using Growthstories.WP8.Models;
+    using Growthstories.WP8.Domain.Entities;
 
     /// <summary>
     /// The app.

@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Growthstories.PCL.Models;
+using Growthstories.WP8.Domain.Entities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Ninject;
 using Growthstories.PCL.Services;
-using Growthstories.PCL.ViewModel;
+using Growthstories.WP8.ViewModel;
 using GalaSoft.MvvmLight;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,9 +14,11 @@ using System.Windows.Threading;
 using Growthstories.PCL.Helpers;
 using Growthstories.WP8.Helpers;
 using Growthstories.WP8.Services;
-using M8 = Growthstories.WP8.Models;
+using M8 = Growthstories.WP8.Domain.Entities;
 using System.Diagnostics;
 using System.Linq;
+using Ninject.Parameters;
+using System.Data.Linq;
 
 
 namespace Growthstories.Tests
@@ -27,37 +30,31 @@ namespace Growthstories.Tests
     public class GrowthstoriesTest
     {
 
-        public IKernel kernel;
+        public IDataService kernel;
+        public IDataService repo;
         private const string TestPhotoPath = "/Assets/rose.jpg";
 
         [TestInitialize]
         public void TestInitialize()
         {
-            this.kernel = new StandardKernel();
-            var k = this.kernel;
+            kernel = FakeWP8DataService.getDataService();
+            repo = kernel;
 
-            k.Bind<GardenViewModel>().ToSelf().InSingletonScope();
-            k.Bind<AddPlantViewModel>().ToSelf().InSingletonScope();
-            k.Bind<ActionViewModel>().ToSelf().InSingletonScope();
-            k.Bind<PlantViewModel>().ToSelf().InSingletonScope();
-
-            k.Bind<User>().ToSelf().InSingletonScope();
-            k.Bind<Garden>().ToSelf().InSingletonScope().Named("My");
-            k.Bind<Plant>().ToSelf();
-            k.Bind<IPlantDataService>().To<FakePlantDataService>().InSingletonScope();
-            k.Bind<IPictureService>().To<PictureService>().InSingletonScope();
-            k.Bind<INavigationService>().To<FakeNavigationService>().InSingletonScope();
-            k.Bind<IDataService>().To<FakeWP8DataService>().InSingletonScope();
 
         }
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            FakeWP8DataService.releaseDataService();
 
+        }
 
 
         [TestMethod]
         public void Water_Plant()
         {
-            Plant plant = this.kernel.Get<Plant>();
-            PlantAction action = new WateringAction(plant);
+            Plant plant = repo.Get<Plant>();
+            PlantAction action = repo.Get<WateringAction>(new ConstructorArgument("plant", plant));
 
             Assert.AreSame(plant, action.Plant);
 
@@ -155,19 +152,27 @@ namespace Growthstories.Tests
         {
 
             // Create the database if it does not exist.
-            var g = new M8.Garden();
-            g.Plants.Add(new M8.Plant()
-            {
-                Name = "Sepi",
-                Genus = "Aloe Vera"
-            });
-            g.Plants.Add(new M8.Plant()
-            {
-                Name = "Jore",
-                Genus = "Aloe Maximus"
-            });
+            var g = kernel.Get<Garden>();
+            g.Id = 1;
+            Assert.IsNull(g.ParentId);
+            Plant plant = this.kernel.Get<Plant>();
+            plant.Id = 2;
+            plant.Name = "Sepi";
+            plant.Genus = "Aloe Vera";
+            g.Plants.Add(plant);
+            Assert.AreSame(g, plant.Parent);
+            Assert.AreEqual(g.Id, plant.ParentId);
+            Assert.AreSame(plant.Parent, plant.Garden);
+            plant = this.kernel.Get<Plant>();
+            plant.Name = "Jore";
+            plant.Genus = "Aloe Maximus";
+            plant.Id = 3;
+            g.Plants.Add(plant);
+            Assert.AreSame(g, plant.Parent);
+            Assert.AreEqual(g.Id, plant.ParentId);
+            Assert.AreSame(plant.Parent, plant.Garden);
 
-            using (var db = new MyDataContext())
+            using (var db = new LocalDataContext())
             {
                 db.DeleteDatabase();
                 if (db.DatabaseExists() == false)
@@ -179,8 +184,8 @@ namespace Growthstories.Tests
                 }
 
 
-                db.Gardens.InsertOnSubmit(g);
-                db.Plants.InsertAllOnSubmit(g.Plants);
+                db.Models.InsertOnSubmit(g);
+                //db.Plants.InsertAllOnSubmit(g.Plants);
                 db.SubmitChanges();
 
             }
@@ -191,18 +196,36 @@ namespace Growthstories.Tests
                 Assert.IsNotNull(item.Id);
             }
 
-            using (var db = new MyDataContext())
+            using (var db = new LocalDataContext())
             {
-                Assert.AreEqual(db.Gardens.Count(), 1);
-                g = db.Gardens.First();
-                Assert.AreEqual(g.Plants.Count(), 2);
+
+                var options = new DataLoadOptions();
+                options.LoadWith<Garden>(gg => gg.PlantsDb);
+                db.LoadOptions = options;
+
+                var q = from m in db.Gardens select m;
+                var q2 = from m in db.Plants select m;
+
+
+                Assert.AreEqual(1, q.Count());
+                Assert.AreEqual(3, db.Models.Count());
+                Assert.AreEqual(2, q2.Count(), "plants not inserted");
+                foreach (Plant p in q2)
+                {
+                    Debug.WriteLine("{0}, {1}, {2}, {3}", p.Name, p.Genus, p.Id, p.ParentId);
+                }
+                g = q.First();
 
             }
 
-            foreach (var p in g.Plants)
+            Assert.AreEqual(2, g.Plants.Count(), "plants not retrieved");
+
+            foreach (var b in g.Plants)
             {
+                var p = b as Plant;
                 Debug.WriteLine("{0}, {1}, {2}", p.Name, p.Genus, p.Id);
                 Assert.AreSame(g, p.Garden);
+                Assert.AreEqual(g.Id, p.ParentId);
             }
 
 

@@ -93,12 +93,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PlantTests.cs" />
     <Compile Include="LocalizedStrings.cs" />
-    <Compile Include="GrowthstoriesTest.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Plant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -169,6 +168,9 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.3\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject.Common">
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.Common.dll</HintPath>
     </Reference>
@@ -180,10 +182,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GrowthStories\GrowthStories.WP7.csproj">
-      <Project>{270ED929-B07B-4B89-AE01-41556AF1272F}</Project>
-      <Name>GrowthStories.WP7</Name>
-    </ProjectReference>
     <ProjectReference Include="..\GrowthStories_8\GrowthStories.WP8.csproj">
       <Project>{1D82D438-661C-4220-A248-A146E881E71E}</Project>
       <Name>GrowthStories.WP8</Name>

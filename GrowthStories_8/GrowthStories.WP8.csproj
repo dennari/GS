@@ -127,38 +127,54 @@
     <Compile Include="Converters\BooleanNegationConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ImagePathConverter.cs" />
+    <Compile Include="Domain\Commands\Commands.cs" />
+    <Compile Include="Domain\Entities\Handler.cs" />
+    <Compile Include="Domain\Interfaces.cs" />
+    <Compile Include="Domain\Events\Events.cs" />
     <Compile Include="Helpers\ActionTemplateSelector.cs" />
     <Compile Include="Helpers\DataTemplateSelector.cs" />
     <Compile Include="Helpers\NavigationService.cs" />
     <Compile Include="LocalizedStrings.cs" />
-    <Compile Include="Models\Commands\CommandFactory.cs" />
-    <Compile Include="Models\Commands\IHandler.cs" />
-    <Compile Include="Models\Commands\NewPlantCommand.cs" />
-    <Compile Include="Models\FertilizerAction.cs" />
-    <Compile Include="Models\Garden.cs">
+    <Compile Include="Domain\Entities\FertilizerAction.cs" />
+    <Compile Include="Domain\Entities\Garden\Garden.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\ModelBase.cs" />
-    <Compile Include="Models\Photo.cs" />
-    <Compile Include="Models\PhotoAction.cs" />
-    <Compile Include="Models\Plant.cs" />
-    <Compile Include="Models\PlantAction.cs" />
-    <Compile Include="Models\PlantData.cs" />
-    <Compile Include="Models\Schedule.cs" />
-    <Compile Include="Models\SimpleSchedule.cs" />
-    <Compile Include="Models\User.cs" />
-    <Compile Include="Models\WateringAction.cs" />
+    <Compile Include="Domain\Entities\INotifyModelCollectionChanged.cs" />
+    <Compile Include="Domain\Entities\IParameter.cs" />
+    <Compile Include="Domain\Entities\ISchedule.cs" />
+    <Compile Include="Domain\Entities\AggregateBase.cs" />
+    <Compile Include="Domain\Entities\ModelCollection.cs" />
+    <Compile Include="Domain\Entities\Photo.cs" />
+    <Compile Include="Domain\Entities\PhotoAction.cs" />
+    <Compile Include="Domain\Entities\Plant\Plant.cs" />
+    <Compile Include="Domain\Entities\PlantAction.cs" />
+    <Compile Include="Domain\Entities\PlantData.cs" />
+    <Compile Include="Domain\Entities\Schedule.cs" />
+    <Compile Include="Domain\Entities\SimpleSchedule.cs" />
+    <Compile Include="Domain\Entities\Gardener\User.cs" />
+    <Compile Include="Domain\Entities\WateringAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\Factory.cs" />
     <Compile Include="Services\FakeDataService.cs" />
     <Compile Include="Services\FakePictureService.cs" />
+    <Compile Include="Services\FakePlantDataService.cs" />
     <Compile Include="Services\FakeWP8DataService.cs" />
+    <Compile Include="Services\IDataService.cs" />
+    <Compile Include="Services\IPictureService.cs" />
+    <Compile Include="Services\IPlantDataService.cs" />
+    <Compile Include="Services\LocalDataContext.cs" />
     <Compile Include="Services\PictureService.cs" />
+    <Compile Include="ViewModel\ActionViewModel.cs" />
+    <Compile Include="ViewModel\AddPlantViewModel.cs" />
+    <Compile Include="ViewModel\GardenViewModel.cs" />
+    <Compile Include="ViewModel\PlantViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="ViewModel\ViewModelLocatorBase.cs" />
     <Compile Include="View\ActionPage.xaml.cs">
       <DependentUpon>ActionPage.xaml</DependentUpon>
     </Compile>
@@ -199,6 +215,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -328,10 +345,15 @@
     <Reference Include="Microsoft.Threading.Tasks.Extensions.Phone">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.14-rc\lib\wp8\Microsoft.Threading.Tasks.Extensions.Phone.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.Common">
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.2\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Common, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.WP">
+    <Reference Include="Ninject.WP, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.WP.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />

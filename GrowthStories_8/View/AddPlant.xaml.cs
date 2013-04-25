@@ -7,9 +7,9 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using Growthstories.WP8.Models;
+using Growthstories.WP8.Domain.Entities;
 using Growthstories.PCL.Services;
-using Growthstories.PCL.ViewModel;
+using Growthstories.WP8.ViewModel;
 using Microsoft.Phone.Tasks;
 
 namespace Growthstories.WP8.View
