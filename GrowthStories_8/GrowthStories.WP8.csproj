@@ -127,32 +127,13 @@
     <Compile Include="Converters\BooleanNegationConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ImagePathConverter.cs" />
-    <Compile Include="Domain\Commands\Commands.cs" />
-    <Compile Include="Domain\Entities\Handler.cs" />
-    <Compile Include="Domain\Interfaces.cs" />
-    <Compile Include="Domain\Events\Events.cs" />
     <Compile Include="Helpers\ActionTemplateSelector.cs" />
     <Compile Include="Helpers\DataTemplateSelector.cs" />
+    <Compile Include="Helpers\FakeNavigationService.cs" />
+    <Compile Include="Helpers\INavigationService.cs" />
     <Compile Include="Helpers\NavigationService.cs" />
+    <Compile Include="ISchedule.cs" />
     <Compile Include="LocalizedStrings.cs" />
-    <Compile Include="Domain\Entities\FertilizerAction.cs" />
-    <Compile Include="Domain\Entities\Garden\Garden.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Domain\Entities\INotifyModelCollectionChanged.cs" />
-    <Compile Include="Domain\Entities\IParameter.cs" />
-    <Compile Include="Domain\Entities\ISchedule.cs" />
-    <Compile Include="Domain\Entities\AggregateBase.cs" />
-    <Compile Include="Domain\Entities\ModelCollection.cs" />
-    <Compile Include="Domain\Entities\Photo.cs" />
-    <Compile Include="Domain\Entities\PhotoAction.cs" />
-    <Compile Include="Domain\Entities\Plant\Plant.cs" />
-    <Compile Include="Domain\Entities\PlantAction.cs" />
-    <Compile Include="Domain\Entities\PlantData.cs" />
-    <Compile Include="Domain\Entities\Schedule.cs" />
-    <Compile Include="Domain\Entities\SimpleSchedule.cs" />
-    <Compile Include="Domain\Entities\Gardener\User.cs" />
-    <Compile Include="Domain\Entities\WateringAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -168,13 +149,8 @@
     <Compile Include="Services\IPictureService.cs" />
     <Compile Include="Services\IPlantDataService.cs" />
     <Compile Include="Services\LocalDataContext.cs" />
+    <Compile Include="Services\MessageStore.cs" />
     <Compile Include="Services\PictureService.cs" />
-    <Compile Include="ViewModel\ActionViewModel.cs" />
-    <Compile Include="ViewModel\AddPlantViewModel.cs" />
-    <Compile Include="ViewModel\GardenViewModel.cs" />
-    <Compile Include="ViewModel\PlantViewModel.cs" />
-    <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="ViewModel\ViewModelLocatorBase.cs" />
     <Compile Include="View\ActionPage.xaml.cs">
       <DependentUpon>ActionPage.xaml</DependentUpon>
     </Compile>
@@ -216,6 +192,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="App_Readme\EventStore - Architectural Overview.docx" />
+    <None Include="App_Readme\EventStore - Transactional Integrity.docx" />
+    <None Include="ModelDiagram.cd" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -225,6 +204,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Readme\EventStore.license.txt" />
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\AppBar\add.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -313,21 +293,21 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GalaSoft.MvvmLight, Version=4.1.27.18601, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GalaSoft.MvvmLight, Version=4.1.27.5, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.dll</HintPath>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.5\lib\wp8\GalaSoft.MvvmLight.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Extras, Version=4.1.27.18602, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GalaSoft.MvvmLight.Extras, Version=4.1.27.5, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.Extras.dll</HintPath>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.5\lib\wp8\GalaSoft.MvvmLight.Extras.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Extras.WP8, Version=4.1.27.22645, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MvvmLightLibs.4.1.27.0\lib\WindowsPhone8\GalaSoft.MvvmLight.Extras.WP8.dll</HintPath>
     </Reference>
-    <Reference Include="GalaSoft.MvvmLight.Platform.WP8, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GalaSoft.MvvmLight.Platform.WP8, Version=4.1.27.5, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.3\lib\wp8\GalaSoft.MvvmLight.Platform.WP8.dll</HintPath>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.27.5\lib\wp8\GalaSoft.MvvmLight.Platform.WP8.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
@@ -356,19 +336,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.WP.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.621\lib\windowsphone8\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="ViewModel\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\WPToolkit\Microsoft.Phone.Controls.Toolkit.WP8\Microsoft.Phone.Controls.Toolkit.WP8.csproj">
       <Project>{486642F0-AB94-4F28-B49C-106CA3134239}</Project>
       <Name>Microsoft.Phone.Controls.Toolkit.WP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PortableClassLibrary1\GrowthStories.PCL.csproj">
-      <Project>{6B438313-5A18-456D-B514-0A34D9005D64}</Project>
-      <Name>GrowthStories.PCL</Name>
+    <ProjectReference Include="..\GrowthStories.DomainPCL\GrowthStories.DomainPCL.csproj">
+      <Project>{B3E2CFBD-93FD-4604-8B43-C245947C07ED}</Project>
+      <Name>GrowthStories.DomainPCL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
@@ -381,4 +365,5 @@
   </Target>
   -->
   <ProjectExtensions />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.5\tools\Microsoft.Bcl.Build.targets" />
 </Project>

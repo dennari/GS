@@ -93,7 +93,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlantTests.cs" />
+    <Compile Include="GrowthstoriesTest.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -104,6 +104,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SyncTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -118,7 +119,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="phone-tests.runsettings" />
+    <None Include="phone-tests.runsettings">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
@@ -177,18 +180,17 @@
     <Reference Include="Ninject.WP">
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\sl4-wp71\Ninject.WP.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\System.Windows.Interactivity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GrowthStories_8\GrowthStories.WP8.csproj">
-      <Project>{1D82D438-661C-4220-A248-A146E881E71E}</Project>
-      <Name>GrowthStories.WP8</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PortableClassLibrary1\GrowthStories.PCL.csproj">
-      <Project>{6B438313-5A18-456D-B514-0A34D9005D64}</Project>
-      <Name>GrowthStories.PCL</Name>
+    <ProjectReference Include="..\Domain\GrowthStories.Domain.csproj">
+      <Project>{953C518A-4CD9-4BE7-9DBA-AFF2ADEA1805}</Project>
+      <Name>GrowthStories.Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />

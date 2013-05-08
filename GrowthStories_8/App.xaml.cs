@@ -136,7 +136,7 @@ namespace Growthstories.WP8
 
             // Got this awesome snippit from http://www.trynull.com/?p=607
 
-            RootFrame.Navigate(new Uri("/View/GardenPage.xaml", UriKind.Relative));
+            //RootFrame.Navigate(new Uri("/View/GardenPage.xaml", UriKind.Relative));
         }
 
         //private async void CreateDB()
