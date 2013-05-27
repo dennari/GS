@@ -8,67 +8,6 @@ namespace Growthstories.Domain.Interfaces
 {
 
 
-
-    public interface ICommand<out TIdentity>
-    where TIdentity : IIdentity
-    {
-        TIdentity EntityId { get; }
-    }
-
-
-    public interface IIdentity
-    {
-        /// <summary>
-        /// Gets the id, converted to a string. Only alphanumerics and '-' are allowed.
-        /// </summary>
-        /// <returns></returns>
-        string ToString();
-
-        /// <summary>
-        /// Unique tag (should be unique within the assembly) to distinguish
-        /// between different identities, while deserializing.
-        /// </summary>
-        string GetTag();
-    }
-
-
-
-    public interface IEvent<out TIdentity>
-    where TIdentity : IIdentity
-    {
-        TIdentity EntityId { get; }
-    }
-
-
-    public interface IEventProvider<T> where T : IEvent<IIdentity>
-    {
-
-        IList<T> Changes { get; }
-    }
-
-    public interface IEventStore
-    {
-        IEventStream LoadStream(IIdentity id);
-        IEventStream LoadStream();
-        void AppendToStream(IIdentity id, long version, ICollection<IEvent<IIdentity>> events);
-    }
-
-    public interface IEventStream
-    {
-        long StreamVersion { get; }
-        IList<IEvent<IIdentity>> Events { get; }
-    }
-
-    public interface ICommandHandler<T> where T : IIdentity
-    {
-        void Execute(ICommand<T> c);
-    }
-
-    public interface IStateful
-    {
-        void ThrowOnInvalidStateTransition(ICommand<IIdentity> c);
-    }
-
     public interface IDomainError
     {
         string Name { get; }

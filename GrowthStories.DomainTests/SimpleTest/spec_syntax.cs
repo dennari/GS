@@ -3,24 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Growthstories.Domain.Interfaces;
-//using Growthstories.Domain.Entities;
 using System.Reflection;
+using EventStore;
+using Growthstories.Core;
+using CommonDomain;
 
 namespace SimpleTesting
 {
     // ReSharper disable InconsistentNaming
     [TestFixture]
-    public abstract class spec_syntax<T> : IListSpecifications where T : IIdentity
+    public abstract class spec_syntax : IListSpecifications
     {
-        readonly List<IEvent<T>> _given = new List<IEvent<T>>();
+        readonly List<IEvent> _given = new List<IEvent>();
 
-
-
-        ICommand<T> _when;
-        readonly List<IEvent<T>> _then = new List<IEvent<T>>();
-        readonly List<IEvent<T>> _givenEvents = new List<IEvent<T>>();
+        ICommand _when;
+        readonly List<IEvent> _then = new List<IEvent>();
+        readonly List<IEvent> _givenEvents = new List<IEvent>();
         bool _thenWasCalled;
+
+        protected virtual Guid Id
+        {
+            get
+            {
+                return Guid.Empty;
+            }
+
+        }
 
         protected static DateTime Date(int year, int month = 1, int day = 1, int hour = 0)
         {
@@ -33,12 +41,13 @@ namespace SimpleTesting
         }
 
         protected abstract void SetupServices();
-        protected abstract IEventStore GetEventStore();
+        protected abstract IStoreEvents GetEventStore();
 
 
-        protected class ExceptionThrown : IEvent<T>, IAmUsedByUnitTests
+        protected class ExceptionThrown : IEvent, IAmUsedByUnitTests
         {
-            public T EntityId { get; set; }
+            public Guid EntityId { get; set; }
+            public Guid Id { get; set; }
             public string Name { get; set; }
 
             public ExceptionThrown(string name)
@@ -52,23 +61,23 @@ namespace SimpleTesting
             }
         }
 
-        protected IEvent<T> ClockWasSet(int year, int month = 1, int day = 1)
+        protected IEvent ClockWasSet(int year, int month = 1, int day = 1)
         {
             var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
-            return new SpecSetupEvent<T>(() => Current.DateIs(date), "Test clock set to {0:yyyy-MM-dd}", date);
+            return new SpecSetupEvent(() => Current.DateIs(date), "Test clock set to {0:yyyy-MM-dd}", date);
         }
 
-        protected IEvent<T> GuidWasFixed(string guid)
+        protected IEvent GuidWasFixed(string guid)
         {
-            return new SpecSetupEvent<T>(() => Current.GuidIs(guid), "Guid provider fixed to " + guid);
+            return new SpecSetupEvent(() => Current.GuidIs(guid), "Guid provider fixed to " + guid);
         }
 
-        public void Given(params IEvent<T>[] g)
+        public void Given(params IEvent[] g)
         {
             _given.AddRange(g);
             foreach (var @event in g)
             {
-                var setup = @event as SpecSetupEvent<T>;
+                var setup = @event as SpecSetupEvent;
                 if (setup != null)
                 {
                     setup.Apply();
@@ -77,7 +86,7 @@ namespace SimpleTesting
             }
         }
 
-        public void When(ICommand<T> command)
+        public void When(ICommand command)
         {
             _when = command;
         }
@@ -162,7 +171,7 @@ namespace SimpleTesting
             }
         }
 
-        protected abstract void ExecuteCommand(IEventStore store, ICommand<T> cmd);
+        protected abstract void ExecuteCommand(IStoreEvents store, ICommand cmd);
 
         public void Expect(string error)
         {
@@ -171,7 +180,7 @@ namespace SimpleTesting
 
         bool _dontExecuteOnExpect;
 
-        public void Expect(params IEvent<T>[] g)
+        public void Expect(params IEvent[] g)
         {
             _thenWasCalled = true;
             if (g.Count() == 0)
@@ -180,22 +189,40 @@ namespace SimpleTesting
             }
             _then.AddRange(g);
 
-            IEnumerable<IEvent<T>> actual;
+            IEnumerable<IEvent> actual;
             if (_dontExecuteOnExpect) return;
-            var store = GetEventStore();
-            if (_givenEvents.Count > 0)
-            {
-                store.AppendToStream(_givenEvents[0].EntityId, 0, _givenEvents.Cast<IEvent<IIdentity>>().ToArray());
-            }
 
-            try
+            using (var store = GetEventStore())
             {
-                ExecuteCommand(store, _when);
-                actual = store.LoadStream().Events.Skip(_givenEvents.Count).Cast<IEvent<T>>().ToArray();
-            }
-            catch (DomainError e)
-            {
-                actual = new IEvent<T>[] { new ExceptionThrown(e.Name) };
+                if (_givenEvents.Count > 0)
+                {
+
+                    using (var stream = store.OpenStream(Id, 0, int.MaxValue))
+                    {
+                        foreach (var @event in _givenEvents)
+                        {
+                            var msg = new EventMessage { Body = @event };
+                            //msg.Headers
+                            stream.Add(msg);
+                        }
+
+                        stream.CommitChanges(Guid.NewGuid());
+                    }
+                }
+
+                try
+                {
+                    ExecuteCommand(store, _when);
+                    using (var stream = store.OpenStream(Id, 0, int.MaxValue))
+                    {
+                        actual = stream.CommittedEvents.Skip(_givenEvents.Count).Select(x => (IEvent)x.Body).ToArray();
+                    }
+
+                }
+                catch (DomainError e)
+                {
+                    actual = new IEvent[] { new ExceptionThrown(e.Name) };
+                }
             }
 
             var results = CompareAssert(_then.ToArray(), actual.ToArray()).ToArray();
@@ -226,8 +253,8 @@ namespace SimpleTesting
         }
 
         protected static IEnumerable<ExpectResult> CompareAssert(
-            IEvent<T>[] expected,
-            IEvent<T>[] actual)
+            IEvent[] expected,
+            IEvent[] actual)
         {
             var max = Math.Max(expected.Length, actual.Length);
 
@@ -278,19 +305,19 @@ namespace SimpleTesting
                 {
                     CaseName = method.Name.Replace("_", " "),
                     GroupName = type.Name.Replace("_", " "),
-                    Given = _givenEvents.Cast<IEvent<IIdentity>>().ToArray(),
-                    When = (ICommand<IIdentity>)_when,
-                    Then = _then.Cast<IEvent<IIdentity>>().ToArray()
+                    Given = _givenEvents.ToArray(),
+                    When = _when,
+                    Then = _then.ToArray()
                 };
             }
         }
     }
 
 
-    public sealed class SpecSetupEvent<T> : IEvent<T>, IAmUsedByUnitTests where T : IIdentity
+    public sealed class SpecSetupEvent : IEvent, IAmUsedByUnitTests
     {
-        public T EntityId { get; set; }
-
+        public Guid EntityId { get; set; }
+        public Guid Id { get; set; }
         readonly string _describe;
         public readonly Action Apply;
 
@@ -314,9 +341,9 @@ namespace SimpleTesting
     {
         public string GroupName;
         public string CaseName;
-        public IEvent<IIdentity>[] Given;
-        public ICommand<IIdentity> When;
-        public IEvent<IIdentity>[] Then;
+        public IEvent[] Given;
+        public ICommand When;
+        public IEvent[] Then;
     }
     public interface IAmUsedByUnitTests { }
 

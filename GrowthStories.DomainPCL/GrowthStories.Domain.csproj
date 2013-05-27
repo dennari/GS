@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B3E2CFBD-93FD-4604-8B43-C245947C07ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Growthstories.Domain</RootNamespace>
+    <AssemblyName>GrowthStories.DomainPCL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile49</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ContextExtensions.cs" />
+    <Compile Include="Entities\Gardener\User.cs" />
+    <Compile Include="Entities\Gardener\UserState.cs" />
+    <Compile Include="Entities\Garden\Garden.cs" />
+    <Compile Include="Entities\Garden\GardenState.cs" />
+    <Compile Include="Entities\PlantAction\PlantAction.cs" />
+    <Compile Include="Entities\PlantAction\PlantActionState.cs" />
+    <Compile Include="Entities\Plant\Plant.cs" />
+    <Compile Include="Entities\Plant\PlantState.cs" />
+    <Compile Include="Messaging\CommandHandler.cs" />
+    <Compile Include="Messaging\Commands.cs" />
+    <Compile Include="Messaging\Events.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AggregateFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Ninject.Common">
+      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\portable-net4+sl4+wp71+win8\Ninject.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+      <Project>{4ca0c3f8-0f50-4f12-a598-32eaa0ab19e6}</Project>
+      <Name>PortableCommonDomain.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
+      <Project>{a9f56ff4-b69c-400a-801b-13212d7e946a}</Project>
+      <Name>PortableCommonDomain.Persistence.EventStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
+      <Project>{099b2958-0240-4d7e-83a7-f5b2305975b1}</Project>
+      <Name>PortableCommonDomain.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+      <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
+      <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore\PortableStore.csproj">
+      <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
+      <Name>PortableStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
+      <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
+      <Name>GrowthStories.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

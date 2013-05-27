@@ -1,22 +1,9 @@
 using Growthstories.Domain.Messaging;
-using Growthstories.Domain.Interfaces;
-/*
- * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- * 
- *  http://aws.amazon.com/apache2.0
- * 
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Growthstories.Core;
+using CommonDomain;
 
 namespace Growthstories.Domain.Entities
 {
@@ -30,12 +17,16 @@ namespace Growthstories.Domain.Entities
     /// 
     /// </ul>
     /// </summary>
-    public class User : AggregateBase<IEvent<IIdentity>>
+    public class User : AggregateBase<UserState, UserCreated>
     {
 
         private string userName;
         private DateTime? createDate;
 
+        public User()
+        {
+
+        }
         /// <summary>
         /// The name identifying the user.
         ///  
@@ -59,9 +50,6 @@ namespace Growthstories.Domain.Entities
             set { this.userName = value; }
         }
 
-
-
-
         /// <summary>
         /// The date when the user was created.
         ///  
@@ -72,61 +60,7 @@ namespace Growthstories.Domain.Entities
             set { this.createDate = value; }
         }
 
-        public User(IEnumerable<IEvent<IIdentity>> events)
-            : base(events)
-        {
 
-        }
-
-
-        public override void ThrowOnInvalidStateTransition(ICommand<IIdentity> c)
-        {
-            if (Version == 0)
-            {
-                if (c is CreateUser)
-                {
-                    return;
-                }
-                throw DomainError.Named("premature", "Can't do anything to unexistent aggregate");
-            }
-            if (Version == -1)
-            {
-                throw DomainError.Named("zombie", "Can't do anything to deleted aggregate.");
-            }
-            if (c is CreateUser)
-                throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
-        }
-
-        public void Create(UserId userId)
-        {
-            Apply(new UserCreated(userId));
-        }
-
-        public void When(UserCreated e)
-        {
-            Id = e.EntityId;
-        }
-
-    }
-
-    [DataContract]
-    public class UserId : AbstractIdentity<Guid>
-    {
-        protected new string _tag = "user";
-
-        public UserId(Guid Id) : base(Id) { }
-
-
-    }
-
-    public interface IUserHandler
-    {
-        void When(CreateUser c);
-        //void When(ReportUserLoginFailure c);
-        //void When(ReportUserLoginSuccess c);
-        //void When(LockUser c);
-        //void When(UnlockUser c);
-        //void When(DeleteUser c);
     }
 
 }

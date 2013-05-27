@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6BB57385-307B-4433-BB9F-27E062876D4B}</ProjectGuid>
+    <ProjectGuid>{9C49591F-2672-4705-AC3E-5B1627ADD1BF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Growthstories.DomainTests</RootNamespace>
-    <AssemblyName>GrowthStories.DomainTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>PortableCommonDomainTest</RootNamespace>
+    <AssemblyName>PortableCommonDomainTest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -16,7 +16,6 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,7 +25,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,21 +33,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Machine.Specifications">
+      <HintPath>..\packages\Machine.Specifications.0.5.12\lib\net40\Machine.Specifications.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.Common">
-      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\net40-client\Ninject.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.NetFx">
-      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\net40-client\Ninject.NetFx.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    <Reference Include="Machine.Specifications.Clr4">
+      <HintPath>..\packages\Machine.Specifications.0.5.12\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -69,18 +59,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Garden\create_garden.cs" />
-    <Compile Include="Garden\add_plant_to_garden.cs" />
-    <Compile Include="PlantAction\create_plantaction.cs" />
-    <Compile Include="Plant\create_plant2.cs" />
-    <Compile Include="Plant\mark_plant_public_or_private.cs" />
-    <Compile Include="Plant\test_sync.cs" />
-    <Compile Include="SimpleTest\CompareObjects.cs" />
-    <Compile Include="SimpleTest\gs_spec.cs" />
-    <Compile Include="SimpleTest\spec_syntax.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestSetup.cs" />
-    <Compile Include="User\create_user2.cs" />
+    <Compile Include="When_an_aggregate_is_persisted.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
@@ -99,39 +79,14 @@
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Core\PortableStore.Core.csproj">
-      <Project>{e6084fb9-5941-4913-83c7-fa39003b5a4a}</Project>
-      <Name>PortableStore.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Serialization.Json\PortableStore.Serialization.Json.csproj">
-      <Project>{50524c4f-ac65-429f-b7ac-ae45a0ed85ed}</Project>
-      <Name>PortableStore.Serialization.Json</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Wireup\PortableStore.Wireup.csproj">
-      <Project>{cf8563f8-0dd3-4bde-b191-7402d9144c25}</Project>
-      <Name>PortableStore.Wireup</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore\PortableStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>PortableStore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
-      <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
-      <Name>GrowthStories.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GrowthStories.DomainPCL\GrowthStories.Domain.csproj">
-      <Project>{b3e2cfbd-93fd-4604-8b43-c245947c07ed}</Project>
-      <Name>GrowthStories.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GrowthStories.Sync\GrowthStories.Sync.csproj">
-      <Project>{487ea8b6-d110-441d-aaed-9ff2315dfd59}</Project>
-      <Name>GrowthStories.Sync</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

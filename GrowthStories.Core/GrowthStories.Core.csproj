@@ -5,13 +5,13 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B3E2CFBD-93FD-4604-8B43-C245947C07ED}</ProjectGuid>
+    <ProjectGuid>{DFDB229B-9C77-4E89-A602-6CBAEE83315F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GrowthStories.DomainPCL</RootNamespace>
-    <AssemblyName>GrowthStories.DomainPCL</AssemblyName>
+    <RootNamespace>Growthstories.Core</RootNamespace>
+    <AssemblyName>GrowthStories.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile49</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
@@ -33,34 +33,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AbstractIdentity.cs" />
-    <Compile Include="Entities\AggregateBase.cs" />
-    <Compile Include="Entities\Gardener\User.cs" />
-    <Compile Include="Entities\Garden\Garden.cs" />
-    <Compile Include="Entities\Handler.cs" />
-    <Compile Include="Entities\Plant\Plant.cs" />
-    <Compile Include="IAppendOnlyStore.cs" />
-    <Compile Include="Interfaces.cs" />
-    <Compile Include="Messaging\CommandHandler.cs" />
-    <Compile Include="Messaging\MemoryStore.cs" />
-    <Compile Include="Messaging\Messages.cs" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+      <Project>{4ca0c3f8-0f50-4f12-a598-32eaa0ab19e6}</Project>
+      <Name>PortableCommonDomain.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+      <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
+      <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AggregateBase.cs" />
+    <Compile Include="AggregateState.cs" />
+    <Compile Include="ApplyEventRouter.cs" />
+    <Compile Include="IAppliesEvents.cs" />
+    <Compile Include="IApplyState.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="ICommandHandler.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IStateAggregate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Ninject.Common">
-      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\portable-net4+sl4+wp71+win8\Ninject.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\packages\protobuf-net.2.0.0.621\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App_Readme\EventStore - Architectural Overview.docx" />
-    <None Include="App_Readme\EventStore - Transactional Integrity.docx" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Readme\EventStore.license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

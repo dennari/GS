@@ -1,6 +1,10 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Domain.Interfaces;
+﻿using CommonDomain;
+using CommonDomain.Core;
+using CommonDomain.Persistence;
+using Growthstories.Core;
+using Growthstories.Domain.Entities;
 using Microsoft.CSharp.RuntimeBinder;
+//using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +14,22 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Domain.Messaging
 {
-    public class CommandHandler : ICommandHandler<IIdentity>
+    public class CommandHandler : ICommandHandler<ICommand>
     {
 
-        readonly IEventStore _store;
+        readonly IRepository _repository;
 
-        public CommandHandler(IEventStore store)
+        public CommandHandler(IRepository store)
             : base()
         {
-            _store = store;
+            _repository = store;
         }
 
 
-        void DoIt(ICommand<IIdentity> c, Func<IEventStream, ICollection<IEvent<IIdentity>>> a)
+        void DoIt(Func<IAggregate> action)
         {
-            var stream = _store.LoadStream(c.EntityId);
-            _store.AppendToStream(c.EntityId, stream.StreamVersion, a(stream));
+
+            _repository.Save(action(), Guid.NewGuid());
 
         }
 
@@ -33,38 +37,87 @@ namespace Growthstories.Domain.Messaging
         public void When(CreateUser c)
         {
 
-            DoIt(c, (IEventStream stream) =>
+            DoIt(() =>
             {
-                var u = new User(stream.Events);
-                u.ThrowOnInvalidStateTransition(c);
+                var u = _repository.GetById<User>(c.EntityId);
                 u.Create(c.EntityId);
-                return u.Changes;
+                return u;
             });
         }
 
-        public void When(CreatePlant p)
+        public void When(CreatePlant c)
         {
-            DoIt(p, (IEventStream stream) =>
+            DoIt(() =>
             {
-                var u = new Plant(stream.Events);
-                u.ThrowOnInvalidStateTransition(p);
-                u.Create(p.EntityId);
-                return u.Changes;
+                var u = _repository.GetById<Plant>(c.EntityId);
+                u.Create(c.EntityId);
+                return u;
             });
         }
 
-        public void When(CreateGarden g)
+        public void When(MarkPlantPublic c)
         {
-            DoIt(g, (IEventStream stream) =>
+            DoIt(() =>
             {
-                var u = new Garden(stream.Events);
-                u.ThrowOnInvalidStateTransition(g);
-                u.Create(g.EntityId);
-                return u.Changes;
+                var u = _repository.GetById<Plant>(c.EntityId);
+                u.Public = true;
+                return u;
             });
         }
 
-        public void Execute(ICommand<IIdentity> e)
+        public void When(MarkPlantPrivate c)
+        {
+            DoIt(() =>
+            {
+                var u = _repository.GetById<Plant>(c.EntityId);
+                u.Public = false;
+                return u;
+            });
+        }
+
+
+        public void When(CreateGarden c)
+        {
+            DoIt(() =>
+            {
+                var u = _repository.GetById<Garden>(c.EntityId);
+                u.Create(c.EntityId);
+                return u;
+            });
+        }
+
+        public void When(AddPlant c)
+        {
+            DoIt(() =>
+            {
+                var u = _repository.GetById<Plant>(c.PlantId);
+                u.Create(c.PlantId);
+                return u;
+            });
+
+            DoIt(() =>
+            {
+                //var u = _repository.GetById<Plant>(c.PlantId);
+                //u.ThrowOnInvalidStateTransition(c);
+                //u.Create(c.PlantId);
+
+                var a = _repository.GetById<Garden>(c.EntityId);
+                a.AddPlant(c.PlantId, c.PlantName);
+                return a;
+            });
+        }
+
+        public void When(CreatePlantAction c)
+        {
+            DoIt(() =>
+            {
+                var u = _repository.GetById<PlantAction>(c.EntityId);
+                u.Create(c.EntityId);
+                return u;
+            });
+        }
+
+        public void Handle(ICommand e)
         {
             //MethodInfo h;
             //if (!Handlers.TryGetValue(e.GetType(), out h))
@@ -87,7 +140,7 @@ namespace Growthstories.Domain.Messaging
             }
             catch (RuntimeBinderException ee)
             {
-
+                throw;
             }
         }
 
