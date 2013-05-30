@@ -5,6 +5,7 @@ using EventStore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Growthstories.Domain.Entities;
+using Growthstories.Core;
 
 namespace Growthstories.Sync
 {
@@ -18,7 +19,6 @@ namespace Growthstories.Sync
 
 
         public Synchronizer(IStoreEvents eventStore, IStoreSyncHeads syncStore, ITranslateEvents translator, ITransportEvents transporter)
-            : base()
         {
             EventStore = eventStore;
             SyncStore = syncStore;
@@ -27,20 +27,21 @@ namespace Growthstories.Sync
         }
 
 
-        public async Task<bool> Synchronize()
+        public Task<bool> Synchronize()
         {
+            return Push();
             int MaxTries = 5;
             int Counter = 0;
-            while (await Pull() && Counter < MaxTries)
-            {
-                //if (await Push())
-                //{
-                //RaiseEvent(new Synchronized(Id));
-                //return true;
-                //}
-                Counter++;
-            }
-            return false;
+            //while (await Pull() && Counter < MaxTries)
+            //{
+            //if (await Push())
+            //{
+            //RaiseEvent(new Synchronized(Id));
+            //return true;
+            //}
+            Counter++;
+            //}
+            //return false;
         }
 
         private async Task<bool> Pull()
@@ -49,30 +50,36 @@ namespace Growthstories.Sync
             return true;
         }
 
-        //private async Task<bool> Push()
-        //{
-        //    var syncDTOs = new List<IEventDTO>();
-        //    foreach (Commit commit in PendingSynchronization())
-        //    {
-        //        foreach (var eventMsg in commit.Events)
-        //        {
-        //            syncDTOs.Add(Translator.Out((IEvent)eventMsg.Body));
-        //        }
-        //    }
-        //    if (syncDTOs.Count == 0)
-        //    {
-        //        return true;
-        //    }
-        //    if (await Push(Transporter.CreatePushRequest(syncDTOs)))
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
+        public ISyncPushRequest GetPushRequest()
+        {
+            return Transporter.CreatePushRequest(Translator.Out(PendingSynchronization()));
+        }
+
+        private Task<bool> Push()
+        {
+            var req = GetPushRequest();
+            var resp = req.Execute();
+            return new Task<bool>(() => true);
+        }
+
+        public IEnumerable<IEvent> PendingSynchronization()
+        {
+            foreach (var lastSync in SyncStore.GetSyncHeads())
+            {
+                IEventStream changes = EventStore.OpenStream(lastSync.StreamId, lastSync.SyncedRevision + 1, int.MaxValue);
+                if (changes.StreamRevision > lastSync.SyncedRevision) // updates exist
+                {
+                    foreach (var @event in changes.CommittedEvents)
+                    {
+                        yield return (IEvent)@event.Body;
+                    }
+                }
+            }
+        }
 
         private async Task<bool> Push(ISyncPushRequest req)
         {
-            ISyncPushResponse r = await req.Execute();
+            ISyncPushResponse r = req.Execute();
             return true;
         }
 

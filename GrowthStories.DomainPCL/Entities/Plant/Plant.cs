@@ -15,6 +15,7 @@ namespace Growthstories.Domain.Entities
     public class Plant : AggregateBase<PlantState, PlantCreated>
     {
 
+
         public Plant()
         {
 
@@ -41,6 +42,30 @@ namespace Growthstories.Domain.Entities
                 }
 
             }
+        }
+
+
+        public new void Create(Guid Id)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Create(AddPlant c)
+        {
+            if (State == null)
+            {
+                ApplyState(null);
+            }
+            RaiseEvent(new PlantCreated(c.PlantId, c.PlantName));
+        }
+
+        public void Create(CreatePlant c)
+        {
+            if (State == null)
+            {
+                ApplyState(null);
+            }
+            RaiseEvent(new PlantCreated(c.EntityId, c.Name));
         }
     }
 

@@ -48,7 +48,7 @@ namespace Growthstories.Core
 
         public void ApplyState(IMemento st)
         {
-            if (_state != null)
+            if (this.State != null)
             {
                 throw new InvalidOperationException("Can't override existing state");
             }
@@ -73,32 +73,30 @@ namespace Growthstories.Core
 
         }
 
+        protected new void RaiseEvent(object @event)
+        {
+            //((IAggregate)this).ApplyEvent(@event);
+            //this.uncommittedEvents.Add(@event);
+            base.RaiseEvent(@event); // calls ApplyEvent and increases Version
+            IEvent Event = @event as IEvent;
+            if (Event != null)
+            {
+                Event.EntityVersion = this.Version;
+                //@event = Event;
+            }
+
+        }
 
         public void Create(Guid Id)
         {
-
+            if (State == null)
+            {
+                ApplyState(null);
+            }
             RaiseEvent(Activator.CreateInstance(typeof(TCreate), Id));
 
         }
 
-        //public void ThrowOnInvalidStateTransition(ICommand c)
-        //{
-        //    if (Version == 0)
-        //    {
-        //        if (c is TCreate)
-        //        {
-        //            return;
-        //        }
-        //        throw DomainError.Named("premature", "Can't do anything to unexistent aggregate");
-        //    }
-        //    if (Version == -1)
-        //    {
-        //        throw DomainError.Named("zombie", "Can't do anything to deleted aggregate.");
-        //    }
-        //    if (c is TCreate)
-        //        throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
-
-        //}
 
         protected override IMemento GetSnapshot()
         {

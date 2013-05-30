@@ -18,5 +18,7 @@ namespace Growthstories.Sync
         bool PersistSyncHead(SyncHead head);
 
 
+
+        void Purge();
     }
 }

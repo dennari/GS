@@ -19,13 +19,13 @@ namespace Growthstories.DomainTests
         {
             Given();
             When(new CreateGarden(id));
-            Expect(new GardenCreated(id));
+            Expect(new GardenCreated(id) { EntityVersion = 1 });
         }
 
         [Test]
         public void given_created_garden()
         {
-            Given(new GardenCreated(id));
+            Given(new GardenCreated(id) { EntityVersion = 1 });
             When(new CreateGarden(id));
             Expect("rebirth");
         }

@@ -38,5 +38,12 @@ namespace Growthstories.Sync
         {
             return _syncheads.Add(head);
         }
+
+
+        public void Purge()
+        {
+            _syncheads.Clear();
+            _public.Clear();
+        }
     }
 }

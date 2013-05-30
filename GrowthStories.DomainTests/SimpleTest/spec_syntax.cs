@@ -59,6 +59,30 @@ namespace SimpleTesting
             {
                 return string.Format("Domain error '{0}'", Name);
             }
+
+            public Guid EventId
+            {
+                get
+                {
+                    return default(Guid);
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public int EntityVersion
+            {
+                get
+                {
+                    return default(int);
+                }
+                set
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
         protected IEvent ClockWasSet(int year, int month = 1, int day = 1)
@@ -329,6 +353,30 @@ namespace SimpleTesting
         public override string ToString()
         {
             return _describe;
+        }
+
+        public Guid EventId
+        {
+            get
+            {
+                return default(Guid);
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int EntityVersion
+        {
+            get
+            {
+                return default(int);
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 

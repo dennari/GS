@@ -34,12 +34,24 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ContextExtensions.cs" />
+    <Compile Include="Entities\Comment\Commands.cs" />
+    <Compile Include="Entities\Comment\CommentCreated.cs" />
+    <Compile Include="Entities\Comment\CommentState.cs" />
+    <Compile Include="Entities\Comment\Comment.cs" />
+    <Compile Include="Entities\Gardener\Commands.cs" />
+    <Compile Include="Entities\Gardener\Events.cs" />
     <Compile Include="Entities\Gardener\User.cs" />
     <Compile Include="Entities\Gardener\UserState.cs" />
+    <Compile Include="Entities\Garden\Commands.cs" />
+    <Compile Include="Entities\Garden\Events.cs" />
     <Compile Include="Entities\Garden\Garden.cs" />
     <Compile Include="Entities\Garden\GardenState.cs" />
+    <Compile Include="Entities\PlantAction\Commands.cs" />
+    <Compile Include="Entities\PlantAction\Events.cs" />
     <Compile Include="Entities\PlantAction\PlantAction.cs" />
     <Compile Include="Entities\PlantAction\PlantActionState.cs" />
+    <Compile Include="Entities\Plant\Commands.cs" />
+    <Compile Include="Entities\Plant\Events.cs" />
     <Compile Include="Entities\Plant\Plant.cs" />
     <Compile Include="Entities\Plant\PlantState.cs" />
     <Compile Include="Messaging\CommandHandler.cs" />
@@ -83,6 +95,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Entities\PlantData\" />
+    <Folder Include="Entities\Schedule\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

@@ -74,11 +74,12 @@
     <Compile Include="PlantAction\create_plantaction.cs" />
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
-    <Compile Include="Plant\test_sync.cs" />
+    <Compile Include="Sync\test_sync.cs" />
     <Compile Include="SimpleTest\CompareObjects.cs" />
     <Compile Include="SimpleTest\gs_spec.cs" />
     <Compile Include="SimpleTest\spec_syntax.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sync\UnitTest1.cs" />
     <Compile Include="TestSetup.cs" />
     <Compile Include="User\create_user2.cs" />
   </ItemGroup>
@@ -129,7 +130,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\push-response.json" />
     <None Include="packages.config" />
+    <None Include="Data\push.json" />
   </ItemGroup>
   <ItemGroup />
   <Choose>

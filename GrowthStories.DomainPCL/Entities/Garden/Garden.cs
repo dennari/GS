@@ -23,6 +23,29 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PlantAdded(this.Id, plantId, plantName));
         }
 
+        public bool Public
+        {
+            get
+            {
+                return State.Public ?? false;
+            }
+            set
+            {
+                if (!State.Public.HasValue || State.Public.Value != value)
+                {
+                    if (value == true)
+                    {
+                        RaiseEvent(new MarkedGardenPublic(Id));
+                    }
+                    else
+                    {
+                        RaiseEvent(new MarkedGardenPrivate(Id));
+                    }
+                }
+
+            }
+        }
+
 
     }
 

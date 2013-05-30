@@ -7,8 +7,8 @@ namespace Growthstories.Core
 {
     public interface IEvent : IMessage
     {
-        //Guid EventId { get; set; }
+        Guid EventId { get; set; }
         Guid EntityId { get; set; }
-        //int Version { get; set; }
+        int EntityVersion { get; set; }
     }
 }

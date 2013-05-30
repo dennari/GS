@@ -34,6 +34,7 @@ namespace Growthstories.Domain.Messaging
         }
 
 
+
         public void When(CreateUser c)
         {
 
@@ -50,7 +51,7 @@ namespace Growthstories.Domain.Messaging
             DoIt(() =>
             {
                 var u = _repository.GetById<Plant>(c.EntityId);
-                u.Create(c.EntityId);
+                u.Create(c);
                 return u;
             });
         }
@@ -91,19 +92,25 @@ namespace Growthstories.Domain.Messaging
             DoIt(() =>
             {
                 var u = _repository.GetById<Plant>(c.PlantId);
-                u.Create(c.PlantId);
+                u.Create(c);
                 return u;
             });
 
             DoIt(() =>
             {
-                //var u = _repository.GetById<Plant>(c.PlantId);
-                //u.ThrowOnInvalidStateTransition(c);
-                //u.Create(c.PlantId);
-
                 var a = _repository.GetById<Garden>(c.EntityId);
                 a.AddPlant(c.PlantId, c.PlantName);
                 return a;
+            });
+        }
+
+        public void When(MarkGardenPublic c)
+        {
+            DoIt(() =>
+            {
+                var u = _repository.GetById<Garden>(c.EntityId);
+                u.Public = true;
+                return u;
             });
         }
 

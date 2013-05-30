@@ -1,0 +1,184 @@
+{
+
+  "clientDatabaseId": "testclientdbid",
+  "pushId": "%PUSH_ID%",
+
+  "cmds": [
+    {
+      "type": "addPlant",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "parentId": "%GARDEN_ID%",
+      "parentAncestorId": 1,
+      "name": "JORE",
+      "incId": 1366059655716,
+      "createdOn": 1366059655622,
+      "guid": "ap0000"
+    },
+   {
+      "type": "addComment",
+      "targetEntityId": "diosfuyioasdfu",
+      "targetAncestorId": 1,
+      "parentId": "dfas",
+      "parentAncestorId": 1,
+      "note": "hello world",
+      "incId": 1366059655717,
+      "createdOn": 1366059655622,
+      "guid": "ac0000"    
+    },
+    {
+      "type": "addPhoto",
+      "targetEntityId": "eyrwuieyrweui",
+      "targetAncestorId": 1,
+      "parentId": "dfas",
+      "parentAncestorId": 1,
+      "blobKey": "fake-blob-key-3290483",
+      "incId": 1366059655718,
+      "createdOn": 1366059655622,
+      "guid": "ap0000"    
+    },
+    {
+      "type": "addWatering",
+      "targetEntityId": "bncnnbncvbb",
+      "targetAncestorId": 1,
+      "parentId": "dfas",
+      "parentAncestorId": 1,
+      "incId": 1366059655719,
+      "createdOn": 1366059655622,
+      "guid": "aw0000"    
+    },
+    {
+      "type": "addFertilizing",
+      "targetEntityId": "cvzvzxcvcxzv",
+      "targetAncestorId": 1,
+      "parentId": "dfas",
+      "parentAncestorId": 1,
+      "incId": 1366059655720,
+      "createdOn": 1366059655622,
+      "guid": "af0000"    
+    },
+    {
+      "type": "setProperty",
+      "targetEntityId": "eyrwuieyrweui",
+      "targetAncestorId": 1,
+      "parentId": "dfas",
+      "parentAncestorId": 1,
+      "incId": 1366059655721,
+      "createdOn": 1366059655622,
+      "guid": "sp0000",
+      "kind": "photo",
+      "propName": "note",
+      "propValue": "photo note"
+   },
+   {
+      "type": "addIntervalSchedule",
+      "targetEntityId": "dcasnkcklasdn",
+      "targetAncestorId": 1,
+      "parentId": "1",
+      "incId": 1366059655722,
+      "createdOn": 1366059655622,
+      "interval": 40,
+      "guid": "ais0000"    
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "incId": 1366059655723,
+      "createdOn": 1366059655622,
+      "guid": "sp0001",
+      "kind": "plant",
+      "propName": "wateringSchedule",
+      "propValue": 
+    {
+      "ancestorId": 1,
+      "entityId": "dcasnkcklasdn"
+    }
+   },
+   {
+      "type": "addPlant",
+      "targetEntityId": "vsdsdvgfsdg",
+      "targetAncestorId": 1,
+      "parentId": "%GARDEN_ID%",
+      "parentAncestorId": 1,
+      "name": "LORI",
+      "incId": 1366059655723,
+      "createdOn": 1366059655622,
+      "guid": "ap0001"
+   },
+   {
+      "type": "addReferenceSchedule",
+      "targetEntityId": "43t523yt5i4",
+      "targetAncestorId": 1,
+      "parentId": "1",
+      "incId": 1366059655723,
+      "createdOn": 1366059655622,
+      "guid": "ars0000",
+      "refPlantId": "dfas",
+      "refPlantAncestorId": 1
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "vsdsdvgfsdg",
+      "targetAncestorId": 1,
+      "incId": 1366059655724,
+      "createdOn": 1366059655622,
+      "guid": "sp0002",
+      "kind": "plant",
+      "propName": "wateringSchedule",
+      "propValue": 
+    {
+      "ancestorId": 1,
+      "entityId": "43t523yt5i4"
+    }
+   },
+   {
+      "type": "addRelationship",
+      "targetEntityId": "y24t523yu",
+      "targetAncestorId": 1,
+      "parentId": "1",
+      "incId": 1366059655725,
+      "createdOn": 1366059655622,
+      "guid": "arela0000",
+      "toId": "%BOB_USER_ID%"
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "incId": 1366059655726,
+      "createdOn": 1366059655622,
+      "guid": "sp0003",
+      "kind": "plant",
+      "propName": "photo",
+      "propValue": 
+    {
+      "ancestorId": 1,
+      "entityId": "eyrwuieyrweui"
+    }
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "incId": 1366059655728,
+      "createdOn": 1366059655622,
+      "guid": "sp389274",
+      "kind": "plant",
+      "propName": "shared",
+      "propValue": "true"
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "y24t523yu",
+      "targetAncestorId": 1,
+      "incId": 1366059655730,
+      "createdOn": 1366059655622,
+      "guid": "sp754754",
+      "kind": "relationship",
+      "propName": "state",
+      "propValue": "requested"
+   }
+ ]
+}
+

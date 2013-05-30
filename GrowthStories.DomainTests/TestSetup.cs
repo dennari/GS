@@ -6,6 +6,7 @@ using EventStore;
 using EventStore.Dispatcher;
 using Growthstories.Core;
 using Growthstories.Domain;
+using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Domain.Services;
 using Growthstories.Sync;
@@ -54,6 +55,10 @@ namespace Growthstories.DomainTests
         {
             kernel.Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
             kernel.Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
+            kernel.Bind<ITranslateEvents>().To<SyncTranslator>();
+            kernel.Bind<ITransportEvents>().To<SyncTransporter>();
+
+            kernel.Bind<Synchronizer>().ToSelf();
 
             kernel.Bind<IStoreEvents>().ToMethod(_ =>
             {
@@ -65,17 +70,24 @@ namespace Growthstories.DomainTests
                 .UsingSynchronousDispatchScheduler()
                 .DispatchTo(_.Kernel.Get<IDispatchCommits>())
                 .Build();
-            });
+            }).InSingletonScope();
 
 
             kernel.Bind<IRepository>().ToConstructor(aa => new EventStoreRepository(
                 aa.Inject<IStoreEvents>(),
                 aa.Inject<IConstructAggregates>(),
                 aa.Inject<IDetectConflicts>())
-            );
-            kernel.Bind<ICommandHandler<ICommand>>().To<CommandHandler>();
+            ).InSingletonScope();
+            kernel.Bind<ICommandHandler<ICommand>>().To<CommandHandler>().InSingletonScope();
             kernel.Bind<IConstructAggregates>().To<AggregateFactory>().InSingletonScope();
             kernel.Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
+            kernel.Bind<IMemento>().ToMethod(c =>
+            {
+                var u = new User();
+                u.ApplyState(null);
+                u.Create(Guid.Parse("10000000-0000-0000-0000-000000000000"));
+                return u;
+            }).Named("CurrentUser");
             return kernel;
         }
     }

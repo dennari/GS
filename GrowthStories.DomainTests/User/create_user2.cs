@@ -14,7 +14,7 @@ namespace Growthstories.DomainTests
         {
             Given();
             When(new CreateUser(id));
-            Expect(new UserCreated(id));
+            Expect(new UserCreated(id) { EntityVersion = 1 });
         }
 
         [Test]

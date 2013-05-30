@@ -1,0 +1,78 @@
+{
+
+  "clientDatabaseId": "testclientdbid",
+  "pushId": "%PUSH_ID%",
+
+  "cmds": [
+    {
+      "type": "addPlant",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "parentId": "%GARDEN_ID%",
+      "parentAncestorId": 1,
+      "name": "JORE",
+      "incId": 1366059655716,
+      "createdOn": 1366059655622,
+      "guid": "ap0000"
+    },
+   {
+      "type": "addPlant",
+      "targetEntityId": "vsdsdvgfsdg",
+      "targetAncestorId": 1,
+      "parentId": "%GARDEN_ID%",
+      "parentAncestorId": 1,
+      "name": "LORI",
+      "incId": 1366059655723,
+      "createdOn": 1366059655622,
+      "guid": "ap0001"
+   },
+   {
+      "type": "addReferenceSchedule",
+      "targetEntityId": "43t523yt5i4",
+      "targetAncestorId": 1,
+      "parentId": "1",
+      "incId": 1366059655723,
+      "createdOn": 1366059655622,
+      "guid": "ars0000",
+      "refPlantId": "dfas",
+      "refPlantAncestorId": 1
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "vsdsdvgfsdg",
+      "targetAncestorId": 1,
+      "incId": 1366059655724,
+      "createdOn": 1366059655622,
+      "guid": "sp0002",
+      "kind": "plant",
+      "propName": "wateringSchedule",
+      "propValue": 
+    {
+      "ancestorId": 1,
+      "entityId": "43t523yt5i4"
+    }
+   },
+   {
+      "type": "addRelationship",
+      "targetEntityId": "y24t523yu",
+      "targetAncestorId": 1,
+      "parentId": "1",
+      "incId": 1366059655725,
+      "createdOn": 1366059655622,
+      "guid": "arela0000",
+      "toId": "%BOB_USER_ID%"
+   },
+   {
+      "type": "setProperty",
+      "targetEntityId": "dfas",
+      "targetAncestorId": 1,
+      "incId": 1366059655728,
+      "createdOn": 1366059655622,
+      "guid": "sp389274",
+      "kind": "plant",
+      "propName": "shared",
+      "propValue": "true"
+   }
+ ]
+}
+

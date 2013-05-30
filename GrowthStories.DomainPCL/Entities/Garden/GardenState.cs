@@ -43,6 +43,16 @@ namespace Growthstories.Domain.Entities
             PlantIds.Add(@event.PlantId);
         }
 
+        public void Apply(MarkedGardenPublic @event)
+        {
+            Public = true;
+        }
+
+        public void Apply(MarkedGardenPrivate @event)
+        {
+            Public = false;
+        }
+
 
     }
 }

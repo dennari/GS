@@ -13,7 +13,7 @@ namespace Growthstories.DomainTests
         {
             Given();
             When(new CreatePlantAction(id));
-            Expect(new PlantActionCreated(id));
+            Expect(new PlantActionCreated(id) { EntityVersion = 1 });
         }
 
         [Test]

@@ -1,4 +1,5 @@
 ﻿using Growthstories.Core;
+using System.Collections.Generic;
 
 
 namespace Growthstories.Sync
@@ -7,5 +8,7 @@ namespace Growthstories.Sync
     {
         IEventDTO Out(IEvent msg);
         IEvent In(IEventDTO msg);
+
+        ICollection<IEventDTO> Out(IEnumerable<IEvent> msgs);
     }
 }
