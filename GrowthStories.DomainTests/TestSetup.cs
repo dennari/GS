@@ -53,10 +53,14 @@ namespace Growthstories.DomainTests
 
         public static IKernel WireUp2(this IKernel kernel)
         {
+            //kernel.Bind<IKernel>().ToMethod((c) => kernel);
             kernel.Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
             kernel.Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
             kernel.Bind<ITranslateEvents>().To<SyncTranslator>();
-            kernel.Bind<ITransportEvents>().To<SyncTransporter>();
+            kernel.Bind<ITransportEvents>().To<HttpSyncTransporter>();
+            kernel.Bind<ISyncPushRequest>().To<HttpPushRequest>();
+            kernel.Bind<ISyncPullRequest>().To<HttpPullRequest>();
+            kernel.Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
 
             kernel.Bind<Synchronizer>().ToSelf();
 

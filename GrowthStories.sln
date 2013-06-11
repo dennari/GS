@@ -143,6 +143,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.Sync", "Growt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.Sync.WP8", "GrowthStories.Sync.WP8\GrowthStories.Sync.WP8.csproj", "{FF3BA606-F275-4CF5-8915-E386FD956B3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.Sync.EventStore", "GrowthStories.Sync.EventStore\GrowthStories.Sync.EventStore.csproj", "{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Phone Device|Any CPU = Debug Phone Device|Any CPU
@@ -3846,6 +3848,54 @@ Global
 		{FF3BA606-F275-4CF5-8915-E386FD956B3F}.Release|x64.ActiveCfg = Release|Any CPU
 		{FF3BA606-F275-4CF5-8915-E386FD956B3F}.Release|x86.ActiveCfg = Release|x86
 		{FF3BA606-F275-4CF5-8915-E386FD956B3F}.Release|x86.Build.0 = Release|x86
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|ARM.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|Win32.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|x64.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug Phone Device|x86.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|ARM.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|Win32.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|x64.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug PhoneApp|x86.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|ARM.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|Win32.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|x64.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug StoreApp|x86.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|ARM.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|Mixed Platforms.Build.0 = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|Win32.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|x64.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Netflix|x86.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|ARM.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|Win32.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|x64.ActiveCfg = Release|Any CPU
+		{06185D51-3DAD-4645-9637-0FCEE8A9EDAA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

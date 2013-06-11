@@ -10,6 +10,10 @@ using Growthstories.Sync;
 using Ninject.Parameters;
 using SimpleTesting;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
+using System.Net.Http;
+using System.Collections.Generic;
 
 namespace Growthstories.DomainTests
 {
@@ -17,8 +21,9 @@ namespace Growthstories.DomainTests
     {
 
         [Test]
-        public void TestSyncDispatch()
+        public void TestPendingSync()
         {
+
             var PlantId = Guid.NewGuid();
             var Name = "Jore";
             var GardenId = Guid.NewGuid();
@@ -42,25 +47,123 @@ namespace Growthstories.DomainTests
             Assert.IsTrue(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(PlantId) { EntityVersion = 2 }));
             Assert.IsFalse(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(Guid.Empty) { EntityVersion = 2 }));
 
-            var req = Synchronizer.GetPushRequest();
-            var resp = req.Execute();
 
-            var reqE = req.cmds.ToArray();
-            var respE = resp.Events.ToArray();
-
-            Assert.AreEqual(toJSON(reqE[0]), toJSON(respE[0]));
-            Assert.AreEqual(toJSON(reqE[1]), toJSON(respE[1]));
-
-
-            //Console.WriteLine(toJSON(req));
-            //Console.WriteLine(toJSON(resp.Events.ToArray()));
-
-
-            SyncStore.Purge();
-            syncEvents = Synchronizer.PendingSynchronization().ToArray();
-            Assert.AreEqual(0, syncEvents.Length);
 
         }
+
+        [Test]
+        public async Task TestAsyncSyncDispatch()
+        {
+
+            var PlantId = Guid.NewGuid();
+            var Name = "Jore";
+            var GardenId = Guid.NewGuid();
+
+            Handler.Handle(new CreateGarden(GardenId));
+            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle(new MarkPlantPublic(PlantId));
+            Handler.Handle(new MarkGardenPublic(GardenId));
+
+            HttpClient.CreateResponse = (HttpRequestMessage request) =>
+            {
+                var jreq = request as JsonRequest;
+                var req = (ISyncPushRequest)jreq.Inner;
+                return new HttpPushResponse()
+                {
+                    PushId = req.PushId,
+                    ClientDatabaseId = req.ClientDatabaseId,
+                    LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
+                    StatusCode = 200,
+                    StatusDesc = "OK",
+                    AlreadyExecuted = false
+                };
+            };
+
+            var reqq = (HttpPushRequest)Synchronizer.GetPushRequest();
+
+            var resp = (HttpPushResponse)await reqq.ExecuteAsync();
+
+            Console.WriteLine(toJSON(reqq));
+            Console.WriteLine(toJSON(resp));
+
+            Assert.AreNotEqual(reqq.PushId, Guid.Empty);
+            Assert.AreNotEqual(reqq.ClientDatabaseId, Guid.Empty);
+            Assert.AreEqual(reqq.PushId, resp.PushId);
+            Assert.AreEqual(reqq.ClientDatabaseId, resp.ClientDatabaseId);
+
+
+        }
+
+
+        [Test]
+        public async Task TestRebase()
+        {
+            var PlantId = Guid.NewGuid();
+            var Name = "Jore";
+            var GardenId = Guid.NewGuid();
+
+            Handler.Handle(new CreateGarden(GardenId));
+            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
+            //Handler.Handle(new MarkPlantPublic(PlantId));
+            Handler.Handle(new MarkGardenPublic(GardenId));
+
+            HttpClient.CreateResponse = (HttpRequestMessage request) =>
+            {
+                var jreq = request as JsonRequest;
+                var req = (ISyncPushRequest)jreq.Inner;
+                return new HttpPushResponse()
+                {
+                    PushId = req.PushId,
+                    ClientDatabaseId = req.ClientDatabaseId,
+                    LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
+                    StatusCode = 200,
+                    StatusDesc = "OK",
+                    AlreadyExecuted = false
+                };
+            };
+
+
+            Assert.AreEqual(1, await Synchronizer.Synchronize());
+
+            HttpClient.CreateResponse = (HttpRequestMessage request) =>
+            {
+                var jreq = request as JsonRequest;
+                var req = jreq.Inner as ISyncPushRequest;
+                if (req != null)
+                    return new HttpPushResponse()
+                    {
+                        PushId = req.PushId,
+                        ClientDatabaseId = req.ClientDatabaseId,
+                        LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
+                        StatusCode = 404,
+                        StatusDesc = "Not OK",
+                        AlreadyExecuted = false
+                    };
+                else
+                {
+                    return new HttpPullResponse()
+                    {
+                        Events = new List<IEventDTO>()
+                        {
+                            new PlantAddedDTO(new PlantAdded(GardenId,Guid.NewGuid(),"Jaakko")) 
+                        }
+                    };
+                }
+            };
+
+            Handler.Handle(new MarkPlantPublic(PlantId));
+
+            Assert.AreEqual(1, await Synchronizer.Synchronize());
+            //Assert.Are
+
+            //var resp = (HttpPushResponse)await reqq.ExecuteAsync();
+
+
+
+        }
+
+
+
 
         [Test]
         public void TestSyncDispatch2()
@@ -97,7 +200,8 @@ namespace Growthstories.DomainTests
         protected JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
             Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.None
+            TypeNameHandling = TypeNameHandling.None,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
         public string toJSON(object o)
@@ -110,6 +214,14 @@ namespace Growthstories.DomainTests
             get
             {
                 return kernel.Get<IRepository>();
+            }
+        }
+
+        public FakeHttpClient HttpClient
+        {
+            get
+            {
+                return kernel.Get<IHttpClient>() as FakeHttpClient;
             }
         }
 

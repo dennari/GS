@@ -1,0 +1,20 @@
+{
+
+  "clientDatabaseId": "testclientdbid",
+  "pushId": "dklsjfsdfklj",
+
+  "cmds": [
+   {
+      "type": "setProperty",
+      "targetEntityId": "%RELATIONSHIP_ID%",
+      "targetAncestorId": 1,
+      "incId": 13660596555454,
+      "createdOn": 1366059655622,
+      "guid": "sp490385",
+      "kind": "relationship",
+      "propName": "state",
+      "propValue": "accepted"
+   }
+ ]
+}
+

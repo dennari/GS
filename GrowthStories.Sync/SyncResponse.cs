@@ -14,7 +14,7 @@ namespace Growthstories.Sync
 
     public interface ISyncResponse
     {
-        bool IsValid();
+        //bool IsValid();
     }
 
     public interface ISyncPushResponse : ISyncResponse
@@ -22,11 +22,30 @@ namespace Growthstories.Sync
 
         Guid ClientDatabaseId { get; }
         Guid PushId { get; }
-        IEnumerable<IEventDTO> Events { get; }
+        bool AlreadyExecuted { get; }
+
+        /**
+         * Last command that was executed
+         * 
+         * value is zero (0) if no commands were executed
+         */
+        Guid LastExecuted { get; }
+
+        /**
+         * Status code
+         */
+        int StatusCode { get; }
+
+        String StatusDesc { get; }
+
+        //public Map<String, Long> guids = new HashMap<String, Long>();
+
     }
 
     public interface ISyncPullResponse : ISyncResponse
-    { }
+    {
+        IList<IEventDTO> Events { get; }
+    }
 
 
 

@@ -55,6 +55,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -71,7 +72,6 @@
   <ItemGroup>
     <Compile Include="Garden\create_garden.cs" />
     <Compile Include="Garden\add_plant_to_garden.cs" />
-    <Compile Include="PlantAction\create_plantaction.cs" />
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
     <Compile Include="Sync\test_sync.cs" />
@@ -130,11 +130,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\fb-comments-response.json" />
+    <None Include="Data\push-accept-friend.json" />
     <None Include="Data\push-response.json" />
+    <None Include="Data\syncpush-more.json" />
     <None Include="packages.config" />
     <None Include="Data\push.json" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="PlantAction\" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

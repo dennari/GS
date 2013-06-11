@@ -114,15 +114,15 @@ namespace Growthstories.Domain.Messaging
             });
         }
 
-        public void When(CreatePlantAction c)
-        {
-            DoIt(() =>
-            {
-                var u = _repository.GetById<PlantAction>(c.EntityId);
-                u.Create(c.EntityId);
-                return u;
-            });
-        }
+        //public void When(CreatePlantAction c)
+        //{
+        //    DoIt(() =>
+        //    {
+        //        var u = _repository.GetById<PlantAction>(c.EntityId);
+        //        u.Create(c.EntityId);
+        //        return u;
+        //    });
+        //}
 
         public void Handle(ICommand e)
         {

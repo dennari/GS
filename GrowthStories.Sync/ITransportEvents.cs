@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace Growthstories.Sync
@@ -9,6 +10,7 @@ namespace Growthstories.Sync
         ISyncPushRequest CreatePushRequest(ICollection<IEventDTO> syncDTOs);
         ISyncPullRequest CreatePullRequest();
 
-        //object CreatePushRequest(IEventDTO eventDTO);
+        Task<ISyncPushResponse> PushAsync(ISyncPushRequest request);
+        Task<ISyncPullResponse> PullAsync(ISyncPullRequest request);
     }
 }

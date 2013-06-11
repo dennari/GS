@@ -8,7 +8,8 @@ namespace Growthstories.Core
     {
         public static void Save(this IRepository repository, IAggregate aggregate)
         {
-            repository.Save(aggregate, Guid.NewGuid(), (headers) => {
+            repository.Save(aggregate, Guid.NewGuid(), (headers) =>
+            {
                 //headers.Add()
             });
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CommonDomain.Core;
 using CommonDomain;
 using EventStore;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Growthstories.Domain.Entities;
 using Growthstories.Core;
+using System.Net.Http;
 
 namespace Growthstories.Sync
 {
@@ -27,61 +29,97 @@ namespace Growthstories.Sync
         }
 
 
-        public Task<bool> Synchronize()
+        public async Task<int> Synchronize()
         {
-            return Push();
+
             int MaxTries = 5;
             int Counter = 0;
-            //while (await Pull() && Counter < MaxTries)
-            //{
-            //if (await Push())
-            //{
-            //RaiseEvent(new Synchronized(Id));
-            //return true;
-            //}
+
+            ICollection<IEventStream> pending = UpdatedStreams().ToArray();
+            if (pending.Count == 0)
+            {
+                return Counter;
+            }
+            ISyncPushResponse pushResp = await Transporter.PushAsync(Transporter.CreatePushRequest(Translator.Out(EventsFromStreams(pending)))); // try pushing
+            ISyncPullResponse pullResp = null;
+            ICollection<IEvent> incoming = null;
             Counter++;
-            //}
-            //return false;
+
+            while (Counter < MaxTries && pushResp.StatusCode != 200) // if push didn't go through and we haven't exceeded maxtries, try pulling and pushing
+            {
+
+                // pull
+                pullResp = await Transporter.PullAsync(Transporter.CreatePullRequest());
+                incoming = Translator.In(pullResp.Events);
+                if (incoming.Count > 0)
+                {
+                    Rebase(pending, incoming);
+                }
+
+                // start anew by pushing again
+                pending = UpdatedStreams().ToArray();
+                pushResp = await Transporter.PushAsync(Transporter.CreatePushRequest(Translator.Out(EventsFromStreams(pending))));
+
+                Counter++;
+            }
+            return Counter;
         }
 
-        private async Task<bool> Pull()
+        public void Rebase(ICollection<IEventStream> outgoing, ICollection<IEvent> incoming)
         {
-            ISyncPullResponse r = await Transporter.CreatePullRequest().Execute();
-            return true;
+
+            var o = outgoing.ToDictionary(x => x.StreamId);
+            var i = incoming.GroupBy(x => x.EntityId).ToDictionary(x => x.Key);
+
+            var oIds = o.Keys;
+            var iIds = i.Keys;
+
+            var conflicting = iIds.Intersect(oIds);
+            var nonconflicting = iIds.Except(conflicting);
+
+            foreach (var cId in conflicting)
+            {
+                EventStore.Rebase(o[cId], i[cId].Select(x => new EventMessage() { Body = x }).ToArray());
+            }
+
+
+
         }
+
 
         public ISyncPushRequest GetPushRequest()
         {
             return Transporter.CreatePushRequest(Translator.Out(PendingSynchronization()));
         }
 
-        private Task<bool> Push()
+        public IEnumerable<IEvent> PendingSynchronization()
         {
-            var req = GetPushRequest();
-            var resp = req.Execute();
-            return new Task<bool>(() => true);
+            return EventsFromStreams(UpdatedStreams());
         }
 
-        public IEnumerable<IEvent> PendingSynchronization()
+        public IEnumerable<IEvent> EventsFromStreams(IEnumerable<IEventStream> streams)
+        {
+            foreach (var stream in streams)
+            {
+                foreach (var @event in stream.CommittedEvents)
+                {
+                    yield return (IEvent)@event.Body;
+                }
+            }
+        }
+
+        public IEnumerable<IEventStream> UpdatedStreams()
         {
             foreach (var lastSync in SyncStore.GetSyncHeads())
             {
                 IEventStream changes = EventStore.OpenStream(lastSync.StreamId, lastSync.SyncedRevision + 1, int.MaxValue);
                 if (changes.StreamRevision > lastSync.SyncedRevision) // updates exist
                 {
-                    foreach (var @event in changes.CommittedEvents)
-                    {
-                        yield return (IEvent)@event.Body;
-                    }
+                    yield return changes;
                 }
             }
         }
 
-        private async Task<bool> Push(ISyncPushRequest req)
-        {
-            ISyncPushResponse r = req.Execute();
-            return true;
-        }
 
     }
 }

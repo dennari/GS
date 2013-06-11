@@ -46,10 +46,6 @@
     <Compile Include="Entities\Garden\Events.cs" />
     <Compile Include="Entities\Garden\Garden.cs" />
     <Compile Include="Entities\Garden\GardenState.cs" />
-    <Compile Include="Entities\PlantAction\Commands.cs" />
-    <Compile Include="Entities\PlantAction\Events.cs" />
-    <Compile Include="Entities\PlantAction\PlantAction.cs" />
-    <Compile Include="Entities\PlantAction\PlantActionState.cs" />
     <Compile Include="Entities\Plant\Commands.cs" />
     <Compile Include="Entities\Plant\Events.cs" />
     <Compile Include="Entities\Plant\Plant.cs" />

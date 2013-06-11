@@ -65,8 +65,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTOs.cs" />
-    <Compile Include="Fakes\FakeSyncPushRequest.cs" />
-    <Compile Include="Fakes\FakeSyncPushResponse.cs" />
+    <Compile Include="Fakes\FakeHttpClient.cs" />
+    <Compile Include="HttpPushRequest.cs" />
+    <Compile Include="HttpPullRequest.cs" />
+    <Compile Include="IHttpClient.cs" />
+    <Compile Include="JsonRequest.cs" />
+    <Compile Include="JsonResponse.cs" />
+    <Compile Include="HttpPushResponse.cs" />
+    <Compile Include="HttpPullResponse.cs" />
+    <Compile Include="IMessageSender.cs" />
+    <Compile Include="StoreExtensions.cs" />
+    <Compile Include="SyncHttpClient.cs" />
     <Compile Include="SyncRequest.cs" />
     <Compile Include="ISyncPersistence.cs" />
     <Compile Include="StorageException.cs" />
@@ -82,7 +91,8 @@
     <Compile Include="SyncResponse.cs" />
     <Compile Include="SynchronizerPipelineHook.cs" />
     <Compile Include="SyncTranslator.cs" />
-    <Compile Include="SyncTransporter.cs" />
+    <Compile Include="SyncHttpHandler.cs" />
+    <Compile Include="HttpSyncTransporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AdvancedREI.Net.Http.Compression">
@@ -116,6 +126,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.5\tools\Microsoft.Bcl.Build.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

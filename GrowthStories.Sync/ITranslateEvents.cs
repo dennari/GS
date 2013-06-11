@@ -10,5 +10,7 @@ namespace Growthstories.Sync
         IEvent In(IEventDTO msg);
 
         ICollection<IEventDTO> Out(IEnumerable<IEvent> msgs);
+
+        ICollection<IEvent> In(IEnumerable<IEventDTO> enumerable);
     }
 }
