@@ -1,6 +1,8 @@
 ﻿using CommonDomain;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Ninject;
 using System;
 using System.Collections.Generic;
@@ -19,72 +21,43 @@ namespace Growthstories.Sync
         public IMemento Ancestor { get; set; }
 
 
-        public IEventDTO Out(IEvent msg)
-        {
-            return ((dynamic)this).TranslateOut((dynamic)msg);
-        }
 
-
-        protected IEventDTO TranslateOut(PlantAdded @event)
+        public IEnumerable<IEventDTO> Out(IEnumerable<IDomainEvent> events)
         {
-            return TranslateOutHelper(new PlantAddedDTO(@event));
-        }
-
-        protected IEventDTO TranslateOut(MarkedPlantPublic @event)
-        {
-            return TranslateOutHelper(new SetPropertyDTO(@event));
-        }
-
-        private IEventDTO TranslateOutHelper(IEventDTO p)
-        {
-            p.targetAncestorId = Ancestor.Id;
-            p.parentAncestorId = Ancestor.Id;
-            return p;
-        }
-
-        public ICollection<IEventDTO> Out(IEnumerable<IEvent> msgs)
-        {
-            var dtos = new List<IEventDTO>();
-            foreach (var @event in msgs)
+            foreach (var e in events)
             {
+                IEventDTO ed = null;
                 try
                 {
-                    dtos.Add(Out(@event));
-                }
-                catch (Exception)
-                {
+                    ed = e.ToDTO();
+                    ed.AncestorId = Ancestor.Id;
+                    var edd = ed as IAddEntityDTO;
+                    if (edd != null)
+                    {
+                        edd.ParentAncestorId = Ancestor.Id;
+                    }
 
-                    continue;
+                }
+                catch (Exception) { }
+                if (ed != null)
+                {
+                    yield return ed;
+                }
+            }
+        }
+
+        public IEnumerable<IDomainEvent> In(IEnumerable<IEventDTO> dtos)
+        {
+
+            foreach (var dto in dtos)
+            {
+                var union = dto as EventDTOUnion;
+                if (union != null)
+                {
+                    yield return union.ToEvent();
                 }
 
             }
-            return dtos;
-        }
-
-
-        public IEvent In(IEventDTO msg)
-        {
-            return ((dynamic)this).TranslateIn((dynamic)msg);
-        }
-
-
-        public ICollection<IEvent> In(IEnumerable<IEventDTO> msgs)
-        {
-            var events = new List<IEvent>();
-            foreach (var @event in msgs)
-            {
-                try
-                {
-                    events.Add(In(@event));
-                }
-                catch (Exception)
-                {
-
-                    continue;
-                }
-
-            }
-            return events;
         }
 
 

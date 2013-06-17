@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using System.Net.Http;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.Sync
 {
@@ -42,7 +43,7 @@ namespace Growthstories.Sync
             }
             ISyncPushResponse pushResp = await Transporter.PushAsync(Transporter.CreatePushRequest(Translator.Out(EventsFromStreams(pending)))); // try pushing
             ISyncPullResponse pullResp = null;
-            ICollection<IEvent> incoming = null;
+            IEvent[] incoming = null;
             Counter++;
 
             while (Counter < MaxTries && pushResp.StatusCode != 200) // if push didn't go through and we haven't exceeded maxtries, try pulling and pushing
@@ -50,8 +51,8 @@ namespace Growthstories.Sync
 
                 // pull
                 pullResp = await Transporter.PullAsync(Transporter.CreatePullRequest());
-                incoming = Translator.In(pullResp.Events);
-                if (incoming.Count > 0)
+                incoming = Translator.In(pullResp.Events).ToArray();
+                if (incoming.Length > 0)
                 {
                     Rebase(pending, incoming);
                 }
@@ -92,18 +93,18 @@ namespace Growthstories.Sync
             return Transporter.CreatePushRequest(Translator.Out(PendingSynchronization()));
         }
 
-        public IEnumerable<IEvent> PendingSynchronization()
+        public IEnumerable<IDomainEvent> PendingSynchronization()
         {
             return EventsFromStreams(UpdatedStreams());
         }
 
-        public IEnumerable<IEvent> EventsFromStreams(IEnumerable<IEventStream> streams)
+        public IEnumerable<IDomainEvent> EventsFromStreams(IEnumerable<IEventStream> streams)
         {
             foreach (var stream in streams)
             {
                 foreach (var @event in stream.CommittedEvents)
                 {
-                    yield return (IEvent)@event.Body;
+                    yield return (IDomainEvent)@event.Body;
                 }
             }
         }

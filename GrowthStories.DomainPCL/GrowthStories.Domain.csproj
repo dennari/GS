@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'QuickTest|AnyCPU'">
+    <OutputPath>bin\QuickTest\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="ContextExtensions.cs" />
     <Compile Include="Entities\Comment\Commands.cs" />
@@ -51,12 +54,15 @@
     <Compile Include="Entities\Plant\Plant.cs" />
     <Compile Include="Entities\Plant\PlantState.cs" />
     <Compile Include="Messaging\CommandHandler.cs" />
-    <Compile Include="Messaging\Commands.cs" />
-    <Compile Include="Messaging\Events.cs" />
+    <Compile Include="Messaging\CommandBase.cs" />
+    <Compile Include="Messaging\EventBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AggregateFactory.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject.Common">
       <HintPath>..\packages\Portable.Ninject.3.0.6\lib\portable-net4+sl4+wp71+win8\Ninject.Common.dll</HintPath>
     </Reference>
@@ -88,6 +94,10 @@
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
       <Name>GrowthStories.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
+      <Project>{5475681a-83be-462d-bda2-91cb9740c111}</Project>
+      <Name>GrowthStories.Sync.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

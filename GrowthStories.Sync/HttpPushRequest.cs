@@ -10,25 +10,30 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Ninject;
+using Growthstories.Domain.Messaging;
 
 
 namespace Growthstories.Sync
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptOut)]
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class HttpPushRequest : ISyncPushRequest
     {
 
 
         private readonly ITransportEvents Transporter;
 
-        [JsonProperty(PropertyName = "cmds")]
-        public ICollection<IEventDTO> Events { get; private set; }
+        [JsonProperty(PropertyName = Language.EVENTS)]
+        public IEnumerable<IEventDTO> Events { get; private set; }
+
+        [JsonProperty(PropertyName = Language.PUSH_ID)]
         public Guid PushId { get; private set; }
+
+        [JsonProperty(PropertyName = Language.CLIENT_ID)]
         public Guid ClientDatabaseId { get; private set; }
 
 
         [Inject]
-        public HttpPushRequest(ITransportEvents transporter, ICollection<IEventDTO> events)
+        public HttpPushRequest(ITransportEvents transporter, IEnumerable<IEventDTO> events)
         {
             // TODO: Complete member initialization
             Events = events;

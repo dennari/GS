@@ -66,17 +66,7 @@ namespace Growthstories.DomainTests
 
             HttpClient.CreateResponse = (HttpRequestMessage request) =>
             {
-                var jreq = request as JsonRequest;
-                var req = (ISyncPushRequest)jreq.Inner;
-                return new HttpPushResponse()
-                {
-                    PushId = req.PushId,
-                    ClientDatabaseId = req.ClientDatabaseId,
-                    LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
-                    StatusCode = 200,
-                    StatusDesc = "OK",
-                    AlreadyExecuted = false
-                };
+                return new { };
             };
 
             var reqq = (HttpPushRequest)Synchronizer.GetPushRequest();
@@ -109,13 +99,8 @@ namespace Growthstories.DomainTests
 
             HttpClient.CreateResponse = (HttpRequestMessage request) =>
             {
-                var jreq = request as JsonRequest;
-                var req = (ISyncPushRequest)jreq.Inner;
                 return new HttpPushResponse()
                 {
-                    PushId = req.PushId,
-                    ClientDatabaseId = req.ClientDatabaseId,
-                    LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
                     StatusCode = 200,
                     StatusDesc = "OK",
                     AlreadyExecuted = false
@@ -127,28 +112,7 @@ namespace Growthstories.DomainTests
 
             HttpClient.CreateResponse = (HttpRequestMessage request) =>
             {
-                var jreq = request as JsonRequest;
-                var req = jreq.Inner as ISyncPushRequest;
-                if (req != null)
-                    return new HttpPushResponse()
-                    {
-                        PushId = req.PushId,
-                        ClientDatabaseId = req.ClientDatabaseId,
-                        LastExecuted = req.Events.ElementAt(req.Events.Count - 1).guid,
-                        StatusCode = 404,
-                        StatusDesc = "Not OK",
-                        AlreadyExecuted = false
-                    };
-                else
-                {
-                    return new HttpPullResponse()
-                    {
-                        Events = new List<IEventDTO>()
-                        {
-                            new PlantAddedDTO(new PlantAdded(GardenId,Guid.NewGuid(),"Jaakko")) 
-                        }
-                    };
-                }
+                return new object { };
             };
 
             Handler.Handle(new MarkPlantPublic(PlantId));
@@ -197,12 +161,13 @@ namespace Growthstories.DomainTests
         }
 
 
-        protected JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
+        protected JsonSerializerSettings SerializerSettings
         {
-            Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.None,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
+            get
+            {
+                return kernel.Get<JsonSerializerSettings>();
+            }
+        }
 
         public string toJSON(object o)
         {

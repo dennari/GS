@@ -69,6 +69,7 @@ namespace Growthstories.Sync
 
         public new static bool Matches(JObject o)
         {
+            o.
             return EventDTO.Matches(o) && (string)o["type"] == "SetProperty" && Required.All(x => o[x] != null);
         }
 

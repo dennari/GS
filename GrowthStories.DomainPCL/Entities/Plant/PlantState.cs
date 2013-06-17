@@ -10,9 +10,20 @@ namespace Growthstories.Domain.Entities
 {
     public class PlantState : AggregateState<PlantCreated>
     {
+        private readonly IList<string> _Comments = new List<string>();
+        public IList<string> Comments { get { return _Comments; } }
 
-        public PlantState() { }
-        public PlantState(Guid id, int version, bool Public) : base(id, version, Public) { }
+        private readonly IList<string> _Photos = new List<string>();
+        public IList<string> Photos { get { return _Photos; } }
+
+
+        public PlantState()
+        {
+        }
+        public PlantState(Guid id, int version, bool Public)
+            : base(id, version, Public)
+        {
+        }
 
         public void Apply(MarkedPlantPublic @event)
         {
@@ -22,6 +33,16 @@ namespace Growthstories.Domain.Entities
         public void Apply(MarkedPlantPrivate @event)
         {
             Public = false;
+        }
+
+        public void Apply(CommentAdded @event)
+        {
+            Comments.Add(@event.Note);
+        }
+
+        public void Apply(PhotoAdded @event)
+        {
+            Photos.Add(@event.BlobKey);
         }
     }
 }

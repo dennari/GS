@@ -14,8 +14,8 @@ namespace Growthstories.Sync
 
         public void MarkPublic(Guid StreamId)
         {
-            _public.Add(StreamId);
-            PersistSyncHead(new SyncHead(StreamId, 0));
+            if (_public.Add(StreamId))
+                PersistSyncHead(new SyncHead(StreamId, 0));
         }
 
 

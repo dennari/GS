@@ -11,24 +11,29 @@ namespace Growthstories.Sync
 {
     public class FakeHttpClient : IHttpClient
     {
+
+        public FakeHttpClient(JsonSerializerSettings jsonSettings)
+        {
+            this.JsonSettings = jsonSettings;
+        }
+
         public Func<HttpRequestMessage, object> CreateResponse;
+        private JsonSerializerSettings JsonSettings;
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption)
         {
 
-
-            string json = JsonConvert.SerializeObject(CreateResponse(request), Formatting.Indented, new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
-            var content = new StringContent(json);
 
             return Task.Run(() =>
             {
 
                 return new HttpResponseMessage()
                 {
-                    Content = content
+                    Content = new StringContent(
+                        JsonConvert.SerializeObject(CreateResponse(request), Formatting.Indented, JsonSettings),
+                        Encoding.UTF8,
+                        "application/json"
+                        )
                 };
             });
         }

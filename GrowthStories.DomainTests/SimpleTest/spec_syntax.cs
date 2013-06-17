@@ -7,6 +7,7 @@ using System.Reflection;
 using EventStore;
 using Growthstories.Core;
 using CommonDomain;
+using Growthstories.Domain.Messaging;
 
 namespace SimpleTesting
 {
@@ -44,11 +45,10 @@ namespace SimpleTesting
         protected abstract IStoreEvents GetEventStore();
 
 
-        protected class ExceptionThrown : IEvent, IAmUsedByUnitTests
+        protected class ExceptionThrown : EventBase, IAmUsedByUnitTests
         {
-            public Guid EntityId { get; set; }
-            public Guid Id { get; set; }
-            public string Name { get; set; }
+            private string Name;
+
 
             public ExceptionThrown(string name)
             {
@@ -60,29 +60,7 @@ namespace SimpleTesting
                 return string.Format("Domain error '{0}'", Name);
             }
 
-            public Guid EventId
-            {
-                get
-                {
-                    return default(Guid);
-                }
-                set
-                {
-                    throw new NotImplementedException();
-                }
-            }
 
-            public int EntityVersion
-            {
-                get
-                {
-                    return default(int);
-                }
-                set
-                {
-                    throw new NotImplementedException();
-                }
-            }
         }
 
         protected IEvent ClockWasSet(int year, int month = 1, int day = 1)
@@ -338,10 +316,9 @@ namespace SimpleTesting
     }
 
 
-    public sealed class SpecSetupEvent : IEvent, IAmUsedByUnitTests
+    public sealed class SpecSetupEvent : EventBase, IAmUsedByUnitTests
     {
-        public Guid EntityId { get; set; }
-        public Guid Id { get; set; }
+
         readonly string _describe;
         public readonly Action Apply;
 
@@ -355,29 +332,7 @@ namespace SimpleTesting
             return _describe;
         }
 
-        public Guid EventId
-        {
-            get
-            {
-                return default(Guid);
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
 
-        public int EntityVersion
-        {
-            get
-            {
-                return default(int);
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
     }
 
     public interface IListSpecifications

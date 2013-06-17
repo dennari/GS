@@ -1,11 +1,9 @@
 ﻿using CommonDomain;
 using Growthstories.Core;
-using Growthstories.Domain.Messaging;
+//using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
@@ -44,7 +42,7 @@ namespace Growthstories.Sync
 
     public interface ISyncPullResponse : ISyncResponse
     {
-        IList<IEventDTO> Events { get; }
+        IEnumerable<IEventDTO> Events { get; }
     }
 
 

@@ -1,6 +1,9 @@
 ﻿using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using System;
+using System.Linq;
+using Newtonsoft.Json;
+using System.ComponentModel;
 
 
 namespace Growthstories.Domain.Messaging
@@ -27,6 +30,11 @@ namespace Growthstories.Domain.Messaging
     {
 
         public Guid PlantId { get; set; }
+
+
+        public Guid AncestorId { get; set; }
+
+
         public string PlantName { get; set; }
 
         public PlantAdded() { }
@@ -41,6 +49,7 @@ namespace Growthstories.Domain.Messaging
         {
             return string.Format(@"Added Plant {0} to Garden {1}", PlantId, EntityId);
         }
+
 
     }
 

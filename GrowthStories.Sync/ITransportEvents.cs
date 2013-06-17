@@ -7,7 +7,7 @@ namespace Growthstories.Sync
 {
     public interface ITransportEvents
     {
-        ISyncPushRequest CreatePushRequest(ICollection<IEventDTO> syncDTOs);
+        ISyncPushRequest CreatePushRequest(IEnumerable<IEventDTO> syncDTOs);
         ISyncPullRequest CreatePullRequest();
 
         Task<ISyncPushResponse> PushAsync(ISyncPushRequest request);

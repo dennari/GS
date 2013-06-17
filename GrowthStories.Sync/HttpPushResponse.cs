@@ -13,17 +13,8 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public class HttpPushResponse : JsonResponse, ISyncPushResponse
+    public class HttpPushResponse : ISyncPushResponse
     {
-
-
-        public HttpPushResponse() { }
-
-        public HttpPushResponse(HttpResponseMessage httpResponse, string body)
-            : base(httpResponse, body)
-        {
-
-        }
 
 
         public Guid ClientDatabaseId { get; set; }

@@ -1,14 +1,6 @@
 using Growthstories.Core;
-using Growthstories.Domain.Messaging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Ninject;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 
@@ -25,7 +17,7 @@ namespace Growthstories.Sync
 
         Guid ClientDatabaseId { get; }
         Guid PushId { get; }
-        ICollection<IEventDTO> Events { get; }
+        IEnumerable<IEventDTO> Events { get; }
 
         Task<ISyncPushResponse> ExecuteAsync();
 

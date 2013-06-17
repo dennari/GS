@@ -19,14 +19,9 @@ namespace Growthstories.Sync
         {
             foreach (var @event in commit.Events.Select(msg => (IEvent)msg.Body))
             {
-                if ((@event is PlantCreated) || ((@event is MarkedGardenPublic)))
-                {
-                    SyncStore.MarkPublic(@event.EntityId);
-                }
-                if ((@event is MarkedPlantPrivate) || ((@event is MarkedGardenPrivate)))
-                {
-                    SyncStore.MarkPrivate(@event.EntityId);
-                }
+
+                SyncStore.MarkPublic(@event.EntityId);
+
             }
         }
 

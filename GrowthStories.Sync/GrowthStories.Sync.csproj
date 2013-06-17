@@ -62,33 +62,29 @@
       <Project>{b3e2cfbd-93fd-4604-8b43-c245947c07ed}</Project>
       <Name>GrowthStories.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
+      <Project>{5475681a-83be-462d-bda2-91cb9740c111}</Project>
+      <Name>GrowthStories.Sync.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DTOs.cs" />
+    <Compile Include="DTO\DTOExtensions.cs" />
     <Compile Include="Fakes\FakeHttpClient.cs" />
     <Compile Include="HttpPushRequest.cs" />
     <Compile Include="HttpPullRequest.cs" />
-    <Compile Include="IHttpClient.cs" />
-    <Compile Include="JsonRequest.cs" />
-    <Compile Include="JsonResponse.cs" />
     <Compile Include="HttpPushResponse.cs" />
     <Compile Include="HttpPullResponse.cs" />
-    <Compile Include="IMessageSender.cs" />
-    <Compile Include="StoreExtensions.cs" />
-    <Compile Include="SyncHttpClient.cs" />
-    <Compile Include="SyncRequest.cs" />
-    <Compile Include="ISyncPersistence.cs" />
-    <Compile Include="StorageException.cs" />
-    <Compile Include="StorageUnavailableException.cs" />
-    <Compile Include="SyncDispatcher.cs" />
-    <Compile Include="SyncHead.cs" />
-    <Compile Include="EventDTO.cs" />
-    <Compile Include="SynchronizerInMemoryPersistence.cs" />
     <Compile Include="ITranslateEvents.cs" />
     <Compile Include="ITransportEvents.cs" />
+    <Compile Include="StoreExtensions.cs" />
+    <Compile Include="SyncHttpClient.cs" />
+    <Compile Include="Exceptions\StorageException.cs" />
+    <Compile Include="Exceptions\StorageUnavailableException.cs" />
+    <Compile Include="SyncDispatcher.cs" />
+    <Compile Include="DTO\EventDTO.cs" />
+    <Compile Include="SynchronizerInMemoryPersistence.cs" />
     <Compile Include="Synchronizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SyncResponse.cs" />
     <Compile Include="SynchronizerPipelineHook.cs" />
     <Compile Include="SyncTranslator.cs" />
     <Compile Include="SyncHttpHandler.cs" />
