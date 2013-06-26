@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using Growthstories.Domain.Messaging;
+using Growthstories.Core;
 
 namespace Growthstories.DomainTests
 {
@@ -14,7 +15,12 @@ namespace Growthstories.DomainTests
         {
             Given();
             When(new CreateUser(id));
-            Expect(new UserCreated(id) { EntityVersion = 1 });
+            Expect(new UserCreated(id)
+            {
+                EntityVersion = 1,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated
+            });
         }
 
         [Test]

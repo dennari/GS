@@ -14,6 +14,8 @@
     <TargetFrameworkProfile>Profile49</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,6 +40,10 @@
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
+      <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
+      <Name>EventStore %28EventStore\EventStore%29</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
       <Name>GrowthStories.Core</Name>
@@ -45,13 +51,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
+    <Compile Include="IAncestorFactory.cs" />
+    <Compile Include="IRebaseEvents.cs" />
+    <Compile Include="IResponseFactory.cs" />
+    <Compile Include="ISyncEventStream.cs" />
+    <Compile Include="ISyncPullRequest.cs" />
+    <Compile Include="ISyncPushRequest.cs" />
+    <Compile Include="ISyncPushResponse.cs" />
+    <Compile Include="ISyncPullResponse.cs" />
+    <Compile Include="IEventStream.cs" />
     <Compile Include="DTOType.cs" />
     <Compile Include="IEventDTO.cs" />
     <Compile Include="IHttpClient.cs" />
-    <Compile Include="IMessageSender.cs" />
-    <Compile Include="ISyncPersistence.cs" />
+    <Compile Include="IRequestFactory.cs" />
+    <Compile Include="IStoreSyncHeads.cs" />
     <Compile Include="ISyncRequest.cs" />
     <Compile Include="ISyncResponse.cs" />
+    <Compile Include="ITranslateEvents.cs" />
+    <Compile Include="ITransportEvents.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyncHead.cs" />
@@ -72,6 +89,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -9,7 +9,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region User
-    public class CreateUser : EntityCommand
+    public class CreateUser : EntityCommand<User>
     {
 
 
@@ -24,7 +24,7 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    public class DeleteUser : EntityCommand
+    public class DeleteUser : EntityCommand<User>
     {
         protected DeleteUser() { }
         public DeleteUser(Guid id) : base(id) { }

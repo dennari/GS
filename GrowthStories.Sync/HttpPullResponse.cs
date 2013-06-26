@@ -10,6 +10,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Growthstories.Domain.Messaging;
+using Growthstories.Core;
 
 
 namespace Growthstories.Sync
@@ -17,16 +18,16 @@ namespace Growthstories.Sync
     public class HttpPullResponse : ISyncPullResponse
     {
 
-        public HttpPullResponse() { }
-
-
-        [JsonProperty(PropertyName = "cmds")]
-        public IEnumerable<IEventDTO> Events
+        public HttpPullResponse()
         {
-            get;
-            set;
+
         }
 
+        [JsonProperty(PropertyName = Language.EVENTS, Required = Required.AllowNull)]
+        public IList<EventDTOUnion> DTOs { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ISyncEventStream> Streams { get; set; }
 
 
     }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Growthstories.Sync
 {
-    public interface IStoreSyncHeads
+    public interface IStoreSyncHeads : IDisposable
     {
         void MarkPublic(Guid StreamId);
 

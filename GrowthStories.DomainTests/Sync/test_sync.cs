@@ -14,11 +14,45 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
 using System.Net.Http;
 using System.Collections.Generic;
+using Growthstories.Domain.Entities;
+using CommonDomain;
+using EventStore;
+
+using CommonDomain.Persistence.EventStore;
+using EventStore.Dispatcher;
+using Growthstories.Domain;
+using EventStore.Logging;
 
 namespace Growthstories.DomainTests
 {
     public class SyncTest
     {
+
+        IKernel kernel;
+        [SetUp]
+        public void SetUp()
+        {
+            if (kernel != null)
+                kernel.Dispose();
+            kernel = new StandardKernel(new TestModule());
+            Log.Info("-----------------------------------------------------------------------------");
+        }
+        private ILog Log = new LogTo4Net(typeof(SyncTest));
+
+        public T Get<T>() { return kernel.Get<T>(); }
+        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public Synchronizer Synchronizer { get { return Get<Synchronizer>(); } }
+        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
+        public IRebaseEvents Rebaser { get { return Get<IRebaseEvents>(); } }
+        public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
+
+        public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
+        public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
+        public IRepository Repository { get { return Get<IRepository>(); } }
+        public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
+        public IMemento CurrentUser { get { return Get<IAncestorFactory>().GetAncestor(); } }
+        public FakeHttpClient HttpClient { get { return kernel.Get<IHttpClient>() as FakeHttpClient; } }
+        public CompareObjects Comparer { get { return new CompareObjects(); } }
 
         [Test]
         public void TestPendingSync()
@@ -31,21 +65,24 @@ namespace Growthstories.DomainTests
             var ZeroHead = new SyncHead(PlantId, 0);
             Assert.IsTrue(ZeroHead == new SyncHead(PlantId, 1));
 
-            Handler.Handle(new CreateGarden(GardenId));
+
+            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
+
+            Assert.IsTrue(SyncStore.GetSyncHeads().Contains(ZeroHead), SyncStore.GetSyncHeads().Count().ToString());
+
+            //var syncEvents = Synchronizer.UpdatedStreams().Aggregate(0, (acc, stream) => acc + stream.Events.Count());
+            Assert.AreEqual(4, Rebaser.Pending().Aggregate(0, (acc, stream) => acc + stream.Events.Count()));
 
 
-            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle(new MarkPlantPublic(PlantId));
-            Handler.Handle(new MarkGardenPublic(GardenId));
 
-            Assert.IsTrue(SyncStore.GetSyncHeads().Contains(ZeroHead));
 
-            var syncEvents = Synchronizer.PendingSynchronization().ToArray();
-            Assert.AreEqual(5, syncEvents.Length);
-            Assert.IsTrue(Comparer.Compare(syncEvents[0], new PlantCreated(PlantId, Name) { EntityVersion = 1 }));
-            Assert.IsFalse(Comparer.Compare(syncEvents[0], new PlantCreated(Guid.Empty, Name) { EntityVersion = 1 }));
-            Assert.IsTrue(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(PlantId) { EntityVersion = 2 }));
-            Assert.IsFalse(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(Guid.Empty) { EntityVersion = 2 }));
+            //Assert.IsTrue(Comparer.Compare(syncEvents[0], new PlantCreated(PlantId, Name) { EntityVersion = 1 }));
+            //Assert.IsFalse(Comparer.Compare(syncEvents[0], new PlantCreated(Guid.Empty, Name) { EntityVersion = 1 }));
+            //Assert.IsTrue(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(PlantId) { EntityVersion = 2 }));
+            //Assert.IsFalse(Comparer.Compare(syncEvents[1], new MarkedPlantPublic(Guid.Empty) { EntityVersion = 2 }));
 
 
 
@@ -59,19 +96,25 @@ namespace Growthstories.DomainTests
             var Name = "Jore";
             var GardenId = Guid.NewGuid();
 
-            Handler.Handle(new CreateGarden(GardenId));
-            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle(new MarkPlantPublic(PlantId));
-            Handler.Handle(new MarkGardenPublic(GardenId));
+            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
 
-            HttpClient.CreateResponse = (HttpRequestMessage request) =>
+
+
+            var reqq = RequestFactory.CreatePushRequest(Rebaser.Pending());
+
+            HttpClient.CreateResponse = (HttpRequestMessage request, int num) =>
             {
-                return new { };
+                return new HttpPushResponse()
+                {
+                    PushId = reqq.PushId,
+                    ClientDatabaseId = reqq.ClientDatabaseId
+                };
             };
 
-            var reqq = (HttpPushRequest)Synchronizer.GetPushRequest();
-
-            var resp = (HttpPushResponse)await reqq.ExecuteAsync();
+            var resp = await Transporter.PushAsync(reqq);
 
             Console.WriteLine(toJSON(reqq));
             Console.WriteLine(toJSON(resp));
@@ -91,37 +134,77 @@ namespace Growthstories.DomainTests
             var PlantId = Guid.NewGuid();
             var Name = "Jore";
             var GardenId = Guid.NewGuid();
+            var CurrentUser = this.CurrentUser;
 
-            Handler.Handle(new CreateGarden(GardenId));
-            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
-            //Handler.Handle(new MarkPlantPublic(PlantId));
-            Handler.Handle(new MarkGardenPublic(GardenId));
 
-            HttpClient.CreateResponse = (HttpRequestMessage request) =>
+            HttpClient.CreateResponse = (HttpRequestMessage request, int num) =>
             {
+                if (num == 1) // this the initial push, to sync the created plant and garden
+                {
+                    return new HttpPushResponse()
+                    {
+                        StatusCode = 200,
+                        StatusDesc = "OK",
+                        AlreadyExecuted = false
+                    };
+                }
+
+                if (num == 2) // this the failing push
+                {
+                    return new HttpPushResponse()
+                    {
+                        StatusCode = 404,
+                        StatusDesc = "Needs pulling",
+                        AlreadyExecuted = false
+                    };
+                }
+
+                if (num == 3)// this is the pull
+                {
+                    return new HttpPullResponse()
+                    {
+                        DTOs = new List<EventDTOUnion>()
+                        {
+                            new EventDTOUnion() {
+                                EventType = DTOType.addComment,
+                                EntityId = PlantId,
+                                EntityVersion = 2,
+                                EventId = Guid.NewGuid(),
+                                Note = "REMOTE COMMENT",
+                                ParentId = Guid.NewGuid(),
+                                AncestorId = CurrentUser.Id,
+                                ParentAncestorId = CurrentUser.Id
+
+                            }
+                        }
+                    };
+                }
+
+                // first push after pull
                 return new HttpPushResponse()
                 {
                     StatusCode = 200,
                     StatusDesc = "OK",
                     AlreadyExecuted = false
                 };
+
             };
 
 
+            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
+            var req = RequestFactory.CreatePushRequest(Rebaser.Pending());
             Assert.AreEqual(1, await Synchronizer.Synchronize());
 
-            HttpClient.CreateResponse = (HttpRequestMessage request) =>
-            {
-                return new object { };
-            };
+            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
+            Handler.Handle<Plant, AddPhoto>(new AddPhoto(PlantId, "BLOB"));
+            Handler.Handle<Plant, AddComment>(new AddComment(PlantId, "COMMENT"));
+            req = RequestFactory.CreatePushRequest(Rebaser.Pending());
+            //Handler.Handle(new MarkGardenPublic(GardenId));
 
-            Handler.Handle(new MarkPlantPublic(PlantId));
 
-            Assert.AreEqual(1, await Synchronizer.Synchronize());
-            //Assert.Are
-
-            //var resp = (HttpPushResponse)await reqq.ExecuteAsync();
-
+            Assert.AreEqual(2, await Synchronizer.Synchronize());
 
 
         }
@@ -129,92 +212,9 @@ namespace Growthstories.DomainTests
 
 
 
-        [Test]
-        public void TestSyncDispatch2()
-        {
-            var PlantId = Guid.NewGuid();
-            string Name = "Jore";
-            var ZeroHead = new SyncHead(PlantId, 0);
-
-            Handler.Handle(new CreatePlant(PlantId, Name));
-            Handler.Handle(new MarkPlantPrivate(PlantId));
-
-            Assert.IsFalse(SyncStore.GetSyncHeads().Contains(ZeroHead));
-        }
 
 
-        IKernel kernel;
-        [SetUp]
-        public void SetUp()
-        {
-            kernel = new StandardKernel();
-            kernel.WireUp2();
-        }
 
-        private ICommandHandler<ICommand> _handler;
-        public ICommandHandler<ICommand> Handler
-        {
-            get
-            {
-                return _handler == null ? _handler = kernel.Get<ICommandHandler<ICommand>>() : _handler;
-            }
-        }
-
-
-        protected JsonSerializerSettings SerializerSettings
-        {
-            get
-            {
-                return kernel.Get<JsonSerializerSettings>();
-            }
-        }
-
-        public string toJSON(object o)
-        {
-            return JsonConvert.SerializeObject(o, SerializerSettings);
-        }
-
-        public IRepository Repository
-        {
-            get
-            {
-                return kernel.Get<IRepository>();
-            }
-        }
-
-        public FakeHttpClient HttpClient
-        {
-            get
-            {
-                return kernel.Get<IHttpClient>() as FakeHttpClient;
-            }
-        }
-
-        public IStoreSyncHeads SyncStore
-        {
-            get
-            {
-                return kernel.Get<IStoreSyncHeads>();
-            }
-        }
-
-        CompareObjects comparer;
-        public CompareObjects Comparer
-        {
-            get
-            {
-
-                return comparer == null ? comparer = new CompareObjects() : comparer;
-            }
-        }
-
-        public Synchronizer Synchronizer
-        {
-            get
-            {
-                return kernel.Get<Synchronizer>();
-            }
-        }
 
 
 

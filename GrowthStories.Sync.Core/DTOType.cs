@@ -20,6 +20,7 @@ namespace Growthstories.Sync
         addIntervalSchedule,
         comment,
         addComment,
+        addFBComment,
         photo,
         addPhoto,
         watering,

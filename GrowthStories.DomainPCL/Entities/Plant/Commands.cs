@@ -7,9 +7,14 @@ using Growthstories.Core;
 namespace Growthstories.Domain.Messaging
 {
 
+    public abstract class PlantCommand : EntityCommand<Plant>
+    {
+        public PlantCommand() { }
+        public PlantCommand(Guid EntityId) : base(EntityId) { }
+    }
 
     #region Plant
-    public class CreatePlant : EntityCommand
+    public class CreatePlant : PlantCommand
     {
 
         public CreatePlant() { }
@@ -28,32 +33,31 @@ namespace Growthstories.Domain.Messaging
         public string Name { get; set; }
     }
 
-
-    public class MarkPlantPublic : EntityCommand
+    public class MarkPlantPublic : PlantCommand
     {
         protected MarkPlantPublic() { }
         public MarkPlantPublic(Guid entityId) : base(entityId) { }
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} public", EntityId);
+            return string.Format(@"Mark plant {0} public", EntityId);
         }
 
     }
 
-    public class MarkPlantPrivate : EntityCommand
+    public class MarkPlantPrivate : PlantCommand
     {
         protected MarkPlantPrivate() { }
         public MarkPlantPrivate(Guid entityId) : base(entityId) { }
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} private", EntityId);
+            return string.Format(@"Mark plant {0} private", EntityId);
         }
 
     }
 
-    public class DeletePlant : EntityCommand
+    public class DeletePlant : PlantCommand
     {
 
         public DeletePlant() { }
@@ -66,28 +70,12 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class AddComment : EntityCommand
-    {
-        public string Note {get; set;}
-
-        public AddComment() { }
-        public AddComment(Guid id, string note) : base(id) {
-            Note = note;
-        }
-
-        public override string ToString()
-        {
-            return string.Format(@"Add comment {0} to plant {1}.",Note, EntityId);
-        }
-
-    }
-
-    public class AddWateringAction : EntityCommand
+    public class AddComment : PlantCommand
     {
         public string Note { get; set; }
 
-        public AddWateringAction() { }
-        public AddWateringAction(Guid id, string note)
+        public AddComment() { }
+        public AddComment(Guid id, string note)
             : base(id)
         {
             Note = note;
@@ -99,6 +87,88 @@ namespace Growthstories.Domain.Messaging
         }
 
     }
+
+    public class AddPhoto : PlantCommand
+    {
+        public string BlobKey { get; set; }
+
+        public AddPhoto() { }
+        public AddPhoto(Guid id, string BlobKey)
+            : base(id)
+        {
+            this.BlobKey = BlobKey;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Add photo {0} to plant {1}.", BlobKey, EntityId);
+        }
+
+    }
+
+    public class AddWateringAction : PlantCommand
+    {
+
+        public AddWateringAction() { }
+        public AddWateringAction(Guid id)
+            : base(id) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Add water to plant {1}.", EntityId);
+        }
+
+    }
+
+    public class AddFertilizingAction : PlantCommand
+    {
+
+        public AddFertilizingAction() { }
+        public AddFertilizingAction(Guid id)
+            : base(id)
+        {
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Add fertilizer to plant {1}.", EntityId);
+        }
+
+    }
+
+    public class AddFBComment : PlantCommand
+    {
+
+        public String FbId { get; set; }
+        public long Uid { get; set; }
+        public String Name { get; set; }
+        public string FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Note { get; set; }
+
+        public AddFBComment() { }
+        public AddFBComment(Guid entityId, string FbId, long Uid, string Name, string FirstName, string LastName, string Note)
+            : base(entityId)
+        {
+
+            this.FbId = FbId;
+            this.Uid = Uid;
+            this.Name = Name;
+            this.FirstName = FirstName;
+            this.LastName = LastName;
+            this.Note = Note;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Add FBComment {0} to plant {1}", Note, EntityId);
+        }
+
+
+    }
+
+
     #endregion
 
 

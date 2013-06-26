@@ -4,97 +4,92 @@ using CommonDomain.Persistence;
 using CommonDomain.Persistence.EventStore;
 using EventStore;
 using EventStore.Dispatcher;
+using EventStore.Logging;
+using EventStore.Persistence;
+using EventStore.Persistence.SqlPersistence;
+using EventStore.Serialization;
 using Growthstories.Core;
+//using Growthstories.Core;
 using Growthstories.Domain;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
+//using Growthstories.Domain.Entities;
+//using Growthstories.Domain.Messaging;
 using Growthstories.Domain.Services;
 using Growthstories.Sync;
+using log4net.Config;
 using Ninject;
-using Ninject.Parameters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ninject.Modules;
+using System.IO;
+
 
 namespace Growthstories.DomainTests
 {
-    public static class TestExtensions
+    public class TestModule : NinjectModule
     {
-        public static IKernel WireUp(this IKernel kernel)
+        public override void Load()
         {
-            kernel.Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
-            kernel.Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
+            // configure logging
+            XmlConfigurator.Configure();
 
-            kernel.Bind<IStoreEvents>().ToMethod(_ =>
-            {
-                return Wireup.Init()
-                .LogToOutputWindow()
-                .UsingSerializingInMemoryPersistence()
-                    //.HookIntoPipelineUsing(new SynchronizerPipelineHook())
-                    //.UsingInMemoryPersistence()
-                .UsingSynchronousDispatchScheduler()
-                .DispatchTo(_.Kernel.Get<IDispatchCommits>())
-                .Build();
-            });
+            Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
+
+            Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
+            Bind<ITransportEvents>().To<HttpSyncTransporter>().InSingletonScope();
+            //Bind<ICommunicator>().To<HttpSyncTransporter>().InSingletonScope();
+            Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
+
+            //var persistence = new SQLitePersistenceEngine(this.TransformConnectionString(this.GetConnectionString()), this.serializer);
+
+            LogFactory.BuildLogger = type => new LogTo4Net(type);
+
+            Bind<IPersistDeleteStreams>()
+                .To<SQLitePersistenceEngine>()
+                .InSingletonScope()
+                .WithConstructorArgument("path", Path.Combine(Directory.GetCurrentDirectory(), "testdb.sdf"))
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.Purge();
+                    eng.Initialize();
+                });
+
+            Bind<IPersistStreams>().ToMethod(_ => _.Kernel.Get<IPersistDeleteStreams>());
 
 
-            kernel.Bind<IRepository>().ToConstructor(aa => new EventStoreRepository(
-                aa.Context.GetParameter<IStoreEvents>("store") ?? aa.Inject<IStoreEvents>(),
-                aa.Inject<IConstructAggregates>(),
-                aa.Inject<IDetectConflicts>())
-            );
-            kernel.Bind<ICommandHandler<ICommand>>().To<CommandHandler>();
-            kernel.Bind<IConstructAggregates>().To<AggregateFactory>().InSingletonScope();
-            kernel.Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
-            return kernel;
+            Bind<IPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
+            Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
+            Bind<IStoreEvents>().To<OptimisticEventStore>().InSingletonScope();
+            Bind<ICommitEvents>().ToMethod(_ => (OptimisticEventStore)_.Kernel.Get<IStoreEvents>());
+            Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
+            Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
+            Bind<IRebaseEvents>().To<SyncRebaser>().InSingletonScope();
+
+            //Bind<IStoreEvents>().ToMethod(_ =>
+            //{
+            //    return Wireup.Init()
+            //        .LogTo()
+            //        .UsingSynchronousDispatchScheduler()
+            //        .DispatchTo(_.Kernel.Get<IDispatchCommits>())
+            //        .Build();
+
+            //}).InSingletonScope();
+
+            Bind<ISerialize>().To<JsonSerializer>();
+            Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
+            Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
+            Bind<IAggregateFactory>().To<AggregateFactory>().InSingletonScope();
+            Bind<IEventFactory>().To<FakeEventFactory>().InSingletonScope();
+
+            Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
+
+            Bind<IAncestorFactory>().To<FakeAncestorFactory>().InSingletonScope();
+            Bind<IRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
+            Bind<IResponseFactory>().To<HttpRequestFactory>().InSingletonScope();
+            Bind<IJsonFactory>().To<JsonFactory>().InSingletonScope();
+
         }
 
-        public static IKernel WireUp2(this IKernel kernel)
-        {
-            //kernel.Bind<IKernel>().ToMethod((c) => kernel);
-            kernel.Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
-            kernel.Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
-            kernel.Bind<ITranslateEvents>().To<SyncTranslator>();
-            kernel.Bind<ITransportEvents>().To<HttpSyncTransporter>();
-            kernel.Bind<ISyncPushRequest>().To<HttpPushRequest>();
-            kernel.Bind<ISyncPullRequest>().To<HttpPullRequest>();
-            kernel.Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
-
-            kernel.Bind<Synchronizer>().ToSelf();
-
-            kernel.Bind<IStoreEvents>().ToMethod(_ =>
-            {
-                return Wireup.Init()
-                .LogToOutputWindow()
-                .UsingSerializingInMemoryPersistence()
-                    //.HookIntoPipelineUsing(new SynchronizerPipelineHook())
-                    //.UsingInMemoryPersistence()
-                .UsingSynchronousDispatchScheduler()
-                .DispatchTo(_.Kernel.Get<IDispatchCommits>())
-                .Build();
-            }).InSingletonScope();
-
-
-            kernel.Bind<IRepository>().ToConstructor(aa => new EventStoreRepository(
-                aa.Inject<IStoreEvents>(),
-                aa.Inject<IConstructAggregates>(),
-                aa.Inject<IDetectConflicts>())
-            ).InSingletonScope();
-            kernel.Bind<ICommandHandler<ICommand>>().To<CommandHandler>().InSingletonScope();
-            kernel.Bind<IConstructAggregates>().To<AggregateFactory>().InSingletonScope();
-            kernel.Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
-            kernel.Bind<IMemento>().ToMethod(c =>
-            {
-                var u = new User();
-                u.ApplyState(null);
-                u.Create(Guid.Parse("10000000-0000-0000-0000-000000000000"));
-                return u;
-            }).Named("CurrentUser");
-            return kernel;
-        }
     }
+
+
 }
 
 

@@ -194,38 +194,39 @@ namespace SimpleTesting
             IEnumerable<IEvent> actual;
             if (_dontExecuteOnExpect) return;
 
-            using (var store = GetEventStore())
+            var store = GetEventStore();
+            //using (var store = GetEventStore())
+            //{
+            if (_givenEvents.Count > 0)
             {
-                if (_givenEvents.Count > 0)
+
+                using (var stream = store.OpenStream(Id, 0, int.MaxValue))
                 {
-
-                    using (var stream = store.OpenStream(Id, 0, int.MaxValue))
+                    foreach (var @event in _givenEvents)
                     {
-                        foreach (var @event in _givenEvents)
-                        {
-                            var msg = new EventMessage { Body = @event };
-                            //msg.Headers
-                            stream.Add(msg);
-                        }
-
-                        stream.CommitChanges(Guid.NewGuid());
-                    }
-                }
-
-                try
-                {
-                    ExecuteCommand(store, _when);
-                    using (var stream = store.OpenStream(Id, 0, int.MaxValue))
-                    {
-                        actual = stream.CommittedEvents.Skip(_givenEvents.Count).Select(x => (IEvent)x.Body).ToArray();
+                        var msg = new EventMessage { Body = @event };
+                        //msg.Headers
+                        stream.Add(msg);
                     }
 
-                }
-                catch (DomainError e)
-                {
-                    actual = new IEvent[] { new ExceptionThrown(e.Name) };
+                    stream.CommitChanges(Guid.NewGuid());
                 }
             }
+
+            try
+            {
+                ExecuteCommand(store, _when);
+                using (var stream = store.OpenStream(Id, 0, int.MaxValue))
+                {
+                    actual = stream.CommittedEvents.Skip(_givenEvents.Count).Select(x => (IEvent)x.Body).ToArray();
+                }
+
+            }
+            catch (DomainError e)
+            {
+                actual = new IEvent[] { new ExceptionThrown(e.Name) };
+            }
+            //}
 
             var results = CompareAssert(_then.ToArray(), actual.ToArray()).ToArray();
 
@@ -254,6 +255,20 @@ namespace SimpleTesting
             Console.Write(GetAdjusted(adj, text));
         }
 
+
+        protected static CompareObjects Comparer = new CompareObjects()
+                {
+                    MaxDifferences = 10,
+                    ElementsToIgnore = new List<string>()
+                    {
+                        "Created",
+                        //"EventId"
+                    }
+                };
+
+
+
+
         protected static IEnumerable<ExpectResult> CompareAssert(
             IEvent[] expected,
             IEvent[] actual)
@@ -270,9 +285,12 @@ namespace SimpleTesting
 
                 var result = new ExpectResult { Expectation = expectedString };
 
-                var realDiff = CompareObjects.FindDifferences(ex, ac);
-                if (!string.IsNullOrEmpty(realDiff))
+                if (!Comparer.Compare(ex, ac))
                 {
+                    var realDiff = Comparer.DifferencesString
+                       .Trim('\r', '\n')
+                       .Replace("object1", "expected")
+                       .Replace("object2", "actual");
                     var stringRepresentationsDiffer = expectedString != actualString;
 
                     result.Failure = stringRepresentationsDiffer ?

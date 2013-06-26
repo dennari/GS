@@ -17,8 +17,9 @@ namespace Growthstories.Sync
             this.JsonSettings = jsonSettings;
         }
 
-        public Func<HttpRequestMessage, object> CreateResponse;
+        public Func<HttpRequestMessage, int, object> CreateResponse;
         private JsonSerializerSettings JsonSettings;
+        private int Num = 0;
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption)
         {
@@ -26,16 +27,21 @@ namespace Growthstories.Sync
 
             return Task.Run(() =>
             {
-
+                this.Num++;
                 return new HttpResponseMessage()
                 {
                     Content = new StringContent(
-                        JsonConvert.SerializeObject(CreateResponse(request), Formatting.Indented, JsonSettings),
+                        JsonConvert.SerializeObject(CreateResponse(request, Num), Formatting.Indented, JsonSettings),
                         Encoding.UTF8,
                         "application/json"
                         )
                 };
             });
+        }
+
+        public void Clear()
+        {
+            Num = 0;
         }
     }
 }

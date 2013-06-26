@@ -35,7 +35,12 @@ namespace Growthstories.DomainTests
             var PlantId = Guid.NewGuid();
             Given(new GardenCreated(id));
             When(new AddPlant(id, PlantId, "Jore"));
-            Expect(new PlantAdded(id, PlantId, "Jore") { EntityVersion = 2 });
+            Expect(new PlantAdded(id, PlantId, "Jore")
+            {
+                EntityVersion = 2,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated
+            });
         }
 
         [Test]

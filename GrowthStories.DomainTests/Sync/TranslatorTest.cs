@@ -8,20 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Ninject;
 
 namespace Growthstories.DomainTests
 {
     public class TranslatorTests
     {
 
+        IKernel kernel;
+        [SetUp]
+        public void SetUp()
+        {
+            //if (kernel != null)
+            //    kernel.Dispose();
+            kernel = new StandardKernel(new TestModule());
+
+        }
 
         protected ITranslateEvents Translator
         {
             get
             {
-                var Translator = new SyncTranslator();
-                Translator.Ancestor = User;
-                return Translator;
+                return kernel.Get<ITranslateEvents>();
             }
         }
 
@@ -30,14 +38,8 @@ namespace Growthstories.DomainTests
         {
             get
             {
-                if (_User == null)
-                {
-                    _User = new User();
-                    _User.ApplyState(new UserState(Guid.NewGuid(), 45, true));
 
-                }
-                return _User;
-
+                return (User)kernel.Get<IAncestorFactory>().GetAncestor();
             }
         }
 
@@ -55,11 +57,11 @@ namespace Growthstories.DomainTests
             };
 
 
-            var CD = (IAddCommentDTO)Translator.Out(new List<IDomainEvent>() { C }).ToArray()[0];
+            var CD = (IAddCommentDTO)Translator.Out(C);
             DTOAssertions(C, CD, DTOType.addComment, User);
             Assert.AreEqual(C.Note, CD.Note);
 
-            var CC = (CommentAdded)Translator.In(new List<EventDTOUnion>() { (EventDTOUnion)CD }).ToArray()[0];
+            var CC = (CommentAdded)Translator.In(CD);
             DTOAssertions(C, CC, DTOType.addComment, User);
             Assert.AreEqual(C.Note, CC.Note);
 
@@ -81,11 +83,11 @@ namespace Growthstories.DomainTests
             };
 
 
-            var CD = (IAddPhotoDTO)Translator.Out(new List<IDomainEvent>() { C }).ToArray()[0];
+            var CD = (IAddPhotoDTO)Translator.Out(C);
             DTOAssertions(C, CD, DTOType.addPhoto, User);
             Assert.AreEqual(C.BlobKey, CD.BlobKey);
 
-            var CC = (PhotoAdded)Translator.In(new List<EventDTOUnion>() { (EventDTOUnion)CD }).ToArray()[0];
+            var CC = (PhotoAdded)Translator.In(CD);
             DTOAssertions(C, CC, DTOType.addPhoto, User);
             Assert.AreEqual(C.BlobKey, CC.BlobKey);
 
@@ -104,14 +106,14 @@ namespace Growthstories.DomainTests
             };
 
 
-            var CD = (ISetPropertyDTO)Translator.Out(new List<IDomainEvent>() { C }).ToArray()[0];
+            var CD = (ISetPropertyDTO)Translator.Out(C);
             DTOAssertions(C, CD, DTOType.setProperty, User);
             Assert.AreEqual(Language.SHARED, CD.PropertyName);
             Assert.AreEqual(true, (bool)CD.PropertyValue);
             Assert.AreEqual(DTOType.plant, CD.EntityType);
 
 
-            var CC = (MarkedPlantPublic)Translator.In(new List<EventDTOUnion>() { (EventDTOUnion)CD }).ToArray()[0];
+            var CC = (MarkedPlantPublic)Translator.In(CD);
             DTOAssertions(C, CC, DTOType.setProperty, User);
 
         }
@@ -129,7 +131,7 @@ namespace Growthstories.DomainTests
             };
 
 
-            var CD = (ISetPropertyDTO)Translator.Out(new List<IDomainEvent>() { C }).ToArray()[0];
+            var CD = (ISetPropertyDTO)Translator.Out(C);
             Console.WriteLine(JsonConvert.SerializeObject(CD, Formatting.Indented, new StringEnumConverter()));
             DTOAssertions(C, CD, DTOType.setProperty, User);
             Assert.AreEqual(Language.SHARED, CD.PropertyName);
@@ -138,7 +140,7 @@ namespace Growthstories.DomainTests
 
 
 
-            var CC = (MarkedPlantPrivate)Translator.In(new List<EventDTOUnion>() { (EventDTOUnion)CD }).ToArray()[0];
+            var CC = (MarkedPlantPrivate)Translator.In(CD);
             DTOAssertions(C, CC, 0, User);
 
         }

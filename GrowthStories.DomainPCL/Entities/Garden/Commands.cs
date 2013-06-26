@@ -7,8 +7,14 @@ using Growthstories.Core;
 namespace Growthstories.Domain.Messaging
 {
 
+    public abstract class GardenCommand : EntityCommand<Garden>
+    {
+        public GardenCommand() { }
+        public GardenCommand(Guid EntityId) : base(EntityId) { }
+    }
+
     #region Garden
-    public class CreateGarden : EntityCommand
+    public class CreateGarden : GardenCommand
     {
 
         public CreateGarden() { }
@@ -21,7 +27,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DeleteGarden : EntityCommand
+    public class DeleteGarden : GardenCommand
     {
 
         public DeleteGarden() { }
@@ -34,7 +40,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class AddPlant : EntityCommand
+    public class AddPlant : GardenCommand
     {
 
         public Guid PlantId { get; private set; }
@@ -56,7 +62,7 @@ namespace Growthstories.Domain.Messaging
 
 
     }
-    public class MarkGardenPublic : EntityCommand
+    public class MarkGardenPublic : GardenCommand
     {
         protected MarkGardenPublic() { }
         public MarkGardenPublic(Guid entityId) : base(entityId) { }

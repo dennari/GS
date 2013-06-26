@@ -8,12 +8,28 @@ using System.Reflection;
 namespace Growthstories.Core
 {
 
-    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IApplyState
+    public interface IGSAggregate : IAggregate, IApplyState
+    {
+        void SetEventFactory(IEventFactory factory);
+    }
+
+    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
         where TState : IAppliesEvents, IMemento, new()
         where TCreate : IEvent
     {
 
         private TState _state;
+        private IEventFactory _eventFactory;
+
+        public AggregateBase()
+        {
+            this.ApplyState(this.InitializeState());
+        }
+
+        public void SetEventFactory(IEventFactory factory)
+        {
+            this._eventFactory = factory;
+        }
 
         protected TState State
         {
@@ -21,7 +37,7 @@ namespace Growthstories.Core
             {
                 return _state;
             }
-            set
+            private set
             {
                 _state = value;
             }
@@ -29,31 +45,27 @@ namespace Growthstories.Core
 
         public override Guid Id
         {
-            get { return State == null ? Guid.Empty : State.Id; }
+            get { return State.Id; }
             protected set
             {
             }
         }
         public override int Version
         {
-            get { return State == null ? 0 : State.Version; }
+            get { return State.Version; }
             protected set
             {
             }
         }
 
-        protected AggregateBase()
-        {
-        }
-
         public void ApplyState(IMemento st)
         {
-            if (this.State != null)
+            if (this.State != null && this.State.Version != 0)
             {
                 throw new InvalidOperationException("Can't override existing state");
             }
-            // st is null when an unexisting aggregate is initialized through the repository
-            TState state = st == null ? InitializeState() : (TState)st;
+
+            TState state = (TState)st;
             SetupRoutes(state);
             this.State = state;
         }
@@ -73,18 +85,27 @@ namespace Growthstories.Core
 
         }
 
-        protected new void RaiseEvent(object @event)
+        protected void RaiseEvent(IEvent Event)
         {
-            //((IAggregate)this).ApplyEvent(@event);
-            //this.uncommittedEvents.Add(@event);
-            base.RaiseEvent(@event); // calls ApplyEvent and increases Version
-            IEvent Event = @event as IEvent;
-            if (Event != null)
-            {
-                Event.EntityVersion = this.Version;
-                //@event = Event;
-            }
 
+            Validate(Event);
+
+            if (this._eventFactory != null)
+                this._eventFactory.Fill(Event, this);
+            Event.EntityVersion = this.Version + 1;
+
+            base.RaiseEvent(Event); // calls ApplyEvent and increases Version
+
+
+
+        }
+
+        private void Validate(IEvent Event)
+        {
+            if (Event == null)
+                throw new ArgumentNullException();
+            if (this.Version > 0 && Event.EntityId != this.Id)
+                throw new InvalidOperationException();
         }
 
         public void Create(Guid Id)

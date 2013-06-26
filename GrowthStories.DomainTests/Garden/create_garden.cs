@@ -1,4 +1,5 @@
 ﻿
+using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using NUnit.Framework;
@@ -19,7 +20,12 @@ namespace Growthstories.DomainTests
         {
             Given();
             When(new CreateGarden(id));
-            Expect(new GardenCreated(id) { EntityVersion = 1 });
+            Expect(new GardenCreated(id)
+            {
+                EntityVersion = 1,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated
+            });
         }
 
         [Test]

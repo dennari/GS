@@ -121,7 +121,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} private", EntityId);
+            return string.Format(@"Added comment {0} to plant {1}", Note, EntityId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -151,7 +151,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} private", EntityId);
+            return string.Format(@"Added photo with BlobKey {0} to plant {0} private", BlobKey, EntityId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -171,6 +171,112 @@ namespace Growthstories.Domain.Messaging
 
 
     }
+
+    [DTOObject(DTOType.addFertilizing)]
+    public class FertilizingAdded : EventBase
+    {
+
+
+        public FertilizingAdded() { }
+        public FertilizingAdded(Guid entityId) : base(entityId) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Added fertilizing to plant {0}", EntityId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IAddFertilizingDTO)Dto;
+            base.FillDTO(D);
+            //D.
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IAddFertilizingDTO)Dto;
+            base.FromDTO(D);
+
+        }
+
+
+    }
+
+    [DTOObject(DTOType.addWatering)]
+    public class WaterAdded : EventBase
+    {
+
+
+        public WaterAdded() { }
+        public WaterAdded(Guid entityId) : base(entityId) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Added water to plant {0}", EntityId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IAddWateringDTO)Dto;
+            base.FillDTO(D);
+            //D.
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IAddWateringDTO)Dto;
+            base.FromDTO(D);
+
+        }
+    }
+
+    [DTOObject(DTOType.addFBComment)]
+    public class FBCommentAdded : EventBase
+    {
+
+        public String FbId { get; set; }
+        public long Uid { get; set; }
+        public String Name { get; set; }
+        public string FirstName { get; set; }
+        public String LastName { get; set; }
+        public String Note { get; set; }
+
+        public FBCommentAdded() { }
+        public FBCommentAdded(Guid entityId) : base(entityId) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Added water to plant {0}", EntityId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IAddFBCommentDTO)Dto;
+            D.FbId = this.FbId;
+            D.Uid = this.Uid;
+            D.Name = this.Name;
+            D.FirstName = this.FirstName;
+            D.LastName = this.LastName;
+            D.Note = this.Note;
+            base.FillDTO(D);
+            //D.
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IAddFBCommentDTO)Dto;
+            this.FbId = D.FbId;
+            this.Uid = D.Uid;
+            this.Name = D.Name;
+            this.FirstName = D.FirstName;
+            this.LastName = D.LastName;
+            this.Note = D.Note;
+            base.FromDTO(D);
+
+        }
+    }
+
+
 
     #endregion
 

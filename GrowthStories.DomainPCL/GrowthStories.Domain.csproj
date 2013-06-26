@@ -14,6 +14,8 @@
     <TargetFrameworkProfile>Profile49</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,15 +38,14 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ContextExtensions.cs" />
     <Compile Include="Entities\Comment\Commands.cs" />
     <Compile Include="Entities\Comment\CommentCreated.cs" />
     <Compile Include="Entities\Comment\CommentState.cs" />
     <Compile Include="Entities\Comment\Comment.cs" />
-    <Compile Include="Entities\Gardener\Commands.cs" />
-    <Compile Include="Entities\Gardener\Events.cs" />
-    <Compile Include="Entities\Gardener\User.cs" />
-    <Compile Include="Entities\Gardener\UserState.cs" />
+    <Compile Include="Entities\User\Commands.cs" />
+    <Compile Include="Entities\User\Events.cs" />
+    <Compile Include="Entities\User\User.cs" />
+    <Compile Include="Entities\User\UserState.cs" />
     <Compile Include="Entities\Garden\Commands.cs" />
     <Compile Include="Entities\Garden\Events.cs" />
     <Compile Include="Entities\Garden\Garden.cs" />
@@ -53,7 +54,9 @@
     <Compile Include="Entities\Plant\Events.cs" />
     <Compile Include="Entities\Plant\Plant.cs" />
     <Compile Include="Entities\Plant\PlantState.cs" />
-    <Compile Include="Messaging\CommandHandler.cs" />
+    <Compile Include="IDispatchCommands.cs" />
+    <Compile Include="Repositories\GSRepository.cs" />
+    <Compile Include="Services\CommandHandler.cs" />
     <Compile Include="Messaging\CommandBase.cs" />
     <Compile Include="Messaging\EventBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,9 +65,6 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.Common">
-      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\portable-net4+sl4+wp71+win8\Ninject.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -87,9 +87,9 @@
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore\PortableStore.csproj">
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
-      <Name>PortableStore</Name>
+      <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
@@ -103,9 +103,9 @@
   <ItemGroup>
     <Folder Include="Entities\PlantData\" />
     <Folder Include="Entities\Schedule\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

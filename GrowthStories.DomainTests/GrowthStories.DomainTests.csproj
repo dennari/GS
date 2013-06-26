@@ -17,6 +17,8 @@
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +43,9 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -76,6 +81,7 @@
   <ItemGroup>
     <Compile Include="Garden\create_garden.cs" />
     <Compile Include="Garden\add_plant_to_garden.cs" />
+    <Compile Include="LogTo4Net.cs" />
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
     <Compile Include="Sync\test_sync.cs" />
@@ -104,21 +110,21 @@
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Core\PortableStore.Core.csproj">
-      <Project>{e6084fb9-5941-4913-83c7-fa39003b5a4a}</Project>
-      <Name>PortableStore.Core</Name>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+      <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
+      <Name>EventStore.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Serialization.Json\PortableStore.Serialization.Json.csproj">
-      <Project>{50524c4f-ac65-429f-b7ac-ae45a0ed85ed}</Project>
-      <Name>PortableStore.Serialization.Json</Name>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence\EventStore.Persistence.SqlitePersistence.csproj">
+      <Project>{2dc056d0-092a-476c-b920-e3f69839ee27}</Project>
+      <Name>EventStore.Persistence.SqlitePersistence</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Wireup\PortableStore.Wireup.csproj">
-      <Project>{cf8563f8-0dd3-4bde-b191-7402d9144c25}</Project>
-      <Name>PortableStore.Wireup</Name>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj">
+      <Project>{fae746ce-11c7-446a-a98d-deb238b110aa}</Project>
+      <Name>EventStore.Serialization.Json</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore\PortableStore.csproj">
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
-      <Name>PortableStore</Name>
+      <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
@@ -138,6 +144,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Data\fb-comments-response.json" />
     <None Include="Data\push-accept-friend.json" />
     <None Include="Data\push-response.json" />
@@ -168,6 +175,7 @@
   </Choose>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

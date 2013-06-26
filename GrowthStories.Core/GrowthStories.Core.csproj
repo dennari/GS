@@ -51,6 +51,9 @@
     <Compile Include="AggregateBase.cs" />
     <Compile Include="AggregateState.cs" />
     <Compile Include="ApplyEventRouter.cs" />
+    <Compile Include="IEventFactory.cs" />
+    <Compile Include="IGSRepository.cs" />
+    <Compile Include="IAggregateFactory.cs" />
     <Compile Include="IAppliesEvents.cs" />
     <Compile Include="IApplyState.cs" />
     <Compile Include="ICommand.cs" />

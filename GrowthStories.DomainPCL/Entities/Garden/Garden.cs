@@ -10,43 +10,31 @@ using CommonDomain;
 namespace Growthstories.Domain.Entities
 {
 
-    public class Garden : AggregateBase<GardenState, GardenCreated>
+    public class Garden : AggregateBase<GardenState, GardenCreated>,
+        ICommandHandler<AddPlant>,
+        ICommandHandler<CreateGarden>,
+        ICommandHandler<MarkGardenPublic>
     {
 
-        public Garden()
-        {
 
+        public void Handle(AddPlant command)
+        {
+            RaiseEvent(new PlantAdded(command.EntityId, command.PlantId, command.PlantName));
         }
 
-        public void AddPlant(Guid plantId, string plantName)
+        public void Handle(CreateGarden command)
         {
-            RaiseEvent(new PlantAdded(this.Id, plantId, plantName));
-        }
-
-        public bool Public
-        {
-            get
+            if (State == null)
             {
-                return State.Public ?? false;
+                ApplyState(null);
             }
-            set
-            {
-                if (!State.Public.HasValue || State.Public.Value != value)
-                {
-                    if (value == true)
-                    {
-                        RaiseEvent(new MarkedGardenPublic(Id));
-                    }
-                    else
-                    {
-                        RaiseEvent(new MarkedGardenPrivate(Id));
-                    }
-                }
-
-            }
+            RaiseEvent(new GardenCreated(command.EntityId));
         }
 
-
+        public void Handle(MarkGardenPublic command)
+        {
+            RaiseEvent(new MarkedGardenPublic(command.EntityId));
+        }
     }
 
 

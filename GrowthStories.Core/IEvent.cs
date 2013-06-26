@@ -10,6 +10,6 @@ namespace Growthstories.Core
         Guid EventId { get; set; }
         Guid EntityId { get; set; }
         int EntityVersion { get; set; }
-
+        DateTimeOffset Created { get; set; }
     }
 }

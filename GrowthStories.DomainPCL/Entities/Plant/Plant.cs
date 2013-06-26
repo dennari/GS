@@ -12,60 +12,80 @@ using Growthstories.Core;
 namespace Growthstories.Domain.Entities
 {
 
-    public class Plant : AggregateBase<PlantState, PlantCreated>
+    public class Plant : AggregateBase<PlantState, PlantCreated>,
+        ICommandHandler<CreatePlant>,
+        ICommandHandler<MarkPlantPublic>,
+        ICommandHandler<MarkPlantPrivate>,
+        ICommandHandler<AddComment>,
+        ICommandHandler<AddPhoto>,
+        ICommandHandler<AddPlant>,
+        ICommandHandler<AddWateringAction>,
+        ICommandHandler<AddFertilizingAction>,
+        ICommandHandler<AddFBComment>
     {
-
-
-        public Plant()
-        {
-
-        }
-
-        public bool Public
-        {
-            get
-            {
-                return State.Public ?? false;
-            }
-            set
-            {
-                if (!State.Public.HasValue || State.Public.Value != value)
-                {
-                    if (value == true)
-                    {
-                        RaiseEvent(new MarkedPlantPublic(Id));
-                    }
-                    else
-                    {
-                        RaiseEvent(new MarkedPlantPrivate(Id));
-                    }
-                }
-
-            }
-        }
-
 
         public new void Create(Guid Id)
         {
             throw new NotSupportedException();
         }
 
-        public void Create(AddPlant c)
+        public void Handle(CreatePlant command)
         {
-            if (State == null)
-            {
-                ApplyState(null);
-            }
-            RaiseEvent(new PlantCreated(c.PlantId, c.PlantName));
+            RaiseEvent(new PlantCreated(command.EntityId, command.Name));
         }
 
-        public void Create(CreatePlant c)
+        public void Handle(AddComment command)
+        {
+            RaiseEvent(new CommentAdded(command.EntityId, command.Note));
+        }
+
+        public void Handle(AddPhoto command)
+        {
+            RaiseEvent(new PhotoAdded(command.EntityId) { BlobKey = command.BlobKey });
+        }
+
+        public void Handle(AddPlant command)
         {
             if (State == null)
             {
                 ApplyState(null);
             }
-            RaiseEvent(new PlantCreated(c.EntityId, c.Name));
+            RaiseEvent(new PlantCreated(command.PlantId, command.PlantName));
+        }
+
+        public void Handle(AddWateringAction command)
+        {
+            RaiseEvent(new WaterAdded(command.EntityId));
+
+        }
+
+        public void Handle(AddFertilizingAction command)
+        {
+            RaiseEvent(new FertilizingAdded(command.EntityId));
+
+        }
+
+        public void Handle(AddFBComment command)
+        {
+            RaiseEvent(new FBCommentAdded(command.EntityId)
+            {
+                FbId = command.FbId,
+                FirstName = command.FirstName,
+                LastName = command.LastName,
+                Name = command.Name,
+                Note = command.Note,
+                Uid = command.Uid
+            });
+        }
+
+        public void Handle(MarkPlantPublic command)
+        {
+            RaiseEvent(new MarkedPlantPublic(command.EntityId));
+        }
+
+        public void Handle(MarkPlantPrivate command)
+        {
+            RaiseEvent(new MarkedPlantPrivate(command.EntityId));
         }
     }
 

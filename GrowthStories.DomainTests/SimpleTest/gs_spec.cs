@@ -20,13 +20,14 @@ using Ninject.Activation;
 using Newtonsoft.Json;
 using Growthstories.Sync;
 using CommonDomain.Core;
+using System.Reflection;
 
 namespace Growthstories.DomainTests
 {
     public class gs_spec : spec_syntax
     {
         IKernel kernel;
-        Boolean binded = false;
+
 
         protected Guid id = Guid.NewGuid();
 
@@ -38,56 +39,54 @@ namespace Growthstories.DomainTests
             }
         }
 
-        protected virtual ICommandHandler<ICommand> GetCommandHandler(IStoreEvents store)
+
+        protected override void SetupServices()
         {
-
-            return kernel.Get<ICommandHandler<ICommand>>(new Parameter("store", store, true));
-
+            if (kernel != null)
+                kernel.Dispose();
+            kernel = new StandardKernel(new TestModule());
         }
 
         protected override IStoreEvents GetEventStore()
         {
-            return kernel.Get<IStoreEvents>();
+            return Get<IStoreEvents>();
         }
 
 
-        protected override void SetupServices()
-        {
-            if (binded)
-            {
-                return;
-            }
-
-            kernel = new StandardKernel();
-            kernel.WireUp();
-            binded = true;
-        }
+        public T Get<T>() { return kernel.Get<T>(); }
+        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public Synchronizer Synchronizer { get { return Get<Synchronizer>(); } }
+        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
+        public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
+        public IRepository Repository { get { return Get<IRepository>(); } }
+        public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
+        public IMemento CurrentUser { get { return Get<IAncestorFactory>().GetAncestor(); } }
+        public FakeHttpClient HttpClient { get { return kernel.Get<IHttpClient>() as FakeHttpClient; } }
+        public CompareObjects Comparer { get { return new CompareObjects(); } }
 
         protected override void ExecuteCommand(IStoreEvents store, ICommand cmd)
         {
 
-            this.GetCommandHandler(store).Handle(cmd);
-        }
-
-        protected JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.Auto
-        };
-
-        protected virtual void Dispatch(Commit commit)
-        {
+            var Cmd = (IEntityCommand)cmd;
+            MethodInfo method = typeof(CommandHandler).GetMethod("Handle");
+            MethodInfo generic = method.MakeGenericMethod(Cmd.EntityType, Cmd.GetType());
             try
             {
-                //Console.WriteLine(JsonConvert.SerializeObject(commit, SerializerSettings));
-                //foreach (var @event in commit.Events)
-                //    Console.WriteLine(string.Format("dispatch: {0}, {1}", @event.Body.GetType(), ((EventBase)@event.Body).EntityId));
+                generic.Invoke(this.Handler, new object[] { Cmd });
             }
-            catch (Exception e)
+            catch (TargetInvocationException e)
             {
-                Console.WriteLine(e.Message);
+
+                var inner = e.InnerException as DomainError;
+                if (inner != null)
+                {
+                    throw inner;
+                }
+                throw;
             }
+            //.Handle(cmd);
         }
+
 
     }
 }

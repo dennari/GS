@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using Growthstories.Domain.Messaging;
+using Growthstories.Core;
 
 namespace Growthstories.DomainTests
 {
@@ -14,7 +15,12 @@ namespace Growthstories.DomainTests
         {
             Given(new PlantCreated(id, "Jore"));
             When(new MarkPlantPublic(id));
-            Expect(new MarkedPlantPublic(id) { EntityVersion = 2 });
+            Expect(new MarkedPlantPublic(id)
+            {
+                EntityVersion = 2,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated
+            });
         }
 
         [Test]
@@ -22,7 +28,12 @@ namespace Growthstories.DomainTests
         {
             Given(new PlantCreated(id, "Jore"));
             When(new MarkPlantPrivate(id));
-            Expect(new MarkedPlantPrivate(id) { EntityVersion = 2 });
+            Expect(new MarkedPlantPrivate(id)
+            {
+                EntityVersion = 2,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated
+            });
         }
 
     }

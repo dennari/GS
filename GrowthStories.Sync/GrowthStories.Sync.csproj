@@ -14,6 +14,8 @@
     <TargetFrameworkProfile>Profile49</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,13 +48,13 @@
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore.Core\PortableStore.Core.csproj">
-      <Project>{e6084fb9-5941-4913-83c7-fa39003b5a4a}</Project>
-      <Name>PortableStore.Core</Name>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+      <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
+      <Name>EventStore.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\PortableStore\PortableStore.csproj">
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
-      <Name>PortableStore</Name>
+      <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>
@@ -68,14 +70,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SyncEventStream.cs" />
+    <Compile Include="SyncRebaser.cs" />
     <Compile Include="DTO\DTOExtensions.cs" />
     <Compile Include="Fakes\FakeHttpClient.cs" />
     <Compile Include="HttpPushRequest.cs" />
     <Compile Include="HttpPullRequest.cs" />
     <Compile Include="HttpPushResponse.cs" />
     <Compile Include="HttpPullResponse.cs" />
-    <Compile Include="ITranslateEvents.cs" />
-    <Compile Include="ITransportEvents.cs" />
+    <Compile Include="Fakes\FakeAncestorFactory.cs" />
+    <Compile Include="IJsonFactory.cs" />
+    <Compile Include="HttpRequestFactory.cs" />
     <Compile Include="StoreExtensions.cs" />
     <Compile Include="SyncHttpClient.cs" />
     <Compile Include="Exceptions\StorageException.cs" />
@@ -103,9 +108,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.Common">
-      <HintPath>..\packages\Portable.Ninject.3.0.6\lib\portable-net4+sl4+wp71+win8\Ninject.Common.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http">
       <HintPath>..\packages\Microsoft.Net.Http.2.1.10\lib\portable-net40+sl4+win8+wp71\System.Net.Http.dll</HintPath>
     </Reference>
@@ -125,6 +127,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.5\tools\Microsoft.Bcl.Build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
