@@ -19,7 +19,11 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(AddPlant command)
         {
-            RaiseEvent(new PlantAdded(command.EntityId, command.PlantId, command.PlantName));
+            RaiseEvent(new PlantAdded()
+            {
+                EntityId = command.EntityId,
+                PlantId = command.PlantId
+            });
         }
 
         public void Handle(CreateGarden command)

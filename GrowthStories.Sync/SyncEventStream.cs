@@ -6,21 +6,36 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using EventStore.Persistence;
+using EventStore.Logging;
 
 namespace Growthstories.Sync
 {
     public class SyncEventStream : OptimisticEventStream, ISyncEventStream
     {
-        private readonly Commit[] Commits;
-        private int RebasedRevision = 0;
-        private readonly IPersistDeleteStreams Persistence;
-
-        //private readonly ICommitEvents _Events = new LinkedList<IEvent>();
+        public Commit[] Commits { get; private set; }
+        private readonly IPersistSyncStreams Persistence;
+        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(SyncEventStream));
 
 
-        public SyncEventStream(IGrouping<Guid, IEvent> events, IPersistDeleteStreams persistence)
+        public SyncEventStream(IGrouping<Guid, Commit> commits, IPersistSyncStreams persistence)
+            : base(commits.Key, persistence)
+        {
+            if (commits == null)
+                throw new ArgumentNullException();
+
+            this.Commits = commits.OrderBy(x => x.CommitSequence).ToArray();
+            this.Persistence = persistence;
+
+            this.PopulateStream(int.MinValue, int.MaxValue, this.Commits);
+
+        }
+
+
+        public SyncEventStream(IGrouping<Guid, IEvent> events, IPersistSyncStreams persistence)
             : base(events.Key, persistence)
         {
+            if (events == null)
+                throw new ArgumentNullException();
             this.Persistence = persistence;
             foreach (var e in events)
             {
@@ -28,42 +43,6 @@ namespace Growthstories.Sync
                 {
                     Body = e
                 });
-            }
-        }
-
-        public SyncEventStream(Guid streamId, ICommitEvents persistence)
-            : base(streamId, persistence)
-        {
-
-        }
-
-        public SyncEventStream(Guid streamId, IPersistDeleteStreams persistence, int minRevision, int maxRevision)
-            : base(streamId, persistence)
-        {
-            var commits = persistence.GetFrom(streamId, minRevision, maxRevision).Where(cmt => cmt.CommitSequence != 1).ToArray();
-
-            this.PopulateStream(minRevision, maxRevision, commits);
-
-            if (minRevision > 0 && this.CommittedEvents.Count == 0)
-                throw new StreamNotFoundException();
-            this.Commits = commits;
-            this.Persistence = persistence;
-        }
-
-
-        public Guid EntityId { get { return this.StreamId; } }
-
-
-        public int EntityVersion
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public IEnumerable<IEvent> Events
-        {
-            get
-            {
-                return this.CommittedEvents.Select(x => (IEvent)x.Body).Union(this.UncommittedEvents.Select(x => (IEvent)x.Body));
             }
         }
 
@@ -100,100 +79,85 @@ namespace Growthstories.Sync
             // it is supposed that the stream only contains the events committed after the last sync
             int streamMax = this.StreamRevision;
             int streamMin = streamMax - this.CommittedEvents.Count + 1;
-            // this should not be possible 
-            if (streamMin < 2)
-                streamMin = 2;
 
-            int Revision = 0;
+            //int Revision = ;
+
+            int Revision = EnumerateEvents(remoteStream.UncommittedEvents, streamMin, false);
+            int RebaseSequence = 0;
+            Commit[] newCommits = new Commit[Commits.Length + 1];
+            newCommits[0] = new Commit(
+                this.StreamId,
+                Revision - 1,
+                Guid.NewGuid(),
+                this.Commits[0].CommitSequence,
+                DateTime.Now,
+                new Dictionary<string, object>() { { "REBASE_SEQUENCE", RebaseSequence } },
+                remoteStream.UncommittedEvents.ToList()
+            );
 
             foreach (var commit in Commits)
             {
-
-                Revision = commit.StreamRevision - commit.Events.Count + 1;
-                if (Revision >= streamMin)
-                    continue;
-                foreach (var e in commit.Events)
-                {
-                    if (Revision < streamMin)
-                    {
-                        var ee = ((IEvent)e.Body);
-                        if (ee.EntityVersion != Revision)
-                            throw new InvalidOperationException(string.Format("IEvent.EntityVersion = {0}, Revision = {1}", ee.EntityVersion, Revision));
-                        this.Add(e);
-                    }
-                    Revision++;
-                }
+                RebaseSequence++;
+                Revision = EnumerateEvents(commit.Events, Revision, true);
+                commit.Headers.Add("REBASE_SEQUENCE", RebaseSequence);
+                newCommits[RebaseSequence] = new Commit(
+                    this.StreamId,
+                    Revision - 1,
+                    Guid.NewGuid(),
+                    commit.CommitSequence + 1,
+                    DateTime.Now,
+                    commit.Headers,
+                    commit.Events.ToList()
+                 );
             }
-            Revision = streamMin;
-            foreach (var e in remoteStream.UncommittedEvents)
+
+            this.Persistence.Rebase(Commits, newCommits);
+
+        }
+
+        private int EnumerateEvents(IEnumerable<EventMessage> events, int Revision, bool set)
+        {
+            foreach (var e in events)
             {
                 var ee = ((IEvent)e.Body);
-                if (ee.EntityVersion != Revision)
+                if (set)
+                    ee.EntityVersion = Revision;
+                else if (ee.EntityVersion != Revision)
                     throw new InvalidOperationException(string.Format("IEvent.EntityVersion = {0}, Revision = {1}", ee.EntityVersion, Revision));
                 Revision++;
-                this.Add(e);
             }
-            foreach (var commit in Commits)
-            {
-                //Revision = commit.StreamRevision - commit.Events.Count + 1;
-                foreach (var e in commit.Events)
-                {
-                    //if (Revision >= streamMin)
-                    //{
-                    var ee = ((IEvent)e.Body);
-                    ee.EntityVersion = Revision;
-                    //e.Body = ee;
-                    //if (ee.EntityVersion != Revision)
-                    //   throw new InvalidOperationException(string.Format("IEvent.EntityVersion = {0}, Revision = {1}", ee.EntityVersion, Revision));
-
-                    this.Add(e);
-                    //}
-                    Revision++;
-                }
-            }
-            this.RebasedRevision = Revision - 1;
-
+            return Revision;
         }
 
-        protected override void PersistChanges(Guid commitId)
+
+
+
+        public void CommitPullChanges(Guid commitId)
         {
-            //base.PersistChanges();
-            var attempt = this.BuildCommitAttempt(commitId);
 
-            //Logger.Debug(Resources.PersistingCommit, commitId, this.StreamId);
+            Logger.Debug("CommitPullChanges {0}", this.StreamId);
 
-            if (this.RebasedRevision > 0)
+            if (!this.HasChanges())
+                return;
+
+            try
             {
-                this.Persistence.Rebase(this.Commits, attempt);
+                var attempt = this.BuildCommitAttempt(commitId);
 
+                Logger.Debug("Persisting pull changes in commit {0}, stream {1} ", commitId, this.StreamId);
+                this.Persistence.CommitAndMarkDispatched(attempt);
+
+                this.PopulateStream(this.StreamRevision + 1, attempt.StreamRevision, new[] { attempt });
+                this.ClearChanges();
             }
-            else
+            catch (ConcurrencyException)
             {
-                this.Persistence.Commit(attempt);
+                Logger.Info("Underlying stream {0} has changed", this.StreamId);
+                var commits = this.Persistence.GetFrom(this.StreamId, this.StreamRevision + 1, int.MaxValue);
+                this.PopulateStream(this.StreamRevision + 1, int.MaxValue, commits);
 
+                throw;
             }
-
-            this.RebasedRevision = 0;
-            this.PopulateStream(this.StreamRevision + 1, attempt.StreamRevision, new[] { attempt });
-            this.ClearChanges();
         }
-
-        protected virtual Commit BuildCommitAttempt(Guid commitId)
-        {
-            //Logger.Debug(Resources.BuildingCommitAttempt, commitId, this.StreamId);
-            if (this.RebasedRevision > 0)
-                return new Commit(
-                    this.StreamId,
-                    this.RebasedRevision,
-                    commitId,
-                    this.CommitSequence + 1 - this.Commits.Length,
-                    SystemTime.UtcNow,
-                    this.UncommittedHeaders.ToDictionary(x => x.Key, x => x.Value),
-                    this.UncommittedEvents.ToList());
-            return base.BuildCommitAttempt(commitId);
-        }
-
-
-
     }
 }

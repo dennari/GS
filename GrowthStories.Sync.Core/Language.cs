@@ -25,8 +25,8 @@ namespace Growthstories.Sync
         public const string PARENT_ANCESTOR_ID = "parentAncestorId";
         public const string PLANT_ID = "plantId";
         public const string PLANT_NAME = "name";
-        public const string EVENTS = "cmds";
-        public const string PUSH_ID = "pushId";
+        public const string EVENTS = "events";
+        //public const string PUSH_ID = "pushId";
         public const string CLIENT_ID = "clientDatabaseId";
         public const string BLOB_KEY = "blobKey";
         public const string INTERVAL = "interval";

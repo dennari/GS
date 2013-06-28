@@ -12,7 +12,7 @@ namespace Growthstories.Sync
     {
 
         Guid ClientDatabaseId { get; }
-        Guid PushId { get; }
+        //Guid PushId { get; }
 
         ICollection<ISyncEventStream> Streams { get; }
         IEnumerable<IEventDTO> Events { get; }

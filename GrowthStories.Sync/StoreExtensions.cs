@@ -15,5 +15,13 @@ namespace Growthstories.Sync
         {
             return em.Body.ToString();
         }
+
+        public static string TestMethod(this IGSRepository repo)
+        {
+            return "blaa";
+        }
+
+
+
     }
 }

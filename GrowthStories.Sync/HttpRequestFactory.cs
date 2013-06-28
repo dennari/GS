@@ -28,7 +28,7 @@ namespace Growthstories.Sync
             {
                 Events = Translator.Out(streamsC),
                 Streams = streamsC,
-                PushId = Guid.NewGuid(),
+                //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()
             };
 

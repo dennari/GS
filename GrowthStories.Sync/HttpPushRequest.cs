@@ -1,4 +1,5 @@
-﻿using Growthstories.Sync;
+﻿using Growthstories.Core;
+using Growthstories.Sync;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,24 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.EVENTS)]
         public IEnumerable<IEventDTO> Events { get; set; }
 
-        [JsonProperty(PropertyName = Language.PUSH_ID)]
-        public Guid PushId { get; set; }
-
         [JsonProperty(PropertyName = Language.CLIENT_ID)]
         public Guid ClientDatabaseId { get; set; }
 
         [JsonIgnore]
         public ICollection<ISyncEventStream> Streams { get; set; }
+
+        public IEnumerable<IEvent> EventsFromStreams()
+        {
+            foreach (var stream in Streams)
+            {
+                foreach (var e in stream.CommittedEvents)
+                {
+                    yield return (IEvent)e.Body;
+                }
+            }
+        }
+
+
 
     }
 }

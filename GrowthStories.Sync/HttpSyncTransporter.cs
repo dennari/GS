@@ -16,7 +16,6 @@ namespace Growthstories.Sync
     {
 
         private readonly IHttpClient client;
-        private readonly IJsonFactory jFactory;
         private readonly IResponseFactory ResponseFactory;
 
         public HttpSyncTransporter(
@@ -25,22 +24,7 @@ namespace Growthstories.Sync
             IResponseFactory responseFactory)
         {
             this.client = client;
-            this.jFactory = jFactory;
             this.ResponseFactory = responseFactory;
-        }
-
-
-        public HttpRequestMessage CreateHttpRequest(ISyncRequest request)
-        {
-            return new HttpRequestMessage()
-            {
-                Method = HttpMethod.Post,
-                Content = new StringContent(
-                    jFactory.Serialize(request),
-                    Encoding.UTF8,
-                    "application/json"
-                )
-            };
         }
 
 
@@ -69,7 +53,7 @@ namespace Growthstories.Sync
         {
             return Task.Run<Tuple<string, HttpResponseMessage>>(async () =>
             {
-                var HttpResponse = await client.SendAsync(CreateHttpRequest(request), _completion);
+                HttpResponseMessage HttpResponse = await client.SendAsync(request);
                 var Body = await HttpResponse.Content.ReadAsStringAsync();
                 return Tuple.Create(Body, HttpResponse);
             });

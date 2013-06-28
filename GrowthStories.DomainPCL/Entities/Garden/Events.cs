@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using Growthstories.Sync;
 
 
 namespace Growthstories.Domain.Messaging
@@ -13,6 +14,7 @@ namespace Growthstories.Domain.Messaging
 
     #region Garden
 
+    [DTOObject(DTOType.createGarden)]
     public class GardenCreated : EventBase
     {
 
@@ -26,28 +28,40 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.addPlant)]
     public class PlantAdded : EventBase
     {
 
         public Guid PlantId { get; set; }
 
-
         public Guid AncestorId { get; set; }
 
 
-        public string PlantName { get; set; }
-
         public PlantAdded() { }
-        public PlantAdded(Guid gardenId, Guid plantId, string plantName)
+        public PlantAdded(Guid gardenId, Guid plantId)
             : base(gardenId)
         {
             PlantId = plantId;
-            PlantName = plantName;
         }
 
         public override string ToString()
         {
             return string.Format(@"Added Plant {0} to Garden {1}", PlantId, EntityId);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IAddPlantDTO)Dto;
+            this.PlantId = D.PlantId;
+            base.FromDTO(D);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IAddPlantDTO)Dto;
+            D.PlantId = this.PlantId;
+            base.FromDTO(D);
+
         }
 
 

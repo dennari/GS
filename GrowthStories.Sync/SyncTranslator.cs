@@ -14,9 +14,9 @@ namespace Growthstories.Sync
     public class SyncTranslator : ITranslateEvents
     {
         private readonly IAncestorFactory AncestorFactory;
-        private readonly IPersistDeleteStreams Store;
+        private readonly IPersistSyncStreams Store;
 
-        public SyncTranslator(IAncestorFactory ancestorFactory, IPersistDeleteStreams store)
+        public SyncTranslator(IAncestorFactory ancestorFactory, IPersistSyncStreams store)
         {
             this.AncestorFactory = ancestorFactory;
             this.Store = store;
@@ -61,7 +61,7 @@ namespace Growthstories.Sync
 
             foreach (var stream in streams)
             {
-                foreach (var e in Out(stream.Events.Cast<IDomainEvent>()))
+                foreach (var e in Out(stream.CommittedEvents.Select(x => (IDomainEvent)x.Body)))
                 {
                     yield return e;
                 }

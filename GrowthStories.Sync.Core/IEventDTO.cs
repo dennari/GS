@@ -45,9 +45,19 @@ namespace Growthstories.Sync
         string Password { get; set; }
     }
 
-    public interface IAddPlantDTO : IAddEntityDTO
+    public interface ICreatePlantDTO : IAddEntityDTO
     {
         string Name { get; set; }
+    }
+
+    public interface ICreateGardenDTO : IAddEntityDTO
+    {
+
+    }
+
+    public interface IAddPlantDTO : IEventDTO
+    {
+        Guid PlantId { get; set; }
     }
 
     public interface IAddRelationshipDTO : IEventDTO

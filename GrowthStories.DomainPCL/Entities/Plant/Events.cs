@@ -11,11 +11,12 @@ namespace Growthstories.Domain.Messaging
 
     #region Plant
 
+    [DTOObject(DTOType.createPlant)]
     public class PlantCreated : EventBase
     {
 
         public string Name { get; set; }
-        protected PlantCreated() { }
+        public PlantCreated() { }
         public PlantCreated(Guid entityId, string name)
             : base(entityId)
         {
@@ -31,7 +32,19 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created plant {0}, {1}", Name, EntityId);
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ICreatePlantDTO)Dto;
+            base.FillDTO(D);
+            D.Name = this.Name;
+        }
 
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ICreatePlantDTO)Dto;
+            base.FromDTO(D);
+            this.Name = D.Name;
+        }
 
     }
 
@@ -44,7 +57,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Mark plant {0} public", EntityId);
+            return string.Format(@"Marked plant {0} public", EntityId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -117,7 +130,6 @@ namespace Growthstories.Domain.Messaging
         public string Note { get; set; }
 
         public CommentAdded() { }
-        public CommentAdded(Guid entityId, string note) : base(entityId) { }
 
         public override string ToString()
         {

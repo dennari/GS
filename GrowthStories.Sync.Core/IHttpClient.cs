@@ -9,7 +9,7 @@ namespace Growthstories.Sync
 {
     public interface IHttpClient
     {
-        Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption);
+        Task<HttpResponseMessage> SendAsync(ISyncRequest request);
     }
 
 

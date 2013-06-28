@@ -11,5 +11,6 @@ namespace Growthstories.Core
         Guid EntityId { get; set; }
         int EntityVersion { get; set; }
         DateTimeOffset Created { get; set; }
+        //IEvent ShallowCopy();
     }
 }

@@ -14,4 +14,6 @@ namespace Growthstories.Core
         void PlayById(IGSAggregate aggregate, Guid id);
         void Save(IGSAggregate aggregate);
     }
+
+
 }

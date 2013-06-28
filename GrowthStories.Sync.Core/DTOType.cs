@@ -10,7 +10,10 @@ namespace Growthstories.Sync
     {
         user,
         addUser,
+        garden,
+        createGarden,
         plant,
+        createPlant,
         addPlant,
         relationship,
         addRelationship,

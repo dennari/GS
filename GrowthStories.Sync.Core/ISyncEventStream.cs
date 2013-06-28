@@ -6,8 +6,12 @@ using System.Text;
 
 namespace Growthstories.Sync
 {
-    public interface ISyncEventStream : IEntityEventStream, IEventStream, IEquatable<ISyncEventStream>
+    public interface ISyncEventStream : IEventStream, IEquatable<ISyncEventStream>
     {
         void Rebase(ISyncEventStream remoteStream);
+
+        void CommitPullChanges(Guid commitId);
+
+        Commit[] Commits { get; }
     }
 }

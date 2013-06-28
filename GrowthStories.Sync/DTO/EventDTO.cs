@@ -13,7 +13,7 @@ namespace Growthstories.Sync
 
     //[JsonObject()]
     public class EventDTOUnion : IEventDTO, IAddEntityDTO, IAddCommentDTO, IAddFertilizingDTO, IAddIntervalScheduleDTO,
-        IAddMeasurementDTO, IAddPhotoDTO, IAddPlantDTO, IAddReferenceScheduleDTO, IAddRelationshipDTO,
+        IAddMeasurementDTO, IAddPhotoDTO, ICreatePlantDTO, IAddPlantDTO, ICreateGardenDTO, IAddRelationshipDTO,
         IAddUserDTO, IDelEntityDTO, IDelPropertyDTO, ISetPropertyDTO
     {
         #region IEvent

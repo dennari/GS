@@ -36,7 +36,11 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(AddComment command)
         {
-            RaiseEvent(new CommentAdded(command.EntityId, command.Note));
+            RaiseEvent(new CommentAdded()
+            {
+                EntityId = command.EntityId,
+                Note = command.Note
+            });
         }
 
         public void Handle(AddPhoto command)

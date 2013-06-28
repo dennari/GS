@@ -12,16 +12,17 @@ namespace Growthstories.Sync
     public class FakeHttpClient : IHttpClient
     {
 
-        public FakeHttpClient(JsonSerializerSettings jsonSettings)
+        public FakeHttpClient(IJsonFactory jFactory)
         {
-            this.JsonSettings = jsonSettings;
+            this.jFactory = jFactory;
         }
 
-        public Func<HttpRequestMessage, int, object> CreateResponse;
+        public Func<ISyncRequest, int, object> CreateResponse;
         private JsonSerializerSettings JsonSettings;
         private int Num = 0;
+        private IJsonFactory jFactory;
 
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption)
+        public Task<HttpResponseMessage> SendAsync(ISyncRequest request)
         {
 
 
@@ -31,7 +32,7 @@ namespace Growthstories.Sync
                 return new HttpResponseMessage()
                 {
                     Content = new StringContent(
-                        JsonConvert.SerializeObject(CreateResponse(request, Num), Formatting.Indented, JsonSettings),
+                        jFactory.Serialize(CreateResponse(request, Num)),
                         Encoding.UTF8,
                         "application/json"
                         )

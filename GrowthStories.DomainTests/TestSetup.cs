@@ -30,18 +30,15 @@ namespace Growthstories.DomainTests
             // configure logging
             XmlConfigurator.Configure();
 
-            Bind<IStoreSyncHeads>().To<SynchronizerInMemoryPersistence>().InSingletonScope();
 
             Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
             Bind<ITransportEvents>().To<HttpSyncTransporter>().InSingletonScope();
-            //Bind<ICommunicator>().To<HttpSyncTransporter>().InSingletonScope();
             Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
 
-            //var persistence = new SQLitePersistenceEngine(this.TransformConnectionString(this.GetConnectionString()), this.serializer);
 
             LogFactory.BuildLogger = type => new LogTo4Net(type);
 
-            Bind<IPersistDeleteStreams>()
+            Bind<IPersistSyncStreams>()
                 .To<SQLitePersistenceEngine>()
                 .InSingletonScope()
                 .WithConstructorArgument("path", Path.Combine(Directory.GetCurrentDirectory(), "testdb.sdf"))
@@ -51,26 +48,13 @@ namespace Growthstories.DomainTests
                     eng.Initialize();
                 });
 
-            Bind<IPersistStreams>().ToMethod(_ => _.Kernel.Get<IPersistDeleteStreams>());
+            Bind<IPersistStreams>().ToMethod(_ => _.Kernel.Get<IPersistSyncStreams>());
 
 
             Bind<IPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
-            Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
             Bind<IStoreEvents>().To<OptimisticEventStore>().InSingletonScope();
             Bind<ICommitEvents>().ToMethod(_ => (OptimisticEventStore)_.Kernel.Get<IStoreEvents>());
-            Bind<IDispatchCommits>().To<SyncDispatcher>().InSingletonScope();
-            Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
-            Bind<IRebaseEvents>().To<SyncRebaser>().InSingletonScope();
 
-            //Bind<IStoreEvents>().ToMethod(_ =>
-            //{
-            //    return Wireup.Init()
-            //        .LogTo()
-            //        .UsingSynchronousDispatchScheduler()
-            //        .DispatchTo(_.Kernel.Get<IDispatchCommits>())
-            //        .Build();
-
-            //}).InSingletonScope();
 
             Bind<ISerialize>().To<JsonSerializer>();
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
