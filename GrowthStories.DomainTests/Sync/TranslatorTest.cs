@@ -34,12 +34,12 @@ namespace Growthstories.DomainTests
         }
 
         protected User _User;
-        protected User User
+        protected IAuthUser User
         {
             get
             {
 
-                return (User)kernel.Get<IAncestorFactory>().GetAncestor();
+                return kernel.Get<IUserService>().CurrentUser;
             }
         }
 
@@ -147,7 +147,7 @@ namespace Growthstories.DomainTests
 
 
 
-        protected void DTOAssertions(IEvent C, IEvent CD, DTOType DT, User U)
+        protected void DTOAssertions(IEvent C, IEvent CD, DTOType DT, IAuthUser U)
         {
             Assert.AreEqual(C.EntityId, CD.EntityId);
             Assert.AreEqual(C.EntityVersion, CD.EntityVersion);

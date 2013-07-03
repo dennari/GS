@@ -17,14 +17,17 @@ namespace Growthstories.Sync
 
         private readonly IHttpClient client;
         private readonly IResponseFactory ResponseFactory;
+        private IHttpRequestFactory RequestFactory;
+
 
         public HttpSyncTransporter(
             IHttpClient client,
-            IJsonFactory jFactory,
-            IResponseFactory responseFactory)
+            IResponseFactory responseFactory,
+            IHttpRequestFactory requestFactory)
         {
             this.client = client;
             this.ResponseFactory = responseFactory;
+            this.RequestFactory = requestFactory;
         }
 
 
@@ -33,8 +36,7 @@ namespace Growthstories.Sync
         {
             return Task.Run<ISyncPushResponse>(async () =>
             {
-                var r = await SendAsync(request);
-                return ResponseFactory.CreatePushResponse(r.Item1);
+                return ResponseFactory.CreatePushResponse(await client.SendAndGetBodyAsync(RequestFactory.CreatePushRequest(request)));
 
             });
         }
@@ -44,22 +46,9 @@ namespace Growthstories.Sync
         {
             return Task.Run<ISyncPullResponse>(async () =>
             {
-                var r = await SendAsync(request);
-                return ResponseFactory.CreatePullResponse(r.Item1);
+                return ResponseFactory.CreatePullResponse(await client.SendAndGetBodyAsync(RequestFactory.CreatePullRequest(request)));
             });
         }
-
-        protected Task<Tuple<string, HttpResponseMessage>> SendAsync(ISyncRequest request)
-        {
-            return Task.Run<Tuple<string, HttpResponseMessage>>(async () =>
-            {
-                HttpResponseMessage HttpResponse = await client.SendAsync(request);
-                var Body = await HttpResponse.Content.ReadAsStringAsync();
-                return Tuple.Create(Body, HttpResponse);
-            });
-        }
-
-        HttpCompletionOption _completion = HttpCompletionOption.ResponseContentRead;
 
 
 

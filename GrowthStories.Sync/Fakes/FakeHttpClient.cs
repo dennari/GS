@@ -17,22 +17,20 @@ namespace Growthstories.Sync
             this.jFactory = jFactory;
         }
 
-        public Func<ISyncRequest, int, object> CreateResponse;
-        private JsonSerializerSettings JsonSettings;
-        private int Num = 0;
+
         private IJsonFactory jFactory;
 
-        public Task<HttpResponseMessage> SendAsync(ISyncRequest request)
+
+
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-
-
             return Task.Run(() =>
             {
-                this.Num++;
+
                 return new HttpResponseMessage()
                 {
                     Content = new StringContent(
-                        jFactory.Serialize(CreateResponse(request, Num)),
+                        "",
                         Encoding.UTF8,
                         "application/json"
                         )
@@ -40,9 +38,12 @@ namespace Growthstories.Sync
             });
         }
 
-        public void Clear()
+        public Task<string> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            Num = 0;
+            return Task.Run(() =>
+            {
+                return "";
+            });
         }
     }
 }

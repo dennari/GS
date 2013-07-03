@@ -33,6 +33,8 @@ namespace Growthstories.Domain.Messaging
         protected EntityCommand() { }
         public EntityCommand(Guid EntityId)
         {
+            if (EntityId == default(Guid))
+                throw new ArgumentNullException();
             this.EntityId = EntityId;
         }
     }

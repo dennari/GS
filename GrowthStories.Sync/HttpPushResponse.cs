@@ -15,8 +15,6 @@ namespace Growthstories.Sync
 {
     public class HttpPushResponse : ISyncPushResponse
     {
-
-
         public Guid ClientDatabaseId { get; set; }
 
         public Guid PushId { get; set; }
@@ -25,8 +23,10 @@ namespace Growthstories.Sync
 
         public Guid LastExecuted { get; set; }
 
+        [JsonProperty(PropertyName = Language.STATUS_CODE, Required = Required.Always)]
         public int StatusCode { get; set; }
 
+        [JsonProperty(PropertyName = Language.STATUS_DESCRIPTION, Required = Required.Always)]
         public string StatusDesc { get; set; }
     }
 }

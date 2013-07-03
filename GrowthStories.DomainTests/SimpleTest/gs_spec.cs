@@ -55,12 +55,12 @@ namespace Growthstories.DomainTests
 
         public T Get<T>() { return kernel.Get<T>(); }
         public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
-        public Synchronizer Synchronizer { get { return Get<Synchronizer>(); } }
+        public SynchronizerService Synchronizer { get { return Get<SynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
         public IRepository Repository { get { return Get<IRepository>(); } }
         public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
-        public IMemento CurrentUser { get { return Get<IAncestorFactory>().GetAncestor(); } }
+        public IAuthUser CurrentUser { get { return Get<IUserService>().CurrentUser; } }
         public FakeHttpClient HttpClient { get { return kernel.Get<IHttpClient>() as FakeHttpClient; } }
         public CompareObjects Comparer { get { return new CompareObjects(); } }
 

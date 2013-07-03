@@ -13,6 +13,17 @@ namespace Growthstories.Sync
 
         ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams);
 
+
+    }
+
+    public interface IHttpRequestFactory
+    {
+        HttpRequestMessage CreatePushRequest(ISyncPushRequest req);
+
+        HttpRequestMessage CreatePullRequest(ISyncPullRequest req);
+
+        HttpRequestMessage CreateAuthTokenRequest(string username, string password);
+
     }
 
 }

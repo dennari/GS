@@ -51,13 +51,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
-    <Compile Include="IAncestorFactory.cs" />
+    <Compile Include="IAuthTokenResponse.cs" />
+    <Compile Include="IAuthUser.cs" />
+    <Compile Include="ISyncPushResponse.cs" />
+    <Compile Include="ISynchronizerService.cs" />
+    <Compile Include="IUserService.cs" />
     <Compile Include="IRebaseEvents.cs" />
     <Compile Include="IResponseFactory.cs" />
     <Compile Include="ISyncEventStream.cs" />
     <Compile Include="ISyncPullRequest.cs" />
     <Compile Include="ISyncPushRequest.cs" />
-    <Compile Include="ISyncPushResponse.cs" />
     <Compile Include="ISyncPullResponse.cs" />
     <Compile Include="IEventStream.cs" />
     <Compile Include="DTOType.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="ITransportEvents.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamExtensions.cs" />
     <Compile Include="SyncHead.cs" />
   </ItemGroup>
   <ItemGroup>

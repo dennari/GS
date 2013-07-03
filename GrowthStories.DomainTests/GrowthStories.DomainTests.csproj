@@ -84,6 +84,9 @@
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
     <Compile Include="LogTo4Net.cs" />
+    <Compile Include="Projections\test_projections.cs" />
+    <Compile Include="Staging\StagingEndpoint.cs" />
+    <Compile Include="Staging\test_auth.cs" />
     <Compile Include="Sync\test_sync.cs" />
     <Compile Include="SimpleTest\CompareObjects.cs" />
     <Compile Include="SimpleTest\gs_spec.cs" />
@@ -133,6 +136,10 @@
     <ProjectReference Include="..\GrowthStories.DomainPCL\GrowthStories.Domain.csproj">
       <Project>{b3e2cfbd-93fd-4604-8b43-c245947c07ed}</Project>
       <Name>GrowthStories.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.Projections.csproj">
+      <Project>{ef1081c2-d71f-42d5-804a-e34fbf6c6a5a}</Project>
+      <Name>GrowthStories.Projections</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
       <Project>{5475681a-83be-462d-bda2-91cb9740c111}</Project>

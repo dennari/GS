@@ -11,6 +11,8 @@ namespace Growthstories.Sync
     {
         DTOType EventType { get; set; }
         Guid AncestorId { get; set; }
+        Guid StreamEntity { get; set; }
+
     }
 
     public interface IAddEntityDTO : IEventDTO
@@ -39,10 +41,12 @@ namespace Growthstories.Sync
 
     }
 
-    public interface IAddUserDTO : IEventDTO
+    public interface ICreateUserDTO : IEventDTO
     {
         string Username { get; set; }
         string Password { get; set; }
+        string Email { get; set; }
+
     }
 
     public interface ICreatePlantDTO : IAddEntityDTO

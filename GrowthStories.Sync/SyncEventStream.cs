@@ -145,7 +145,8 @@ namespace Growthstories.Sync
                 var attempt = this.BuildCommitAttempt(commitId);
 
                 Logger.Debug("Persisting pull changes in commit {0}, stream {1} ", commitId, this.StreamId);
-                this.Persistence.CommitAndMarkDispatched(attempt);
+                this.Persistence.Commit(attempt);
+                this.Persistence.MarkCommitAsSynchronized(attempt);
 
                 this.PopulateStream(this.StreamRevision + 1, attempt.StreamRevision, new[] { attempt });
                 this.ClearChanges();

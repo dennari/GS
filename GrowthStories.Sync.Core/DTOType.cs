@@ -8,8 +8,8 @@ namespace Growthstories.Sync
 {
     public enum DTOType
     {
+        NOTYPE,
         user,
-        addUser,
         garden,
         createGarden,
         plant,
@@ -35,6 +35,7 @@ namespace Growthstories.Sync
         delProperty,
         setProperty,
         plantData,
-        photoMetadata
+        photoMetadata,
+        createUser
     }
 }

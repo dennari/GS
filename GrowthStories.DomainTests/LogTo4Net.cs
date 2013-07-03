@@ -21,17 +21,26 @@ namespace Growthstories.DomainTests
 
         public void Verbose(string message, params object[] values)
         {
-            Logger.DebugFormat(message, values);
+            if (values.Length == 0)
+                Logger.Debug(message);
+            else
+                Logger.DebugFormat(message, values);
         }
 
         public void Debug(string message, params object[] values)
         {
-            Logger.DebugFormat(message, values);
+            if (values.Length == 0)
+                Logger.Debug(message);
+            else
+                Logger.DebugFormat(message, values);
         }
 
         public void Info(string message, params object[] values)
         {
-            Logger.InfoFormat(message, values);
+            if (values.Length == 0)
+                Logger.Info(message);
+            else
+                Logger.InfoFormat(message, values);
 
         }
 

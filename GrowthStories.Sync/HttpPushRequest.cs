@@ -22,18 +22,6 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public ICollection<ISyncEventStream> Streams { get; set; }
 
-        public IEnumerable<IEvent> EventsFromStreams()
-        {
-            foreach (var stream in Streams)
-            {
-                foreach (var e in stream.CommittedEvents)
-                {
-                    yield return (IEvent)e.Body;
-                }
-            }
-        }
-
-
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+using EventStore.Logging;
 using System.Net.Http;
 using System.Threading;
 
@@ -8,6 +9,8 @@ namespace Growthstories.Sync
     public class SyncHttpHandler : MessageProcessingHandler
     {
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SyncHttpHandler));
+
         public SyncHttpHandler(HttpMessageHandler innerHandler)
             : base(innerHandler)
         {
@@ -15,11 +18,13 @@ namespace Growthstories.Sync
 
         protected override HttpRequestMessage ProcessRequest(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            Logger.Info(request.ToString());
             return request;
         }
 
         protected override HttpResponseMessage ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
+            Logger.Info(response.ToString());
             return response;
         }
 

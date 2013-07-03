@@ -13,6 +13,8 @@ namespace Growthstories.Sync
 
         ISyncPushResponse CreatePushResponse(string response);
 
+        IAuthTokenResponse CreateAuthTokenResponse(string response);
+
     }
 
 }

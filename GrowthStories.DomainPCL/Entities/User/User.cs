@@ -17,50 +17,33 @@ namespace Growthstories.Domain.Entities
     /// 
     /// </ul>
     /// </summary>
-    public class User : AggregateBase<UserState, UserCreated>
+    public class User : AggregateBase<UserState, UserCreated>,
+        ICommandHandler<CreateUser>,
+        ICommandHandler<SetAuthToken>,
+        ICommandHandler<BecomeFollower>
     {
 
-        private string userName;
-        private DateTime? createDate;
-
-        public User()
+        public void Handle(CreateUser command)
         {
 
+            RaiseEvent(new UserCreated()
+            {
+                EntityId = command.EntityId,
+                Username = command.Username,
+                Password = command.Password,
+                Email = command.Email
+            });
         }
-        /// <summary>
-        /// The name identifying the user.
-        ///  
-        /// <para>
-        /// <b>Constraints:</b>
-        /// <list type="definition">
-        ///     <item>
-        ///         <term>Length</term>
-        ///         <description>1 - 64</description>
-        ///     </item>
-        ///     <item>
-        ///         <term>Pattern</term>
-        ///         <description>[\w+=,.@-]*</description>
-        ///     </item>
-        /// </list>
-        /// </para>
-        /// </summary>
-        public string UserName
+
+        public void Handle(SetAuthToken command)
         {
-            get { return this.userName; }
-            set { this.userName = value; }
+            RaiseEvent(new AuthTokenSet(command));
         }
 
-        /// <summary>
-        /// The date when the user was created.
-        ///  
-        /// </summary>
-        public DateTime? CreateDate
+        public void Handle(BecomeFollower command)
         {
-            get { return this.createDate ?? default(DateTime); }
-            set { this.createDate = value; }
+            RaiseEvent(new BecameFollower(command));
         }
-
-
     }
 
 }

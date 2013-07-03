@@ -1,5 +1,6 @@
 ﻿using CommonDomain;
 using EventStore;
+using EventStore.Logging;
 using EventStore.Persistence;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
@@ -13,27 +14,41 @@ namespace Growthstories.Sync
 {
     public class SyncTranslator : ITranslateEvents
     {
-        private readonly IAncestorFactory AncestorFactory;
+        private readonly IUserService UserService;
         private readonly IPersistSyncStreams Store;
 
-        public SyncTranslator(IAncestorFactory ancestorFactory, IPersistSyncStreams store)
+        public SyncTranslator(IUserService ancestorFactory, IPersistSyncStreams store)
         {
-            this.AncestorFactory = ancestorFactory;
+            this.UserService = ancestorFactory;
             this.Store = store;
         }
 
         public IMemento Ancestor { get; set; }
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SyncTranslator));
+
         public IEventDTO Out(IEvent e)
         {
-            IEventDTO ed = null;
-            ed = ((IDomainEvent)e).ToDTO();
-            ed.AncestorId = AncestorFactory.GetAncestor().Id;
+            IEventDTO ed = ((IDomainEvent)e).ToDTO();
+            Logger.Info("Translated {0} to {1}", e.ToString(), ed == null ? "null" : ed.ToString());
+            if (ed == null)
+                return null;
+
+            ed.AncestorId = UserService.CurrentUser.Id;
+            ed.StreamEntity = e.EntityId;
             var edd = ed as IAddEntityDTO;
             if (edd != null)
             {
                 edd.ParentAncestorId = ed.AncestorId;
             }
+            if (e is BecameFollower)
+            {
+                var eddd = ed as IAddEntityDTO;
+                edd.ParentAncestorId = default(Guid);
+                eddd.ParentId = UserService.CurrentUser.Id;
+                eddd.EntityId = Guid.NewGuid();
+            }
+
             return ed;
 
         }
@@ -44,11 +59,11 @@ namespace Growthstories.Sync
             IEventDTO ed = null;
             foreach (var e in events)
             {
-                try
-                {
-                    ed = Out(e);
-                }
-                catch (Exception) { }
+                //try
+                //{
+                ed = Out(e);
+                //}
+                //catch (Exception) { }
                 if (ed != null)
                 {
                     yield return ed;

@@ -14,7 +14,7 @@ namespace Growthstories.Sync
     //[JsonObject()]
     public class EventDTOUnion : IEventDTO, IAddEntityDTO, IAddCommentDTO, IAddFertilizingDTO, IAddIntervalScheduleDTO,
         IAddMeasurementDTO, IAddPhotoDTO, ICreatePlantDTO, IAddPlantDTO, ICreateGardenDTO, IAddRelationshipDTO,
-        IAddUserDTO, IDelEntityDTO, IDelPropertyDTO, ISetPropertyDTO
+        ICreateUserDTO, IDelEntityDTO, IDelPropertyDTO, ISetPropertyDTO
     {
         #region IEvent
         [JsonProperty(PropertyName = Language.EVENT_ID, Required = Required.Always)]
@@ -36,6 +36,9 @@ namespace Growthstories.Sync
 
         [JsonProperty(PropertyName = Language.CREATED, Required = Required.Always)]
         public DateTimeOffset Created { get; set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
+        public Guid StreamEntity { get; set; }
         #endregion
 
         #region IAddEntityDTO
@@ -85,8 +88,12 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.PASSWORD, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Password { get; set; }
 
+        [JsonProperty(PropertyName = Language.EMAIL, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Email { get; set; }
+
         [JsonProperty(PropertyName = Language.MEASUREMENT_TYPE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MeasurementType MeasurementType { get; set; }
+
 
     }
 

@@ -8,26 +8,38 @@ namespace Growthstories.DomainTests
 {
     public class create_user : gs_spec
     {
+        protected UserCreated UserCreated()
+        {
+            return new UserCreated()
+            {
+                EntityId = id,
+                EntityVersion = 1,
+                EventId = FakeEventFactory.FakeEventId,
+                Created = FakeEventFactory.FakeCreated,
+                Username = "dennari",
+                Password = "swordfish"
+            };
+        }
 
+        protected CreateUser CreateUser()
+        {
+            return new CreateUser(id, "dennari", "swordfish", "dennari@me.net");
+
+        }
 
         [Test]
         public void given_no_prior_history()
         {
             Given();
-            When(new CreateUser(id));
-            Expect(new UserCreated(id)
-            {
-                EntityVersion = 1,
-                EventId = FakeEventFactory.FakeEventId,
-                Created = FakeEventFactory.FakeCreated
-            });
+            When(CreateUser());
+            Expect(UserCreated());
         }
 
         [Test]
         public void given_created_user()
         {
-            Given(new UserCreated(id));
-            When(new CreateUser(id));
+            Given(UserCreated());
+            When(CreateUser());
             Expect("rebirth");
         }
 

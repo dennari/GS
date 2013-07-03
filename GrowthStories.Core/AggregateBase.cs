@@ -4,6 +4,7 @@ using CommonDomain;
 using CommonDomain.Core;
 using Growthstories.Core;
 using System.Reflection;
+using EventStore.Logging;
 
 namespace Growthstories.Core
 {
@@ -20,6 +21,8 @@ namespace Growthstories.Core
 
         private TState _state;
         private IEventFactory _eventFactory;
+        private static ILog Logger = LogFactory.BuildLogger(typeof(AggregateBase));
+
 
         public AggregateBase()
         {
@@ -31,7 +34,7 @@ namespace Growthstories.Core
             this._eventFactory = factory;
         }
 
-        protected TState State
+        public TState State
         {
             get
             {
@@ -93,7 +96,7 @@ namespace Growthstories.Core
             if (this._eventFactory != null)
                 this._eventFactory.Fill(Event, this);
             Event.EntityVersion = this.Version + 1;
-
+            Logger.Info("Raised event: {0}", Event.ToString());
             base.RaiseEvent(Event); // calls ApplyEvent and increases Version
 
 
@@ -103,9 +106,9 @@ namespace Growthstories.Core
         private void Validate(IEvent Event)
         {
             if (Event == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("Event");
             if (this.Version > 0 && Event.EntityId != this.Id)
-                throw new InvalidOperationException();
+                throw new ArgumentException(string.Format("Event {0} EntityId doesn't match the Id of the raising entity {1}", Event.GetType(), this.GetType()));
         }
 
         public void Create(Guid Id)

@@ -13,7 +13,7 @@ using EventStore.Persistence;
 
 namespace Growthstories.Sync
 {
-    public class Synchronizer
+    public class SynchronizerService : ISynchronizerService
     {
 
         private readonly ITransportEvents Transporter;
@@ -21,7 +21,7 @@ namespace Growthstories.Sync
         private readonly IPersistSyncStreams EventStore;
 
 
-        public Synchronizer(
+        public SynchronizerService(
             ITransportEvents transporter,
             IRequestFactory requestFactory,
             IPersistSyncStreams eventStore
@@ -60,7 +60,7 @@ namespace Growthstories.Sync
                 {
                     foreach (var stream in pushReq.Streams)
                         foreach (var commit in stream.Commits)
-                            EventStore.MarkCommitAsDispatched(commit);
+                            EventStore.MarkCommitAsSynchronized(commit);
                     break;
                 }
 
@@ -106,7 +106,7 @@ namespace Growthstories.Sync
 
         public IEnumerable<ISyncEventStream> Pending()
         {
-            foreach (var commits in EventStore.GetUndispatchedCommits().GroupBy(x => x.StreamId))
+            foreach (var commits in EventStore.GetUnsynchronizedCommits().GroupBy(x => x.StreamId))
             {
 
                 yield return new SyncEventStream(commits, EventStore);

@@ -33,16 +33,21 @@ namespace Growthstories.Sync
 
         public static IEventDTO ToDTO(this IDomainEvent e)
         {
-            try
+            //try
+            //{
+            DTOType T = e.GetDTOType();
+            if (T == DTOType.NOTYPE)
+                return null;
+            var instance = new EventDTOUnion()
             {
-                var instance = new EventDTOUnion();
-                instance.EventType = e.GetDTOType();
-                e.FillDTO(instance);
-                return instance;
-            }
-            catch (Exception) { }
+                EventType = T
+            };
+            e.FillDTO(instance);
+            return instance;
+            //}
+            //catch (Exception) { }
 
-            return null;
+            //return null;
         }
 
 
@@ -64,7 +69,10 @@ namespace Growthstories.Sync
 
         public static DTOType GetDTOType(this IEvent e)
         {
-            return e.GetAttribute<DTOObjectAttribute>().Type;
+
+            DTOObjectAttribute attr = e.GetAttribute<DTOObjectAttribute>();
+
+            return attr != null ? attr.Type : DTOType.NOTYPE;
         }
 
     }

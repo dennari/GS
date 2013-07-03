@@ -1,4 +1,8 @@
 ﻿
+using EventStore.Logging;
+using Growthstories.Domain.Entities;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -8,40 +12,41 @@ namespace Growthstories.Sync
 {
     public class SyncHttpClient : IHttpClient
     {
-        System.Net.Http.HttpClient Client;
-        private IJsonFactory jFactory;
-
-        public SyncHttpClient(IJsonFactory jFactory)
-        {
-            this.jFactory = jFactory;
-        }
+        HttpClient Client;
 
 
         void InitClient()
         {
             Client = new System.Net.Http.HttpClient(new SyncHttpHandler(new HttpClientHandler()));
-            Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
+            //Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
         }
 
-        public Task<HttpResponseMessage> SendAsync(ISyncRequest request)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
             if (Client == null)
                 InitClient();
-            return Client.SendAsync(CreateHttpRequest(request), HttpCompletionOption.ResponseHeadersRead);
+
+            return Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
 
-        HttpRequestMessage CreateHttpRequest(ISyncRequest request)
+        public Task<string> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            return new HttpRequestMessage()
+            return Task.Run<string>(async () =>
             {
-                Method = HttpMethod.Post,
-                Content = new StringContent(
-                    jFactory.Serialize(request),
-                    Encoding.UTF8,
-                    "application/json"
-                )
-            };
+                try
+                {
+                    var r = await SendAsync(request);
+                    var s = await r.Content.ReadAsStringAsync();
+                    return s;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+
+            });
         }
+
 
     }
 }

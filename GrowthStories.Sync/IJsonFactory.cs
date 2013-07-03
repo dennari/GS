@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -22,8 +23,14 @@ namespace Growthstories.Sync
         {
             Formatting = Formatting.Indented,
             TypeNameHandling = TypeNameHandling.None,
+            DateFormatHandling = Newtonsoft.Json.DateFormatHandling.IsoDateFormat,
             Converters = new List<JsonConverter>() {
-                    new StringEnumConverter()
+                    new StringEnumConverter(),
+                    new IsoDateTimeConverter()
+                    {
+                        Culture = CultureInfo.InvariantCulture,
+                        DateTimeFormat = "yyyyMMddHHmmssffff"
+                    }
                 }
         };
 

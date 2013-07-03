@@ -31,6 +31,9 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(CreatePlant command)
         {
+            if (command.Name == null)
+                throw new ArgumentNullException();
+            
             RaiseEvent(new PlantCreated(command.EntityId, command.Name));
         }
 

@@ -15,6 +15,7 @@ namespace Growthstories.Core
 
         public bool? Public { get; protected set; }
 
+        private bool applying = false;
 
         protected AggregateState()
         {
@@ -46,9 +47,13 @@ namespace Growthstories.Core
             {
                 throw DomainError.Named("premature", "Aggregate hasn't been created yet");
             }
+            if (this.applying)
+                throw new InvalidOperationException(string.Format("Can't find handler for event {0}", @event.GetType().ToString()));
             try
             {
+                this.applying = true;
                 ((dynamic)this).Apply((dynamic)@event);
+                this.applying = false;
                 Version++;
             }
             catch (RuntimeBinderException)
