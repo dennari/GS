@@ -16,15 +16,22 @@ namespace Growthstories.Domain.Messaging
     {
 
         public string Name { get; set; }
-        public PlantCreated() { }
-        public PlantCreated(Guid entityId, string name)
+        public Guid UserId { get; set; }
+
+        protected PlantCreated() { }
+        public PlantCreated(Guid entityId, string name, Guid userId)
             : base(entityId)
         {
             if (name == null)
             {
                 throw new ArgumentNullException("a name has to be provided");
             }
+            if (userId == default(Guid))
+            {
+                throw new ArgumentNullException("userId has to be provided");
+            }
             Name = name;
+            UserId = userId;
         }
 
         public override string ToString()

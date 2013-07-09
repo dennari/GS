@@ -13,10 +13,11 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_no_prior_history()
         {
+            var UserId = Guid.NewGuid();
 
             Given();
-            When(new CreatePlant(id, "Jore"));
-            Expect(new PlantCreated(id, "Jore")
+            When(new CreatePlant(id, "Jore", UserId));
+            Expect(new PlantCreated(id, "Jore", UserId)
             {
                 EntityVersion = 1,
                 EventId = FakeEventFactory.FakeEventId,
@@ -27,8 +28,9 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_created_plant()
         {
-            Given(new PlantCreated(id, "Jore"));
-            When(new CreatePlant(id, "Jore"));
+            var UserId = Guid.NewGuid();
+            Given(new PlantCreated(id, "Jore", UserId));
+            When(new CreatePlant(id, "Jore", UserId));
             Expect("rebirth");
         }
 

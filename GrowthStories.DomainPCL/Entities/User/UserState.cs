@@ -33,6 +33,11 @@ namespace Growthstories.Domain.Entities
 
         private IDictionary<Guid, RelationshipType> Relationships = new Dictionary<Guid, RelationshipType>();
 
+        private readonly IList<ActionBase> _Actions = new List<ActionBase>();
+        public IList<ActionBase> Actions { get { return _Actions; } }
+
+
+
         public string Password { get; private set; }
         public string Username { get; private set; }
         public string Email { get; private set; }
@@ -40,6 +45,7 @@ namespace Growthstories.Domain.Entities
         public string AccessToken { get; private set; }
         public int ExpiresIn { get; private set; }
         public string RefreshToken { get; private set; }
+
 
         public UserState() { }
 
@@ -62,6 +68,11 @@ namespace Growthstories.Domain.Entities
             this.AccessToken = @event.AccessToken;
             this.ExpiresIn = @event.ExpiresIn;
             this.RefreshToken = @event.RefreshToken;
+        }
+
+        public void Apply(ActionBase @event)
+        {
+            this.Actions.Add(@event);
         }
 
 

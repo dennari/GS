@@ -13,7 +13,8 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_created_plant_mark_public()
         {
-            Given(new PlantCreated(id, "Jore"));
+            var UserId = Guid.NewGuid();
+            Given(new PlantCreated(id, "Jore", UserId));
             When(new MarkPlantPublic(id));
             Expect(new MarkedPlantPublic(id)
             {
@@ -26,7 +27,8 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_created_plant_mark_private()
         {
-            Given(new PlantCreated(id, "Jore"));
+            var UserId = Guid.NewGuid();
+            Given(new PlantCreated(id, "Jore", UserId));
             When(new MarkPlantPrivate(id));
             Expect(new MarkedPlantPrivate(id)
             {

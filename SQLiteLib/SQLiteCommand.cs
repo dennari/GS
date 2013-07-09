@@ -1,0 +1,82 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace SQLite
+{
+    public partial class SQLiteCommand : IDisposable
+    {
+
+        public IEnumerable<T> ExecuteQuery<T>(string sql, Func<IntPtr, T> f)
+        {
+
+
+            this.CommandText = sql;
+            if (_conn.Trace)
+            {
+                Debug.WriteLine("Executing Query: " + this);
+            }
+
+            var stmt = Prepare();
+            try
+            {
+                while (SQLite3.Step(stmt) == SQLite3.Result.Row)
+                {
+
+                    yield return f(stmt);
+                    //serializer.Deserialize<ActionBase>(SQLite3.ColumnByteArray(stmt, (int)ActionIndex.Payload));
+
+                }
+            }
+            finally
+            {
+                SQLite3.Finalize(stmt);
+            }
+        }
+
+
+
+
+        public int ExecuteWithoutExceptions(string sql)
+        {
+            this.CommandText = sql;
+            return ExecuteWithoutExceptions();
+        }
+
+        public int ExecuteWithoutExceptions()
+        {
+            try
+            {
+                return this.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+
+                return 0;
+            }
+        }
+
+        public int ExecuteNonQuery(string sql)
+        {
+            this.CommandText = sql;
+            return ExecuteNonQuery();
+        }
+
+        public void AddParameter(string name, object val)
+        {
+            Bind(name, val);
+        }
+
+        public void Dispose()
+        {
+            this._conn.Dispose();
+        }
+
+    }
+
+
+}

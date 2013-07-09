@@ -22,7 +22,7 @@ using CommonDomain.Persistence.EventStore;
 using EventStore.Dispatcher;
 using Growthstories.Domain;
 using EventStore.Logging;
-using Growthstories.Projections;
+using Growthstories.UI;
 using System.Text;
 
 namespace Growthstories.DomainTests

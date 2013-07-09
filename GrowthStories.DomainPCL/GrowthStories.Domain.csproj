@@ -38,10 +38,6 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Entities\Comment\Commands.cs" />
-    <Compile Include="Entities\Comment\CommentCreated.cs" />
-    <Compile Include="Entities\Comment\CommentState.cs" />
-    <Compile Include="Entities\Comment\Comment.cs" />
     <Compile Include="Entities\Synchronizer\Commands.cs" />
     <Compile Include="Entities\Synchronizer\Events.cs" />
     <Compile Include="Entities\Synchronizer\Synchronizer.cs" />
@@ -117,7 +113,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Entities\Actions\" />
     <Folder Include="Entities\PlantData\" />
     <Folder Include="Entities\Schedule\" />
   </ItemGroup>

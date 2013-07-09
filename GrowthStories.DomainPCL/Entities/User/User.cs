@@ -20,7 +20,10 @@ namespace Growthstories.Domain.Entities
     public class User : AggregateBase<UserState, UserCreated>,
         ICommandHandler<CreateUser>,
         ICommandHandler<SetAuthToken>,
-        ICommandHandler<BecomeFollower>
+        ICommandHandler<BecomeFollower>,
+        ICommandHandler<Comment>,
+        ICommandHandler<Water>,
+        ICommandHandler<Photograph>
     {
 
         public void Handle(CreateUser command)
@@ -43,6 +46,21 @@ namespace Growthstories.Domain.Entities
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new BecameFollower(command));
+        }
+
+        public void Handle(Comment command)
+        {
+            RaiseEvent(new Commented(command));
+        }
+
+        public void Handle(Water command)
+        {
+            RaiseEvent(new Watered(command));
+        }
+
+        public void Handle(Photograph command)
+        {
+            RaiseEvent(new Photographed(command));
         }
     }
 

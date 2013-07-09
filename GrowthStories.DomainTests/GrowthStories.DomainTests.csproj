@@ -137,9 +137,9 @@
       <Project>{b3e2cfbd-93fd-4604-8b43-c245947c07ed}</Project>
       <Name>GrowthStories.Domain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.Projections.csproj">
+    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.UI.csproj">
       <Project>{ef1081c2-d71f-42d5-804a-e34fbf6c6a5a}</Project>
-      <Name>GrowthStories.Projections</Name>
+      <Name>GrowthStories.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
       <Project>{5475681a-83be-462d-bda2-91cb9740c111}</Project>
@@ -148,6 +148,14 @@
     <ProjectReference Include="..\GrowthStories.Sync\GrowthStories.Sync.csproj">
       <Project>{487ea8b6-d110-441d-aaed-9ff2315dfd59}</Project>
       <Name>GrowthStories.Sync</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.UI.Persistence\GrowthStories.UI.Persistence.csproj">
+      <Project>{9aac4978-0b64-4d53-99e4-1eed5347b728}</Project>
+      <Name>GrowthStories.UI.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLiteLib\SQLiteLib.csproj">
+      <Project>{36e33fc7-56ef-4b80-91f9-917a83125ba1}</Project>
+      <Name>SQLiteLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -33,8 +33,8 @@ namespace Growthstories.Domain.Entities
         {
             if (command.Name == null)
                 throw new ArgumentNullException();
-            
-            RaiseEvent(new PlantCreated(command.EntityId, command.Name));
+
+            RaiseEvent(new PlantCreated(command.EntityId, command.Name, command.UserId));
         }
 
         public void Handle(AddComment command)
@@ -57,7 +57,7 @@ namespace Growthstories.Domain.Entities
             {
                 ApplyState(null);
             }
-            RaiseEvent(new PlantCreated(command.PlantId, command.PlantName));
+            //RaiseEvent(new PlantCreated(command.PlantId, command.PlantName));
         }
 
         public void Handle(AddWateringAction command)

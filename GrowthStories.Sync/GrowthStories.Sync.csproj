@@ -64,9 +64,9 @@
       <Project>{b3e2cfbd-93fd-4604-8b43-c245947c07ed}</Project>
       <Name>GrowthStories.Domain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.Projections.csproj">
+    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.UI.csproj">
       <Project>{ef1081c2-d71f-42d5-804a-e34fbf6c6a5a}</Project>
-      <Name>GrowthStories.Projections</Name>
+      <Name>GrowthStories.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
       <Project>{5475681a-83be-462d-bda2-91cb9740c111}</Project>
@@ -77,7 +77,6 @@
     <Compile Include="AuthTokenService.cs" />
     <Compile Include="Fakes\FakeUserService.cs" />
     <Compile Include="Fakes\FakeSyncFactory.cs" />
-    <Compile Include="IEndpoint.cs" />
     <Compile Include="HttpAuthTokenResponse.cs" />
     <Compile Include="SyncEventStream.cs" />
     <Compile Include="SyncRebaser.cs" />
@@ -88,7 +87,7 @@
     <Compile Include="HttpPushResponse.cs" />
     <Compile Include="HttpPullResponse.cs" />
     <Compile Include="SyncAncestorFactory.cs" />
-    <Compile Include="IJsonFactory.cs" />
+    <Compile Include="JsonFactory.cs" />
     <Compile Include="HttpRequestFactory.cs" />
     <Compile Include="StoreExtensions.cs" />
     <Compile Include="SyncHttpClient.cs" />

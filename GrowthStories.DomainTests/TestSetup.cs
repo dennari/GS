@@ -16,10 +16,13 @@ using Growthstories.Domain.Messaging;
 //using Growthstories.Domain.Messaging;
 using Growthstories.Domain.Services;
 using Growthstories.Sync;
-using Growthstories.Projections;
+using Growthstories.UI;
+using Growthstories.UI.Persistence;
 using log4net.Config;
 using Ninject;
 using Ninject.Modules;
+using SQLite;
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -65,10 +68,18 @@ namespace Growthstories.DomainTests
 
             #region EventStore
 
+            SQLiteConnection conn = null;
+            Func<SQLiteConnection> del = () =>
+            {
+                if (conn == null)
+                    conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"));
+                return conn;
+            };
+            Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
+
             Bind<IPersistSyncStreams>()
                 .To<SQLitePersistenceEngine>()
                 .InSingletonScope()
-                .WithConstructorArgument("path", Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"))
                 .OnActivation((ctx, eng) =>
                 {
                     eng.Initialize();
@@ -82,7 +93,13 @@ namespace Growthstories.DomainTests
             Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
             Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
 
-            Bind<IAsyncDispatchCommits>().To<EventDispatcher>().InSingletonScope();
+            Bind<IAsyncDispatchCommits>().To<EventDispatcher>()
+                .InSingletonScope()
+                .OnActivation((ctx, hndlr) =>
+                {
+                    //this.RegisterHandlers(hndlr, ctx.Kernel);
+                });
+
             Bind<IDispatchCommits>().ToMethod(_ => _.Kernel.Get<IAsyncDispatchCommits>());
             Bind<IRegisterEventHandlers>().ToMethod(_ => (EventDispatcher)_.Kernel.Get<IDispatchCommits>());
 
@@ -98,25 +115,51 @@ namespace Growthstories.DomainTests
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
             Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
+
             Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();
+
+
             Bind<IAggregateFactory>().To<AggregateFactory>().InSingletonScope();
 
 
 
             Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
             Bind<IJsonFactory>().To<JsonFactory>().InSingletonScope();
+            Bind<IUIPersistence>().To<SQLiteUIPersistence>()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.Initialize();
+                    eng.Purge();
+                });
+
 
             RegisterHandlers(Kernel.Get<IRegisterEventHandlers>(), Kernel);
 
         }
 
+
         void RegisterHandlers(IRegisterEventHandlers registry, IKernel kernel)
         {
-            Bind<IEventHandler<PlantCreated>>().To<PlantProjection>().InSingletonScope();
-            Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
 
-            registry.Register<PlantCreated>(Kernel.Get<IEventHandler<PlantCreated>>());
-            registry.RegisterAsync<UserSynchronized>(Kernel.Get<IAsyncEventHandler<UserSynchronized>>());
+            //Bind<IEventHandler<PlantCreated>>().To<PlantProjection>().InSingletonScope();
+
+            Bind<ActionProjection>().ToSelf().InSingletonScope();
+            Bind<PlantProjection>().ToSelf().InSingletonScope();
+            Bind<AuthTokenService>().ToSelf().InSingletonScope();
+
+            //Bind<IEventHandler<Commented>>().To<ActionProjection>().InSingletonScope();
+            //Bind<IEventHandler<Watered>>().To<ActionProjection>().InSingletonScope();
+            //Bind<IEventHandler<Photographed>>().To<ActionProjection>().InSingletonScope();
+
+            Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
+            var pproj = Kernel.Get<PlantProjection>();
+            registry.Register<PlantCreated>(pproj);
+            var aproj = Kernel.Get<ActionProjection>();
+            registry.Register<Commented>(aproj);
+            registry.Register<Watered>(aproj);
+            registry.Register<Photographed>(aproj);
+            registry.RegisterAsync<UserSynchronized>(Kernel.Get<AuthTokenService>());
         }
 
     }

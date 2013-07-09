@@ -70,8 +70,9 @@ namespace Growthstories.DomainTests
             //Assert.IsTrue(ZeroHead == new SyncHead(PlantId, 1));
 
 
+            var UserId = Guid.NewGuid();
             Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, UserId));
             Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
             Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
 
@@ -99,9 +100,10 @@ namespace Growthstories.DomainTests
             var PlantId = Guid.NewGuid();
             var Name = "Jore";
             var GardenId = Guid.NewGuid();
+            var UserId = Guid.NewGuid();
 
             Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, UserId));
             Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
             Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
 
@@ -141,7 +143,7 @@ namespace Growthstories.DomainTests
 
             Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
             Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, CurrentUser.Id));
             Handler.Handle<Synchronizer, CreateSynchronizer>(new CreateSynchronizer(SynchronizerId));
 
             //var req = RequestFactory.CreatePushRequest(Rebaser.Pending());

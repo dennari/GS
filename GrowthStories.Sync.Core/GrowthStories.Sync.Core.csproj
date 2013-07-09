@@ -53,6 +53,8 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="IAuthTokenResponse.cs" />
     <Compile Include="IAuthUser.cs" />
+    <Compile Include="IEndpoint.cs" />
+    <Compile Include="IJsonFactory.cs" />
     <Compile Include="ISyncPushResponse.cs" />
     <Compile Include="ISynchronizerService.cs" />
     <Compile Include="IUserService.cs" />

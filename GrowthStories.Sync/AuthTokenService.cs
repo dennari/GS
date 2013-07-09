@@ -1,6 +1,6 @@
 ﻿using Growthstories.Core;
 using Growthstories.Domain.Messaging;
-using Growthstories.Projections;
+using Growthstories.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;

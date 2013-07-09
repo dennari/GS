@@ -18,10 +18,11 @@ namespace Growthstories.Domain.Messaging
     {
 
         public CreatePlant() { }
-        public CreatePlant(Guid id, string name)
+        public CreatePlant(Guid id, string name, Guid userId)
             : base(id)
         {
             Name = name;
+            this.UserId = userId;
         }
 
         public override string ToString()
@@ -31,6 +32,8 @@ namespace Growthstories.Domain.Messaging
 
 
         public string Name { get; set; }
+
+        public Guid UserId { get; set; }
     }
 
     public class MarkPlantPublic : PlantCommand
