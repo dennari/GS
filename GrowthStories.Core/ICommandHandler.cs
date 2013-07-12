@@ -6,28 +6,26 @@ namespace Growthstories.Core
 {
 
 
-    public interface IEventHandler
+    public interface ICommandHandler
     {
-        void Handle(IEvent @event);
+        void Handle(ICommand command);
     }
 
-    public interface IEventHandler<TEvent> : IEventHandler
-        where TEvent : IEvent
+    public interface ICommandHandler<TCommand> : ICommandHandler
+        where TCommand : ICommand
     {
-        void Handle(TEvent @event);
+        void Handle(TCommand command);
     }
 
-    public interface IAsyncEventHandler
+    public interface IAsyncCommandHandler
     {
-        Task HandleAsync(IEvent @event);
+        Task HandleAsync(ICommand command);
     }
 
-    public interface IAsyncEventHandler<TEvent> : IAsyncEventHandler
-        where TEvent : IEvent
+    public interface IAsyncCommandHandler<TCommand> : IAsyncCommandHandler
+        where TCommand : ICommand
     {
-        Task HandleAsync(TEvent @event);
+        Task HandleAsync(TCommand command);
     }
-
-
 
 }

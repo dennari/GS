@@ -14,10 +14,20 @@ namespace Growthstories.Core
         void SetEventFactory(IEventFactory factory);
     }
 
-    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
+    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate, ICommandHandler
         where TState : IAppliesEvents, IMemento, new()
         where TCreate : IEvent
     {
+
+        public void Handle(ICommand @event)
+        {
+            if (@event == null)
+                throw new ArgumentNullException("event");
+            ((dynamic)this).Handle((dynamic)@event);
+
+        }
+
+
 
         private TState _state;
         private IEventFactory _eventFactory;
@@ -111,15 +121,15 @@ namespace Growthstories.Core
                 throw new ArgumentException(string.Format("Event {0} EntityId doesn't match the Id of the raising entity {1}", Event.GetType(), this.GetType()));
         }
 
-        public void Create(Guid Id)
-        {
-            if (State == null)
-            {
-                ApplyState(null);
-            }
-            RaiseEvent(Activator.CreateInstance(typeof(TCreate), Id));
+        //public void Create(Guid Id)
+        //{
+        //    if (State == null)
+        //    {
+        //        ApplyState(null);
+        //    }
+        //    RaiseEvent(Activator.CreateInstance(typeof(TCreate), Id));
 
-        }
+        //}
 
 
         protected override IMemento GetSnapshot()

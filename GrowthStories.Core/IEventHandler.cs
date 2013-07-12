@@ -1,4 +1,4 @@
-﻿ using CommonDomain;
+﻿using CommonDomain;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -6,21 +6,28 @@ namespace Growthstories.Core
 {
 
 
-    public interface ICommandHandler
+    public interface IEventHandler
     {
-        void Handle(ICommand command);
+        void Handle(IEvent @event);
     }
 
-    public interface ICommandHandler<TCommand> where TCommand : ICommand
+    public interface IEventHandler<TEvent> : IEventHandler
+        where TEvent : IEvent
     {
-        void Handle(TCommand command);
+        void Handle(TEvent @event);
+    }
+
+    public interface IAsyncEventHandler
+    {
+        Task HandleAsync(IEvent @event);
+    }
+
+    public interface IAsyncEventHandler<TEvent> : IAsyncEventHandler
+        where TEvent : IEvent
+    {
+        Task HandleAsync(TEvent @event);
     }
 
 
-
-    public interface IAsyncCommandHandler<TCommand> where TCommand : ICommand
-    {
-        Task<object> HandleAsync(TCommand command);
-    }
 
 }

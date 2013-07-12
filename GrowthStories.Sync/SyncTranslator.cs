@@ -15,17 +15,18 @@ namespace Growthstories.Sync
     public class SyncTranslator : ITranslateEvents
     {
         private readonly IUserService UserService;
-        private readonly IPersistSyncStreams Store;
-
-        public SyncTranslator(IUserService ancestorFactory, IPersistSyncStreams store)
-        {
-            this.UserService = ancestorFactory;
-            this.Store = store;
-        }
-
-        public IMemento Ancestor { get; set; }
+        private readonly IConstructSyncEventStreams StreamFactory;
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncTranslator));
+
+
+        public SyncTranslator(IUserService ancestorFactory, IConstructSyncEventStreams streamFactory)
+        {
+            this.UserService = ancestorFactory;
+            this.StreamFactory = streamFactory;
+        }
+
+
 
         public IEventDTO Out(IEvent e)
         {
@@ -78,6 +79,7 @@ namespace Growthstories.Sync
             {
                 foreach (var e in Out(stream.CommittedEvents.Select(x => (IDomainEvent)x.Body)))
                 {
+                    //e.EntityVersion += stream.UncommittedRemoteEvents.Count;
                     yield return e;
                 }
             }
@@ -97,7 +99,7 @@ namespace Growthstories.Sync
             return enumerable
                 .Select(x => In(x))
                 .GroupBy(x => x.EntityId)
-                .Select(x => new SyncEventStream(x, this.Store))
+                .Select(x => this.StreamFactory.CreateStreamFromRemoteEvents(x))
                 .ToArray();
 
 

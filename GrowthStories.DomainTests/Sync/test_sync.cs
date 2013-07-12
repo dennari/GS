@@ -41,6 +41,7 @@ namespace Growthstories.DomainTests
 
         public T Get<T>() { return kernel.Get<T>(); }
         public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public SynchronizerCommandHandler SyncHandler { get { return Get<SynchronizerCommandHandler>(); } }
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
@@ -79,7 +80,7 @@ namespace Growthstories.DomainTests
             //Assert.IsTrue(SyncStore.GetSyncHeads().Contains(ZeroHead), SyncStore.GetSyncHeads().Count().ToString());
 
             //var syncEvents = Synchronizer.UpdatedStreams().Aggregate(0, (acc, stream) => acc + stream.Events.Count());
-            Assert.AreEqual(4, Synchronizer.Pending().Aggregate(0, (acc, stream) => acc + stream.CommittedEvents.Count()));
+            Assert.AreEqual(4, Synchronizer.GetPushRequest().Streams.Aggregate(0, (acc, stream) => acc + stream.CommittedEvents.Count()));
 
 
 
@@ -109,7 +110,7 @@ namespace Growthstories.DomainTests
 
 
 
-            var reqq = RequestFactory.CreatePushRequest(Synchronizer.Pending());
+            var reqq = Synchronizer.GetPushRequest();
 
             FakeFactory.BuildPushResponse = (ISyncPushRequest request) =>
             {
@@ -139,11 +140,12 @@ namespace Growthstories.DomainTests
             var GardenId = Guid.NewGuid();
             var SynchronizerId = Guid.NewGuid();
             var CurrentUser = this.CurrentUser;
+            var uCmd = new CreateUser(Guid.NewGuid(), "Alice", "swordfish", "alice@wonderland.net");
 
-
+            Handler.Handle<User, CreateUser>(uCmd);
             Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
             Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, CurrentUser.Id));
+            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, uCmd.EntityId));
             Handler.Handle<Synchronizer, CreateSynchronizer>(new CreateSynchronizer(SynchronizerId));
 
             //var req = RequestFactory.CreatePushRequest(Rebaser.Pending());
@@ -161,27 +163,34 @@ namespace Growthstories.DomainTests
             };
 
 
-            var requests = (IList<ISyncRequest>)await Handler.HandlerHandleAsync<Synchronizer, Synchronize>(new Synchronize(SynchronizerId));
+            await SyncHandler.HandleAsync(new Synchronize(SynchronizerId));
+            Assert.AreEqual(1, SyncHandler.PushRequests.Count());
+            Assert.AreEqual(1, SyncHandler.PushResponses.Count());
+            Assert.AreEqual(0, SyncHandler.PullRequests.Count());
+            Assert.AreEqual(0, SyncHandler.PullResponses.Count());
 
-            Assert.AreEqual(1, requests.Count());
-            Assert.IsInstanceOf<HttpPushRequest>(requests[0]);
-            var events = ((HttpPushRequest)requests[0]).EventsFromStreams().ToArray();
-            Assert.IsInstanceOf<GardenCreated>(events[0]);
-            Assert.IsInstanceOf<PlantAdded>(events[1]);
-            Assert.IsInstanceOf<PlantCreated>(events[2]);
+            //var events = SyncHandler.PushRequests[0].EventsFromStreams().ToArray();
+            //Assert.IsInstanceOf<GardenCreated>(events[0]);
+            //Assert.IsInstanceOf<PlantAdded>(events[1]);
+            //Assert.IsInstanceOf<PlantCreated>(events[2]);
 
 
 
             Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
-            Handler.Handle<Plant, AddPhoto>(new AddPhoto(PlantId, "BLOB"));
-            Handler.Handle<Plant, AddComment>(new AddComment(PlantId, "COMMENT"));
+            var localNote = "LOCAL NOTE";
+            var remoteNote = "REMOTE NOTE";
 
-            var plantStream = EventStore.OpenStream(PlantId, 0, int.MaxValue);
-            foreach (var e in plantStream.CommittedEvents)
-            {
-                var ee = ((IEvent)e.Body);
-                Console.WriteLine(string.Format("{0}, {1}", ee.EntityVersion, ee.ToString()));
-            }
+            Handler.Handle<User, Comment>(new Comment(uCmd.EntityId, PlantId, localNote));
+
+            //Handler.Handle<Plant, AddPhoto>(new AddPhoto(PlantId, "BLOB"));
+            //Handler.Handle<Plant, AddComment>(new AddComment(PlantId, "COMMENT"));
+
+            //var plantStream = EventStore.OpenStream(PlantId, 0, int.MaxValue);
+            //foreach (var e in plantStream.CommittedEvents)
+            //{
+            //    var ee = ((IEvent)e.Body);
+            //    Console.WriteLine(string.Format("{0}, {1}", ee.EntityVersion, ee.ToString()));
+            //}
 
             var newPlantId = Guid.NewGuid();
             var newPlantName = "Jore";
@@ -189,18 +198,18 @@ namespace Growthstories.DomainTests
             FakeFactory.BuildPushResponse = (ISyncPushRequest request) =>
             {
 
-                Assert.AreEqual(2, request.Streams.Count);
-                events = request.EventsFromStreams().ToArray();
-                Assert.AreEqual(4, events.Length);
+                //Assert.AreEqual(2, request.Streams.Count);
+                //events = request.EventsFromStreams().ToArray();
+                //Assert.AreEqual(4, events.Length);
 
-                Assert.IsInstanceOf<MarkedPlantPublic>(events[1]);
-                Assert.AreEqual(2, events[1].EntityVersion);
+                //Assert.IsInstanceOf<MarkedPlantPublic>(events[1]);
+                //Assert.AreEqual(2, events[1].EntityVersion);
 
-                Assert.IsInstanceOf<PhotoAdded>(events[2]);
-                Assert.AreEqual(3, events[2].EntityVersion);
+                //Assert.IsInstanceOf<PhotoAdded>(events[2]);
+                //Assert.AreEqual(3, events[2].EntityVersion);
 
-                Assert.IsInstanceOf<CommentAdded>(events[3]);
-                Assert.AreEqual(events[3].EntityVersion, 4);
+                //Assert.IsInstanceOf<CommentAdded>(events[3]);
+                //Assert.AreEqual(events[3].EntityVersion, 4);
 
 
                 return new HttpPushResponse()
@@ -213,20 +222,21 @@ namespace Growthstories.DomainTests
 
             FakeFactory.BuildPullResponse = (request) =>
             {
-                return Tuple.Create<ISyncPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>(
+                return Tuple.Create<HttpPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>(
                         new HttpPullResponse()
                         {
                             DTOs = new List<EventDTOUnion>()
                             {
                                 new EventDTOUnion() {
                                     EventType = DTOType.addComment,
-                                    EntityId = PlantId,
+                                    EntityId = uCmd.EntityId,
                                     EntityVersion = 2,
                                     EventId = Guid.NewGuid(),
-                                    Note = "REMOTE COMMENT",
+                                    Note = remoteNote,
                                     ParentId = Guid.NewGuid(),
-                                    AncestorId = CurrentUser.Id,
-                                    ParentAncestorId = CurrentUser.Id
+                                    AncestorId = uCmd.EntityId,
+                                    PlantId = PlantId,
+                                    PlantAncestorId = uCmd.EntityId
                                 },
                                 new EventDTOUnion() {
                                     EventType = DTOType.createPlant,
@@ -235,52 +245,79 @@ namespace Growthstories.DomainTests
                                     EventId = Guid.NewGuid(),
                                     Name = newPlantName,
                                     ParentId = Guid.NewGuid(),
-                                    AncestorId = CurrentUser.Id,
-                                    ParentAncestorId = CurrentUser.Id
+                                    AncestorId = uCmd.EntityId,
+                                    ParentAncestorId = uCmd.EntityId
                                 }
                             }
                         }
                     ,
                         (ISyncPushRequest reqq) =>
-                        new HttpPushResponse()
                         {
-                            StatusCode = 200,
-                            StatusDesc = "OK",
-                            AlreadyExecuted = false
+                            throw new TaskCanceledException("BLAA");
+                            return new HttpPushResponse()
+                            {
+                                StatusCode = 200,
+                                StatusDesc = "OK",
+                                AlreadyExecuted = false
+                            };
                         }
                     );
 
             };
 
 
-
-
-            requests = (IList<ISyncRequest>)await Handler.HandlerHandleAsync<Synchronizer, Synchronize>(new Synchronize(SynchronizerId));
-
-
-            plantStream = EventStore.OpenStream(PlantId, 0, int.MaxValue);
-            foreach (var e in plantStream.CommittedEvents)
+            try
             {
-                var ee = ((IEvent)e.Body);
-                Console.WriteLine(string.Format("{0}, {1}", ee.EntityVersion, ee.ToString()));
+                await SyncHandler.HandleAsync(new Synchronize(SynchronizerId));
+
+            }
+            catch (TaskCanceledException)
+            {
+
+
             }
 
 
-            Assert.AreEqual(3, requests.Count());
+
+            //plantStream = EventStore.OpenStream(PlantId, 0, int.MaxValue);
+            //foreach (var e in plantStream.CommittedEvents)
+            //{
+            //    var ee = ((IEvent)e.Body);
+            //    Console.WriteLine(string.Format("{0}, {1}", ee.EntityVersion, ee.ToString()));
+            //}
 
 
+            Assert.AreEqual(2, SyncHandler.PushRequests.Count());
+            Assert.AreEqual(1, SyncHandler.PushResponses.Count());
+            Assert.AreEqual(1, SyncHandler.PullRequests.Count());
+            Assert.AreEqual(1, SyncHandler.PullResponses.Count());
 
-            Assert.IsInstanceOf<HttpPushRequest>(requests[2]);
-            events = ((HttpPushRequest)requests[2]).EventsFromStreams().ToArray();
+            var req = Synchronizer.GetPushRequest();
+            Assert.IsNotNull(req);
+            //var reqStreams = req.Streams.ToArray();
+            Assert.AreEqual(2, req.Streams.Count);
+            //Assert.AreEqual(1, reqStreams[0].Commits.Length);
+            var userSyncStream = req.Streams.Single(x => x.StreamId == uCmd.EntityId);
+            var uSE = userSyncStream.Events().ToArray();
+            var Comment = uSE[0] as Commented;
+            Assert.IsInstanceOf<Commented>(Comment);
+            Assert.AreEqual(Comment.EntityVersion, 3);
+            Assert.AreEqual(Comment.Note, localNote);
 
-            Assert.IsInstanceOf<MarkedPlantPublic>(events[1]);
-            Assert.AreEqual(events[1].EntityVersion, 3);
 
-            Assert.IsInstanceOf<PhotoAdded>(events[2]);
-            Assert.AreEqual(events[2].EntityVersion, 4);
+            var userStream = EventStore.OpenStream(uCmd.EntityId, 0, int.MaxValue);
+            Assert.AreEqual(3, userStream.CommittedEvents.Count);
+            var uE = userStream.Events().ToArray();
+            Comment = uE[1] as Commented;
+            Assert.IsInstanceOf<Commented>(Comment);
+            Assert.AreEqual(Comment.EntityVersion, 2);
+            Assert.AreEqual(Comment.Note, localNote);
+            Comment = uE[2] as Commented;
+            Assert.IsInstanceOf<Commented>(Comment);
+            Assert.AreEqual(Comment.EntityVersion, 3);
+            Assert.AreEqual(Comment.Note, remoteNote);
 
-            Assert.IsInstanceOf<CommentAdded>(events[3]);
-            Assert.AreEqual(events[3].EntityVersion, 5);
+
 
             var newPlantStream = EventStore.OpenStream(newPlantId, 0, int.MaxValue);
             Assert.AreEqual(1, newPlantStream.CommittedEvents.Count);

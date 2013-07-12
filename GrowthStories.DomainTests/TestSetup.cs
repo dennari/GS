@@ -18,7 +18,11 @@ using Growthstories.Domain.Services;
 using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.Persistence;
+
+#if !WINDOWS_PHONE
 using log4net.Config;
+#endif
+
 using Ninject;
 using Ninject.Modules;
 using SQLite;
@@ -35,10 +39,9 @@ namespace Growthstories.DomainTests
         protected virtual void HttpConfiguration()
         {
             Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
-            Bind<IEndpoint>().To<StagingEndpoint>();
+            Bind<IEndpoint>().To<FakeEndpoint>().InSingletonScope();
             Bind<IRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IResponseFactory>().To<FakeSyncFactory>().InSingletonScope();
-            Bind<IHttpRequestFactory>().ToMethod(_ => (FakeSyncFactory)_.Kernel.Get<IResponseFactory>());
+            Bind<IResponseFactory, IHttpRequestFactory>().To<FakeSyncFactory>().InSingletonScope();
 
         }
 
@@ -52,32 +55,56 @@ namespace Growthstories.DomainTests
             Bind<IEventFactory>().To<FakeEventFactory>().InSingletonScope();
         }
 
-        public override void Load()
+        protected virtual void SQLiteConnectionConfiguration()
+        {
+            SQLiteConnection conn = null;
+            Func<SQLiteConnection> del = () =>
+            {
+                if (conn == null)
+                {
+#if WINDOWS_PHONE
+                    conn = new SQLiteConnection("testdb2.sdf");
+        
+#else
+                    conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"));
+
+#endif
+                }
+                return conn;
+            };
+            Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
+        }
+
+        protected virtual void LogConfiguration()
         {
             // configure logging
+#if !WINDOWS_PHONE
             XmlConfigurator.Configure();
+            LogFactory.BuildLogger = type => new LogTo4Net(type);
+#endif
+
+        }
+
+        public override void Load()
+        {
+
+            LogConfiguration();
             HttpConfiguration();
             UserConfiguration();
             EventFactoryConfiguration();
+            SQLiteConnectionConfiguration();
 
             Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
             Bind<ITransportEvents>().To<HttpSyncTransporter>().InSingletonScope();
 
 
-            LogFactory.BuildLogger = type => new LogTo4Net(type);
+
 
             #region EventStore
 
-            SQLiteConnection conn = null;
-            Func<SQLiteConnection> del = () =>
-            {
-                if (conn == null)
-                    conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"));
-                return conn;
-            };
-            Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
 
-            Bind<IPersistSyncStreams>()
+
+            Bind<IPersistSyncStreams, IPersistStreams>()
                 .To<SQLitePersistenceEngine>()
                 .InSingletonScope()
                 .OnActivation((ctx, eng) =>
@@ -86,27 +113,18 @@ namespace Growthstories.DomainTests
                     eng.Purge();
                 });
 
-            Bind<IPersistStreams>().ToMethod(_ => _.Kernel.Get<IPersistSyncStreams>());
 
             #region PipelineHooks
             Bind<IPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
             Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
             Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
-
-            Bind<IAsyncDispatchCommits>().To<EventDispatcher>()
-                .InSingletonScope()
-                .OnActivation((ctx, hndlr) =>
-                {
-                    //this.RegisterHandlers(hndlr, ctx.Kernel);
-                });
-
-            Bind<IDispatchCommits>().ToMethod(_ => _.Kernel.Get<IAsyncDispatchCommits>());
-            Bind<IRegisterEventHandlers>().ToMethod(_ => (EventDispatcher)_.Kernel.Get<IDispatchCommits>());
+            Bind<IDispatchCommits, IAsyncDispatchCommits, IRegisterEventHandlers>().To<EventDispatcher>().InSingletonScope();
 
             #endregion
 
-            Bind<IStoreEvents>().To<OptimisticEventStore>().InSingletonScope();
-            Bind<ICommitEvents>().ToMethod(_ => (OptimisticEventStore)_.Kernel.Get<IStoreEvents>());
+
+
+            Bind<IStoreEvents, ICommitEvents>().To<GSEventStore>().InSingletonScope();
             Bind<ISerialize>().To<JsonSerializer>();
 
             #endregion
@@ -115,10 +133,9 @@ namespace Growthstories.DomainTests
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
             Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
+            Bind<IConstructSyncEventStreams>().To<SyncEventStreamFactory>().InSingletonScope();
 
-            Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();
-
-
+            //Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();
             Bind<IAggregateFactory>().To<AggregateFactory>().InSingletonScope();
 
 
@@ -133,26 +150,21 @@ namespace Growthstories.DomainTests
                     eng.Purge();
                 });
 
+            Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
+            Bind<ActionProjection>().ToSelf().InSingletonScope();
+            Bind<PlantProjection>().ToSelf().InSingletonScope();
+            Bind<AuthTokenService>().ToSelf().InSingletonScope();
 
             RegisterHandlers(Kernel.Get<IRegisterEventHandlers>(), Kernel);
 
         }
 
 
+
+
         void RegisterHandlers(IRegisterEventHandlers registry, IKernel kernel)
         {
-
-            //Bind<IEventHandler<PlantCreated>>().To<PlantProjection>().InSingletonScope();
-
-            Bind<ActionProjection>().ToSelf().InSingletonScope();
-            Bind<PlantProjection>().ToSelf().InSingletonScope();
-            Bind<AuthTokenService>().ToSelf().InSingletonScope();
-
-            //Bind<IEventHandler<Commented>>().To<ActionProjection>().InSingletonScope();
-            //Bind<IEventHandler<Watered>>().To<ActionProjection>().InSingletonScope();
-            //Bind<IEventHandler<Photographed>>().To<ActionProjection>().InSingletonScope();
-
-            Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
+            // Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
             var pproj = Kernel.Get<PlantProjection>();
             registry.Register<PlantCreated>(pproj);
             var aproj = Kernel.Get<ActionProjection>();
@@ -164,29 +176,7 @@ namespace Growthstories.DomainTests
 
     }
 
-    public class StagingModule : TestModule
-    {
 
-        protected override void HttpConfiguration()
-        {
-            Bind<IHttpClient>().To<SyncHttpClient>().InSingletonScope();
-            Bind<IEndpoint>().To<StagingEndpoint>();
-            Bind<IRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IResponseFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IHttpRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
-        }
-
-        protected override void UserConfiguration()
-        {
-            Bind<IUserService>().To<SyncUserService>().InSingletonScope();
-        }
-
-        protected override void EventFactoryConfiguration()
-        {
-            Bind<IEventFactory>().To<EventFactory>().InSingletonScope();
-        }
-
-    }
 
 
 }

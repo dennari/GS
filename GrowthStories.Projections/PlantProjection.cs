@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI
 {
-    public class PlantProjection : ProjectionBase, IEventHandler<PlantCreated>
+    public class PlantProjection : EventHandlerBase, IEventHandler<PlantCreated>
     {
 
         private IList<string> _PlantNames = new List<string>();

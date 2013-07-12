@@ -28,46 +28,9 @@ namespace Growthstories.Domain.Entities
             if (command.EntityId == default(Guid))
                 throw new ArgumentNullException();
 
-            RaiseEvent(new SynchronizerCreated()
-            {
-                EntityId = command.EntityId
-            });
-        }
-
-        public async Task<IList<ISyncRequest>> Handle(Synchronize command, ISynchronizerService syncService)
-        {
-            if (command.EntityId == default(Guid))
-                throw new ArgumentNullException();
-
-            var r = await syncService.Synchronize();
-
-            RaiseUserSynced(r);
-
-
-            return r;
-        }
-
-        private void RaiseUserSynced(IList<ISyncRequest> r)
-        {
-            ISyncPushRequest pReq = (r.Count == 1 ? r[0] : r.Last()) as ISyncPushRequest;
-
-            try
-            {
-                var UE = pReq.EventsFromStreams().First(y => y is UserCreated) as UserCreated;
-                RaiseEvent(new UserSynchronized()
-                    {
-                        UserId = UE.EntityId,
-                        Username = UE.Username,
-                        Password = UE.Password,
-                        Email = UE.Email,
-                        EntityId = this.Id
-                    });
-            }
-            catch (Exception) { }
+            RaiseEvent(new SynchronizerCreated(command.EntityId));
 
         }
-
-
 
 
     }

@@ -8,7 +8,7 @@ namespace Growthstories.Core
     public interface IEvent : IMessage//, IEnumerable<KeyValuePair<string, string>>
     {
         Guid EventId { get; set; }
-        Guid EntityId { get; set; }
+        Guid EntityId { get; }
         int EntityVersion { get; set; }
         DateTimeOffset Created { get; set; }
         //IEvent ShallowCopy();

@@ -9,6 +9,11 @@ namespace Growthstories.Sync
 {
     public interface IEventDTO : IEvent
     {
+        Guid EventId { get; set; }
+        Guid EntityId { get; set; }
+        int EntityVersion { get; set; }
+        DateTimeOffset Created { get; set; }
+
         DTOType EventType { get; set; }
         Guid AncestorId { get; set; }
         Guid StreamEntity { get; set; }
@@ -81,9 +86,18 @@ namespace Growthstories.Sync
 
     }
 
-    public interface IAddCommentDTO : IAddEntityDTO
+    public interface IActionDTO : IEventDTO
     {
         string Note { get; set; }
+        Guid PlantId { get; set; }
+        Guid PlantAncestorId { get; set; }
+
+
+    }
+
+
+    public interface IAddCommentDTO : IActionDTO
+    {
 
     }
 

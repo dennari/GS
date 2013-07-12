@@ -11,7 +11,7 @@ namespace Growthstories.Sync
 
         public Func<ISyncPushRequest, ISyncPushResponse> BuildPushResponse;
 
-        public Func<ISyncPullRequest, Tuple<ISyncPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>> BuildPullResponse;
+        public Func<ISyncPullRequest, Tuple<HttpPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>> BuildPullResponse;
 
         public Func<string, string, IAuthTokenResponse> BuildAuthResponse;
 
@@ -19,8 +19,12 @@ namespace Growthstories.Sync
         private ISyncPushRequest LastPushRequest;
         private string Username;
         private string Password;
+        private ITranslateEvents Translator;
 
-
+        public FakeSyncFactory(ITranslateEvents translator)
+        {
+            this.Translator = translator;
+        }
 
 
         public ISyncPullResponse CreatePullResponse(string reponse)
@@ -28,6 +32,8 @@ namespace Growthstories.Sync
             var r = BuildPullResponse(LastPullRequest);
             if (r.Item2 != null)
                 this.BuildPushResponse = r.Item2;
+            var resp = r.Item1;
+            resp.Streams = Translator.In(resp.DTOs);
             return r.Item1;
         }
 

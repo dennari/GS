@@ -10,14 +10,15 @@ namespace Growthstories.DomainTests
     {
         protected UserCreated UserCreated()
         {
-            return new UserCreated()
+            return new UserCreated(
+                id,
+                "dennari",
+                "swordfish",
+                "email@net.com"
+                )
             {
-                EntityId = id,
-                EntityVersion = 1,
-                EventId = FakeEventFactory.FakeEventId,
-                Created = FakeEventFactory.FakeCreated,
-                Username = "dennari",
-                Password = "swordfish"
+                EntityVersion = 1
+
             };
         }
 

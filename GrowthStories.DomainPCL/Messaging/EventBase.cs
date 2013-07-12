@@ -22,10 +22,13 @@ namespace Growthstories.Domain.Messaging
 
     public abstract class EventBase : IDomainEvent
     {
-
-        public Guid EntityId { get; set; }
+        [JsonProperty]
+        public Guid EntityId { get; private set; }
+        [JsonProperty]
         public int EntityVersion { get; set; }
+        [JsonProperty]
         public Guid EventId { get; set; }
+        [JsonProperty]
         public DateTimeOffset Created { get; set; }
 
         protected EventBase() { }
@@ -42,7 +45,7 @@ namespace Growthstories.Domain.Messaging
         public virtual void FromDTO(IEventDTO Dto)
         {
             this.EntityId = Dto.EntityId;
-            this.EntityVersion = Dto.EntityVersion + 1;
+            this.EntityVersion = Dto.EntityVersion;
             this.EventId = Dto.EventId;
             this.Created = Dto.Created;
 
@@ -51,7 +54,7 @@ namespace Growthstories.Domain.Messaging
         public virtual void FillDTO(IEventDTO Dto)
         {
             Dto.EntityId = this.EntityId;
-            Dto.EntityVersion = this.EntityVersion - 1;
+            Dto.EntityVersion = this.EntityVersion;
             Dto.EventId = this.EventId;
             Dto.Created = this.Created;
         }

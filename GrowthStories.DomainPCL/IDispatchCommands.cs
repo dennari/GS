@@ -46,5 +46,15 @@ namespace Growthstories.Domain
 
     }
 
+    public interface IRegisterCommandHandlers
+    {
+        void Register<TCommand>(ICommandHandler<TCommand> handler)
+            where TCommand : ICommand;
+
+        void RegisterAsync<TCommand>(IAsyncCommandHandler<TCommand> handler)
+            where TCommand : ICommand;
+
+    }
+
 
 }

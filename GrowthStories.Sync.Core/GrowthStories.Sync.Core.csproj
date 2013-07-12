@@ -53,12 +53,12 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="IAuthTokenResponse.cs" />
     <Compile Include="IAuthUser.cs" />
+    <Compile Include="IConstructSyncEventStreams.cs" />
     <Compile Include="IEndpoint.cs" />
     <Compile Include="IJsonFactory.cs" />
     <Compile Include="ISyncPushResponse.cs" />
     <Compile Include="ISynchronizerService.cs" />
     <Compile Include="IUserService.cs" />
-    <Compile Include="IRebaseEvents.cs" />
     <Compile Include="IResponseFactory.cs" />
     <Compile Include="ISyncEventStream.cs" />
     <Compile Include="ISyncPullRequest.cs" />

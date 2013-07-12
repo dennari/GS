@@ -15,13 +15,23 @@ namespace Growthstories.Domain.Messaging
     [DTOObject(DTOType.createUser)]
     public class UserCreated : EventBase
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
+        public string Username { get; private set; }
+        public string Password { get; private set; }
+        public string Email { get; private set; }
 
 
-        public UserCreated() { }
-        public UserCreated(Guid id) : base(id) { }
+        protected UserCreated() { }
+        public UserCreated(Guid id, string username, string password, string email)
+            : base(id)
+        {
+            this.Username = username;
+            this.Password = password;
+            this.Email = email;
+        }
+        public UserCreated(CreateUser cmd)
+            : this(cmd.EntityId, cmd.Username, cmd.Password, cmd.Email)
+        {
+        }
 
         public override string ToString()
         {
@@ -143,9 +153,26 @@ namespace Growthstories.Domain.Messaging
 
         public abstract override string ToString();
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IActionDTO)Dto;
+            D.Note = this.Note;
+            D.PlantId = this.PlantId;
+            base.FillDTO(D);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IActionDTO)Dto;
+            this.Note = D.Note;
+            this.PlantId = D.PlantId;
+            base.FromDTO(D);
+        }
+
 
     }
 
+    [DTOObject(DTOType.addComment)]
     public class Commented : ActionBase
     {
 
@@ -160,6 +187,8 @@ namespace Growthstories.Domain.Messaging
         {
             return string.Format("User {1} commented '{0}' on plant {2}", Note, EntityId, PlantId);
         }
+
+
 
 
     }

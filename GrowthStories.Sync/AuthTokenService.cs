@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public class AuthTokenService : ProjectionBase, IAsyncEventHandler<UserSynchronized>
+    public class AuthTokenService : EventHandlerBase, IAsyncEventHandler<UserSynchronized>
     {
         private IHttpClient client;
         private IResponseFactory ResponseFactory;

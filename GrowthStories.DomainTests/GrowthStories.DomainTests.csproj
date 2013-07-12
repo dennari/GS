@@ -85,6 +85,7 @@
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
     <Compile Include="LogTo4Net.cs" />
     <Compile Include="Projections\test_projections.cs" />
+    <Compile Include="StagingModule.cs" />
     <Compile Include="Staging\StagingEndpoint.cs" />
     <Compile Include="Staging\test_auth.cs" />
     <Compile Include="Sync\test_sync.cs" />

@@ -75,11 +75,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthTokenService.cs" />
+    <Compile Include="SyncEventStreamFactory.cs" />
     <Compile Include="Fakes\FakeUserService.cs" />
     <Compile Include="Fakes\FakeSyncFactory.cs" />
+    <Compile Include="Fakes\FakeEndpoint.cs" />
     <Compile Include="HttpAuthTokenResponse.cs" />
     <Compile Include="SyncEventStream.cs" />
-    <Compile Include="SyncRebaser.cs" />
     <Compile Include="DTO\DTOExtensions.cs" />
     <Compile Include="Fakes\FakeHttpClient.cs" />
     <Compile Include="HttpPushRequest.cs" />
@@ -93,12 +94,9 @@
     <Compile Include="SyncHttpClient.cs" />
     <Compile Include="Exceptions\StorageException.cs" />
     <Compile Include="Exceptions\StorageUnavailableException.cs" />
-    <Compile Include="SyncDispatcher.cs" />
     <Compile Include="DTO\EventDTO.cs" />
-    <Compile Include="SynchronizerInMemoryPersistence.cs" />
     <Compile Include="SynchronizerService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SynchronizerPipelineHook.cs" />
     <Compile Include="SyncTranslator.cs" />
     <Compile Include="SyncHttpHandler.cs" />
     <Compile Include="HttpSyncTransporter.cs" />

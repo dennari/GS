@@ -8,6 +8,20 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
+
+#if USE_CSHARP_SQLITE
+using Sqlite3 = Community.CsharpSqlite.Sqlite3;
+using Sqlite3DatabaseHandle = Community.CsharpSqlite.Sqlite3.sqlite3;
+using Sqlite3Statement = Community.CsharpSqlite.Sqlite3.Vdbe;
+#elif USE_WP8_NATIVE_SQLITE
+using Sqlite3 = Sqlite.Sqlite3;
+using Sqlite3DatabaseHandle = Sqlite.Database;
+using Sqlite3Statement = Sqlite.Statement;
+#else
+using Sqlite3DatabaseHandle = System.IntPtr;
+using Sqlite3Statement = System.IntPtr;
+#endif
+
 namespace Growthstories.UI.Persistence
 {
     public class SQLiteUIPersistence : IUIPersistence
@@ -145,7 +159,7 @@ namespace Growthstories.UI.Persistence
             });
         }
 
-        protected ActionBase ActionQuery(IntPtr stmt)
+        protected ActionBase ActionQuery(Sqlite3Statement stmt)
         {
 
             return serializer.Deserialize<ActionBase>(SQLite3.ColumnByteArray(stmt, (int)ActionIndex.Payload));

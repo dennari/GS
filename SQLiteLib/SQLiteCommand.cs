@@ -6,12 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+#if USE_CSHARP_SQLITE
+using Sqlite3 = Community.CsharpSqlite.Sqlite3;
+using Sqlite3DatabaseHandle = Community.CsharpSqlite.Sqlite3.sqlite3;
+using Sqlite3Statement = Community.CsharpSqlite.Sqlite3.Vdbe;
+#elif USE_WP8_NATIVE_SQLITE
+using Sqlite3 = Sqlite.Sqlite3;
+using Sqlite3DatabaseHandle = Sqlite.Database;
+using Sqlite3Statement = Sqlite.Statement;
+#else
+using Sqlite3DatabaseHandle = System.IntPtr;
+using Sqlite3Statement = System.IntPtr;
+#endif
+
 namespace SQLite
 {
     public partial class SQLiteCommand : IDisposable
     {
 
-        public IEnumerable<T> ExecuteQuery<T>(string sql, Func<IntPtr, T> f)
+        public IEnumerable<T> ExecuteQuery<T>(string sql, Func<Sqlite3Statement, T> f)
         {
 
 

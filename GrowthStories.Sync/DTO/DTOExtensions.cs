@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Growthstories.Sync
 {
@@ -20,7 +21,7 @@ namespace Growthstories.Sync
             {
                 try
                 {
-                    var instance = (IDomainEvent)Activator.CreateInstance(T);
+                    var instance = (IDomainEvent)JsonConvert.DeserializeObject("{}", T, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
                     instance.FromDTO(dt);
                     return instance;
                 }

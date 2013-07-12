@@ -2,6 +2,7 @@
 using Growthstories.Core;
 using System;
 using Growthstories.Sync;
+using Newtonsoft.Json;
 
 
 namespace Growthstories.Domain.Messaging
@@ -14,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     public class SynchronizerCreated : EventBase
     {
 
-        public SynchronizerCreated() { }
+        protected SynchronizerCreated() { }
         public SynchronizerCreated(Guid id) : base(id) { }
 
         public override string ToString()
@@ -26,7 +27,7 @@ namespace Growthstories.Domain.Messaging
 
     public class Synchronized : EventBase
     {
-        public Synchronized() { }
+        protected Synchronized() { }
         public Synchronized(Guid id) : base(id) { }
 
         public override string ToString()
@@ -39,14 +40,25 @@ namespace Growthstories.Domain.Messaging
     public class UserSynchronized : EventBase
     {
 
-        public Guid UserId { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+        [JsonProperty]
+        public string Username { get; private set; }
+        [JsonProperty]
+        public string Password { get; private set; }
+        [JsonProperty]
+        public string Email { get; private set; }
 
 
-        public UserSynchronized() { }
-        public UserSynchronized(Guid id) : base(id) { }
+        protected UserSynchronized() { }
+        public UserSynchronized(Guid entityId, Guid userId, string username, string password, string email) :
+            base(entityId)
+        {
+            this.UserId = userId;
+            this.Username = username;
+            this.Password = password;
+            this.Email = email;
+        }
 
         public override string ToString()
         {

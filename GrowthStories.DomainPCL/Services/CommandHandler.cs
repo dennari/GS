@@ -140,18 +140,18 @@ namespace Growthstories.Domain.Services
 
 
 
-        public Task<object> HandleAsync<TEntity, TCommand>(TCommand c)
+        public Task HandleAsync<TEntity, TCommand>(TCommand c)
             where TEntity : class, IGSAggregate, IAsyncCommandHandler<TCommand>, new()
             where TCommand : IEntityCommand
         {
 
             var u = Construct<TEntity>(c);
 
-            return Task.Run<object>(async () =>
+            return Task.Run(async () =>
             {
-                object o = await u.HandleAsync(c);
+                await u.HandleAsync(c);
                 _persistence.RunInTransaction(() => _repository.Save(u));
-                return o;
+                //return o;
             });
 
 
@@ -184,5 +184,11 @@ namespace Growthstories.Domain.Services
 
         }
 
+
+
+        Task<object> IDispatchCommands.HandleAsync<TEntity, TCommand>(TCommand c)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

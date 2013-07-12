@@ -81,7 +81,6 @@
     <Compile Include="ActionProjection.cs" />
     <Compile Include="IUIPersistence.cs" />
     <Compile Include="PlantProjection.cs" />
-    <Compile Include="ProjectionBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UISetup.cs" />
     <Compile Include="ViewModel\PlantViewModel.cs" />

@@ -15,13 +15,7 @@ namespace Growthstories.Domain.Entities
     public class Plant : AggregateBase<PlantState, PlantCreated>,
         ICommandHandler<CreatePlant>,
         ICommandHandler<MarkPlantPublic>,
-        ICommandHandler<MarkPlantPrivate>,
-        ICommandHandler<AddComment>,
-        ICommandHandler<AddPhoto>,
-        ICommandHandler<AddPlant>,
-        ICommandHandler<AddWateringAction>,
-        ICommandHandler<AddFertilizingAction>,
-        ICommandHandler<AddFBComment>
+        ICommandHandler<MarkPlantPrivate>
     {
 
         public new void Create(Guid Id)
@@ -37,19 +31,7 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PlantCreated(command.EntityId, command.Name, command.UserId));
         }
 
-        public void Handle(AddComment command)
-        {
-            RaiseEvent(new CommentAdded()
-            {
-                EntityId = command.EntityId,
-                Note = command.Note
-            });
-        }
 
-        public void Handle(AddPhoto command)
-        {
-            RaiseEvent(new PhotoAdded(command.EntityId) { BlobKey = command.BlobKey });
-        }
 
         public void Handle(AddPlant command)
         {
@@ -60,30 +42,6 @@ namespace Growthstories.Domain.Entities
             //RaiseEvent(new PlantCreated(command.PlantId, command.PlantName));
         }
 
-        public void Handle(AddWateringAction command)
-        {
-            RaiseEvent(new WaterAdded(command.EntityId));
-
-        }
-
-        public void Handle(AddFertilizingAction command)
-        {
-            RaiseEvent(new FertilizingAdded(command.EntityId));
-
-        }
-
-        public void Handle(AddFBComment command)
-        {
-            RaiseEvent(new FBCommentAdded(command.EntityId)
-            {
-                FbId = command.FbId,
-                FirstName = command.FirstName,
-                LastName = command.LastName,
-                Name = command.Name,
-                Note = command.Note,
-                Uid = command.Uid
-            });
-        }
 
         public void Handle(MarkPlantPublic command)
         {

@@ -57,7 +57,9 @@
     <Compile Include="Entities\Plant\PlantState.cs" />
     <Compile Include="Exceptions\CommandValidationException.cs" />
     <Compile Include="IDispatchCommands.cs" />
+    <Compile Include="Repositories\GSEventStore.cs" />
     <Compile Include="Repositories\GSRepository.cs" />
+    <Compile Include="Repositories\GSEventStream.cs" />
     <Compile Include="Services\CommandHandler.cs" />
     <Compile Include="Messaging\CommandBase.cs" />
     <Compile Include="Messaging\EventBase.cs" />
@@ -98,6 +100,10 @@
     <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+      <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
+      <Name>EventStore.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>

@@ -31,6 +31,7 @@ namespace Growthstories.Domain.Services
         //private readonly MethodInfo _InvokeHandler;
         public EventDispatcher()
         {
+            var a = "b";
             //_InvokeHandler = GetType().GetTypeInfo().GetDeclaredMethod("InvokeHandler");
         }
 

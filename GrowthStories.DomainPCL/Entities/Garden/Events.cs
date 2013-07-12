@@ -18,7 +18,7 @@ namespace Growthstories.Domain.Messaging
     public class GardenCreated : EventBase
     {
 
-        public GardenCreated() { }
+        protected GardenCreated() { }
         public GardenCreated(Guid id) : base(id) { }
 
         public override string ToString()
@@ -37,7 +37,7 @@ namespace Growthstories.Domain.Messaging
         public Guid AncestorId { get; set; }
 
 
-        public PlantAdded() { }
+        protected PlantAdded() { }
         public PlantAdded(Guid gardenId, Guid plantId)
             : base(gardenId)
         {

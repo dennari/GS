@@ -1,4 +1,5 @@
 ﻿using EventStore;
+using Growthstories.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,14 @@ namespace Growthstories.Sync
     {
         void Rebase(ISyncEventStream remoteStream);
 
-        void CommitPullChanges(Guid commitId);
+        //void CommitPullChanges(Guid commitId);
 
         Commit[] Commits { get; }
+
+        void AddRemote(IEvent e);
+
+        ICollection<IEvent> UncommittedRemoteEvents { get; }
+
+        void Add(IEvent e, bool setVersion = false);
     }
 }

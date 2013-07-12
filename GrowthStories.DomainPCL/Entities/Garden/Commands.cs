@@ -9,7 +9,7 @@ namespace Growthstories.Domain.Messaging
 
     public abstract class GardenCommand : EntityCommand<Garden>
     {
-        public GardenCommand() { }
+        protected GardenCommand() { }
         public GardenCommand(Guid EntityId) : base(EntityId) { }
     }
 
@@ -17,7 +17,7 @@ namespace Growthstories.Domain.Messaging
     public class CreateGarden : GardenCommand
     {
 
-        public CreateGarden() { }
+        protected CreateGarden() { }
         public CreateGarden(Guid id) : base(id) { }
 
         public override string ToString()
@@ -30,7 +30,7 @@ namespace Growthstories.Domain.Messaging
     public class DeleteGarden : GardenCommand
     {
 
-        public DeleteGarden() { }
+        protected DeleteGarden() { }
         public DeleteGarden(Guid id) : base(id) { }
 
         public override string ToString()

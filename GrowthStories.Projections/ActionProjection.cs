@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI
 {
-    public class ActionProjection : ProjectionBase,
+    public class ActionProjection : EventHandlerBase,
         IEventHandler<Commented>,
         IEventHandler<Fertilized>,
         IEventHandler<Watered>,

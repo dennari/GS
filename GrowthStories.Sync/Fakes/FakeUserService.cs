@@ -1,5 +1,6 @@
 ﻿using CommonDomain;
 using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace Growthstories.Sync
 
         public FakeUserService()
         {
-            u.Create(FakeUserId);
+            u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
         }
 
 

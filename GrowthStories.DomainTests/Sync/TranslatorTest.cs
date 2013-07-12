@@ -43,64 +43,63 @@ namespace Growthstories.DomainTests
             }
         }
 
-        [Test]
-        public void Comment()
-        {
+        //[Test]
+        //public void Comment()
+        //{
 
 
-            var C = new CommentAdded()
-            {
-                EntityId = Guid.NewGuid(),
-                EntityVersion = 235,
-                EventId = Guid.NewGuid(),
-                Note = "MESSAGE"
-            };
+        //    var C = new CommentAdded()
+        //    {
+        //        EntityId = Guid.NewGuid(),
+        //        EntityVersion = 235,
+        //        EventId = Guid.NewGuid(),
+        //        Note = "MESSAGE"
+        //    };
 
 
-            var CD = (IAddCommentDTO)Translator.Out(C);
-            DTOAssertions(C, CD, DTOType.addComment, User);
-            Assert.AreEqual(C.Note, CD.Note);
+        //    var CD = (IAddCommentDTO)Translator.Out(C);
+        //    DTOAssertions(C, CD, DTOType.addComment, User);
+        //    Assert.AreEqual(C.Note, CD.Note);
 
-            var CC = (CommentAdded)Translator.In(CD);
-            DTOAssertions(C, CC, DTOType.addComment, User);
-            Assert.AreEqual(C.Note, CC.Note);
-
-
-
-        }
-
-        [Test]
-        public void Photo()
-        {
+        //    var CC = (CommentAdded)Translator.In(CD);
+        //    DTOAssertions(C, CC, DTOType.addComment, User);
+        //    Assert.AreEqual(C.Note, CC.Note);
 
 
-            var C = new PhotoAdded()
-            {
-                EntityId = Guid.NewGuid(),
-                EntityVersion = 235,
-                EventId = Guid.NewGuid(),
-                BlobKey = "MESSAGE"
-            };
+
+        //}
+
+        //[Test]
+        //public void Photo()
+        //{
 
 
-            var CD = (IAddPhotoDTO)Translator.Out(C);
-            DTOAssertions(C, CD, DTOType.addPhoto, User);
-            Assert.AreEqual(C.BlobKey, CD.BlobKey);
+        //    var C = new PhotoAdded()
+        //    {
+        //        EntityId = Guid.NewGuid(),
+        //        EntityVersion = 235,
+        //        EventId = Guid.NewGuid(),
+        //        BlobKey = "MESSAGE"
+        //    };
 
-            var CC = (PhotoAdded)Translator.In(CD);
-            DTOAssertions(C, CC, DTOType.addPhoto, User);
-            Assert.AreEqual(C.BlobKey, CC.BlobKey);
 
-        }
+        //    var CD = (IAddPhotoDTO)Translator.Out(C);
+        //    DTOAssertions(C, CD, DTOType.addPhoto, User);
+        //    Assert.AreEqual(C.BlobKey, CD.BlobKey);
+
+        //    var CC = (PhotoAdded)Translator.In(CD);
+        //    DTOAssertions(C, CC, DTOType.addPhoto, User);
+        //    Assert.AreEqual(C.BlobKey, CC.BlobKey);
+
+        //}
 
         [Test]
         public void MarkedPlantPublic()
         {
 
 
-            var C = new MarkedPlantPublic()
+            var C = new MarkedPlantPublic(Guid.NewGuid())
             {
-                EntityId = Guid.NewGuid(),
                 EntityVersion = 235,
                 EventId = Guid.NewGuid()
             };
@@ -123,9 +122,8 @@ namespace Growthstories.DomainTests
         {
 
 
-            var C = new MarkedPlantPrivate()
+            var C = new MarkedPlantPrivate(Guid.NewGuid())
             {
-                EntityId = Guid.NewGuid(),
                 EntityVersion = 235,
                 EventId = Guid.NewGuid()
             };

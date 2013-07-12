@@ -35,14 +35,6 @@ namespace Growthstories.Domain.Entities
             Public = false;
         }
 
-        public void Apply(CommentAdded @event)
-        {
-            Comments.Add(@event.Note);
-        }
 
-        public void Apply(PhotoAdded @event)
-        {
-            Photos.Add(@event.BlobKey);
-        }
     }
 }

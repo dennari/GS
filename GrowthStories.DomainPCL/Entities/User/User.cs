@@ -29,13 +29,8 @@ namespace Growthstories.Domain.Entities
         public void Handle(CreateUser command)
         {
 
-            RaiseEvent(new UserCreated()
-            {
-                EntityId = command.EntityId,
-                Username = command.Username,
-                Password = command.Password,
-                Email = command.Email
-            });
+            RaiseEvent(new UserCreated(command));
+
         }
 
         public void Handle(SetAuthToken command)
