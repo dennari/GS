@@ -24,126 +24,86 @@ using Growthstories.Domain;
 using EventStore.Logging;
 using Growthstories.UI;
 using System.Text;
+using Growthstories.UI.ViewModel;
 
 namespace Growthstories.DomainTests
 {
-    public class AuthTest
+    public class AuthTest : StagingTestBase
     {
 
-        IKernel kernel;
-        [SetUp]
-        public void SetUp()
-        {
-            if (kernel != null)
-                kernel.Dispose();
-            kernel = new StandardKernel(new StagingModule());
-            Log.Info("-----------------------------------------------------------------------------");
-        }
+
         private ILog Log = new LogTo4Net(typeof(AuthTest));
 
-        public T Get<T>() { return kernel.Get<T>(); }
-        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
-        public IAsyncDispatchCommits AsyncDispatcher { get { return Get<IAsyncDispatchCommits>(); } }
-
-
-        public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
-        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
-        public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
-
-        public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
-        public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
-        public IGSRepository Repository { get { return Get<IGSRepository>(); } }
-        public IStoreEvents EventStore { get { return Get<IStoreEvents>(); } }
-
-
-        public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
-
-
-        public IUserService UserService { get { return Get<IUserService>(); } }
-
-        public IHttpClient HttpClient { get { return kernel.Get<IHttpClient>(); } }
-        public CompareObjects Comparer { get { return new CompareObjects(); } }
-
-
-        private static Guid SynchronizerId = Guid.NewGuid();
-        private static bool SynchronizerCreated = false;
-
-        protected void EnsureSynchronizer()
-        {
-            if (SynchronizerCreated)
-                return;
-            Handler.Handle<Synchronizer, CreateSynchronizer>(new CreateSynchronizer(SynchronizerId));
-            SynchronizerCreated = true;
-        }
-
-        protected async Task<IList<ISyncRequest>> Sync()
-        {
-            EnsureSynchronizer();
-            var r = (IList<ISyncRequest>)await Handler.HandlerHandleAsync<Synchronizer, Synchronize>(new Synchronize(SynchronizerId));
-            return r;
-        }
-
-        protected Task<IAuthTokenResponse> _Auth(CreateUser uCmd)
-        {
-            return Task.Run<IAuthTokenResponse>(async () =>
-            {
-                var u = Handler.Handle<User, CreateUser>(uCmd);
-                //User u = Repository.GetById<User>(uCmd.EntityId);
-                UserService.CurrentUser = u.State;
-                //var task = Sync().ContinueWith(async (prev) =>
-                //{
-                //    await this.AsyncDispatcher.DispatchAsync();
-                //});
-
-                var r = await Sync();
-                var auth = await kernel.Get<AuthTokenService>().GetAuthToken(uCmd.Username, uCmd.Password);
-                u.Handle(new SetAuthToken(u.Id, auth));
-                return auth;
-            });
-        }
 
         [Test]
         public async void TestAuth()
         {
 
-            Log.Info("TestAuth");
-            var uCmd = new CreateUser(Guid.NewGuid(), "Alice", "swordfish", "alice@wonderland.net");
+            await Sync();
 
-            var auth = await _Auth(uCmd);
-
-            Assert.IsNotNullOrEmpty(auth.AccessToken);
-            Assert.IsNotNullOrEmpty(auth.RefreshToken);
-            Assert.Greater(auth.ExpiresIn, 0);
+            Assert.IsNotNullOrEmpty(Ctx.AccessToken);
+            Assert.IsNotNullOrEmpty(Ctx.RefreshToken);
+            Assert.Greater(Ctx.ExpiresIn, 0);
             //Assert.IsNull(auth.ExpiresIn);
 
 
         }
 
-        protected string randomize(string i)
+        Guid PlantId;
+        GardenViewModel GVM;
+        PlantViewModel PVM;
+
+        [Test]
+        public async void TestStagingSync()
         {
-            //var b = new StringBuilder(i);
-            //b.Append(Guid.NewGuid().ToString().Substring(0, 4));
-            return i + Guid.NewGuid().ToString().Substring(0, 4);
+
+            GVM = Get<GardenViewModel>();
+            PlantId = Guid.NewGuid();
+            var PlantName = "Jore";
+
+            GVM.NewPlantId = PlantId;
+            GVM.NewPlantName = PlantName;
+            GVM.AddPlantCommand.Execute(null);
+
+            GVM.ShowDetailsCommand.Execute(GVM.Plants[0]);
+
+            PVM = Get<PlantViewModel>();
+            Assert.IsNotNull(PVM.Plant);
+            Assert.AreEqual(PlantId, PVM.Plant.EntityId);
+            //var UserId = Guid.NewGuid();
+            //var PlantId = Guid.NewGuid();
+            var PlantId2 = Guid.NewGuid();
+
+            var Note = "EI NAIN!";
+            var uri = new Uri("http://www.growthstories.com");
+
+            PVM.AddCommentCommand.Execute(Note);
+            PVM.AddPhotoCommand.Execute(uri);
+            PVM.AddFertilizerCommand.Execute(null);
+            PVM.AddWaterCommand.Execute(null);
+
+            await Sync();
+
         }
+
+
+
 
         [Test]
         public async void TestAddRelationship()
         {
 
             Log.Info("TestAddRelationship");
-            var uCmd = new CreateUser(Guid.NewGuid(), randomize("Alice"), randomize("swordfish"), randomize("alice") + "@wonderland.net");
-
-            var auth = await _Auth(uCmd);
 
             var fCmd = new CreateUser(Guid.NewGuid(), randomize("Bob"), randomize("swordfish"), randomize("bob") + "@wonderland.net");
             var Bob = Handler.Handle<User, CreateUser>(fCmd);
 
-            var r = await Sync();
+            await Sync();
 
-            var relationshipCmd = new BecomeFollower(uCmd.EntityId, fCmd.EntityId);
+            var relationshipCmd = new BecomeFollower(Ctx.Id, fCmd.EntityId);
             Handler.Handle<User, BecomeFollower>(relationshipCmd);
 
-            r = await Sync();
+            await Sync();
 
         }
 

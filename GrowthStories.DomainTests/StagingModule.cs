@@ -15,15 +15,15 @@ namespace Growthstories.DomainTests
         {
             Bind<IHttpClient>().To<SyncHttpClient>().InSingletonScope();
             Bind<IEndpoint>().To<StagingEndpoint>();
-            Bind<IRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IResponseFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IHttpRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
+            Bind<IRequestFactory, IResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
+            Bind<IHttpRequestFactory, IHttpResponseFactory>().To<HttpRequestResponseFactory>().InSingletonScope();
+
         }
 
-        protected override void UserConfiguration()
-        {
-            Bind<IUserService>().To<SyncUserService>().InSingletonScope();
-        }
+        //protected override void UserConfiguration()
+        //{
+        //    Bind<IUserService>().To<SyncUserService>().InSingletonScope();
+        //}
 
         protected override void EventFactoryConfiguration()
         {

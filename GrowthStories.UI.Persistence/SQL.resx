@@ -129,6 +129,15 @@ OR
 )
 ORDER BY UserRevision;</value>
   </data>
+  <data name="GetPlants" xml:space="preserve">
+    <value>SELECT * FROM Plants WHERE 
+(
+(@PlantId IS NOT NULL AND PlantId = @PlantId)
+OR
+(@UserId IS NOT NULL AND UserId = @UserId)
+);
+</value>
+  </data>
   <data name="InitializeStorage" xml:space="preserve">
     <value>CREATE TABLE IF NOT EXISTS Actions
 (

@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="IAuthTokenResponse.cs" />
+    <Compile Include="IAuthTokenService.cs" />
     <Compile Include="IAuthUser.cs" />
     <Compile Include="IConstructSyncEventStreams.cs" />
     <Compile Include="IEndpoint.cs" />

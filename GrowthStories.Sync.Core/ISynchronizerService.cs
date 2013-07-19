@@ -19,6 +19,10 @@ namespace Growthstories.Sync
         void MarkAllSynchronized(ISyncPushRequest pushReq);
 
         //IEnumerable<RebasePair> MatchStreams(ISyncPushRequest pushReq, ISyncPullResponse pullResp);
+
+        void Synchronized(ISyncPushRequest pushReq);
+
+        Task TryAuth(ISyncPushRequest pushReq);
     }
 
     public struct RebasePair

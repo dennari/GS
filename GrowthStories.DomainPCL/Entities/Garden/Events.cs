@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
 
     #region Garden
 
-    [DTOObject(DTOType.createGarden)]
+    //[DTOObject(DTOType.createGarden)]
     public class GardenCreated : EventBase
     {
 
@@ -32,9 +32,11 @@ namespace Growthstories.Domain.Messaging
     public class PlantAdded : EventBase
     {
 
-        public Guid PlantId { get; set; }
+        [JsonProperty]
+        public Guid PlantId { get; private set; }
 
-        public Guid AncestorId { get; set; }
+        [JsonProperty]
+        public Guid AncestorId { get; private set; }
 
 
         protected PlantAdded() { }

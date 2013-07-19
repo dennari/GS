@@ -2,6 +2,7 @@
 using Growthstories.Core;
 using System;
 using Growthstories.Sync;
+using Newtonsoft.Json;
 
 
 namespace Growthstories.Domain.Messaging
@@ -15,8 +16,10 @@ namespace Growthstories.Domain.Messaging
     public class PlantCreated : EventBase
     {
 
-        public string Name { get; set; }
-        public Guid UserId { get; set; }
+        [JsonProperty]
+        public string Name { get; private set; }
+        [JsonProperty]
+        public Guid UserId { get; private set; }
 
         protected PlantCreated() { }
         public PlantCreated(Guid entityId, string name, Guid userId)
@@ -135,12 +138,18 @@ namespace Growthstories.Domain.Messaging
     public class FBCommentAdded : EventBase
     {
 
-        public String FbId { get; set; }
-        public long Uid { get; set; }
-        public String Name { get; set; }
-        public string FirstName { get; set; }
-        public String LastName { get; set; }
-        public String Note { get; set; }
+        [JsonProperty]
+        public String FbId { get; private set; }
+        [JsonProperty]
+        public long Uid { get; private set; }
+        [JsonProperty]
+        public String Name { get; private set; }
+        [JsonProperty]
+        public string FirstName { get; private set; }
+        [JsonProperty]
+        public String LastName { get; private set; }
+        [JsonProperty]
+        public String Note { get; private set; }
 
         protected FBCommentAdded() { }
         public FBCommentAdded(Guid entityId) : base(entityId) { }

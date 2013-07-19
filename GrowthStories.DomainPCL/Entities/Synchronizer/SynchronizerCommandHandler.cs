@@ -78,7 +78,9 @@ namespace Growthstories.Domain
             if (pushResp.StatusCode == 200)
             {
                 syncService.MarkAllSynchronized(pushReq);
-                RaiseUserSynced(pushReq);
+                //syncService.Synchronized(pushReq);
+                await syncService.TryAuth(pushReq);
+                //RaiseUserSynced(pushReq);
                 return null;
             }
 
@@ -98,23 +100,6 @@ namespace Growthstories.Domain
                 stream.CommitChanges(Guid.NewGuid());
             }
         }
-
-
-        private void RaiseUserSynced(ISyncPushRequest pReq)
-        {
-
-            try
-            {
-                var UE = pReq.EventsFromStreams().First(y => y is UserCreated) as UserCreated;
-                //RaiseEvent(new UserSynchronized(this.Id, UE.EntityId, UE.Username, UE.Password, UE.Email));
-
-            }
-            catch (Exception) { }
-
-        }
-
-
-
 
 
 

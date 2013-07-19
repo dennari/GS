@@ -1,7 +1,9 @@
 ﻿using Growthstories.Core;
+using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +13,7 @@ namespace Growthstories.UI
     public class PlantProjection : EventHandlerBase, IEventHandler<PlantCreated>
     {
 
-        private IList<string> _PlantNames = new List<string>();
-        public IList<string> PlantNames { get { return _PlantNames; } }
+
 
         private readonly IUIPersistence Persistence;
 
@@ -21,11 +22,17 @@ namespace Growthstories.UI
             if (persistence == null)
                 throw new ArgumentNullException("uipersistence");
             this.Persistence = persistence;
+            //PlantNames.Add("Jore");
         }
 
         public void Handle(PlantCreated @event)
         {
-            this.PlantNames.Add(@event.Name);
+            this.Persistence.PersistPlant(@event);
+        }
+
+        public IEnumerable<PlantCreated> LoadWithUserId(Guid UserId)
+        {
+            return Persistence.UserPlants(UserId);
         }
 
     }

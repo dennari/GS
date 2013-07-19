@@ -85,6 +85,21 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT * FROM Plants WHERE 
+        ///(
+        ///(@PlantId IS NOT NULL AND PlantId = @PlantId)
+        ///OR
+        ///(@UserId IS NOT NULL AND UserId = @UserId)
+        ///);
+        ///.
+        /// </summary>
+        internal static string GetPlants {
+            get {
+                return ResourceManager.GetString("GetPlants", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE IF NOT EXISTS Actions
         ///(
         ///       UserId guid NOT NULL,

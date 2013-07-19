@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI
 {
+
+
+
     public class ActionProjection : EventHandlerBase,
         IEventHandler<Commented>,
         IEventHandler<Fertilized>,
@@ -15,9 +18,11 @@ namespace Growthstories.UI
         IEventHandler<Photographed>
     {
 
-        private readonly IDictionary<Guid, IList<ActionBase>> _Actions = new Dictionary<Guid, IList<ActionBase>>();
+        //private readonly IDictionary<Guid, IList<ActionBase>> _Actions = new Dictionary<Guid, IList<ActionBase>>();
         private readonly IUIPersistence Persistence;
-        public IDictionary<Guid, IList<ActionBase>> Actions { get { return _Actions; } }
+        //public IDictionary<Guid, IList<ActionBase>> Actions { get { return _Actions; } }
+
+
 
         public ActionProjection(IUIPersistence persistence)
         {
@@ -25,6 +30,7 @@ namespace Growthstories.UI
                 throw new ArgumentNullException("uipersistence");
             this.Persistence = persistence;
         }
+
 
 
         public void Handle(Commented @event)
@@ -49,21 +55,9 @@ namespace Growthstories.UI
 
         protected void HandleAction(ActionBase @event)
         {
-            IList<ActionBase> list = null;
-            //try
-            //{
-            //    list = Actions[@event.PlantId];
-            //}
-            //catch (Exception)
-            //{
-            //    list = new List<ActionBase>();
-            //}
-            if (!Actions.TryGetValue(@event.PlantId, out list))
-                Actions[@event.PlantId] = list = new List<ActionBase>();
 
-            list.Add(@event);
-            //Actions[@event.PlantId] = list;
             Persistence.PersistAction(@event);
+
         }
 
 

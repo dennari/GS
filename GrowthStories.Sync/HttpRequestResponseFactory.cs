@@ -12,69 +12,19 @@ using System.Net.Http.Headers;
 namespace Growthstories.Sync
 {
 
-    public class HttpRequestFactory : IRequestFactory, IResponseFactory, IHttpRequestFactory
+    public class HttpRequestResponseFactory : IHttpRequestFactory, IHttpResponseFactory
     {
         private readonly IJsonFactory jFactory;
-        private readonly ITranslateEvents Translator;
-        private static ILog Logger = LogFactory.BuildLogger(typeof(HttpRequestFactory));
+        private static ILog Logger = LogFactory.BuildLogger(typeof(HttpRequestResponseFactory));
         private IEndpoint Endpoint;
-        private IUserService UserService;
 
-        public HttpRequestFactory(ITranslateEvents translator, IJsonFactory jFactory, IEndpoint endpoint, IUserService currentUser)
+        public HttpRequestResponseFactory(IJsonFactory jFactory, IEndpoint endpoint)
         {
             this.jFactory = jFactory;
-            this.Translator = translator;
             this.Endpoint = endpoint;
-            this.UserService = currentUser;
         }
 
-        public ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams)
-        {
-            var streamsC = streams.ToArray();
-            //var logS = new StringBuilder();
-            //foreach (var stream in streamsC)
-            //{
-            //    foreach (var e in stream.CommittedEvents)
-            //    {
 
-            //        logS.AppendLine(((IEvent)e.Body).ToString());
-            //    }
-            //}
-            //Logger.Info("Syncing events: {0}", logS.ToString());
-            var req = new HttpPushRequest()
-            {
-                Events = Translator.Out(streamsC),
-                Streams = streamsC,
-                //PushId = Guid.NewGuid(),
-                ClientDatabaseId = Guid.NewGuid()
-            };
-
-            return req;
-        }
-
-        public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
-        {
-            var streamsC = streams.ToArray();
-            var req = new HttpPullRequest()
-            {
-                Streams = streamsC
-            };
-            return req;
-        }
-
-        public ISyncPullResponse CreatePullResponse(string reponse)
-        {
-            Logger.Info(reponse);
-            var r = jFactory.Deserialize<HttpPullResponse>(reponse);
-            r.Streams = Translator.In(r.DTOs);
-            return r;
-        }
-
-        public ISyncPushResponse CreatePushResponse(string response)
-        {
-            Logger.Info(response);
-            return jFactory.Deserialize<HttpPushResponse>(response);
-        }
 
         public IAuthTokenResponse CreateAuthTokenResponse(string response)
         {
@@ -132,11 +82,11 @@ namespace Growthstories.Sync
 
         protected HttpRequestMessage AddDefaultHeaders(HttpRequestMessage r)
         {
-            try
-            {
-                r.Headers.Authorization = new AuthenticationHeaderValue("Bearer", UserService.CurrentUser.AccessToken);
-            }
-            catch (Exception) { }
+            //try
+            //{
+            //    r.Headers.Authorization = new AuthenticationHeaderValue("Bearer", UserService.CurrentUser.AccessToken);
+            //}
+            //catch (Exception) { }
 
             r.Headers.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
             return r;

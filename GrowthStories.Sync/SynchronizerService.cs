@@ -21,21 +21,26 @@ namespace Growthstories.Sync
         private readonly IPersistSyncStreams EventStore;
         private readonly IConstructSyncEventStreams StreamFactory;
         private ISyncPushRequest LastPushRequest;
+        private readonly IUserService Context;
+        private AuthTokenService AuthService;
 
 
         public SynchronizerService(
             ITransportEvents transporter,
             IRequestFactory requestFactory,
             IPersistSyncStreams eventStore,
-            IConstructSyncEventStreams streamFactory
+            IConstructSyncEventStreams streamFactory,
+            IUserService ctx,
+            IAuthTokenService authService
             )
         {
             Transporter = transporter;
             RequestFactory = requestFactory;
             EventStore = eventStore;
             StreamFactory = streamFactory;
+            Context = ctx;
         }
-          
+
         //public ITransportEvents GetTransporter
 
         public ISyncPushRequest GetPushRequest()
@@ -97,5 +102,37 @@ namespace Growthstories.Sync
             }
         }
 
+
+
+        public void Synchronized(ISyncPushRequest pushReq)
+        {
+            MarkAllSynchronized(pushReq);
+
+
+        }
+
+
+        public Task TryAuth(ISyncPushRequest pushReq)
+        {
+
+            try
+            {
+                var UE = pushReq.EventsFromStreams().First(y => y is UserCreated && y.EntityId == Context.CurrentUser.Id) as UserCreated;
+
+                //RaiseEvent(new UserSynchronized(this.Id, UE.EntityId, UE.Username, UE.Password, UE.Email));
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return Task.Run(async () =>
+            {
+
+                await Context.TryAuth();
+            });
+
+        }
     }
 }

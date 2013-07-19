@@ -26,4 +26,12 @@ namespace Growthstories.Sync
 
     }
 
+    public interface IHttpResponseFactory
+    {
+
+        IAuthTokenResponse CreateAuthTokenResponse(string response);
+    }
+
+
+
 }

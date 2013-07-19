@@ -18,10 +18,7 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<MarkPlantPrivate>
     {
 
-        public new void Create(Guid Id)
-        {
-            throw new NotSupportedException();
-        }
+
 
         public void Handle(CreatePlant command)
         {

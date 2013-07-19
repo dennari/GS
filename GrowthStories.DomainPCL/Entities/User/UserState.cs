@@ -47,6 +47,8 @@ namespace Growthstories.Domain.Entities
         public string RefreshToken { get; private set; }
 
 
+        public Guid GardenId { get; private set; }
+
         public UserState() { }
 
         public new void Apply(UserCreated @event)
@@ -73,6 +75,11 @@ namespace Growthstories.Domain.Entities
         public void Apply(ActionBase @event)
         {
             this.Actions.Add(@event);
+        }
+
+        public void Apply(GardenAdded @event)
+        {
+            this.GardenId = @event.GardenId;
         }
 
 

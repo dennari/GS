@@ -35,8 +35,10 @@ namespace Growthstories.Sync
             if (ed == null)
                 return null;
 
+            ed.EntityVersion -= 1;
             ed.AncestorId = UserService.CurrentUser.Id;
             ed.StreamEntity = e.EntityId;
+
             var edd = ed as IAddEntityDTO;
             if (edd != null)
             {
@@ -88,8 +90,9 @@ namespace Growthstories.Sync
 
         public IEvent In(IEventDTO dto)
         {
-
-            return ((EventDTOUnion)dto).ToEvent();
+            var e = ((EventDTOUnion)dto).ToEvent();
+            e.EntityVersion += 1;
+            return e;
 
         }
 

@@ -15,8 +15,11 @@ namespace Growthstories.Domain.Messaging
     [DTOObject(DTOType.createUser)]
     public class UserCreated : EventBase
     {
+        [JsonProperty]
         public string Username { get; private set; }
+        [JsonProperty]
         public string Password { get; private set; }
+        [JsonProperty]
         public string Email { get; private set; }
 
 
@@ -24,6 +27,8 @@ namespace Growthstories.Domain.Messaging
         public UserCreated(Guid id, string username, string password, string email)
             : base(id)
         {
+            if (username == null || password == null || email == null)
+                throw new ArgumentNullException();
             this.Username = username;
             this.Password = password;
             this.Email = email;
@@ -63,7 +68,8 @@ namespace Growthstories.Domain.Messaging
     public class BecameFollower : EventBase
     {
 
-        public Guid OfUser { get; set; }
+        [JsonProperty]
+        public Guid OfUser { get; private set; }
 
         protected BecameFollower() { }
         public BecameFollower(Guid id, Guid OfUser)
@@ -99,11 +105,43 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+
+    public class GardenAdded : EventBase
+    {
+
+        [JsonProperty]
+        public Guid GardenId { get; private set; }
+
+        protected GardenAdded() { }
+        public GardenAdded(Guid id, Guid gardenId)
+            : base(id)
+        {
+            this.GardenId = gardenId;
+        }
+
+        public GardenAdded(AddGarden command)
+            : this(command.EntityId, command.GardenId)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} added garden {1}.", this.EntityId, this.GardenId);
+        }
+
+
+    }
+
+
     public class AuthTokenSet : EventBase
     {
 
+        [JsonProperty]
         public string AccessToken { get; protected set; }
+        [JsonProperty]
         public int ExpiresIn { get; protected set; }
+        [JsonProperty]
         public string RefreshToken { get; protected set; }
 
         protected AuthTokenSet() { }

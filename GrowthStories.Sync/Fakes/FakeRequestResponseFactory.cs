@@ -6,22 +6,19 @@ using System.Text;
 
 namespace Growthstories.Sync
 {
-    public class FakeSyncFactory : IResponseFactory, IHttpRequestFactory
+    public class FakeRequestResponseFactory : IResponseFactory, IRequestFactory
     {
 
         public Func<ISyncPushRequest, ISyncPushResponse> BuildPushResponse;
 
         public Func<ISyncPullRequest, Tuple<HttpPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>> BuildPullResponse;
 
-        public Func<string, string, IAuthTokenResponse> BuildAuthResponse;
-
         private ISyncPullRequest LastPullRequest;
         private ISyncPushRequest LastPushRequest;
-        private string Username;
-        private string Password;
+
         private ITranslateEvents Translator;
 
-        public FakeSyncFactory(ITranslateEvents translator)
+        public FakeRequestResponseFactory(ITranslateEvents translator)
         {
             this.Translator = translator;
         }
@@ -42,28 +39,31 @@ namespace Growthstories.Sync
             return BuildPushResponse(LastPushRequest);
         }
 
-        public IAuthTokenResponse CreateAuthTokenResponse(string response)
-        {
-            return BuildAuthResponse(Username, Password);
-        }
 
-        public HttpRequestMessage CreatePushRequest(ISyncPushRequest req)
+        public ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams)
         {
+            var streamsC = streams.ToArray();
+
+            var req = new HttpPushRequest()
+            {
+                Events = Translator.Out(streamsC),
+                Streams = streamsC,
+                //PushId = Guid.NewGuid(),
+                ClientDatabaseId = Guid.NewGuid()
+            };
             this.LastPushRequest = req;
-            return new HttpRequestMessage();
+            return req;
         }
 
-        public HttpRequestMessage CreatePullRequest(ISyncPullRequest req)
+        public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
         {
+            var streamsC = streams.ToArray();
+            var req = new HttpPullRequest()
+            {
+                Streams = streamsC
+            };
             this.LastPullRequest = req;
-            return new HttpRequestMessage();
-        }
-
-        public HttpRequestMessage CreateAuthTokenRequest(string username, string password)
-        {
-            this.Username = username;
-            this.Password = password;
-            return new HttpRequestMessage();
+            return req;
         }
     }
 }

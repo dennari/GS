@@ -144,7 +144,7 @@ namespace Growthstories.UI.Persistence
                 query.AddParameter(SQL.PlantId, PlantId);
                 query.AddParameter(SQL.UserId, null);
 
-                return query.ExecuteQuery<ActionBase>(SQL.GetActions, ActionQuery);
+                return query.ExecuteQuery<ActionBase>(SQL.GetActions, (stmt) => Deserialize<ActionBase>(stmt, (int)ActionIndex.Payload));
             });
         }
 
@@ -155,14 +155,25 @@ namespace Growthstories.UI.Persistence
                 query.AddParameter(SQL.PlantId, null);
                 query.AddParameter(SQL.UserId, UserId);
 
-                return query.ExecuteQuery<ActionBase>(SQL.GetActions, ActionQuery);
+                return query.ExecuteQuery<ActionBase>(SQL.GetActions, (stmt) => Deserialize<ActionBase>(stmt, (int)ActionIndex.Payload));
             });
         }
 
-        protected ActionBase ActionQuery(Sqlite3Statement stmt)
+        public IEnumerable<PlantCreated> UserPlants(Guid UserId)
+        {
+            return this.ExecuteQuery(UserId, query =>
+            {
+                query.AddParameter(SQL.PlantId, null);
+                query.AddParameter(SQL.UserId, UserId);
+
+                return query.ExecuteQuery<PlantCreated>(SQL.GetPlants, (stmt) => Deserialize<PlantCreated>(stmt, (int)PlantIndex.Payload));
+            });
+        }
+
+        protected T Deserialize<T>(Sqlite3Statement stmt, int index)
         {
 
-            return serializer.Deserialize<ActionBase>(SQLite3.ColumnByteArray(stmt, (int)ActionIndex.Payload));
+            return serializer.Deserialize<T>(SQLite3.ColumnByteArray(stmt, index));
 
         }
 

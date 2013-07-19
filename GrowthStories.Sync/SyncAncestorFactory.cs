@@ -28,5 +28,11 @@ namespace Growthstories.Sync
                 _Current = value;
             }
         }
+
+
+        public System.Threading.Tasks.Task TryAuth()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

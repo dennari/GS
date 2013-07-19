@@ -1,0 +1,67 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="GrowthStories.UI.WindowsPhone.Views.AddPlantView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:self="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d"
+    shell:SystemTray.IsVisible="True"
+    DataContext="{Binding GardenVM, Source={StaticResource Locator}}" >
+
+    <phone:PhoneApplicationPage.Resources>
+
+        <!--<converters:StreamToBmp x:Key="StreamToBmp" />-->
+    </phone:PhoneApplicationPage.Resources>
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock Text="GROWTHSTORIES" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock Text="add plant" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+        </StackPanel>
+
+        <!--ContentPanel - place additional content here.-->
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+            <TextBlock Text="Name"/>
+            <TextBox Text="{Binding NewPlantName, Mode=TwoWay}" self:BindingUtility.UpdateSourceOnChange="True"/>
+            
+            <!--<TextBlock Text="Species"/>
+            <TextBox x:Name="genusTextBox"/>
+            <TextBlock Text="Profile Photo"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Click="snapProfilePhotoButton_Click" Content="Snap"/>
+                <TextBlock Text="or" VerticalAlignment="Center"/>
+                <Button Click="chooseProfilePhotoButton_Click" Content="Choose"/>
+            </StackPanel>
+            
+
+            <Image x:Name="ProfilePhoto" Width="200" Height="200" Source="{Binding ProfilePhoto, Converter={StaticResource StreamToBmp}, Mode=OneWay}"/>-->
+            
+            
+        </StackPanel>
+    </Grid>
+
+        <bar:Bindable.ApplicationBar>
+            <bar:BindableApplicationBar>
+                <bar:BindableApplicationBarButton                    
+                        Text="Add Plant"
+                        IconUri="/Assets/AppBar/appbar.check.rest.png"
+                        Command="{Binding AddPlantCommand}"/>
+            </bar:BindableApplicationBar>
+        </bar:Bindable.ApplicationBar>
+
+</phone:PhoneApplicationPage>

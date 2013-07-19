@@ -31,7 +31,7 @@ namespace Growthstories.Core
 
         private TState _state;
         private IEventFactory _eventFactory;
-        private static ILog Logger = LogFactory.BuildLogger(typeof(AggregateBase));
+        private static ILog Logger = LogFactory.BuildLogger(typeof(TState));
 
 
         public AggregateBase()

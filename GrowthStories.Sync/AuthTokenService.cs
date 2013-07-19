@@ -10,31 +10,22 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public class AuthTokenService : EventHandlerBase, IAsyncEventHandler<UserSynchronized>
+    public class AuthTokenService : IAuthTokenService
     {
         private IHttpClient client;
-        private IResponseFactory ResponseFactory;
+        private IHttpResponseFactory ResponseFactory;
         private IHttpRequestFactory RequestFactory;
 
         public AuthTokenService(
             IHttpClient client,
             IHttpRequestFactory requestFactory,
-            IResponseFactory responseFactory)
+            IHttpResponseFactory responseFactory)
         {
             this.client = client;
             this.ResponseFactory = responseFactory;
             this.RequestFactory = requestFactory;
         }
 
-        public Task HandleAsync(UserSynchronized @event)
-        {
-            return Task.Run(async () =>
-            {
-                var r = RequestFactory.CreateAuthTokenRequest(@event.Username, @event.Password);
-                string HttpResponse = await client.SendAndGetBodyAsync(r);
-                return ResponseFactory.CreateAuthTokenResponse(HttpResponse);
-            });
-        }
 
         public Task<IAuthTokenResponse> GetAuthToken(string username, string password)
         {
@@ -45,8 +36,6 @@ namespace Growthstories.Sync
                 return ResponseFactory.CreateAuthTokenResponse(HttpResponse);
             });
         }
-
-
 
     }
 }

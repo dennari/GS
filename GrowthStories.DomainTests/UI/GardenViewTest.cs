@@ -23,22 +23,35 @@ using EventStore.Dispatcher;
 using Growthstories.Domain;
 using EventStore.Logging;
 using Growthstories.UI;
+using Growthstories.UI.ViewModel;
 
 namespace Growthstories.DomainTests
 {
-    public class ProjectionTest
+    public class GardenViewTest
     {
 
+
+
         IKernel kernel;
+        IAuthUser Ctx;
+
         [SetUp]
         public void SetUp()
         {
             if (kernel != null)
                 kernel.Dispose();
             kernel = new StandardKernel(new TestModule());
-            Log.Info("-----------------------------------------------------------------------------");
+
+            this.Ctx = Get<IUserService>().CurrentUser;
+            //this.uCmd = new CreateUser(Ctx.Id, "Alice", "swordfish", "alice@wonderland.net");
+            //Handler.Handle<User, CreateUser>(uCmd);
+            //var gCmd = new CreateGarden(Ctx.GardenId);
+            //Handler.Handle<Garden, CreateGarden>(gCmd);
+
+
+
         }
-        private ILog Log = new LogTo4Net(typeof(ProjectionTest));
+        private ILog Log = new LogTo4Net(typeof(GardenViewTest));
 
         public T Get<T>() { return kernel.Get<T>(); }
         public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
@@ -54,57 +67,79 @@ namespace Growthstories.DomainTests
 
         public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
         public IAuthUser CurrentUser { get { return Get<IUserService>().CurrentUser; } }
-        public FakeHttpClient HttpClient { get { return kernel.Get<IHttpClient>() as FakeHttpClient; } }
-        public CompareObjects Comparer { get { return new CompareObjects(); } }
+
+
+        Guid PlantId;
+        GardenViewModel GVM;
+        PlantViewModel PVM;
+
 
         [Test]
-        public void TestPlantProjection()
+        public void TestGardenViewModel()
         {
 
-            var proj = kernel.Get<PlantProjection>();
-            var PlantId = Guid.NewGuid();
-            var UserId = Guid.NewGuid();
+            GVM = Get<GardenViewModel>();
+            PlantId = Guid.NewGuid();
+            var PlantName = "Jore";
 
-            var Name = "Jore";
+            GVM.NewPlantId = PlantId;
+            GVM.NewPlantName = PlantName;
+            GVM.AddPlantCommand.Execute(null);
 
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, UserId));
-            Assert.AreEqual(1, proj.PlantNames.Count);
-            Assert.AreEqual(Name, proj.PlantNames[0]);
+            Assert.AreEqual(1, GVM.Plants.Count);
+            Assert.AreEqual(PlantName, GVM.Plants[0].Name);
+
         }
 
         [Test]
-        public void TestActionProjection()
+        public void TestPlantViewModel()
         {
 
-            var proj = kernel.Get<ActionProjection>();
-            var UserId = Guid.NewGuid();
-            var PlantId = Guid.NewGuid();
+            TestGardenViewModel();
+            GVM.ShowDetailsCommand.Execute(GVM.Plants[0]);
+
+            PVM = Get<PlantViewModel>();
+            Assert.IsNotNull(PVM.Plant);
+            Assert.AreEqual(PlantId, PVM.Plant.EntityId);
+            //var UserId = Guid.NewGuid();
+            //var PlantId = Guid.NewGuid();
             var PlantId2 = Guid.NewGuid();
 
             var Note = "EI NAIN!";
             var uri = new Uri("http://www.growthstories.com");
-            var uCmd = new CreateUser(UserId, "Alice", "swordfish", "alice@wonderland.net");
+            //var uCmd = new CreateUser(UserId, "Alice", "swordfish", "alice@wonderland.net");
 
-            Handler.Handle<User, CreateUser>(uCmd);
-            Handler.Handle<User, Comment>(new Comment(UserId, PlantId, Note));
-            Handler.Handle<User, Photograph>(new Photograph(UserId, PlantId, Note, uri));
+            //Handler.Handle<User, CreateUser>(uCmd);
+            //Handler.Handle<User, Comment>(new Comment(UserId, PlantId, Note));
+            //Handler.Handle<User, Photograph>(new Photograph(UserId, PlantId, Note, uri));
+            PVM.AddCommentCommand.Execute(Note);
+            PVM.AddPhotoCommand.Execute(uri);
+            PVM.AddFertilizerCommand.Execute(null);
+            PVM.AddWaterCommand.Execute(null);
+
 
 
             //Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
-            var list = proj.Actions[PlantId];
-            Assert.AreEqual(2, list.Count);
+            var list = PVM.Actions;
+            Assert.AreEqual(4, list.Count);
             var comment = list[0] as Commented;
             Assert.IsInstanceOf<Commented>(comment);
             Assert.AreEqual(Note, comment.Note);
-            var ph = proj.Actions[PlantId][1] as Photographed;
+            var ph = list[1] as Photographed;
             Assert.IsInstanceOf<Photographed>(ph);
             Assert.AreSame(uri, ph.Uri);
+            Assert.IsInstanceOf<Fertilized>(list[2]);
+            Assert.IsInstanceOf<Watered>(list[3]);
 
-            proj.Actions.Clear();
-            Assert.AreEqual(0, proj.Actions.Count);
+
+
+            PVM.Actions.Clear();
+            Assert.AreEqual(0, PVM.Actions.Count);
+
+            var proj = Get<ActionProjection>();
             var actions = proj.LoadWithPlantId(PlantId).ToArray();
 
-            Assert.AreEqual(2, actions.Length);
+            Assert.AreEqual(4, actions.Length);
             comment = actions[0] as Commented;
             Assert.IsInstanceOf<Commented>(comment);
             Assert.AreEqual(Note, comment.Note);
@@ -114,11 +149,11 @@ namespace Growthstories.DomainTests
             Assert.AreNotSame(uri, ph.Uri);
             Assert.AreEqual(uri.ToString(), ph.Uri.ToString());
 
-            Handler.Handle<User, Comment>(new Comment(UserId, PlantId2, Note));
-            actions = proj.LoadWithUserId(UserId).ToArray();
-            Assert.AreEqual(3, actions.Length);
+            Handler.Handle<User, Comment>(new Comment(Ctx.Id, PlantId2, Note));
+            actions = proj.LoadWithUserId(Ctx.Id).ToArray();
+            Assert.AreEqual(5, actions.Length);
             Assert.AreEqual(PlantId, actions[0].PlantId);
-            Assert.AreEqual(PlantId2, actions[2].PlantId);
+            Assert.AreEqual(PlantId2, actions.Last().PlantId);
 
 
         }

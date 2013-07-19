@@ -84,6 +84,23 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class AddGarden : EntityCommand<User>
+    {
+        public Guid GardenId { get; protected set; }
+        protected AddGarden() { }
+        public AddGarden(Guid id, Guid gardenId)
+            : base(id)
+        {
+            this.GardenId = gardenId;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Added garden {0} to user {0}.", GardenId, EntityId);
+        }
+
+    }
+
     public class BecomeFollower : EntityCommand<User>
     {
         public Guid OfUser { get; private set; }

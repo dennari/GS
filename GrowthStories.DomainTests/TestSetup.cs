@@ -29,6 +29,8 @@ using SQLite;
 using System;
 using System.IO;
 using System.Reflection;
+using Growthstories.UI.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
 
 
 namespace Growthstories.DomainTests
@@ -38,16 +40,28 @@ namespace Growthstories.DomainTests
 
         protected virtual void HttpConfiguration()
         {
-            Bind<IHttpClient>().To<FakeHttpClient>().InSingletonScope();
-            Bind<IEndpoint>().To<FakeEndpoint>().InSingletonScope();
-            Bind<IRequestFactory>().To<HttpRequestFactory>().InSingletonScope();
-            Bind<IResponseFactory, IHttpRequestFactory>().To<FakeSyncFactory>().InSingletonScope();
+            Bind<IHttpClient, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
+            Bind<IEndpoint, FakeEndpoint>().To<FakeEndpoint>().InSingletonScope();
+            Bind<IRequestFactory, IResponseFactory, FakeRequestResponseFactory>().To<FakeRequestResponseFactory>().InSingletonScope();
+            Bind<IHttpResponseFactory, IHttpRequestFactory, FakeHttpRequestResponseFactory>().To<FakeHttpRequestResponseFactory>().InSingletonScope();
 
         }
+
+        protected virtual void UIConfiguration()
+        {
+            Bind<IMessenger>().To<Messenger>().InSingletonScope();
+            Bind<INavigationService, FakeNavigationService>().To<FakeNavigationService>().InSingletonScope();
+            Bind<GardenViewModel>().ToSelf().InSingletonScope();
+            Bind<PlantViewModel>().ToSelf().InSingletonScope();
+        }
+
 
         protected virtual void UserConfiguration()
         {
             Bind<IUserService>().To<FakeUserService>().InSingletonScope();
+            //Bind<IUserService>().To<FakeUIContext>().InSingletonScope();
+
+
         }
 
         protected virtual void EventFactoryConfiguration()
@@ -62,25 +76,44 @@ namespace Growthstories.DomainTests
             {
                 if (conn == null)
                 {
-#if WINDOWS_PHONE
-                    conn = new SQLiteConnection("testdb2.sdf");
-        
-#else
+
                     conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"));
 
-#endif
                 }
                 return conn;
             };
             Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
         }
 
+        protected virtual void PersistenceConfiguration()
+        {
+            Bind<IPersistSyncStreams, IPersistStreams>()
+                .To<SQLitePersistenceEngine>()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.Initialize();
+                    eng.Purge();
+                });
+
+            Bind<IUIPersistence>().To<SQLiteUIPersistence>()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.Initialize();
+                    eng.Purge();
+                });
+
+        }
+
+
+
         protected virtual void LogConfiguration()
         {
             // configure logging
 #if !WINDOWS_PHONE
             XmlConfigurator.Configure();
-            LogFactory.BuildLogger = type => new LogTo4Net(type);
+            LogFactory.BuildLogger = type => new GSLog(type);
 #endif
 
         }
@@ -93,6 +126,8 @@ namespace Growthstories.DomainTests
             UserConfiguration();
             EventFactoryConfiguration();
             SQLiteConnectionConfiguration();
+            PersistenceConfiguration();
+            UIConfiguration();
 
             Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
             Bind<ITransportEvents>().To<HttpSyncTransporter>().InSingletonScope();
@@ -104,14 +139,7 @@ namespace Growthstories.DomainTests
 
 
 
-            Bind<IPersistSyncStreams, IPersistStreams>()
-                .To<SQLitePersistenceEngine>()
-                .InSingletonScope()
-                .OnActivation((ctx, eng) =>
-                {
-                    eng.Initialize();
-                    eng.Purge();
-                });
+
 
 
             #region PipelineHooks
@@ -142,18 +170,12 @@ namespace Growthstories.DomainTests
 
             Bind<IDetectConflicts>().To<ConflictDetector>().InSingletonScope();
             Bind<IJsonFactory>().To<JsonFactory>().InSingletonScope();
-            Bind<IUIPersistence>().To<SQLiteUIPersistence>()
-                .InSingletonScope()
-                .OnActivation((ctx, eng) =>
-                {
-                    eng.Initialize();
-                    eng.Purge();
-                });
+
 
             Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
             Bind<ActionProjection>().ToSelf().InSingletonScope();
             Bind<PlantProjection>().ToSelf().InSingletonScope();
-            Bind<AuthTokenService>().ToSelf().InSingletonScope();
+            Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
             RegisterHandlers(Kernel.Get<IRegisterEventHandlers>(), Kernel);
 
@@ -171,7 +193,13 @@ namespace Growthstories.DomainTests
             registry.Register<Commented>(aproj);
             registry.Register<Watered>(aproj);
             registry.Register<Photographed>(aproj);
-            registry.RegisterAsync<UserSynchronized>(Kernel.Get<AuthTokenService>());
+            registry.Register<Fertilized>(aproj);
+            //registry.RegisterAsync<UserSynchronized>(Kernel.Get<AuthTokenService>());
+
+
+            var PVM = kernel.Get<PlantViewModel>();
+            kernel.Get<IMessenger>().Register<ShowPlantView>(PVM, PVM.Handle);
+
         }
 
     }

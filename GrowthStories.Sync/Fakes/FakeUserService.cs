@@ -1,21 +1,35 @@
 ﻿using CommonDomain;
+using Growthstories.Core;
+using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
     public class FakeUserService : IUserService
     {
-        private readonly User u = new User();
-        public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
+        private User u;
 
-        public FakeUserService()
+        //public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
+        //public static Guid FakeUserGardenId = Guid.Parse("11000000-0000-0000-0000-000000000000");
+        public static Guid FakeUserId = Guid.NewGuid();
+        public static Guid FakeUserGardenId = Guid.NewGuid();
+
+
+        private readonly IGSRepository Store;
+        private readonly IAggregateFactory Factory;
+        private readonly IAuthTokenService AuthService;
+
+        public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
         {
-            u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
+            this.Store = store;
+            this.Factory = factory;
+            this.AuthService = authService;
         }
 
 
@@ -23,12 +37,40 @@ namespace Growthstories.Sync
         {
             get
             {
+                if (u == null)
+                    EnsureCurrenUser();
                 return u.State;
             }
-            set
+
+        }
+
+        private void EnsureCurrenUser()
+        {
+            u = Factory.Build<User>();
+            Store.PlayById(u, FakeUserId);
+            if (u.Version == 0)
             {
-                //u.ApplyState()
+                u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
+                u.Handle(new AddGarden(FakeUserId, FakeUserGardenId));
+
+                var g = Factory.Build<Garden>();
+                g.Handle(new CreateGarden(FakeUserGardenId));
+
+                Store.Save(u);
+                Store.Save(g);
+
             }
+        }
+
+        public Task TryAuth()
+        {
+            return Task.Run(async () =>
+            {
+                var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
+                //if(auth)
+                u.Handle(new SetAuthToken(u.Id, auth));
+                Store.Save(u);
+            });
         }
     }
 }

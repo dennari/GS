@@ -75,9 +75,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthTokenService.cs" />
+    <Compile Include="Fakes\FakeHttpRequestResponseFactory.cs" />
+    <Compile Include="RequestResponseFactory.cs" />
     <Compile Include="SyncEventStreamFactory.cs" />
     <Compile Include="Fakes\FakeUserService.cs" />
-    <Compile Include="Fakes\FakeSyncFactory.cs" />
+    <Compile Include="Fakes\FakeRequestResponseFactory.cs" />
     <Compile Include="Fakes\FakeEndpoint.cs" />
     <Compile Include="HttpAuthTokenResponse.cs" />
     <Compile Include="SyncEventStream.cs" />
@@ -89,7 +91,7 @@
     <Compile Include="HttpPullResponse.cs" />
     <Compile Include="SyncAncestorFactory.cs" />
     <Compile Include="JsonFactory.cs" />
-    <Compile Include="HttpRequestFactory.cs" />
+    <Compile Include="HttpRequestResponseFactory.cs" />
     <Compile Include="StoreExtensions.cs" />
     <Compile Include="SyncHttpClient.cs" />
     <Compile Include="Exceptions\StorageException.cs" />
