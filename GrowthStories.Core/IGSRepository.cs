@@ -11,6 +11,8 @@ namespace Growthstories.Core
     public interface IGSRepository
     {
 
+        IGSAggregate GetById(Guid id);
+        //TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IGSAggregate;
         void PlayById(IGSAggregate aggregate, Guid id);
         void Save(IGSAggregate aggregate);
     }

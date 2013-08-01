@@ -9,7 +9,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region User
-    public class CreateUser : EntityCommand<User>
+    public class CreateUser : EntityCommand<User>, ICreateCommand
     {
 
         public string Username { get; private set; }

@@ -1,0 +1,128 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="GrowthStories.UI.WindowsPhone.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
+    xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
+    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    DataContext="{Binding MainVM, Source={StaticResource Locator}}"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="False">
+    
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+    <!--LayoutRoot contains the root grid where all other page content is placed-->
+    <Grid x:Name="LayoutRoot">
+        <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <command:EventToCommand Command="{Binding PanoramaPageChangedCommand, Mode=OneWay}"
+												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <phone:Panorama.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="/GrowthStories.UI.WindowsPhone;component/Assets/Bg/garden_all.png"/>
+        	</phone:Panorama.Background>
+            <phone:Panorama.Title>
+                 <Image 
+					Source="/GrowthStories.UI.WindowsPhone;component/Assets/Bg/panorama_logo.png" 
+					Stretch="UniformToFill" 
+					Width="800" 
+					Margin="0,80,0,0"/>	
+            </phone:Panorama.Title>
+			
+            <!-- MY GARDEN -->
+			<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
+                <Grid x:Name="ContentPanel1" Margin="0,0" DataContext="{Binding GardenVM}">
+                    <toolkit:LongListMultiSelector
+                        x:Name="PlantsSelector"
+                        ItemsSource="{Binding Plants}" 
+                        Style="{StaticResource GSGardenPlantsStyle}"
+                        LayoutMode="Grid" 
+                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
+                        
+                      >
+                        <i:Interaction.Triggers>                          
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <command:EventToCommand Command="{Binding SelectedPlantsChangedCommand, Mode=OneWay}"
+												CommandParameter="{Binding SelectedItems,ElementName=PlantsSelector,Mode=OneWay}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <toolkit:LongListMultiSelector.ItemTemplate>
+                        <DataTemplate>
+
+                            <Grid Width="Auto" Height="Auto" Margin="0,0,6,6">
+                                <Grid.Background>
+                                    <RadialGradientBrush>
+                                        <GradientStop Color="#ffae2e5f" Offset="0"/>
+                                        <GradientStop Color="#FFD3799C" Offset="1"/>
+                                    </RadialGradientBrush>
+                                </Grid.Background>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Tap">
+                                        <command:EventToCommand Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
+												CommandParameter="{Binding Mode=OneWay}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center" Canvas.ZIndex="1"/>
+                                <Image Width="173" Height="173" Source="{Binding ProfilepicturePath, Converter={StaticResource PathToImageSource}}" VerticalAlignment="Center"/>
+
+                            </Grid>
+                        </DataTemplate>
+                        </toolkit:LongListMultiSelector.ItemTemplate>
+                    </toolkit:LongListMultiSelector>
+                </Grid>        
+			</phone:PanoramaItem>
+            <!-- NOTIFICATIONS -->
+            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
+                <Grid x:Name="ContentPanel2" Margin="0,0">
+                    <phone:LongListSelector/>
+                </Grid>
+            </phone:PanoramaItem>
+            <!-- FRIENDS -->
+            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="friends" x:Name="friendsItem">
+                <Grid x:Name="ContentPanel3" Margin="0,0">
+                    <phone:LongListSelector />
+                </Grid>
+            </phone:PanoramaItem>
+
+
+        </phone:Panorama>
+    </Grid>
+    <bar:Bindable.ApplicationBar>
+        <bar:BindableApplicationBar
+            Mode="Minimized"
+            Style="{StaticResource GSAppBarStyle}"
+            ButtonsSource="{Binding AppBarButtons}"
+            IsVisible="True"/>
+    </bar:Bindable.ApplicationBar>
+</phone:PhoneApplicationPage>

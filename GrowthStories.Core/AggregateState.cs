@@ -7,15 +7,17 @@ using System.Text;
 
 namespace Growthstories.Core
 {
-    public abstract class AggregateState<TCreateEvent> : IMemento, IAppliesEvents where TCreateEvent : IEvent
-    {
-        public Guid Id { get; private set; }
 
-        public int Version { get; private set; }
+
+    public abstract class AggregateState : IMemento, IAppliesEvents
+    {
+        public Guid Id { get; protected set; }
+
+        public Type AggregateType { get; set; }
+
+        public int Version { get; protected set; }
 
         public bool? Public { get; protected set; }
-
-        private bool applying = false;
 
         protected AggregateState()
         {
@@ -23,14 +25,32 @@ namespace Growthstories.Core
             //Public = false;
         }
 
-        protected AggregateState(Guid id, int version, bool Public)
+
+
+        //protected AggregateState(Guid id, int version, bool Public)
+        //{
+        //    Id = id;
+        //    Version = Version;
+        //    this.Public = Public;
+        //}
+
+
+        public abstract void Apply(IEvent @event);
+
+    }
+
+    public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : IEvent
+    {
+
+        private bool applying = false;
+
+        protected AggregateState()
+            : base()
         {
-            Id = id;
-            Version = Version;
-            this.Public = Public;
+
         }
 
-        public void Apply(TCreateEvent @event)
+        public virtual void Apply(TCreateEvent @event)
         {
             if (Version != 0)
             {
@@ -39,9 +59,7 @@ namespace Growthstories.Core
             Id = @event.EntityId;
         }
 
-
-
-        public void Apply(IEvent @event)
+        public override void Apply(IEvent @event)
         {
             if (Version == 0 && !(@event is TCreateEvent))
             {

@@ -32,7 +32,9 @@ namespace GrowthStories.UI.WindowsPhone
             Bind<IMessenger>().To<Messenger>().InSingletonScope();
             Bind<INavigationService>().To<NavigationService>().InSingletonScope();
             Bind<GardenViewModel>().ToSelf().InSingletonScope();
+            Bind<AddPlantViewModel>().ToSelf().InSingletonScope();
             Bind<PlantViewModel>().ToSelf().InSingletonScope();
+            Bind<MainViewModel>().ToSelf().InSingletonScope();
         }
 
         protected override void SQLiteConnectionConfiguration()

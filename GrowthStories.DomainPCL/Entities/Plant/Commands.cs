@@ -14,8 +14,14 @@ namespace Growthstories.Domain.Messaging
     }
 
     #region Plant
-    public class CreatePlant : PlantCommand
+    public class CreatePlant : PlantCommand, ICreateCommand
     {
+
+        public string Name { get; private set; }
+
+        public string ProfilepicturePath { get; set; }
+
+        public Guid UserId { get; private set; }
 
         public CreatePlant() { }
         public CreatePlant(Guid id, string name, Guid userId)
@@ -31,9 +37,26 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-        public string Name { get; set; }
 
-        public Guid UserId { get; set; }
+    }
+
+    public class ChangeProfilepicturePath : PlantCommand
+    {
+
+        public string ProfilepicturePath { get; private set; }
+
+        protected ChangeProfilepicturePath() { }
+        public ChangeProfilepicturePath(Guid entityId, string ProfilepicturePath)
+            : base(entityId)
+        {
+            this.ProfilepicturePath = ProfilepicturePath;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Change ProfilepicturePath to {0}", ProfilepicturePath);
+        }
+
     }
 
     public class MarkPlantPublic : PlantCommand

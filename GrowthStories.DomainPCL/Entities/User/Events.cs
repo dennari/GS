@@ -13,7 +13,7 @@ namespace Growthstories.Domain.Messaging
     #region User
 
     [DTOObject(DTOType.createUser)]
-    public class UserCreated : EventBase
+    public class UserCreated : EventBase, ICreateEvent
     {
         [JsonProperty]
         public string Username { get; private set; }
@@ -22,6 +22,13 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public string Email { get; private set; }
 
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType == null ? _AggregateType = typeof(User) : _AggregateType; }
+        }
 
         protected UserCreated() { }
         public UserCreated(Guid id, string username, string password, string email)

@@ -19,6 +19,12 @@ namespace Growthstories.Domain.Messaging
         Type EntityType { get; }
     }
 
+    public interface ICreateCommand : IEntityCommand
+    {
+
+    }
+
+
     public abstract class EntityCommand<T> : CommandBase, IEntityCommand
     {
         public Guid EntityId { get; private set; }

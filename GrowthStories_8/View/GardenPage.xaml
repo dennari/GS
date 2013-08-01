@@ -56,7 +56,7 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar>
             <shell:ApplicationBarIconButton 
-                IconUri="/Assets/AppBar/add.png" 
+                IconUri="/Assets/AppBar/add.png",
                 Text="add" 
                 x:Name="newPlantAppBarButton" 
                 Click="newPlantAppBarButton_Click"/>

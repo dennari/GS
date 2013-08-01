@@ -16,6 +16,8 @@ namespace Growthstories.Domain
             where TEntity : class, ICommandHandler<TCommand>, IGSAggregate, new()
             where TCommand : IEntityCommand;
 
+        IGSAggregate Handle(IEntityCommand c);
+
         void HandlerHandle<TEntity, TCommand>(TCommand c)
             where TEntity : class, IGSAggregate, new()
             where TCommand : IEntityCommand;

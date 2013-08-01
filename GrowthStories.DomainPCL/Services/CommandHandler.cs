@@ -47,5 +47,11 @@ namespace Growthstories.Domain.Services
         {
             return null;
         }
+
+
+        public IGSAggregate Handle(IEntityCommand c)
+        {
+            return null;
+        }
     }
 }

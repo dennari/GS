@@ -13,13 +13,26 @@ namespace Growthstories.Domain.Messaging
     #region Plant
 
     [DTOObject(DTOType.createPlant)]
-    public class PlantCreated : EventBase
+    public class PlantCreated : EventBase, ICreateEvent
     {
 
         [JsonProperty]
         public string Name { get; private set; }
+
+        [JsonProperty]
+        public string ProfilepicturePath { get; private set; }
+
         [JsonProperty]
         public Guid UserId { get; private set; }
+
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType == null ? _AggregateType = typeof(Plant) : _AggregateType; }
+        }
+
 
         protected PlantCreated() { }
         public PlantCreated(Guid entityId, string name, Guid userId)
@@ -35,6 +48,12 @@ namespace Growthstories.Domain.Messaging
             }
             Name = name;
             UserId = userId;
+        }
+
+        public PlantCreated(CreatePlant cmd) :
+            this(cmd.EntityId, cmd.Name, cmd.UserId)
+        {
+            this.ProfilepicturePath = cmd.ProfilepicturePath;
         }
 
         public override string ToString()
@@ -54,6 +73,33 @@ namespace Growthstories.Domain.Messaging
             var D = (ICreatePlantDTO)Dto;
             base.FromDTO(D);
             this.Name = D.Name;
+        }
+
+
+
+    }
+
+    public class ProfilepicturePathChanged : EventBase
+    {
+
+        [JsonProperty]
+        public string ProfilepicturePath { get; private set; }
+
+        protected ProfilepicturePathChanged() { }
+        public ProfilepicturePathChanged(Guid entityId, string ProfilepicturePath)
+            : base(entityId)
+        {
+            this.ProfilepicturePath = ProfilepicturePath;
+        }
+
+        public ProfilepicturePathChanged(ChangeProfilepicturePath cmd)
+            : this(cmd.EntityId, cmd.ProfilepicturePath)
+        {
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"ProfilepicturePath changed to {0}", ProfilepicturePath);
         }
 
     }

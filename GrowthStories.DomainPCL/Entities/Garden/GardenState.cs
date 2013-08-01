@@ -27,11 +27,11 @@ namespace Growthstories.Domain.Entities
             PlantIds = new List<Guid>();
         }
 
-        public GardenState(Guid id, int version, bool Public, ICollection<Guid> plantIds)
-            : base(id, version, Public)
-        {
-            PlantIds = plantIds;
-        }
+        //public GardenState(Guid id, int version, bool Public, ICollection<Guid> plantIds)
+        //    : base(id, version, Public)
+        //{
+        //    PlantIds = plantIds;
+        //}
 
 
         public void Apply(PlantAdded @event)

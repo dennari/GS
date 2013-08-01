@@ -46,13 +46,13 @@ namespace Growthstories.WP8.Services
             Plant plant = this.kernel.Get<Plant>();
             plant.Name = "Sepi";
             plant.Genus = "Aloe Vera";
-            plant.ProfilePicturePath = string.Format(photoBase, "3547545731_efd5a20872_o.jpg");
+            plant.ProfilepicturePath = string.Format(photoBase, "3547545731_efd5a20872_o.jpg");
             garden.Plants.Add(plant);
 
             plant = this.kernel.Get<Plant>();
             plant.Name = "Jore";
             plant.Genus = "Phalaenopsis";
-            plant.ProfilePicturePath = string.Format(photoBase, "4256637373_e828423506_o.jpg");
+            plant.ProfilepicturePath = string.Format(photoBase, "4256637373_e828423506_o.jpg");
             var photoUri = new Uri(string.Format(photoBase, "3547545731_efd5a20872_o.jpg"), UriKind.Relative);
             PlantAction action = new PhotoAction(plant, photoUri);
             action.CreatedAt = action.CreatedAt.Value.AddDays(-2);
@@ -82,19 +82,19 @@ namespace Growthstories.WP8.Services
             plant = this.kernel.Get<Plant>();
             plant.Name = "Kari";
             plant.Genus = "Cattleya";
-            plant.ProfilePicturePath = string.Format(photoBase, "7530054972_6e987e8540_o.jpg");
+            plant.ProfilepicturePath = string.Format(photoBase, "7530054972_6e987e8540_o.jpg");
             garden.Plants.Add(plant);
 
             plant = this.kernel.Get<Plant>();
             plant.Name = "Timo";
             plant.Genus = "Ocimum basilicum";
-            plant.ProfilePicturePath = string.Format(photoBase, "7568630428_b68d55a317_o.jpg");
+            plant.ProfilepicturePath = string.Format(photoBase, "7568630428_b68d55a317_o.jpg");
             garden.Plants.Add(plant);
 
             plant = this.kernel.Get<Plant>();
             plant.Name = "Niko";
             plant.Genus = "Mentha spicata";
-            plant.ProfilePicturePath = string.Format(photoBase, "7813862886_abaa022b57_o.jpg");
+            plant.ProfilepicturePath = string.Format(photoBase, "7813862886_abaa022b57_o.jpg");
             garden.Plants.Add(plant);
 
 

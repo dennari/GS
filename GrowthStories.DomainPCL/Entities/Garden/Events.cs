@@ -15,8 +15,15 @@ namespace Growthstories.Domain.Messaging
     #region Garden
 
     //[DTOObject(DTOType.createGarden)]
-    public class GardenCreated : EventBase
+    public class GardenCreated : EventBase, ICreateEvent
     {
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType == null ? _AggregateType = typeof(Garden) : _AggregateType; }
+        }
 
         protected GardenCreated() { }
         public GardenCreated(Guid id) : base(id) { }

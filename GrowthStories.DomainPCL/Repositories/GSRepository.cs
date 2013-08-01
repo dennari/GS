@@ -16,20 +16,26 @@ namespace Growthstories.Domain
     {
 
         private const string AggregateTypeHeader = "AggregateType";
+
         private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
+        private readonly IDictionary<Guid, IGSAggregate> aggregates = new Dictionary<Guid, IGSAggregate>();
         private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
         private readonly IStoreEvents eventStore;
         private readonly IDetectConflicts conflictDetector;
-
+        private readonly IAggregateFactory factory;
         public GSRepository(
             IStoreEvents eventStore,
-            IDetectConflicts conflictDetector)
+            IDetectConflicts conflictDetector,
+            IAggregateFactory factory)
         {
 
             this.eventStore = eventStore;
             this.conflictDetector = conflictDetector;
+            this.factory = factory;
 
         }
+
+
 
 
         public void Dispose()
@@ -71,7 +77,10 @@ namespace Growthstories.Domain
                 aggregate.ApplyState((IMemento)snapshot.Payload);
 
             ApplyEventsToAggregate(versionToLoad, stream, aggregate);
-
+            lock (this.aggregates)
+            {
+                this.aggregates[id] = aggregate;
+            }
 
         }
 
@@ -179,5 +188,53 @@ namespace Growthstories.Domain
             return this.conflictDetector.ConflictsWith(uncommitted, committed);
         }
 
+
+        public IGSAggregate GetById(Guid id)
+        {
+            IGSAggregate aggregate = null;
+            if (this.aggregates.TryGetValue(id, out aggregate))
+                return aggregate;
+
+            var versionToLoad = int.MaxValue;
+            var snapshot = this.GetSnapshot(id, versionToLoad);
+
+            var stream = this.OpenStream(id, versionToLoad, snapshot);
+
+            if (snapshot != null)
+            {
+                var state = snapshot.Payload as AggregateState;
+                if (state != null)
+                {
+                    aggregate = (IGSAggregate)factory.Build(state.AggregateType);
+                    aggregate.ApplyState((IMemento)snapshot.Payload);
+                }
+            }
+            if (aggregate == null)
+            {
+                var createEvent = stream.CommittedEvents.First().Body as ICreateEvent;
+                if (createEvent != null)
+                    aggregate = (IGSAggregate)factory.Build(createEvent.AggregateType);
+            }
+            if (aggregate == null)
+                throw new InvalidOperationException(string.Format("Can't find the Type for aggregate id {0}", id));
+            ApplyEventsToAggregate(versionToLoad, stream, aggregate);
+            lock (this.aggregates)
+            {
+                this.aggregates[id] = aggregate;
+            }
+
+            return aggregate;
+        }
+
+        //public TAggregate GetById<TAggregate>(Guid id) where TAggregate : IGSAggregate, new()
+        //{
+        //    IGSAggregate aggregate = null;
+        //    if (this.aggregates.TryGetValue(id, out aggregate))
+        //        return aggregate;
+
+        //    aggregate = factory.Build<TAggregate>();
+        //    PlayById(aggregate, id);
+        //    return aggregate;
+        //}
     }
 }

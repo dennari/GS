@@ -13,4 +13,10 @@ namespace Growthstories.Core
         DateTimeOffset Created { get; set; }
         //IEvent ShallowCopy();
     }
+
+    public interface ICreateEvent : IEvent
+    {
+        Type AggregateType { get; }
+    }
+
 }

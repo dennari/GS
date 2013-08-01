@@ -13,5 +13,7 @@ namespace Growthstories.Core
 
         T Build<T>(IMemento state) where T : IGSAggregate, new();
         T Build<T>() where T : IGSAggregate, new();
+
+        IGSAggregate Build(Type type);
     }
 }

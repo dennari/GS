@@ -45,7 +45,7 @@ namespace Growthstories.WP8.Converters
             if (p.ProfilePicture == null)
             {
 
-                img.UriSource = new Uri(p.ProfilePicturePath, p.ProfilePicturePath.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
+                img.UriSource = new Uri(p.ProfilepicturePath, p.ProfilepicturePath.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
             }
             else
             {

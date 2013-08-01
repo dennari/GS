@@ -16,24 +16,47 @@ namespace Growthstories.UI
 
 
         private readonly IUIPersistence Persistence;
+        private readonly IGSRepository Repository;
 
-        public PlantProjection(IUIPersistence persistence)
+        public PlantProjection(IUIPersistence persistence, IGSRepository repository)
         {
             if (persistence == null)
                 throw new ArgumentNullException("uipersistence");
             this.Persistence = persistence;
+            this.Repository = repository;
             //PlantNames.Add("Jore");
         }
 
         public void Handle(PlantCreated @event)
         {
             this.Persistence.PersistPlant(@event);
+
         }
 
-        public IEnumerable<PlantCreated> LoadWithUserId(Guid UserId)
+
+
+        public PlantState LoadWithId(Guid Id)
         {
-            return Persistence.UserPlants(UserId);
+            return ((Plant)Repository.GetById(Id)).State;
         }
 
+        public IEnumerable<PlantState> LoadWithUserId(Guid UserId)
+        {
+
+            foreach (var c in Persistence.UserPlants(UserId))
+                yield return ((Plant)Repository.GetById(c.EntityId)).State;
+        }
+
+        public static string testPic1 = @"/Assets/Icons/appbar.add.png";
+        public static string testPic2 = @"/Assets/Icons/appbar.check.png";
+
+
+        public IEnumerable<PlantState> FakeLoadWithUserId(Guid guid)
+        {
+            return new PlantState[] {
+                new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Jore",guid) {ProfilepicturePath=testPic1})),
+                new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Kari",guid) {ProfilepicturePath=testPic2}))
+            };
+        }
     }
 }

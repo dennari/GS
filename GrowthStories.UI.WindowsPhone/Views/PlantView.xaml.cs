@@ -8,10 +8,11 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
+using GrowthStories.UI.WindowsPhone;
 
 namespace GrowthStories.UI.WindowsPhone.Views
 {
-    public partial class PlantView : PhoneApplicationPage
+    public partial class PlantView : GSView
     {
         public PlantView()
         {

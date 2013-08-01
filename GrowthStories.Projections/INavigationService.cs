@@ -18,14 +18,25 @@ namespace Growthstories.UI
         ADD_COMMENT,
         ADD_WATER,
         ADD_PHOTO,
-        ADD_FERT
+        ADD_FERT,
+        SELECT_PROFILE_PICTURE
+    }
+
+    public enum IconType
+    {
+        ADD,
+        CHECK,
+        CANCEL,
+        DELETE,
+        CHECK_LIST
     }
 
 
     public interface INavigationService
     {
         void GoBack();
-
+        IDictionary<IconType, Uri> IconUri { get; }
+        IDictionary<View, Uri> ViewUri { get; }
         //Uri PlantViewUri { get; }
         //Uri AddPlantViewUri { get; }
 
@@ -48,6 +59,17 @@ namespace Growthstories.UI
         public void NavigateTo(View view)
         {
             Stack.Add(view);
+        }
+
+
+        public IDictionary<IconType, Uri> IconUri
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IDictionary<View, Uri> ViewUri
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 }

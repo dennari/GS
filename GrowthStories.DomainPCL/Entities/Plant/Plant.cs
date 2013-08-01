@@ -14,6 +14,7 @@ namespace Growthstories.Domain.Entities
 
     public class Plant : AggregateBase<PlantState, PlantCreated>,
         ICommandHandler<CreatePlant>,
+        ICommandHandler<ChangeProfilepicturePath>,
         ICommandHandler<MarkPlantPublic>,
         ICommandHandler<MarkPlantPrivate>
     {
@@ -25,7 +26,7 @@ namespace Growthstories.Domain.Entities
             if (command.Name == null)
                 throw new ArgumentNullException();
 
-            RaiseEvent(new PlantCreated(command.EntityId, command.Name, command.UserId));
+            RaiseEvent(new PlantCreated(command));
         }
 
 
@@ -48,6 +49,11 @@ namespace Growthstories.Domain.Entities
         public void Handle(MarkPlantPrivate command)
         {
             RaiseEvent(new MarkedPlantPrivate(command.EntityId));
+        }
+
+        public void Handle(ChangeProfilepicturePath command)
+        {
+            RaiseEvent(new ProfilepicturePathChanged(command));
         }
     }
 

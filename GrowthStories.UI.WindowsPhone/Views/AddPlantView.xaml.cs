@@ -13,13 +13,15 @@ using Growthstories.UI.ViewModel;
 
 namespace GrowthStories.UI.WindowsPhone.Views
 {
-    public partial class AddPlantView : PhoneApplicationPage
+    public partial class AddPlantView : GSView
     {
 
         public AddPlantView()
         {
             InitializeComponent();
         }
+
+
 
     }
 }

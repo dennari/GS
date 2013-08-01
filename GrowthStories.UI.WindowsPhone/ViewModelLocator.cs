@@ -17,10 +17,13 @@ using GalaSoft.MvvmLight.Messaging;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
+using Growthstories.Domain.Services;
 using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.ViewModel;
+using GrowthStories.UI.WindowsPhone.ViewModels;
 using Ninject;
+using Ninject.Parameters;
 
 namespace GrowthStories.UI.WindowsPhone
 {
@@ -36,14 +39,16 @@ namespace GrowthStories.UI.WindowsPhone
         private readonly IKernel Kernel;
         private GardenViewModel _GardenVM;
         private PlantViewModel _PlantVM;
-
+        private AddPlantViewModel _AddPlantVM;
+        private MainViewModel _MainVM;
+        private bool DebugDesignSwitch = false;
         public ViewModelLocator()
         {
 
-            if (ViewModelBase.IsInDesignModeStatic)
+            if (ViewModelBase.IsInDesignModeStatic || DebugDesignSwitch)
             {
                 // Create design time view services and models
-                this.Kernel = new StandardKernel(new BootstrapDesign());
+                //this.Kernel = new StandardKernel(new BootstrapDesign());
             }
             else
             {
@@ -55,11 +60,18 @@ namespace GrowthStories.UI.WindowsPhone
 
         }
 
-        public GardenViewModel GardenVM
+        public MainViewModel MainVM
         {
             get
             {
-                return _GardenVM == null ? _GardenVM = Kernel.Get<GardenViewModel>() : _GardenVM;
+                if (ViewModelBase.IsInDesignModeStatic || DebugDesignSwitch)
+                {
+                    return new MainViewModel(Messenger.Default, new NullUserService(), new NullCommandHandler(), new NavigationService(), null);
+                }
+                else
+                {
+                    return _MainVM == null ? _MainVM = Kernel.Get<MainViewModel>(new ConstructorArgument("kernel", Kernel)) : _MainVM;
+                }
             }
         }
 
@@ -71,9 +83,20 @@ namespace GrowthStories.UI.WindowsPhone
             }
         }
 
+        public AddPlantViewModel AddPlantVM
+        {
+            get
+            {
+                return _AddPlantVM == null ? _AddPlantVM = Kernel.Get<ClientAddPlantViewModel>() : _AddPlantVM;
+            }
+        }
+
+
         public static void Cleanup()
         {
             // TODO Clear the ViewModels
         }
+
+
     }
 }

@@ -19,12 +19,25 @@ namespace GrowthStories.UI.WindowsPhone
             }
         }
 
-        public readonly IDictionary<View, Uri> ViewUri = new Dictionary<View, Uri>()
+        readonly IDictionary<View, Uri> _ViewUri = new Dictionary<View, Uri>()
         {
             {View.GARDEN,new Uri("/Views/GardenView.xaml", UriKind.Relative)},
             {View.PLANT,new Uri("/Views/PlantView.xaml", UriKind.Relative)},
-            {View.ADD_PLANT,new Uri("/Views/AddPlantView.xaml", UriKind.Relative)}
+            {View.ADD_PLANT,new Uri("/Views/AddPlantView.xaml", UriKind.Relative)},
+            {View.SELECT_PROFILE_PICTURE,new Uri("/Views/SelectProfilePictureView.xaml", UriKind.Relative)}
         };
+
+        readonly IDictionary<IconType, Uri> _IconUri = new Dictionary<IconType, Uri>()
+        {
+            {IconType.ADD,new Uri("/Assets/Icons/appbar.add.png", UriKind.RelativeOrAbsolute)},
+            {IconType.CHECK,new Uri("/Assets/Icons/appbar.check.png", UriKind.RelativeOrAbsolute)},
+            {IconType.DELETE,new Uri("/Assets/Icons/appbar.delete.png", UriKind.RelativeOrAbsolute)},
+            {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)}
+        };
+
+        public IDictionary<View, Uri> ViewUri { get { return _ViewUri; } }
+        public IDictionary<IconType, Uri> IconUri { get { return _IconUri; } }
+
 
         public void NavigateTo(View view)
         {

@@ -7,6 +7,8 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -14,72 +16,102 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public class GardenViewModel : GSViewModelBase
+    public class GardenViewModel : GSViewModelBase, IPanoramaPage
     {
-        public bool Loaded = false;
+
+        private ObservableCollection<PlantStateViewModel> _Plants;
+        public ObservableCollection<PlantStateViewModel> Plants
+        {
+            get
+            {
+                if (_Plants == null)
+                {
+                    if (IsInDesignMode)
+                        Plants = new ObservableCollection<PlantStateViewModel>(this.PlantProjection.FakeLoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
+                    else
+                        Plants = new ObservableCollection<PlantStateViewModel>(this.PlantProjection.LoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
+
+                }
+                return _Plants;
+            }
+            private set
+            {
+                if (_Plants == value)
+                    return;
+                _Plants = value;
+                _Plants.CollectionChanged += (a, aa) => this.RefreshButtons();
+            }
+        }
+
+        private IList<PlantStateViewModel> _SelectedPlants;
+        public IList<PlantStateViewModel> SelectedPlants
+        {
+            get
+            {
+                return _SelectedPlants == null ? _SelectedPlants = new List<PlantStateViewModel>() : _SelectedPlants;
+            }
+            private set
+            {
+                if (_SelectedPlants == value)
+                    return;
+                _SelectedPlants = value;
+            }
+        }
+        public event EventHandler ButtonsRefreshed;
         public PlantProjection PlantProjection { get; private set; }
-        public ObservableCollection<PlantCreated> Plants { get; private set; }
-
-
-        protected string _NewPlantName;
-
-        public string NewPlantName
-        {
-            get
-            {
-                return _NewPlantName;
-            }
-            set
-            {
-                Set(() => NewPlantName, ref _NewPlantName, value);
-            }
-        }
-
-
-        protected Guid _NewPlantId;
-        public Guid NewPlantId
-        {
-            get
-            {
-                return _NewPlantId == default(Guid) ? Guid.NewGuid() : _NewPlantId;
-            }
-            set
-            {
-                Set(() => NewPlantId, ref _NewPlantId, value);
-            }
-        }
+        private readonly Guid UserId;
 
 
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public GardenViewModel(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav, PlantProjection plantProjection)
+        public GardenViewModel(
+            Guid userId,
+             PlantProjection plantProjection,
+            IMessenger messenger,
+            IUserService ctx,
+            IDispatchCommands handler,
+            INavigationService nav)
+
             : base(messenger, ctx, handler, nav)
         {
+            this.UserId = userId;
             this.PlantProjection = plantProjection;
             this.PlantProjection.EventHandled += this.EventHandled;
+            this.PropertyChanged += (a, aa) => this.RefreshButtons();
 
-            this.Plants = new ObservableCollection<PlantCreated>();
         }
 
-        public void LoadPlants()
+        private void RefreshButtons()
         {
-            if (this.Loaded)
-                return;
-            var r = this.PlantProjection.LoadWithUserId(this.Context.CurrentUser.Id).ToArray();
-            foreach (var e in r)
+            this.AppBarButtons.Clear();
+            if (this.IsPlantSelectionEnabled)
             {
-                this.Plants.Add(e);
+                this.AppBarButtons.Add(this.DeletePlantsButton);
             }
-            this.Loaded = true;
+            else
+            {
+                this.AppBarButtons.Add(this.AddPlantButton);
+                if (this.Plants.Count > 0)
+                {
+                    this.AppBarButtons.Add(this.SelectPlantsButton);
+                    this.AppBarButtons.Add(this.ChangePPicButton);
+                }
+            }
+            this.ButtonsRefreshed(this, new EventArgs());
+
         }
+
 
         private void EventHandled(object sender, EventHandledArgs e)
         {
             var @event = e.@event as PlantCreated;
-            if (@event != null && @event.UserId == this.Context.CurrentUser.Id)
-                this.Plants.Add(@event);
+            if (@event != null && @event.UserId == this.UserId)
+            {
+                if (!this.Plants.Any(x => x.Id == @event.EntityId))
+                    this.Plants.Add(new PlantStateViewModel(this.PlantProjection.LoadWithId(@event.EntityId)));
+            }
         }
 
 
@@ -104,40 +136,42 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private RelayCommand _AddPlantCommand;
-        public RelayCommand AddPlantCommand
+        protected bool _IsPlantSelectionEnabled = false;
+        public bool IsPlantSelectionEnabled
         {
             get
             {
-
-                if (_AddPlantCommand == null)
-                    _AddPlantCommand = new RelayCommand(() =>
-                    {
-
-                        AddPlant(NewPlantName, NewPlantId);
-                        NewPlantName = "";
-                        Nav.GoBack();
-                    });
-                return _AddPlantCommand;
-
+                return _IsPlantSelectionEnabled;
+            }
+            set
+            {
+                Set("IsPlantSelectionEnabled", ref _IsPlantSelectionEnabled, value);
+                //this.RefreshButtons();
             }
         }
 
 
-        public void AddPlant(string name, Guid plantId)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new InvalidOperationException("name");
+        //private RelayCommand _PlantSelectionToggleCommand;
+        //public RelayCommand PlantSelectionToggleCommand
+        //{
+        //    get
+        //    {
+
+        //        if (_PlantSelectionToggleCommand == null)
+        //            _PlantSelectionToggleCommand = new RelayCommand(() =>
+        //            {
+        //                this.
+        //            });
+        //        return _PlantSelectionToggleCommand;
+
+        //    }
+        //}
 
 
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(plantId, name, this.Context.CurrentUser.Id));
-            Handler.Handle<Garden, AddPlant>(new AddPlant(this.Context.CurrentUser.GardenId, plantId, name));
-
-        }
         #endregion
 
-        private PlantCreated _SelectedPlant;
-        public PlantCreated SelectedPlant
+        private PlantStateViewModel _SelectedPlant;
+        public PlantStateViewModel SelectedPlant
         {
             get { return _SelectedPlant; }
             private set
@@ -146,21 +180,146 @@ namespace Growthstories.UI.ViewModel
             }
         }
         //public event EventHandler<SelectedPlantArgs> PlantSelected;
-        private RelayCommand<PlantCreated> _ShowDetailsCommand;
-        public RelayCommand<PlantCreated> ShowDetailsCommand
+        private RelayCommand<PlantStateViewModel> _ShowDetailsCommand;
+        public RelayCommand<PlantStateViewModel> ShowDetailsCommand
         {
             get
             {
 
                 if (_ShowDetailsCommand == null)
-                    _ShowDetailsCommand = new RelayCommand<PlantCreated>(p =>
+                    _ShowDetailsCommand = new RelayCommand<PlantStateViewModel>(p =>
                     {
                         this.SelectedPlant = p;
-                        MessengerInstance.Send(new ShowPlantView(p));
-                        Nav.NavigateTo(View.PLANT);
+                        //MessengerInstance.Send(new ShowPlantView(p));
+                        //Nav.NavigateTo(View.PLANT);
                     });
                 return _ShowDetailsCommand;
 
+            }
+        }
+
+        private RelayCommand<IList> _SelectedPlantsChangedCommand;
+        public RelayCommand<IList> SelectedPlantsChangedCommand
+        {
+            get
+            {
+
+                if (_SelectedPlantsChangedCommand == null)
+                    _SelectedPlantsChangedCommand = new RelayCommand<IList>(p =>
+                    {
+                        RefreshPlantsSelection(p);
+                        //this.SelectedPlant = p;
+                        //MessengerInstance.Send(new ShowPlantView(p));
+                        //Nav.NavigateTo(View.PLANT);
+                    });
+                return _SelectedPlantsChangedCommand;
+
+            }
+        }
+
+        private void RefreshPlantsSelection(IList selected)
+        {
+            try
+            {
+                var s = selected.Cast<PlantStateViewModel>();
+                foreach (var p in s.Except(this.SelectedPlants))
+                {
+                    this.SelectedPlants.Add(p);
+                }
+                foreach (var p in this.SelectedPlants.Except(s))
+                {
+                    this.SelectedPlants.Remove(p);
+                }
+            }
+            catch (Exception)
+            {
+
+                //throw;
+            }
+        }
+
+
+
+        private ButtonViewModel _AddPlantButton;
+        public ButtonViewModel AddPlantButton
+        {
+            get
+            {
+                if (_AddPlantButton == null)
+                    _AddPlantButton = new ButtonViewModel()
+                    {
+                        Text = "add",
+                        IconUri = Nav.IconUri[IconType.ADD],
+                        Command = ShowAddPlantCommand
+                    };
+                return _AddPlantButton;
+            }
+        }
+
+        private ButtonViewModel _ChangePPicButton;
+        public ButtonViewModel ChangePPicButton
+        {
+            get
+            {
+                if (_ChangePPicButton == null)
+                    _ChangePPicButton = new ButtonViewModel()
+                    {
+                        Text = "ppic",
+                        IconUri = Nav.IconUri[IconType.ADD],
+                        Command = new RelayCommand(() =>
+                        {
+                            if (this.Plants.Count > 0)
+                            {
+                                Handler.Handle(new ChangeProfilepicturePath(this.Plants[0].Id, PlantProjection.testPic1));
+                            }
+                        })
+                    };
+                return _ChangePPicButton;
+            }
+        }
+
+        private ButtonViewModel _SelectPlantsButton;
+        public ButtonViewModel SelectPlantsButton
+        {
+            get
+            {
+                if (_SelectPlantsButton == null)
+                    _SelectPlantsButton = new ButtonViewModel()
+                    {
+                        Text = "select",
+                        IconUri = Nav.IconUri[IconType.CHECK_LIST],
+                        Command = new RelayCommand(() => this.IsPlantSelectionEnabled = true)
+                    };
+                return _SelectPlantsButton;
+            }
+        }
+
+        private ButtonViewModel _DeletePlantsButton;
+        public ButtonViewModel DeletePlantsButton
+        {
+            get
+            {
+                if (_DeletePlantsButton == null)
+                    _DeletePlantsButton = new ButtonViewModel()
+                    {
+                        Text = "delete",
+                        IconUri = Nav.IconUri[IconType.DELETE],
+                        Command = new RelayCommand(() => { })
+                    };
+                return _DeletePlantsButton;
+            }
+        }
+
+        private ObservableCollection<ButtonViewModel> _Buttons;
+        public ObservableCollection<ButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                if (_Buttons == null)
+                {
+                    _Buttons = new ObservableCollection<ButtonViewModel>() { AddPlantButton };
+                }
+                return _Buttons;
             }
         }
     }

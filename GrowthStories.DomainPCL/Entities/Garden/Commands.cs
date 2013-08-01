@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
     }
 
     #region Garden
-    public class CreateGarden : GardenCommand
+    public class CreateGarden : GardenCommand, ICreateCommand
     {
 
         protected CreateGarden() { }

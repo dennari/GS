@@ -15,7 +15,7 @@ namespace Growthstories.Core
     }
 
     public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate, ICommandHandler
-        where TState : IAppliesEvents, IMemento, new()
+        where TState : AggregateState, new()
         where TCreate : IEvent
     {
 
@@ -53,6 +53,7 @@ namespace Growthstories.Core
             private set
             {
                 _state = value;
+                _state.AggregateType = this.GetType();
             }
         }
 
@@ -73,6 +74,7 @@ namespace Growthstories.Core
 
         public void ApplyState(IMemento st)
         {
+            // Let us only override an existing state with Version equal to 0
             if (this.State != null && this.State.Version != 0)
             {
                 throw new InvalidOperationException("Can't override existing state");

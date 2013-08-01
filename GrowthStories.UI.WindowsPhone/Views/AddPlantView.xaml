@@ -1,67 +1,161 @@
-﻿<phone:PhoneApplicationPage
-    x:Class="GrowthStories.UI.WindowsPhone.Views.AddPlantView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:self="clr-namespace:GrowthStories.UI.WindowsPhone"
-    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+﻿<local:GSView 
+	x:Class="GrowthStories.UI.WindowsPhone.Views.AddPlantView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
+    xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
-    SupportedOrientations="Portrait" Orientation="Portrait"
-    mc:Ignorable="d"
-    shell:SystemTray.IsVisible="True"
-    DataContext="{Binding GardenVM, Source={StaticResource Locator}}" >
+	FontSize="{StaticResource PhoneFontSizeNormal}"
+	SupportedOrientations="Portrait" Orientation="Portrait"
+	mc:Ignorable="d"
+	shell:SystemTray.IsVisible="False"
+	DataContext="{Binding AddPlantVM, Source={StaticResource Locator}}" Background="{x:Null}" >
 
-    <phone:PhoneApplicationPage.Resources>
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
 
-        <!--<converters:StreamToBmp x:Key="StreamToBmp" />-->
-    </phone:PhoneApplicationPage.Resources>
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <ScrollViewer>
+    <Grid x:Name="LayoutRoot" Margin="0" >
+    	<Grid.Background>
+    		<ImageBrush Stretch="UniformToFill" ImageSource="/GrowthStories.UI.WindowsPhone;component/Assets/Bg/plant_bg.jpg"/>
+    	</Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="GROWTHSTORIES" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock Text="add plant" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+        <StackPanel x:Name="HeaderPanel" Grid.Row="0" Margin="{StaticResource GSPageHeaderMargin}">
+            <TextBlock Text="{Binding AppName, Mode=OneWay}" Style="{StaticResource GSAppTitleStyle}"/>
+            <TextBlock Text="{Binding PageTitle, Mode=OneWay}" Style="{StaticResource GSPageTitleStyle}"/>
         </StackPanel>
 
         <!--ContentPanel - place additional content here.-->
-        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <TextBlock Text="Name"/>
-            <TextBox Text="{Binding NewPlantName, Mode=TwoWay}" self:BindingUtility.UpdateSourceOnChange="True"/>
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="24,0">
             
-            <!--<TextBlock Text="Species"/>
-            <TextBox x:Name="genusTextBox"/>
-            <TextBlock Text="Profile Photo"/>
-            <StackPanel Orientation="Horizontal">
-                <Button Click="snapProfilePhotoButton_Click" Content="Snap"/>
-                <TextBlock Text="or" VerticalAlignment="Center"/>
-                <Button Click="chooseProfilePhotoButton_Click" Content="Choose"/>
+            <!-- NAME -->
+            <TextBlock Text="Name" Style="{StaticResource GSInputLabelStyle}"/>
+            <TextBox Text="{Binding Name, Mode=TwoWay}" local:BindingUtility.UpdateSourceOnChange="True" Style="{StaticResource GSTextBoxStyle}" />
+            <!-- GENUS -->
+            <TextBlock Text="Genus" Style="{StaticResource GSInputLabelStyle}"/>
+			<TextBox local:BindingUtility.UpdateSourceOnChange="True" Style="{StaticResource GSTextBoxStyle}" />
+            <!-- WATERING SCHEDULE -->
+            <TextBlock Text="Watering Schedule" Style="{StaticResource GSInputLabelStyle}"/>
+            <toolkit:ListPicker Style="{StaticResource GSListPickerStyle}">
+                <sys:String>interval</sys:String>
+                <sys:String>disabled</sys:String>
+                <sys:String>same as</sys:String>
+                <sys:String>calibrate...</sys:String>
+            </toolkit:ListPicker>
+            <!-- FERTILIZER SCHEDULE -->
+            <TextBlock Text="Fertilizer Schedule" Style="{StaticResource GSInputLabelStyle}"/>
+            <toolkit:ListPicker Style="{StaticResource GSListPickerStyle}">
+                <sys:String>interval</sys:String>
+                <sys:String>disabled</sys:String>
+                <sys:String>same as</sys:String>
+                <sys:String>calibrate...</sys:String>
+            </toolkit:ListPicker>
+            <!-- PROFILE PICTURE -->
+            <TextBlock Text="Profile picture" Style="{StaticResource GSInputLabelStyle}"/>            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                <!--<c4f:Tile 
+                        HorizontalAlignment="Left"
+                        Margin="0, 12"
+                        Width="358"
+                        Height="173"
+                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
+                        Command="{Binding ChooseProfilePictureCommand, Mode=OneWay}"
+                    toolkit:TiltEffect.IsTiltEnabled="True"
+                        >
+                    <Grid>
+                        <Canvas>
+                            <Image 
+					                x:Name="img" 
+	        		                Source="{Binding ProfilePicture}" 
+	        		                Stretch="None">
+                                <Image.RenderTransform>
+                                    <CompositeTransform />
+                                </Image.RenderTransform>
+                            </Image>
+                        </Canvas>
+                    </Grid>
+                </c4f:Tile>-->
+                <Button
+                    Width="173" 
+                    Height="173"                   
+                    Command="{Binding ChooseProfilePictureCommand, Mode=OneWay}"
+                    Content="{Binding ProfilePictureButtonText, Mode=TwoWay}"
+                    >
+                    <Button.Background>
+                        <ImageBrush 
+                            Stretch="UniformToFill" 
+                            ImageSource="{Binding ProfilePicture}"/>
+                    </Button.Background>
+                        <toolkit:ContextMenuService.ContextMenu>
+                            <toolkit:ContextMenu                                
+                                Visibility="{Binding ProfilePicture, Converter={StaticResource NullToVisibility}}"                                
+                             >
+
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Opened">
+                                        <command:EventToCommand Command="{Binding CMOpen}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Closed">
+                                        <command:EventToCommand Command="{Binding CMClose}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                
+                                <toolkit:MenuItem Header="View" Command="{Binding ViewFSCommand}"/>                               
+                            </toolkit:ContextMenu>
+                        </toolkit:ContextMenuService.ContextMenu>
+                    </Button>
+
             </StackPanel>
-            
+			
 
-            <Image x:Name="ProfilePhoto" Width="200" Height="200" Source="{Binding ProfilePhoto, Converter={StaticResource StreamToBmp}, Mode=OneWay}"/>-->
-            
-            
+			<!--<Image x:Name="ProfilePhoto" Width="200" Height="200" Source="{Binding ProfilePhoto, Converter={StaticResource StreamToBmp}, Mode=OneWay}"/>-->
+
+
         </StackPanel>
+        <!--<Image Source="/Assets/AlignmentGrid.png" Grid.RowSpan="2" Stretch="UniformToFill" Opacity="0.535" d:IsHidden="True"/>-->
     </Grid>
+    </ScrollViewer>
+    <bar:Bindable.ApplicationBar>
+        <bar:BindableApplicationBar
+            Mode="Default"
+            Style="{StaticResource GSAppBarStyle}"
+            ButtonsSource="{Binding AppBarButtons}" 
+            IsVisible="True"/>
+    </bar:Bindable.ApplicationBar>
 
-        <bar:Bindable.ApplicationBar>
-            <bar:BindableApplicationBar>
-                <bar:BindableApplicationBarButton                    
-                        Text="Add Plant"
-                        IconUri="/Assets/AppBar/appbar.check.rest.png"
-                        Command="{Binding AddPlantCommand}"/>
-            </bar:BindableApplicationBar>
-        </bar:Bindable.ApplicationBar>
-
-</phone:PhoneApplicationPage>
+</local:GSView>

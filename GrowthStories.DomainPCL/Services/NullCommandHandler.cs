@@ -120,6 +120,51 @@ namespace Growthstories.Domain.Services
 
         }
 
+
+        public IGSAggregate Handle(IEntityCommand c)
+        {
+            IGSAggregate aggregate = null;
+            ICreateCommand cc = c as ICreateCommand;
+            if (cc != null)
+            {
+                aggregate = (IGSAggregate)_factory.Build(cc.EntityType);
+                _repository.PlayById(aggregate, c.EntityId);
+            }
+            else
+                aggregate = _repository.GetById(c.EntityId);
+
+
+            ((dynamic)aggregate).Handle((dynamic)c);
+
+            _persistence.RunInTransaction(() => _repository.Save(aggregate));
+            return aggregate;
+
+        }
+
+        public Task<IGSAggregate> HandleAsync(IEntityCommand c)
+        {
+            IGSAggregate aggregate = null;
+            ICreateCommand cc = c as ICreateCommand;
+            if (cc != null)
+            {
+                aggregate = (IGSAggregate)_factory.Build(cc.EntityType);
+                _repository.PlayById(aggregate, c.EntityId);
+            }
+            else
+                aggregate = _repository.GetById(c.EntityId);
+
+            return Task.Run<IGSAggregate>(() =>
+            {
+                ((dynamic)aggregate).Handle((dynamic)c);
+
+                _persistence.RunInTransaction(() => _repository.Save(aggregate));
+                return aggregate;
+            });
+
+        }
+
+
+
         public void HandlerHandle<TEntity, TCommand>(TCommand c)
             where TEntity : class, IGSAggregate, new()
             where TCommand : IEntityCommand

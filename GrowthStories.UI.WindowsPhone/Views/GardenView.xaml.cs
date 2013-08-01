@@ -27,10 +27,10 @@ namespace GrowthStories.UI.WindowsPhone.Views
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            this.VM.LoadPlants();
-        }
+        //protected override void OnNavigatedTo(NavigationEventArgs e)
+        //{
+        //    this.VM.LoadPlants();
+        //}
 
     }
 }

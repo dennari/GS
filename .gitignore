@@ -116,6 +116,7 @@ App_Data/*.ldf
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-
+GrowthStories.UI.WindowsPhone/Assets
 
 backend
+

@@ -12,11 +12,13 @@
 
     <!--Application Resources-->
     <Application.Resources>
-        <local:LocalizedStrings x:Key="LocalizedStrings" />
-        <local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />
-        <local:ActionToStringConverter x:Key="ActionToString"/>
-        <local:ActionToDateStringConverter x:Key="ActionToDateString"/>
-
+       <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles.xaml" />
+                <ResourceDictionary Source="Resources/Templates.xaml" />
+                <ResourceDictionary Source="Resources/Converters.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 
     <Application.ApplicationLifetimeObjects>
