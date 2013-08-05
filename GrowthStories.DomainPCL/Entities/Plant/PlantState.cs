@@ -3,6 +3,7 @@ using Growthstories.Core;
 using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -10,18 +11,16 @@ namespace Growthstories.Domain.Entities
 {
     public class PlantState : AggregateState<PlantCreated>
     {
-        private readonly IList<string> _Comments = new List<string>();
-        public IList<string> Comments { get { return _Comments; } }
-
-        private readonly IList<string> _Photos = new List<string>();
-        public string Name { get; private set; }
-        public IList<string> Photos { get { return _Photos; } }
 
         public Guid UserId { get; private set; }
 
-        public string ProfilepicturePath { get; private set; }
+        protected string _Name;
+        public string Name { get { return _Name; } protected set { Set(ref _Name, value); } }
 
-        public event EventHandler ProfilepicturePathChanged;
+        protected string _ProfilepicturePath;
+        public string ProfilepicturePath { get { return _ProfilepicturePath; } protected set { Set(ref _ProfilepicturePath, value); } }
+
+
 
         public PlantState()
         {
@@ -31,10 +30,7 @@ namespace Growthstories.Domain.Entities
         {
             this.Apply(@event);
         }
-        //public PlantState(Guid id, int version, bool Public)
-        //    : base(id, version, Public)
-        //{
-        //}
+
 
         public override void Apply(PlantCreated @event)
         {
@@ -57,8 +53,6 @@ namespace Growthstories.Domain.Entities
         public void Apply(ProfilepicturePathChanged @event)
         {
             this.ProfilepicturePath = @event.ProfilepicturePath;
-            if (this.ProfilepicturePathChanged != null)
-                this.ProfilepicturePathChanged(this, new EventArgs());
         }
 
     }
