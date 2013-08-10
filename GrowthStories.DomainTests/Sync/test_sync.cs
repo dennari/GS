@@ -22,6 +22,7 @@ using CommonDomain.Persistence.EventStore;
 using EventStore.Dispatcher;
 using Growthstories.Domain;
 using EventStore.Logging;
+using ReactiveUI;
 
 namespace Growthstories.DomainTests
 {
@@ -40,7 +41,7 @@ namespace Growthstories.DomainTests
         private ILog Log = new LogTo4Net(typeof(SyncTest));
 
         public T Get<T>() { return kernel.Get<T>(); }
-        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public IMessageBus Handler { get { return Get<IMessageBus>(); } }
         public SynchronizerCommandHandler SyncHandler { get { return Get<SynchronizerCommandHandler>(); } }
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
@@ -72,10 +73,10 @@ namespace Growthstories.DomainTests
 
 
             var UserId = Guid.NewGuid();
-            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, UserId));
-            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
+            Handler.Handle(new CreateGarden(GardenId));
+            Handler.Handle(new CreatePlant(PlantId, Name, UserId));
+            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle(new MarkPlantPublic(PlantId));
 
             //Assert.IsTrue(SyncStore.GetSyncHeads().Contains(ZeroHead), SyncStore.GetSyncHeads().Count().ToString());
 
@@ -103,10 +104,10 @@ namespace Growthstories.DomainTests
             var GardenId = Guid.NewGuid();
             var UserId = Guid.NewGuid();
 
-            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, UserId));
-            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
+            Handler.Handle(new CreateGarden(GardenId));
+            Handler.Handle(new CreatePlant(PlantId, Name, UserId));
+            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle(new MarkPlantPublic(PlantId));
 
 
 
@@ -143,11 +144,11 @@ namespace Growthstories.DomainTests
             var SynchronizerId = Guid.NewGuid();
             var uCmd = new CreateUser(Guid.NewGuid(), "Alice", "swordfish", "alice@wonderland.net");
 
-            Handler.Handle<User, CreateUser>(uCmd);
-            Handler.Handle<Garden, CreateGarden>(new CreateGarden(GardenId));
-            Handler.Handle<Garden, AddPlant>(new AddPlant(GardenId, PlantId, Name));
-            Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name, uCmd.EntityId));
-            Handler.Handle<Synchronizer, CreateSynchronizer>(new CreateSynchronizer(SynchronizerId));
+            Handler.Handle(uCmd);
+            Handler.Handle(new CreateGarden(GardenId));
+            Handler.Handle(new AddPlant(GardenId, PlantId, Name));
+            Handler.Handle(new CreatePlant(PlantId, Name, uCmd.EntityId));
+            Handler.Handle(new CreateSynchronizer(SynchronizerId));
 
             //var req = RequestFactory.CreatePushRequest(Rebaser.Pending());
 
@@ -172,11 +173,11 @@ namespace Growthstories.DomainTests
 
 
 
-            Handler.Handle<Plant, MarkPlantPublic>(new MarkPlantPublic(PlantId));
+            Handler.Handle(new MarkPlantPublic(PlantId));
             var localNote = "LOCAL NOTE";
             var remoteNote = "REMOTE NOTE";
 
-            Handler.Handle<User, Comment>(new Comment(uCmd.EntityId, PlantId, localNote));
+            Handler.Handle(new Comment(uCmd.EntityId, PlantId, localNote));
 
 
             var newPlantId = Guid.NewGuid();

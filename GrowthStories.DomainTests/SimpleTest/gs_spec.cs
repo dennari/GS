@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using Growthstories.Sync;
 using CommonDomain.Core;
 using System.Reflection;
+using ReactiveUI;
 
 namespace Growthstories.DomainTests
 {
@@ -54,7 +55,7 @@ namespace Growthstories.DomainTests
 
 
         public T Get<T>() { return kernel.Get<T>(); }
-        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public IMessageBus Handler { get { return Get<IMessageBus>(); } }
         public SynchronizerService Synchronizer { get { return Get<SynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
@@ -68,11 +69,11 @@ namespace Growthstories.DomainTests
         {
 
             var Cmd = (IEntityCommand)cmd;
-            MethodInfo method = typeof(CommandHandler).GetMethod("Handle");
-            MethodInfo generic = method.MakeGenericMethod(Cmd.EntityType, Cmd.GetType());
+            //MethodInfo method = typeof(CommandHandler).GetMethod("Handle");
+            //MethodInfo generic = method.MakeGenericMethod(Cmd.EntityType, Cmd.GetType());
             try
             {
-                generic.Invoke(this.Handler, new object[] { Cmd });
+                Handler.SendMessage(Cmd);
             }
             catch (TargetInvocationException e)
             {

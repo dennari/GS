@@ -29,8 +29,10 @@ using SQLite;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
 using GalaSoft.MvvmLight.Messaging;
+using ReactiveUI;
 
 
 namespace Growthstories.DomainTests
@@ -146,7 +148,11 @@ namespace Growthstories.DomainTests
             Bind<IPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
             Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
             Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
-            Bind<IDispatchCommits, IAsyncDispatchCommits, IRegisterEventHandlers>().To<EventDispatcher>().InSingletonScope();
+            Bind<IMessageBus>().To<MessageBus>().InSingletonScope();
+
+            Bind<IDispatchCommits>().To<MessageBusDispatcher>().InSingletonScope();
+
+            //Bind<IDispatchCommits, IAsyncDispatchCommits, IRegisterEventHandlers>().To<EventDispatcher>().InSingletonScope();
 
             #endregion
 
@@ -177,28 +183,58 @@ namespace Growthstories.DomainTests
             Bind<PlantProjection>().ToSelf().InSingletonScope();
             Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
-            RegisterHandlers(Kernel.Get<IRegisterEventHandlers>(), Kernel);
+            RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
 
         }
 
 
 
 
-        void RegisterHandlers(IRegisterEventHandlers registry, IKernel kernel)
+        void RegisterHandlers(IMessageBus bus, IKernel kernel)
         {
             // Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
-            var pproj = Kernel.Get<PlantProjection>();
-            registry.Register<PlantCreated>(pproj);
-            var aproj = Kernel.Get<ActionProjection>();
-            registry.Register<Commented>(aproj);
-            registry.Register<Watered>(aproj);
-            registry.Register<Photographed>(aproj);
-            registry.Register<Fertilized>(aproj);
+            var allEvents = bus.Listen<IEvent>();
+            var allCommands = bus.Listen<IEntityCommand>();
+
+            PlantProjection pproj = null;
+            ActionProjection aproj = null;
+            IDispatchCommands handler = null;
+
+            allEvents.Take(1).Subscribe(_ =>
+            {
+                pproj = Kernel.Get<PlantProjection>();
+                aproj = Kernel.Get<ActionProjection>();
+
+                allEvents.OfType<Commented>().Subscribe(e => aproj.Handle(e));
+                allEvents.OfType<Watered>().Subscribe(e => aproj.Handle(e));
+                allEvents.OfType<Photographed>().Subscribe(e => aproj.Handle(e));
+                allEvents.OfType<Fertilized>().Subscribe(e => aproj.Handle(e));
+
+
+
+            });
+
+            allCommands.Take(1).Subscribe(_ =>
+            {
+                handler = Kernel.Get<IDispatchCommands>();
+                allCommands.Subscribe(c => handler.Handle(c));
+                handler.Handle(_);
+
+            });
+
+
+
+
+            //var aproj = Kernel.Get<ActionProjection>();
+            //registry.Register<Commented>(aproj);
+            //registry.Register<Watered>(aproj);
+            //registry.Register<Photographed>(aproj);
+            //registry.Register<Fertilized>(aproj);
             //registry.RegisterAsync<UserSynchronized>(Kernel.Get<AuthTokenService>());
 
 
-            var PVM = kernel.Get<PlantViewModel>();
-            kernel.Get<IMessenger>().Register<ShowPlantView>(PVM, PVM.Handle);
+            //var PVM = kernel.Get<PlantViewModel>();
+            //kernel.Get<IMessenger>().Register<ShowPlantView>(PVM, PVM.Handle);
 
         }
 

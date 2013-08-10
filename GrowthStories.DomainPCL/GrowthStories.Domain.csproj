@@ -60,12 +60,13 @@
     <Compile Include="Repositories\GSEventStore.cs" />
     <Compile Include="Repositories\GSRepository.cs" />
     <Compile Include="Repositories\GSEventStream.cs" />
-    <Compile Include="Services\CommandHandler.cs" />
+    <Compile Include="Services\MessageBusDispatcher.cs" />
+    <Compile Include="Services\NulllCommandHandler.cs" />
     <Compile Include="Messaging\CommandBase.cs" />
     <Compile Include="Messaging\EventBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AggregateFactory.cs" />
-    <Compile Include="Services\NullCommandHandler.cs" />
+    <Compile Include="Services\CommandHandler.cs" />
     <Compile Include="Services\EventDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +122,10 @@
     <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
+      <Project>{464cb812-f99f-401b-be4c-e8f0515cd19d}</Project>
+      <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>

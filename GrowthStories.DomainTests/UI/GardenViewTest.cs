@@ -24,6 +24,7 @@ using Growthstories.Domain;
 using EventStore.Logging;
 using Growthstories.UI;
 using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 namespace Growthstories.DomainTests
 {
@@ -54,7 +55,7 @@ namespace Growthstories.DomainTests
         private ILog Log = new LogTo4Net(typeof(GardenViewTest));
 
         public T Get<T>() { return kernel.Get<T>(); }
-        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public IMessageBus Handler { get { return Get<IMessageBus>(); } }
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
@@ -82,9 +83,9 @@ namespace Growthstories.DomainTests
             PlantId = Guid.NewGuid();
             var PlantName = "Jore";
 
-            GVM.NewPlantId = PlantId;
-            GVM.NewPlantName = PlantName;
-            GVM.AddPlantCommand.Execute(null);
+            //GVM.NewPlantId = PlantId;
+            //GVM.NewPlantName = PlantName;
+            //GVM.AddPlantCommand.Execute(null);
 
             Assert.AreEqual(1, GVM.Plants.Count);
             Assert.AreEqual(PlantName, GVM.Plants[0].Name);
@@ -149,7 +150,7 @@ namespace Growthstories.DomainTests
             Assert.AreNotSame(uri, ph.Uri);
             Assert.AreEqual(uri.ToString(), ph.Uri.ToString());
 
-            Handler.Handle<User, Comment>(new Comment(Ctx.Id, PlantId2, Note));
+            Handler.Handle(new Comment(Ctx.Id, PlantId2, Note));
             actions = proj.LoadWithUserId(Ctx.Id).ToArray();
             Assert.AreEqual(5, actions.Length);
             Assert.AreEqual(PlantId, actions[0].PlantId);

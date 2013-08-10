@@ -53,5 +53,10 @@ namespace Growthstories.Domain.Services
         {
             return null;
         }
+
+        public Task<IGSAggregate> HandleAsync(IEntityCommand c)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

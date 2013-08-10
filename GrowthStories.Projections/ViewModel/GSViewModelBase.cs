@@ -2,6 +2,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Growthstories.Domain;
 using Growthstories.Sync;
+using ReactiveUI;
 using System;
 
 namespace Growthstories.UI.ViewModel
@@ -13,7 +14,7 @@ namespace Growthstories.UI.ViewModel
 
         public IUserService Context { get; private set; }
         public INavigationService Nav { get; private set; }
-        public IDispatchCommands Handler { get; private set; }
+        public IMessageBus Handler { get; private set; }
 
         public string AppName { get { return APPNAME; } }
 
@@ -24,7 +25,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public GSViewModelBase(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav)
+        public GSViewModelBase(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
             : base(messenger)
         {
             this.Handler = handler;

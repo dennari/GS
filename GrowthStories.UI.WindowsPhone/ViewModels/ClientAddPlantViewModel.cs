@@ -18,6 +18,7 @@ using GalaSoft.MvvmLight.Command;
 using Microsoft.Phone.Controls;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ReactiveUI;
 
 namespace GrowthStories.UI.WindowsPhone.ViewModels
 {
@@ -26,7 +27,7 @@ namespace GrowthStories.UI.WindowsPhone.ViewModels
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav)
+        public ClientAddPlantViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
             : base(messenger, ctx, handler, nav)
         {
 

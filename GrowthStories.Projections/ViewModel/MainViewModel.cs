@@ -7,6 +7,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Ninject;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -56,7 +57,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav, IKernel kernel)
+        public MainViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav, IKernel kernel)
             : base(messenger, ctx, handler, nav)
         {
             this._AppBarButtons = new ObservableCollection<ButtonViewModel>();

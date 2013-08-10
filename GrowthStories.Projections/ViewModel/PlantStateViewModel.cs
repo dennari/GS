@@ -31,7 +31,7 @@ namespace Growthstories.UI.ViewModel
         public PlantStateViewModel(PlantState state)
         {
             this.State = state;
-            this.State.ProfilepicturePathChanged += State_ProfilepicturePathChanged;
+            //this.State.ProfilepicturePathChanged += State_ProfilepicturePathChanged;
         }
 
         void State_ProfilepicturePathChanged(object sender, EventArgs e)

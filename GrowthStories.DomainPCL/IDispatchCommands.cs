@@ -1,6 +1,7 @@
 ﻿using CommonDomain;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,23 +13,9 @@ namespace Growthstories.Domain
     public interface IDispatchCommands
     {
 
-        TEntity Handle<TEntity, TCommand>(TCommand c)
-            where TEntity : class, ICommandHandler<TCommand>, IGSAggregate, new()
-            where TCommand : IEntityCommand;
 
         IGSAggregate Handle(IEntityCommand c);
 
-        void HandlerHandle<TEntity, TCommand>(TCommand c)
-            where TEntity : class, IGSAggregate, new()
-            where TCommand : IEntityCommand;
-
-        Task<object> HandleAsync<TEntity, TCommand>(TCommand c)
-            where TEntity : class,  IAsyncCommandHandler<TCommand>, IGSAggregate, new()
-            where TCommand : IEntityCommand;
-
-        Task<object> HandlerHandleAsync<TEntity, TCommand>(TCommand c)
-            where TEntity : class, IGSAggregate, new()
-            where TCommand : IEntityCommand;
     }
 
     public interface IRegisterHandlers
@@ -56,6 +43,14 @@ namespace Growthstories.Domain
         void RegisterAsync<TCommand>(IAsyncCommandHandler<TCommand> handler)
             where TCommand : ICommand;
 
+    }
+
+    public static class MBExtensions
+    {
+        public static void Handle<T>(this IMessageBus bus, T message)
+        {
+            bus.SendMessage(message);
+        }
     }
 
 

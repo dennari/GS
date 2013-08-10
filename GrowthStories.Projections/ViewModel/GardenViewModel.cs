@@ -6,6 +6,7 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using ReactiveUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public class GardenViewModel : GSViewModelBase, IPanoramaPage
+    public class GardenViewModel : GSViewModelBase, IPanoramaPage, IRoutableViewModel
     {
 
         private ObservableCollection<PlantStateViewModel> _Plants;
@@ -71,7 +72,7 @@ namespace Growthstories.UI.ViewModel
              PlantProjection plantProjection,
             IMessenger messenger,
             IUserService ctx,
-            IDispatchCommands handler,
+            IMessageBus handler,
             INavigationService nav)
 
             : base(messenger, ctx, handler, nav)
@@ -322,5 +323,32 @@ namespace Growthstories.UI.ViewModel
                 return _Buttons;
             }
         }
+
+        public string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IScreen HostScreen
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IObservable<IObservedChange<object, object>> Changing
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IObservable<IObservedChange<object, object>> Changed
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IDisposable SuppressChangeNotifications()
+        {
+            throw new NotImplementedException();
+        }
+
+        public event PropertyChangingEventHandler PropertyChanging;
     }
 }

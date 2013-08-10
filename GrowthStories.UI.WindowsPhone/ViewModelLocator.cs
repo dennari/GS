@@ -24,6 +24,7 @@ using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.ViewModels;
 using Ninject;
 using Ninject.Parameters;
+using ReactiveUI;
 
 namespace GrowthStories.UI.WindowsPhone
 {
@@ -66,7 +67,7 @@ namespace GrowthStories.UI.WindowsPhone
             {
                 if (ViewModelBase.IsInDesignModeStatic || DebugDesignSwitch)
                 {
-                    return new MainViewModel(Messenger.Default, new NullUserService(), new NullCommandHandler(), new NavigationService(), null);
+                    return new MainViewModel(Messenger.Default, new NullUserService(), new MessageBus(), new NavigationService(), null);
                 }
                 else
                 {

@@ -199,6 +199,8 @@ namespace Growthstories.Domain
             var snapshot = this.GetSnapshot(id, versionToLoad);
 
             var stream = this.OpenStream(id, versionToLoad, snapshot);
+            if (snapshot == null && stream.CommittedEvents.Count == 0)
+                throw DomainError.Named("premature", "aggregate not yet created");
 
             if (snapshot != null)
             {
@@ -211,6 +213,7 @@ namespace Growthstories.Domain
             }
             if (aggregate == null)
             {
+
                 var createEvent = stream.CommittedEvents.First().Body as ICreateEvent;
                 if (createEvent != null)
                     aggregate = (IGSAggregate)factory.Build(createEvent.AggregateType);

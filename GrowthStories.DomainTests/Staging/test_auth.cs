@@ -61,9 +61,9 @@ namespace Growthstories.DomainTests
             PlantId = Guid.NewGuid();
             var PlantName = "Jore";
 
-            GVM.NewPlantId = PlantId;
-            GVM.NewPlantName = PlantName;
-            GVM.AddPlantCommand.Execute(null);
+            //GVM.NewPlantId = PlantId;
+            //GVM.NewPlantName = PlantName;
+            //GVM.AddPlantCommand.Execute(null);
 
             GVM.ShowDetailsCommand.Execute(GVM.Plants[0]);
 
@@ -96,12 +96,12 @@ namespace Growthstories.DomainTests
             Log.Info("TestAddRelationship");
 
             var fCmd = new CreateUser(Guid.NewGuid(), randomize("Bob"), randomize("swordfish"), randomize("bob") + "@wonderland.net");
-            var Bob = Handler.Handle<User, CreateUser>(fCmd);
+            Handler.Handle(fCmd);
 
             await Sync();
 
             var relationshipCmd = new BecomeFollower(Ctx.Id, fCmd.EntityId);
-            Handler.Handle<User, BecomeFollower>(relationshipCmd);
+            Handler.Handle(relationshipCmd);
 
             await Sync();
 

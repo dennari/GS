@@ -6,6 +6,7 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -29,7 +30,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public SelectProfilePictureViewModel(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav)
+        public SelectProfilePictureViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
             : base(messenger, ctx, handler, nav)
         {
 

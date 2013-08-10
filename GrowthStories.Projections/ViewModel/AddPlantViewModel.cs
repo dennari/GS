@@ -6,6 +6,7 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -22,7 +23,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public AddPlantViewModel(IMessenger messenger, IUserService ctx, IDispatchCommands handler, INavigationService nav)
+        public AddPlantViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
             : base(messenger, ctx, handler, nav)
         {
 

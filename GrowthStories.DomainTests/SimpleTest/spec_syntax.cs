@@ -262,6 +262,7 @@ namespace SimpleTesting
                     ElementsToIgnore = new List<string>()
                     {
                         "Created",
+                        "AggregateType"
                         //"EventId"
                     }
                 };

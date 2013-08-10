@@ -24,6 +24,7 @@ using Growthstories.Domain;
 using EventStore.Logging;
 using Growthstories.UI;
 using System.Text;
+using ReactiveUI;
 
 namespace Growthstories.DomainTests
 {
@@ -38,13 +39,13 @@ namespace Growthstories.DomainTests
                 kernel.Dispose();
             kernel = new StandardKernel(new StagingModule());
             this.Ctx = Get<IUserService>().CurrentUser;
-            Handler.Handle<Synchronizer, CreateSynchronizer>(new CreateSynchronizer(SynchronizerId));
+            Handler.Handle(new CreateSynchronizer(SynchronizerId));
 
         }
         private ILog Log = new LogTo4Net(typeof(StagingTestBase));
 
         public T Get<T>() { return kernel.Get<T>(); }
-        public IDispatchCommands Handler { get { return Get<IDispatchCommands>(); } }
+        public IMessageBus Handler { get { return Get<IMessageBus>(); } }
         public IAsyncDispatchCommits AsyncDispatcher { get { return Get<IAsyncDispatchCommits>(); } }
 
         public SynchronizerCommandHandler SyncHandler { get { return Get<SynchronizerCommandHandler>(); } }
