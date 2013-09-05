@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace Growthstories.UI.ViewModel
 {
     public interface IPanoramaPage
     {
-        ObservableCollection<ButtonViewModel> AppBarButtons { get; }
+        ReactiveList<ButtonViewModel> AppBarButtons { get; }
     }
 }

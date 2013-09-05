@@ -31,8 +31,9 @@ using System.IO;
 using System.Reflection;
 using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
-using GalaSoft.MvvmLight.Messaging;
+//using GalaSoft.MvvmLight.Messaging;
 using ReactiveUI;
+using EventStore.Persistence.InMemoryPersistence;
 
 
 namespace Growthstories.DomainTests
@@ -51,7 +52,6 @@ namespace Growthstories.DomainTests
 
         protected virtual void UIConfiguration()
         {
-            Bind<IMessenger>().To<Messenger>().InSingletonScope();
             Bind<INavigationService, FakeNavigationService>().To<FakeNavigationService>().InSingletonScope();
             Bind<GardenViewModel>().ToSelf().InSingletonScope();
             Bind<PlantViewModel>().ToSelf().InSingletonScope();
@@ -89,14 +89,19 @@ namespace Growthstories.DomainTests
 
         protected virtual void PersistenceConfiguration()
         {
+            //Bind<IPersistSyncStreams, IPersistStreams>()
+            //    .To<SQLitePersistenceEngine>()
+            //    .InSingletonScope()
+            //    .OnActivation((ctx, eng) =>
+            //    {
+            //        eng.Initialize();
+            //        eng.Purge();
+            //    });
+
             Bind<IPersistSyncStreams, IPersistStreams>()
-                .To<SQLitePersistenceEngine>()
-                .InSingletonScope()
-                .OnActivation((ctx, eng) =>
-                {
-                    eng.Initialize();
-                    eng.Purge();
-                });
+            .To<SerializingInMemoryPersistenceEngine>()
+            .InSingletonScope();
+
 
             Bind<IUIPersistence>().To<SQLiteUIPersistence>()
                 .InSingletonScope()

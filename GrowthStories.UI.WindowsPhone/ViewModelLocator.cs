@@ -12,8 +12,13 @@
   See http://www.galasoft.ch/mvvm
 */
 
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
+
+using EventStore;
+using EventStore.Logging;
+using EventStore.Persistence;
+using EventStore.Persistence.SqlPersistence;
+using EventStore.Serialization;
+using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
@@ -25,6 +30,9 @@ using GrowthStories.UI.WindowsPhone.ViewModels;
 using Ninject;
 using Ninject.Parameters;
 using ReactiveUI;
+using SQLite;
+using System.IO;
+using Windows.Storage;
 
 namespace GrowthStories.UI.WindowsPhone
 {
@@ -46,10 +54,10 @@ namespace GrowthStories.UI.WindowsPhone
         public ViewModelLocator()
         {
 
-            if (ViewModelBase.IsInDesignModeStatic || DebugDesignSwitch)
+            if (DesignModeDetector.IsInDesignMode() || DebugDesignSwitch)
             {
                 // Create design time view services and models
-                //this.Kernel = new StandardKernel(new BootstrapDesign());
+                this.Kernel = new StandardKernel(new BootstrapDesign());
             }
             else
             {
@@ -65,13 +73,14 @@ namespace GrowthStories.UI.WindowsPhone
         {
             get
             {
-                if (ViewModelBase.IsInDesignModeStatic || DebugDesignSwitch)
+                if (DesignModeDetector.IsInDesignMode() || DebugDesignSwitch)
                 {
-                    return new MainViewModel(Messenger.Default, new NullUserService(), new MessageBus(), new NavigationService(), null);
+                    return new MainViewModel(new NullUserService(), new MessageBus(), new NavigationService());
                 }
                 else
                 {
-                    return _MainVM == null ? _MainVM = Kernel.Get<MainViewModel>(new ConstructorArgument("kernel", Kernel)) : _MainVM;
+
+                    return _MainVM == null ? _MainVM = Kernel.Get<MainViewModel>() : _MainVM;
                 }
             }
         }

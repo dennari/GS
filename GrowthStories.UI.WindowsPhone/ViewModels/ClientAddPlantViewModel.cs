@@ -5,8 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Tasks;
-using GalaSoft.MvvmLight.Threading;
-using GalaSoft.MvvmLight.Messaging;
 using Growthstories.Sync;
 using Growthstories.Domain;
 using Growthstories.UI;
@@ -14,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using Windows.Storage.Streams;
 using GrowthStories.UI.WindowsPhone;
-using GalaSoft.MvvmLight.Command;
 using Microsoft.Phone.Controls;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -27,8 +24,8 @@ namespace GrowthStories.UI.WindowsPhone.ViewModels
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(messenger, ctx, handler, nav)
+        public ClientAddPlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
+            : base(ctx, handler, nav)
         {
 
         }
@@ -53,19 +50,22 @@ namespace GrowthStories.UI.WindowsPhone.ViewModels
             }
         }
 
-        private RelayCommand _ViewFSCommand;
-        public RelayCommand ViewFSCommand
+        private ReactiveCommand _ViewFSCommand;
+        public ReactiveCommand ViewFSCommand
         {
             get
             {
 
                 if (_ViewFSCommand == null)
-                    _ViewFSCommand = new RelayCommand(() =>
+                {
+                    _ViewFSCommand = new ReactiveCommand();
+                    _ViewFSCommand.Subscribe(_ =>
                     {
                         if (this.ProfilepicturePath == null)
                             return;
                         FSView.Show();
                     });
+                }
                 return _ViewFSCommand;
 
             }
@@ -89,33 +89,39 @@ namespace GrowthStories.UI.WindowsPhone.ViewModels
             }
         }
 
-        private RelayCommand _CMOpen;
-        public RelayCommand CMOpen
+        private ReactiveCommand _CMOpen;
+        public ReactiveCommand CMOpen
         {
             get
             {
 
                 if (_CMOpen == null)
-                    _CMOpen = new RelayCommand(() =>
-                    {
-                        //ChoosePhoto();
-                    });
+                {
+                    _CMOpen = new ReactiveCommand();
+                    _CMOpen.Subscribe(_ =>
+                        {
+                            //ChoosePhoto();
+                        });
+                }
                 return _CMOpen;
 
             }
         }
 
-        private RelayCommand _CMClose;
-        public RelayCommand CMClose
+        private ReactiveCommand _CMClose;
+        public ReactiveCommand CMClose
         {
             get
             {
 
                 if (_CMClose == null)
-                    _CMClose = new RelayCommand(() =>
+                {
+                    _CMClose = new ReactiveCommand();
+                    _CMOpen.Subscribe(_ =>
                     {
                         //ChoosePhoto();
                     });
+                }
                 return _CMClose;
 
             }

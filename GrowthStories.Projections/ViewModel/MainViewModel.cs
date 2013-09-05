@@ -1,18 +1,16 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
-using Ninject;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -23,7 +21,8 @@ namespace Growthstories.UI.ViewModel
         FRIENDS
     }
 
-    public class MainViewModel : GSViewModelBase, IPanoramaPage
+    [DataContract]
+    public class MainViewModel : RoutableViewModel, IScreen
     {
 
         private Page _CurrentPage;
@@ -50,24 +49,24 @@ namespace Growthstories.UI.ViewModel
             return false;
         }
 
-        private IKernel Kernel;
 
-        //public ObservableCollection<ButtonViewModel> AppBarButtons { get; private set; }
+        private IRoutingState _Router;
+        public IRoutingState Router { get { return _Router; } private set { _Router = value; } }
+
+
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav, IKernel kernel)
-            : base(messenger, ctx, handler, nav)
+        public MainViewModel(IUserService ctx, IMessageBus bus)
+            : base(ctx, bus, null)
         {
-            this._AppBarButtons = new ObservableCollection<ButtonViewModel>();
-            this.Kernel = kernel;
-            this.CurrentPage = Page.MYGARDEN;
-
+            this.HostScreen = this;
+            this.Router = new RoutingState();
         }
 
-        protected ObservableCollection<ButtonViewModel> _AppBarButtons;
-        public ObservableCollection<ButtonViewModel> AppBarButtons
+        protected ReactiveList<ButtonViewModel> _AppBarButtons;
+        public ReactiveList<ButtonViewModel> AppBarButtons
         {
             get
             {
@@ -75,7 +74,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => AppBarButtons, ref _AppBarButtons, value);
+                this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
             }
         }
 
@@ -88,10 +87,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     _GardenVM = new GardenViewModel(
                         this.IsInDesignMode ? Guid.NewGuid() : this.Context.CurrentUser.Id,
-                        this.IsInDesignMode ? new PlantProjection(new NullUIPersistence(), null) : this.Kernel.Get<PlantProjection>(),
-                        this.MessengerInstance,
+                        this.IsInDesignMode ? new PlantProjection(new NullUIPersistence(), null) : new PlantProjection(new NullUIPersistence(), null),
                         this.Context,
-                        this.Handler,
+                        this.Bus,
                         this.Nav
                      );
                     _GardenVM.ButtonsRefreshed += (a, aa) =>
@@ -128,17 +126,20 @@ namespace Growthstories.UI.ViewModel
 
 
         //public event EventHandler<SelectedPlantArgs> PlantSelected;
-        private RelayCommand<int> _PanoramaPageChangedCommand;
-        public RelayCommand<int> PanoramaPageChangedCommand
+        private ReactiveCommand _PanoramaPageChangedCommand;
+        public ReactiveCommand PanoramaPageChangedCommand
         {
             get
             {
 
                 if (_PanoramaPageChangedCommand == null)
-                    _PanoramaPageChangedCommand = new RelayCommand<int>(p =>
+                {
+                    _PanoramaPageChangedCommand = new ReactiveCommand();
+                    _PanoramaPageChangedCommand.Subscribe(p =>
                     {
                         CurrentPage = (Page)p;
                     });
+                }
                 return _PanoramaPageChangedCommand;
 
             }
@@ -149,6 +150,8 @@ namespace Growthstories.UI.ViewModel
             if (UpdatePlantSelectionEnabled())
                 e.Cancel = true;
         }
+
+
     }
 
     public class ButtonViewModel : MenuItemViewModel
@@ -164,24 +167,14 @@ namespace Growthstories.UI.ViewModel
         /// </value>
         public Uri IconUri
         {
-            get
-            {
-                return this.uri;
-            }
-            set
-            {
-                if (this.uri != value)
-                {
-                    this.uri = value;
-                    RaisePropertyChanged("IconUri");
-                }
-            }
+            get { return this.uri; }
+            set { this.RaiseAndSetIfChanged(ref uri, value); }
         }
         #endregion
     }
 
 
-    public class MenuItemViewModel : ViewModelBase
+    public class MenuItemViewModel : GSViewModelBase
     {
         #region Command
         private System.Windows.Input.ICommand command;
@@ -195,14 +188,7 @@ namespace Growthstories.UI.ViewModel
         public System.Windows.Input.ICommand Command
         {
             get { return this.command; }
-            set
-            {
-                if (this.command != value)
-                {
-                    this.command = value;
-                    RaisePropertyChanged("Command");
-                }
-            }
+            set { this.RaiseAndSetIfChanged(ref command, value); }
         }
         #endregion
 
@@ -218,14 +204,7 @@ namespace Growthstories.UI.ViewModel
         public object CommandParameter
         {
             get { return this.commandParameter; }
-            set
-            {
-                if (this.commandParameter != value)
-                {
-                    this.commandParameter = value;
-                    RaisePropertyChanged("CommandParameter");
-                }
-            }
+            set { this.RaiseAndSetIfChanged(ref commandParameter, value); }
         }
         #endregion
 
@@ -241,14 +220,7 @@ namespace Growthstories.UI.ViewModel
         public string Text
         {
             get { return this.text; }
-            set
-            {
-                if (this.text != value)
-                {
-                    this.text = value;
-                    RaisePropertyChanged("Text");
-                }
-            }
+            set { this.RaiseAndSetIfChanged(ref text, value); }
         }
         #endregion
     }

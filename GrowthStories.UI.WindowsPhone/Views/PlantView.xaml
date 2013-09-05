@@ -7,10 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
     xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
     xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     DataContext="{Binding PlantVM, Source={StaticResource Locator}}"
     SupportedOrientations="Portrait" Orientation="Portrait"
@@ -67,7 +67,7 @@
                         <Border BorderBrush="#B2FFFFFF" BorderThickness="1" Padding="0,12">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Tap">
-                                    <command:EventToCommand Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
+                                    <command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding Mode=OneWay}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>

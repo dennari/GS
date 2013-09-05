@@ -9,6 +9,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DataContext="{Binding DesignViewModel2,  Source={StaticResource AppVM}}"
     mc:Ignorable="d"
     shell:SystemTray.IsVisible="True">
 

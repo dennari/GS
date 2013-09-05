@@ -9,7 +9,6 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using BindableApplicationBar;
-using GalaSoft.MvvmLight.Command;
 using Growthstories.UI.ViewModel;
 
 namespace GrowthStories.UI.WindowsPhone
@@ -27,7 +26,16 @@ namespace GrowthStories.UI.WindowsPhone
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            (this.DataContext as MainViewModel).OnNavigatedTo();
+            if (this.DataContext != null)
+            {
+                var vm = this.DataContext as MainViewModel;
+                if (vm != null)
+                {
+                    vm.OnNavigatedTo();
+                }
+
+            }
+
         }
 
         /// <summary>
@@ -36,8 +44,15 @@ namespace GrowthStories.UI.WindowsPhone
         /// <param name="e"></param>
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
-            base.OnBackKeyPress(e);
-            (this.DataContext as MainViewModel).OnBackKeyPress(e);
+            if (this.DataContext != null)
+            {
+                var vm = this.DataContext as MainViewModel;
+                if (vm != null)
+                {
+                    vm.OnBackKeyPress(e);
+                }
+
+            }
         }
 
     }

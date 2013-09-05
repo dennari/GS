@@ -11,6 +11,8 @@ namespace MyMobileSample.Model
         int CurrentId { get; }
     }
 
+
+
     /*
     public static class ThreadStatic
     {

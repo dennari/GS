@@ -8,8 +8,8 @@
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
-	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
 	xmlns:media="clr-namespace:System.Windows.Media;assembly=System.Windows"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	mc:Ignorable="d">
@@ -328,7 +328,7 @@
                         </Grid.Background>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Tap">
-                                <command:EventToCommand Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
+                                <command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
 												CommandParameter="{Binding Mode=OneWay}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
@@ -350,7 +350,7 @@
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Tap">
-                                <command:EventToCommand Command="{Binding Command, Mode=OneWay}"/>
+                                <command:InvokeCommandAction Command="{Binding Command, Mode=OneWay}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
 

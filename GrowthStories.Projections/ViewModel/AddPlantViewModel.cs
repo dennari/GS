@@ -1,6 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
@@ -8,38 +6,38 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
 using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
+
 
 namespace Growthstories.UI.ViewModel
 {
 
 
-    public class AddPlantViewModel : GSViewModelBase
+    public class AddPlantViewModel : RoutableViewModel
     {
 
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public AddPlantViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(messenger, ctx, handler, nav)
+        public AddPlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
+            : base(ctx, handler, nav)
         {
 
         }
 
 
-        private RelayCommand _CreatePlantCommand;
-        public RelayCommand CreatePlantCommand
+        private ReactiveCommand _CreatePlantCommand;
+        public ReactiveCommand CreatePlantCommand
         {
             get
             {
 
                 if (_CreatePlantCommand == null)
-                    _CreatePlantCommand = new RelayCommand(() =>
+                {
+                    _CreatePlantCommand = new ReactiveCommand();
+                    _CreatePlantCommand.RegisterAsyncAction(param =>
                     {
-                        Handler.Handle(
+                        Bus.SendMessage<IEntityCommand>(
                             new CreatePlant(
                                 this.Id,
                                 this.Name,
@@ -49,32 +47,38 @@ namespace Growthstories.UI.ViewModel
                                  ProfilepicturePath = this.ProfilepicturePath
                              }
                          );
-                        Handler.Handle(
+                        Bus.SendMessage<IEntityCommand>(
                             new AddPlant(
                                 this.Context.CurrentUser.GardenId,
                                 this.Id,
                                 this.Name
                              )
                         );
-                        this.Name = "";
+                    });
+                    _CreatePlantCommand.Subscribe(param =>
+                    {
+                        //this.Name = "";
                         Nav.GoBack();
                     });
+
+                }
                 return _CreatePlantCommand;
 
             }
         }
 
-        private RelayCommand _ChooseProfilePictureCommand;
-        public RelayCommand ChooseProfilePictureCommand
+        private ReactiveCommand _ChooseProfilePictureCommand;
+        public ReactiveCommand ChooseProfilePictureCommand
         {
             get
             {
 
                 if (_ChooseProfilePictureCommand == null)
-                    _ChooseProfilePictureCommand = new RelayCommand(() =>
-                    {
-                        ChoosePhoto();
-                    });
+                {
+                    _ChooseProfilePictureCommand = new ReactiveCommand();
+                    _ChooseProfilePictureCommand.Subscribe(param => ChoosePhoto());
+
+                }
                 return _ChooseProfilePictureCommand;
 
             }
@@ -98,7 +102,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => ProfilePictureButtonText, ref _ProfilePictureButtonText, value);
+                this.RaiseAndSetIfChanged(ref _ProfilePictureButtonText, value);
             }
         }
 
@@ -111,7 +115,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => Name, ref _Name, value);
+                this.RaiseAndSetIfChanged(ref _Name, value);
             }
         }
 
@@ -125,7 +129,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => Id, ref _Id, value);
+                this.RaiseAndSetIfChanged(ref _Id, value);
             }
         }
 
@@ -138,17 +142,17 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => ProfilepicturePath, ref _ProfilepicturePath, value);
+                this.RaiseAndSetIfChanged(ref _ProfilepicturePath, value);
             }
         }
 
-        protected ObservableCollection<ButtonViewModel> _AppBarButtons;
-        public ObservableCollection<ButtonViewModel> AppBarButtons
+        protected ReactiveList<ButtonViewModel> _AppBarButtons;
+        public ReactiveList<ButtonViewModel> AppBarButtons
         {
             get
             {
                 if (_AppBarButtons == null)
-                    _AppBarButtons = new ObservableCollection<ButtonViewModel>()
+                    _AppBarButtons = new ReactiveList<ButtonViewModel>()
                     {
                         new ButtonViewModel()
                         {

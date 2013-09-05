@@ -25,13 +25,19 @@ namespace Growthstories.Sync
         private readonly IAggregateFactory Factory;
         private readonly IAuthTokenService AuthService;
 
-        public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
+        //public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
+        //{
+        //    this.Store = store;
+        //    this.Factory = factory;
+        //    this.AuthService = authService;
+        //}
+
+        public FakeUserService(IGSRepository store, IAggregateFactory factory)
         {
             this.Store = store;
             this.Factory = factory;
-            this.AuthService = authService;
+            //this.AuthService = authService;
         }
-
 
         public IAuthUser CurrentUser
         {
@@ -66,10 +72,10 @@ namespace Growthstories.Sync
         {
             return Task.Run(async () =>
             {
-                var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
-                //if(auth)
-                u.Handle(new SetAuthToken(u.Id, auth));
-                Store.Save(u);
+                //var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
+                ////if(auth)
+                //u.Handle(new SetAuthToken(u.Id, auth));
+                //Store.Save(u);
             });
         }
     }

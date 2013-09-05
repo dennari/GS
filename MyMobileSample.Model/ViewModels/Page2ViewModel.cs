@@ -29,7 +29,7 @@ namespace MyMobileSample.Model.ViewModels
         }
 
         private ReactiveList<IEvent> _Events;
-        public ReactiveList<IEvent> Events
+        public ReactiveList<IEvent> Events 
         {
             get
             {

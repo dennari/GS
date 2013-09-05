@@ -1,5 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Domain;
 using Growthstories.Sync;
 using ReactiveUI;
@@ -8,42 +7,67 @@ using System;
 namespace Growthstories.UI.ViewModel
 {
 
-    public class GSViewModelBase : ViewModelBase
+    public abstract class GSViewModelBase : ReactiveObject
     {
         public const string APPNAME = "GROWTH STORIES";
 
-        public IUserService Context { get; private set; }
-        public INavigationService Nav { get; private set; }
-        public IMessageBus Handler { get; private set; }
-
         public string AppName { get { return APPNAME; } }
 
-        protected string _PageTitle = "Undefined Title";
-        public virtual string PageTitle { get { return _PageTitle; } }
-
-
-        /// <summary>
-        /// Initializes a new instance of the MainViewModel class.
-        /// </summary>
-        public GSViewModelBase(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(messenger)
+        public IMessageBus Bus { get; private set; }
+        public GSViewModelBase(IMessageBus bus)
         {
-            this.Handler = handler;
-            this.Context = ctx;
-            this.Nav = nav;
+            this.Bus = bus;
         }
 
         bool DebugDesignSwitch = false;
-        public new bool IsInDesignMode
+
+        public bool IsInDesignMode
         {
             get
             {
-                return DebugDesignSwitch ? true : base.IsInDesignMode;
+                return DebugDesignSwitch ? true : DesignModeDetector.IsInDesignMode();
             }
         }
 
+    }
+
+
+    public abstract class RoutableViewModel : GSViewModelBase, IRoutableViewModel
+    {
+
+        public IUserService Context { get; private set; }
+        public INavigationService Nav { get; private set; }
+
+
+        protected string _PageTitle = "Undefined Title";
+        private IScreen Host;
+        public virtual string PageTitle { get { return _PageTitle; } }
+        public abstract string UrlPathSegment { get; }
+        public IScreen HostScreen { get { return Host; } protected set { Host = value; } }
+        /// <summary>
+        /// Initializes a new instance of the MainViewModel class.
+        /// </summary>
+        public RoutableViewModel(
+            IUserService ctx,
+            IMessageBus bus,
+            IScreen host)
+            : base(bus)
+        {
+            this.Context = ctx;
+            this.Host = host;
+        }
 
 
     }
+
+
+
+
+
+    public static class ViewModelMixins
+    {
+
+    }
+
 
 }

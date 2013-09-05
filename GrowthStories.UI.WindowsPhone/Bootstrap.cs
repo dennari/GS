@@ -1,7 +1,6 @@
 ﻿
 using EventStore.Persistence;
 using EventStore.Persistence.SqlPersistence;
-using GalaSoft.MvvmLight.Messaging;
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Services;
@@ -29,7 +28,6 @@ namespace GrowthStories.UI.WindowsPhone
 
         protected override void UIConfiguration()
         {
-            Bind<IMessenger>().To<Messenger>().InSingletonScope();
             Bind<INavigationService>().To<NavigationService>().InSingletonScope();
             Bind<GardenViewModel>().ToSelf().InSingletonScope();
             Bind<AddPlantViewModel>().ToSelf().InSingletonScope();

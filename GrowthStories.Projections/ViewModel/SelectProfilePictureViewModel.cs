@@ -1,6 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
@@ -19,19 +17,19 @@ namespace Growthstories.UI.ViewModel
     public class ActionListItem
     {
         public string Title { get; set; }
-        public RelayCommand Command { get; set; }
+        public ReactiveCommand Command { get; set; }
 
     }
 
-    public class SelectProfilePictureViewModel : GSViewModelBase
+    public class SelectProfilePictureViewModel : RoutableViewModel
     {
 
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public SelectProfilePictureViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(messenger, ctx, handler, nav)
+        public SelectProfilePictureViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
+            : base(ctx, handler, nav)
         {
 
         }
@@ -45,17 +43,24 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_Actions == null)
+                {
+                    var takePhotoCommand = new ReactiveCommand();
+                    takePhotoCommand.Subscribe(_ => CapturePhoto());
+                    var choosePhotoCommand = new ReactiveCommand();
+                    choosePhotoCommand.Subscribe(_ => ChoosePhoto());
+
                     _Actions = new List<ActionListItem>()
                     {
                         {new ActionListItem(){
                             Title = "take photo",
-                            Command = new RelayCommand(()=> CapturePhoto())
+                            Command = takePhotoCommand
                         }},
                         {new ActionListItem(){
                             Title = "choose from library",
-                            Command = new RelayCommand(()=> ChoosePhoto())
+                            Command = choosePhotoCommand
                         }}
                     };
+                }
                 return _Actions;
             }
         }
@@ -79,7 +84,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set(() => ProfilePicture, ref _ProfilePicture, value);
+                this.RaiseAndSetIfChanged(ref _ProfilePicture, value);
             }
         }
 

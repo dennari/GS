@@ -7,7 +7,6 @@ using EventStore;
 using EventStore.Persistence;
 using EventStore.Persistence.InMemoryPersistence;
 using EventStore.Serialization;
-using GalaSoft.MvvmLight.Messaging;
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
@@ -29,7 +28,6 @@ namespace GrowthStories.UI.WindowsPhone
             Bind<IUserService>().To<NullUserService>().InSingletonScope();
             Bind<IUIPersistence>().To<NullUIPersistence>().InSingletonScope();
             Bind<INavigationService>().To<NavigationService>().InSingletonScope();
-            Bind<IMessenger>().To<Messenger>().InSingletonScope();
             Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
 
             Bind<ActionProjection>().ToSelf().InSingletonScope();

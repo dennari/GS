@@ -9,9 +9,9 @@
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
-	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
@@ -128,10 +128,10 @@
 
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Opened">
-                                        <command:EventToCommand Command="{Binding CMOpen}" />
+                                        <command:InvokeCommandAction Command="{Binding CMOpen}" />
                                     </i:EventTrigger>
                                     <i:EventTrigger EventName="Closed">
-                                        <command:EventToCommand Command="{Binding CMClose}" />
+                                        <command:InvokeCommandAction Command="{Binding CMClose}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 

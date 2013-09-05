@@ -9,6 +9,7 @@ using MyMobileSample.Model.ViewModels;
 using System.Collections.Generic;
 using System;
 using MyMobileSample.Model;
+using System.ComponentModel;
 
 namespace MyMobileSample.UI.ViewModels
 {
@@ -25,7 +26,33 @@ namespace MyMobileSample.UI.ViewModels
     }
 
 
+    public static class AppExtensions
+    {
+        private static bool? _isInDesignMode;
 
+        public static bool IsInDesignMode()
+        {
+
+            if (!_isInDesignMode.HasValue)
+            {
+#if SILVERLIGHT
+                _isInDesignMode = DesignerProperties.IsInDesignTool;
+#else
+#if NETFX_CORE
+                    _isInDesignMode = Windows.ApplicationModel.DesignMode.DesignModeEnabled;
+#else
+                    var prop = DesignerProperties.IsInDesignModeProperty;
+                    _isInDesignMode
+                        = (bool)DependencyPropertyDescriptor
+                                     .FromProperty(prop, typeof(FrameworkElement))
+                                     .Metadata.DefaultValue;
+#endif
+#endif
+            }
+
+            return _isInDesignMode.Value;
+        }
+    }
 
     public class AppViewModel : ReactiveObject, IScreen, IApplicationRootState
     {
@@ -35,8 +62,12 @@ namespace MyMobileSample.UI.ViewModels
             get { return _Router ?? (_Router = new RoutingState()); }
         }
 
-        private ObservableAsPropertyHelper<IMyVM> _CurrentVM;
-        public IMyVM CurrentVM { get { return _CurrentVM.Value; } }
+        private IMyVM _CurrentVM;
+        public IMyVM CurrentVM { get { return _CurrentVM; } set { this.RaiseAndSetIfChanged(ref _CurrentVM, value); } }
+
+        public Page1ViewModel DesignViewModel1 { get; private set; }
+        public Page2ViewModel DesignViewModel2 { get; private set; }
+
 
         public AppViewModel()
         {
@@ -48,7 +79,7 @@ namespace MyMobileSample.UI.ViewModels
             Resolver.RegisterLazySingleton(() => new MessageBus(), typeof(IMessageBus));
             Resolver.RegisterLazySingleton(() => new Page1ViewModel(this,
                 Resolver.GetService<IThreadIdFactory>(),
-                Resolver.GetService<IMessageBus>()),
+                Resolver.GetService<IMessageBus>(), AppExtensions.IsInDesignMode()),
                 typeof(Page1ViewModel)
             );
             Resolver.RegisterLazySingleton(() => new Page2ViewModel(this, Resolver.GetService<IThreadIdFactory>(), Resolver.GetService<IMessageBus>()), typeof(Page2ViewModel));
@@ -71,10 +102,18 @@ namespace MyMobileSample.UI.ViewModels
             Router
                 .CurrentViewModel
                 .OfType<IMyVM>()
-                .ToProperty(this, x => x.CurrentVM, out _CurrentVM);
+                .Subscribe(x => this.CurrentVM = x);
 
 
             Router.NavigateCommandFor<Page1ViewModel>().Execute(null);
+
+            if (AppExtensions.IsInDesignMode())
+            {
+                this.DesignViewModel1 = Resolver.GetService<Page1ViewModel>();
+                this.DesignViewModel2 = Resolver.GetService<Page2ViewModel>();
+
+
+            }
         }
 
 

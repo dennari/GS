@@ -1,6 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
@@ -16,7 +14,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public class PlantViewModel : GSViewModelBase, IHandles<ShowPlantView>
+    public class PlantViewModel : RoutableViewModel, IHandles<ShowPlantView>
     {
         public ActionProjection ActionProjection { get; private set; }
 
@@ -25,8 +23,8 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(IMessenger messenger, IUserService ctx, IMessageBus handler, INavigationService nav, ActionProjection actionProjection)
-            : base(messenger, ctx, handler, nav)
+        public PlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav, ActionProjection actionProjection)
+            : base(ctx, handler, nav)
         {
             this.ActionProjection = actionProjection;
             this.ActionProjection.EventHandled += this.ActionHandled;
@@ -44,7 +42,7 @@ namespace Growthstories.UI.ViewModel
                 if (_Plant == value)
                     return;
 
-                Set(() => Plant, ref _Plant, value);
+                this.RaiseAndSetIfChanged(ref _Plant, value);
                 this.LoadActions(value.EntityId);
             }
         }
@@ -64,66 +62,78 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private RelayCommand<string> _AddCommentCommand;
-        public RelayCommand<string> AddCommentCommand
+        private ReactiveCommand _AddCommentCommand;
+        public ReactiveCommand AddCommentCommand
         {
             get
             {
 
                 if (_AddCommentCommand == null)
-                    _AddCommentCommand = new RelayCommand<string>((note) =>
+                {
+                    _AddCommentCommand = new ReactiveCommand();
+                    _AddCommentCommand.Subscribe((note) =>
                     {
-                        this.Add(new Comment(Context.CurrentUser.Id, this.Plant.EntityId, note));
+                        this.Add(new Comment(Context.CurrentUser.Id, this.Plant.EntityId, (string)note));
                     });
+                }
                 return _AddCommentCommand;
 
             }
         }
 
-        private RelayCommand<object> _AddPhotoCommand;
-        public RelayCommand<object> AddPhotoCommand
+        private ReactiveCommand _AddPhotoCommand;
+        public ReactiveCommand AddPhotoCommand
         {
             get
             {
 
                 if (_AddPhotoCommand == null)
-                    _AddPhotoCommand = new RelayCommand<object>((photo) =>
+                {
+                    _AddPhotoCommand = new ReactiveCommand();
+                    _AddPhotoCommand.Subscribe((photo) =>
                     {
                         this.Add(new Photograph(Context.CurrentUser.Id, this.Plant.EntityId, "", photo as Uri));
                     });
+                }
                 return _AddPhotoCommand;
 
             }
         }
 
 
-        private RelayCommand _AddFertilizerCommand;
-        public RelayCommand AddFertilizerCommand
+        private ReactiveCommand _AddFertilizerCommand;
+        public ReactiveCommand AddFertilizerCommand
         {
             get
             {
 
                 if (_AddFertilizerCommand == null)
-                    _AddFertilizerCommand = new RelayCommand(() =>
+                {
+                    _AddFertilizerCommand = new ReactiveCommand();
+                    _AddFertilizerCommand.Subscribe(_ =>
                     {
                         this.Add(new Fertilize(Context.CurrentUser.Id, this.Plant.EntityId, ""));
                     });
+                }
                 return _AddFertilizerCommand;
 
             }
         }
 
-        private RelayCommand _AddWaterCommand;
-        public RelayCommand AddWaterCommand
+        private ReactiveCommand _AddWaterCommand;
+        public ReactiveCommand AddWaterCommand
         {
             get
             {
 
                 if (_AddWaterCommand == null)
-                    _AddWaterCommand = new RelayCommand(() =>
+                {
+                    _AddWaterCommand = new ReactiveCommand();
+                    _AddWaterCommand.Subscribe(_ =>
                     {
                         this.Add(new Water(Context.CurrentUser.Id, this.Plant.EntityId, ""));
                     });
+                }
                 return _AddWaterCommand;
 
             }
@@ -132,23 +142,23 @@ namespace Growthstories.UI.ViewModel
 
         public void Add(Comment command)
         {
-            Handler.Handle(command);
+            Bus.Handle(command);
         }
 
         public void Add(Fertilize command)
         {
-            Handler.Handle(command);
+            Bus.Handle(command);
         }
 
         public void Add(Water command)
         {
-            Handler.Handle(command);
+            Bus.Handle(command);
 
         }
 
         public void Add(Photograph command)
         {
-            Handler.Handle(command);
+            Bus.Handle(command);
 
         }
 

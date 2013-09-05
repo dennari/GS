@@ -7,7 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Platform.WP8"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
     xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
@@ -17,7 +18,7 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="False">
+    shell:SystemTray.IsVisible= "False">
     
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -45,7 +46,7 @@
         <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
-                    <command:EventToCommand Command="{Binding PanoramaPageChangedCommand, Mode=OneWay}"
+                    <command:InvokeCommandAction Command="{Binding PanoramaPageChangedCommand, Mode=OneWay}"
 												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
@@ -73,7 +74,7 @@
                       >
                         <i:Interaction.Triggers>                          
                             <i:EventTrigger EventName="SelectionChanged">
-                                <command:EventToCommand Command="{Binding SelectedPlantsChangedCommand, Mode=OneWay}"
+                                <command:InvokeCommandAction Command="{Binding SelectedPlantsChangedCommand, Mode=OneWay}"
 												CommandParameter="{Binding SelectedItems,ElementName=PlantsSelector,Mode=OneWay}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
@@ -89,7 +90,7 @@
                                 </Grid.Background>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Tap">
-                                        <command:EventToCommand Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
+                                        <command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
 												CommandParameter="{Binding Mode=OneWay}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>

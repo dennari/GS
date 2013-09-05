@@ -1,6 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
@@ -17,20 +15,20 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public class GardenViewModel : GSViewModelBase, IPanoramaPage, IRoutableViewModel
+    public class GardenViewModel : RoutableViewModel, IPanoramaPage
     {
 
-        private ObservableCollection<PlantStateViewModel> _Plants;
-        public ObservableCollection<PlantStateViewModel> Plants
+        private ReactiveList<PlantStateViewModel> _Plants;
+        public ReactiveList<PlantStateViewModel> Plants
         {
             get
             {
                 if (_Plants == null)
                 {
                     if (IsInDesignMode)
-                        Plants = new ObservableCollection<PlantStateViewModel>(this.PlantProjection.FakeLoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
+                        Plants = new ReactiveList<PlantStateViewModel>(this.PlantProjection.FakeLoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
                     else
-                        Plants = new ObservableCollection<PlantStateViewModel>(this.PlantProjection.LoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
+                        Plants = new ReactiveList<PlantStateViewModel>(this.PlantProjection.LoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
 
                 }
                 return _Plants;
@@ -70,12 +68,11 @@ namespace Growthstories.UI.ViewModel
         public GardenViewModel(
             Guid userId,
              PlantProjection plantProjection,
-            IMessenger messenger,
             IUserService ctx,
             IMessageBus handler,
             INavigationService nav)
 
-            : base(messenger, ctx, handler, nav)
+            : base(ctx, handler, nav)
         {
             this.UserId = userId;
             this.PlantProjection = plantProjection;
@@ -121,17 +118,17 @@ namespace Growthstories.UI.ViewModel
         #region AddPlant
 
 
-        private RelayCommand _ShowAddPlantCommand;
-        public RelayCommand ShowAddPlantCommand
+        private ReactiveCommand _ShowAddPlantCommand;
+        public ReactiveCommand ShowAddPlantCommand
         {
             get
             {
 
                 if (_ShowAddPlantCommand == null)
-                    _ShowAddPlantCommand = new RelayCommand(() =>
-                    {
-                        Nav.NavigateTo(View.ADD_PLANT);
-                    });
+                {
+                    _ShowAddPlantCommand = new ReactiveCommand();
+                    _ShowAddPlantCommand.Subscribe(_ => Nav.NavigateTo(View.ADD_PLANT));
+                }
                 return _ShowAddPlantCommand;
 
             }
@@ -146,20 +143,20 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                Set("IsPlantSelectionEnabled", ref _IsPlantSelectionEnabled, value);
+                this.RaiseAndSetIfChanged(ref _IsPlantSelectionEnabled, value);
                 //this.RefreshButtons();
             }
         }
 
 
-        //private RelayCommand _PlantSelectionToggleCommand;
-        //public RelayCommand PlantSelectionToggleCommand
+        //private ReactiveCommand _PlantSelectionToggleCommand;
+        //public ReactiveCommand PlantSelectionToggleCommand
         //{
         //    get
         //    {
 
         //        if (_PlantSelectionToggleCommand == null)
-        //            _PlantSelectionToggleCommand = new RelayCommand(() =>
+        //            _PlantSelectionToggleCommand = new ReactiveCommand(() =>
         //            {
         //                this.
         //            });
@@ -177,42 +174,49 @@ namespace Growthstories.UI.ViewModel
             get { return _SelectedPlant; }
             private set
             {
-                Set(() => SelectedPlant, ref _SelectedPlant, value);
+                this.RaiseAndSetIfChanged(ref _SelectedPlant, value);
             }
         }
         //public event EventHandler<SelectedPlantArgs> PlantSelected;
-        private RelayCommand<PlantStateViewModel> _ShowDetailsCommand;
-        public RelayCommand<PlantStateViewModel> ShowDetailsCommand
+        private ReactiveCommand _ShowDetailsCommand;
+        public ReactiveCommand ShowDetailsCommand
         {
             get
             {
 
                 if (_ShowDetailsCommand == null)
-                    _ShowDetailsCommand = new RelayCommand<PlantStateViewModel>(p =>
+                {
+                    _ShowDetailsCommand = new ReactiveCommand();
+                    _ShowDetailsCommand.Subscribe((p) =>
                     {
-                        this.SelectedPlant = p;
+                        this.SelectedPlant = (PlantStateViewModel)p;
                         //MessengerInstance.Send(new ShowPlantView(p));
                         //Nav.NavigateTo(View.PLANT);
                     });
+                }
                 return _ShowDetailsCommand;
 
             }
         }
 
-        private RelayCommand<IList> _SelectedPlantsChangedCommand;
-        public RelayCommand<IList> SelectedPlantsChangedCommand
+        private ReactiveCommand _SelectedPlantsChangedCommand;
+        public ReactiveCommand SelectedPlantsChangedCommand
         {
             get
             {
 
                 if (_SelectedPlantsChangedCommand == null)
-                    _SelectedPlantsChangedCommand = new RelayCommand<IList>(p =>
+                {
+                    _SelectedPlantsChangedCommand = new ReactiveCommand();
+
+                    _SelectedPlantsChangedCommand.Subscribe(p =>
                     {
-                        RefreshPlantsSelection(p);
+                        RefreshPlantsSelection((IList)p);
                         //this.SelectedPlant = p;
                         //MessengerInstance.Send(new ShowPlantView(p));
                         //Nav.NavigateTo(View.PLANT);
                     });
+                }
                 return _SelectedPlantsChangedCommand;
 
             }
@@ -263,18 +267,23 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_ChangePPicButton == null)
+                {
+
+                    var Command = new ReactiveCommand();
+                    Command.Subscribe(_ =>
+                     {
+                         if (this.Plants.Count > 0)
+                         {
+                             Bus.Handle(new ChangeProfilepicturePath(this.Plants[0].Id, PlantProjection.testPic1));
+                         }
+                     });
                     _ChangePPicButton = new ButtonViewModel()
                     {
                         Text = "ppic",
                         IconUri = Nav.IconUri[IconType.ADD],
-                        Command = new RelayCommand(() =>
-                        {
-                            if (this.Plants.Count > 0)
-                            {
-                                Handler.Handle(new ChangeProfilepicturePath(this.Plants[0].Id, PlantProjection.testPic1));
-                            }
-                        })
+                        Command = Command
                     };
+                }
                 return _ChangePPicButton;
             }
         }
@@ -289,7 +298,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "select",
                         IconUri = Nav.IconUri[IconType.CHECK_LIST],
-                        Command = new RelayCommand(() => this.IsPlantSelectionEnabled = true)
+                        //Command = new ReactiveCommand(() => this.IsPlantSelectionEnabled = true)
                     };
                 return _SelectPlantsButton;
             }
@@ -305,50 +314,25 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "delete",
                         IconUri = Nav.IconUri[IconType.DELETE],
-                        Command = new RelayCommand(() => { })
+                        //Command = new ReactiveCommand(() => { })
                     };
                 return _DeletePlantsButton;
             }
         }
 
-        private ObservableCollection<ButtonViewModel> _Buttons;
-        public ObservableCollection<ButtonViewModel> AppBarButtons
+        private ReactiveList<ButtonViewModel> _Buttons;
+        public ReactiveList<ButtonViewModel> AppBarButtons
         {
             get
             {
                 if (_Buttons == null)
                 {
-                    _Buttons = new ObservableCollection<ButtonViewModel>() { AddPlantButton };
+                    _Buttons = new ReactiveList<ButtonViewModel>() { AddPlantButton };
                 }
                 return _Buttons;
             }
         }
 
-        public string UrlPathSegment
-        {
-            get { throw new NotImplementedException(); }
-        }
 
-        public IScreen HostScreen
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public IObservable<IObservedChange<object, object>> Changing
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public IObservable<IObservedChange<object, object>> Changed
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public IDisposable SuppressChangeNotifications()
-        {
-            throw new NotImplementedException();
-        }
-
-        public event PropertyChangingEventHandler PropertyChanging;
     }
 }

@@ -9,6 +9,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DataContext="{Binding DesignViewModel1,  Source={StaticResource AppVM}}"
     mc:Ignorable="d"
     shell:SystemTray.IsVisible="True">
 
@@ -17,25 +18,24 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ScrollViewer >
-            <StackPanel Height="755" Width="468">
-                <TextBlock 
-			Text="{Binding Status}" 
-			Style="{StaticResource PhoneTextNormalStyle}"/>
-                <TextBlock 
-			Text="{Binding WorkerResult, StringFormat=Thread \{0\}}" 
-			Style="{StaticResource PhoneTextNormalStyle}"/>
-                <TextBlock 
-			Text="{Binding UrlPathSegment}" 
-			x:Name="Title" 
-			Style="{StaticResource PhoneTextTitle1Style}"  
-			Margin="11,0,13,0"/>
-                <phone:LongListSelector 
-			ItemsSource="{Binding Events}"   
-           />
-            </StackPanel>
-        </ScrollViewer>
+<ScrollViewer />
         <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock 
+                Text="{Binding Status}" 
+                Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock 
+                Text="{Binding WorkerResult, StringFormat='Thread {0}'}" 
+                Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock 
+                Text="{Binding UrlPathSegment}" 
+                x:Name="Title" 
+                Style="{StaticResource PhoneTextTitle1Style}"  
+                Margin="11,0,13,0"/>
+          <phone:LongListSelector 
+           ItemsSource="{Binding Events}"   
+           />  
+        </StackPanel>
 
     </Grid>
 

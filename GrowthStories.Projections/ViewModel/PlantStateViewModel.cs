@@ -1,6 +1,4 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
@@ -15,7 +13,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public class PlantStateViewModel : ViewModelBase
+    public class PlantStateViewModel : GSViewModelBase
     {
         private readonly PlantState State;
 
@@ -36,7 +34,7 @@ namespace Growthstories.UI.ViewModel
 
         void State_ProfilepicturePathChanged(object sender, EventArgs e)
         {
-            this.RaisePropertyChanged("ProfilepicturePath");
+            //Sthis.RaisePropertyChanged("ProfilepicturePath");
         }
 
 

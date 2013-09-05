@@ -4,7 +4,6 @@ using EventStore.Logging;
 using EventStore.Persistence;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
-//using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -116,12 +116,18 @@ namespace MyMobileSample.Model.ViewModels
         public IScreen HostScreen { get; private set; }
 
 
-        public Page1ViewModel(IScreen host, IThreadIdFactory threadIdFactory, IMessageBus bus)
+        public Page1ViewModel(IScreen host, IThreadIdFactory threadIdFactory, IMessageBus bus, bool IsInDesignMode = false)
         {
             this.HostScreen = host;
             this.ThreadIdFactory = threadIdFactory;
             this.Bus = bus;
             this.Bus.Listen<IEvent>().Subscribe(e => this.Events.Add(e));
+
+            if (IsInDesignMode)
+            {
+                this.Events.Add(new MyEvent(DateTimeOffset.Now.ToString("HH:mm:ss.fff")));
+            }
+
         }
 
 
