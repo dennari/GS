@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Growthstories.UI.ViewModel
 {
-    public interface IPanoramaPage
+    public interface IPanoramaPageViewModel
     {
         ReactiveList<ButtonViewModel> AppBarButtons { get; }
     }

@@ -6,6 +6,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
 using System;
+using System.Reactive.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,50 +14,33 @@ using System.Linq;
 
 namespace Growthstories.UI.ViewModel
 {
-
-
-    public class GardenViewModel : RoutableViewModel, IPanoramaPage
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
     {
 
-        private ReactiveList<PlantStateViewModel> _Plants;
-        public ReactiveList<PlantStateViewModel> Plants
-        {
-            get
-            {
-                if (_Plants == null)
-                {
-                    if (IsInDesignMode)
-                        Plants = new ReactiveList<PlantStateViewModel>(this.PlantProjection.FakeLoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
-                    else
-                        Plants = new ReactiveList<PlantStateViewModel>(this.PlantProjection.LoadWithUserId(this.UserId).Select(x => new PlantStateViewModel(x)));
+    }
 
-                }
-                return _Plants;
-            }
-            private set
-            {
-                if (_Plants == value)
-                    return;
-                _Plants = value;
-                _Plants.CollectionChanged += (a, aa) => this.RefreshButtons();
-            }
-        }
+    public interface INotificationsViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
+    {
 
-        private IList<PlantStateViewModel> _SelectedPlants;
-        public IList<PlantStateViewModel> SelectedPlants
-        {
-            get
-            {
-                return _SelectedPlants == null ? _SelectedPlants = new List<PlantStateViewModel>() : _SelectedPlants;
-            }
-            private set
-            {
-                if (_SelectedPlants == value)
-                    return;
-                _SelectedPlants = value;
-            }
-        }
-        public event EventHandler ButtonsRefreshed;
+    }
+
+    public interface IFriendsViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
+    {
+
+    }
+
+    public class GardenViewModel : RoutableViewModel, IGardenViewModel
+    {
+
+        public ReactiveList<PlantStateViewModel> Plants { get; protected set; }
+        public ReactiveList<PlantStateViewModel> SelectedPlants { get; protected set; }
+        public ReactiveList<ButtonViewModel> AppBarButtons { get; protected set; }
+
+        public IReactiveCommand SelectedPlantsChangedCommand { get; protected set; }
+        public IReactiveCommand ShowDetailsCommand { get; protected set; }
+
+
+
         public PlantProjection PlantProjection { get; private set; }
         private readonly Guid UserId;
 
@@ -67,182 +51,41 @@ namespace Growthstories.UI.ViewModel
         /// </summary>
         public GardenViewModel(
             Guid userId,
-             PlantProjection plantProjection,
+            Func<Guid, IPlantViewModel> pvmFactory,
             IUserService ctx,
-            IMessageBus handler,
-            INavigationService nav)
+            IMessageBus bus,
+            IScreen host)
 
-            : base(ctx, handler, nav)
+            : base(ctx, bus, host)
         {
             this.UserId = userId;
-            this.PlantProjection = plantProjection;
-            this.PlantProjection.EventHandled += this.EventHandled;
-            this.PropertyChanged += (a, aa) => this.RefreshButtons();
+
+            this.Plants = new ReactiveList<PlantStateViewModel>();
+            this.SelectedPlants = new ReactiveList<PlantStateViewModel>();
+            this.AppBarButtons = new ReactiveList<ButtonViewModel>();
+
+
+            this.Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(SelectPlantsButton));
+            this.Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(SelectPlantsButton));
+
+            this.SelectedPlants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(DeletePlantsButton));
+            this.SelectedPlants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(DeletePlantsButton));
+
+
+            SelectedPlantsChangedCommand = new ReactiveCommand();
+            SelectedPlantsChangedCommand.Subscribe(p =>
+            {
+                SelectedPlants.Clear();
+                SelectedPlants.AddRange(((IList)p).Cast<PlantStateViewModel>());
+            });
+
+            ShowDetailsCommand = new ReactiveCommand();
+            ShowDetailsCommand.Subscribe(x =>
+            {
+                host.Router.Navigate.Execute(pvmFactory((Guid)x));
+            });
 
         }
-
-        private void RefreshButtons()
-        {
-            this.AppBarButtons.Clear();
-            if (this.IsPlantSelectionEnabled)
-            {
-                this.AppBarButtons.Add(this.DeletePlantsButton);
-            }
-            else
-            {
-                this.AppBarButtons.Add(this.AddPlantButton);
-                if (this.Plants.Count > 0)
-                {
-                    this.AppBarButtons.Add(this.SelectPlantsButton);
-                    this.AppBarButtons.Add(this.ChangePPicButton);
-                }
-            }
-            this.ButtonsRefreshed(this, new EventArgs());
-
-        }
-
-
-        private void EventHandled(object sender, EventHandledArgs e)
-        {
-            var @event = e.@event as PlantCreated;
-            if (@event != null && @event.UserId == this.UserId)
-            {
-                if (!this.Plants.Any(x => x.Id == @event.EntityId))
-                    this.Plants.Add(new PlantStateViewModel(this.PlantProjection.LoadWithId(@event.EntityId)));
-            }
-        }
-
-
-
-
-        #region AddPlant
-
-
-        private ReactiveCommand _ShowAddPlantCommand;
-        public ReactiveCommand ShowAddPlantCommand
-        {
-            get
-            {
-
-                if (_ShowAddPlantCommand == null)
-                {
-                    _ShowAddPlantCommand = new ReactiveCommand();
-                    _ShowAddPlantCommand.Subscribe(_ => Nav.NavigateTo(View.ADD_PLANT));
-                }
-                return _ShowAddPlantCommand;
-
-            }
-        }
-
-        protected bool _IsPlantSelectionEnabled = false;
-        public bool IsPlantSelectionEnabled
-        {
-            get
-            {
-                return _IsPlantSelectionEnabled;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _IsPlantSelectionEnabled, value);
-                //this.RefreshButtons();
-            }
-        }
-
-
-        //private ReactiveCommand _PlantSelectionToggleCommand;
-        //public ReactiveCommand PlantSelectionToggleCommand
-        //{
-        //    get
-        //    {
-
-        //        if (_PlantSelectionToggleCommand == null)
-        //            _PlantSelectionToggleCommand = new ReactiveCommand(() =>
-        //            {
-        //                this.
-        //            });
-        //        return _PlantSelectionToggleCommand;
-
-        //    }
-        //}
-
-
-        #endregion
-
-        private PlantStateViewModel _SelectedPlant;
-        public PlantStateViewModel SelectedPlant
-        {
-            get { return _SelectedPlant; }
-            private set
-            {
-                this.RaiseAndSetIfChanged(ref _SelectedPlant, value);
-            }
-        }
-        //public event EventHandler<SelectedPlantArgs> PlantSelected;
-        private ReactiveCommand _ShowDetailsCommand;
-        public ReactiveCommand ShowDetailsCommand
-        {
-            get
-            {
-
-                if (_ShowDetailsCommand == null)
-                {
-                    _ShowDetailsCommand = new ReactiveCommand();
-                    _ShowDetailsCommand.Subscribe((p) =>
-                    {
-                        this.SelectedPlant = (PlantStateViewModel)p;
-                        //MessengerInstance.Send(new ShowPlantView(p));
-                        //Nav.NavigateTo(View.PLANT);
-                    });
-                }
-                return _ShowDetailsCommand;
-
-            }
-        }
-
-        private ReactiveCommand _SelectedPlantsChangedCommand;
-        public ReactiveCommand SelectedPlantsChangedCommand
-        {
-            get
-            {
-
-                if (_SelectedPlantsChangedCommand == null)
-                {
-                    _SelectedPlantsChangedCommand = new ReactiveCommand();
-
-                    _SelectedPlantsChangedCommand.Subscribe(p =>
-                    {
-                        RefreshPlantsSelection((IList)p);
-                        //this.SelectedPlant = p;
-                        //MessengerInstance.Send(new ShowPlantView(p));
-                        //Nav.NavigateTo(View.PLANT);
-                    });
-                }
-                return _SelectedPlantsChangedCommand;
-
-            }
-        }
-
-        private void RefreshPlantsSelection(IList selected)
-        {
-            try
-            {
-                var s = selected.Cast<PlantStateViewModel>();
-                foreach (var p in s.Except(this.SelectedPlants))
-                {
-                    this.SelectedPlants.Add(p);
-                }
-                foreach (var p in this.SelectedPlants.Except(s))
-                {
-                    this.SelectedPlants.Remove(p);
-                }
-            }
-            catch (Exception)
-            {
-
-                //throw;
-            }
-        }
-
 
 
         private ButtonViewModel _AddPlantButton;
@@ -251,11 +94,11 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_AddPlantButton == null)
-                    _AddPlantButton = new ButtonViewModel()
+                    _AddPlantButton = new ButtonViewModel(null)
                     {
                         Text = "add",
-                        IconUri = Nav.IconUri[IconType.ADD],
-                        Command = ShowAddPlantCommand
+                        IconUri = GSApp.IconUri[IconType.ADD],
+                        Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
                     };
                 return _AddPlantButton;
             }
@@ -277,10 +120,10 @@ namespace Growthstories.UI.ViewModel
                              Bus.Handle(new ChangeProfilepicturePath(this.Plants[0].Id, PlantProjection.testPic1));
                          }
                      });
-                    _ChangePPicButton = new ButtonViewModel()
+                    _ChangePPicButton = new ButtonViewModel(this.Bus)
                     {
                         Text = "ppic",
-                        IconUri = Nav.IconUri[IconType.ADD],
+                        //IconUri = Nav.IconUri[IconType.ADD],
                         Command = Command
                     };
                 }
@@ -294,10 +137,10 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_SelectPlantsButton == null)
-                    _SelectPlantsButton = new ButtonViewModel()
+                    _SelectPlantsButton = new ButtonViewModel(this.Bus)
                     {
                         Text = "select",
-                        IconUri = Nav.IconUri[IconType.CHECK_LIST],
+                        IconUri = GSApp.IconUri[IconType.CHECK_LIST]
                         //Command = new ReactiveCommand(() => this.IsPlantSelectionEnabled = true)
                     };
                 return _SelectPlantsButton;
@@ -310,29 +153,103 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_DeletePlantsButton == null)
-                    _DeletePlantsButton = new ButtonViewModel()
+                    _DeletePlantsButton = new ButtonViewModel(this.Bus)
                     {
                         Text = "delete",
-                        IconUri = Nav.IconUri[IconType.DELETE],
+                        IconUri = GSApp.IconUri[IconType.DELETE]
                         //Command = new ReactiveCommand(() => { })
                     };
                 return _DeletePlantsButton;
             }
         }
 
-        private ReactiveList<ButtonViewModel> _Buttons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        public override string UrlPathSegment
         {
-            get
-            {
-                if (_Buttons == null)
-                {
-                    _Buttons = new ReactiveList<ButtonViewModel>() { AddPlantButton };
-                }
-                return _Buttons;
-            }
+            get { throw new NotImplementedException(); }
         }
 
+        public string AppBarMode
+        {
+            get { return GSApp.APPBAR_MODE_MINIMIZED; }
+        }
 
+        public bool AppBarIsVisible
+        {
+            get { return true; }
+        }
+    }
+
+    public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
+    {
+        public NotificationsViewModel(IUserService ctx, IMessageBus bus, IScreen host)
+            : base(ctx, bus, host)
+        {
+
+            this.AppBarButtons.Add(
+            new ButtonViewModel(null)
+                    {
+                        Text = "add",
+                        IconUri = GSApp.IconUri[IconType.ADD],
+                        Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
+                    });
+
+        }
+        protected ReactiveList<ButtonViewModel> _AppBarButtons;
+        public ReactiveList<ButtonViewModel> AppBarButtons
+        {
+            get { return _AppBarButtons ?? (_AppBarButtons = new ReactiveList<ButtonViewModel>()); }
+        }
+
+        public override string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string AppBarMode
+        {
+            get { return GSApp.APPBAR_MODE_MINIMIZED; }
+        }
+
+        public bool AppBarIsVisible
+        {
+            get { return true; }
+        }
+    }
+
+    public class FriendsViewModel : RoutableViewModel, IFriendsViewModel
+    {
+        public FriendsViewModel(IUserService ctx, IMessageBus bus, IScreen host)
+            : base(ctx, bus, host)
+        {
+
+            this.AppBarButtons.Add(
+            new ButtonViewModel(null)
+            {
+                Text = "add",
+                IconUri = GSApp.IconUri[IconType.ADD],
+                Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
+            });
+
+        }
+        protected ReactiveList<ButtonViewModel> _AppBarButtons;
+        public ReactiveList<ButtonViewModel> AppBarButtons
+        {
+            get { return _AppBarButtons ?? (_AppBarButtons = new ReactiveList<ButtonViewModel>()); }
+        }
+
+        public override string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string AppBarMode
+        {
+            get { return GSApp.APPBAR_MODE_MINIMIZED; }
+        }
+
+        public bool AppBarIsVisible
+        {
+            get { return true; }
+        }
     }
 }

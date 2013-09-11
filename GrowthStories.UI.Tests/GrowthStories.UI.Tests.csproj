@@ -43,6 +43,9 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Reactive.Testing">
+      <HintPath>..\packages\Rx-Testing.2.1.30214.0\lib\Net45-Full\Microsoft.Reactive.Testing.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\net45\Microsoft.Threading.Tasks.dll</HintPath>
@@ -50,14 +53,25 @@
     <Reference Include="Microsoft.Threading.Tasks.Extensions">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\net45\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Ninject.Common">
       <HintPath>..\packages\Portable.Ninject.3.0.7\lib\net40-client\Ninject.Common.dll</HintPath>
     </Reference>
     <Reference Include="Ninject.NetFx">
       <HintPath>..\packages\Portable.Ninject.3.0.7\lib\net40-client\Ninject.NetFx.dll</HintPath>
     </Reference>
+    <Reference Include="NLog, Version=2.0.1.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.2.0.1.2\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="ReflectSoftware.Insight">
+      <HintPath>..\packages\ReflectSoftware.Insight.5.1.5\lib\net45\ReflectSoftware.Insight.dll</HintPath>
+    </Reference>
+    <Reference Include="ReflectSoftware.Insight.Extensions.NLog">
+      <HintPath>..\packages\ReflectSoftware.Insight.Extensions.NLog.5.1.6\lib\net45\ReflectSoftware.Insight.Extensions.NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -105,39 +119,43 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
       <Project>{4ca0c3f8-0f50-4f12-a598-32eaa0ab19e6}</Project>
       <Name>PortableCommonDomain.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
       <Project>{a9f56ff4-b69c-400a-801b-13212d7e946a}</Project>
       <Name>PortableCommonDomain.Persistence.EventStore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
       <Project>{099b2958-0240-4d7e-83a7-f5b2305975b1}</Project>
       <Name>PortableCommonDomain.Persistence</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
       <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
       <Name>EventStore.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence\EventStore.Persistence.SqlitePersistence.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence\EventStore.Persistence.SqlitePersistence.csproj">
       <Project>{2dc056d0-092a-476c-b920-e3f69839ee27}</Project>
       <Name>EventStore.Persistence.SqlitePersistence</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj">
       <Project>{fae746ce-11c7-446a-a98d-deb238b110aa}</Project>
       <Name>EventStore.Serialization.Json</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.NLog\ReactiveUI.NLog_Net45.csproj">
+      <Project>{08d3606b-ee79-43ee-8382-72a1091f1f30}</Project>
+      <Name>ReactiveUI.NLog_Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
       <Project>{464cb812-f99f-401b-be4c-e8f0515cd19d}</Project>
       <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
     </ProjectReference>
@@ -171,7 +189,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

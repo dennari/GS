@@ -9,27 +9,7 @@ using System.Linq;
 namespace Growthstories.UI
 {
 
-    public enum View
-    {
-        EXCEPTION,
-        GARDEN,
-        PLANT,
-        ADD_PLANT,
-        ADD_COMMENT,
-        ADD_WATER,
-        ADD_PHOTO,
-        ADD_FERT,
-        SELECT_PROFILE_PICTURE
-    }
 
-    public enum IconType
-    {
-        ADD,
-        CHECK,
-        CANCEL,
-        DELETE,
-        CHECK_LIST
-    }
 
 
     public interface INavigationService

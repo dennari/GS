@@ -7,7 +7,22 @@ using System;
 namespace Growthstories.UI.ViewModel
 {
 
-    public abstract class GSViewModelBase : ReactiveObject
+    public interface IGSViewModel : IReactiveNotifyPropertyChanged
+    {
+
+    }
+
+    public interface IHasAppBarButtons
+    {
+        ReactiveList<ButtonViewModel> AppBarButtons { get; }
+    }
+
+    public interface IHasMenuItems
+    {
+        ReactiveList<MenuItemViewModel> MenuItems { get; }
+    }
+
+    public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
     {
         public const string APPNAME = "GROWTH STORIES";
 
@@ -31,13 +46,14 @@ namespace Growthstories.UI.ViewModel
 
     }
 
+    public interface IGSRoutableViewModel : IRoutableViewModel
+    {
+    }
 
-    public abstract class RoutableViewModel : GSViewModelBase, IRoutableViewModel
+    public abstract class RoutableViewModel : GSViewModelBase, IGSRoutableViewModel
     {
 
         public IUserService Context { get; private set; }
-        public INavigationService Nav { get; private set; }
-
 
         protected string _PageTitle = "Undefined Title";
         private IScreen Host;

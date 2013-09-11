@@ -10,152 +10,75 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.Serialization;
 
 namespace Growthstories.UI.ViewModel
 {
-    public enum Page
+
+
+
+    public interface IMainViewModel : IGSRoutableViewModel
     {
-        MYGARDEN,
-        NOTIFICATIONS,
-        FRIENDS
     }
 
     [DataContract]
-    public class MainViewModel : RoutableViewModel, IScreen
+    public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
-        private Page _CurrentPage;
-        public Page CurrentPage
-        {
-            get { return _CurrentPage; }
-            private set
-            {
-                if (_CurrentPage == value)
-                    return;
-                _CurrentPage = value;
-                UpdatePlantSelectionEnabled();
-                UpdateButtons();
-            }
-        }
 
-        private bool UpdatePlantSelectionEnabled()
+        public MainViewModel(IUserService ctx, IMessageBus bus, IScreen host)
+            : base(ctx, bus, host)
         {
-            if (CurrentPage == Page.MYGARDEN && GardenVM.IsPlantSelectionEnabled == true)
-            {
-                GardenVM.IsPlantSelectionEnabled = false;
-                return true;
-            }
-            return false;
+            this.Pages.Add(this.GardenVM);
+            this.Pages.Add(this.NotificationsVM);
+            this.Pages.Add(this.FriendsVM);
+            this.CurrentPage = this.GardenVM;
         }
 
 
-        private IRoutingState _Router;
-        public IRoutingState Router { get { return _Router; } private set { _Router = value; } }
-
-
-
-        /// <summary>
-        /// Initializes a new instance of the MainViewModel class.
-        /// </summary>
-        public MainViewModel(IUserService ctx, IMessageBus bus)
-            : base(ctx, bus, null)
-        {
-            this.HostScreen = this;
-            this.Router = new RoutingState();
-        }
-
-        protected ReactiveList<ButtonViewModel> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        private IGardenViewModel _GardenVM;
+        public IGardenViewModel GardenVM
         {
             get
             {
-                return _AppBarButtons;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+                return _GardenVM ?? (_GardenVM = RxApp.DependencyResolver.GetService<IGardenViewModel>());
             }
         }
 
-        private GardenViewModel _GardenVM;
-        public GardenViewModel GardenVM
+        private INotificationsViewModel _NotificationsVM;
+        public INotificationsViewModel NotificationsVM
         {
             get
             {
-                if (_GardenVM == null)
-                {
-                    _GardenVM = new GardenViewModel(
-                        this.IsInDesignMode ? Guid.NewGuid() : this.Context.CurrentUser.Id,
-                        this.IsInDesignMode ? new PlantProjection(new NullUIPersistence(), null) : new PlantProjection(new NullUIPersistence(), null),
-                        this.Context,
-                        this.Bus,
-                        this.Nav
-                     );
-                    _GardenVM.ButtonsRefreshed += (a, aa) =>
-                    {
-                        if (this.CurrentPage == Page.MYGARDEN)
-                            UpdateButtons();
-                    };
-                }
-                return _GardenVM;
+                return _NotificationsVM ?? (_NotificationsVM = RxApp.DependencyResolver.GetService<INotificationsViewModel>());
             }
         }
 
-        public void OnNavigatedTo()
-        {
-            this.UpdateButtons();
-        }
-
-        private void UpdateButtons()
-        {
-            while (this.AppBarButtons.Count > 0)
-                this.AppBarButtons.RemoveAt(0);
-            if (this.CurrentPage == Page.MYGARDEN)
-            {
-                //this.AppBarButtons = GardenVM.AppBarButtons;
-                foreach (var btn in GardenVM.AppBarButtons)
-                    this.AppBarButtons.Add(btn);
-
-            }
-            //else
-            //{
-            //    this.AppBarButtons = new ObservableCollection<ButtonViewModel>();
-            //}
-        }
-
-
-        //public event EventHandler<SelectedPlantArgs> PlantSelected;
-        private ReactiveCommand _PanoramaPageChangedCommand;
-        public ReactiveCommand PanoramaPageChangedCommand
+        private IFriendsViewModel _FriendsVM;
+        public IFriendsViewModel FriendsVM
         {
             get
             {
-
-                if (_PanoramaPageChangedCommand == null)
-                {
-                    _PanoramaPageChangedCommand = new ReactiveCommand();
-                    _PanoramaPageChangedCommand.Subscribe(p =>
-                    {
-                        CurrentPage = (Page)p;
-                    });
-                }
-                return _PanoramaPageChangedCommand;
-
+                return _FriendsVM ?? (_FriendsVM = RxApp.DependencyResolver.GetService<IFriendsViewModel>());
             }
         }
 
-        public void OnBackKeyPress(CancelEventArgs e)
+        public override string UrlPathSegment
         {
-            if (UpdatePlantSelectionEnabled())
-                e.Cancel = true;
+            get { throw new NotImplementedException(); }
         }
-
-
     }
 
     public class ButtonViewModel : MenuItemViewModel
     {
+        public ButtonViewModel(IMessageBus bus)
+            : base(bus)
+        {
+
+        }
+
+
         #region IconUri
         private Uri uri;
 
@@ -176,6 +99,13 @@ namespace Growthstories.UI.ViewModel
 
     public class MenuItemViewModel : GSViewModelBase
     {
+
+        public MenuItemViewModel(IMessageBus bus)
+            : base(bus)
+        {
+
+        }
+
         #region Command
         private System.Windows.Input.ICommand command;
 

@@ -11,16 +11,22 @@ using System;
 namespace Growthstories.UI.ViewModel
 {
 
+    public interface IAddPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
+    {
 
-    public class AddPlantViewModel : RoutableViewModel
+    }
+    public class AddPlantViewModel : RoutableViewModel, IAddPlantViewModel
     {
 
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public AddPlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(ctx, handler, nav)
+        public AddPlantViewModel(
+            IUserService ctx,
+            IMessageBus bus,
+            IScreen host)
+            : base(ctx, bus, host)
         {
 
         }
@@ -58,7 +64,7 @@ namespace Growthstories.UI.ViewModel
                     _CreatePlantCommand.Subscribe(param =>
                     {
                         //this.Name = "";
-                        Nav.GoBack();
+                        //Nav.GoBack();
                     });
 
                 }
@@ -154,10 +160,10 @@ namespace Growthstories.UI.ViewModel
                 if (_AppBarButtons == null)
                     _AppBarButtons = new ReactiveList<ButtonViewModel>()
                     {
-                        new ButtonViewModel()
+                        new ButtonViewModel(this.Bus)
                         {
                             Text = "add",
-                            IconUri = Nav.IconUri[IconType.CHECK],
+                            //IconUri = Nav.IconUri[IconType.CHECK],
                             Command = CreatePlantCommand
                         }
                     };
@@ -165,5 +171,20 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        public override string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string AppBarMode
+        {
+            get { return GSApp.APPBAR_MODE_DEFAULT; }
+        }
+
+        public bool AppBarIsVisible
+        {
+            get { return true; }
+        }
     }
 }

@@ -65,19 +65,19 @@
     <Compile Include="When_an_aggregate_is_persisted.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
       <Project>{4ca0c3f8-0f50-4f12-a598-32eaa0ab19e6}</Project>
       <Name>PortableCommonDomain.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
       <Project>{a9f56ff4-b69c-400a-801b-13212d7e946a}</Project>
       <Name>PortableCommonDomain.Persistence.EventStore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
       <Project>{099b2958-0240-4d7e-83a7-f5b2305975b1}</Project>
       <Name>PortableCommonDomain.Persistence</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>

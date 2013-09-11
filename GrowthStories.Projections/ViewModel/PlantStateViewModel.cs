@@ -4,6 +4,7 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -26,7 +27,8 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantStateViewModel(PlantState state)
+        public PlantStateViewModel(PlantState state, IMessageBus bus)
+            : base(bus)
         {
             this.State = state;
             //this.State.ProfilepicturePathChanged += State_ProfilepicturePathChanged;

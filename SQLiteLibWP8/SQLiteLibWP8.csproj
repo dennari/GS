@@ -98,7 +98,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\sqlite-net-wp8-2\Sqlite_2.vcxproj">
+    <ProjectReference Include="..\..\sqlite-net-wp8-2\Sqlite_2.vcxproj">
       <Project>{59B35F6C-E062-4F0E-88D8-13F3F82A24F3}</Project>
       <Name>SqliteWP8</Name>
     </ProjectReference>

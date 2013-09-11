@@ -36,11 +36,11 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>

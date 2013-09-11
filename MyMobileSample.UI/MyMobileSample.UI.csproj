@@ -166,19 +166,19 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj">
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj">
       <Project>{685E862E-AA12-4D05-AD27-61AB2D71E411}</Project>
       <Name>ReactiveUI.Blend_WP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj">
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj">
       <Project>{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}</Project>
       <Name>ReactiveUI.Mobile_WP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj">
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj">
       <Project>{F9459904-F785-4255-866A-A619787CB895}</Project>
       <Name>ReactiveUI.Xaml_WP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
       <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
       <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
     </ProjectReference>

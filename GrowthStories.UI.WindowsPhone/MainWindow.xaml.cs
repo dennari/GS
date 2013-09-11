@@ -9,39 +9,24 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using BindableApplicationBar;
-using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using Growthstories.UI.WindowsPhone.ViewModels;
+//using Growthstories.UI.ViewModel;
 
 namespace GrowthStories.UI.WindowsPhone
 {
-    public partial class MainView : UserControl, IViewFor<MainViewModel>
+    public partial class MainWindow : PhoneApplicationPage, IViewFor<AppViewModel>
     {
 
 
-        public MainView()
+        public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this.ViewModel;
 
+            //this.ViewModel.Router.Navigate.Execute(RxApp.DependencyResolver.GetService<IMainViewModel>());
+            this.ViewModel.Router.NavigateCommandFor<Growthstories.UI.ViewModel.IMainViewModel>().Execute(null);
         }
-
-        public MainViewModel ViewModel
-        {
-            get { return (MainViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(MainView), new PropertyMetadata(null));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (MainViewModel)value; } }
 
         //protected override void OnNavigatedTo(NavigationEventArgs e)
         //{
@@ -75,5 +60,28 @@ namespace GrowthStories.UI.WindowsPhone
         //    }
         //}
 
+        protected AppViewModel _ViewModel;
+        public AppViewModel ViewModel
+        {
+            get { return _ViewModel ?? (_ViewModel = new AppViewModel()); }
+            set { SetValue(ViewModelProperty, value); }
+        }
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(AppViewModel), typeof(MainWindow), new PropertyMetadata(null));
+
+        object IViewFor.ViewModel
+        {
+            get { return ViewModel; }
+            set
+            {
+
+                var vm = (AppViewModel)value;
+                if (vm != null)
+                {
+                    this.ViewModel = vm;
+                    this.DataContext = vm;
+                }
+            }
+        }
     }
 }

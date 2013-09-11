@@ -13,22 +13,39 @@ using System.Linq;
 namespace Growthstories.UI.ViewModel
 {
 
+    public interface IPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
+    {
 
-    public class PlantViewModel : RoutableViewModel, IHandles<ShowPlantView>
+    }
+
+    public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
         public ActionProjection ActionProjection { get; private set; }
 
         public ObservableCollection<ActionBase> Actions { get; private set; }
 
+
+        public ReactiveList<ButtonViewModel> AppBarButtons { get; protected set; }
+
+
+        public string AppBarMode { get { return GSApp.APPBAR_MODE_DEFAULT; } }
+        public bool AppBarIsVisible { get { return true; } }
+
+
+        protected readonly Guid Id;
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav, ActionProjection actionProjection)
-            : base(ctx, handler, nav)
+        public PlantViewModel(Guid id, IUserService ctx, IMessageBus handler, IScreen host)
+            : base(ctx, handler, host)
         {
-            this.ActionProjection = actionProjection;
-            this.ActionProjection.EventHandled += this.ActionHandled;
-            this.Actions = new ObservableCollection<ActionBase>();
+            //this.ActionProjection = actionProjection;
+            //this.ActionProjection.EventHandled += this.ActionHandled;
+            //this.Actions = new ObservableCollection<ActionBase>();
+            this.Id = id;
+            this.AppBarButtons = new ReactiveList<ButtonViewModel>();
+
         }
 
 
@@ -163,9 +180,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public void Handle(ShowPlantView @event)
+        public override string UrlPathSegment
         {
-            this.Plant = @event.SelectedPlant;
+            get { throw new NotImplementedException(); }
         }
+
+
     }
 }

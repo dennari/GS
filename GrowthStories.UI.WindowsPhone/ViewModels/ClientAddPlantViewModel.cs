@@ -24,8 +24,8 @@ namespace GrowthStories.UI.WindowsPhone.ViewModels
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(ctx, handler, nav)
+        public ClientAddPlantViewModel(IUserService ctx, IMessageBus bus, IScreen host)
+            : base(ctx, bus, host)
         {
 
         }

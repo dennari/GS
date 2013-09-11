@@ -75,7 +75,7 @@ namespace GrowthStories.UI.WindowsPhone
             {
                 if (DesignModeDetector.IsInDesignMode() || DebugDesignSwitch)
                 {
-                    return new MainViewModel(new NullUserService(), new MessageBus(), new NavigationService());
+                    return new MainViewModel(new NullUserService(), new MessageBus());
                 }
                 else
                 {

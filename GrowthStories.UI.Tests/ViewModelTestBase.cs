@@ -34,7 +34,7 @@ namespace Growthstories.UI.Tests
         protected IAuthUser Ctx { get; set; }
 
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             if (Kernel != null)
                 Kernel.Dispose();

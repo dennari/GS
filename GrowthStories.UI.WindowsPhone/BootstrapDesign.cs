@@ -36,9 +36,9 @@ namespace GrowthStories.UI.WindowsPhone
 
             Bind<PlantViewModel>().ToSelf().InSingletonScope().OnActivation((ctx, vm) =>
             {
-                vm.Handle(new ShowPlantView(new PlantCreated(Guid.NewGuid(), "Jore", Guid.NewGuid())));
-                vm.Actions.Add(new Commented(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
-                vm.Actions.Add(new Watered(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
+                //vm.Handle(new ShowPlantView(new PlantCreated(Guid.NewGuid(), "Jore", Guid.NewGuid())));
+                //vm.Actions.Add(new Commented(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
+                //vm.Actions.Add(new Watered(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
             });
 
             Bind<GardenViewModel>().ToSelf().InSingletonScope();

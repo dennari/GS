@@ -51,11 +51,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
       <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
       <Name>EventStore.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj">
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
     </ProjectReference>

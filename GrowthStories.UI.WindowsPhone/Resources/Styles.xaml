@@ -15,7 +15,7 @@
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
-    <local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />
+    <!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
     <Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>
     <system:Double x:Key="GSAppTitleFontSize">24</system:Double>
     <system:Double x:Key="GSPageTitleFontSize">67</system:Double>
@@ -328,8 +328,8 @@
                         </Grid.Background>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Tap">
-                                <command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
-												CommandParameter="{Binding Mode=OneWay}" />
+                                <!--<command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
+												CommandParameter="{Binding Mode=OneWay}" />-->
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         <Image Width="173" Height="173" Source="{Binding ProfilepicturePath, Converter={StaticResource PathToImageSource}}" Stretch="None"/>

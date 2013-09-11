@@ -1,0 +1,27 @@
+﻿<phone:PhoneApplicationPage
+	x:Class="GrowthStories.UI.WindowsPhone.MainWindow"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:routing="clr-namespace:ReactiveUI.Xaml;assembly=ReactiveUI.Xaml"
+    xmlns:vm="clr-namespace:Growthstories.UI.ViewModel;assembly=GrowthStories.Projections"
+    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+	SupportedOrientations="Portrait"  Orientation="Portrait"
+	>
+
+	<routing:RoutedViewHost 
+        x:Name="Content"
+        Router="{Binding Router}"
+       />
+    <bar:Bindable.ApplicationBar>
+        <bar:BindableApplicationBar
+            Mode="{Binding AppBarMode}"
+            Style="{StaticResource GSAppBarStyle}"
+            ButtonsSource="{Binding AppBarButtons}"
+            IsVisible="{Binding AppBarIsVisible}"            
+            />
+    </bar:Bindable.ApplicationBar>
+</phone:PhoneApplicationPage>

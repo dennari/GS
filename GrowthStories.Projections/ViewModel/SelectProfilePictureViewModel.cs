@@ -28,8 +28,8 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public SelectProfilePictureViewModel(IUserService ctx, IMessageBus handler, INavigationService nav)
-            : base(ctx, handler, nav)
+        public SelectProfilePictureViewModel(IUserService ctx, IMessageBus handler, IScreen host)
+            : base(ctx, handler, host)
         {
 
         }
@@ -88,5 +88,10 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        public override string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

@@ -16,7 +16,7 @@
       <Capability Name="ID_CAP_IDENTITY_DEVICE" />
     </Capabilities>
     <Tasks>
-      <DefaultTask Name="_default" NavigationPage="Views\MainView.xaml" />
+      <DefaultTask Name="_default" NavigationPage="MainWindow.xaml" />
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="GrowthStories.UI.WindowsPhoneToken" TaskName="_default">

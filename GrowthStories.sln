@@ -57,13 +57,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventStore", "EventStore", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonDomain", "CommonDomain", "{08E09F0F-5CE9-4450-B8F4-003109CDB2B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain", "..\..\..\GitHub\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj", "{D721924B-891E-4375-A6A6-EA28E4EDB846}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain", "..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj", "{D721924B-891E-4375-A6A6-EA28E4EDB846}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Core", "..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj", "{4CA0C3F8-0F50-4F12-A598-32EAA0AB19E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Core", "..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj", "{4CA0C3F8-0F50-4F12-A598-32EAA0AB19E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Persistence", "..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj", "{099B2958-0240-4D7E-83A7-F5B2305975B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Persistence", "..\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj", "{099B2958-0240-4D7E-83A7-F5B2305975B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Persistence.EventStore", "..\..\..\GitHub\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj", "{A9F56FF4-B69C-400A-801B-13212D7E946A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomain.Persistence.EventStore", "..\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj", "{A9F56FF4-B69C-400A-801B-13212D7E946A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortableCommonDomainTest", "PortableCommonDomainTest\PortableCommonDomainTest.csproj", "{9C49591F-2672-4705-AC3E-5B1627ADD1BF}"
 EndProject
@@ -77,11 +77,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickTests", "QuickTests\Qu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.Sync.Core", "GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj", "{5475681A-83BE-462D-BDA2-91CB9740C111}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore", "..\..\..\GitHub\jEventStore\src\proj\EventStore\EventStore.csproj", "{789B5308-2D5E-40CC-8755-B0131B9832A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore", "..\jEventStore\src\proj\EventStore\EventStore.csproj", "{789B5308-2D5E-40CC-8755-B0131B9832A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj", "{F6D5D6FF-DF31-4F3E-8703-D9262BB1D0EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core", "..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj", "{F6D5D6FF-DF31-4F3E-8703-D9262BB1D0EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Serialization.Json", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj", "{FAE746CE-11C7-446A-A98D-DEB238B110AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Serialization.Json", "..\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj", "{FAE746CE-11C7-446A-A98D-DEB238B110AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4E960D1B-BBD4-4E72-B6AA-978F293F1CEE}"
 	ProjectSection(SolutionItems) = preProject
@@ -90,21 +90,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4E960D
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlitePersistence", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence\EventStore.Persistence.SqlitePersistence.csproj", "{2DC056D0-092A-476C-B920-E3F69839EE27}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlitePersistence", "..\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence\EventStore.Persistence.SqlitePersistence.csproj", "{2DC056D0-092A-476C-B920-E3F69839EE27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlitePersistence.WP8", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence.WP8\EventStore.Persistence.SqlitePersistence.WP8.csproj", "{612C6FA0-0A24-4B2B-BBE6-7DEA9DE88F6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlitePersistence.WP8", "..\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence.WP8\EventStore.Persistence.SqlitePersistence.WP8.csproj", "{612C6FA0-0A24-4B2B-BBE6-7DEA9DE88F6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlPersistence", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Persistence.SqlPersistence\EventStore.Persistence.SqlPersistence.csproj", "{DAFD3F38-33F3-4F53-BFEA-44E51BD1E8F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.SqlPersistence", "..\jEventStore\src\proj\EventStore.Persistence.SqlPersistence\EventStore.Persistence.SqlPersistence.csproj", "{DAFD3F38-33F3-4F53-BFEA-44E51BD1E8F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Wireup", "..\..\..\GitHub\jEventStore\src\proj\EventStore.Wireup\EventStore.Wireup.csproj", "{421664DB-C18D-4499-ABC1-C9086D525F80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Wireup", "..\jEventStore\src\proj\EventStore.Wireup\EventStore.Wireup.csproj", "{421664DB-C18D-4499-ABC1-C9086D525F80}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{BE59DCFE-5BBD-43F3-ADE0-C6DA32455D54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core.Tests", "..\..\..\GitHub\jEventStore\src\tests\EventStore.Core.Tests\EventStore.Core.Tests.csproj", "{785B7EF4-BD47-4F98-9802-DA1C4A55ECA4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core.Tests", "..\jEventStore\src\tests\EventStore.Core.Tests\EventStore.Core.Tests.csproj", "{785B7EF4-BD47-4F98-9802-DA1C4A55ECA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.AcceptanceTests", "..\..\..\GitHub\jEventStore\src\tests\EventStore.Persistence.AcceptanceTests\EventStore.Persistence.AcceptanceTests.csproj", "{3FE594FE-16FF-4405-97D5-5A58FB12520B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.AcceptanceTests", "..\jEventStore\src\tests\EventStore.Persistence.AcceptanceTests\EventStore.Persistence.AcceptanceTests.csproj", "{3FE594FE-16FF-4405-97D5-5A58FB12520B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.InMemoryPersistence.Tests", "..\..\..\GitHub\jEventStore\src\tests\EventStore.Persistence.InMemoryPersistence.Tests\EventStore.Persistence.InMemoryPersistence.Tests.csproj", "{1F83275B-C17F-4736-88CE-4387919F5EAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Persistence.InMemoryPersistence.Tests", "..\jEventStore\src\tests\EventStore.Persistence.InMemoryPersistence.Tests\EventStore.Persistence.InMemoryPersistence.Tests.csproj", "{1F83275B-C17F-4736-88CE-4387919F5EAE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI", "GrowthStories.Projections\GrowthStories.UI.csproj", "{EF1081C2-D71F-42D5-804A-E34FBF6C6A5A}"
 EndProject
@@ -114,7 +114,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.Persistenc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteLib", "SQLiteLib\SQLiteLib.csproj", "{36E33FC7-56EF-4B80-91F9-917A83125BA1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SqliteWP8", "..\..\..\GitHub\sqlite-net-wp8-2\Sqlite_2.vcxproj", "{59B35F6C-E062-4F0E-88D8-13F3F82A24F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SqliteWP8", "..\sqlite-net-wp8-2\Sqlite_2.vcxproj", "{59B35F6C-E062-4F0E-88D8-13F3F82A24F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteLibWP8", "SQLiteLibWP8\SQLiteLibWP8.csproj", "{ABC2A119-396A-4300-AB1A-85473355C3B8}"
 EndProject
@@ -122,21 +122,29 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.Persistenc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReactiveUI", "ReactiveUI", "{D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI", "..\..\..\GitHub\ReactiveUI\ReactiveUI\ReactiveUI.csproj", "{464CB812-F99F-401B-BE4C-E8F0515CD19D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI", "..\ReactiveUI\ReactiveUI\ReactiveUI.csproj", "{464CB812-F99F-401B-BE4C-E8F0515CD19D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Blend_WP8", "..\..\..\GitHub\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj", "{685E862E-AA12-4D05-AD27-61AB2D71E411}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Blend_WP8", "..\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj", "{685E862E-AA12-4D05-AD27-61AB2D71E411}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Xaml_WP8", "..\..\..\GitHub\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj", "{F9459904-F785-4255-866A-A619787CB895}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Xaml_WP8", "..\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj", "{F9459904-F785-4255-866A-A619787CB895}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Mobile_WP8", "..\..\..\GitHub\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj", "{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Mobile_WP8", "..\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj", "{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileSample-WP8", "..\..\..\GitHub\ReactiveUI\MobileSample-WP8\MobileSample-WP8.csproj", "{B5708000-73EE-43A2-9830-454C74B037F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MobileSample-WP8", "..\ReactiveUI\MobileSample-WP8\MobileSample-WP8.csproj", "{B5708000-73EE-43A2-9830-454C74B037F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMobileSample.UI", "MyMobileSample.UI\MyMobileSample.UI.csproj", "{6CDC2930-A67D-471E-9D4D-509DD54CA88A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMobileSample.Model", "MyMobileSample.Model\MyMobileSample.Model.csproj", "{DFBADB72-B5D4-4BE2-8466-BA9FEC25DF66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.Tests", "GrowthStories.UI.Tests\GrowthStories.UI.Tests.csproj", "{0B8C01A6-A116-4211-9D89-1A74BA3D8E4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Testing_Net45", "..\ReactiveUI\ReactiveUI.Testing\ReactiveUI.Testing_Net45.csproj", "{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.Tests_Net45", "..\ReactiveUI\ReactiveUI.Tests\ReactiveUI.Tests_Net45.csproj", "{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.NLog_Net45", "..\ReactiveUI\ReactiveUI.NLog\ReactiveUI.NLog_Net45.csproj", "{08D3606B-EE79-43EE-8382-72A1091F1F30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveUI.NLog_WP8", "..\ReactiveUI\ReactiveUI.NLog\ReactiveUI.NLog_WP8.csproj", "{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -3054,6 +3062,215 @@ Global
 		{0B8C01A6-A116-4211-9D89-1A74BA3D8E4B}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0B8C01A6-A116-4211-9D89-1A74BA3D8E4B}.RxMobileTest|Mixed Platforms.Build.0 = Release|Any CPU
 		{0B8C01A6-A116-4211-9D89-1A74BA3D8E4B}.RxMobileTest|x86.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|ARM.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug Phone Device|x86.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|ARM.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug PhoneApp|x86.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|ARM.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug StoreApp|x86.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|ARM.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Netflix|x86.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|ARM.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.QuickTest|x86.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|ARM.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.Release|x86.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|ARM.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65}.RxMobileTest|x86.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|ARM.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug Phone Device|x86.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|ARM.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug PhoneApp|x86.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|ARM.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug StoreApp|x86.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|ARM.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|Mixed Platforms.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Netflix|x86.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|ARM.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.QuickTest|x86.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|ARM.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.Release|x86.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|ARM.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E}.RxMobileTest|x86.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|ARM.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug Phone Device|x86.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|ARM.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug PhoneApp|x86.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|ARM.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug StoreApp|x86.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|ARM.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|ARM.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|Mixed Platforms.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Netflix|x86.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|ARM.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.QuickTest|x86.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|ARM.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.Release|x86.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|ARM.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|Mixed Platforms.Build.0 = Release|Any CPU
+		{08D3606B-EE79-43EE-8382-72A1091F1F30}.RxMobileTest|x86.ActiveCfg = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|ARM.ActiveCfg = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|ARM.Build.0 = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|x86.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug Phone Device|x86.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|ARM.ActiveCfg = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|ARM.Build.0 = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|x86.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug PhoneApp|x86.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|ARM.ActiveCfg = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|ARM.Build.0 = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|x86.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug StoreApp|x86.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|ARM.ActiveCfg = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|ARM.Build.0 = Debug|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|x86.ActiveCfg = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Debug|x86.Build.0 = Debug|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|ARM.ActiveCfg = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|ARM.Build.0 = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|Mixed Platforms.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|Mixed Platforms.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|x86.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Netflix|x86.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|ARM.ActiveCfg = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|ARM.Build.0 = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|Mixed Platforms.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|Mixed Platforms.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|x86.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.QuickTest|x86.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|ARM.ActiveCfg = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|ARM.Build.0 = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|Mixed Platforms.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|x86.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.Release|x86.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|ARM.ActiveCfg = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|ARM.Build.0 = Release|ARM
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|Mixed Platforms.Build.0 = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|x86.ActiveCfg = Release|x86
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7}.RxMobileTest|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3103,5 +3320,9 @@ Global
 		{685E862E-AA12-4D05-AD27-61AB2D71E411} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
 		{F9459904-F785-4255-866A-A619787CB895} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
 		{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
+		{DD99FD0F-82F6-4C30-930E-4A1D0DF01D65} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
+		{6FBDE6EA-2202-4A70-8EE4-7BA6D515952E} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
+		{08D3606B-EE79-43EE-8382-72A1091F1F30} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
+		{584F60B1-C425-4D17-B90A-8C2AB1EC78D7} = {D1A0AE7C-91B0-411E-8F4B-5A2A5B8A0D19}
 	EndGlobalSection
 EndGlobal
