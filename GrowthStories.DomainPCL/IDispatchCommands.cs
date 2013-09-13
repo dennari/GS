@@ -51,6 +51,12 @@ namespace Growthstories.Domain
         {
             bus.SendMessage(message);
         }
+
+        public static void SendCommand<T>(this IMessageBus bus, T message)
+            where T : IEntityCommand
+        {
+            bus.SendMessage((IEntityCommand)message);
+        }
     }
 
 

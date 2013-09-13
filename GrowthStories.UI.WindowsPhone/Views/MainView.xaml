@@ -63,7 +63,7 @@
                 <Grid x:Name="ContentPanel1" Margin="0,0" DataContext="{Binding GardenVM}">
                     <toolkit:LongListMultiSelector
                         x:Name="PlantsSelector"
-                       
+                        ItemsSource="{Binding Plants}"
                         Style="{StaticResource GSGardenPlantsStyle}"
                         LayoutMode="Grid" 
                         IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
@@ -87,8 +87,9 @@
                                     </Grid.Background>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Tap">
-                                            <!--<command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
-												    CommandParameter="{Binding Mode=OneWay}" />-->
+                                            <command:InvokeCommandAction 
+                                                Command="{Binding DataContext.ShowDetailsCommand, ElementName=ContentPanel1}"
+												    CommandParameter="{Binding Mode=OneWay}" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center" Canvas.ZIndex="1"/>

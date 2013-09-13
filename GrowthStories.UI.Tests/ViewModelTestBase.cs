@@ -25,11 +25,27 @@ using Growthstories.DomainTests;
 
 namespace Growthstories.UI.Tests
 {
+    public class TestAppViewModel : AppViewModel
+    {
+
+
+        public TestAppViewModel(IKernel kernel)
+            : base()
+        {
+            Kernel = kernel;
+            Kernel.Bind<IScreen>().ToConstant(this);
+            Kernel.Bind<IRoutingState>().ToConstant(this.Router);
+            this.Bus = kernel.Get<IMessageBus>();
+        }
+
+
+    }
+
     public class ViewModelTestBase
     {
 
 
-
+        protected AppViewModel App;
         protected IKernel Kernel { get; set; }
         protected IAuthUser Ctx { get; set; }
 
@@ -39,6 +55,7 @@ namespace Growthstories.UI.Tests
             if (Kernel != null)
                 Kernel.Dispose();
             Kernel = new StandardKernel(new TestModule());
+            App = new TestAppViewModel(Kernel);
             this.Ctx = Get<IUserService>().CurrentUser;
 
         }

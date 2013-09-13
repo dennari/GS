@@ -11,7 +11,7 @@ namespace Growthstories.UI.ViewModel
 {
     public interface IControlsAppBar
     {
-        string AppBarMode { get; }
+        ApplicationBarMode AppBarMode { get; }
         bool AppBarIsVisible { get; }
     }
 
@@ -24,8 +24,8 @@ namespace Growthstories.UI.ViewModel
 
     public abstract class MultipageViewModel : RoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IControlsAppBar
     {
-        public MultipageViewModel(IUserService ctx, IMessageBus bus, IScreen host)
-            : base(ctx, bus, host)
+        public MultipageViewModel(IGSApp app)
+            : base(app)
         {
             this.PageChangedCommand
                 .Select(x => TryGetPage(x))
@@ -48,7 +48,7 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IControlsAppBar>()
                 .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
                 .Switch()
-                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, GSApp.APPBAR_MODE_DEFAULT);
+                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.DEFAULT);
 
             currentPageChanged
                  .OfType<IControlsAppBar>()
@@ -133,8 +133,8 @@ namespace Growthstories.UI.ViewModel
             get { return _Pages ?? (_Pages = new ReactiveList<IGSViewModel>()); }
         }
 
-        protected ObservableAsPropertyHelper<string> _AppBarMode;
-        public string AppBarMode
+        protected ObservableAsPropertyHelper<ApplicationBarMode> _AppBarMode;
+        public ApplicationBarMode AppBarMode
         {
             get { return _AppBarMode.Value; }
         }

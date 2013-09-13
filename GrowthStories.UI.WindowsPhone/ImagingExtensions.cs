@@ -9,7 +9,6 @@ using Windows.Foundation;
 using System.Threading.Tasks;
 using System.IO.IsolatedStorage;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
-using Nokia.Graphics.Imaging;
 
 namespace GrowthStories.UI.WindowsPhone
 {
@@ -34,7 +33,7 @@ namespace GrowthStories.UI.WindowsPhone
 
                         stream.Flush();
                     }
-                    catch (Exception ex)
+                    catch
                     {
                     }
 

@@ -24,53 +24,35 @@ namespace Growthstories.UI.ViewModel
 
     public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
     {
-        public const string APPNAME = "GROWTH STORIES";
+        protected readonly IGSApp App;
 
-        public string AppName { get { return APPNAME; } }
-
-        public IMessageBus Bus { get; private set; }
-        public GSViewModelBase(IMessageBus bus)
+        public GSViewModelBase(IGSApp app)
         {
-            this.Bus = bus;
-        }
-
-        bool DebugDesignSwitch = false;
-
-        public bool IsInDesignMode
-        {
-            get
-            {
-                return DebugDesignSwitch ? true : DesignModeDetector.IsInDesignMode();
-            }
+            this.App = app;
         }
 
     }
 
     public interface IGSRoutableViewModel : IRoutableViewModel
     {
+        string PageTitle { get; }
     }
 
     public abstract class RoutableViewModel : GSViewModelBase, IGSRoutableViewModel
     {
 
-        public IUserService Context { get; private set; }
-
-        protected string _PageTitle = "Undefined Title";
-        private IScreen Host;
-        public virtual string PageTitle { get { return _PageTitle; } }
+        public virtual string PageTitle { get; protected set; }
         public abstract string UrlPathSegment { get; }
-        public IScreen HostScreen { get { return Host; } protected set { Host = value; } }
+
+        public IScreen HostScreen { get { return App; } }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public RoutableViewModel(
-            IUserService ctx,
-            IMessageBus bus,
-            IScreen host)
-            : base(bus)
+            IGSApp app)
+            : base(app)
         {
-            this.Context = ctx;
-            this.Host = host;
+
         }
 
 

@@ -28,11 +28,11 @@ namespace GrowthStories.UI.WindowsPhone
 
         protected override void UIConfiguration()
         {
-            Bind<INavigationService>().To<NavigationService>().InSingletonScope();
-            Bind<GardenViewModel>().ToSelf().InSingletonScope();
-            Bind<AddPlantViewModel>().ToSelf().InSingletonScope();
-            Bind<PlantViewModel>().ToSelf().InSingletonScope();
-            Bind<MainViewModel>().ToSelf().InSingletonScope();
+            //Bind<INavigationService>().To<NavigationService>().InSingletonScope();
+            //Bind<GardenViewModel>().ToSelf().InSingletonScope();
+            //Bind<AddPlantViewModel>().ToSelf().InSingletonScope();
+            //Bind<PlantViewModel>().ToSelf().InSingletonScope();
+            //Bind<MainViewModel>().ToSelf().InSingletonScope();
         }
 
         protected override void SQLiteConnectionConfiguration()
@@ -62,13 +62,13 @@ namespace GrowthStories.UI.WindowsPhone
             Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope().OnActivation((ctx, eng) =>
                 {
                     eng.Initialize();
-                    //eng.Purge();
+                    eng.Purge();
                 });
-            Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
-            {
-                eng.Initialize();
-                //eng.Purge();
-            });
+            //Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
+            //{
+            //    eng.Initialize();
+            //    eng.Purge();
+            //});
 
 
         }

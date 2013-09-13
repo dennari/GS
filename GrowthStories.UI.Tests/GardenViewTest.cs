@@ -61,7 +61,7 @@ namespace Growthstories.UI.Tests
 
 
 
-        //        //Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Name));
+        //        //Handler.Handle<Plant, CreatePlant>(new CreatePlant(PlantId, Namn 
         //        var list = PVM.Actions;
         //        Assert.AreEqual(4, list.Count);
         //        var comment = list[0] as Commented;

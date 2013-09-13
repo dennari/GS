@@ -22,11 +22,8 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public AddPlantViewModel(
-            IUserService ctx,
-            IMessageBus bus,
-            IScreen host)
-            : base(ctx, bus, host)
+        public AddPlantViewModel(IGSApp app)
+            : base(app)
         {
 
         }
@@ -43,19 +40,19 @@ namespace Growthstories.UI.ViewModel
                     _CreatePlantCommand = new ReactiveCommand();
                     _CreatePlantCommand.RegisterAsyncAction(param =>
                     {
-                        Bus.SendMessage<IEntityCommand>(
+                        App.Bus.SendMessage<IEntityCommand>(
                             new CreatePlant(
                                 this.Id,
                                 this.Name,
-                                this.Context.CurrentUser.Id
+                                App.Context.CurrentUser.Id
                              )
                              {
                                  ProfilepicturePath = this.ProfilepicturePath
                              }
                          );
-                        Bus.SendMessage<IEntityCommand>(
+                        App.Bus.SendMessage<IEntityCommand>(
                             new AddPlant(
-                                this.Context.CurrentUser.GardenId,
+                                App.Context.CurrentUser.GardenId,
                                 this.Id,
                                 this.Name
                              )
@@ -95,7 +92,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        protected new string _PageTitle = "add plant";
+        protected string _PageTitle = "add plant";
         public override string PageTitle { get { return _PageTitle; } }
 
 
@@ -160,7 +157,7 @@ namespace Growthstories.UI.ViewModel
                 if (_AppBarButtons == null)
                     _AppBarButtons = new ReactiveList<ButtonViewModel>()
                     {
-                        new ButtonViewModel(this.Bus)
+                        new ButtonViewModel(App)
                         {
                             Text = "add",
                             //IconUri = Nav.IconUri[IconType.CHECK],
@@ -177,9 +174,9 @@ namespace Growthstories.UI.ViewModel
             get { throw new NotImplementedException(); }
         }
 
-        public string AppBarMode
+        public ApplicationBarMode AppBarMode
         {
-            get { return GSApp.APPBAR_MODE_DEFAULT; }
+            get { return ApplicationBarMode.DEFAULT; }
         }
 
         public bool AppBarIsVisible

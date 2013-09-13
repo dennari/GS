@@ -67,6 +67,23 @@
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="ReactiveUI, Version=5.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\reactiveui-core.5.1.2\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Blend">
+      <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\net45\ReactiveUI.Blend.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.NLog, Version=5.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\reactiveui-nlog.5.1.2\lib\net45\ReactiveUI.NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Testing">
+      <HintPath>..\packages\reactiveui-testing.5.1.2\lib\net45\ReactiveUI.Testing.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Xaml">
+      <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\net45\ReactiveUI.Xaml.dll</HintPath>
+    </Reference>
     <Reference Include="ReflectSoftware.Insight">
       <HintPath>..\packages\ReflectSoftware.Insight.5.1.5\lib\net45\ReflectSoftware.Insight.dll</HintPath>
     </Reference>
@@ -98,6 +115,10 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net45\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reactive.Windows.Threading">
+      <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\Net45\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -150,14 +171,6 @@
     <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.NLog\ReactiveUI.NLog_Net45.csproj">
-      <Project>{08d3606b-ee79-43ee-8382-72a1091f1f30}</Project>
-      <Name>ReactiveUI.NLog_Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
-      <Project>{464cb812-f99f-401b-be4c-e8f0515cd19d}</Project>
-      <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{dfdb229b-9c77-4e89-a602-6cbaee83315f}</Project>

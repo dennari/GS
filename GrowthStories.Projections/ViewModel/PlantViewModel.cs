@@ -6,6 +6,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,68 +16,75 @@ namespace Growthstories.UI.ViewModel
 
     public interface IPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
     {
-
+        Guid Id { get; }
+        string Name { get; }
+        string ProfilePicturePath { get; }
     }
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
-        public ActionProjection ActionProjection { get; private set; }
 
-        public ObservableCollection<ActionBase> Actions { get; private set; }
+
+        protected ReactiveList<ActionBase> _Actions;
+        public IList<ActionBase> Actions
+        {
+            get
+            {
+                if (_Actions == null)
+                {
+                    _Actions = new ReactiveList<ActionBase>();
+                    //LoadActions();
+                    //a();
+                    this.GetActionsCommand.Execute(Tuple.Create(State.UserId, State.Id));
+
+                }
+                return _Actions;
+            }
+        }
 
 
         public ReactiveList<ButtonViewModel> AppBarButtons { get; protected set; }
 
+        public Guid Id { get { return State.Id; } }
+        public string Name { get { return State.Name; } }
+        public string ProfilePicturePath { get { return State.ProfilepicturePath; } }
 
-        public string AppBarMode { get { return GSApp.APPBAR_MODE_DEFAULT; } }
+        public ApplicationBarMode AppBarMode { get { return ApplicationBarMode.DEFAULT; } }
         public bool AppBarIsVisible { get { return true; } }
 
+        private readonly Func<object, IEnumerable<ActionBase>> ActionFactory;
 
-        protected readonly Guid Id;
+        protected PlantState State;
 
+        public PlantViewModel()
+            : base(null)
+        {
+
+        }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(Guid id, IUserService ctx, IMessageBus handler, IScreen host)
-            : base(ctx, handler, host)
+        public PlantViewModel(PlantState state, Func<object, IEnumerable<ActionBase>> actionFactory, IGSApp app)
+            : base(app)
         {
             //this.ActionProjection = actionProjection;
             //this.ActionProjection.EventHandled += this.ActionHandled;
             //this.Actions = new ObservableCollection<ActionBase>();
-            this.Id = id;
+            this.State = state;
             this.AppBarButtons = new ReactiveList<ButtonViewModel>();
+            this.ActionFactory = actionFactory;
+
+
+            this.GetActionsCommand = new ReactiveCommand();
+            this.GetActionsPipe = this.GetActionsCommand
+                .RegisterAsyncFunction((id) => actionFactory(id), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+            this.GetActionsPipe.Subscribe(x => this._Actions.AddRange(x));
 
         }
 
 
 
-        private PlantCreated _Plant;
-        public PlantCreated Plant
-        {
-            get { return _Plant; }
-            private set
-            {
-                if (_Plant == value)
-                    return;
-
-                this.RaiseAndSetIfChanged(ref _Plant, value);
-                this.LoadActions(value.EntityId);
-            }
-        }
-
-        private void ActionHandled(object sender, EventHandledArgs e)
-        {
-            var action = e.@event as ActionBase;
-            if (action != null && this.Plant != null && (action.PlantId == this.Plant.EntityId || action.EntityId == this.Plant.UserId))
-                this.Actions.Add(action);
-        }
-
-        public void LoadActions(Guid plantId)
-        {
-            this.Actions.Clear();
-            foreach (var a in this.ActionProjection.LoadWithPlantId(plantId))
-                this.Actions.Add(a);
-        }
 
 
         private ReactiveCommand _AddCommentCommand;
@@ -90,7 +98,7 @@ namespace Growthstories.UI.ViewModel
                     _AddCommentCommand = new ReactiveCommand();
                     _AddCommentCommand.Subscribe((note) =>
                     {
-                        this.Add(new Comment(Context.CurrentUser.Id, this.Plant.EntityId, (string)note));
+                        this.Add(new Comment(App.Context.CurrentUser.Id, this.State.Id, (string)note));
                     });
                 }
                 return _AddCommentCommand;
@@ -109,7 +117,7 @@ namespace Growthstories.UI.ViewModel
                     _AddPhotoCommand = new ReactiveCommand();
                     _AddPhotoCommand.Subscribe((photo) =>
                     {
-                        this.Add(new Photograph(Context.CurrentUser.Id, this.Plant.EntityId, "", photo as Uri));
+                        this.Add(new Photograph(App.Context.CurrentUser.Id, this.State.Id, "", photo as Uri));
                     });
                 }
                 return _AddPhotoCommand;
@@ -129,7 +137,7 @@ namespace Growthstories.UI.ViewModel
                     _AddFertilizerCommand = new ReactiveCommand();
                     _AddFertilizerCommand.Subscribe(_ =>
                     {
-                        this.Add(new Fertilize(Context.CurrentUser.Id, this.Plant.EntityId, ""));
+                        this.Add(new Fertilize(App.Context.CurrentUser.Id, this.State.Id, ""));
                     });
                 }
                 return _AddFertilizerCommand;
@@ -138,6 +146,8 @@ namespace Growthstories.UI.ViewModel
         }
 
         private ReactiveCommand _AddWaterCommand;
+        private ReactiveCommand GetActionsCommand;
+        private IObservable<IEnumerable<ActionBase>> GetActionsPipe;
         public ReactiveCommand AddWaterCommand
         {
             get
@@ -148,7 +158,7 @@ namespace Growthstories.UI.ViewModel
                     _AddWaterCommand = new ReactiveCommand();
                     _AddWaterCommand.Subscribe(_ =>
                     {
-                        this.Add(new Water(Context.CurrentUser.Id, this.Plant.EntityId, ""));
+                        this.Add(new Water(App.Context.CurrentUser.Id, this.State.Id, ""));
                     });
                 }
                 return _AddWaterCommand;
@@ -159,23 +169,23 @@ namespace Growthstories.UI.ViewModel
 
         public void Add(Comment command)
         {
-            Bus.Handle(command);
+            App.Bus.Handle(command);
         }
 
         public void Add(Fertilize command)
         {
-            Bus.Handle(command);
+            App.Bus.Handle(command);
         }
 
         public void Add(Water command)
         {
-            Bus.Handle(command);
+            App.Bus.Handle(command);
 
         }
 
         public void Add(Photograph command)
         {
-            Bus.Handle(command);
+            App.Bus.Handle(command);
 
         }
 
@@ -186,5 +196,30 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+    }
+
+
+    public class PlantViewModelDesign : PlantViewModel
+    {
+
+        public new IList<ActionBase> Actions
+        {
+            get
+            {
+                return new List<ActionBase>()
+                {
+                    new Watered(State.UserId,State.Id,"Watered"),
+                    new Fertilized(State.UserId,State.Id,"Fertilized"),
+                    new Commented(State.UserId,State.Id,"Commented")
+
+                };
+            }
+        }
+
+        public PlantViewModelDesign()
+            : base()
+        {
+            this.State = new PlantState(new PlantCreated(Guid.NewGuid(), "Jare", Guid.NewGuid()));
+        }
     }
 }

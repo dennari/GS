@@ -9,15 +9,36 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone;
+using ReactiveUI;
 
-namespace GrowthStories.UI.WindowsPhone.Views
+namespace GrowthStories.UI.WindowsPhone
 {
-    public partial class PlantView : GSView
+    public partial class PlantView : UserControl, IViewFor<PlantViewModel>
     {
         public PlantView()
         {
             InitializeComponent();
+
         }
+
+        public PlantViewModel ViewModel
+        {
+            get { return (PlantViewModel)GetValue(ViewModelProperty); }
+            set
+            {
+                if (value != null)
+                {
+                    SetValue(ViewModelProperty, value);
+                    this.DataContext = value;
+                }
+            }
+        }
+
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(PlantView), new PropertyMetadata(null));
+
+
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantViewModel)value; } }
 
     }
 }

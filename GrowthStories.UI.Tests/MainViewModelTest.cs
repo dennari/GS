@@ -1,4 +1,5 @@
 ﻿using Growthstories.Domain.Messaging;
+using Growthstories.Domain;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
 using NUnit.Framework;
@@ -18,7 +19,7 @@ namespace Growthstories.UI.Tests
         public class TestMultiPageViewModel : MultipageViewModel
         {
 
-            public TestMultiPageViewModel() : base(null, null, null) { }
+            public TestMultiPageViewModel() : base(null) { }
             public override string UrlPathSegment
             {
                 get { throw new NotImplementedException(); }
@@ -27,7 +28,7 @@ namespace Growthstories.UI.Tests
 
         public class TestViewModel : RoutableViewModel, IHasAppBarButtons, IControlsAppBar
         {
-            public TestViewModel() : base(null, null, null) { }
+            public TestViewModel() : base(null) { }
             public override string UrlPathSegment
             {
                 get { throw new NotImplementedException(); }
@@ -46,26 +47,13 @@ namespace Growthstories.UI.Tests
                 }
             }
 
-            public string AppBarMode { get; set; }
+            public ApplicationBarMode AppBarMode { get; set; }
 
             public bool _AppBarVisibility;
             public bool AppBarIsVisible { get { return _AppBarVisibility; } set { this.RaiseAndSetIfChanged(ref _AppBarVisibility, value); } }
 
         }
 
-        IScreen Screen;
-
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
-            var Resolver = RxApp.MutableResolver;
-            Resolver.Register(() => Get<MainViewModel>(), typeof(IMainViewModel));
-            Resolver.Register(() => new GardenViewModel(Guid.NewGuid(), null, Get<IUserService>(), Get<IMessageBus>(), this.Screen), typeof(IGardenViewModel));
-            Resolver.Register(() => new NotificationsViewModel(Get<IUserService>(), Get<IMessageBus>(), this.Screen), typeof(INotificationsViewModel));
-            Resolver.Register(() => new FriendsViewModel(Get<IUserService>(), Get<IMessageBus>(), this.Screen), typeof(IFriendsViewModel));
-
-        }
 
         [Test]
         public void MultiPageViewModelTest()
@@ -73,7 +61,7 @@ namespace Growthstories.UI.Tests
             var multi = new TestMultiPageViewModel();
             var vm = new TestViewModel()
             {
-                AppBarMode = "BLAAA!",
+                AppBarMode = ApplicationBarMode.DEFAULT,
                 AppBarIsVisible = false,
                 AppBarButtons = new ReactiveList<ButtonViewModel>()
                 {
@@ -93,7 +81,7 @@ namespace Growthstories.UI.Tests
 
             var vm2 = new TestViewModel()
             {
-                AppBarMode = "BLAAA!!",
+                AppBarMode = ApplicationBarMode.MINIMIZED,
                 AppBarIsVisible = true,
                 AppBarButtons = new ReactiveList<ButtonViewModel>()
                 {
@@ -127,21 +115,24 @@ namespace Growthstories.UI.Tests
         }
 
         [Test]
-        public void AppBarTest()
+        public void TestMainViewModel()
         {
+            var plant = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
+            Assert.AreSame(this.Bus, this.App.Bus);
+            Bus.SendCommand(plant);
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.EntityId, plant.Name));
+            Bus.SendCommand(new MarkPlantPublic(plant.EntityId));
 
-            var screen = new AppViewModel();
-            this.Screen = screen;
-            var mvm = new MainViewModel(Get<IUserService>(), MessageBus.Current, screen);
-            var events = mvm.Changed.CreateCollection();
-            var gvm = mvm.GardenVM;
-            var buttons = gvm.AppBarButtons;
+            var plant2 = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
+            Bus.SendCommand(plant2);
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant2.EntityId, plant2.Name));
 
-            //mvm.PanoramaPageChangedCommand.Execute(0);
-            Assert.AreSame(gvm, mvm.CurrentPage);
-            //Console.WriteLine(this.toJSON(gvm.AppBarButtons.ToArray()));
-            //Console.WriteLine(this.toJSON(mvm.AppBarButtons.ToArray()));
-            Assert.AreSame(buttons, mvm.AppBarButtons);
+            var mvm = App.Resolver.GetService<IMainViewModel>();
+
+            Assert.AreEqual(mvm.GardenVM.Id, Ctx.GardenId);
+            Assert.AreEqual(mvm.GardenVM.Plants[0].Id, plant.EntityId);
+            Assert.AreEqual(mvm.GardenVM.Plants[1].Id, plant2.EntityId);
+
         }
 
 

@@ -8,6 +8,7 @@
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:vm="clr-namespace:Growthstories.UI.ViewModel;assembly=GrowthStories.Projections"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:media="clr-namespace:System.Windows.Media;assembly=System.Windows"
@@ -15,6 +16,7 @@
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
+    <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
     <!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
     <Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>
     <system:Double x:Key="GSAppTitleFontSize">24</system:Double>

@@ -166,22 +166,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj">
-      <Project>{685E862E-AA12-4D05-AD27-61AB2D71E411}</Project>
-      <Name>ReactiveUI.Blend_WP8</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj">
-      <Project>{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}</Project>
-      <Name>ReactiveUI.Mobile_WP8</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj">
-      <Project>{F9459904-F785-4255-866A-A619787CB895}</Project>
-      <Name>ReactiveUI.Xaml_WP8</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
-      <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
-      <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MyMobileSample.Model\MyMobileSample.Model.csproj">
       <Project>{DFBADB72-B5D4-4BE2-8466-BA9FEC25DF66}</Project>
       <Name>MyMobileSample.Model</Name>
@@ -197,6 +181,18 @@
     <Reference Include="Cimbalino.Phone.Toolkit.Background">
       <HintPath>..\packages\Cimbalino.Phone.Toolkit.Background.3.1.0-rc\lib\wp8\Cimbalino.Phone.Toolkit.Background.dll</HintPath>
     </Reference>
+    <Reference Include="ReactiveUI">
+      <HintPath>..\packages\reactiveui-core.5.1.2\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Blend">
+      <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\WP8\ReactiveUI.Blend.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Mobile">
+      <HintPath>..\packages\reactiveui-mobile.5.1.2\lib\WP8\ReactiveUI.Mobile.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Xaml">
+      <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\WP8\ReactiveUI.Xaml.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\WP8\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -209,7 +205,13 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\WP8\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reactive.Windows.Threading">
+      <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\WP8\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Xamarin.Mobile">
+      <HintPath>..\packages\reactiveui-mobile.5.1.2\lib\WP8\Xamarin.Mobile.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

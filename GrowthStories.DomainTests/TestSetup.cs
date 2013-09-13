@@ -52,9 +52,9 @@ namespace Growthstories.DomainTests
 
         protected virtual void UIConfiguration()
         {
-            Bind<INavigationService, FakeNavigationService>().To<FakeNavigationService>().InSingletonScope();
-            Bind<GardenViewModel>().ToSelf().InSingletonScope();
-            Bind<PlantViewModel>().ToSelf().InSingletonScope();
+            //Bind<INavigationService, FakeNavigationService>().To<FakeNavigationService>().InSingletonScope();
+            //Bind<GardenViewModel>().ToSelf().InSingletonScope();
+            //Bind<PlantViewModel>().ToSelf().InSingletonScope();
         }
 
 
@@ -201,31 +201,35 @@ namespace Growthstories.DomainTests
             var allEvents = bus.Listen<IEvent>();
             var allCommands = bus.Listen<IEntityCommand>();
 
-            PlantProjection pproj = null;
-            ActionProjection aproj = null;
-            IDispatchCommands handler = null;
-
-            allEvents.Take(1).Subscribe(_ =>
-            {
-                pproj = Kernel.Get<PlantProjection>();
-                aproj = Kernel.Get<ActionProjection>();
-
-                allEvents.OfType<Commented>().Subscribe(e => aproj.Handle(e));
-                allEvents.OfType<Watered>().Subscribe(e => aproj.Handle(e));
-                allEvents.OfType<Photographed>().Subscribe(e => aproj.Handle(e));
-                allEvents.OfType<Fertilized>().Subscribe(e => aproj.Handle(e));
+            var handler = Kernel.Get<IDispatchCommands>();
+            allCommands.Subscribe(c => handler.Handle(c));
 
 
+            //PlantProjection pproj = null;
+            //ActionProjection aproj = null;
+            //IDispatchCommands handler = null;
 
-            });
+            //allEvents.Take(1).Subscribe(_ =>
+            //{
+            //    pproj = Kernel.Get<PlantProjection>();
+            //    aproj = Kernel.Get<ActionProjection>();
 
-            allCommands.Take(1).Subscribe(_ =>
-            {
-                handler = Kernel.Get<IDispatchCommands>();
-                allCommands.Subscribe(c => handler.Handle(c));
-                handler.Handle(_);
+            //    allEvents.OfType<Commented>().Subscribe(e => aproj.Handle(e));
+            //    allEvents.OfType<Watered>().Subscribe(e => aproj.Handle(e));
+            //    allEvents.OfType<Photographed>().Subscribe(e => aproj.Handle(e));
+            //    allEvents.OfType<Fertilized>().Subscribe(e => aproj.Handle(e));
 
-            });
+
+
+            //});
+
+            //allCommands.Take(1).Subscribe(_ =>
+            //{
+            //    var handler = Kernel.Get<IDispatchCommands>();
+            //    allCommands.Subscribe(c => handler.Handle(c));
+            //    handler.Handle(_);
+
+            //});
 
 
 

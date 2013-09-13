@@ -23,7 +23,7 @@ namespace Growthstories.Sync
 
         private readonly IGSRepository Store;
         private readonly IAggregateFactory Factory;
-        private readonly IAuthTokenService AuthService;
+        //private readonly IAuthTokenService AuthService;
 
         //public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
         //{
@@ -70,7 +70,7 @@ namespace Growthstories.Sync
 
         public Task TryAuth()
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 //var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
                 ////if(auth)

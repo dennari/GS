@@ -10,6 +10,11 @@ using Growthstories.UI.ViewModel;
 using Growthstories.Sync;
 using System;
 using System.Collections.Generic;
+using Growthstories.Core;
+using Growthstories.Domain.Entities;
+using Growthstories.Domain;
+using System.Threading.Tasks;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -19,7 +24,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        StandardKernel Kernel;
+
 
         public AppViewModel()
             : base()
@@ -36,30 +41,51 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
             Kernel.Bind<IScreen>().ToConstant(this);
             Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-
-
+            this.Bus = Kernel.Get<IMessageBus>();
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
-            Resolver.RegisterLazySingleton(() => this.Kernel.Get<IMessageBus>(), typeof(IMessageBus));
-            //R/resolver.RegisterLazySingleton(() => new PlayerView(), typeof(IPlayerView));
-            //R/resolver.RegisterLazySingleton(() => new SettingsView(), typeof(ISettingsView));
-            //R
-            Resolver.RegisterLazySingleton(() => this.Kernel.Get<MainViewModel>(), typeof(IMainViewModel));
+            Resolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<PlantViewModel>));
 
-            Resolver.Register(() => new GardenViewModel(
-                Guid.NewGuid(),
-                (id) => new PlantViewModel(id, this.Kernel.Get<IUserService>(), this.Kernel.Get<IMessageBus>(), this),
-                this.Kernel.Get<IUserService>(),
-                this.Kernel.Get<IMessageBus>(), this),
-                typeof(IGardenViewModel));
+            var Ctx = Kernel.Get<IUserService>().CurrentUser;
 
-            Resolver.RegisterLazySingleton(() => new NotificationsViewModel(this.Kernel.Get<IUserService>(), this.Kernel.Get<IMessageBus>(), this), typeof(INotificationsViewModel));
-            Resolver.RegisterLazySingleton(() => new FriendsViewModel(this.Kernel.Get<IUserService>(), this.Kernel.Get<IMessageBus>(), this), typeof(IFriendsViewModel));
-            Resolver.RegisterLazySingleton(() => new AddPlantViewModel(this.Kernel.Get<IUserService>(), this.Kernel.Get<IMessageBus>(), this), typeof(IAddPlantViewModel));
+            // TEST DATA   
+            AddPlant(new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id));
+            AddPlant(new CreatePlant(Guid.NewGuid(), "Jari", Ctx.Id));
+
+        }
+
+
+        private void AddPlant(CreatePlant cmd)
+        {
+            var Factory = Kernel.Get<IAggregateFactory>();
+            var Store = Kernel.Get<IGSRepository>();
+            var Ctx = Kernel.Get<IUserService>().CurrentUser;
+
+            var p1 = Factory.Build<Plant>();
+            p1.Handle(cmd);
+            //p1.Handle(new AddWateringAction(cmd.EntityId));
+            //p1.Handle(new AddFertilizingAction(cmd.EntityId));
+
+            //p1.Handle();
+
+            Store.Save(p1);
+
+            var g = (Garden)Store.GetById(Ctx.GardenId);
+            g.Handle(new AddPlant(Ctx.GardenId, p1.State.Id, p1.State.Name));
+            Store.Save(g);
+
+            var u = (User)Store.GetById(Ctx.Id);
+            u.Handle(new Water(Ctx.Id, p1.State.Id, "NOTE"));
+            u.Handle(new Fertilize(Ctx.Id, p1.State.Id, "NOTE"));
+
+            Store.Save(u);
+
 
 
 
         }
+
+
 
     }
 

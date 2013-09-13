@@ -27,23 +27,9 @@ namespace GrowthStories.UI.WindowsPhone
         {
             Bind<IUserService>().To<NullUserService>().InSingletonScope();
             Bind<IUIPersistence>().To<NullUIPersistence>().InSingletonScope();
-            Bind<INavigationService>().To<NavigationService>().InSingletonScope();
             Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
 
-            Bind<ActionProjection>().ToSelf().InSingletonScope();
-            Bind<PlantProjection>().ToSelf().InSingletonScope();
             Bind<AuthTokenService>().ToSelf().InSingletonScope();
-
-            Bind<PlantViewModel>().ToSelf().InSingletonScope().OnActivation((ctx, vm) =>
-            {
-                //vm.Handle(new ShowPlantView(new PlantCreated(Guid.NewGuid(), "Jore", Guid.NewGuid())));
-                //vm.Actions.Add(new Commented(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
-                //vm.Actions.Add(new Watered(Guid.NewGuid(), Guid.NewGuid(), "Test Note!") { Created = DateTimeOffset.Now });
-            });
-
-            Bind<GardenViewModel>().ToSelf().InSingletonScope();
-            Bind<AddPlantViewModel>().ToSelf().InSingletonScope();
-            Bind<MainViewModel>().ToSelf().InSingletonScope();
 
         }
 

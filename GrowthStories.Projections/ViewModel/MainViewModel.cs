@@ -20,20 +20,29 @@ namespace Growthstories.UI.ViewModel
 
     public interface IMainViewModel : IGSRoutableViewModel
     {
+        IGardenViewModel GardenVM { get; }
+        INotificationsViewModel NotificationsVM { get; }
+        IFriendsViewModel FriendsVM { get; }
     }
 
     [DataContract]
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
+        private readonly Func<Guid, IGardenViewModel> GardenFactory;
 
-        public MainViewModel(IUserService ctx, IMessageBus bus, IScreen host)
-            : base(ctx, bus, host)
+        public MainViewModel(Func<Guid, IGardenViewModel> gardenFactory, IGSApp app)
+            : base(app)
         {
+
+            this.GardenFactory = gardenFactory;
+
             this.Pages.Add(this.GardenVM);
             this.Pages.Add(this.NotificationsVM);
             this.Pages.Add(this.FriendsVM);
             this.CurrentPage = this.GardenVM;
+
+
         }
 
 
@@ -42,7 +51,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenVM ?? (_GardenVM = RxApp.DependencyResolver.GetService<IGardenViewModel>());
+                return _GardenVM ?? (_GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
             }
         }
 
@@ -51,7 +60,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _NotificationsVM ?? (_NotificationsVM = RxApp.DependencyResolver.GetService<INotificationsViewModel>());
+                return _NotificationsVM ?? (_NotificationsVM = App.Resolver.GetService<INotificationsViewModel>());
             }
         }
 
@@ -60,7 +69,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _FriendsVM ?? (_FriendsVM = RxApp.DependencyResolver.GetService<IFriendsViewModel>());
+                return _FriendsVM ?? (_FriendsVM = App.Resolver.GetService<IFriendsViewModel>());
             }
         }
 
@@ -72,8 +81,8 @@ namespace Growthstories.UI.ViewModel
 
     public class ButtonViewModel : MenuItemViewModel
     {
-        public ButtonViewModel(IMessageBus bus)
-            : base(bus)
+        public ButtonViewModel(IGSApp app)
+            : base(app)
         {
 
         }
@@ -100,8 +109,8 @@ namespace Growthstories.UI.ViewModel
     public class MenuItemViewModel : GSViewModelBase
     {
 
-        public MenuItemViewModel(IMessageBus bus)
-            : base(bus)
+        public MenuItemViewModel(IGSApp app)
+            : base(app)
         {
 
         }
