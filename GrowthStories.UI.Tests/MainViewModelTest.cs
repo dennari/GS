@@ -24,9 +24,10 @@ namespace Growthstories.UI.Tests
             {
                 get { throw new NotImplementedException(); }
             }
+
         }
 
-        public class TestViewModel : RoutableViewModel, IHasAppBarButtons, IControlsAppBar
+        public class TestViewModel : RoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
         {
             public TestViewModel() : base(null) { }
             public override string UrlPathSegment
@@ -44,6 +45,19 @@ namespace Growthstories.UI.Tests
                 set
                 {
                     this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+                }
+            }
+
+            public ReactiveList<MenuItemViewModel> _AppBarMenuItems;
+            public ReactiveList<MenuItemViewModel> AppBarMenuItems
+            {
+                get
+                {
+                    return _AppBarMenuItems;
+                }
+                set
+                {
+                    this.RaiseAndSetIfChanged(ref _AppBarMenuItems, value);
                 }
             }
 
@@ -68,6 +82,12 @@ namespace Growthstories.UI.Tests
                     new ButtonViewModel(null) {
                         Text = "TestButton!"
                     }
+                },
+                AppBarMenuItems = new ReactiveList<MenuItemViewModel>()
+                {
+                    new MenuItemViewModel(null) {
+                        Text = "TestMenuItem"
+                    }
                 }
             };
 
@@ -75,6 +95,8 @@ namespace Growthstories.UI.Tests
             multi.PageChangedCommand.Execute(0);
 
             Assert.AreSame(vm.AppBarButtons, multi.AppBarButtons);
+            Assert.AreSame(vm.AppBarMenuItems, multi.AppBarMenuItems);
+
             Assert.AreEqual(vm.AppBarMode, multi.AppBarMode);
             Assert.AreEqual(vm.AppBarIsVisible, multi.AppBarIsVisible);
 
@@ -88,6 +110,12 @@ namespace Growthstories.UI.Tests
                     new ButtonViewModel(null) {
                         Text = "TestButtonN!"
                     }
+                },
+                AppBarMenuItems = new ReactiveList<MenuItemViewModel>()
+                {
+                    new MenuItemViewModel(null) {
+                        Text = "TestMenuItemM"
+                    }
                 }
             };
 
@@ -95,6 +123,7 @@ namespace Growthstories.UI.Tests
             multi.PageChangedCommand.Execute(vm2);
 
             Assert.AreSame(vm2.AppBarButtons, multi.AppBarButtons);
+            Assert.AreSame(vm2.AppBarMenuItems, multi.AppBarMenuItems);
             Assert.AreEqual(vm2.AppBarMode, multi.AppBarMode);
             Assert.AreEqual(vm2.AppBarIsVisible, multi.AppBarIsVisible);
 

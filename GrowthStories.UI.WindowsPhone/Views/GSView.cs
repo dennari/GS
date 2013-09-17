@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public class GSView : PhoneApplicationPage
     {

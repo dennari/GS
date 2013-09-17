@@ -6,11 +6,11 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using GrowthStories.UI.WindowsPhone.Resources;
+using Growthstories.UI.WindowsPhone.Resources;
 using System.Globalization;
 using ReactiveUI.Mobile;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public partial class App : AutoSuspendApplication
     {

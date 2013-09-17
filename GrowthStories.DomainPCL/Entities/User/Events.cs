@@ -256,6 +256,35 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class Measured : ActionBase
+    {
+
+        [JsonProperty]
+        public MeasurementType Series { get; set; }
+        [JsonProperty]
+        public double Value { get; set; }
+
+        protected Measured() { }
+        public Measured(Guid userId, Guid plantId, string note, MeasurementType series, double value)
+            : base(userId, plantId, note)
+        {
+            this.Series = series;
+            this.Value = value;
+        }
+        public Measured(Measure cmd)
+            : this(cmd.EntityId, cmd.PlantId, cmd.Note, cmd.Series, cmd.Value)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format("User {1} Measured plant {0}: {2}, {3}", PlantId, EntityId, Series.ToString(), Value);
+        }
+
+
+    }
+
     public class Fertilized : ActionBase
     {
 
@@ -284,10 +313,14 @@ namespace Growthstories.Domain.Messaging
         [JsonIgnore]
         public Uri Uri { get { return _Uri == null ? _Uri = new Uri(_uri) : _Uri; } }
 
+
+
         protected Photographed() { }
         public Photographed(Guid userId, Guid plantId, string note, Uri uri)
             : base(userId, plantId, note)
         {
+            if (uri == null)
+                throw new ArgumentNullException("Uri for the image file must be given for the 'Photographed' action.");
             this._Uri = uri;
             this._uri = uri.ToString();
 
@@ -307,6 +340,16 @@ namespace Growthstories.Domain.Messaging
     }
 
     #endregion
+
+    public enum MeasurementType
+    {
+        PH,
+        SOIL_HUMIDITY,
+        AIR_HUMIDITY,
+        LENGTH,
+        WEIGHT,
+        ILLUMINANCE
+    }
 
 }
 

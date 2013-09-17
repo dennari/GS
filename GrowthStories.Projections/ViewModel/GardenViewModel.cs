@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
-    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
     {
         Guid Id { get; }
         ReactiveList<IPlantViewModel> Plants { get; }
@@ -77,6 +77,7 @@ namespace Growthstories.UI.ViewModel
 
             this.SelectedPlants = new ReactiveList<IPlantViewModel>();
             this.AppBarButtons = new ReactiveList<ButtonViewModel>();
+            this.AppBarButtons.Add(this.AddPlantButton);
 
 
 
@@ -213,6 +214,21 @@ namespace Growthstories.UI.ViewModel
         public bool IsPlantSelectionEnabled
         {
             get { return false; }
+        }
+
+        protected ReactiveList<MenuItemViewModel> _AppBarMenuItems;
+        public ReactiveList<MenuItemViewModel> AppBarMenuItems
+        {
+            get
+            {
+                if (_AppBarMenuItems == null)
+                    _AppBarMenuItems = new ReactiveList<MenuItemViewModel>(){
+                        new MenuItemViewModel(null){
+                            Text = "settings"
+                        }
+                    };
+                return _AppBarMenuItems;
+            }
         }
     }
 

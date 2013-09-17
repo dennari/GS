@@ -25,7 +25,8 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<Comment>,
         ICommandHandler<Water>,
         ICommandHandler<Photograph>,
-        ICommandHandler<Fertilize>
+        ICommandHandler<Fertilize>,
+        ICommandHandler<Measure>
     {
 
         public void Handle(CreateUser command)
@@ -53,6 +54,11 @@ namespace Growthstories.Domain.Entities
         public void Handle(Water command)
         {
             RaiseEvent(new Watered(command));
+        }
+
+        public void Handle(Measure command)
+        {
+            RaiseEvent(new Measured(command));
         }
 
         public void Handle(Photograph command)

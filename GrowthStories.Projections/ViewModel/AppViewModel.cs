@@ -14,7 +14,7 @@ using Growthstories.Domain.Messaging;
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IGSApp : IGSViewModel, IScreen, IHasAppBarButtons, IControlsAppBar
+    public interface IGSApp : IGSViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
         string AppName { get; }
@@ -22,11 +22,23 @@ namespace Growthstories.UI.ViewModel
         IUserService Context { get; }
         IDictionary<IconType, Uri> IconUri { get; }
         IMutableDependencyResolver Resolver { get; }
+        IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app);
     }
 
 
     public class AppViewModel : ReactiveObject, IGSApp
     {
+
+        protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
+        public SupportedPageOrientation SupportedOrientations
+        {
+            get
+            {
+                return _SupportedOrientations.Value;
+            }
+        }
+
+
 
         public const string APPNAME = "GROWTH STORIES";
 
@@ -77,6 +89,12 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => UpdateAppBar(x));
 
             this.Router.CurrentViewModel
+                .OfType<IHasMenuItems>()
+                .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
+                .Switch()
+                .Subscribe(x => UpdateMenuItems(x));
+
+            this.Router.CurrentViewModel
                 .OfType<IControlsAppBar>()
                 .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
                 .Switch()
@@ -88,7 +106,17 @@ namespace Growthstories.UI.ViewModel
                  .Switch()
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
-
+            this.Router.CurrentViewModel
+                //.OfType<IControlsPageOrientation>()
+                .Select(x =>
+                {
+                    var xx = x as IControlsPageOrientation;
+                    if (xx != null)
+                        return xx.WhenAny(y => y.SupportedOrientations, y => y.GetValue()).StartWith(xx.SupportedOrientations);
+                    return Observable.Return(SupportedPageOrientation.Portrait);
+                })
+                .Switch()
+                .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
             resolver.RegisterLazySingleton(() => new MainViewModel(this.GardenFactory, this), typeof(IMainViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
@@ -154,6 +182,12 @@ namespace Growthstories.UI.ViewModel
             this.AppBarButtons.AddRange(x);
         }
 
+        private void UpdateMenuItems(IList<MenuItemViewModel> x)
+        {
+            this.AppBarMenuItems.RemoveRange(0, this.AppBarMenuItems.Count);
+            this.AppBarMenuItems.AddRange(x);
+        }
+
 
         protected ReactiveList<ButtonViewModel> _AppBarButtons = new ReactiveList<ButtonViewModel>();
         public ReactiveList<ButtonViewModel> AppBarButtons
@@ -164,12 +198,23 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        protected ReactiveList<MenuItemViewModel> _AppBarMenuItems = new ReactiveList<MenuItemViewModel>();
+        public ReactiveList<MenuItemViewModel> AppBarMenuItems
+        {
+            get { return _AppBarMenuItems; }
+        }
+
         IDictionary<IconType, Uri> _IconUri = new Dictionary<IconType, Uri>()
         {
             {IconType.ADD,new Uri("/Assets/Icons/appbar.add.png", UriKind.RelativeOrAbsolute)},
             {IconType.CHECK,new Uri("/Assets/Icons/appbar.check.png", UriKind.RelativeOrAbsolute)},
             {IconType.DELETE,new Uri("/Assets/Icons/appbar.delete.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)}
+            {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)},
+            {IconType.WATER,new Uri("/Assets/Icons/icon_water.png", UriKind.RelativeOrAbsolute)},
+            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
+            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_fertilize.png", UriKind.RelativeOrAbsolute)},
+            {IconType.NOTE,new Uri("/Assets/Icons/icon_note.png", UriKind.RelativeOrAbsolute)},
+            {IconType.MEASURE,new Uri("/Assets/Icons/icon_measurement.png", UriKind.RelativeOrAbsolute)}
         };
 
         public IDictionary<IconType, Uri> IconUri { get { return _IconUri; } }
@@ -183,6 +228,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+
+
+
+        public virtual IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum View
@@ -204,7 +257,12 @@ namespace Growthstories.UI.ViewModel
         CHECK,
         CANCEL,
         DELETE,
-        CHECK_LIST
+        CHECK_LIST,
+        WATER,
+        FERTILIZE,
+        PHOTO,
+        NOTE,
+        MEASURE
     }
 
     public enum ApplicationBarMode

@@ -1,6 +1,6 @@
-﻿using GrowthStories.UI.WindowsPhone.Resources;
+﻿using Growthstories.UI.WindowsPhone.Resources;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     /// <summary>
     /// Provides access to string resources.

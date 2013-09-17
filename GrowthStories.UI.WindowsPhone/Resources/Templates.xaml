@@ -7,8 +7,74 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-    xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
     mc:Ignorable="d">
 
-   
+    <DataTemplate x:Key="CommentTemplate">
+        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+            </StackPanel>
+            <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0"  />
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                <TextBlock Text="{Binding State.Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MeasurementTemplate">
+        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+            </StackPanel>
+            <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0"  />
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                <TextBlock Text="{Binding Series}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                <TextBlock Text="{Binding Value}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="WaterTemplate">
+        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" >
+            <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToDateString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="14"/>
+            <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="26"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="FertilizeTemplate">
+        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" >
+            <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToDateString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="14"/>
+            <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="26"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PhotographTemplate">
+        <StackPanel Orientation="Vertical" Margin="0,0,0,12">
+            <Button Height="220" >
+                <Button.Background>
+                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Path, Converter={StaticResource PathToImageSource}}"/>
+                </Button.Background>
+            </Button>
+            <StackPanel Orientation="Horizontal" >
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                    <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                    <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                </StackPanel>
+                <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0" />
+                <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                    <TextBlock Text="{Binding State.Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
 </ResourceDictionary>

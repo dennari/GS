@@ -1,4 +1,4 @@
-using GrowthStories.Core;
+using Growthstories.Core;
 namespace Growthstories.Core
 {
     using CommonDomain;

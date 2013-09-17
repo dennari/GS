@@ -7,7 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone;assembly=GrowthStories.UI.WindowsPhone"
     xmlns:vm="clr-namespace:Growthstories.UI.ViewModel;assembly=GrowthStories.Projections"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
@@ -24,6 +24,7 @@
     <system:Double x:Key="GSInputLabelFontSize">20</system:Double>
     <system:Double x:Key="GSTextBoxFontSize">22</system:Double>
     <system:Double x:Key="GSListFontSize">28</system:Double>
+	<system:Double x:Key="GSTinyFontSize">18</system:Double>
     <Thickness x:Key="GSPageHeaderMargin">24</Thickness>
     <Thickness x:Key="GSPageContentMargin">24,0</Thickness>
     <Thickness x:Key="GSUndoMargin">-12,-6,-12,0</Thickness>
@@ -300,6 +301,33 @@
         <Setter Property="Foreground" Value="WhiteSmoke"/>
         <Setter Property="Margin" Value="{StaticResource GSInputLabelMargin}"/>
     </Style>
+	<Style x:Key="GSActionListWeekDayStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+        <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+    </Style>
+	<Style x:Key="GSActionListDateStyle" BasedOn="{StaticResource GSActionListWeekDayStyle}" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
+        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+    </Style>
+	<Style x:Key="GSActionListTimeStyle" BasedOn="{StaticResource GSActionListDateStyle}" TargetType="TextBlock">
+
+    </Style>
+    <Style x:Key="GSActionListItemTitleStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+        <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+        <Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
+    </Style>
+    <Style x:Key="GSActionListItemNoteStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
+        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+        <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+    </Style>
+
+
+
     <Style TargetType="phone:PanoramaItem" x:Key="GSPanoramaItemStyle">
         <Setter Property="HeaderTemplate">
             <Setter.Value>
@@ -344,28 +372,7 @@
         <Setter Property="GridCellSize" Value="173,173"/>
     </Style>
     <Style TargetType="phone:LongListSelector" x:Key="GSActionListStyle">
-        <Setter Property="ItemTemplate">
-            <Setter.Value>
-                <DataTemplate>
 
-                    <Grid Width="Auto" Height="Auto" Margin="0,0,6,6">
-
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Tap">
-                                <command:InvokeCommandAction Command="{Binding Command, Mode=OneWay}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-
-                        <TextBlock 
-                            Text="{Binding Title}" 
-                             Style="{StaticResource PhoneTextLargeStyle}"
-                            />
-
-                    </Grid>
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="GridCellSize" Value="108,108"/>
     </Style>
 
     <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">

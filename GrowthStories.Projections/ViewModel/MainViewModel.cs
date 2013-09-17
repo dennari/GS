@@ -162,6 +162,22 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref text, value); }
         }
         #endregion
+
+        #region IsEnabled
+        private bool _IsEnabled = true;
+
+        /// <summary>
+        /// Gets or sets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        public bool IsEnabled
+        {
+            get { return this._IsEnabled; }
+            set { this.RaiseAndSetIfChanged(ref _IsEnabled, value); }
+        }
+        #endregion
     }
 }
 

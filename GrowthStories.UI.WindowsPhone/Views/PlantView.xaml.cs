@@ -11,7 +11,7 @@ using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone;
 using ReactiveUI;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public partial class PlantView : UserControl, IViewFor<PlantViewModel>
     {

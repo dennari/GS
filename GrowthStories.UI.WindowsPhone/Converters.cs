@@ -1,5 +1,6 @@
 ﻿
 using Growthstories.Domain.Messaging;
+using Growthstories.UI.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,7 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
 
     /// <summary>
@@ -111,32 +112,45 @@ namespace GrowthStories.UI.WindowsPhone
                 return null;
 
             string p = value as string;
-            if (p == null)
-                return null;
+
 
             BitmapImage img = null;
-            if (p.StartsWith(@"\"))
+            if (p != null)
             {
-                Stream s = p.OpenLocalPhoto();
-                if (s == null)
-                    return null;
+                if (p.StartsWith(@"\"))
+                {
+                    Stream s = p.OpenLocalPhoto();
+                    if (s == null)
+                        return null;
 
-                //Uri uri = new Uri(path, path.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-                img = new BitmapImage();
-                //img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-                img.SetSource(s);
+                    //Uri uri = new Uri(path, path.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
+                    img = new BitmapImage();
+                    //img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
+                    img.SetSource(s);
+                }
+                else
+                {
+                    img = new BitmapImage();
+                    img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
+
+                }
+
             }
-            else
+
+            Uri u = value as Uri;
+            if (img == null && u != null)
             {
                 img = new BitmapImage();
-                img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-
+                img.UriSource = u;
             }
 
 
+            if (img != null)
+            {
+                img.ImageFailed += img_ImageFailed;
+                img.ImageOpened += img_ImageOpened;
+            }
 
-            img.ImageFailed += img_ImageFailed;
-            img.ImageOpened += img_ImageOpened;
 
             return img;
         }
@@ -158,6 +172,34 @@ namespace GrowthStories.UI.WindowsPhone
             throw e.ErrorException;
         }
 
+    }
+
+    public class AppBarModeConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            string ret = "Default";
+            try
+            {
+                var p = (ApplicationBarMode)value;
+                if (p == ApplicationBarMode.MINIMIZED)
+                    ret = "Minimized";
+            }
+            catch
+            {
+
+            }
+            return ret;
+
+        }
+
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

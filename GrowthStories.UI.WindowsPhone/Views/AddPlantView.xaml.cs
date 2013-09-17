@@ -11,9 +11,9 @@ using Microsoft.Phone.Shell;
 using Microsoft.Phone.Tasks;
 using Growthstories.UI.ViewModel;
 
-namespace GrowthStories.UI.WindowsPhone.Views
+namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddPlantView : GSView
+    public partial class AddPlantView : UserControl
     {
 
         public AddPlantView()

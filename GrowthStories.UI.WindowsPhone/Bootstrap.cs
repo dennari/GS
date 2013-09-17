@@ -15,7 +15,7 @@ using System;
 using System.IO;
 using Windows.Storage;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public class Bootstrap : TestModule
     {

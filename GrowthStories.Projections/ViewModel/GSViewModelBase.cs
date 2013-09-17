@@ -19,7 +19,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IHasMenuItems
     {
-        ReactiveList<MenuItemViewModel> MenuItems { get; }
+        ReactiveList<MenuItemViewModel> AppBarMenuItems { get; }
     }
 
     public abstract class GSViewModelBase : ReactiveObject, IGSViewModel

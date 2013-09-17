@@ -17,7 +17,7 @@ using Growthstories.UI.ViewModel;
 using Ninject.Modules;
 using System;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public class BootstrapDesign : NinjectModule
     {

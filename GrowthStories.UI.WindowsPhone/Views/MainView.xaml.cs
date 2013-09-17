@@ -12,7 +12,7 @@ using BindableApplicationBar;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public partial class MainView : UserControl, IViewFor<MainViewModel>
     {

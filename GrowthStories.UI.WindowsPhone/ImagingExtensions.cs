@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.IO.IsolatedStorage;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
 
-namespace GrowthStories.UI.WindowsPhone
+namespace Growthstories.UI.WindowsPhone
 {
     public static class ImagingExtensions
     {

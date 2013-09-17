@@ -16,9 +16,7 @@
 	FontSize="{StaticResource PhoneFontSizeNormal}"
 	SupportedOrientations="Portrait" Orientation="Portrait"
 	mc:Ignorable="d"
-	shell:SystemTray.IsVisible="False"
-	DataContext="{Binding SelectProfilePictureVM, Source={StaticResource Locator}}" Background="{x:Null}" >
-
+	>
     <Grid x:Name="LayoutRoot" Margin="0" >
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/GrowthStories.UI.WindowsPhone;component/Assets/Bg/plant_bg.jpg"/>

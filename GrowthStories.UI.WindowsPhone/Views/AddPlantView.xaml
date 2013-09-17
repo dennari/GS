@@ -1,5 +1,5 @@
-﻿<local:GSView 
-	x:Class="GrowthStories.UI.WindowsPhone.Views.AddPlantView"
+﻿<UserControl
+    x:Class="Growthstories.UI.WindowsPhone.AddPlantView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -8,7 +8,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -16,10 +16,9 @@
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
 	FontSize="{StaticResource PhoneFontSizeNormal}"
-	SupportedOrientations="Portrait" Orientation="Portrait"
 	mc:Ignorable="d"
 	shell:SystemTray.IsVisible="False"
-	DataContext="{Binding AddPlantVM, Source={StaticResource Locator}}" Background="{x:Null}" >
+	Background="{x:Null}" >
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -46,7 +45,7 @@
     <ScrollViewer>
     <Grid x:Name="LayoutRoot" Margin="0" >
     	<Grid.Background>
-    		<ImageBrush Stretch="UniformToFill" ImageSource="/GrowthStories.UI.WindowsPhone;component/Assets/Bg/plant_bg.jpg"/>
+    		<ImageBrush Stretch="UniformToFill" ImageSource="/Growthstories.UI.WindowsPhone;component/Assets/Bg/plant_bg.jpg"/>
     	</Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -158,4 +157,4 @@
             IsVisible="True"/>
     </bar:Bindable.ApplicationBar>
 
-</local:GSView>
+</UserControl>

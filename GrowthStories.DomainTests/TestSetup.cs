@@ -188,7 +188,12 @@ namespace Growthstories.DomainTests
             Bind<PlantProjection>().ToSelf().InSingletonScope();
             Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
-            RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
+            //RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
+
+            Kernel.Get<IMessageBus>().Listen<IEntityCommand>().Subscribe(x =>
+            {
+                Kernel.Get<IDispatchCommands>().Handle(x);
+            });
 
         }
 
@@ -198,7 +203,7 @@ namespace Growthstories.DomainTests
         void RegisterHandlers(IMessageBus bus, IKernel kernel)
         {
             // Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
-            var allEvents = bus.Listen<IEvent>();
+            //var allEvents = bus.Listen<IEvent>();
             var allCommands = bus.Listen<IEntityCommand>();
 
             var handler = Kernel.Get<IDispatchCommands>();

@@ -153,6 +153,29 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class Measure : ActionBase
+    {
+
+        public MeasurementType Series { get; private set; }
+        public double Value { get; protected set; }
+
+        protected Measure() { }
+        public Measure(Guid userId, Guid plantId, string note, MeasurementType series, double value)
+            : base(userId, plantId, note)
+        {
+            this.Series = series;
+            this.Value = value;
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format("Measure plant {0} (user {1})", PlantId, EntityId);
+        }
+
+
+    }
+
     public class Fertilize : ActionBase
     {
 
