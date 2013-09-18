@@ -100,6 +100,7 @@ ClientBin
 [Ss]tyle[Cc]op.*
 ~$*
 *.dbmdl
+Thumbs.db
 Generated_Code #added for RIA/Silverlight projects
 
 # Backup & report files from converting an old project file to a newer
@@ -116,7 +117,11 @@ App_Data/*.ldf
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-GrowthStories.UI.WindowsPhone/Assets
+GrowthStories.UI.WindowsPhone/Assets/Bg
+GrowthStories.UI.WindowsPhone/Assets/icons_all
+GrowthStories.UI.WindowsPhone/Assets/light
+#!GrowthStories.UI.WindowsPhone/Assets/Tiles/*
+#!GrowthStories.UI.WindowsPhone/Assets/Icons/*
 
 backend
 

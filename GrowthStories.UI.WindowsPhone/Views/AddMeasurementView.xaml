@@ -10,6 +10,7 @@
     xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    d:DataContext="{StaticResource AddMeasurementViewModelDesign}"
     mc:Ignorable="d">
 
 

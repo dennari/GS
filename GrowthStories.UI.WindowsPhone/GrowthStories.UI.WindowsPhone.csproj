@@ -271,11 +271,42 @@
     <Content Include="Assets\Icons\appbar.check.png" />
     <Content Include="Assets\Icons\appbar.delete.png" />
     <Content Include="Assets\Icons\appbar.list.check.png" />
-    <Content Include="Assets\Icons\icon_fertilize.png" />
-    <Content Include="Assets\Icons\icon_measurement.png" />
+    <Content Include="Assets\Icons\appbar.social.sharethis.png" />
+    <Content Include="Assets\Icons\application_icon_179.png" />
+    <Content Include="Assets\Icons\application_icon_33.png" />
+    <Content Include="Assets\Icons\application_icon_69.png" />
+    <Content Include="Assets\Icons\application_icon_99.png" />
+    <Content Include="Assets\Icons\icon_blooming.png" />
+    <Content Include="Assets\Icons\icon_blooming_appbar.png" />
+    <Content Include="Assets\Icons\icon_comment.png" />
+    <Content Include="Assets\Icons\icon_comment_appbar.png" />
+    <Content Include="Assets\Icons\icon_deceased.png" />
+    <Content Include="Assets\Icons\icon_deceased_appbar.png" />
+    <Content Include="Assets\Icons\icon_illuminance.png" />
+    <Content Include="Assets\Icons\icon_illuminance_appbar.png" />
+    <Content Include="Assets\Icons\icon_length.png" />
+    <Content Include="Assets\Icons\icon_length_appbar.png" />
+    <Content Include="Assets\Icons\icon_misting.png" />
+    <Content Include="Assets\Icons\icon_misting_appbar.png" />
     <Content Include="Assets\Icons\icon_note.png" />
+    <Content Include="Assets\Icons\icon_note_appbar.png" />
+    <Content Include="Assets\Icons\icon_nutrient.png" />
+    <Content Include="Assets\Icons\icon_nutrient_appbar.png" />
+    <Content Include="Assets\Icons\icon_ph.png" />
     <Content Include="Assets\Icons\icon_photo.png" />
-    <Content Include="Assets\Icons\icon_water.png" />
+    <Content Include="Assets\Icons\icon_photo_appbar.png" />
+    <Content Include="Assets\Icons\icon_ph_appbar.png" />
+    <Content Include="Assets\Icons\icon_pollination.png" />
+    <Content Include="Assets\Icons\icon_pollination_appbar.png" />
+    <Content Include="Assets\Icons\icon_soilchange.png" />
+    <Content Include="Assets\Icons\icon_soilchange_appbar.png" />
+    <Content Include="Assets\Icons\icon_sprouting.png" />
+    <Content Include="Assets\Icons\icon_sprouting_appbar.png" />
+    <Content Include="Assets\Icons\icon_watering.png" />
+    <Content Include="Assets\Icons\icon_watering_appbar.png" />
+    <Content Include="Assets\Tiles\GSFlipTileLarge.png" />
+    <Content Include="Assets\Tiles\IconImage_03.png" />
+    <Content Include="Assets\Tiles\SmallIconImage_03.png" />
     <Content Include="Resources\Montserrat-Bold.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -331,6 +362,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="README_FIRST.txt" />
+    <Content Include="SplashScreenImage.jpg" />
     <Content Include="TestData\517e100d782a828894.jpg" />
     <Content Include="TestData\flowers-from-the-conservatory.jpg" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />

@@ -60,7 +60,7 @@ namespace Growthstories.UI.ViewModel
     public interface IControlsPageOrientation
     {
         SupportedPageOrientation SupportedOrientations { get; }
-        ReactiveCommand PageOrientationChangedCommand { get; }
+        //ReactiveCommand PageOrientationChangedCommand { get; }
     }
 
     public interface IControlsAppBar

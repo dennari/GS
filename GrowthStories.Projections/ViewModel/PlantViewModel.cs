@@ -57,17 +57,25 @@ namespace Growthstories.UI.ViewModel
         public ReactiveCommand AddFertilizerCommand { get; protected set; }
         public ReactiveCommand AddCommentCommand { get; protected set; }
         public ReactiveCommand AddPhotographCommand { get; protected set; }
+        public ReactiveCommand ShareCommand { get; protected set; }
+        public ReactiveCommand EditCommand { get; protected set; }
+        public ReactiveCommand DeleteCommand { get; protected set; }
+        public ReactiveCommand PinCommand { get; protected set; }
         public ReactiveCommand AddMeasurementCommand { get; protected set; }
+        public ReactiveCommand FlickCommand { get; protected set; }
+
+
 
         public Guid Id { get { return State.Id; } }
         public string Name { get { return State.Name; } }
         public string ProfilepicturePath { get { return State.ProfilepicturePath; } }
 
 
-
         private readonly Func<object, IEnumerable<ActionBase>> ActionFactory;
 
         public PlantState State { get; protected set; }
+        public IGardenViewModel Garden { get; protected set; }
+
 
         public PlantViewModel()
             : base(null)
@@ -77,7 +85,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(PlantState state, Func<object, IEnumerable<ActionBase>> actionFactory, IGSApp app)
+        public PlantViewModel(PlantState state, IGardenViewModel garden, Func<object, IEnumerable<ActionBase>> actionFactory, IGSApp app)
             : base(app)
         {
             //this.ActionProjection = actionProjection;
@@ -85,6 +93,7 @@ namespace Growthstories.UI.ViewModel
             //this.Actions = new ObservableCollection<ActionBase>();
             this.State = state;
             this.ActionFactory = actionFactory;
+            this.Garden = garden;
 
             this.AddWaterCommand = new ReactiveCommand();
             this.AddWaterCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddWaterViewModel), state, app)));
@@ -96,6 +105,25 @@ namespace Growthstories.UI.ViewModel
             this.AddPhotographCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddPhotographViewModel), state, app)));
             this.AddMeasurementCommand = new ReactiveCommand();
             this.AddMeasurementCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddMeasurementViewModel), state, app)));
+            this.ShareCommand = new ReactiveCommand();
+            this.EditCommand = new ReactiveCommand();
+            this.DeleteCommand = new ReactiveCommand();
+            this.PinCommand = new ReactiveCommand();
+            this.FlickCommand = new ReactiveCommand();
+            this.FlickCommand.Subscribe(x =>
+            {
+                var xx = x as Tuple<double, double>;
+                if (garden != null && xx != null && Math.Abs(xx.Item1) > Math.Abs(xx.Item2))
+                {
+                    var myIdx = garden.Plants.IndexOf(this);
+                    if (myIdx < garden.Plants.Count - 1 && xx.Item1 < 0)
+                        App.Router.Navigate.Execute(garden.Plants[myIdx + 1]);
+                    if (myIdx > 0 && xx.Item1 > 0)
+                        App.Router.Navigate.Execute(garden.Plants[myIdx - 1]);
+
+                }
+            });
+
 
 
             this.GetActionsCommand = new ReactiveCommand();
@@ -112,102 +140,14 @@ namespace Growthstories.UI.ViewModel
                     Actions.Add(x);
                 });
 
-            this.WhenAny(x => x.Orientation, x => x.GetValue()).Subscribe(x =>
-            {
-                if ((x & PageOrientation.Landscape) == PageOrientation.Landscape)
-                {
-                    App.Router.Navigate.Execute(new YAxisShitViewModel(state, app));
-                }
-            });
+            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
+                .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
+                .Where(x => x == true)
+                .Subscribe(_ => App.Router.Navigate.Execute(new YAxisShitViewModel(state, app)));
+
+
 
         }
-
-
-
-
-
-        private ReactiveCommand _AddCommentCommand;
-        public ReactiveCommand AddCommentCommandd
-        {
-            get
-            {
-
-                if (_AddCommentCommand == null)
-                {
-                    _AddCommentCommand = new ReactiveCommand();
-                    _AddCommentCommand.Subscribe((note) =>
-                    {
-                        App.Bus.SendCommand(new Comment(this.State.UserId, this.State.Id, "Dynamic notes are cool"));
-                    });
-                }
-                return _AddCommentCommand;
-
-            }
-        }
-
-        private ReactiveCommand _AddPhotoCommand;
-        public ReactiveCommand AddPhotoCommandd
-        {
-            get
-            {
-
-                if (_AddPhotoCommand == null)
-                {
-                    _AddPhotoCommand = new ReactiveCommand();
-                    _AddPhotoCommand.Subscribe((photo) =>
-                    {
-                        App.Bus.SendCommand(new Photograph(this.State.UserId, this.State.Id, "Dynamic photos are cool", new Uri("/TestData/flowers-from-the-conservatory.jpg", UriKind.Relative)));
-                    });
-
-                    //App.Bus.RegisterMessageSource()
-                }
-                return _AddPhotoCommand;
-
-            }
-        }
-
-
-        private ReactiveCommand _AddFertilizerCommand;
-        public ReactiveCommand AddFertilizerCommandd
-        {
-            get
-            {
-
-                if (_AddFertilizerCommand == null)
-                {
-                    _AddFertilizerCommand = new ReactiveCommand();
-                    _AddFertilizerCommand.Subscribe(_ =>
-                    {
-                        App.Bus.SendCommand(new Fertilize(this.State.UserId, this.State.Id, "Dynamic fertilization is cool"));
-                    });
-                }
-                return _AddFertilizerCommand;
-
-            }
-        }
-
-
-
-
-        private ReactiveCommand _AddMeasurementCommand;
-        public ReactiveCommand AddMeasurementCommandd
-        {
-            get
-            {
-
-                if (_AddMeasurementCommand == null)
-                {
-                    _AddMeasurementCommand = new ReactiveCommand();
-                    _AddMeasurementCommand.Subscribe(_ =>
-                    {
-                        //App.Bus.SendCommand(new Water(this.State.UserId, this.State.Id, "Dynamic watering is cool"));
-                    });
-                }
-                return _AddMeasurementCommand;
-
-            }
-        }
-
 
 
         public override string UrlPathSegment
@@ -232,22 +172,23 @@ namespace Growthstories.UI.ViewModel
                         },
                         new ButtonViewModel(null)
                         {
-                            Text = "photo",
+                            Text = "photograph",
                             IconUri = App.IconUri[IconType.PHOTO],
                             Command = AddPhotographCommand
                         },
                         new ButtonViewModel(null)
                         {
-                            Text = "fertilize",
-                            IconUri = App.IconUri[IconType.FERTILIZE],
-                            Command = AddFertilizerCommand
+                            Text = "comment",
+                            IconUri = App.IconUri[IconType.NOTE],
+                            Command = AddCommentCommand
                         },
                         new ButtonViewModel(null)
                         {
-                            Text = "note",
-                            IconUri = App.IconUri[IconType.NOTE],
-                            Command = AddCommentCommand
-                        }
+                            Text = "share",
+                            IconUri = App.IconUri[IconType.SHARE],
+                            Command = ShareCommand
+                        },
+
                     };
                 return _AppBarButtons;
             }
@@ -265,6 +206,27 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "measure",
                             Command = AddMeasurementCommand
+                        },
+                        new MenuItemViewModel(null)
+                        {
+                            Text = "nourish",
+                            Command = AddFertilizerCommand
+                        },
+                          new MenuItemViewModel(null)
+                        {
+                            Text = "edit",
+                            Command = EditCommand
+                        },
+                         new MenuItemViewModel(null)
+                        {
+                            Text = "delete",
+                            Command = DeleteCommand
+                        },
+                        new MenuItemViewModel(null)
+                        {
+                            Text = "pin",
+                            Command = PinCommand,
+                            CommandParameter = this.State
                         }
                     };
                 return _AppBarMenuItems;
@@ -288,39 +250,6 @@ namespace Growthstories.UI.ViewModel
             get { return SupportedPageOrientation.PortraitOrLandscape; }
         }
 
-        public PageOrientation _Orientation;
-        public PageOrientation Orientation
-        {
-            get { return _Orientation; }
-            set { this.RaiseAndSetIfChanged(ref _Orientation, value); }
-        }
-
-        private ReactiveCommand _PageOrientationChangedCommand;
-        public ReactiveCommand PageOrientationChangedCommand
-        {
-            get
-            {
-
-                if (_PageOrientationChangedCommand == null)
-                {
-                    _PageOrientationChangedCommand = new ReactiveCommand();
-                    _PageOrientationChangedCommand.Subscribe(x =>
-                    {
-                        try
-                        {
-                            this.Orientation = (PageOrientation)x;
-
-                        }
-                        catch
-                        {
-
-                        }
-                    });
-                }
-                return _PageOrientationChangedCommand;
-
-            }
-        }
 
     }
 

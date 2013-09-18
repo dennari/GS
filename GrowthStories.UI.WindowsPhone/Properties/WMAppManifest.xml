@@ -5,8 +5,8 @@
     <Language code="en" />
     <Language code="fi-FI" />
   </Languages>
-  <App xmlns="" ProductID="{fe617508-961a-4981-a3c6-71e35e48b703}" Title="GrowthStories.UI.WindowsPhone" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="GrowthStories.UI.WindowsPhone author" Description="Sample description" Publisher="GrowthStories.UI.WindowsPhone" PublisherID="{9bb55742-8e03-4a09-a29f-e0f415577103}">
-    <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
+  <App xmlns="" ProductID="{fe617508-961a-4981-a3c6-71e35e48b703}" Title="Growth Stories" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="GrowthStories.UI.WindowsPhone author" Description="Sample description" Publisher="GrowthStories.UI.WindowsPhone" PublisherID="{9bb55742-8e03-4a09-a29f-e0f415577103}">
+    <IconPath IsRelative="true" IsResource="false">Assets\Icons\application_icon_99.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
       <Capability Name="ID_CAP_SENSORS" />
@@ -20,30 +20,27 @@
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="GrowthStories.UI.WindowsPhoneToken" TaskName="_default">
-        <TemplateFlip>
-          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileSmall.png</SmallImageURI>
+        <TemplateIconic>
+          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\SmallIconImage_03.png</SmallImageURI>
           <Count>0</Count>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileMedium.png</BackgroundImageURI>
-          <Title>GrowthStories.UI.WindowsPhone</Title>
-          <BackContent>
-          </BackContent>
-          <BackBackgroundImageURI>
-          </BackBackgroundImageURI>
-          <BackTitle>
-          </BackTitle>
-          <LargeBackgroundImageURI IsRelative="true" IsResource="false">
-          </LargeBackgroundImageURI>
-          <LargeBackContent />
-          <LargeBackBackgroundImageURI IsRelative="true" IsResource="false">
-          </LargeBackBackgroundImageURI>
-          <DeviceLockImageURI>
+          <IconImageURI IsRelative="true" IsResource="false">Assets\Tiles\IconImage_03.png</IconImageURI>
+          <Title>GROWTH STORIES</Title>
+          <Message>
+          </Message>
+          <BackgroundColor>#931B80</BackgroundColor>
+          <HasLarge>false</HasLarge>
+          <LargeContent1>
+          </LargeContent1>
+          <LargeContent2>
+          </LargeContent2>
+          <LargeContent3>
+          </LargeContent3>
+          <DeviceLockImageURI IsRelative="true" IsResource="false">
           </DeviceLockImageURI>
-          <HasLarge>True</HasLarge>
-        </TemplateFlip>
+        </TemplateIconic>
       </PrimaryToken>
     </Tokens>
     <ScreenResolutions>
-      <ScreenResolution Name="ID_RESOLUTION_WVGA" />
       <ScreenResolution Name="ID_RESOLUTION_WXGA" />
       <ScreenResolution Name="ID_RESOLUTION_HD720P" />
     </ScreenResolutions>

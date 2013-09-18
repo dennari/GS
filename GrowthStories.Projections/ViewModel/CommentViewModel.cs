@@ -20,7 +20,8 @@ namespace Growthstories.UI.ViewModel
         public string Time { get { return State.Created.ToString("t"); } }
 
         public string Title { get { return "TITLE"; } }
-        public Uri Icon { get { return this.App.IconUri[IconType.ADD]; } }
+        protected IconType _IconType;
+        public Uri Icon { get { return this.App.BigIconUri[this._IconType]; } }
 
         public PlantActionViewModel(ActionBase state, IGSApp app)
             : base(app)
@@ -79,12 +80,12 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        public new string Title { get { return "COMMENT"; } }
-        public new Uri Icon { get { return this.App.IconUri[IconType.NOTE]; } }
+        public new string Title { get { return "COMMENTED"; } }
 
         public CommentViewModel(Commented state, IGSApp app)
             : base(state, app)
         {
+            this._IconType = IconType.NOTE;
         }
 
 
@@ -94,8 +95,7 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        public new string Title { get { return "MEASUREMENT"; } }
-        public new Uri Icon { get { return this.App.IconUri[IconType.MEASURE]; } }
+        public new string Title { get { return "MEASURED"; } }
 
         public string Series { get { return ((Measured)this.State).Series.ToString("G"); } }
         public string Value { get { return ((Measured)this.State).Value.ToString("F1"); } }
@@ -105,6 +105,7 @@ namespace Growthstories.UI.ViewModel
         public MeasureViewModel(Measured state, IGSApp app)
             : base(state, app)
         {
+            this._IconType = IconType.MEASURE;
         }
 
 
@@ -114,12 +115,12 @@ namespace Growthstories.UI.ViewModel
     {
 
         public new string Title { get { return "WATERED"; } }
-        public new Uri Icon { get { return this.App.IconUri[IconType.WATER]; } }
 
 
         public WaterViewModel(Watered state, IGSApp app)
             : base(state, app)
         {
+            this._IconType = IconType.WATER;
         }
 
 
@@ -128,12 +129,12 @@ namespace Growthstories.UI.ViewModel
     public class FertilizeViewModel : PlantActionViewModel
     {
 
-        public new string Title { get { return "FERTILIZED"; } }
-        public new Uri Icon { get { return this.App.IconUri[IconType.FERTILIZE]; } }
+        public new string Title { get { return "NOURISHED"; } }
 
         public FertilizeViewModel(Fertilized state, IGSApp app)
             : base(state, app)
         {
+            this._IconType = IconType.FERTILIZE;
         }
 
 
@@ -141,14 +142,14 @@ namespace Growthstories.UI.ViewModel
 
     public class PhotographViewModel : PlantActionViewModel
     {
-        public new string Title { get { return "PHOTO"; } }
-        public new Uri Icon { get { return this.App.IconUri[IconType.PHOTO]; } }
+        public new string Title { get { return "PHOTOGRAPHED"; } }
 
         public string Path { get { return ((Photographed)State).Uri.ToString(); } }
 
         public PhotographViewModel(Photographed state, IGSApp app)
             : base(state, app)
         {
+            this._IconType = IconType.PHOTO;
         }
 
 

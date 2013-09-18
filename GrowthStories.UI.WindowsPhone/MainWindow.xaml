@@ -16,6 +16,9 @@
 	<routing:RoutedViewHost 
         x:Name="Content"
         Router="{Binding Router}"
+        CacheMode="BitmapCache"
+        Transition="SlideLeft"
+        TransitionPart="OutIn"
        />
     <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar

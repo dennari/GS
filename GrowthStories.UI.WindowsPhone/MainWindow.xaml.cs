@@ -10,13 +10,15 @@ using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using BindableApplicationBar;
 using ReactiveUI;
-using Growthstories.UI.WindowsPhone.ViewModels;
+using System.Reactive.Disposables;
+//using Growthstories.UI.WindowsPhone.ViewModels;
+using Growthstories.UI.ViewModel;
 //using Growthstories.UI.ViewModel;
 //using Growthstories.UI.ViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class MainWindow : PhoneApplicationPage, IViewFor<AppViewModel>
+    public partial class MainWindow : PhoneApplicationPage, IViewFor<Growthstories.UI.WindowsPhone.ViewModels.AppViewModel>
     {
 
 
@@ -25,8 +27,32 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             this.DataContext = this.ViewModel;
 
-            //this.ViewModel.Router.Navigate.Execute(RxApp.DependencyResolver.GetService<IMainViewModel>());
-            this.ViewModel.Router.NavigateCommandFor<Growthstories.UI.ViewModel.IMainViewModel>().Execute(null);
+            //this.ViewModel.Router.Navigate.Execute(RxApp.DependencyResolver.GetService<IMainViewModel>())
+
+
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            IGSRoutableViewModel initialVM = null;
+            IDictionary<string, string> qs = this.NavigationContext.QueryString;
+            if (qs.ContainsKey("plant"))
+            {
+                try
+                {
+                    var id = Guid.Parse(qs["plant"]);
+                    initialVM = this.ViewModel.PlantFactory(id, null);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            if (initialVM == null)
+                initialVM = this.ViewModel.Resolver.GetService<IMainViewModel>();
+            this.ViewModel.Router.Navigate.Execute(initialVM);
         }
 
         protected override void OnBackKeyPress(CancelEventArgs e)
@@ -47,11 +73,11 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnOrientationChanged(OrientationChangedEventArgs e)
         {
             base.OnOrientationChanged(e);
-            var cvm = ViewModel.Router.GetCurrentViewModel() as Growthstories.UI.ViewModel.IControlsPageOrientation;
-            if (cvm != null)
-            {
-                cvm.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
-            }
+            //var cvm = ViewModel.Router.GetCurrentViewModel() as Growthstories.UI.ViewModel.IControlsPageOrientation;
+            //if (cvm != null)
+            //{
+            ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
+            //}
 
         }
 
@@ -88,14 +114,14 @@ namespace Growthstories.UI.WindowsPhone
         //    }
         //}
 
-        protected AppViewModel _ViewModel;
-        public AppViewModel ViewModel
+        protected Growthstories.UI.WindowsPhone.ViewModels.AppViewModel _ViewModel;
+        public Growthstories.UI.WindowsPhone.ViewModels.AppViewModel ViewModel
         {
-            get { return _ViewModel ?? (_ViewModel = new AppViewModel()); }
+            get { return _ViewModel ?? (_ViewModel = new Growthstories.UI.WindowsPhone.ViewModels.AppViewModel()); }
             set { SetValue(ViewModelProperty, value); }
         }
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(AppViewModel), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null));
 
         object IViewFor.ViewModel
         {
@@ -103,7 +129,7 @@ namespace Growthstories.UI.WindowsPhone
             set
             {
 
-                var vm = (AppViewModel)value;
+                var vm = (Growthstories.UI.WindowsPhone.ViewModels.AppViewModel)value;
                 if (vm != null)
                 {
                     this.ViewModel = vm;

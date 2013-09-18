@@ -26,7 +26,7 @@ namespace Growthstories.UI.ViewModel
         {
 
             this.State = state;
-            this.WhenAny(x => x.Orientation, x => x.GetValue()).Subscribe(x =>
+            this.App.WhenAny(x => x.Orientation, x => x.GetValue()).Subscribe(x =>
             {
                 if ((x & PageOrientation.Portrait) == PageOrientation.Portrait)
                 {
@@ -74,38 +74,6 @@ namespace Growthstories.UI.ViewModel
             get { return SupportedPageOrientation.PortraitOrLandscape; }
         }
 
-        public PageOrientation _Orientation;
-        public PageOrientation Orientation
-        {
-            get { return _Orientation; }
-            set { this.RaiseAndSetIfChanged(ref _Orientation, value); }
-        }
 
-        private ReactiveCommand _PageOrientationChangedCommand;
-        public ReactiveCommand PageOrientationChangedCommand
-        {
-            get
-            {
-
-                if (_PageOrientationChangedCommand == null)
-                {
-                    _PageOrientationChangedCommand = new ReactiveCommand();
-                    _PageOrientationChangedCommand.Subscribe(x =>
-                    {
-                        try
-                        {
-                            this.Orientation = (PageOrientation)x;
-
-                        }
-                        catch
-                        {
-
-                        }
-                    });
-                }
-                return _PageOrientationChangedCommand;
-
-            }
-        }
     }
 }

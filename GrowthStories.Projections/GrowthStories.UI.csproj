@@ -83,7 +83,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionProjection.cs" />
-    <Compile Include="GSApp.cs" />
     <Compile Include="IUIPersistence.cs" />
     <Compile Include="PlantProjection.cs" />
     <Compile Include="PlantViewModelFactory.cs" />

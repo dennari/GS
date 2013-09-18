@@ -18,9 +18,12 @@ namespace Growthstories.UI.ViewModel
     public class AddMeasurementViewModel : RoutableViewModel, IAddMeasurementViewModel
     {
 
-        private readonly PlantState State;
+        protected PlantState State;
 
-
+        public AddMeasurementViewModel()
+            : base(null)
+        {
+        }
         public AddMeasurementViewModel(PlantState state, IGSApp app)
             : base(app)
         {
@@ -95,6 +98,15 @@ namespace Growthstories.UI.ViewModel
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
+        }
+    }
+
+
+    public class AddMeasurementViewModelDesign : AddMeasurementViewModel
+    {
+        public AddMeasurementViewModelDesign()
+        {
+            this.State = new PlantState(new PlantCreated(Guid.NewGuid(),"Jari",Guid.NewGuid()));
         }
     }
 }

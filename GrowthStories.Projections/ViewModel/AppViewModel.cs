@@ -14,15 +14,17 @@ using Growthstories.Domain.Messaging;
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IGSApp : IGSViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
+    public interface IGSApp : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
         IUserService Context { get; }
         IDictionary<IconType, Uri> IconUri { get; }
+        IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
         IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app);
+        PageOrientation Orientation { get; }
     }
 
 
@@ -124,6 +126,8 @@ namespace Growthstories.UI.ViewModel
             resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
 
+
+
         }
 
         public IGardenViewModel GardenFactory(Guid id)
@@ -136,10 +140,11 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        public IPlantViewModel PlantFactory(Guid id)
+        public IPlantViewModel PlantFactory(Guid id, IGardenViewModel garden)
         {
             return new PlantViewModel(
                 ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
+                garden,
                 this.ActionFactory,
                 this
             );
@@ -210,14 +215,29 @@ namespace Growthstories.UI.ViewModel
             {IconType.CHECK,new Uri("/Assets/Icons/appbar.check.png", UriKind.RelativeOrAbsolute)},
             {IconType.DELETE,new Uri("/Assets/Icons/appbar.delete.png", UriKind.RelativeOrAbsolute)},
             {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)},
-            {IconType.WATER,new Uri("/Assets/Icons/icon_water.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
-            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_fertilize.png", UriKind.RelativeOrAbsolute)},
-            {IconType.NOTE,new Uri("/Assets/Icons/icon_note.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MEASURE,new Uri("/Assets/Icons/icon_measurement.png", UriKind.RelativeOrAbsolute)}
+            {IconType.WATER,new Uri("/Assets/Icons/icon_watering_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.NOTE,new Uri("/Assets/Icons/icon_comment_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.SHARE,new Uri("/Assets/Icons/appbar.social.sharethis.png", UriKind.RelativeOrAbsolute)}
+
         };
 
         public IDictionary<IconType, Uri> IconUri { get { return _IconUri; } }
+
+
+
+        IDictionary<IconType, Uri> _bIconUri = new Dictionary<IconType, Uri>()
+        {
+            {IconType.WATER,new Uri("/Assets/Icons/icon_watering.png", UriKind.RelativeOrAbsolute)},
+            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
+            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient.png", UriKind.RelativeOrAbsolute)},
+            {IconType.NOTE,new Uri("/Assets/Icons/icon_comment.png", UriKind.RelativeOrAbsolute)},
+            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length.png", UriKind.RelativeOrAbsolute)}
+        };
+
+        public IDictionary<IconType, Uri> BigIconUri { get { return _bIconUri; } }
 
 
 
@@ -228,13 +248,62 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
-
-
         public virtual IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app)
         {
             throw new NotImplementedException();
+        }
+
+
+        public PageOrientation _Orientation;
+        public PageOrientation Orientation
+        {
+            get { return _Orientation; }
+            set { this.RaiseAndSetIfChanged(ref _Orientation, value); }
+        }
+
+        private ReactiveCommand _PageOrientationChangedCommand;
+        public ReactiveCommand PageOrientationChangedCommand
+        {
+            get
+            {
+
+                if (_PageOrientationChangedCommand == null)
+                {
+                    _PageOrientationChangedCommand = new ReactiveCommand();
+                    _PageOrientationChangedCommand.Subscribe(x =>
+                    {
+                        try
+                        {
+                            this.Orientation = (PageOrientation)x;
+
+                        }
+                        catch
+                        {
+
+                        }
+                    });
+                }
+                return _PageOrientationChangedCommand;
+
+            }
+        }
+
+
+
+
+        public string PageTitle
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IScreen HostScreen
+        {
+            get { return this; }
         }
     }
 
@@ -262,7 +331,10 @@ namespace Growthstories.UI.ViewModel
         FERTILIZE,
         PHOTO,
         NOTE,
-        MEASURE
+        MEASURE,
+        NOURISH,
+        CHANGESOIL,
+        SHARE
     }
 
     public enum ApplicationBarMode

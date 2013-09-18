@@ -68,7 +68,7 @@ namespace Growthstories.UI.ViewModel
         /// </summary>
         public GardenViewModel(
             GardenState state,
-            Func<Guid, IPlantViewModel> pvmFactory,
+            Func<Guid, IGardenViewModel, IPlantViewModel> pvmFactory,
             IGSApp app)
             : base(app)
         {
@@ -96,7 +96,7 @@ namespace Growthstories.UI.ViewModel
 
             this.GetPlantCommand = new ReactiveCommand();
             this.GetPlantPipe = this.GetPlantCommand
-                .RegisterAsyncFunction((id) => pvmFactory((Guid)id), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+                .RegisterAsyncFunction((id) => pvmFactory((Guid)id, this), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
             this.GetPlantPipe.Subscribe(x => this.Plants.Add(x));
 

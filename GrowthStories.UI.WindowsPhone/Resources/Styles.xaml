@@ -17,6 +17,8 @@
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
     <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <vm:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
+
     <!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
     <Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>
     <system:Double x:Key="GSAppTitleFontSize">24</system:Double>

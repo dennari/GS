@@ -51,7 +51,12 @@
                     <phone:LongListSelector 
             			    ItemsSource="{Binding Actions}" 
             			    ItemTemplate="{StaticResource ActionSelectingTemplate}"
-            			    Style="{StaticResource GSActionListStyle}" Height="639" Width="456"/>
+            			    Style="{StaticResource GSActionListStyle}" 
+                            Height="639" 
+                            Width="456"
+                            ManipulationStarted="OnManipulationStarted" 
+                            ManipulationDelta="OnManipulationDelta" 
+                            ManipulationCompleted="OnManipulationCompleted"/>
                 </ScrollViewer>
             </Grid>
     </Grid>
