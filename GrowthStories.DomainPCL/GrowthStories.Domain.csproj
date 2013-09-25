@@ -38,6 +38,10 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Entities\Schedule\Commands.cs" />
+    <Compile Include="Entities\Schedule\Events.cs" />
+    <Compile Include="Entities\Schedule\Schedule.cs" />
+    <Compile Include="Entities\Schedule\ScheduleState.cs" />
     <Compile Include="Entities\Synchronizer\Commands.cs" />
     <Compile Include="Entities\Synchronizer\Events.cs" />
     <Compile Include="Entities\Synchronizer\Synchronizer.cs" />
@@ -147,7 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\PlantData\" />
-    <Folder Include="Entities\Schedule\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Readme.txt" />

@@ -12,32 +12,8 @@
     xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    mc:Ignorable="d"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}">
+    mc:Ignorable="d">
     
-    <!--<toolkit:TransitionService.NavigationInTransition>
-        <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn"/>
-            </toolkit:NavigationInTransition.Backward>
-            <toolkit:NavigationInTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardIn"/>
-            </toolkit:NavigationInTransition.Forward>
-        </toolkit:NavigationInTransition>
-    </toolkit:TransitionService.NavigationInTransition>
-    <toolkit:TransitionService.NavigationOutTransition>
-        <toolkit:NavigationOutTransition>
-            <toolkit:NavigationOutTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardOut"/>
-            </toolkit:NavigationOutTransition.Backward>
-            <toolkit:NavigationOutTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardOut"/>
-            </toolkit:NavigationOutTransition.Forward>
-        </toolkit:NavigationOutTransition>
-    </toolkit:TransitionService.NavigationOutTransition>-->
-
     <!--LayoutRoot contains the root grid where all other page content is placed-->
     <Grid x:Name="LayoutRoot">
         <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
@@ -48,11 +24,11 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <phone:Panorama.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="/Growthstories.UI.WindowsPhone;component/Assets/Bg/garden_all.png"/>
+                <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
         	</phone:Panorama.Background>
             <phone:Panorama.Title>
                  <Image 
-					Source="/Growthstories.UI.WindowsPhone;component/Assets/Bg/panorama_logo.png" 
+					Source="/Assets/Bg/panorama_logo.png" 
 					Stretch="UniformToFill" 
 					Width="800" 
 					Margin="0,80,0,0"/>	
@@ -93,7 +69,7 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center" Canvas.ZIndex="1"/>
-                                    <Image Width="173" Height="173" Source="{Binding ProfilepicturePath, Converter={StaticResource PathToImageSource}}" VerticalAlignment="Center"/>
+                                    <Image Width="173" Height="173" Source="{Binding ProfilepictureData, Converter={StaticResource PhotoToImageSource}}" VerticalAlignment="Center"/>
 
                                 </Grid>
                             </DataTemplate>
@@ -111,6 +87,23 @@
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="friends" x:Name="friendsItem">
                 <Grid x:Name="ContentPanel3" Margin="0,0">
                     <phone:LongListSelector />
+                </Grid>
+            </phone:PanoramaItem>
+            <!-- TESTING -->
+            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="stuff" x:Name="testItem">
+                <Grid x:Name="ContentPanel4" Margin="0,0" DataContext="{Binding TestingVM}">
+                    <StackPanel Orientation="Vertical">
+                        <Button  Command="{Binding AddTestDataCommand}">
+                            <TextBlock Text="Add testdata"
+                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
+                        </Button>
+                        <Button  Command="{Binding ClearDBCommand}">
+                            <TextBlock Text="Clear db"
+                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </phone:PanoramaItem>
 

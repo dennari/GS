@@ -16,34 +16,83 @@ using Microsoft.Phone.Controls;
 using System.Windows.Controls;
 using System.Windows.Media;
 using ReactiveUI;
+using System.Reactive.Linq;
+using System.Reactive;
+
+using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
+using System.Linq.Expressions;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
-    class ClientAddPlantViewModel : AddPlantViewModel
+
+    public static class Mixins
+    {
+        public static void SetSource(this BitmapImage i, Photo x)
+        {
+            i.DecodePixelHeight = (int)x.Height;
+            i.DecodePixelWidth = (int)x.Width;
+            i.UriSource = new Uri(x.Uri, UriKind.RelativeOrAbsolute);
+        }
+    }
+
+
+    public class ClientAddPlantViewModel : AddPlantViewModel
     {
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(IGSApp app)
-            : base(app) { }
+        public ClientAddPlantViewModel(PlantState state, IGSApp app)
+            : base(state, app)
+        {
+
+            this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());
+
+            this.WhenAnyValue(x => x.ProfilepictureData, x => x)
+                .Where(x => x != default(Photo))
+                .Subscribe(x => Profilepicture.SetSource(x));
+        }
 
 
 
+        void Profilepicture_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
+        {
+            throw e.ErrorException;
+        }
 
-        private PhotoChooserTask _Chooser;
-        protected PhotoChooserTask Chooser
+        protected BitmapImage _Profilepicture;
+        public BitmapImage Profilepicture
         {
             get
             {
-                if (_Chooser == null)
+                if (_Profilepicture == null)
+                {
+                    _Profilepicture = new BitmapImage()
+                    {
+                        CreateOptions = BitmapCreateOptions.DelayCreation,
+                        DecodePixelType = DecodePixelType.Physical
+                    };
+                    Profilepicture.ImageFailed += Profilepicture_ImageFailed;
+                }
+                return _Profilepicture;
+            }
+        }
+
+
+        private PhotoChooserTask _PhotoChooser;
+        protected PhotoChooserTask PhotoChooser
+        {
+            get
+            {
+                if (_PhotoChooser == null)
                 {
                     var t = new PhotoChooserTask();
                     t.Completed += async (s, e) => await t_Completed(s, e);
                     //t.Completed += t_Completed;
                     t.ShowCamera = true;
-                    _Chooser = t;
+                    _PhotoChooser = t;
                 }
-                return _Chooser;
+                return _PhotoChooser;
             }
         }
 
@@ -58,7 +107,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     _ViewFSCommand = new ReactiveCommand();
                     _ViewFSCommand.Subscribe(_ =>
                     {
-                        if (this.ProfilepicturePath == null)
+                        if (this.ProfilepictureData == null)
                             return;
                         FSView.Show();
                     });
@@ -79,7 +128,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                      Content = new Image()
                      {
                          Stretch = Stretch.UniformToFill,
-                         Source = this.ProfilePicture
+                         Source = this.Profilepicture
                      },
                      IsFullScreen = true // Pivots should always be full-screen.
                  };
@@ -124,43 +173,16 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-        protected override void ChoosePhoto()
-        {
-            base.ChoosePhoto();
-            Chooser.Show();
 
-        }
 
         async Task t_Completed(object sender, PhotoResult e)
         {
             //throw new NotImplementedException();
-            if (e.TaskResult == TaskResult.OK && e.ChosenPhoto.CanRead && e.ChosenPhoto.Length > 0)
+            var image = e.ChosenPhoto;
+            if (e.TaskResult == TaskResult.OK && image.CanRead && image.Length > 0)
             {
                 this.ProfilePictureButtonText = "";
-                await this.Process(e.ChosenPhoto);
-            }
-        }
-
-        async Task Process(Stream image)
-        {
-            var buffer = image.ToBuffer();
-            this.ProfilepicturePath = await buffer.SaveAsync();
-            var o = buffer.Orientation();
-            ProfilePicture.DecodePixelWidth = o == ImagingExtensions.OrientationType.LANDSCAPE ? 1280 : 0;
-            ProfilePicture.DecodePixelHeight = o == ImagingExtensions.OrientationType.LANDSCAPE ? 0 : 1280;
-            image.Position = 0;
-            ProfilePicture.SetSource(image);
-
-        }
-
-        protected BitmapImage _ProfilePicture;
-        public BitmapImage ProfilePicture
-        {
-            get
-            {
-                if (_ProfilePicture == null)
-                    _ProfilePicture = new BitmapImage();
-                return _ProfilePicture;
+                this.ProfilepictureData = await image.SavePhotoToLocalStorageAsync();
             }
         }
 

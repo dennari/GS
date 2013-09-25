@@ -5,7 +5,10 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
+using System.Reactive.Linq;
+using System.Reactive;
 using System;
+using System.Collections.Generic;
 
 
 namespace Growthstories.UI.ViewModel
@@ -15,85 +18,169 @@ namespace Growthstories.UI.ViewModel
     {
 
     }
-    public class AddPlantViewModel : RoutableViewModel, IAddPlantViewModel
-    {
 
+    public enum ScheduleType
+    {
+        WATERING,
+        FERTILIZING
+    }
+
+    public class AddPlantViewModel : PlantActionViewModel, IAddPlantViewModel
+    {
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public AddPlantViewModel(IGSApp app)
-            : base(app)
+
+        protected new PlantState State;
+
+        public AddPlantViewModel(PlantState state, IGSApp app)
+            : base(null, app)
         {
+            this.State = state;
+            this.Title = "new";
+
+            ChooseProfilePictureCommand = new ReactiveCommand();
+            ChooseWateringSchedule = new ReactiveCommand();
+            ChooseWateringSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.WateringSchedule));
+            ChooseFertilizingSchedule = new ReactiveCommand();
+            ChooseFertilizingSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.FertilizingSchedule));
+
+            Tags = new ReactiveList<string>();
+            AddTag = new ReactiveCommand();
+            AddTag.OfType<string>().Subscribe(x =>
+            {
+                if (!this.Tags.Contains(x))
+                    this.Tags.Add(x);
+            });
+
+            RemoveTag = new ReactiveCommand();
+            RemoveTag.OfType<string>().Subscribe(x =>
+            {
+                this.Tags.Remove(x);
+            });
+
+            this.WhenAny(x => x.Name, x => x.Species, (name, species) => this.FormatPlantTitle(name.GetValue(), species.GetValue()))
+                .ToProperty(this, x => x.PlantTitle, out this._PlantTitle, null);
+
+
+
+            //this.CanExecute = this.WhenAnyValue(x => x.Name, x => x.Species, x => x.ProfilepicturePath, IsValid);
+
+            this.CanExecute = this.WhenAnyValue(
+                       x => x.Name,
+                       x => x.Species,
+                       x => x.FertilizingSchedule.Id,
+                       x => x.WateringSchedule.Id,
+                       x => x.ProfilepictureData,
+                       x => x.Tags,
+                       this.IsValid
+                    );
+
+            if (State != null)
+            {
+                this.Name = State.Name;
+                this.Species = State.Species;
+                this.Tags = new ReactiveList<string>(State.Tags);
+                this.Title = "edit";
+                this.ProfilepictureData = State.Profilepicture;
+                this.ProfilePictureButtonText = "";
+
+            }
 
         }
 
+        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        {
+            int changes = 0;
+            if (State.Species != species)
+            {
+                changes++;
+            }
+            if (State.Name != name)
+            {
+                changes++;
+            }
+            if (State.FertilizingScheduleId != fert)
+            {
+                changes++;
+            }
+            if (State.WateringScheduleId != water)
+            {
+                changes++;
+            }
+            if (State.Profilepicture != pic)
+            {
+                changes++;
+            }
+            if (!State.Tags.SetEquals(tags))
+            {
+                changes++;
+            }
+            return changes > 0;
+        }
 
-        private ReactiveCommand _CreatePlantCommand;
-        public ReactiveCommand CreatePlantCommand
+        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        {
+            int valid = 0;
+            if (!string.IsNullOrWhiteSpace(name))
+                valid++;
+            if (!string.IsNullOrWhiteSpace(species))
+                valid++;
+            if (pic != default(Photo))
+                valid++;
+            if (fert != default(Guid))
+                valid++;
+            if (water != default(Guid))
+                valid++;
+
+            if (valid < 5)
+                return false;
+
+            if (State != null)
+                return AnyChange(name, species, fert, water, pic, tags);
+
+            return true;
+        }
+
+        public ReactiveCommand ChooseProfilePictureCommand { get; protected set; }
+
+        public ReactiveCommand ChooseWateringSchedule { get; protected set; }
+
+        public ReactiveCommand AddTag { get; protected set; }
+        public ReactiveCommand RemoveTag { get; protected set; }
+
+
+        public ReactiveCommand ChooseFertilizingSchedule { get; protected set; }
+
+        public ReactiveList<string> Tags { get; protected set; }
+
+        protected ScheduleViewModel _WateringSchedule;
+        public ScheduleViewModel WateringSchedule
         {
             get
             {
-
-                if (_CreatePlantCommand == null)
+                if (_WateringSchedule == null)
                 {
-                    _CreatePlantCommand = new ReactiveCommand();
-                    _CreatePlantCommand.RegisterAsyncAction(param =>
-                    {
-                        App.Bus.SendMessage<IEntityCommand>(
-                            new CreatePlant(
-                                this.Id,
-                                this.Name,
-                                App.Context.CurrentUser.Id
-                             )
-                             {
-                                 ProfilepicturePath = this.ProfilepicturePath
-                             }
-                         );
-                        App.Bus.SendMessage<IEntityCommand>(
-                            new AddPlant(
-                                App.Context.CurrentUser.GardenId,
-                                this.Id,
-                                this.Name
-                             )
-                        );
-                    });
-                    _CreatePlantCommand.Subscribe(param =>
-                    {
-                        //this.Name = "";
-                        //Nav.GoBack();
-                    });
-
+                    _WateringSchedule = App.ScheduleViewModelFactory(this.State, ScheduleType.WATERING);
                 }
-                return _CreatePlantCommand;
-
+                return _WateringSchedule;
             }
         }
 
-        private ReactiveCommand _ChooseProfilePictureCommand;
-        public ReactiveCommand ChooseProfilePictureCommand
+
+        protected ScheduleViewModel _FertilizingSchedule;
+        public ScheduleViewModel FertilizingSchedule
         {
             get
             {
-
-                if (_ChooseProfilePictureCommand == null)
+                if (_FertilizingSchedule == null)
                 {
-                    _ChooseProfilePictureCommand = new ReactiveCommand();
-                    _ChooseProfilePictureCommand.Subscribe(param => ChoosePhoto());
-
+                    _FertilizingSchedule = App.ScheduleViewModelFactory(this.State, ScheduleType.FERTILIZING);
                 }
-                return _ChooseProfilePictureCommand;
-
+                return _FertilizingSchedule;
             }
         }
-
-        protected virtual void ChoosePhoto()
-        {
-
-        }
-
-        protected string _PageTitle = "add plant";
-        public override string PageTitle { get { return _PageTitle; } }
 
 
         protected string _ProfilePictureButtonText = "select";
@@ -106,6 +193,22 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _ProfilePictureButtonText, value);
+            }
+        }
+
+        protected string FormatPlantTitle(string name, string species)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+            return string.IsNullOrWhiteSpace(species) ? name.ToUpper() : string.Format("{0} ({1})", name.ToUpper(), species.ToUpper()); ;
+        }
+
+        private ObservableAsPropertyHelper<string> _PlantTitle;
+        public new string PlantTitle
+        {
+            get
+            {
+                return this._PlantTitle.Value;
             }
         }
 
@@ -122,6 +225,18 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        protected string _Species;
+        public string Species
+        {
+            get
+            {
+                return _Species;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Species, value);
+            }
+        }
 
         protected Guid _Id;
         public Guid Id
@@ -136,52 +251,69 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected string _ProfilepicturePath;
-        public string ProfilepicturePath
+        protected Photo _ProfilepictureData;
+        public Photo ProfilepictureData
         {
             get
             {
-                return _ProfilepicturePath;
+                return _ProfilepictureData;
             }
             set
             {
-                this.RaiseAndSetIfChanged(ref _ProfilepicturePath, value);
+                this.RaiseAndSetIfChanged(ref _ProfilepictureData, value);
             }
         }
 
-        protected ReactiveList<ButtonViewModel> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+
+        public override void AddCommandSubscription(object p)
         {
-            get
+            //IEntityCommand cmd = null;
+            if (this.State != null)
             {
-                if (_AppBarButtons == null)
-                    _AppBarButtons = new ReactiveList<ButtonViewModel>()
-                    {
-                        new ButtonViewModel(App)
-                        {
-                            Text = "add",
-                            //IconUri = Nav.IconUri[IconType.CHECK],
-                            Command = CreatePlantCommand
-                        }
-                    };
-                return _AppBarButtons;
+                if (State.Species != this.Species)
+                {
+                    this.SendCommand(new SetSpecies(State.Id, this.Species));
+                }
+                if (State.Name != this.Name)
+                {
+                    this.SendCommand(new SetName(State.Id, this.Name));
+                }
+                if (State.FertilizingScheduleId != this.FertilizingSchedule.Id)
+                {
+                    this.SendCommand(new SetFertilizingSchedule(State.Id, this.FertilizingSchedule.Id));
+                }
+                if (State.WateringScheduleId != this.WateringSchedule.Id)
+                {
+                    this.SendCommand(new SetWateringSchedule(State.Id, this.WateringSchedule.Id));
+                }
+                if (State.Profilepicture != this.ProfilepictureData)
+                {
+                    this.SendCommand(new SetProfilepicture(State.Id, this.ProfilepictureData));
+                }
+                if (!State.Tags.SetEquals(this.Tags))
+                {
+                    this.SendCommand(new SetTags(State.Id, new HashSet<string>(this.Tags)));
+                }
+                this.App.Router.NavigateBack.Execute(null);
+            }
+            else
+            {
+                var plantId = Guid.NewGuid();
+                this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.Id)
+                {
+                    Species = this.Species,
+                    Profilepicture = this.ProfilepictureData,
+                    FertilizingScheduleId = this.FertilizingSchedule.Id,
+                    WateringScheduleId = this.WateringSchedule.Id,
+                    Tags = new HashSet<string>(this.Tags)
+                }, false);
+
+                this.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, plantId, this.Name), true);
+
+
             }
         }
 
 
-        public override string UrlPathSegment
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public ApplicationBarMode AppBarMode
-        {
-            get { return ApplicationBarMode.DEFAULT; }
-        }
-
-        public bool AppBarIsVisible
-        {
-            get { return true; }
-        }
     }
 }

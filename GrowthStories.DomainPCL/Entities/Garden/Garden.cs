@@ -25,11 +25,7 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(CreateGarden command)
         {
-            if (State == null)
-            {
-                ApplyState(null);
-            }
-            RaiseEvent(new GardenCreated(command.EntityId));
+            RaiseEvent(new GardenCreated(command));
         }
 
         public void Handle(MarkGardenPublic command)

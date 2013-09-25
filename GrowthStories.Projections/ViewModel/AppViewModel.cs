@@ -10,6 +10,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using Growthstories.Sync;
 using Growthstories.Domain.Messaging;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -23,8 +24,17 @@ namespace Growthstories.UI.ViewModel
         IDictionary<IconType, Uri> IconUri { get; }
         IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
-        IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app);
+
+        IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null) where T : IPlantActionViewModel;
+        IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state);
+
+        ScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
+        AddPlantViewModel AddPlantViewModelFactory(PlantState state);
+
         PageOrientation Orientation { get; }
+        Task AddTestData();
+        Task ClearDB();
+
     }
 
 
@@ -123,7 +133,7 @@ namespace Growthstories.UI.ViewModel
             resolver.RegisterLazySingleton(() => new MainViewModel(this.GardenFactory, this), typeof(IMainViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
             resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(IFriendsViewModel));
-            resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
+            //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
 
 
@@ -143,28 +153,18 @@ namespace Growthstories.UI.ViewModel
         public IPlantViewModel PlantFactory(Guid id, IGardenViewModel garden)
         {
             return new PlantViewModel(
-                ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-                garden,
-                this.ActionFactory,
-                this
+             ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
+             garden,
+             this
             );
 
         }
 
-        public IEnumerable<ActionBase> ActionFactory(object ids)
+        public virtual IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state)
         {
-            //return new PlantViewModel(
-            //    ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-            //    this
-            //);
-            var Ids = ids as Tuple<Guid, Guid>;
-            if (Ids == null)
-            {
-                return null;
-            }
-            var user = ((User)Kernel.Get<IGSRepository>().GetById(Ids.Item1)).State;
 
-            return user.Actions.Where(x => x.PlantId == Ids.Item2);
+            throw new NotImplementedException();
+
 
         }
 
@@ -253,6 +253,16 @@ namespace Growthstories.UI.ViewModel
             throw new NotImplementedException();
         }
 
+        public virtual async Task AddTestData()
+        {
+
+        }
+
+        public virtual async Task ClearDB()
+        {
+
+        }
+
 
         public PageOrientation _Orientation;
         public PageOrientation Orientation
@@ -304,6 +314,31 @@ namespace Growthstories.UI.ViewModel
         public IScreen HostScreen
         {
             get { return this; }
+        }
+
+
+        public virtual AddPlantViewModel AddPlantViewModelFactory(PlantState state)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public ScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType)
+        {
+            ScheduleState state = null;
+            if (plantState != null)
+            {
+                Guid id = scheduleType == ScheduleType.FERTILIZING ? plantState.FertilizingScheduleId : plantState.WateringScheduleId;
+                if (id != default(Guid))
+                    state = ((Schedule)Kernel.Get<IGSRepository>().GetById(id)).State;
+            }
+            return new ScheduleViewModel(state, scheduleType, this);
+        }
+
+
+        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null) where T : IPlantActionViewModel
+        {
+            throw new NotImplementedException();
         }
     }
 

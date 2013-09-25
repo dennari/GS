@@ -9,24 +9,32 @@ using System.Text;
 
 namespace Growthstories.Domain.Entities
 {
-    public class PlantState : AggregateState<PlantCreated>
+    public sealed class PlantState : AggregateState<PlantCreated>
     {
 
         public Guid UserId { get; private set; }
 
-        protected string _Name;
-        public string Name { get { return _Name; } protected set { Set(ref _Name, value); } }
+        public Guid WateringScheduleId { get; private set; }
 
-        protected string _ProfilepicturePath;
-        public string ProfilepicturePath { get { return _ProfilepicturePath; } protected set { Set(ref _ProfilepicturePath, value); } }
+        public Guid FertilizingScheduleId { get; private set; }
+
+        public HashSet<string> Tags { get; private set; }
+
+        public string Name { get; private set; }
+
+        public string Species { get; private set; }
+
+        public Photo Profilepicture { get; private set; }
 
 
 
         public PlantState()
         {
+            this.Tags = new HashSet<string>();
         }
 
         public PlantState(PlantCreated @event)
+            : this()
         {
             this.Apply(@event);
         }
@@ -36,8 +44,12 @@ namespace Growthstories.Domain.Entities
         {
             base.Apply(@event);
             this.Name = @event.Name;
+            this.Species = @event.Species;
             this.UserId = @event.UserId;
-            this.ProfilepicturePath = @event.ProfilepicturePath;
+            this.Profilepicture = @event.Profilepicture;
+            this.WateringScheduleId = @event.WateringScheduleId;
+            this.FertilizingScheduleId = @event.FertilizingScheduleId;
+            this.Tags = @event.Tags;
         }
 
         public void Apply(MarkedPlantPublic @event)
@@ -50,9 +62,31 @@ namespace Growthstories.Domain.Entities
             Public = false;
         }
 
-        public void Apply(ProfilepicturePathChanged @event)
+        public void Apply(ProfilepictureSet @event)
         {
-            this.ProfilepicturePath = @event.ProfilepicturePath;
+            this.Profilepicture = @event.Profilepicture;
+        }
+
+        public void Apply(WateringScheduleSet @event)
+        {
+            this.WateringScheduleId = @event.ScheduleId;
+        }
+
+        public void Apply(FertilizingScheduleSet @event)
+        {
+            this.FertilizingScheduleId = @event.ScheduleId;
+        }
+        public void Apply(TagsSet @event)
+        {
+            this.Tags = @event.Tags;
+        }
+        public void Apply(NameSet @event)
+        {
+            this.Name = @event.Name;
+        }
+        public void Apply(SpeciesSet @event)
+        {
+            this.Species = @event.Species;
         }
 
     }

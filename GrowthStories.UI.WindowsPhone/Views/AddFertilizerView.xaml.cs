@@ -9,11 +9,13 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using Growthstories.UI.WindowsPhone;
+using Growthstories.UI.WindowsPhone.ViewModels;
+
 using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddFertilizerView : UserControl, IViewFor<AddFertilizerViewModel>
+    public partial class AddFertilizerView : UserControl, IViewFor<PlantFertilizeViewModel>
     {
         public AddFertilizerView()
         {
@@ -21,9 +23,9 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public AddFertilizerViewModel ViewModel
+        public PlantFertilizeViewModel ViewModel
         {
-            get { return (AddFertilizerViewModel)GetValue(ViewModelProperty); }
+            get { return (PlantFertilizeViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -38,7 +40,7 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddFertilizerView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AddFertilizerViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantFertilizeViewModel)value; } }
 
     }
 }

@@ -56,30 +56,30 @@ namespace Growthstories.UI.WindowsPhone
             return GetTemplate((dynamic)item);
         }
 
-        private DataTemplate GetTemplate(CommentViewModel item)
+        private DataTemplate GetTemplate(IPlantCommentViewModel item)
         {
             return Application.Current.Resources["CommentTemplate"] as DataTemplate;
         }
 
-        private DataTemplate GetTemplate(WaterViewModel item)
+        private DataTemplate GetTemplate(IPlantWaterViewModel item)
         {
             //return Application.Current.Resources["WaterTemplate"] as DataTemplate;
             return Application.Current.Resources["CommentTemplate"] as DataTemplate;
         }
 
-        private DataTemplate GetTemplate(FertilizeViewModel item)
+        private DataTemplate GetTemplate(IPlantFertilizeViewModel item)
         {
             //return Application.Current.Resources["FertilizeTemplate"] as DataTemplate;
             return Application.Current.Resources["CommentTemplate"] as DataTemplate;
         }
 
-        private DataTemplate GetTemplate(MeasureViewModel item)
+        private DataTemplate GetTemplate(IPlantMeasureViewModel item)
         {
             //return Application.Current.Resources["FertilizeTemplate"] as DataTemplate;
             return Application.Current.Resources["MeasurementTemplate"] as DataTemplate;
         }
 
-        private DataTemplate GetTemplate(PhotographViewModel item)
+        private DataTemplate GetTemplate(IPlantPhotographViewModel item)
         {
             return Application.Current.Resources["PhotographTemplate"] as DataTemplate;
         }

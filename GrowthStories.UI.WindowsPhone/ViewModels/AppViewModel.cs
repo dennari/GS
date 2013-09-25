@@ -16,10 +16,13 @@ using Growthstories.Domain;
 using System.Threading.Tasks;
 using Growthstories.Domain.Messaging;
 using Growthstories.UI.WindowsPhone.ViewModels;
+using EventStore.Persistence;
+using EventStore;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
+
 
     public class AppViewModel : Growthstories.UI.ViewModel.AppViewModel, IApplicationRootState
     {
@@ -60,45 +63,103 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<PlantViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddWaterView(), typeof(IViewFor<AddWaterViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddCommentView(), typeof(IViewFor<AddCommentViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddFertilizerView(), typeof(IViewFor<AddFertilizerViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddMeasurementView(), typeof(IViewFor<AddMeasurementViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<ClientAddPhotographViewModel>));
+            Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<ScheduleViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<ClientAddPlantViewModel>));
+            //Resolver.RegisterLazySingleton(() => new EditPlantView(), typeof(IViewFor<ClientEditPlantViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddWaterView(), typeof(IViewFor<PlantWaterViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddCommentView(), typeof(IViewFor<PlantCommentViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddFertilizerView(), typeof(IViewFor<PlantFertilizeViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddMeasurementView(), typeof(IViewFor<PlantMeasureViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<PlantPhotographViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
 
 
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x => this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x);
 
 
-            var Ctx = Kernel.Get<IUserService>().CurrentUser;
 
-            // TEST DATA   
-            AddPlant(new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id)
-            {
-                ProfilepicturePath = "/TestData/517e100d782a828894.jpg"
-            });
-            AddPlant(new CreatePlant(Guid.NewGuid(), "Jari", Ctx.Id)
-            {
-                ProfilepicturePath = "/TestData/flowers-from-the-conservatory.jpg"
-            });
+
+
         }
 
-        public override IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app)
+        public override AddPlantViewModel AddPlantViewModelFactory(PlantState state)
         {
-            if (actionT == typeof(AddWaterViewModel))
-                return new AddWaterViewModel(state, app);
-            if (actionT == typeof(AddCommentViewModel))
-                return new AddCommentViewModel(state, app);
-            if (actionT == typeof(AddFertilizerViewModel))
-                return new AddFertilizerViewModel(state, app);
-            if (actionT == typeof(AddMeasurementViewModel))
-                return new AddMeasurementViewModel(state, app);
-            if (actionT == typeof(AddPhotographViewModel))
-                return new ClientAddPhotographViewModel(state, app);
-            return null;
+            return new ClientAddPlantViewModel(state, this);
         }
 
+        public override IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null)
+        {
+            return ClientPlantActionViewModel.Create<T>(state, this);
+        }
+
+        //public override IPlantViewModel PlantFactory(Guid id, IGardenViewModel garden)
+        //{
+        //    return new ClientPlantViewModel(
+        //       ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
+        //       garden,
+        //       this
+        //   );
+        //}
+
+
+
+        public override IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state)
+        {
+
+
+            Func<Guid, IGSAggregate> f = Kernel.Get<IGSRepository>().GetById;
+
+            var af = f.ToAsync(RxApp.TaskpoolScheduler);
+
+            return af(state.UserId)
+                .OfType<User>()
+                .Select(x => x.State.Actions.Where(y => y.PlantId == state.Id).ToObservable())
+                .Switch()
+                .Select(x => ClientPlantActionViewModel.Create(x, this));
+
+
+
+        }
+
+
+
+        public override async Task AddTestData()
+        {
+            await Task.Run(async () =>
+            {
+                await base.AddTestData();
+                var Ctx = Kernel.Get<IUserService>().CurrentUser;
+                // TEST DATA   
+                AddPlant(new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id)
+                {
+                    Profilepicture = new Photo()
+                    {
+                        LocalUri = "/TestData/517e100d782a828894.jpg"
+                    }
+                });
+                AddPlant(new CreatePlant(Guid.NewGuid(), "Jari", Ctx.Id)
+                {
+                    Profilepicture = new Photo()
+                    {
+                        LocalUri = "/TestData/flowers-from-the-conservatory.jpg"
+                    }
+                });
+            });
+        }
+
+        public override async Task ClearDB()
+        {
+            await Task.Run(async () =>
+            {
+                await base.ClearDB();
+                var db = Kernel.Get<IPersistSyncStreams>();
+                db.Purge();
+                Kernel.Get<IGSRepository>().ClearCaches();
+                Kernel.Get<OptimisticPipelineHook>().Dispose();
+                ((FakeUserService)Kernel.Get<IUserService>()).EnsureCurrenUser();
+
+            });
+        }
 
         private void AddPlant(CreatePlant cmd)
         {
@@ -123,7 +184,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             u.Handle(new Water(Ctx.Id, p1.State.Id, "NOTE"));
             u.Handle(new Fertilize(Ctx.Id, p1.State.Id, "NOTE"));
             u.Handle(new Comment(Ctx.Id, p1.State.Id, "NOTE") { Created = DateTimeOffset.Now });
-            u.Handle(new Photograph(Ctx.Id, p1.State.Id, "My baby!", new Uri("/TestData/517e100d782a828894.jpg", UriKind.Relative)));
+            // u.Handle(new Photograph(Ctx.Id, p1.State.Id, "My baby!", "/TestData/517e100d782a828894.jpg"));
 
 
             Store.Save(u);

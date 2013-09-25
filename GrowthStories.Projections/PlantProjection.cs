@@ -54,8 +54,8 @@ namespace Growthstories.UI
         public IEnumerable<PlantState> FakeLoadWithUserId(Guid guid)
         {
             return new PlantState[] {
-                new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Jore",guid) {ProfilepicturePath=testPic1})),
-                new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Kari",guid) {ProfilepicturePath=testPic2}))
+                //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Jore",guid) {Profilepicture=testPic1})),
+                //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Kari",guid) {Profilepicture=testPic2}))
             };
         }
     }

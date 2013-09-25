@@ -1,0 +1,37 @@
+﻿<UserControl
+    x:Class="Growthstories.UI.WindowsPhone.ScheduleView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	d:DataContext="{StaticResource AddMeasurementViewModelDesign}"
+    mc:Ignorable="d">
+    <local:AddPlantActionView>
+        <local:AddPlantActionView.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
+        </local:AddPlantActionView.Background>
+        <StackPanel Orientation="Horizontal">
+            <TextBox 
+                Text="{Binding Value, Mode=TwoWay}" 
+                local:BindingUtility.UpdateSourceOnChange="True" 
+                Style="{StaticResource GSTextBoxStyle}"
+                InputScope="Number" Width="250" Margin="-12,-6,0,0"/>
+            <toolkit:ListPicker 
+            	Style="{StaticResource GSListPickerStyle}"
+            	ItemsSource="{Binding ValueTypes}"
+            	SelectionChanged="ValueTypePicker_SelectionChanged" Width="193">
+                <toolkit:ListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}"/>
+                    </DataTemplate>
+                </toolkit:ListPicker.ItemTemplate>
+            </toolkit:ListPicker>
+
+        </StackPanel>
+    </local:AddPlantActionView>
+</UserControl>

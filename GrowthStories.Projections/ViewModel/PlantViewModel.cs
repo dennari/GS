@@ -18,63 +18,48 @@ namespace Growthstories.UI.ViewModel
     public interface IPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation
     {
         Guid Id { get; }
+        Guid UserId { get; }
         string Name { get; }
-        string ProfilepicturePath { get; }
+        string Species { get; }
+        ReactiveCommand PinCommand { get; }
+        ReactiveCommand ScrollCommand { get; }
+        Photo ProfilepictureData { get; }
     }
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
-        PlantActionViewModel _Test;
-        public PlantActionViewModel Test
-        {
-            get { return _Test; }
-            protected set { this.RaiseAndSetIfChanged(ref _Test, value); }
-        }
 
-
-        protected ReactiveList<PlantActionViewModel> _Actions;
-        public ReactiveList<PlantActionViewModel> Actions
+        protected ReactiveList<IPlantActionViewModel> _Actions;
+        public ReactiveList<IPlantActionViewModel> Actions
         {
             get
             {
                 if (_Actions == null)
                 {
-                    _Actions = new ReactiveList<PlantActionViewModel>();
-                    //LoadActions();
-                    //a();
-                    this.GetActionsCommand.Execute(Tuple.Create(State.UserId, State.Id));
+                    _Actions = new ReactiveList<IPlantActionViewModel>();
+                    App.PlantActionViewModelFactory(this.State).Subscribe(x => this.Actions.Add(x));
 
                 }
                 return _Actions;
             }
         }
 
-        private ReactiveCommand GetActionsCommand;
-        private IObservable<IEnumerable<PlantActionViewModel>> GetActionsPipe;
 
-        public ReactiveCommand AddWaterCommand { get; protected set; }
-        public ReactiveCommand AddFertilizerCommand { get; protected set; }
-        public ReactiveCommand AddCommentCommand { get; protected set; }
-        public ReactiveCommand AddPhotographCommand { get; protected set; }
+
         public ReactiveCommand ShareCommand { get; protected set; }
-        public ReactiveCommand EditCommand { get; protected set; }
         public ReactiveCommand DeleteCommand { get; protected set; }
         public ReactiveCommand PinCommand { get; protected set; }
-        public ReactiveCommand AddMeasurementCommand { get; protected set; }
+        public ReactiveCommand ScrollCommand { get; protected set; }
         public ReactiveCommand FlickCommand { get; protected set; }
 
-
-
         public Guid Id { get { return State.Id; } }
-        public string Name { get { return State.Name; } }
-        public string ProfilepicturePath { get { return State.ProfilepicturePath; } }
+        public Guid UserId { get { return State.UserId; } }
 
 
-        private readonly Func<object, IEnumerable<ActionBase>> ActionFactory;
-
-        public PlantState State { get; protected set; }
+        protected PlantState State { get; set; }
         public IGardenViewModel Garden { get; protected set; }
+
 
 
         public PlantViewModel()
@@ -85,30 +70,23 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(PlantState state, IGardenViewModel garden, Func<object, IEnumerable<ActionBase>> actionFactory, IGSApp app)
+        public PlantViewModel(PlantState state, IGardenViewModel garden, IGSApp app)
             : base(app)
         {
             //this.ActionProjection = actionProjection;
             //this.ActionProjection.EventHandled += this.ActionHandled;
             //this.Actions = new ObservableCollection<ActionBase>();
+            if (state == null)
+                throw new ArgumentNullException("PlantState has to be given in PlantViewModel");
             this.State = state;
-            this.ActionFactory = actionFactory;
             this.Garden = garden;
 
-            this.AddWaterCommand = new ReactiveCommand();
-            this.AddWaterCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddWaterViewModel), state, app)));
-            this.AddCommentCommand = new ReactiveCommand();
-            this.AddCommentCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddCommentViewModel), state, app)));
-            this.AddFertilizerCommand = new ReactiveCommand();
-            this.AddFertilizerCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddFertilizerViewModel), state, app)));
-            this.AddPhotographCommand = new ReactiveCommand();
-            this.AddPhotographCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddPhotographViewModel), state, app)));
-            this.AddMeasurementCommand = new ReactiveCommand();
-            this.AddMeasurementCommand.Subscribe(x => App.Router.Navigate.Execute(App.ActionViewModelFactory(typeof(AddMeasurementViewModel), state, app)));
+
+
             this.ShareCommand = new ReactiveCommand();
-            this.EditCommand = new ReactiveCommand();
             this.DeleteCommand = new ReactiveCommand();
             this.PinCommand = new ReactiveCommand();
+            this.ScrollCommand = new ReactiveCommand();
             this.FlickCommand = new ReactiveCommand();
             this.FlickCommand.Subscribe(x =>
             {
@@ -123,22 +101,34 @@ namespace Growthstories.UI.ViewModel
 
                 }
             });
+            this.ScrollCommand = new ReactiveCommand();
+
+
+            //this.GetActionsCommand = new ReactiveCommand();
+
+            //this.GetActionsPipe = this.GetActionsCommand
+            //    .RegisterAsyncFunction(this.App.Plant, RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
 
 
-            this.GetActionsCommand = new ReactiveCommand();
-            this.GetActionsPipe = this.GetActionsCommand
-                .RegisterAsyncFunction((id) => PlantActionViewModelFactory.GetVM(actionFactory(id), this.App), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-            this.GetActionsPipe.Subscribe(x => this._Actions.AddRange(x));
-
-            App.Bus.Listen<IEvent>().OfType<ActionBase>()
+            this.ListenTo<ActionBase>()
                 .Where(x => x.EntityId == this.State.UserId && x.PlantId == this.State.Id)
-                .Select(x => PlantActionViewModelFactory.GetVM(x, App))
+                .Select(x => App.PlantActionViewModelFactory<IPlantActionViewModel>(x))
                 .Subscribe(x =>
                 {
-                    Actions.Add(x);
+                    Actions.Insert(0, x);
+                    ScrollCommand.Execute(x);
                 });
+
+            this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
+                .ToProperty(this, x => x.Name, out this._Name, state.Name);
+
+            this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
+                .ToProperty(this, x => x.ProfilepictureData, out this._ProfilepictureData, state.Profilepicture);
+
+            this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
+               .ToProperty(this, x => x.Species, out this._Species, state.Species);
+
 
             this.App.WhenAny(x => x.Orientation, x => x.GetValue())
                 .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
@@ -149,6 +139,41 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        protected ObservableAsPropertyHelper<string> _Name;
+        public string Name
+        {
+            get
+            {
+                return _Name.Value;
+            }
+        }
+
+        protected ObservableAsPropertyHelper<Photo> _ProfilepictureData;
+        public Photo ProfilepictureData
+        {
+            get
+            {
+                return _ProfilepictureData.Value;
+            }
+        }
+
+        protected ObservableAsPropertyHelper<string> _Species;
+        public string Species
+        {
+            get
+            {
+                return _Species.Value;
+            }
+        }
+
+        protected IRoutableViewModel _AddPlantViewModel;
+        public IRoutableViewModel AddPlantViewModel
+        {
+            get
+            {
+                return _AddPlantViewModel ?? (_AddPlantViewModel = App.AddPlantViewModelFactory(this.State));
+            }
+        }
 
         public override string UrlPathSegment
         {
@@ -168,19 +193,22 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "water",
                             IconUri = App.IconUri[IconType.WATER],
-                            Command = AddWaterCommand
+                            Command = Observable.Return(true)
+                                .ToCommandWithSubscription(x => this.Navigate(this.AddWaterViewModel))
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "photograph",
                             IconUri = App.IconUri[IconType.PHOTO],
-                            Command = AddPhotographCommand
+                            Command = Observable.Return(true)
+                                .ToCommandWithSubscription(x => this.Navigate(this.AddPhotographViewModel))
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
                             IconUri = App.IconUri[IconType.NOTE],
-                            Command = AddCommentCommand
+                            Command = Observable.Return(true)
+                                .ToCommandWithSubscription(x => this.Navigate(this.AddCommentViewModel))
                         },
                         new ButtonViewModel(null)
                         {
@@ -205,17 +233,20 @@ namespace Growthstories.UI.ViewModel
                         new MenuItemViewModel(null)
                         {
                             Text = "measure",
-                            Command = AddMeasurementCommand
+                            Command = Observable.Return(true)
+                               .ToCommandWithSubscription(x => this.Navigate(this.AddMeasureViewModel))
                         },
                         new MenuItemViewModel(null)
                         {
                             Text = "nourish",
-                            Command = AddFertilizerCommand
+                            Command = Observable.Return(true)
+                                .ToCommandWithSubscription(x => this.Navigate(this.AddFertilizeViewModel))
                         },
-                          new MenuItemViewModel(null)
+                        new MenuItemViewModel(null)
                         {
                             Text = "edit",
-                            Command = EditCommand
+                            Command = Observable.Return(true)
+                                .ToCommandWithSubscription(_ => this.Navigate(this.AddPlantViewModel)),
                         },
                          new MenuItemViewModel(null)
                         {
@@ -243,7 +274,101 @@ namespace Growthstories.UI.ViewModel
 
         #endregion
 
+        #region ADDVIEWMODELS
+        protected IPlantActionViewModel _AddWaterViewModel;
+        public IPlantActionViewModel AddWaterViewModel
+        {
+            get
+            {
+                if (_AddWaterViewModel == null)
+                {
+                    _AddWaterViewModel = App.PlantActionViewModelFactory<IPlantWaterViewModel>();
+                    _AddWaterViewModel.AddCommand.Subscribe(_ =>
+                    {
+                        this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                    });
+                }
+                return _AddWaterViewModel;
+            }
+        }
 
+        protected IPlantActionViewModel _AddCommentViewModel;
+        public IPlantActionViewModel AddCommentViewModel
+        {
+            get
+            {
+                if (_AddCommentViewModel == null)
+                {
+                    _AddCommentViewModel = App.PlantActionViewModelFactory<IPlantCommentViewModel>();
+                    _AddCommentViewModel.AddCommand.Subscribe(_ =>
+                    {
+                        this.SendCommand(new Comment(this.UserId, this.Id, _AddCommentViewModel.Note), true);
+                    });
+                }
+                return _AddCommentViewModel;
+            }
+        }
+
+        protected IPlantActionViewModel _AddFertilizeViewModel;
+        public IPlantActionViewModel AddFertilizeViewModel
+        {
+            get
+            {
+                if (_AddFertilizeViewModel == null)
+                {
+                    _AddFertilizeViewModel = App.PlantActionViewModelFactory<IPlantFertilizeViewModel>();
+                    _AddFertilizeViewModel.AddCommand.Subscribe(_ =>
+                    {
+                        this.SendCommand(new Fertilize(this.UserId, this.Id, _AddFertilizeViewModel.Note), true);
+                    });
+                }
+                return _AddFertilizeViewModel;
+            }
+        }
+
+        protected IPlantPhotographViewModel _AddPhotographViewModel;
+        public IPlantPhotographViewModel AddPhotographViewModel
+        {
+            get
+            {
+                if (_AddPhotographViewModel == null)
+                {
+                    var vm = (IPlantPhotographViewModel)App.PlantActionViewModelFactory<IPlantPhotographViewModel>();
+                    vm.AddCommand.Subscribe(_ =>
+                    {
+                        this.SendCommand(new Photograph(this.UserId, this.Id, vm.Note, vm.PhotoData), true);
+                    });
+                    _AddPhotographViewModel = vm;
+                }
+                return _AddPhotographViewModel;
+            }
+        }
+
+        protected IPlantMeasureViewModel _AddMeasureViewModel;
+        public IPlantMeasureViewModel AddMeasureViewModel
+        {
+            get
+            {
+                if (_AddMeasureViewModel == null)
+                {
+                    var vm = (IPlantMeasureViewModel)App.PlantActionViewModelFactory<IPlantMeasureViewModel>();
+                    vm.AddCommand.Subscribe(_ =>
+                    {
+                        this.SendCommand(new Measure(
+                            this.UserId,
+                            this.Id,
+                            vm.Note,
+                            vm.Series.Type,
+                            vm.Value.Value),
+                         true);
+                    });
+                    _AddMeasureViewModel = vm;
+                }
+                return _AddMeasureViewModel;
+            }
+        }
+
+        #endregion
 
         public SupportedPageOrientation SupportedOrientations
         {
@@ -254,10 +379,12 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public class PlantViewModelDesign : PlantViewModel
+    public class PlantViewModelDesign
     {
 
-        public new PlantActionViewModel Test
+        public PlantState State;
+
+        public PlantActionViewModel Test
         {
             get
             {
@@ -265,16 +392,17 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        public new ReactiveList<PlantActionViewModel> Actions
+        public List<PlantActionViewModel> Actions
         {
             get
             {
-                return new ReactiveList<PlantActionViewModel>()
+                return new List<PlantActionViewModel>()
                 {
-                    new WaterViewModel(new Watered(State.UserId,State.Id,"Watered"),this.App),
-                    new FertilizeViewModel(new Fertilized(State.UserId,State.Id,"Fertilized"),this.App),
-                    new CommentViewModel(new Commented(State.UserId,State.Id,"Commented"),this.App),
-                    new PhotographViewModel(new Photographed(State.UserId, State.Id, "My baby!", new Uri("ms-appx:///TestData/517e100d782a828894.jpg")),this.App)
+
+                    //new WaterViewModel(new Watered(State.UserId,State.Id,"Watered"),null),
+                    //new FertilizeViewModel(new Fertilized(State.UserId,State.Id,"Fertilized"),null),
+                    //new CommentViewModel(new Commented(State.UserId,State.Id,"Commented"),null),
+                    //new PhotographViewModel(new Photographed(State.UserId, State.Id, "My baby!", new Uri("ms-appx:///TestData/517e100d782a828894.jpg")),null)
 
 
                 };

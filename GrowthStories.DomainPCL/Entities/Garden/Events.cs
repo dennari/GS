@@ -25,8 +25,17 @@ namespace Growthstories.Domain.Messaging
             get { return _AggregateType == null ? _AggregateType = typeof(Garden) : _AggregateType; }
         }
 
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+
         protected GardenCreated() { }
         public GardenCreated(Guid id) : base(id) { }
+
+        public GardenCreated(CreateGarden cmd)
+            : this(cmd.EntityId)
+        {
+            this.UserId = cmd.UserId;
+        }
 
         public override string ToString()
         {

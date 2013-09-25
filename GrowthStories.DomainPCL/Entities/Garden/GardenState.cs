@@ -18,6 +18,7 @@ namespace Growthstories.Domain.Entities
     public class GardenState : AggregateState<GardenCreated>
     {
 
+        public Guid UserId { get; private set; }
 
         public ICollection<Guid> PlantIds { get; private set; }
 
@@ -41,6 +42,12 @@ namespace Growthstories.Domain.Entities
                 throw DomainError.Named("ALIEN_ID", "Nonmatching EntityId");
             }
             PlantIds.Add(@event.PlantId);
+        }
+
+        public override void Apply(GardenCreated @event)
+        {
+            base.Apply(@event);
+            this.UserId = @event.UserId;
         }
 
         public void Apply(MarkedGardenPublic @event)

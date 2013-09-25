@@ -13,6 +13,7 @@ using ReactiveUI;
 using System.Windows.Input;
 using System.Reactive.Disposables;
 using Growthstories.Domain.Entities;
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -31,8 +32,14 @@ namespace Growthstories.UI.WindowsPhone
             {
                 DataContext = ViewModel;
                 ViewModel.PinCommand.Subscribe(x => this.AddTile((PlantState)x));
+                ViewModel.ScrollCommand.Subscribe(x => this.ScrollTo((PlantActionViewModel)x));
                 return Disposable.Empty;
             });
+        }
+
+        private void ScrollTo(PlantActionViewModel item)
+        {
+            this.TimeLine.ScrollTo(item);
         }
 
         private void AddTile(PlantState p)
@@ -66,60 +73,6 @@ namespace Growthstories.UI.WindowsPhone
             else
                 ShellTile.Create(new Uri(String.Format("/MainWindow.xaml?plant={0}", p.Id.ToString()), UriKind.Relative), data, true);
         }
-
-
-
-        private void btnFlipTile_Click(object sender, RoutedEventArgs e)
-        {
-            // find the tile object for the application tile that using "flip" contains string in it.
-            ShellTile oTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains("flip".ToString()));
-
-
-            if (oTile != null && oTile.NavigationUri.ToString().Contains("flip"))
-            {
-                FlipTileData oFliptile = new FlipTileData();
-                oFliptile.Title = "Hello WP8!!";
-                oFliptile.Count = 11;
-                oFliptile.BackTitle = "Updated Flip Tile";
-
-                oFliptile.BackContent = "back of tile";
-                oFliptile.WideBackContent = "back of the wide tile";
-
-                oFliptile.SmallBackgroundImage = new Uri("Assets/Tiles/Flip/159x159.png", UriKind.Relative);
-                oFliptile.BackgroundImage = new Uri("Assets/Tiles/Flip/336x336.png", UriKind.Relative);
-                oFliptile.WideBackgroundImage = new Uri("Assets/Tiles/Flip/691x336.png", UriKind.Relative);
-
-                oFliptile.BackBackgroundImage = new Uri("/Assets/Tiles/Flip/A336.png", UriKind.Relative);
-                oFliptile.WideBackBackgroundImage = new Uri("/Assets/Tiles/Flip/A691.png", UriKind.Relative);
-                oTile.Update(oFliptile);
-                MessageBox.Show("Flip Tile Data successfully update.");
-            }
-            else
-            {
-                // once it is created flip tile
-                Uri tileUri = new Uri("/MainPage.xaml?tile=flip", UriKind.Relative);
-                ShellTileData tileData = this.CreateFlipTileData();
-                ShellTile.Create(tileUri, tileData, true);
-            }
-        }
-
-        private ShellTileData CreateFlipTileData()
-        {
-            return new FlipTileData()
-            {
-                Title = "Hi Flip Tile",
-                BackTitle = "This is WP8 flip tile",
-                BackContent = "Live Tile Demo",
-                WideBackContent = "Hello Nokia Lumia 920",
-                Count = 8,
-                SmallBackgroundImage = new Uri("/Assets/Tiles/Flip/A159.png", UriKind.Relative),
-                BackgroundImage = new Uri("/Assets/Tiles/Flip/A336.png", UriKind.Relative),
-                WideBackgroundImage = new Uri("/Assets/Tiles/Flip/A691.png", UriKind.Relative),
-            };
-        }
-
-
-
 
 
         public PlantViewModel ViewModel
@@ -257,6 +210,8 @@ namespace Growthstories.UI.WindowsPhone
                 //    this.GetDirection(horizontalVelocity, verticalVelocity), Math.Round(this.GetAngle(horizontalVelocity, verticalVelocity)), horizontalVelocity, verticalVelocity);
             }
         }
+
+
 
     }
 }

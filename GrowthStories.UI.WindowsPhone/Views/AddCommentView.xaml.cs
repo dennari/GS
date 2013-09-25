@@ -9,21 +9,22 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using Growthstories.UI.WindowsPhone;
+using Growthstories.UI.WindowsPhone.ViewModels;
 using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddMeasurementView : UserControl, IViewFor<AddMeasurementViewModel>
+    public partial class AddCommentView : UserControl, IViewFor<PlantCommentViewModel>
     {
-        public AddMeasurementView()
+        public AddCommentView()
         {
             InitializeComponent();
 
         }
 
-        public AddMeasurementViewModel ViewModel
+        public PlantCommentViewModel ViewModel
         {
-            get { return (AddMeasurementViewModel)GetValue(ViewModelProperty); }
+            get { return (PlantCommentViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -35,10 +36,10 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddMeasurementView), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddCommentView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AddMeasurementViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantCommentViewModel)value; } }
 
     }
 }

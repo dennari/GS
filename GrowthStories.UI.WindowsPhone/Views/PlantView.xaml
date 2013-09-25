@@ -11,7 +11,7 @@
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     d:DataContext="{StaticResource PlantViewModelDesign}"
-    mc:Ignorable="d">
+    mc:Ignorable="d" VerticalAlignment="Stretch">
 
     <UserControl.Resources>
         <DataTemplate x:Key="ActionSelectingTemplate">
@@ -29,7 +29,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="/Growthstories.UI.WindowsPhone;component/Assets/Bg/timeline_all.png"/>
+                <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
             </Grid.Background>
 
             <!--TitlePanel contains the name of the application and page title-->
@@ -47,17 +47,14 @@
 
             <!--ContentPanel - place additional content here-->
             <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-                <ScrollViewer>
-                    <phone:LongListSelector 
+                    <phone:LongListSelector x:Name="TimeLine"
             			    ItemsSource="{Binding Actions}" 
             			    ItemTemplate="{StaticResource ActionSelectingTemplate}"
-            			    Style="{StaticResource GSActionListStyle}" 
-                            Height="639" 
-                            Width="456"
+            			    Style="{StaticResource GSActionListStyle}"
                             ManipulationStarted="OnManipulationStarted" 
                             ManipulationDelta="OnManipulationDelta" 
-                            ManipulationCompleted="OnManipulationCompleted"/>
-                </ScrollViewer>
+                            ManipulationCompleted="OnManipulationCompleted"
+                        />
             </Grid>
     </Grid>
 </UserControl>

@@ -3,6 +3,7 @@ using Growthstories.Core;
 using System;
 using Growthstories.Sync;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 
 namespace Growthstories.Domain.Messaging
@@ -20,10 +21,22 @@ namespace Growthstories.Domain.Messaging
         public string Name { get; private set; }
 
         [JsonProperty]
-        public string ProfilepicturePath { get; private set; }
+        public string Species { get; private set; }
+
+        [JsonProperty]
+        public Photo Profilepicture { get; private set; }
 
         [JsonProperty]
         public Guid UserId { get; private set; }
+
+        [JsonProperty]
+        public Guid FertilizingScheduleId { get; private set; }
+
+        [JsonProperty]
+        public Guid WateringScheduleId { get; private set; }
+
+        [JsonProperty]
+        public HashSet<string> Tags { get; private set; }
 
         [JsonIgnore]
         private Type _AggregateType;
@@ -53,7 +66,12 @@ namespace Growthstories.Domain.Messaging
         public PlantCreated(CreatePlant cmd) :
             this(cmd.EntityId, cmd.Name, cmd.UserId)
         {
-            this.ProfilepicturePath = cmd.ProfilepicturePath;
+            this.Profilepicture = cmd.Profilepicture;
+            this.Species = cmd.Species;
+            this.WateringScheduleId = cmd.WateringScheduleId;
+            this.FertilizingScheduleId = cmd.FertilizingScheduleId;
+            this.Tags = cmd.Tags;
+
         }
 
         public override string ToString()
@@ -79,27 +97,27 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class ProfilepicturePathChanged : EventBase
+    public class ProfilepictureSet : EventBase
     {
 
         [JsonProperty]
-        public string ProfilepicturePath { get; private set; }
+        public Photo Profilepicture { get; private set; }
 
-        protected ProfilepicturePathChanged() { }
-        public ProfilepicturePathChanged(Guid entityId, string ProfilepicturePath)
+        protected ProfilepictureSet() { }
+        public ProfilepictureSet(Guid entityId, Photo profilepicture)
             : base(entityId)
         {
-            this.ProfilepicturePath = ProfilepicturePath;
+            this.Profilepicture = profilepicture;
         }
 
-        public ProfilepicturePathChanged(ChangeProfilepicturePath cmd)
-            : this(cmd.EntityId, cmd.ProfilepicturePath)
+        public ProfilepictureSet(SetProfilepicture cmd)
+            : this(cmd.EntityId, cmd.Profilepicture)
         {
         }
 
         public override string ToString()
         {
-            return string.Format(@"ProfilepicturePath changed to {0}", ProfilepicturePath);
+            return string.Format(@"ProfilepicturePath changed to {0}", Profilepicture);
         }
 
     }
@@ -178,6 +196,155 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
+    public class WateringScheduleSet : EventBase
+    {
+
+        public Guid ScheduleId { get; protected set; }
+
+        protected WateringScheduleSet() { }
+        public WateringScheduleSet(Guid entityId, Guid scheduleId)
+            : base(entityId)
+        {
+            this.ScheduleId = ScheduleId;
+        }
+
+        public WateringScheduleSet(SetWateringSchedule cmd) : this(cmd.EntityId, cmd.ScheduleId) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"WateringSchedule set to {1} for plant {0}.", EntityId, ScheduleId);
+        }
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            base.FillDTO(D);
+            D.PropertyName = Language.SHARED;
+            D.PropertyValue = false;
+            D.EntityType = DTOType.plant;
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.PropertyName != Language.SHARED)
+                throw new ArgumentException();
+            if ((bool)D.PropertyValue != false)
+                throw new ArgumentException();
+            if (D.EntityType != DTOType.plant)
+                throw new ArgumentException();
+            base.FromDTO(D);
+
+        }
+
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    public class FertilizingScheduleSet : EventBase
+    {
+
+        public Guid ScheduleId { get; protected set; }
+
+        protected FertilizingScheduleSet() { }
+        public FertilizingScheduleSet(Guid entityId, Guid scheduleId)
+            : base(entityId)
+        {
+            this.ScheduleId = ScheduleId;
+        }
+
+        public FertilizingScheduleSet(SetFertilizingSchedule cmd) : this(cmd.EntityId, cmd.ScheduleId) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Schedule set to {1} for plant {0}.", EntityId, ScheduleId);
+        }
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            base.FillDTO(D);
+            D.PropertyName = Language.SHARED;
+            D.PropertyValue = false;
+            D.EntityType = DTOType.plant;
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.PropertyName != Language.SHARED)
+                throw new ArgumentException();
+            if ((bool)D.PropertyValue != false)
+                throw new ArgumentException();
+            if (D.EntityType != DTOType.plant)
+                throw new ArgumentException();
+            base.FromDTO(D);
+
+        }
+
+    }
+
+    public class TagsSet : EventBase
+    {
+        [JsonProperty]
+        public HashSet<string> Tags { get; private set; }
+
+        protected TagsSet() { }
+        public TagsSet(Guid plantId, HashSet<string> tags)
+            : base(plantId)
+        {
+            this.Tags = tags;
+        }
+
+        public TagsSet(SetTags cmd) : this(cmd.EntityId, cmd.Tags) { }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Tags set for plant {0}.", EntityId);
+        }
+
+    }
+
+    public class NameSet : EventBase
+    {
+        [JsonProperty]
+        public string Name { get; private set; }
+
+        protected NameSet() { }
+        public NameSet(Guid plantId, string name)
+            : base(plantId)
+        {
+            this.Name = name;
+        }
+
+        public NameSet(SetName cmd) : this(cmd.EntityId, cmd.Name) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Name set to {1} for plant {0}.", EntityId, Name);
+        }
+
+    }
+
+    public class SpeciesSet : EventBase
+    {
+        [JsonProperty]
+        public string Species { get; private set; }
+
+        protected SpeciesSet() { }
+        public SpeciesSet(Guid plantId, string species)
+            : base(plantId)
+        {
+            this.Species = species;
+        }
+
+        public SpeciesSet(SetSpecies cmd) : this(cmd.EntityId, cmd.Species) { }
+
+        public override string ToString()
+        {
+            return string.Format(@"Species set to {1} for plant {0}.", EntityId, Species);
+        }
+
+    }
 
 
     [DTOObject(DTOType.addFBComment)]

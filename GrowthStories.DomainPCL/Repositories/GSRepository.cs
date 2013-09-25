@@ -36,6 +36,18 @@ namespace Growthstories.Domain
         }
 
 
+        public void ClearCaches()
+        {
+            lock (this.streams)
+            {
+                foreach (var stream in this.streams)
+                    stream.Value.Dispose();
+
+                this.snapshots.Clear();
+                this.streams.Clear();
+                this.aggregates.Clear();
+            }
+        }
 
 
         public void Dispose()
@@ -48,14 +60,7 @@ namespace Growthstories.Domain
             if (!disposing)
                 return;
 
-            lock (this.streams)
-            {
-                foreach (var stream in this.streams)
-                    stream.Value.Dispose();
-
-                this.snapshots.Clear();
-                this.streams.Clear();
-            }
+            this.ClearCaches();
         }
 
 

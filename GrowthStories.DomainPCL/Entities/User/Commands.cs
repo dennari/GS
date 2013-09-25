@@ -197,13 +197,13 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-        public Uri Uri { get; private set; }
+        public Photo Photo { get; private set; }
 
         protected Photograph() { }
-        public Photograph(Guid userId, Guid plantId, string note, Uri uri)
+        public Photograph(Guid userId, Guid plantId, string note, Photo photo)
             : base(userId, plantId, note)
         {
-            this.Uri = uri;
+            this.Photo = photo;
         }
 
 

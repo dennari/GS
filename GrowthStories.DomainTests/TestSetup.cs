@@ -150,7 +150,7 @@ namespace Growthstories.DomainTests
 
 
             #region PipelineHooks
-            Bind<IPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
+            Bind<IPipelineHook, OptimisticPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
             Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
             Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
             Bind<IMessageBus>().To<MessageBus>().InSingletonScope();

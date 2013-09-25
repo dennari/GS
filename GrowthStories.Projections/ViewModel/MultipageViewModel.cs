@@ -10,64 +10,7 @@ using System.Threading.Tasks;
 namespace Growthstories.UI.ViewModel
 {
 
-    public enum SupportedPageOrientation
-    {
-        // Summary:
-        //     Portrait orientation.
-        Portrait = 1,
-        //
-        // Summary:
-        //     Landscape orientation. Landscape supports both left and right views, but
-        //     there is no way programmatically to specify one or the other.
-        Landscape = 2,
-        //
-        // Summary:
-        //     Landscape or portrait orientation.
-        PortraitOrLandscape = 3,
-    }
 
-    public enum PageOrientation
-    {
-        // Summary:
-        //     No orientation is specified.
-        None = 0,
-        //
-        // Summary:
-        //     Portrait orientation.
-        Portrait = 1,
-        //
-        // Summary:
-        //     Landscape orientation.
-        Landscape = 2,
-        //
-        // Summary:
-        //     Portrait orientation.
-        PortraitUp = 5,
-        //
-        // Summary:
-        //     Portrait orientation. This orientation is never used.
-        PortraitDown = 9,
-        //
-        // Summary:
-        //     Landscape orientation with the top of the page rotated to the left.
-        LandscapeLeft = 18,
-        //
-        // Summary:
-        //     Landscape orientation with the top of the page rotated to the right.
-        LandscapeRight = 34,
-    }
-
-    public interface IControlsPageOrientation
-    {
-        SupportedPageOrientation SupportedOrientations { get; }
-        //ReactiveCommand PageOrientationChangedCommand { get; }
-    }
-
-    public interface IControlsAppBar
-    {
-        ApplicationBarMode AppBarMode { get; }
-        bool AppBarIsVisible { get; }
-    }
 
     public interface IMultipageViewModel : IGSRoutableViewModel
     {

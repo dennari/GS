@@ -10,10 +10,11 @@ using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using Growthstories.UI.WindowsPhone;
 using ReactiveUI;
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddWaterView : UserControl, IViewFor<AddWaterViewModel>
+    public partial class AddWaterView : UserControl, IViewFor<PlantWaterViewModel>
     {
         public AddWaterView()
         {
@@ -21,9 +22,9 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public AddWaterViewModel ViewModel
+        public PlantWaterViewModel ViewModel
         {
-            get { return (AddWaterViewModel)GetValue(ViewModelProperty); }
+            get { return (PlantWaterViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -38,7 +39,7 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddWaterView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AddWaterViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantWaterViewModel)value; } }
 
     }
 }

@@ -17,6 +17,8 @@ namespace Growthstories.Domain.Messaging
     public class CreateGarden : GardenCommand, ICreateCommand
     {
 
+        public Guid UserId { get; set; }
+
         protected CreateGarden() { }
         public CreateGarden(Guid id) : base(id) { }
 
@@ -47,8 +49,8 @@ namespace Growthstories.Domain.Messaging
         public string PlantName { get; private set; }
 
         protected AddPlant() { }
-        public AddPlant(Guid id, Guid PlantId, string PlantName)
-            : base(id)
+        public AddPlant(Guid gardenId, Guid PlantId, string PlantName)
+            : base(gardenId)
         {
             this.PlantId = PlantId;
             this.PlantName = PlantName;

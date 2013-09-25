@@ -9,21 +9,22 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using Growthstories.UI.WindowsPhone;
+using Growthstories.UI.WindowsPhone.ViewModels;
 using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddCommentView : UserControl, IViewFor<AddCommentViewModel>
+    public partial class AddMeasurementView : UserControl, IViewFor<PlantMeasureViewModel>
     {
-        public AddCommentView()
+        public AddMeasurementView()
         {
             InitializeComponent();
 
         }
 
-        public AddCommentViewModel ViewModel
+        public PlantMeasureViewModel ViewModel
         {
-            get { return (AddCommentViewModel)GetValue(ViewModelProperty); }
+            get { return (PlantMeasureViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -35,10 +36,18 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddCommentView), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddMeasurementView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AddCommentViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantMeasureViewModel)value; } }
+
+        private void MeasurementTypePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                this.ViewModel.SeriesSelected.Execute(e.AddedItems[0]);
+            }
+        }
 
     }
 }

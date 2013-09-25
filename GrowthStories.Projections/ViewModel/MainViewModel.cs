@@ -40,6 +40,7 @@ namespace Growthstories.UI.ViewModel
             this.Pages.Add(this.GardenVM);
             this.Pages.Add(this.NotificationsVM);
             this.Pages.Add(this.FriendsVM);
+
             this.CurrentPage = this.GardenVM;
 
 
@@ -52,6 +53,10 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _GardenVM ?? (_GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _GardenVM, value);
             }
         }
 
@@ -73,10 +78,47 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private TestingViewModel _TestingVM;
+        public TestingViewModel TestingVM
+        {
+            get
+            {
+                var vm = _TestingVM ?? (_TestingVM = new TestingViewModel(App));
+
+                vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
+                vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
+
+                return vm;
+            }
+        }
+
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
         }
+    }
+
+    public class TestingViewModel : GSViewModelBase
+    {
+        public TestingViewModel(IGSApp app)
+            : base(app)
+        {
+            this.AddTestDataCommand = new ReactiveCommand();
+            this.AddTestDataCommandAsync = this.AddTestDataCommand.RegisterAsyncTask(async (x) => await this.App.AddTestData());
+            this.ClearDBCommand = new ReactiveCommand();
+            this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
+
+
+        }
+
+        public ReactiveCommand AddTestDataCommand { get; protected set; }
+        public ReactiveCommand ClearDBCommand { get; protected set; }
+        //public ReactiveCommand ClearDBCommandAsync { get; protected set; }
+
+
+        public IObservable<System.Reactive.Unit> ClearDBCommandAsync { get; protected set; }
+
+        public IObservable<System.Reactive.Unit> AddTestDataCommandAsync { get; protected set; }
     }
 
     public class ButtonViewModel : MenuItemViewModel

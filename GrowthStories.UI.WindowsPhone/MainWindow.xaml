@@ -11,13 +11,14 @@
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	SupportedOrientations="{Binding ClientSupportedOrientations}"  
     Orientation="{Binding Orientation}"
-	>
+	Height="800"
+    >
 
 	<routing:RoutedViewHost 
         x:Name="Content"
         Router="{Binding Router}"
         CacheMode="BitmapCache"
-        Transition="SlideLeft"
+        Transition="Fade"
         TransitionPart="OutIn"
        />
     <bar:Bindable.ApplicationBar>

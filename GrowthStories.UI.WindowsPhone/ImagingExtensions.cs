@@ -7,14 +7,18 @@ using System;
 using Microsoft.Xna.Framework.Media;
 using Windows.Foundation;
 using System.Threading.Tasks;
-using System.IO.IsolatedStorage;
+//using System.IO.IsolatedStorage;
+using Windows.Storage;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.WindowsPhone
 {
     public static class ImagingExtensions
     {
-        public const string IMG_FOLDER = @"\LocalImages";
+        public const string URI_SEPARATOR = "/";
+        public const string IMG_FOLDER = @"LocalImages";
+        public const string URI_SCHEME = @"ms-appdata://"; // Local folder URI scheme (WP8)
 
         public static IBuffer ToBuffer(this Stream stream)
         {
@@ -46,20 +50,24 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        public enum OrientationType
-        {
-            LANDSCAPE,
-            PORTRAIT
-        }
 
-        public static OrientationType Orientation(this IBuffer imageBuffer)
+
+        public static PhotoOrientation Orientation(this IBuffer imageBuffer)
         {
             using (var session = new EditingSession(imageBuffer))
             {
-                return session.Dimensions.Width >= session.Dimensions.Height ? OrientationType.LANDSCAPE : OrientationType.PORTRAIT;
+                return session.Dimensions.Width >= session.Dimensions.Height ? PhotoOrientation.LANDSCAPE : PhotoOrientation.PORTRAIT;
             }
         }
 
+        public static Task<Photo> SavePhotoToLocalStorageAsync(this Stream image)
+        {
+            return image.ToBuffer().SavePhotoToLocalStorageAsync();
+            //var path = await buffer.SaveAsync();
+            //var o = buffer.Orientation();
+            //image.Position = 0;
+            //return Tuple.Create(path, o);
+        }
 
         /// <summary>
         /// Asynchronously saves a low resolution version of given photo to MediaLibrary. If the photo is too
@@ -68,61 +76,95 @@ namespace Growthstories.UI.WindowsPhone
         /// <param name="image">Photo to save</param>
         /// <returns>Path to the saved file in MediaLibrary</returns>
         /// </summary>
-        public static async Task<string> SaveAsync(this IBuffer image)
+        public static async Task<Photo> SavePhotoToLocalStorageAsync(this IBuffer image)
         {
-            string savedPath = null;
+            //string savedPath = null;
 
-
+            var photo = default(Photo);
             if (image != null && image.Length > 0)
             {
 
-                var filenameBase = "gsphoto_" + DateTime.UtcNow.Ticks.ToString();
-                savedPath = IMG_FOLDER + @"\" + filenameBase + @".jpg";
+                //var filenameBase = "gsphoto_" + DateTime.UtcNow.Ticks.ToString();
+                //savedPath = ,IMG_FOLDER + @"\" + filenameBase + @".jpg";
+                photo.FileName = "gsphoto_" + DateTime.UtcNow.Ticks.ToString() + ".jpg";
+                photo.LocalUri = URI_SCHEME + URI_SEPARATOR + IMG_FOLDER + URI_SEPARATOR + photo.FileName;
 
-
-                uint maxBytes = (uint)(0.5 * 1024 * 1024); // 0.5 megabytes
+                uint maxBytes = (uint)(1.5 * 1024 * 1024); // 0.5 megabytes
                 int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
                 var maxSize = new Size(4096, 4096); // Maximum texture size on WP8 is 4096x4096
 
                 AutoResizeConfiguration resizeConfiguration = null;
 
+                double w, h;
+                uint s;
+
                 using (var editingSession = new EditingSession(image))
                 {
+                    w = editingSession.Dimensions.Width;
+                    h = (uint)editingSession.Dimensions.Height;
+                    s = image.Length;
+
                     if (editingSession.Dimensions.Width * editingSession.Dimensions.Height > maxPixels)
                     {
                         var compactedSize = CalculateSize(editingSession.Dimensions, maxSize, maxPixels);
 
                         resizeConfiguration = new AutoResizeConfiguration(maxBytes, compactedSize,
                             new Size(0, 0), AutoResizeMode.Automatic, 0, ColorSpace.Yuv420);
+
+                        w = compactedSize.Width;
+                        h = compactedSize.Height;
+
                     }
                 }
 
                 if (resizeConfiguration != null)
                 {
                     image = await Nokia.Graphics.Imaging.JpegTools.AutoResizeAsync(image, resizeConfiguration);
+                    s = image.Length;
                 }
 
-                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                photo.Width = (uint)w;
+                photo.Height = (uint)h;
+                photo.Size = s;
+
+                //var local = ;
+                var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                var imgFile = await imgFolder.CreateFileAsync(photo.FileName, CreationCollisionOption.ReplaceExisting);
+                //file.
+                using (var writeStream = await imgFile.OpenStreamForWriteAsync())
                 {
-
-                    if (!store.DirectoryExists(IMG_FOLDER))
+                    using (var readStream = image.AsStream())
                     {
-                        store.CreateDirectory(IMG_FOLDER);
-                    }
-
-                    using (var file = store.CreateFile(savedPath))
-                    {
-                        using (var localImage = image.AsStream())
-                        {
-                            localImage.CopyTo(file);
-
-                            file.Flush();
-                        }
+                        await readStream.CopyToAsync(writeStream);
+                        await writeStream.FlushAsync();
                     }
                 }
+                photo.LocalFullPath = imgFile.Path;
+
+                //Windows.Storage.PathIO.
+
+
+                //using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                //{
+
+                //    if (!store.DirectoryExists(IMG_FOLDER))
+                //    {
+                //        store.CreateDirectory(IMG_FOLDER);
+                //    }
+
+                //    using (var file = store.CreateFile(savedPath))
+                //    {
+                //        using (var localImage = image.AsStream())
+                //        {
+                //            localImage.CopyTo(file);
+
+                //            file.Flush();
+                //        }
+                //    }
+                //}
             }
 
-            return savedPath;
+            return photo;
         }
 
 
@@ -178,31 +220,31 @@ namespace Growthstories.UI.WindowsPhone
         /// </summary>
         /// <param name="libraryPath">Path to a photo in MediaLibrary</param>
         /// <returns>Stream to a local copy of the same photo</returns>
-        public static Stream LocalPhotoFromLibraryPath(this string libraryPath)
-        {
-            var localPathCandidate = IMG_FOLDER + @"\" + FilenameFromPath(libraryPath);
-            return OpenLocalPhoto(localPathCandidate);
+        //public static Stream LocalPhotoFromLibraryPath(this string libraryPath)
+        //{
+        //    var localPathCandidate = IMG_FOLDER + @"\" + FilenameFromPath(libraryPath);
+        //    return OpenLocalPhoto(localPathCandidate);
 
-        }
+        //}
 
         /// <summary>
         /// Takes a MediaLibrary photo path and tries to find a local high resolution copy of the same photo.
         /// </summary>
         /// <param name="libraryPath">Path to a photo in MediaLibrary</param>
         /// <returns>Stream to a local copy of the same photo</returns>
-        public static Stream OpenLocalPhoto(this string localPathCandidate)
-        {
+        //public static Stream OpenLocalPhoto(this string localPathCandidate)
+        //{
 
-            using (var store = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                if (store.FileExists(localPathCandidate))
-                {
-                    return store.OpenFile(localPathCandidate, FileMode.Open);
-                }
-            }
+        //    using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+        //    {
+        //        if (store.FileExists(localPathCandidate))
+        //        {
+        //            return store.OpenFile(localPathCandidate, FileMode.Open);
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         /// <summary>
         /// Takes a local high resolution photo path and tries to find MediaLibrary copy of the same photo.

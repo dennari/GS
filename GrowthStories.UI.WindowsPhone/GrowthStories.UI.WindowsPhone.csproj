@@ -116,11 +116,13 @@
     <Compile Include="TestUrl.cs" />
     <Compile Include="ViewExtensions.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
-    <Compile Include="ViewModels\ClientAddPhotographViewModel.cs" />
     <Compile Include="ViewModels\ClientAddPlantViewModel..cs" />
+    <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
+    <Compile Include="ViewModels\ClientPlantViewModel.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
       <DependentUpon>AboutView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AddPlantActionView.cs" />
     <Compile Include="Views\AddPlantView.xaml.cs">
       <DependentUpon>AddPlantView.xaml</DependentUpon>
     </Compile>
@@ -138,6 +140,9 @@
     </Compile>
     <Compile Include="Views\AddCommentView.xaml.cs">
       <DependentUpon>AddCommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScheduleView.xaml.cs">
+      <DependentUpon>ScheduleView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\YAxisShitView.xaml.cs">
       <DependentUpon>YAxisShitView.xaml</DependentUpon>
@@ -214,6 +219,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\ScheduleView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\YAxisShitView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -252,7 +261,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\Bg\action_bg.jpg" />
+    <Content Include="Assets\Bg\action_bg.jpg" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
@@ -263,10 +272,10 @@
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>
-    <Resource Include="Assets\Bg\garden_all.png" />
-    <Resource Include="Assets\Bg\garden_wvga.png" />
-    <Resource Include="Assets\Bg\timeline_all.png" />
-    <Resource Include="Assets\Bg\timeline_wvga.png" />
+    <Content Include="Assets\Bg\garden_all.png" />
+    <Content Include="Assets\Bg\garden_wvga.png" />
+    <Content Include="Assets\Bg\timeline_all.png" />
+    <Content Include="Assets\Bg\timeline_wvga.png" />
     <Content Include="Assets\Icons\appbar.add.png" />
     <Content Include="Assets\Icons\appbar.check.png" />
     <Content Include="Assets\Icons\appbar.delete.png" />
@@ -304,9 +313,15 @@
     <Content Include="Assets\Icons\icon_sprouting_appbar.png" />
     <Content Include="Assets\Icons\icon_watering.png" />
     <Content Include="Assets\Icons\icon_watering_appbar.png" />
-    <Content Include="Assets\Tiles\GSFlipTileLarge.png" />
-    <Content Include="Assets\Tiles\IconImage_03.png" />
-    <Content Include="Assets\Tiles\SmallIconImage_03.png" />
+    <Content Include="Assets\Tiles\GSFlipTileLarge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\IconImage_03.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\SmallIconImage_03.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Montserrat-Bold.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -343,24 +358,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\AlignmentGrid.png" />
-    <Content Include="Assets\ApplicationIcon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\FlipCycleTileMedium.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\FlipCycleTileSmall.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\IconicTileMediumLarge.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\IconicTileSmall.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="README_FIRST.txt" />
     <Content Include="SplashScreenImage.jpg" />
     <Content Include="TestData\517e100d782a828894.jpg" />
@@ -526,11 +523,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\Bg\panorama_logo.png" />
-    <Resource Include="Assets\Bg\plant_bg.jpg" />
-    <Resource Include="Assets\Bg\watering_bg.jpg" />
+    <Content Include="Assets\Bg\panorama_logo.png" />
+    <Content Include="Assets\Bg\plant_bg.jpg" />
+    <Content Include="Assets\Bg\watering_bg.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Controls\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

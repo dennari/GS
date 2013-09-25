@@ -62,7 +62,7 @@ namespace Growthstories.UI.WindowsPhone
             Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope().OnActivation((ctx, eng) =>
                 {
                     eng.Initialize();
-                    eng.Purge();
+                    //eng.Purge();
                 });
             //Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
             //{

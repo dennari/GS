@@ -13,14 +13,13 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using System.Reactive.Disposables;
-using System.Windows.Input;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddPlantView : UserControl, IViewFor<ClientAddPlantViewModel>
+    public partial class ScheduleView : UserControl, IViewFor<ScheduleViewModel>
     {
 
-        public AddPlantView()
+        public ScheduleView()
         {
             InitializeComponent();
             this.WhenNavigatedTo(ViewModel, () =>
@@ -40,9 +39,9 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        public ClientAddPlantViewModel ViewModel
+        public ScheduleViewModel ViewModel
         {
-            get { return (ClientAddPlantViewModel)GetValue(ViewModelProperty); }
+            get { return (ScheduleViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -53,41 +52,15 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddPlantView), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(ScheduleView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (ClientAddPlantViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (ScheduleViewModel)value; } }
 
-        private void TagBox_IconTapped(object sender, EventArgs e)
+        private void ValueTypePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-            var text = TagBox.Text;
-
-            if (!string.IsNullOrWhiteSpace(text))
-            {
-                this.ViewModel.AddTag.Execute(text);
-                TagBox.Text = null;
-                this.Focus();
-
-            }
-
-        }
-
-        private void TagBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                this.TagBox_IconTapped(sender, e);
-            }
-        }
-
-        private void TextBlock_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            var s = sender as TextBlock;
-            if (s != null && !string.IsNullOrWhiteSpace(s.Text))
-            {
-                this.ViewModel.RemoveTag.Execute(s.Text);
-            }
+            if (e.AddedItems.Count > 0)
+                this.ViewModel.SelectValueType.Execute(e.AddedItems[0]);
         }
     }
 

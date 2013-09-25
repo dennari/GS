@@ -17,10 +17,10 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0"  />
+            <Image Source="{Binding IconImg}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                <TextBlock Text="{Binding State.Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
             </StackPanel>
         </StackPanel>
     </DataTemplate>
@@ -32,7 +32,7 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0"  />
+            <Image Source="{Binding IconImg}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                 <TextBlock Text="{Binding Series}" Style="{StaticResource GSActionListItemNoteStyle}"/>
@@ -59,7 +59,7 @@
         <StackPanel Orientation="Vertical" Margin="0,0,0,12">
             <Button Height="220" >
                 <Button.Background>
-                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Path, Converter={StaticResource PathToImageSource}}"/>
+                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>
                 </Button.Background>
             </Button>
             <StackPanel Orientation="Horizontal" >
@@ -68,10 +68,10 @@
                     <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                     <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
                 </StackPanel>
-                <Image Source="{Binding Icon, Converter={StaticResource PathToImageSource}}" Width="45" Margin="24,0" />
+                <Image Source="{Binding IconImg}" Width="45" Margin="24,0" />
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                    <TextBlock Text="{Binding State.Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                    <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

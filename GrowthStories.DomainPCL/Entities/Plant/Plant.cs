@@ -14,7 +14,12 @@ namespace Growthstories.Domain.Entities
 
     public class Plant : AggregateBase<PlantState, PlantCreated>,
         ICommandHandler<CreatePlant>,
-        ICommandHandler<ChangeProfilepicturePath>,
+        ICommandHandler<SetWateringSchedule>,
+        ICommandHandler<SetFertilizingSchedule>,
+        ICommandHandler<SetTags>,
+        ICommandHandler<SetName>,
+        ICommandHandler<SetSpecies>,
+        ICommandHandler<SetProfilepicture>,
         ICommandHandler<MarkPlantPublic>,
         ICommandHandler<MarkPlantPrivate>
     {
@@ -30,16 +35,35 @@ namespace Growthstories.Domain.Entities
         }
 
 
-
-        public void Handle(AddPlant command)
+        public void Handle(SetWateringSchedule command)
         {
-            if (State == null)
-            {
-                ApplyState(null);
-            }
-            //RaiseEvent(new PlantCreated(command.PlantId, command.PlantName));
+
+            RaiseEvent(new WateringScheduleSet(command));
         }
 
+        public void Handle(SetFertilizingSchedule command)
+        {
+
+            RaiseEvent(new FertilizingScheduleSet(command));
+        }
+
+        public void Handle(SetTags command)
+        {
+
+            RaiseEvent(new TagsSet(command));
+        }
+
+        public void Handle(SetName command)
+        {
+
+            RaiseEvent(new NameSet(command));
+        }
+
+        public void Handle(SetSpecies command)
+        {
+
+            RaiseEvent(new SpeciesSet(command));
+        }
 
         public void Handle(MarkPlantPublic command)
         {
@@ -51,9 +75,9 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new MarkedPlantPrivate(command.EntityId));
         }
 
-        public void Handle(ChangeProfilepicturePath command)
+        public void Handle(SetProfilepicture command)
         {
-            RaiseEvent(new ProfilepicturePathChanged(command));
+            RaiseEvent(new ProfilepictureSet(command));
         }
     }
 

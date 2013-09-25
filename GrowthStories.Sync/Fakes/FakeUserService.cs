@@ -15,10 +15,10 @@ namespace Growthstories.Sync
     {
         private User u;
 
-        //public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
-        //public static Guid FakeUserGardenId = Guid.Parse("11000000-0000-0000-0000-000000000000");
-        public static Guid FakeUserId = Guid.NewGuid();
-        public static Guid FakeUserGardenId = Guid.NewGuid();
+        public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
+        public static Guid FakeUserGardenId = Guid.Parse("11000000-0000-0000-0000-000000000000");
+        //public static Guid FakeUserId = Guid.NewGuid();
+        //public static Guid FakeUserGardenId = Guid.NewGuid();
 
 
         private readonly IGSRepository Store;
@@ -50,7 +50,7 @@ namespace Growthstories.Sync
 
         }
 
-        private void EnsureCurrenUser()
+        public void EnsureCurrenUser()
         {
             u = Factory.Build<User>();
             Store.PlayById(u, FakeUserId);
@@ -60,7 +60,10 @@ namespace Growthstories.Sync
                 u.Handle(new AddGarden(FakeUserId, FakeUserGardenId));
 
                 var g = Factory.Build<Garden>();
-                g.Handle(new CreateGarden(FakeUserGardenId));
+                g.Handle(new CreateGarden(FakeUserGardenId)
+                {
+                    UserId = FakeUserId
+                });
 
                 Store.Save(u);
                 Store.Save(g);

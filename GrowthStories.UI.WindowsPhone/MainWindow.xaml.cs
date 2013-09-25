@@ -32,27 +32,40 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+
+        /// <summary>
+        /// We get here on the initial load AND whenever we resume, i.e. from tasks
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            IGSRoutableViewModel initialVM = null;
+
             IDictionary<string, string> qs = this.NavigationContext.QueryString;
-            if (qs.ContainsKey("plant"))
-            {
+            Exception ee = null;
+            if (qs.Count > 0)
                 try
                 {
-                    var id = Guid.Parse(qs["plant"]);
-                    initialVM = this.ViewModel.PlantFactory(id, null);
+                    this.NavigateWithDeepLink(qs);
+                    return;
                 }
-                catch (Exception)
+                catch (Exception E)
                 {
-
+                    ee = E;
                 }
-            }
-            if (initialVM == null)
-                initialVM = this.ViewModel.Resolver.GetService<IMainViewModel>();
-            this.ViewModel.Router.Navigate.Execute(initialVM);
+
+            if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0) // don't do anything if this isn't the initial load
+                this.ViewModel.Router.Navigate.Execute(this.ViewModel.Resolver.GetService<IMainViewModel>());
+
+        }
+
+        protected void NavigateWithDeepLink(IDictionary<string, string> qs)
+        {
+
+            var id = Guid.Parse(qs["plant"]);
+            this.ViewModel.Router.Navigate.Execute(this.ViewModel.PlantFactory(id, null));
+
         }
 
         protected override void OnBackKeyPress(CancelEventArgs e)

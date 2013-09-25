@@ -303,30 +303,128 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class Photographed : ActionBase
-    {
-        [JsonProperty]
-        private string _uri { get; set; }
 
-        private Uri _Uri;
+    public enum PhotoOrientation
+    {
+        LANDSCAPE,
+        PORTRAIT
+    }
+
+    public interface IPhoto : IEquatable<IPhoto>
+    {
+
+        uint Width { get; set; }
+        uint Height { get; set; }
+        ulong Size { get; set; }
+        PhotoOrientation Orientation { get; }
+        string Uri { get; }
+    }
+
+    public struct Photo : IPhoto
+    {
+
+        [JsonProperty]
+        public uint Width { get; set; }
+        [JsonProperty]
+        public uint Height { get; set; }
+        [JsonProperty]
+        public ulong Size { get; set; }
+
+        [JsonProperty]
+        public string LocalFullPath { get; set; }
+
+
+        [JsonProperty]
+        public string LocalUri { get; set; }
+
+
+        [JsonProperty]
+        public string RemoteUri { get; set; }
+        [JsonProperty]
+        public string FileName { get; set; }
+
+
 
         [JsonIgnore]
-        public Uri Uri { get { return _Uri == null ? _Uri = new Uri(_uri) : _Uri; } }
+        public PhotoOrientation Orientation
+        {
+            get
+            {
+                return Width > Height ? PhotoOrientation.LANDSCAPE : PhotoOrientation.PORTRAIT;
+            }
+        }
+
+        [JsonIgnore]
+        public string Uri
+        {
+            get
+            {
+                string local = null;
+#if NETFX_CORE // http://suchan.cz/?p=132
+                local = LocalUri;
+#else
+                local = LocalFullPath;
+#endif
+                return local ?? RemoteUri;
+
+            }
+        }
+        public static bool operator ==(Photo size1, Photo size2)
+        {
+            return size1.Equals(size2);
+        }
+        public static bool operator !=(Photo size1, Photo size2)
+        {
+            return !size1.Equals(size2);
+        }
+
+        public override string ToString()
+        {
+            return Uri;
+        }
+
+        public override int GetHashCode()
+        {
+            return Uri == null ? 0 : Uri.GetHashCode();
+        }
+
+        public override bool Equals(object other)
+        {
+            return Equals(other as IPhoto);
+        }
+
+
+        public bool Equals(IPhoto other)
+        {
+            if (other == null)
+                return false;
+            return this.Uri == other.Uri;
+        }
+    }
+
+
+
+    public class Photographed : ActionBase
+    {
+
+
+
+
+        [JsonProperty]
+        public Photo Photo { get; protected set; }
 
 
 
         protected Photographed() { }
-        public Photographed(Guid userId, Guid plantId, string note, Uri uri)
+        public Photographed(Guid userId, Guid plantId, string note, Photo photo)
             : base(userId, plantId, note)
         {
-            if (uri == null)
-                throw new ArgumentNullException("Uri for the image file must be given for the 'Photographed' action.");
-            this._Uri = uri;
-            this._uri = uri.ToString();
+
+            Photo = photo;
 
         }
         public Photographed(Photograph cmd)
-            : this(cmd.EntityId, cmd.PlantId, cmd.Note, cmd.Uri)
+            : this(cmd.EntityId, cmd.PlantId, cmd.Note, cmd.Photo)
         {
 
         }

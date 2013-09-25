@@ -2,6 +2,7 @@
 //using CommonDomain;
 using System;
 using Growthstories.Core;
+using System.Collections.Generic;
 
 
 namespace Growthstories.Domain.Messaging
@@ -19,7 +20,15 @@ namespace Growthstories.Domain.Messaging
 
         public string Name { get; private set; }
 
-        public string ProfilepicturePath { get; set; }
+        public string Species { get; set; }
+
+        public Photo Profilepicture { get; set; }
+
+        public Guid WateringScheduleId { get; set; }
+
+        public Guid FertilizingScheduleId { get; set; }
+
+        public HashSet<string> Tags { get; set; }
 
         public Guid UserId { get; private set; }
 
@@ -40,21 +49,21 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class ChangeProfilepicturePath : PlantCommand
+    public class SetProfilepicture : PlantCommand
     {
 
-        public string ProfilepicturePath { get; private set; }
+        public Photo Profilepicture { get; private set; }
 
-        protected ChangeProfilepicturePath() { }
-        public ChangeProfilepicturePath(Guid entityId, string ProfilepicturePath)
+        protected SetProfilepicture() { }
+        public SetProfilepicture(Guid entityId, Photo profilepicture)
             : base(entityId)
         {
-            this.ProfilepicturePath = ProfilepicturePath;
+            this.Profilepicture = profilepicture;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Change ProfilepicturePath to {0}", ProfilepicturePath);
+            return string.Format(@"Change ProfilepicturePath to {0}", Profilepicture);
         }
 
     }
@@ -96,101 +105,93 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class AddComment : PlantCommand
-    {
-        public string Note { get; set; }
 
-        public AddComment() { }
-        public AddComment(Guid id, string note)
+    public class SetName : PlantCommand
+    {
+        public string Name { get; private set; }
+
+        public SetName(Guid plantId, string name)
+            : base(plantId)
+        {
+            this.Name = name;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set name to {1} for plant {0}.", EntityId, Name);
+        }
+
+    }
+
+    public class SetSpecies : PlantCommand
+    {
+        public string Species { get; private set; }
+
+        public SetSpecies(Guid plantId, string species)
+            : base(plantId)
+        {
+            this.Species = species;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set species to {1} for plant {0}.", EntityId, Species);
+        }
+
+    }
+
+
+    public class SetWateringSchedule : PlantCommand
+    {
+        public Guid ScheduleId { get; set; }
+
+        public SetWateringSchedule() { }
+        public SetWateringSchedule(Guid id, Guid scheduleId)
             : base(id)
         {
-            Note = note;
+            this.ScheduleId = scheduleId;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Add comment {0} to plant {1}.", Note, EntityId);
+            return string.Format(@"Set watering schedule {1} to plant {0}.", EntityId, ScheduleId);
         }
 
     }
 
-    public class AddPhoto : PlantCommand
+    public class SetFertilizingSchedule : PlantCommand
     {
-        public string BlobKey { get; set; }
+        public Guid ScheduleId { get; set; }
 
-        public AddPhoto() { }
-        public AddPhoto(Guid id, string BlobKey)
-            : base(id)
+        public SetFertilizingSchedule() { }
+        public SetFertilizingSchedule(Guid plantId, Guid scheduleId)
+            : base(plantId)
         {
-            this.BlobKey = BlobKey;
+            this.ScheduleId = scheduleId;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Add photo {0} to plant {1}.", BlobKey, EntityId);
+            return string.Format(@"Set fertilizing schedule {1} to plant {0}.", EntityId, ScheduleId);
         }
 
     }
 
-    public class AddWateringAction : PlantCommand
+    public class SetTags : PlantCommand
     {
+        public HashSet<string> Tags { get; private set; }
 
-        public AddWateringAction() { }
-        public AddWateringAction(Guid id)
-            : base(id) { }
-
-        public override string ToString()
+        public SetTags() { }
+        public SetTags(Guid plantId, HashSet<string> tags)
+            : base(plantId)
         {
-            return string.Format(@"Add water to plant {1}.", EntityId);
-        }
-
-    }
-
-    public class AddFertilizingAction : PlantCommand
-    {
-
-        public AddFertilizingAction() { }
-        public AddFertilizingAction(Guid id)
-            : base(id)
-        {
+            this.Tags = tags;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Add fertilizer to plant {1}.", EntityId);
+            return string.Format(@"Set tags for plant {0}.", EntityId);
         }
-
-    }
-
-    public class AddFBComment : PlantCommand
-    {
-
-        public String FbId { get; set; }
-        public long Uid { get; set; }
-        public String Name { get; set; }
-        public string FirstName { get; set; }
-        public String LastName { get; set; }
-        public String Note { get; set; }
-
-        public AddFBComment() { }
-        public AddFBComment(Guid entityId, string FbId, long Uid, string Name, string FirstName, string LastName, string Note)
-            : base(entityId)
-        {
-
-            this.FbId = FbId;
-            this.Uid = Uid;
-            this.Name = Name;
-            this.FirstName = FirstName;
-            this.LastName = LastName;
-            this.Note = Note;
-
-        }
-
-        public override string ToString()
-        {
-            return string.Format(@"Add FBComment {0} to plant {1}", Note, EntityId);
-        }
-
 
     }
 

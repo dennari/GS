@@ -13,6 +13,6 @@
     <local:ActionToStringConverter x:Key="ActionToString"/>
     <local:ActionToDateStringConverter x:Key="ActionToDateString"/>
     <local:NullToVisibilityConverter x:Key="NullToVisibility"/>
-    <local:PathToImageSourceConverter x:Key="PathToImageSource"/>
+    <local:PhotoToImageSourceConverter x:Key="PhotoToImageSource"/>
     <local:AppBarModeConverter x:Key="AppBarModeToString"/>
 </ResourceDictionary>

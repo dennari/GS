@@ -130,6 +130,60 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+  
+    <Style TargetType="local:AddPlantActionView">
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:AddPlantActionView">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!--<Grid.Background>
+                            <ImageBrush Stretch="UniformToFill" ImageSource="/Growthstories.UI.WindowsPhone;component/Assets/Bg/action_bg.jpg"/>
+                        </Grid.Background>-->
+
+                        
+                        <StackPanel Grid.Row="0" Margin="24,17,24,28">
+                            <TextBlock 
+                Text="{Binding PlantTitle}" 
+                Style="{StaticResource GSAppTitleStyle}"/>
+                            <TextBlock 
+                Text="{Binding Title}" 
+                Style="{StaticResource GSPageTitleStyle}" />
+                        </StackPanel>
+                        <ScrollViewer Grid.Row="1">
+                          <StackPanel x:Name="ContentPanel" Margin="24,0">
+                            <ContentPresenter 
+                                Content="{TemplateBinding Content}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"/>
+                            <StackPanel Visibility="{TemplateBinding NoteVisibility}">
+                                <TextBlock 
+                                    Text="Note" 
+                                    Style="{StaticResource GSInputLabelStyle}" 
+                                />
+                                <TextBox 
+                                    Text="{Binding Note, Mode=TwoWay}" 
+                                    local:BindingUtility.UpdateSourceOnChange="True" 
+                                    Style="{StaticResource GSTextBoxStyle}" 
+                                    Height="130" 
+                                    AcceptsReturn="True" 
+                                    TextWrapping="Wrap" 
+                                    VerticalScrollBarVisibility="Auto"                                         
+                                />
+                            </StackPanel>                          
+                           </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="toolkit:ListPicker" x:Key="GSListPickerStyle">
 
         <Setter Property="FontFamily" Value="{StaticResource GSTextBoxFont}"/>
@@ -243,6 +297,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+   
     <Style TargetType="toolkit:ListPickerItem" x:Key="GSListPickerItemStyle">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -380,7 +435,6 @@
     <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
         <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
         <Setter Property="BackgroundColor" Value="White"/>
-    </Style>
-
-
+    </Style>    
+    
 </ResourceDictionary>

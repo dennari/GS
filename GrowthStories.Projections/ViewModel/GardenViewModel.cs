@@ -103,6 +103,16 @@ namespace Growthstories.UI.ViewModel
             this.ShowDetailsCommand = new ReactiveCommand();
             this.ShowDetailsCommand.Subscribe(x => App.Router.Navigate.Execute(x));
 
+            App.Bus.Listen<IEvent>().OfType<PlantAdded>()
+                .Where(x =>
+                {
+                    return x.EntityId == this.State.Id;
+                })
+                .Subscribe(x =>
+                {
+                    this.GetPlantCommand.Execute(x.PlantId);
+                });
+
         }
 
         protected void LoadPlants()
@@ -119,6 +129,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
         private ButtonViewModel _AddPlantButton;
         public ButtonViewModel AddPlantButton
         {
@@ -129,38 +140,12 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "add",
                         IconUri = App.IconUri[IconType.ADD],
-                        Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
+                        Command = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(this.AddPlantViewModel))
                     };
                 return _AddPlantButton;
             }
         }
 
-        private ButtonViewModel _ChangePPicButton;
-        public ButtonViewModel ChangePPicButton
-        {
-            get
-            {
-                if (_ChangePPicButton == null)
-                {
-
-                    var Command = new ReactiveCommand();
-                    Command.Subscribe(_ =>
-                     {
-                         if (this.Plants.Count > 0)
-                         {
-                             App.Bus.Handle(new ChangeProfilepicturePath(this.Plants[0].Id, PlantProjection.testPic1));
-                         }
-                     });
-                    _ChangePPicButton = new ButtonViewModel(App)
-                    {
-                        Text = "ppic",
-                        //IconUri = Nav.IconUri[IconType.ADD],
-                        Command = Command
-                    };
-                }
-                return _ChangePPicButton;
-            }
-        }
 
         private ButtonViewModel _SelectPlantsButton;
         public ButtonViewModel SelectPlantsButton
@@ -228,6 +213,15 @@ namespace Growthstories.UI.ViewModel
                         }
                     };
                 return _AppBarMenuItems;
+            }
+        }
+
+        protected IRoutableViewModel _AddPlantViewModel;
+        public IRoutableViewModel AddPlantViewModel
+        {
+            get
+            {
+                return _AddPlantViewModel ?? (_AddPlantViewModel = App.AddPlantViewModelFactory(null));
             }
         }
     }
