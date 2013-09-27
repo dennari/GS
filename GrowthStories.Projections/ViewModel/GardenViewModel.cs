@@ -58,7 +58,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
 
-        public PlantProjection PlantProjection { get; private set; }
+        //public PlantProjection PlantProjection { get; private set; }
         private readonly GardenState State;
 
         public Guid Id { get { return State.Id; } }

@@ -12,8 +12,8 @@ namespace Growthstories.Sync
 {
 
     //[JsonObject()]
-    public class EventDTOUnion : IEventDTO, IAddEntityDTO, IAddCommentDTO, IAddFertilizingDTO, IAddIntervalScheduleDTO,
-        IAddMeasurementDTO, IAddPhotoDTO, ICreatePlantDTO, IAddPlantDTO, ICreateGardenDTO, IAddRelationshipDTO,
+    public class EventDTOUnion : IEventDTO, IAddEntityDTO, ICreatePlantActionDTO, IAddIntervalScheduleDTO,
+        ICreatePlantDTO, IAddPlantDTO, ICreateGardenDTO, IAddRelationshipDTO,
         ICreateUserDTO, IDelEntityDTO, IDelPropertyDTO, ISetPropertyDTO
     {
         #region IEvent
@@ -27,18 +27,22 @@ namespace Growthstories.Sync
         public int EntityVersion { get; set; }
         #endregion
 
+
         #region IEventDTO
-        [JsonProperty(PropertyName = Language.ANCESTOR_ID, Required = Required.Always)]
+        [JsonProperty(PropertyName = Language.ANCESTOR_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Guid AncestorId { get; set; }
 
         [JsonProperty(PropertyName = Language.EVENT_TYPE, Required = Required.Always)]
         public DTOType EventType { get; set; }
 
         [JsonProperty(PropertyName = Language.CREATED, Required = Required.Always)]
-        public DateTimeOffset Created { get; set; }
+        public long Created { get; set; }
 
         [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
         public Guid StreamEntity { get; set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid StreamAncestor { get; set; }
         #endregion
 
         #region IAddEntityDTO
@@ -94,7 +98,13 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.MEASUREMENT_TYPE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MeasurementType MeasurementType { get; set; }
 
+        [JsonProperty(PropertyName = Language.VALUE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public double Value { get; set; }
 
+
+
+        [JsonIgnore]
+        DateTimeOffset IEvent.Created { get; set; }
 
     }
 

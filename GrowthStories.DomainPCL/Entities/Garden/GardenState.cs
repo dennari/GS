@@ -50,15 +50,15 @@ namespace Growthstories.Domain.Entities
             this.UserId = @event.UserId;
         }
 
-        public void Apply(MarkedGardenPublic @event)
-        {
-            Public = true;
-        }
+        //public void Apply(MarkedGardenPublic @event)
+        //{
+        //    Public = true;
+        //}
 
-        public void Apply(MarkedGardenPrivate @event)
-        {
-            Public = false;
-        }
+        //public void Apply(MarkedGardenPrivate @event)
+        //{
+        //    Public = false;
+        //}
 
 
     }

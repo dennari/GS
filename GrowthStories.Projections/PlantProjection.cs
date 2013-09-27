@@ -27,36 +27,36 @@ namespace Growthstories.UI
             //PlantNames.Add("Jore");
         }
 
-        public void Handle(PlantCreated @event)
-        {
-            this.Persistence.PersistPlant(@event);
+        //public void Handle(PlantCreated @event)
+        //{
+        //    this.Persistence.PersistPlant(@event);
 
-        }
-
-
-
-        public PlantState LoadWithId(Guid Id)
-        {
-            return ((Plant)Repository.GetById(Id)).State;
-        }
-
-        public IEnumerable<PlantState> LoadWithUserId(Guid UserId)
-        {
-
-            foreach (var c in Persistence.UserPlants(UserId))
-                yield return ((Plant)Repository.GetById(c.EntityId)).State;
-        }
-
-        public static string testPic1 = @"/Assets/Icons/appbar.add.png";
-        public static string testPic2 = @"/Assets/Icons/appbar.check.png";
+        //}
 
 
-        public IEnumerable<PlantState> FakeLoadWithUserId(Guid guid)
-        {
-            return new PlantState[] {
-                //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Jore",guid) {Profilepicture=testPic1})),
-                //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Kari",guid) {Profilepicture=testPic2}))
-            };
-        }
+
+        //public PlantState LoadWithId(Guid Id)
+        //{
+        //    return ((Plant)Repository.GetById(Id)).State;
+        //}
+
+        //public IEnumerable<PlantState> LoadWithUserId(Guid UserId)
+        //{
+
+        //    foreach (var c in Persistence.UserPlants(UserId))
+        //        yield return ((Plant)Repository.GetById(c.EntityId)).State;
+        //}
+
+        //public static string testPic1 = @"/Assets/Icons/appbar.add.png";
+        //public static string testPic2 = @"/Assets/Icons/appbar.check.png";
+
+
+        //public IEnumerable<PlantState> FakeLoadWithUserId(Guid guid)
+        //{
+        //    return new PlantState[] {
+        //        //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Jore",guid) {Profilepicture=testPic1})),
+        //        //new PlantState(new PlantCreated(new CreatePlant(Guid.NewGuid(),"Kari",guid) {Profilepicture=testPic2}))
+        //    };
+        //}
     }
 }

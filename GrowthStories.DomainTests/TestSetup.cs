@@ -19,9 +19,6 @@ using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.Persistence;
 
-#if !WINDOWS_PHONE
-using log4net.Config;
-#endif
 
 using Ninject;
 using Ninject.Modules;
@@ -79,7 +76,7 @@ namespace Growthstories.DomainTests
                 if (conn == null)
                 {
 
-                    conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdb2.sdf"));
+                    conn = new SQLiteConnection(Path.Combine(Directory.GetCurrentDirectory(), "testdbb.sqlite"));
 
                 }
                 return conn;
@@ -119,7 +116,7 @@ namespace Growthstories.DomainTests
         {
             // configure logging
 #if !WINDOWS_PHONE
-            XmlConfigurator.Configure();
+            //XmlConfigurator.Configure();
             LogFactory.BuildLogger = type => new GSLog(type);
 #endif
 
@@ -155,7 +152,12 @@ namespace Growthstories.DomainTests
             Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
             Bind<IMessageBus>().To<MessageBus>().InSingletonScope();
 
-            Bind<IDispatchCommits>().To<MessageBusDispatcher>().InSingletonScope();
+            //Bind<IDispatchCommits>().To<MessageBusDispatcher>().InSingletonScope();
+
+            Bind<IDispatchCommits>().ToConstructor(p => new DelegateMessageDispatcher(this.DoubleDispatch)).InSingletonScope();
+            Bind<MessageBusDispatcher>().ToSelf().InSingletonScope();
+            Bind<ReadModelDispatcher>().ToSelf().InSingletonScope();
+
 
             //Bind<IDispatchCommits, IAsyncDispatchCommits, IRegisterEventHandlers>().To<EventDispatcher>().InSingletonScope();
 
@@ -184,8 +186,8 @@ namespace Growthstories.DomainTests
 
 
             Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
-            Bind<ActionProjection>().ToSelf().InSingletonScope();
-            Bind<PlantProjection>().ToSelf().InSingletonScope();
+            //Bind<ActionProjection>().ToSelf().InSingletonScope();
+            //Bind<PlantProjection>().ToSelf().InSingletonScope();
             Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
             //RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
@@ -194,6 +196,17 @@ namespace Growthstories.DomainTests
             {
                 Kernel.Get<IDispatchCommands>().Handle(x);
             });
+
+        }
+
+        IDispatchCommits MBDispatcher;
+        IDispatchCommits UIDispatcher;
+        private void DoubleDispatch(Commit commit)
+        {
+            var mb = this.MBDispatcher ?? (this.MBDispatcher = Kernel.Get<MessageBusDispatcher>());
+            var ui = this.UIDispatcher ?? (this.UIDispatcher = Kernel.Get<ReadModelDispatcher>());
+            ui.Dispatch(commit);
+            mb.Dispatch(commit);
 
         }
 

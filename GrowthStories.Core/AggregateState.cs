@@ -1,5 +1,6 @@
 ﻿using CommonDomain;
 using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,18 +13,23 @@ namespace Growthstories.Core
 {
 
 
-    public abstract class AggregateState : IMemento, IAppliesEvents, INotifyPropertyChanged
+    public abstract class AggregateState : IMemento, IAppliesEvents
     {
-        public Guid Id { get; protected set; }
 
+        [JsonIgnore]
         public Type AggregateType { get; set; }
 
-        protected int _Version;
-        public int Version { get { return _Version; } protected set { Set(ref _Version, value); } }
+        [JsonProperty]
+        public Guid Id { get; protected set; }
 
+        [JsonProperty]
+        public int Version { get; protected set; }
 
-        protected bool? _Public;
-        public bool? Public { get { return _Public; } protected set { Set(ref _Public, value); } }
+        [JsonProperty]
+        public DateTimeOffset Created { get; protected set; }
+
+        //protected bool? _Public;
+        //public bool? Public { get { return _Public; } protected set { Set(ref _Public, value); } }
 
 
         protected AggregateState()
@@ -45,47 +51,47 @@ namespace Growthstories.Core
         public abstract void Apply(IEvent @event);
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
 
 
-        protected bool Set<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
-        {
-            if (propertyName == null)
-            {
-                return false;
-            }
-            return Set<T>(propertyName, ref field, newValue);
-        }
+        //protected bool Set<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
+        //{
+        //    if (propertyName == null)
+        //    {
+        //        return false;
+        //    }
+        //    return Set<T>(propertyName, ref field, newValue);
+        //}
 
-        protected bool Set<T>(string propertyName, ref T field, T newValue)
-        {
-            if (propertyName == null)
-            {
-                return false;
-            }
-            if (EqualityComparer<T>.Default.Equals(field, newValue))
-            {
-                return false;
-            }
+        //protected bool Set<T>(string propertyName, ref T field, T newValue)
+        //{
+        //    if (propertyName == null)
+        //    {
+        //        return false;
+        //    }
+        //    if (EqualityComparer<T>.Default.Equals(field, newValue))
+        //    {
+        //        return false;
+        //    }
 
-            field = newValue;
-            RaisePropertyChanged(propertyName);
-            return true;
-        }
-
-
+        //    field = newValue;
+        //    RaisePropertyChanged(propertyName);
+        //    return true;
+        //}
 
 
-        protected virtual void RaisePropertyChanged(string propertyName)
-        {
 
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
+
+        //protected virtual void RaisePropertyChanged(string propertyName)
+        //{
+
+        //    var handler = PropertyChanged;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new PropertyChangedEventArgs(propertyName));
+        //    }
+        //}
 
 
     }
@@ -108,6 +114,7 @@ namespace Growthstories.Core
                 throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
             }
             Id = @event.EntityId;
+            Created = @event.Created;
         }
 
         public override void Apply(IEvent @event)

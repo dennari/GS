@@ -9,8 +9,8 @@ namespace Growthstories.Sync
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DTOObjectAttribute : Attribute
     {
-        public readonly DTOType Type;
-        public DTOObjectAttribute(DTOType type)
+        public readonly DTOType[] Type;
+        public DTOObjectAttribute(params DTOType[] type)
         {
             this.Type = type;
         }

@@ -9,7 +9,7 @@ namespace Growthstories.DomainTests
 {
     class StagingEndpoint : IEndpoint
     {
-        private Uri _Uri = new Uri("http://gs-staging.appspot.com");
+        private Uri _Uri = new Uri("http://server.lan:9000");
         public string Name
         {
             get { return "Staging"; }

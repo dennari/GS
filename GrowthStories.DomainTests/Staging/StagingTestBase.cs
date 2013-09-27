@@ -25,30 +25,49 @@ using EventStore.Logging;
 using Growthstories.UI;
 using System.Text;
 using ReactiveUI;
+using Growthstories.UI.ViewModel;
 
 namespace Growthstories.DomainTests
 {
     public class StagingTestBase
     {
 
-        public IKernel kernel;
+        public class TestAppViewModel : AppViewModel
+        {
+
+
+            public TestAppViewModel(IKernel kernel)
+                : base()
+            {
+                Kernel = kernel;
+                Kernel.Bind<IScreen>().ToConstant(this);
+                Kernel.Bind<IRoutingState>().ToConstant(this.Router);
+                this.Bus = kernel.Get<IMessageBus>();
+            }
+
+
+
+        }
+
+        protected AppViewModel App;
+        protected IKernel Kernel { get; set; }
+        protected IAuthUser Ctx { get; set; }
+
         [SetUp]
         public virtual void SetUp()
         {
-            if (kernel != null)
-                kernel.Dispose();
-            kernel = new StandardKernel(new StagingModule());
+            if (Kernel != null)
+                Kernel.Dispose();
+            Kernel = new StandardKernel(new StagingModule());
+            App = new TestAppViewModel(Kernel);
             this.Ctx = Get<IUserService>().CurrentUser;
-            Handler.Handle(new CreateSynchronizer(SynchronizerId));
 
         }
-        private ILog Log = new LogTo4Net(typeof(StagingTestBase));
+        private ILog Log = new LogToNLog(typeof(StagingTestBase));
 
-        public T Get<T>() { return kernel.Get<T>(); }
+        public T Get<T>() { return Kernel.Get<T>(); }
         public IMessageBus Handler { get { return Get<IMessageBus>(); } }
-        public IAsyncDispatchCommits AsyncDispatcher { get { return Get<IAsyncDispatchCommits>(); } }
 
-        public SynchronizerCommandHandler SyncHandler { get { return Get<SynchronizerCommandHandler>(); } }
 
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
         public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
@@ -65,29 +84,13 @@ namespace Growthstories.DomainTests
 
         public IUserService UserService { get { return Get<IUserService>(); } }
 
-        public IHttpClient HttpClient { get { return kernel.Get<IHttpClient>(); } }
+        public IHttpClient HttpClient { get { return Kernel.Get<IHttpClient>(); } }
         public CompareObjects Comparer { get { return new CompareObjects(); } }
 
 
         public static Guid SynchronizerId = Guid.NewGuid();
-        public IAuthUser Ctx;
 
 
-
-        protected async Task Sync()
-        {
-
-            try
-            {
-                await SyncHandler.HandleAsync(new Synchronize(SynchronizerId));
-
-            }
-            catch (TaskCanceledException)
-            {
-
-
-            }
-        }
 
 
         protected string randomize(string i)

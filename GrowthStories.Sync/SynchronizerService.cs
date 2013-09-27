@@ -13,6 +13,8 @@ using EventStore.Persistence;
 
 namespace Growthstories.Sync
 {
+
+
     public class SynchronizerService : ISynchronizerService
     {
 
@@ -22,7 +24,12 @@ namespace Growthstories.Sync
         private readonly IConstructSyncEventStreams StreamFactory;
         private ISyncPushRequest LastPushRequest;
         private readonly IUserService Context;
-        private AuthTokenService AuthService;
+        //private AuthTokenService AuthService;
+
+        public IList<ISyncPushRequest> PushRequests;
+        public IList<ISyncPushResponse> PushResponses;
+        public IList<ISyncPullRequest> PullRequests;
+        public IList<ISyncPullResponse> PullResponses;
 
 
         public SynchronizerService(
@@ -134,5 +141,98 @@ namespace Growthstories.Sync
             });
 
         }
+
+
+
+
+
+        public Task<SyncResult> Synchronize()
+        {
+            this.PushRequests = new List<ISyncPushRequest>();
+            this.PushResponses = new List<ISyncPushResponse>();
+            this.PullRequests = new List<ISyncPullRequest>();
+            this.PullResponses = new List<ISyncPullResponse>();
+            return Task.Run<SyncResult>(async () =>
+            {
+
+                //ISyncPushRequest pushReq = null;
+                //ISyncPullResponse pullResp = null;
+                int cycles = 0;
+                int mCycles = 3;
+                do
+                {
+                    var pushReq = GetPushRequest();
+                    if (pushReq == null)
+                        return new SyncResult();
+
+                    var pullResp = await doCycle(pushReq);
+
+                    if (pullResp == null)
+                    {
+                        return new SyncResult();
+                    }
+                    else
+                    {
+                        HandleRemoteStreams(pullResp.Streams);
+                    }
+
+                    cycles++;
+                } while (cycles <= mCycles);
+
+                return new SyncResult();
+
+            });
+
+            //return await Agg.Handle((Synchronize)command, syncService);
+        }
+
+
+
+
+        private async Task<ISyncPullResponse> doCycle(ISyncPushRequest pushReq)
+        {
+
+            this.PushRequests.Add(pushReq);
+            var pushResp = await Transporter.PushAsync(pushReq);
+            this.PushResponses.Add(pushResp);
+            if (pushResp.StatusCode == 200)
+            {
+                MarkAllSynchronized(pushReq);
+                //syncService.Synchronized(pushReq);
+                await TryAuth(pushReq);
+                //RaiseUserSynced(pushReq);
+                return null;
+            }
+
+            var pullReq = GetPullRequest();
+            this.PullRequests.Add(pullReq);
+            var pullResp = await Transporter.PullAsync(pullReq);
+            this.PullResponses.Add(pullResp);
+            return pullResp;
+
+
+        }
+
+        private void HandleRemoteStreams(IEnumerable<ISyncEventStream> remoteStreams)
+        {
+            foreach (var stream in remoteStreams)
+            {
+                stream.CommitChanges(Guid.NewGuid());
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

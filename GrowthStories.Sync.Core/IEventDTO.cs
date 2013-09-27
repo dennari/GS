@@ -12,12 +12,12 @@ namespace Growthstories.Sync
         Guid EventId { get; set; }
         Guid EntityId { get; set; }
         int EntityVersion { get; set; }
-        DateTimeOffset Created { get; set; }
+        long Created { get; set; }
 
         DTOType EventType { get; set; }
         Guid AncestorId { get; set; }
         Guid StreamEntity { get; set; }
-
+        Guid StreamAncestor { get; set; }
     }
 
     public interface IAddEntityDTO : IEventDTO
@@ -86,36 +86,16 @@ namespace Growthstories.Sync
 
     }
 
-    public interface IActionDTO : IEventDTO
+    public interface ICreatePlantActionDTO : IAddEntityDTO
     {
         string Note { get; set; }
         Guid PlantId { get; set; }
         Guid PlantAncestorId { get; set; }
-
-
-    }
-
-
-    public interface IAddCommentDTO : IActionDTO
-    {
-
-    }
-
-    public interface IAddPhotoDTO : IAddEntityDTO
-    {
         string BlobKey { get; set; }
-
+        MeasurementType MeasurementType { get; set; }
+        double Value { get; set; }
     }
 
-    public interface IAddFertilizingDTO : IAddEntityDTO
-    {
-
-    }
-
-    public interface IAddWateringDTO : IAddEntityDTO
-    {
-
-    }
 
     public interface IAddFBCommentDTO : IAddEntityDTO
     {
@@ -127,10 +107,6 @@ namespace Growthstories.Sync
         String Note { get; set; }
     }
 
-    public interface IAddMeasurementDTO : IAddEntityDTO
-    {
-        MeasurementType MeasurementType { get; set; }
-    }
     #endregion
 
     public enum MeasurementType

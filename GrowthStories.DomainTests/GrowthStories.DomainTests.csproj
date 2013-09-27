@@ -43,16 +43,7 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\net35\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Reactive.Testing">
       <HintPath>..\packages\Rx-Testing.2.1.30214.0\lib\Net45-Full\Microsoft.Reactive.Testing.dll</HintPath>
     </Reference>
@@ -75,6 +66,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.Ninject.3.0.7\lib\net40-client\Ninject.NetFx.dll</HintPath>
     </Reference>
+    <Reference Include="NLog, Version=2.0.1.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.2.0.1.2\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -85,8 +80,20 @@
     <Reference Include="ReactiveUI.Blend">
       <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\net45\ReactiveUI.Blend.dll</HintPath>
     </Reference>
+    <Reference Include="ReactiveUI.NLog">
+      <HintPath>..\packages\reactiveui-nlog.5.1.2\lib\net45\ReactiveUI.NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Testing">
+      <HintPath>..\packages\reactiveui-testing.5.1.2\lib\net45\ReactiveUI.Testing.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI.Xaml">
       <HintPath>..\packages\reactiveui-platforms.5.1.2\lib\net45\ReactiveUI.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="ReflectSoftware.Insight">
+      <HintPath>..\packages\ReflectSoftware.Insight.5.1.5\lib\net45\ReflectSoftware.Insight.dll</HintPath>
+    </Reference>
+    <Reference Include="ReflectSoftware.Insight.Extensions.NLog">
+      <HintPath>..\packages\ReflectSoftware.Insight.Extensions.NLog.5.1.6\lib\net45\ReflectSoftware.Insight.Extensions.NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -94,11 +101,13 @@
     </Reference>
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Extensions">
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.13\lib\net45\System.Net.Http.Extensions.dll</HintPath>
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.15.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\net45\System.Net.Http.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http.Primitives">
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.13\lib\net45\System.Net.Http.Primitives.dll</HintPath>
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.15.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\net45\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Reactive.Core">
@@ -117,9 +126,6 @@
       <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\Net45\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <Choose>
@@ -138,13 +144,18 @@
     <Compile Include="GSLog.cs" />
     <Compile Include="Garden\create_garden.cs" />
     <Compile Include="Garden\add_plant_to_garden.cs" />
+    <Compile Include="LogToNLog.cs" />
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
-    <Compile Include="LogTo4Net.cs" />
     <Compile Include="Staging\StagingTestBase.cs" />
     <Compile Include="StagingModule.cs" />
     <Compile Include="Staging\StagingEndpoint.cs" />
     <Compile Include="Staging\test_auth.cs" />
+    <Compile Include="Sync\Schema.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Schema.resx</DependentUpon>
+    </Compile>
     <Compile Include="Sync\test_sync.cs" />
     <Compile Include="SimpleTest\CompareObjects.cs" />
     <Compile Include="SimpleTest\gs_spec.cs" />
@@ -231,6 +242,12 @@
     <Folder Include="PlantAction\" />
     <Folder Include="Projections\" />
     <Folder Include="UI\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sync\Schema.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Schema.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

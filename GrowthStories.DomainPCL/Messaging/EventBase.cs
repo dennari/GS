@@ -13,6 +13,10 @@ namespace Growthstories.Domain.Messaging
 
     public interface IDomainEvent : IEvent//, IEquatable<IEvent>
     {
+
+        bool HasAncestor { get; }
+        bool HasParent { get; }
+
         void FillDTO(IEventDTO Dto);
 
         void FromDTO(IEventDTO Dto);
@@ -31,9 +35,21 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public DateTimeOffset Created { get; set; }
 
-        protected EventBase() { }
+        [JsonIgnore]
+        public bool HasAncestor { get; protected set; }
+
+        [JsonIgnore]
+        public bool HasParent { get; protected set; }
+
+
+        protected EventBase()
+        {
+            HasAncestor = true;
+            HasParent = true;
+        }
 
         public EventBase(Guid entityId)
+            : this()
         {
             if (entityId == default(Guid))
             {
@@ -47,7 +63,7 @@ namespace Growthstories.Domain.Messaging
             this.EntityId = Dto.EntityId;
             this.EntityVersion = Dto.EntityVersion;
             this.EventId = Dto.EventId;
-            this.Created = Dto.Created;
+            this.Created = Dto.Created.DateTimeFromUnixTimestampMillis();
 
         }
 
@@ -56,10 +72,43 @@ namespace Growthstories.Domain.Messaging
             Dto.EntityId = this.EntityId;
             Dto.EntityVersion = this.EntityVersion;
             Dto.EventId = this.EventId;
-            Dto.Created = this.Created;
+            Dto.Created = this.Created.GetUnixTimestampMillis();
         }
 
 
+
+
+    }
+
+    public static class DateTimeMixins
+    {
+        private static readonly DateTimeOffset UnixEpoch =
+    new DateTimeOffset(1970, 1, 1, 0, 0, 0, new TimeSpan(0));
+
+        public static long GetCurrentUnixTimestampMillis()
+        {
+            return (long)(DateTimeOffset.UtcNow - UnixEpoch).TotalMilliseconds;
+        }
+
+        public static long GetUnixTimestampMillis(this DateTimeOffset d)
+        {
+            return (long)(d.ToUniversalTime() - UnixEpoch).TotalMilliseconds;
+        }
+
+        public static DateTimeOffset DateTimeFromUnixTimestampMillis(this long millis)
+        {
+            return UnixEpoch.AddMilliseconds(millis);
+        }
+
+        public static long GetCurrentUnixTimestampSeconds()
+        {
+            return (long)(DateTimeOffset.UtcNow - UnixEpoch).TotalSeconds;
+        }
+
+        public static DateTimeOffset DateTimeFromUnixTimestampSeconds(this long seconds)
+        {
+            return UnixEpoch.AddSeconds(seconds);
+        }
     }
 
 

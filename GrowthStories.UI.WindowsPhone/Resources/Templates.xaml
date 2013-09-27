@@ -17,7 +17,7 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding IconImg}" Width="45" Margin="24,0"  />
+            <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                 <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
@@ -32,7 +32,7 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding IconImg}" Width="45" Margin="24,0"  />
+            <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                 <TextBlock Text="{Binding Series}" Style="{StaticResource GSActionListItemNoteStyle}"/>
@@ -41,7 +41,7 @@
         </StackPanel>
     </DataTemplate>
 
-    <DataTemplate x:Key="WaterTemplate">
+    <!--<DataTemplate x:Key="WaterTemplate">
         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" >
             <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToDateString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="14"/>
             <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="26"/>
@@ -53,7 +53,7 @@
             <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToDateString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="14"/>
             <TextBlock Text="{Binding Path=State,Converter={StaticResource ActionToString}}" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" FontSize="26"/>
         </StackPanel>
-    </DataTemplate>
+    </DataTemplate>-->
 
     <DataTemplate x:Key="PhotographTemplate">
         <StackPanel Orientation="Vertical" Margin="0,0,0,12">
@@ -68,7 +68,7 @@
                     <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                     <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
                 </StackPanel>
-                <Image Source="{Binding IconImg}" Width="45" Margin="24,0" />
+                <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0" />
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                     <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>

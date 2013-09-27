@@ -96,7 +96,7 @@
     <Compile Include="SyncHttpClient.cs" />
     <Compile Include="Exceptions\StorageException.cs" />
     <Compile Include="Exceptions\StorageUnavailableException.cs" />
-    <Compile Include="DTO\EventDTO.cs" />
+    <Compile Include="DTO\EventDTOUnion.cs" />
     <Compile Include="SynchronizerService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SyncTranslator.cs" />

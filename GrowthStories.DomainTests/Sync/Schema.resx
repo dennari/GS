@@ -117,89 +117,75 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Created" xml:space="preserve">
-    <value>@Created</value>
+  <data name="createevent" xml:space="preserve">
+    <value>{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-03/schema",
+	"extends": {"$ref": "ievent"},
+	"id": "createentity",
+	"required":true,
+	"properties":{
+		"parentAncestorId": {
+			"type":"string",
+			"id": "http://jsonschema.net/parentAncestorId",
+			"required":true
+		},
+		"parentId": {
+			"type":"string",
+			"id": "http://jsonschema.net/parentId",
+			"required":true
+		}
+	}
+}</value>
   </data>
-  <data name="DeleteStorage" xml:space="preserve">
-    <value>DROP TABLE IF EXISTS Actions; DROP TABLE IF EXISTS Plants;</value>
-  </data>
-  <data name="GardenId" xml:space="preserve">
-    <value>@GardenId</value>
-  </data>
-  <data name="GetActions" xml:space="preserve">
-    <value>SELECT * FROM Actions WHERE 
-(
-(@PlantActionId IS NOT NULL AND PlantActionId = @PlantActionId)
-OR
-(@PlantId IS NOT NULL AND PlantId = @PlantId)
-OR
-(@UserId IS NOT NULL AND UserId = @UserId)
-)
-ORDER BY Created;</value>
-  </data>
-  <data name="GetPlants" xml:space="preserve">
-    <value>SELECT * FROM Plants WHERE 
-(
-(@PlantId IS NOT NULL AND PlantId = @PlantId)
-OR
-(@UserId IS NOT NULL AND UserId = @UserId)
-OR
-(@GardenId IS NOT NULL AND GardenId = @GardenId)
-)
-ORDER BY Created;
-</value>
-  </data>
-  <data name="InitializeStorage" xml:space="preserve">
-    <value>CREATE TABLE IF NOT EXISTS Actions
-(
-       PlantActionId guid NOT NULL,
-       Created INT NOT NULL,  
-       UserId guid NOT NULL,
-       PlantId guid NOT NULL,
-       Payload blob NOT NULL,
-       CONSTRAINT PK_Actions PRIMARY KEY (PlantActionId)
-);
-
-CREATE TABLE IF NOT EXISTS Plants
-(
-       UserId guid NOT NULL,
-       Created INT NOT NULL,
-       GardenId guid NOT NULL,
-       PlantId guid NOT NULL,
-       Payload blob NOT NULL,
-       CONSTRAINT PK_Plants PRIMARY KEY (UserId, PlantId)
-);</value>
-  </data>
-  <data name="Payload" xml:space="preserve">
-    <value>@Payload</value>
-  </data>
-  <data name="PersistAction" xml:space="preserve">
-    <value>INSERT OR REPLACE INTO Actions 
-(PlantActionId, Created, UserId, PlantId, Payload) 
-VALUES(
-@PlantActionId,@Created,@UserId,@PlantId,@Payload
-);</value>
-  </data>
-  <data name="PersistPlant" xml:space="preserve">
-    <value>INSERT OR REPLACE INTO Plants
-(UserId, Created,GardenId,PlantId, Payload) 
-VALUES(
-@UserId,@Created,@GardenId,@PlantId,@Payload
-);</value>
-  </data>
-  <data name="PlantActionId" xml:space="preserve">
-    <value>@PlantActionId</value>
-  </data>
-  <data name="PlantId" xml:space="preserve">
-    <value>@PlantId</value>
-  </data>
-  <data name="PurgeStorage" xml:space="preserve">
-    <value>DELETE FROM Actions; DELETE FROM Plants;</value>
-  </data>
-  <data name="UserId" xml:space="preserve">
-    <value>@UserId</value>
-  </data>
-  <data name="UserRevision" xml:space="preserve">
-    <value>@UserRevision</value>
+  <data name="ievent" xml:space="preserve">
+    <value>{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-03/schema",
+	"id": "ievent",
+	"required":true,
+	"properties":{
+		"createdOn": {
+			"type":"number",
+			"id": "http://jsonschema.net/createdOn",
+			"required":true
+		},
+		"eventId": {
+			"type":"string",
+			"id": "http://jsonschema.net/eventId",
+			"required":true
+		},
+		"incId": {
+			"type":"number",
+			"id": "http://jsonschema.net/incId",
+			"required":true
+		},
+		"streamAncestor": {
+			"type":"string",
+			"id": "http://jsonschema.net/streamAncestor",
+			"required":true
+		},
+		"streamEntity": {
+			"type":"string",
+			"id": "http://jsonschema.net/streamEntity",
+			"required":true
+		},
+		"targetAncestorId": {
+			"type":"string",
+			"id": "http://jsonschema.net/targetAncestorId",
+			"required":true
+		},
+		"targetEntityId": {
+			"type":"string",
+			"id": "http://jsonschema.net/targetEntityId",
+			"required":true
+		},
+		"type": {
+			"type":"string",
+			"id": "http://jsonschema.net/type",
+			"required":true
+		}
+	}
+}</value>
   </data>
 </root>

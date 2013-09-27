@@ -36,12 +36,12 @@ namespace Growthstories.Sync
         {
             //try
             //{
-            DTOType T = e.GetDTOType();
-            if (T == DTOType.NOTYPE)
+            DTOType[] T = e.GetDTOType();
+            if (T.Length == 0)
                 return null;
             var instance = new EventDTOUnion()
             {
-                EventType = T
+                EventType = T[0]
             };
             e.FillDTO(instance);
             return instance;
@@ -68,12 +68,12 @@ namespace Growthstories.Sync
                 .GetCustomAttribute<T>();
         }
 
-        public static DTOType GetDTOType(this IEvent e)
+        public static DTOType[] GetDTOType(this IEvent e)
         {
 
             DTOObjectAttribute attr = e.GetAttribute<DTOObjectAttribute>();
 
-            return attr != null ? attr.Type : DTOType.NOTYPE;
+            return attr != null ? attr.Type : new DTOType[0];
         }
 
     }
@@ -101,15 +101,18 @@ namespace Growthstories.Sync
                 {
                     try
                     {
-                        var DTOT = TI.GetCustomAttribute<DTOObjectAttribute>().Type;
+                        var DTOTs = TI.GetCustomAttribute<DTOObjectAttribute>().Type;
                         IList<Type> TypeList = null;
-                        if (DTOToEvent.TryGetValue(DTOT, out TypeList))
+                        foreach (var DTOT in DTOTs)
                         {
-                            TypeList.Add(T);
-                        }
-                        else
-                        {
-                            DTOToEvent[DTOT] = new List<Type>() { T };
+                            if (DTOToEvent.TryGetValue(DTOT, out TypeList))
+                            {
+                                TypeList.Add(T);
+                            }
+                            else
+                            {
+                                DTOToEvent[DTOT] = new List<Type>() { T };
+                            }
                         }
                     }
                     catch (Exception)

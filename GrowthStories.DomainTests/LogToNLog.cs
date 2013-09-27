@@ -1,68 +1,59 @@
 ﻿using EventStore.Logging;
-using EventStore.Persistence.SqlPersistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace Growthstories.DomainTests
 {
-    class GSLog : ILog
+    class LogToNLog : EventStore.Logging.ILog
     {
         private Type type;
-        private readonly ILog Logger;
+        private readonly Logger Logger;
 
-        public GSLog(Type type)
+        public LogToNLog(Type type)
         {
             // TODO: Complete member initialization
             this.type = type;
-            this.Logger = new LogToNLog(type);
-        }
-
-        protected string Tag(string m)
-        {
-            if (type.FullName.Contains("Growthstories") || type == typeof(SQLitePersistenceEngine))
-                return "[GS] " + m;
-            else
-                return m;
+            this.Logger = LogManager.GetLogger(type.Name);
         }
 
         public void Verbose(string message, params object[] values)
         {
-            Logger.Verbose(Tag(message), values);
+            Logger.Debug(message, values);
         }
 
         public void Debug(string message, params object[] values)
         {
-            Logger.Debug(Tag(message), values);
+
+            Logger.Debug(message, values);
+
 
         }
 
         public void Info(string message, params object[] values)
         {
-            Logger.Info(Tag(message), values);
 
+            Logger.Info(message, values);
 
         }
 
         public void Warn(string message, params object[] values)
         {
-            Logger.Warn(Tag(message), values);
-
+            Logger.Warn(message, values);
 
         }
 
         public void Error(string message, params object[] values)
         {
-            Logger.Error(Tag(message), values);
-
+            Logger.Error(message, values);
 
         }
 
         public void Fatal(string message, params object[] values)
         {
-            Logger.Fatal(Tag(message), values);
-
+            Logger.Fatal(message, values);
 
         }
     }

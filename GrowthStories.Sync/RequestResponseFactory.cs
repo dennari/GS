@@ -28,9 +28,10 @@ namespace Growthstories.Sync
         {
             var streamsC = streams.ToArray();
 
+            var ee = Translator.Out(streamsC).ToArray();
             var req = new HttpPushRequest()
             {
-                Events = Translator.Out(streamsC),
+                Events = ee,
                 Streams = streamsC,
                 //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()

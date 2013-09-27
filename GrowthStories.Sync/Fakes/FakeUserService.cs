@@ -15,29 +15,29 @@ namespace Growthstories.Sync
     {
         private User u;
 
-        public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
-        public static Guid FakeUserGardenId = Guid.Parse("11000000-0000-0000-0000-000000000000");
+        public static Guid FakeUserId = Guid.Parse("12000000-0000-0000-0000-000000000000");
+        public static Guid FakeUserGardenId = Guid.Parse("11100000-0000-0000-0000-000000000000");
         //public static Guid FakeUserId = Guid.NewGuid();
         //public static Guid FakeUserGardenId = Guid.NewGuid();
 
 
         private readonly IGSRepository Store;
         private readonly IAggregateFactory Factory;
-        //private readonly IAuthTokenService AuthService;
+        private readonly IAuthTokenService AuthService;
 
-        //public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
-        //{
-        //    this.Store = store;
-        //    this.Factory = factory;
-        //    this.AuthService = authService;
-        //}
-
-        public FakeUserService(IGSRepository store, IAggregateFactory factory)
+        public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
         {
             this.Store = store;
             this.Factory = factory;
-            //this.AuthService = authService;
+            this.AuthService = authService;
         }
+
+        //public FakeUserService(IGSRepository store, IAggregateFactory factory)
+        //{
+        //    this.Store = store;
+        //    this.Factory = factory;
+        //    //this.AuthService = authService;
+        //}
 
         public IAuthUser CurrentUser
         {
@@ -73,12 +73,12 @@ namespace Growthstories.Sync
 
         public Task TryAuth()
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                //var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
-                ////if(auth)
-                //u.Handle(new SetAuthToken(u.Id, auth));
-                //Store.Save(u);
+                var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
+                //if(auth)
+                u.Handle(new SetAuthToken(u.Id, auth));
+                Store.Save(u);
             });
         }
     }

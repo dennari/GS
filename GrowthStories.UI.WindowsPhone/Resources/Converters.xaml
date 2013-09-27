@@ -10,9 +10,11 @@
     xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
     mc:Ignorable="d">
 
-    <local:ActionToStringConverter x:Key="ActionToString"/>
-    <local:ActionToDateStringConverter x:Key="ActionToDateString"/>
+    <!--<local:ActionToStringConverter x:Key="ActionToString"/>
+    <local:ActionToDateStringConverter x:Key="ActionToDateString"/>-->
     <local:NullToVisibilityConverter x:Key="NullToVisibility"/>
     <local:PhotoToImageSourceConverter x:Key="PhotoToImageSource"/>
+    <local:UriToImageSourceConverter x:Key="UriToImageSource"/>
+
     <local:AppBarModeConverter x:Key="AppBarModeToString"/>
 </ResourceDictionary>

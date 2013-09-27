@@ -1,6 +1,7 @@
 ﻿using EventStore.Logging;
 using EventStore.Serialization;
 using Growthstories.Domain.Messaging;
+using Growthstories.Domain.Entities;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -99,24 +100,33 @@ namespace Growthstories.UI.Persistence
 
 
 
-        public void PersistAction(ActionBase a)
+
+
+        public void PersistAction(PlantActionState state)
         {
-            this.ExecuteCommand(a.EntityId, (connection, cmd) =>
+            this.ExecuteCommand(state.Id, (connection, cmd) =>
             {
-                cmd.AddParameter(SQL.UserId, a.EntityId);
-                cmd.AddParameter(SQL.UserRevision, a.EntityVersion);
-                cmd.AddParameter(SQL.PlantId, a.PlantId);
-                cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
+                cmd.AddParameter(SQL.PlantActionId, state.Id);
+                cmd.AddParameter(SQL.Created, state.Created.Ticks);
+                cmd.AddParameter(SQL.UserId, state.UserId);
+                cmd.AddParameter(SQL.PlantId, state.PlantId);
+
+                var payload = this.serializer.Serialize(state);
+
+                //var debug = Encoding.UTF8.GetString(payload);
+
+                cmd.AddParameter(SQL.Payload, payload);
                 return cmd.ExecuteNonQuery(SQL.PersistAction);
             });
         }
 
-        public void PersistPlant(PlantCreated a)
+
+        public void PersistPlant(PlantState a)
         {
-            this.ExecuteCommand(a.EntityId, (connection, cmd) =>
+            this.ExecuteCommand(a.Id, (connection, cmd) =>
             {
                 cmd.AddParameter(SQL.UserId, a.UserId);
-                cmd.AddParameter(SQL.PlantId, a.EntityId);
+                cmd.AddParameter(SQL.PlantId, a.Id);
                 cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
                 return cmd.ExecuteNonQuery(SQL.PersistPlant);
             });
@@ -124,8 +134,9 @@ namespace Growthstories.UI.Persistence
 
         public enum ActionIndex
         {
+            PlantActionId,
+            Created,
             UserId,
-            UserRevision,
             PlantId,
             Payload
         }
@@ -133,31 +144,37 @@ namespace Growthstories.UI.Persistence
         public enum PlantIndex
         {
             UserId,
+            Created,
+            GardenId,
             PlantId,
             Payload
         }
 
-        public IEnumerable<ActionBase> PlantActions(Guid PlantId)
+        public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
         {
-            return this.ExecuteQuery(PlantId, query =>
-            {
-                query.AddParameter(SQL.PlantId, PlantId);
-                query.AddParameter(SQL.UserId, null);
 
-                return query.ExecuteQuery<ActionBase>(SQL.GetActions, (stmt) => Deserialize<ActionBase>(stmt, (int)ActionIndex.Payload));
+            var filters = new Dictionary<string, Guid?>(){
+                    {"PlantActionId",PlantActionId},
+                    {"PlantId",PlantId},
+                    {"UserId",UserId}
+                }.Where(x => x.Value.HasValue).ToArray();
+
+            if (filters.Length == 0)
+                throw new InvalidOperationException();
+            return this.ExecuteQuery(PlantId ?? default(Guid), query =>
+            {
+
+                foreach (var x in filters)
+                    query.AddParameter(@"@" + x.Key, x.Value);
+
+                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0});",
+                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+
+                return query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
             });
         }
 
-        public IEnumerable<ActionBase> UserActions(Guid UserId)
-        {
-            return this.ExecuteQuery(UserId, query =>
-            {
-                query.AddParameter(SQL.PlantId, null);
-                query.AddParameter(SQL.UserId, UserId);
 
-                return query.ExecuteQuery<ActionBase>(SQL.GetActions, (stmt) => Deserialize<ActionBase>(stmt, (int)ActionIndex.Payload));
-            });
-        }
 
         public IEnumerable<PlantCreated> UserPlants(Guid UserId)
         {
@@ -173,7 +190,10 @@ namespace Growthstories.UI.Persistence
         protected T Deserialize<T>(Sqlite3Statement stmt, int index)
         {
 
-            return serializer.Deserialize<T>(SQLite3.ColumnByteArray(stmt, index));
+            var bytes = SQLite3.ColumnByteArray(stmt, index);
+            // var debug = Encoding.UTF8.GetString(bytes);
+
+            return serializer.Deserialize<T>(bytes);
 
         }
 
@@ -238,6 +258,9 @@ namespace Growthstories.UI.Persistence
             Logger.Warn(msg);
             throw new ObjectDisposedException(msg);
         }
+
+
+
 
 
     }

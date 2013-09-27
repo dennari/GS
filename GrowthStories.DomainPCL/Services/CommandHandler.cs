@@ -78,14 +78,5 @@ namespace Growthstories.Domain.Services
             return aggregate;
 
         }
-
-
-
-
-        public Task<IGSAggregate> HandleAsync(IEntityCommand c)
-        {
-            //return Task.Run(async () => this.Handle(c));
-            return null;
-        }
     }
 }

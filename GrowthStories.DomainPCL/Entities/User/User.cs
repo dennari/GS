@@ -21,12 +21,7 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<CreateUser>,
         ICommandHandler<SetAuthToken>,
         ICommandHandler<BecomeFollower>,
-        ICommandHandler<AddGarden>,
-        ICommandHandler<Comment>,
-        ICommandHandler<Water>,
-        ICommandHandler<Photograph>,
-        ICommandHandler<Fertilize>,
-        ICommandHandler<Measure>
+        ICommandHandler<AddGarden>
     {
 
         public void Handle(CreateUser command)
@@ -45,32 +40,6 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new BecameFollower(command));
         }
-
-        public void Handle(Comment command)
-        {
-            RaiseEvent(new Commented(command));
-        }
-
-        public void Handle(Water command)
-        {
-            RaiseEvent(new Watered(command));
-        }
-
-        public void Handle(Measure command)
-        {
-            RaiseEvent(new Measured(command));
-        }
-
-        public void Handle(Photograph command)
-        {
-            RaiseEvent(new Photographed(command));
-        }
-
-        public void Handle(Fertilize command)
-        {
-            RaiseEvent(new Fertilized(command));
-        }
-
 
         public void Handle(AddGarden command)
         {

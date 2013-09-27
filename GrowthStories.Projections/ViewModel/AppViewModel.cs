@@ -25,8 +25,10 @@ namespace Growthstories.UI.ViewModel
         IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
 
-        IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null) where T : IPlantActionViewModel;
-        IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state);
+        Task<SyncResult> Synchronize();
+
+        IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel;
+        IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state, Guid? PlantActionId = null);
 
         ScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
         AddPlantViewModel AddPlantViewModelFactory(PlantState state);
@@ -160,15 +162,6 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        public virtual IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state)
-        {
-
-            throw new NotImplementedException();
-
-
-        }
-
-
         protected ObservableAsPropertyHelper<bool> _AppBarIsVisible;
         public bool AppBarIsVisible
         {
@@ -248,21 +241,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public virtual IGSRoutableViewModel ActionViewModelFactory(Type actionT, PlantState state, IGSApp app)
+        ISynchronizerService _SyncService;
+        public Task<SyncResult> Synchronize()
         {
-            throw new NotImplementedException();
+            if (_SyncService == null)
+                _SyncService = Kernel.Get<ISynchronizerService>();
+
+            return _SyncService.Synchronize();
         }
-
-        public virtual async Task AddTestData()
-        {
-
-        }
-
-        public virtual async Task ClearDB()
-        {
-
-        }
-
 
         public PageOrientation _Orientation;
         public PageOrientation Orientation
@@ -299,29 +285,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
-        public string PageTitle
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public string UrlPathSegment
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public IScreen HostScreen
         {
             get { return this; }
         }
-
-
-        public virtual AddPlantViewModel AddPlantViewModelFactory(PlantState state)
-        {
-            throw new NotImplementedException();
-        }
-
 
         public ScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType)
         {
@@ -335,11 +302,86 @@ namespace Growthstories.UI.ViewModel
             return new ScheduleViewModel(state, scheduleType, this);
         }
 
+        public virtual IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state, Guid? PlantActionId = null)
+        {
 
-        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null) where T : IPlantActionViewModel
+
+            Func<Guid?, Guid?, Guid?, IEnumerable<PlantActionState>> f = Kernel.Get<IUIPersistence>().GetActions;
+
+            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+            return af(PlantActionId, state.Id, state.UserId)
+                //.OfType<User>()
+                .Select(x => x.ToObservable())
+                .Switch()
+                .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x));
+
+
+
+        }
+
+        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel
+        {
+
+            if (state != null)
+            {
+                if (state.Type == PlantActionType.COMMENTED)
+                    return new PlantCommentViewModel(state, this);
+                if (state.Type == PlantActionType.FERTILIZED)
+                    return new PlantFertilizeViewModel(state, this);
+                if (state.Type == PlantActionType.WATERED)
+                    return new PlantWaterViewModel(state, this);
+                if (state.Type == PlantActionType.MEASURED)
+                    return new PlantMeasureViewModel(state, this);
+                if (state.Type == PlantActionType.PHOTOGRAPHED)
+                    return new PlantPhotographViewModel(state, this);
+            }
+
+            var t = typeof(T);
+            if (t == typeof(IPlantCommentViewModel))
+                return new PlantCommentViewModel(state, this);
+            if (t == typeof(IPlantFertilizeViewModel))
+                return new PlantFertilizeViewModel(state, this);
+            if (t == typeof(IPlantWaterViewModel))
+                return new PlantWaterViewModel(state, this);
+            if (t == typeof(IPlantMeasureViewModel))
+                return new PlantMeasureViewModel(state, this);
+            if (t == typeof(IPlantPhotographViewModel))
+                return new PlantPhotographViewModel(state, this);
+
+            return null;
+        }
+
+        public string PageTitle
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public virtual AddPlantViewModel AddPlantViewModelFactory(PlantState state)
         {
             throw new NotImplementedException();
         }
+
+        public virtual Task AddTestData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual Task ClearDB()
+        {
+            throw new NotImplementedException();
+
+        }
+
+
+
+
+
     }
 
     public enum View

@@ -20,7 +20,9 @@ namespace Growthstories.Domain.Entities
     /// 
     /// </ul>
     /// </summary>
-    public class Synchronizer : AggregateBase<SynchronizerState, SynchronizerCreated>, ICommandHandler<CreateSynchronizer>
+    public class Synchronizer : AggregateBase<SynchronizerState, SynchronizerCreated>,
+        ICommandHandler<CreateSynchronizer>,
+        ICommandHandler<Synchronize>
     {
 
         public void Handle(CreateSynchronizer command)
@@ -33,6 +35,10 @@ namespace Growthstories.Domain.Entities
         }
 
 
+        public void Handle(Synchronize command)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

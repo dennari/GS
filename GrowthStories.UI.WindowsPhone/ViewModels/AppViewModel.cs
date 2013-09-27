@@ -70,7 +70,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new AddCommentView(), typeof(IViewFor<PlantCommentViewModel>));
             Resolver.RegisterLazySingleton(() => new AddFertilizerView(), typeof(IViewFor<PlantFertilizeViewModel>));
             Resolver.RegisterLazySingleton(() => new AddMeasurementView(), typeof(IViewFor<PlantMeasureViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<PlantPhotographViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<ClientPlantPhotographViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
 
 
@@ -87,40 +87,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             return new ClientAddPlantViewModel(state, this);
         }
 
-        public override IPlantActionViewModel PlantActionViewModelFactory<T>(ActionBase state = null)
+        public override IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null)
         {
-            return ClientPlantActionViewModel.Create<T>(state, this);
+            if ((state != null && state.Type == PlantActionType.PHOTOGRAPHED) || typeof(T) == typeof(IPlantPhotographViewModel))
+                return new ClientPlantPhotographViewModel(state, this);
+            else
+                return base.PlantActionViewModelFactory<T>(state);
         }
-
-        //public override IPlantViewModel PlantFactory(Guid id, IGardenViewModel garden)
-        //{
-        //    return new ClientPlantViewModel(
-        //       ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-        //       garden,
-        //       this
-        //   );
-        //}
-
-
-
-        public override IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state)
-        {
-
-
-            Func<Guid, IGSAggregate> f = Kernel.Get<IGSRepository>().GetById;
-
-            var af = f.ToAsync(RxApp.TaskpoolScheduler);
-
-            return af(state.UserId)
-                .OfType<User>()
-                .Select(x => x.State.Actions.Where(y => y.PlantId == state.Id).ToObservable())
-                .Switch()
-                .Select(x => ClientPlantActionViewModel.Create(x, this));
-
-
-
-        }
-
 
 
         public override async Task AddTestData()
@@ -181,9 +154,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Store.Save(g);
 
             var u = (User)Store.GetById(Ctx.Id);
-            u.Handle(new Water(Ctx.Id, p1.State.Id, "NOTE"));
-            u.Handle(new Fertilize(Ctx.Id, p1.State.Id, "NOTE"));
-            u.Handle(new Comment(Ctx.Id, p1.State.Id, "NOTE") { Created = DateTimeOffset.Now });
+            //u.Handle(new Water(Ctx.Id, p1.State.Id, "NOTE"));
+            //u.Handle(new Fertilize(Ctx.Id, p1.State.Id, "NOTE"));
+            //u.Handle(new Comment(Ctx.Id, p1.State.Id, "NOTE") { Created = DateTimeOffset.Now });
             // u.Handle(new Photograph(Ctx.Id, p1.State.Id, "My baby!", "/TestData/517e100d782a828894.jpg"));
 
 

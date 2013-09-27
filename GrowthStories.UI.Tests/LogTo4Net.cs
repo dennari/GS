@@ -3,62 +3,55 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
+using NLog;
 
 namespace Growthstories.DomainTests
 {
-    class LogTo4Net : EventStore.Logging.ILog
+    class LogToNLog : EventStore.Logging.ILog
     {
         private Type type;
-        private readonly log4net.ILog Logger;
+        private readonly Logger Logger;
 
-        public LogTo4Net(Type type)
+        public LogToNLog(Type type)
         {
             // TODO: Complete member initialization
             this.type = type;
-            this.Logger = LogManager.GetLogger(type);
+            this.Logger = LogManager.GetLogger(type.Name);
         }
 
         public void Verbose(string message, params object[] values)
         {
-            if (values.Length == 0)
-                Logger.Debug(message);
-            else
-                Logger.DebugFormat(message, values);
+            Logger.Debug(message, values);
         }
 
         public void Debug(string message, params object[] values)
         {
-            if (values.Length == 0)
-                Logger.Debug(message);
-            else
-                Logger.DebugFormat(message, values);
+
+            Logger.Debug(message, values);
         }
 
         public void Info(string message, params object[] values)
         {
-            if (values.Length == 0)
-                Logger.Info(message);
-            else
-                Logger.InfoFormat(message, values);
+
+            Logger.Info(message, values);
 
         }
 
         public void Warn(string message, params object[] values)
         {
-            Logger.WarnFormat(message, values);
+            Logger.Warn(message, values);
 
         }
 
         public void Error(string message, params object[] values)
         {
-            Logger.ErrorFormat(message, values);
+            Logger.Error(message, values);
 
         }
 
         public void Fatal(string message, params object[] values)
         {
-            Logger.FatalFormat(message, values);
+            Logger.Fatal(message, values);
 
         }
     }

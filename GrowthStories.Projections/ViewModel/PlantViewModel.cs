@@ -111,13 +111,24 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            this.ListenTo<ActionBase>()
-                .Where(x => x.EntityId == this.State.UserId && x.PlantId == this.State.Id)
-                .Select(x => App.PlantActionViewModelFactory<IPlantActionViewModel>(x))
+            // THINK ABOUT NOT HAVING TO DO THE ROUNDTRIP!!!
+            this.ListenTo<PlantActionCreated>()
+                .Where(x => x.PlantId == this.State.Id)
+                .Select(x => App.PlantActionViewModelFactory(this.State, x.EntityId))
+                .Switch()
                 .Subscribe(x =>
                 {
                     Actions.Insert(0, x);
                     ScrollCommand.Execute(x);
+                });
+
+            this.ListenTo<PlantActionPropertySet>()
+                .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.EntityId)))
+                .Where(x => x.Item2 != null)
+                .Subscribe(x =>
+                {
+                    x.Item2.SetProperty(x.Item1);
+                    ScrollCommand.Execute(x.Item2);
                 });
 
             this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
@@ -285,7 +296,16 @@ namespace Growthstories.UI.ViewModel
                     _AddWaterViewModel = App.PlantActionViewModelFactory<IPlantWaterViewModel>();
                     _AddWaterViewModel.AddCommand.Subscribe(_ =>
                     {
-                        this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                        this.SendCommand(
+                            new CreatePlantAction(
+                                Guid.NewGuid(),
+                                this.UserId,
+                                this.Id,
+                                PlantActionType.WATERED,
+                                _AddWaterViewModel.Note
+                            ),
+                        true);
                     });
                 }
                 return _AddWaterViewModel;
@@ -302,7 +322,15 @@ namespace Growthstories.UI.ViewModel
                     _AddCommentViewModel = App.PlantActionViewModelFactory<IPlantCommentViewModel>();
                     _AddCommentViewModel.AddCommand.Subscribe(_ =>
                     {
-                        this.SendCommand(new Comment(this.UserId, this.Id, _AddCommentViewModel.Note), true);
+                        this.SendCommand(
+                            new CreatePlantAction(
+                                Guid.NewGuid(),
+                                this.UserId,
+                                this.Id,
+                                PlantActionType.COMMENTED,
+                                _AddCommentViewModel.Note
+                            ),
+                        true);
                     });
                 }
                 return _AddCommentViewModel;
@@ -319,7 +347,15 @@ namespace Growthstories.UI.ViewModel
                     _AddFertilizeViewModel = App.PlantActionViewModelFactory<IPlantFertilizeViewModel>();
                     _AddFertilizeViewModel.AddCommand.Subscribe(_ =>
                     {
-                        this.SendCommand(new Fertilize(this.UserId, this.Id, _AddFertilizeViewModel.Note), true);
+                        this.SendCommand(
+                            new CreatePlantAction(
+                                Guid.NewGuid(),
+                                this.UserId,
+                                this.Id,
+                                PlantActionType.WATERED,
+                                _AddFertilizeViewModel.Note
+                            ),
+                        true);
                     });
                 }
                 return _AddFertilizeViewModel;
@@ -336,7 +372,18 @@ namespace Growthstories.UI.ViewModel
                     var vm = (IPlantPhotographViewModel)App.PlantActionViewModelFactory<IPlantPhotographViewModel>();
                     vm.AddCommand.Subscribe(_ =>
                     {
-                        this.SendCommand(new Photograph(this.UserId, this.Id, vm.Note, vm.PhotoData), true);
+                        this.SendCommand(
+                            new CreatePlantAction(
+                                Guid.NewGuid(),
+                                this.UserId,
+                                this.Id,
+                                PlantActionType.PHOTOGRAPHED,
+                                vm.Note
+                            )
+                            {
+                                Photo = vm.PhotoData
+                            },
+                        true);
                     });
                     _AddPhotographViewModel = vm;
                 }
@@ -354,13 +401,19 @@ namespace Growthstories.UI.ViewModel
                     var vm = (IPlantMeasureViewModel)App.PlantActionViewModelFactory<IPlantMeasureViewModel>();
                     vm.AddCommand.Subscribe(_ =>
                     {
-                        this.SendCommand(new Measure(
-                            this.UserId,
-                            this.Id,
-                            vm.Note,
-                            vm.Series.Type,
-                            vm.Value.Value),
-                         true);
+                        this.SendCommand(
+                            new CreatePlantAction(
+                                Guid.NewGuid(),
+                                this.UserId,
+                                this.Id,
+                                PlantActionType.MEASURED,
+                                vm.Note
+                            )
+                            {
+                                MeasurementType = vm.Series.Type,
+                                Value = vm.Value.Value
+                            },
+                        true);
                     });
                     _AddMeasureViewModel = vm;
                 }

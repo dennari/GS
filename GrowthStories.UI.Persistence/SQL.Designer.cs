@@ -61,6 +61,15 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to @Created.
+        /// </summary>
+        internal static string Created {
+            get {
+                return ResourceManager.GetString("Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DROP TABLE IF EXISTS Actions; DROP TABLE IF EXISTS Plants;.
         /// </summary>
         internal static string DeleteStorage {
@@ -70,13 +79,24 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to @GardenId.
+        /// </summary>
+        internal static string GardenId {
+            get {
+                return ResourceManager.GetString("GardenId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT * FROM Actions WHERE 
         ///(
+        ///(@PlantActionId IS NOT NULL AND PlantActionId = @PlantActionId)
+        ///OR
         ///(@PlantId IS NOT NULL AND PlantId = @PlantId)
         ///OR
         ///(@UserId IS NOT NULL AND UserId = @UserId)
         ///)
-        ///ORDER BY UserRevision;.
+        ///ORDER BY Created;.
         /// </summary>
         internal static string GetActions {
             get {
@@ -90,7 +110,10 @@ namespace Growthstories.UI.Persistence {
         ///(@PlantId IS NOT NULL AND PlantId = @PlantId)
         ///OR
         ///(@UserId IS NOT NULL AND UserId = @UserId)
-        ///);
+        ///OR
+        ///(@GardenId IS NOT NULL AND GardenId = @GardenId)
+        ///)
+        ///ORDER BY Created;
         ///.
         /// </summary>
         internal static string GetPlants {
@@ -102,20 +125,22 @@ namespace Growthstories.UI.Persistence {
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE IF NOT EXISTS Actions
         ///(
+        ///       PlantActionId guid NOT NULL,
+        ///       Created INT NOT NULL,  
         ///       UserId guid NOT NULL,
-        ///       UserRevision int NOT NULL CHECK (UserRevision &gt; 0),
         ///       PlantId guid NOT NULL,
         ///       Payload blob NOT NULL,
-        ///       CONSTRAINT PK_Actions PRIMARY KEY (UserId, UserRevision)
+        ///       CONSTRAINT PK_Actions PRIMARY KEY (PlantActionId)
         ///);
         ///
         ///CREATE TABLE IF NOT EXISTS Plants
         ///(
         ///       UserId guid NOT NULL,
+        ///       Created INT NOT NULL,
+        ///       GardenId guid NOT NULL,
         ///       PlantId guid NOT NULL,
         ///       Payload blob NOT NULL,
-        ///       CONSTRAINT PK_Plants PRIMARY KEY (UserId, PlantId)
-        ///);.
+        ///       CONSTRAINT PK_Plants PRIMARY KEY (UserId, PlantId [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string InitializeStorage {
             get {
@@ -133,10 +158,10 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to INSERT INTO Actions 
-        ///(UserId, UserRevision, PlantId, Payload) 
+        ///   Looks up a localized string similar to INSERT OR REPLACE INTO Actions 
+        ///(PlantActionId, Created, UserId, PlantId, Payload) 
         ///VALUES(
-        ///@UserId,@UserRevision,@PlantId,@Payload
+        ///@PlantActionId,@Created,@UserId,@PlantId,@Payload
         ///);.
         /// </summary>
         internal static string PersistAction {
@@ -146,15 +171,24 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to INSERT INTO Plants
-        ///(UserId, PlantId, Payload) 
+        ///   Looks up a localized string similar to INSERT OR REPLACE INTO Plants
+        ///(UserId, Created,GardenId,PlantId, Payload) 
         ///VALUES(
-        ///@UserId,@PlantId,@Payload
+        ///@UserId,@Created,@GardenId,@PlantId,@Payload
         ///);.
         /// </summary>
         internal static string PersistPlant {
             get {
                 return ResourceManager.GetString("PersistPlant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @PlantActionId.
+        /// </summary>
+        internal static string PlantActionId {
+            get {
+                return ResourceManager.GetString("PlantActionId", resourceCulture);
             }
         }
         

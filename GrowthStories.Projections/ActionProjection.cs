@@ -33,43 +33,43 @@ namespace Growthstories.UI
 
 
 
-        public void Handle(Commented @event)
-        {
-            HandleAction(@event);
-        }
+        //public void Handle(Commented @event)
+        //{
+        //    HandleAction(@event);
+        //}
 
-        public void Handle(Fertilized @event)
-        {
-            HandleAction(@event);
-        }
+        //public void Handle(Fertilized @event)
+        //{
+        //    HandleAction(@event);
+        //}
 
-        public void Handle(Watered @event)
-        {
-            HandleAction(@event);
-        }
+        //public void Handle(Watered @event)
+        //{
+        //    HandleAction(@event);
+        //}
 
-        public void Handle(Photographed @event)
-        {
-            HandleAction(@event);
-        }
+        //public void Handle(Photographed @event)
+        //{
+        //    HandleAction(@event);
+        //}
 
-        protected void HandleAction(ActionBase @event)
-        {
+        //protected void HandleAction(ActionBase @event)
+        //{
 
-            Persistence.PersistAction(@event);
+        //    Persistence.PersistAction(@event);
 
-        }
+        //}
 
 
-        public IEnumerable<ActionBase> LoadWithPlantId(Guid PlantId)
-        {
-            return Persistence.PlantActions(PlantId);
-        }
+        //public IEnumerable<ActionBase> LoadWithPlantId(Guid PlantId)
+        //{
+        //    return Persistence.PlantActions(PlantId);
+        //}
 
-        public IEnumerable<ActionBase> LoadWithUserId(Guid UserId)
-        {
-            return Persistence.UserActions(UserId);
-        }
+        //public IEnumerable<ActionBase> LoadWithUserId(Guid UserId)
+        //{
+        //    return Persistence.UserActions(UserId);
+        //}
     }
 
 }

@@ -15,7 +15,7 @@ using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddPhotographView : UserControl, IViewFor<PlantPhotographViewModel>
+    public partial class AddPhotographView : UserControl, IViewFor<ClientPlantPhotographViewModel>
     {
         public AddPhotographView()
         {
@@ -38,9 +38,9 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public PlantPhotographViewModel ViewModel
+        public ClientPlantPhotographViewModel ViewModel
         {
-            get { return (PlantPhotographViewModel)GetValue(ViewModelProperty); }
+            get { return (ClientPlantPhotographViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -55,7 +55,7 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddPhotographView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantPhotographViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (ClientPlantPhotographViewModel)value; } }
 
     }
 }

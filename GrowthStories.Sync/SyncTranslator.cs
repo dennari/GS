@@ -29,27 +29,26 @@ namespace Growthstories.Sync
 
         public IEventDTO Out(IEvent e)
         {
-            IEventDTO ed = ((IDomainEvent)e).ToDTO();
+            var ee = (IDomainEvent)e;
+            IEventDTO ed = ee.ToDTO();
             Logger.Info("Translated {0} to {1}", e.ToString(), ed == null ? "null" : ed.ToString());
             if (ed == null)
                 return null;
 
             ed.EntityVersion -= 1;
-            ed.AncestorId = UserService.CurrentUser.Id;
             ed.StreamEntity = e.EntityId;
+            ed.AncestorId = UserService.CurrentUser.Id;
+            if (ee.HasAncestor)
+            {
 
-            var edd = ed as IAddEntityDTO;
-            if (edd != null)
-            {
-                edd.ParentAncestorId = ed.AncestorId;
+                ed.StreamAncestor = ed.AncestorId;
             }
-            if (e is BecameFollower)
+
+            if (ee.HasParent && ed is IAddEntityDTO)
             {
-                var eddd = ed as IAddEntityDTO;
-                edd.ParentAncestorId = default(Guid);
-                eddd.ParentId = UserService.CurrentUser.Id;
-                eddd.EntityId = Guid.NewGuid();
+                ((IAddEntityDTO)ed).ParentAncestorId = ed.AncestorId;
             }
+
 
             return ed;
 

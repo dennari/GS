@@ -1,4 +1,5 @@
-﻿using Growthstories.Domain.Messaging;
+﻿using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,17 @@ namespace Growthstories.UI
         void Purge();
 
 
-        void PersistAction(ActionBase a);
+        //void PersistAction(ActionBase a);
+        void PersistAction(PlantActionState state);
+        void PersistPlant(PlantState a);
 
-        IEnumerable<ActionBase> PlantActions(Guid PlantId);
-        IEnumerable<ActionBase> UserActions(Guid UserId);
-        IEnumerable<PlantCreated> UserPlants(Guid UserId);
+        IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
+        //IEnumerable<ActionBase> UserActions(Guid UserId);
+        //IEnumerable<PlantCreated> UserPlants(Guid UserId);
 
 
-        void PersistPlant(PlantCreated a);
+
+
 
 
 
@@ -34,19 +38,6 @@ namespace Growthstories.UI
         {
         }
 
-        public void PersistAction(ActionBase a)
-        {
-        }
-
-        public IEnumerable<ActionBase> PlantActions(Guid PlantId)
-        {
-            return new ActionBase[0];
-        }
-
-        public IEnumerable<ActionBase> UserActions(Guid UserId)
-        {
-            return new ActionBase[0];
-        }
 
         public IEnumerable<PlantCreated> UserPlants(Guid UserId)
         {
@@ -55,6 +46,22 @@ namespace Growthstories.UI
 
         public void PersistPlant(PlantCreated a)
         {
+        }
+
+
+        public void PersistAction(Domain.Entities.PlantActionState state)
+        {
+        }
+
+
+        public void PersistPlant(PlantState a)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
+        {
+            return new PlantActionState[0];
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Growthstories.Sync
         public const string EVENT_ID = "eventId";
         public const string ENTITY_VERSION = "incId";
         public const string STREAM_ENTITY = "streamEntity";
+        public const string STREAM_ANCESTOR = "streamAncestor";
         public const string EVENT_TYPE = "type";
         public const string ENTITY_TYPE = "kind";
         public const string PROPERTY_NAME = "propName";
@@ -39,6 +40,7 @@ namespace Growthstories.Sync
         public const string USERNAME = "username";
         public const string PASSWORD = "password";
         public const string EMAIL = "email";
+        public const string VALUE = "value";
         public const string MEASUREMENT_TYPE = "measurementType";
 
 

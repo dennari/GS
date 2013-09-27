@@ -64,11 +64,11 @@ namespace Growthstories.UI.WindowsPhone
                     eng.Initialize();
                     //eng.Purge();
                 });
-            //Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
-            //{
-            //    eng.Initialize();
-            //    eng.Purge();
-            //});
+            Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
+            {
+                eng.Initialize();
+                //eng.Purge();
+            });
 
 
         }

@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
 
     #region Schedule
 
-    //[DTOObject(DTOType.createSchedule)]
+    [DTOObject(DTOType.addIntervalSchedule)]
     public class ScheduleCreated : EventBase, ICreateEvent
     {
         [JsonIgnore]
@@ -37,6 +37,7 @@ namespace Growthstories.Domain.Messaging
         {
             this.UserId = userId;
             this.Interval = interval;
+            this.HasParent = false;
         }
 
         public ScheduleCreated(CreateSchedule cmd)
@@ -47,6 +48,23 @@ namespace Growthstories.Domain.Messaging
         public override string ToString()
         {
             return string.Format(@"Created Schedule {0}", EntityId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IAddIntervalScheduleDTO)Dto;
+            D.Interval = this.Interval;
+
+
+            base.FillDTO(D);
+            //D.Name = this.Name;
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IAddIntervalScheduleDTO)Dto;
+            this.Interval = D.Interval;
+            base.FromDTO(D);
         }
 
     }

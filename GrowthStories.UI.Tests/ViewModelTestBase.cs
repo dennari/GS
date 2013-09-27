@@ -39,6 +39,7 @@ namespace Growthstories.UI.Tests
         }
 
 
+
     }
 
     public class ViewModelTestBase
@@ -67,7 +68,7 @@ namespace Growthstories.UI.Tests
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
         public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
-        public IRepository Repository { get { return Get<IRepository>(); } }
+        public IGSRepository Repository { get { return Get<IGSRepository>(); } }
         public IStoreEvents EventStore { get { return Get<IStoreEvents>(); } }
 
 

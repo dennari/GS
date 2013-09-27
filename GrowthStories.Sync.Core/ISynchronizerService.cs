@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace Growthstories.Sync
 {
+
+    public class SyncResult
+    {
+
+    }
+
+
     public interface ISynchronizerService
     {
-        //Task<IList<ISyncRequest>> Synchronize();
+        Task<SyncResult> Synchronize();
 
         //IEnumerable<ISyncEventStream> Pending();
         ISyncPullRequest GetPullRequest();

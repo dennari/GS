@@ -52,15 +52,15 @@ namespace Growthstories.Domain.Entities
             this.Tags = @event.Tags;
         }
 
-        public void Apply(MarkedPlantPublic @event)
-        {
-            Public = true;
-        }
+        //public void Apply(MarkedPlantPublic @event)
+        //{
+        //    Public = true;
+        //}
 
-        public void Apply(MarkedPlantPrivate @event)
-        {
-            Public = false;
-        }
+        //public void Apply(MarkedPlantPrivate @event)
+        //{
+        //    Public = false;
+        //}
 
         public void Apply(ProfilepictureSet @event)
         {
