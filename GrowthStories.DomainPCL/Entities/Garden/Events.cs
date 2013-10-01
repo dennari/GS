@@ -5,6 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using Growthstories.Sync;
+using Newtonsoft.Json.Linq;
 
 
 namespace Growthstories.Domain.Messaging
@@ -14,16 +15,9 @@ namespace Growthstories.Domain.Messaging
 
     #region Garden
 
-    //[DTOObject(DTOType.createGarden)]
-    public class GardenCreated : EventBase, ICreateEvent
+    [DTOObject(DTOType.createGarden)]
+    public class GardenCreated : EventBase
     {
-        [JsonIgnore]
-        private Type _AggregateType;
-        [JsonIgnore]
-        public Type AggregateType
-        {
-            get { return _AggregateType == null ? _AggregateType = typeof(Garden) : _AggregateType; }
-        }
 
         [JsonProperty]
         public Guid UserId { get; private set; }
@@ -32,9 +26,10 @@ namespace Growthstories.Domain.Messaging
         public GardenCreated(Guid id) : base(id) { }
 
         public GardenCreated(CreateGarden cmd)
-            : this(cmd.EntityId)
+            : base(cmd)
         {
             this.UserId = cmd.UserId;
+
         }
 
         public override string ToString()
@@ -44,15 +39,16 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    [DTOObject(DTOType.addPlant)]
+    [DTOObject(DTOType.setProperty)]
     public class PlantAdded : EventBase
     {
 
         [JsonProperty]
         public Guid PlantId { get; private set; }
 
+
         [JsonProperty]
-        public Guid AncestorId { get; private set; }
+        public Guid UserId { get; private set; }
 
 
         protected PlantAdded() { }
@@ -60,6 +56,14 @@ namespace Growthstories.Domain.Messaging
             : base(gardenId)
         {
             PlantId = plantId;
+
+        }
+
+        public PlantAdded(AddPlant cmd)
+            : base(cmd)
+        {
+            PlantId = cmd.PlantId;
+            UserId = cmd.UserId;
         }
 
         public override string ToString()
@@ -69,17 +73,38 @@ namespace Growthstories.Domain.Messaging
 
         public override void FromDTO(IEventDTO Dto)
         {
-            var D = (IAddPlantDTO)Dto;
-            this.PlantId = D.PlantId;
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.garden || D.PropertyName != "plants")
+                throw new ArgumentException();
+
+
             base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.PlantId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                this.UserId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
+
         }
 
         public override void FillDTO(IEventDTO Dto)
         {
-            var D = (IAddPlantDTO)Dto;
-            D.PlantId = this.PlantId;
-            base.FromDTO(D);
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.garden;
+            D.PropertyName = "plants";
+            D.PropertyValue = new JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.UserId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantId.ToString();
 
+            base.FillDTO(D);
+
+            D.ParentId = null;
         }
 
 
@@ -87,8 +112,17 @@ namespace Growthstories.Domain.Messaging
 
     public class MarkedGardenPublic : EventBase
     {
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+
         protected MarkedGardenPublic() { }
         public MarkedGardenPublic(Guid entityId) : base(entityId) { }
+        public MarkedGardenPublic(MarkGardenPublic cmd)
+            : base(cmd)
+        {
+            UserId = cmd.UserId;
+        }
+
 
         public override string ToString()
         {
@@ -99,8 +133,16 @@ namespace Growthstories.Domain.Messaging
 
     public class MarkedGardenPrivate : EventBase
     {
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+
         protected MarkedGardenPrivate() { }
         public MarkedGardenPrivate(Guid entityId) : base(entityId) { }
+        public MarkedGardenPrivate(MarkGardenPrivate cmd)
+            : base(cmd)
+        {
+            UserId = cmd.UserId;
+        }
 
         public override string ToString()
         {

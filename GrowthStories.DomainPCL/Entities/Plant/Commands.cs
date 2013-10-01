@@ -38,6 +38,10 @@ namespace Growthstories.Domain.Messaging
         {
             Name = name;
             this.UserId = userId;
+            this.AncestorId = userId;
+            this.ParentAncestorId = userId;
+            this.StreamEntityId = id;
+            this.StreamAncestorId = userId;
         }
 
         public override string ToString()

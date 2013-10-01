@@ -16,6 +16,8 @@ namespace Growthstories.Core
         void PlayById(IGSAggregate aggregate, Guid id);
         void Save(IGSAggregate aggregate);
         void ClearCaches();
+        void ClearAggregateFromCache(Guid id);
+        //GSEventStore 
     }
 
 

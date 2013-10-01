@@ -75,6 +75,18 @@ namespace Growthstories.Sync
             this.UncommittedHeaders[REMOTE_COMMIT_HEADER] = 1;
         }
 
+        public IEnumerable<IEventDTO> Translate(ITranslateEvents translator)
+        {
+            return this.CommittedEvents
+                .Select(x =>
+                {
+                    var re = translator.Out((IEvent)x.Body);
+                    re.EntityVersion += this.RemoteEvents.Count();
+                    return re;
+                });
+
+        }
+
         public void Add(IEvent e, bool setVersion = false)
         {
             var correctVersion = this.StreamRevision + this.Events.Count + 1;
@@ -161,15 +173,40 @@ namespace Growthstories.Sync
 
         public override void CommitChanges(Guid commitId)
         {
-            if (this.PendingCommits == null)
+
+            base.CommitChanges(commitId);
+            this.Events.Clear();
+
+        }
+
+        public void CommitRemoteChanges(Guid commitId)
+        {
+            try
             {
-                base.CommitChanges(commitId);
-                this.Events.Clear();
+                var attempt = this.BuildCommitAttempt(commitId);
+
+                //Logger.Debug(Resources.PersistingCommit, commitId, this.StreamId);
+                this.Persistence.Commit(attempt);
+
+
+                this.PopulateStream(this.StreamRevision + 1, attempt.StreamRevision, new[] { attempt });
+
+
+                this.ClearChanges();
                 this.RemoteEvents.Clear();
-                return;
+                this.Persistence.MoreAdvanced.MarkCommitAsSynchronized(attempt);
             }
-            this.Persistence.Rebase(Commits, PendingCommits);
-            this.PendingCommits = null;
+            catch (ConcurrencyException)
+            {
+                //Logger.Info(Resources.UnderlyingStreamHasChanged, this.StreamId);
+                var commits = this.Persistence.GetFrom(this.StreamId, this.StreamRevision + 1, int.MaxValue);
+                this.PopulateStream(this.StreamRevision + 1, int.MaxValue, commits);
+
+                throw;
+            }
+
+
+
         }
 
         private int EnumerateEvents(IEnumerable<EventMessage> events, int Revision, bool set)
@@ -217,5 +254,8 @@ namespace Growthstories.Sync
         //        throw;
         //    }
         //}
+
+
+
     }
 }

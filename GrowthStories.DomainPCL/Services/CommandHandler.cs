@@ -64,8 +64,17 @@ namespace Growthstories.Domain.Services
                 aggregate = (IGSAggregate)_factory.Build(cc.EntityType);
                 _repository.PlayById(aggregate, c.EntityId);
             }
-            else
+            if (aggregate == null)
+            {
+                if (c.ParentId.HasValue)
+                {
+                    aggregate = _repository.GetById(c.ParentId.Value);
+                }
+            }
+            if (aggregate == null)
+            {
                 aggregate = _repository.GetById(c.EntityId);
+            }
 
 
             ((dynamic)aggregate).Handle((dynamic)c);

@@ -162,7 +162,7 @@ namespace Growthstories.DomainTests
                 Created = DateTimeOffset.UtcNow
             };
 
-            var CC = (ScheduleCreated)Validate(C, DTOType.addIntervalSchedule);
+            var CC = (ScheduleCreated)Validate(C, DTOType.createIntervalSchedule);
             Assert.AreEqual(C.Interval, CC.Interval);
 
 
@@ -181,8 +181,8 @@ namespace Growthstories.DomainTests
             IList<string> messages;
 
             JsonSchema schema = IEventSchema;
-            if (C is ICreateEvent && C.HasParent)
-                schema = CreateEntitySchema;
+            //if (C is ICreateEvent && C.HasParent)
+            //    schema = CreateEntitySchema;
 
             Assert.IsTrue(JObject.Parse(json).IsValid(schema, out messages), string.Join("\n\n", messages) + "\n" + json);
 

@@ -14,16 +14,9 @@ namespace Growthstories.Domain.Messaging
 
     #region Schedule
 
-    [DTOObject(DTOType.addIntervalSchedule)]
-    public class ScheduleCreated : EventBase, ICreateEvent
+    [DTOObject(DTOType.createIntervalSchedule)]
+    public class ScheduleCreated : EventBase
     {
-        [JsonIgnore]
-        private Type _AggregateType;
-        [JsonIgnore]
-        public Type AggregateType
-        {
-            get { return _AggregateType == null ? _AggregateType = typeof(Schedule) : _AggregateType; }
-        }
 
         [JsonProperty]
         public Guid UserId { get; private set; }
@@ -37,12 +30,15 @@ namespace Growthstories.Domain.Messaging
         {
             this.UserId = userId;
             this.Interval = interval;
-            this.HasParent = false;
+
         }
 
         public ScheduleCreated(CreateSchedule cmd)
-            : this(cmd.EntityId, cmd.UserId, cmd.Interval)
+            : base(cmd)
         {
+            this.UserId = cmd.UserId;
+            this.Interval = cmd.Interval;
+
         }
 
         public override string ToString()

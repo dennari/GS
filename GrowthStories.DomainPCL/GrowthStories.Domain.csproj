@@ -49,7 +49,6 @@
     <Compile Include="Entities\Synchronizer\Commands.cs" />
     <Compile Include="Entities\Synchronizer\Events.cs" />
     <Compile Include="Entities\Synchronizer\Synchronizer.cs" />
-    <Compile Include="Entities\Synchronizer\SynchronizerCommandHandler.cs" />
     <Compile Include="Entities\Synchronizer\SynchronizerState.cs" />
     <Compile Include="Entities\User\Commands.cs" />
     <Compile Include="Entities\User\Events.cs" />

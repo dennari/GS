@@ -9,7 +9,7 @@ namespace Growthstories.Sync
 
 
 
-    public interface ISyncResponse
+    public interface ISyncResponse : ISyncCommunication
     {
 
     }

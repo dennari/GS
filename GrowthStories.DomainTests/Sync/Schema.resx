@@ -163,7 +163,7 @@
 		"streamAncestor": {
 			"type":"string",
 			"id": "http://jsonschema.net/streamAncestor",
-			"required":true
+			"required":false
 		},
 		"streamEntity": {
 			"type":"string",

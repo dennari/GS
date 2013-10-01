@@ -11,11 +11,16 @@ namespace Growthstories.Sync
     {
 
         public const string ENTITY_ID = "targetEntityId";
+        public const string PROPERTY_ENTITY_ID = "entityId";
         public const string ANCESTOR_ID = "targetAncestorId";
+        public const string PROPERTY_ANCESTOR_ID = "ancestorId";
         public const string EVENT_ID = "eventId";
         public const string ENTITY_VERSION = "incId";
+        public const string ENTITY_VERSION_SINCE = "sinceIncId";
         public const string STREAM_ENTITY = "streamEntity";
         public const string STREAM_ANCESTOR = "streamAncestor";
+        public const string STREAM_TYPE = "streamType";
+        public const string STREAMS = "streams";
         public const string EVENT_TYPE = "type";
         public const string ENTITY_TYPE = "kind";
         public const string PROPERTY_NAME = "propName";
@@ -28,6 +33,7 @@ namespace Growthstories.Sync
         public const string PLANT_ID = "plantId";
         public const string PLANT_NAME = "name";
         public const string EVENTS = "events";
+        public const string COMMANDS = "cmds";
         public const string STATUS_CODE = "statusCode";
         public const string STATUS_DESCRIPTION = "statusDesc";
 

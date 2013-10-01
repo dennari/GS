@@ -1,4 +1,5 @@
 ﻿using Growthstories.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,17 @@ namespace Growthstories.Sync
         long Created { get; set; }
 
         DTOType EventType { get; set; }
-        Guid AncestorId { get; set; }
-        Guid StreamEntity { get; set; }
-        Guid StreamAncestor { get; set; }
+
+        Guid? AncestorId { get; set; }
+        Guid? StreamEntity { get; set; }
+        Guid? StreamAncestor { get; set; }
+        Guid? ParentId { get; set; }
+        Guid? ParentAncestorId { get; set; }
     }
 
     public interface IAddEntityDTO : IEventDTO
     {
-        Guid ParentId { get; set; }
-        Guid ParentAncestorId { get; set; }
+
     }
 
 
@@ -33,6 +36,7 @@ namespace Growthstories.Sync
         DTOType EntityType { get; set; }
         string PropertyName { get; set; }
         dynamic PropertyValue { get; set; }
+        Guid PropertyEntityId { get; set; }
     }
 
     public interface IDelPropertyDTO : IEventDTO

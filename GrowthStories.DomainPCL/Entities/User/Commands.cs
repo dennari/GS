@@ -31,6 +31,7 @@ namespace Growthstories.Domain.Messaging
             this.Username = username;
             this.Password = password;
             this.Email = email;
+            this.StreamEntityId = id;
         }
 
         public override string ToString()
@@ -92,6 +93,7 @@ namespace Growthstories.Domain.Messaging
             : base(id)
         {
             this.GardenId = gardenId;
+            this.StreamEntityId = id;
         }
 
         public override string ToString()
@@ -104,12 +106,17 @@ namespace Growthstories.Domain.Messaging
     public class BecomeFollower : EntityCommand<User>
     {
         public Guid OfUser { get; private set; }
+        public Guid RelationshipId { get; private set; }
 
         protected BecomeFollower() { }
-        public BecomeFollower(Guid id, Guid OfUser)
-            : base(id)
+        public BecomeFollower(Guid userId, Guid OfUser, Guid relationshipId)
+            : base(userId)
         {
             this.OfUser = OfUser;
+            this.RelationshipId = relationshipId;
+            this.ParentId = userId;
+            this.AncestorId = userId;
+            this.StreamEntityId = userId;
         }
 
         public override string ToString()
@@ -119,7 +126,48 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    
+    public class RequestFriendship : EntityCommand<User>
+    {
+        public Guid RelationshipId { get; private set; }
+        protected RequestFriendship() { }
+        public RequestFriendship(Guid userId, Guid relationshipId)
+            : base(userId)
+        {
+
+            this.RelationshipId = relationshipId;
+            this.ParentId = userId;
+            this.AncestorId = userId;
+            this.StreamEntityId = userId;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} requests friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+        }
+
+    }
+
+    public class AcceptFriendship : EntityCommand<User>
+    {
+        public Guid RelationshipId { get; private set; }
+        protected AcceptFriendship() { }
+        public AcceptFriendship(Guid userId, Guid relationshipId)
+            : base(userId)
+        {
+
+            this.RelationshipId = relationshipId;
+            this.ParentId = userId;
+            this.AncestorId = userId;
+            this.StreamEntityId = userId;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} requests friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+        }
+
+    }
+
 
     #endregion
 

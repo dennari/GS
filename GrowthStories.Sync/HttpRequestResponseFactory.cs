@@ -17,6 +17,7 @@ namespace Growthstories.Sync
         private readonly IJsonFactory jFactory;
         private static ILog Logger = LogFactory.BuildLogger(typeof(HttpRequestResponseFactory));
         private IEndpoint Endpoint;
+        private IAuthTokenResponse Auth;
 
         public HttpRequestResponseFactory(IJsonFactory jFactory, IEndpoint endpoint)
         {
@@ -29,7 +30,8 @@ namespace Growthstories.Sync
         public IAuthTokenResponse CreateAuthTokenResponse(string response)
         {
             Logger.Info(response);
-            return jFactory.Deserialize<HttpAuthTokenResponse>(response);
+            this.Auth = jFactory.Deserialize<HttpAuthTokenResponse>(response);
+            return this.Auth;
         }
 
         public HttpRequestMessage CreateAuthTokenRequest(string username, string password)
@@ -46,7 +48,16 @@ namespace Growthstories.Sync
                         {"password",password}
                     }
                 )
-            });
+            }, false);
+        }
+
+        public HttpRequestMessage CreateClearDBRequest()
+        {
+            return AddDefaultHeaders(new HttpRequestMessage()
+            {
+                RequestUri = Endpoint.ClearDBUri,
+                Method = HttpMethod.Get
+            }, false);
         }
 
 
@@ -65,7 +76,7 @@ namespace Growthstories.Sync
         {
 
             string sContent = jFactory.Serialize(req);
-            Logger.Info(sContent);
+            Logger.Info("[REQUESTBODY]\n" + sContent);
 
 
             return AddDefaultHeaders(new HttpRequestMessage()
@@ -80,17 +91,25 @@ namespace Growthstories.Sync
             });
         }
 
-        protected HttpRequestMessage AddDefaultHeaders(HttpRequestMessage r)
+        protected HttpRequestMessage AddDefaultHeaders(HttpRequestMessage r, bool addAuthHeader = true)
         {
-            //try
-            //{
-            //    r.Headers.Authorization = new AuthenticationHeaderValue("Bearer", UserService.CurrentUser.AccessToken);
-            //}
-            //catch (Exception) { }
+            if (addAuthHeader)
+            {
+                try
+                {
+                    r.Headers.Authorization = new AuthenticationHeaderValue("Bearer", this.Auth.AccessToken);
+                }
+                catch (Exception)
+                {
+                    //throw new InvalidOperationException("User not authenticated");
+                }
+            }
+
 
             r.Headers.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
             return r;
         }
+
 
     }
 }

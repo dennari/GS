@@ -8,7 +8,7 @@ namespace Growthstories.Sync
 
     public class SyncResult
     {
-
+        public IList<ISyncCommunication> Communication { get; set; }
     }
 
 
@@ -23,11 +23,11 @@ namespace Growthstories.Sync
 
         ITransportEvents Transporter { get; }
 
-        void MarkAllSynchronized(ISyncPushRequest pushReq);
+        void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null);
 
         //IEnumerable<RebasePair> MatchStreams(ISyncPushRequest pushReq, ISyncPullResponse pullResp);
 
-        void Synchronized(ISyncPushRequest pushReq);
+        //void Synchronized(ISyncPushRequest pushReq);
 
         Task TryAuth(ISyncPushRequest pushReq);
     }

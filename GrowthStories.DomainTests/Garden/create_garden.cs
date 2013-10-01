@@ -3,6 +3,7 @@ using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using NUnit.Framework;
+using System;
 
 
 namespace Growthstories.DomainTests
@@ -19,7 +20,7 @@ namespace Growthstories.DomainTests
         public void given_no_prior_history()
         {
             Given();
-            When(new CreateGarden(id));
+            When(new CreateGarden(id, Guid.NewGuid()));
             Expect(new GardenCreated(id)
             {
                 EntityVersion = 1,
@@ -31,8 +32,8 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_created_garden()
         {
-            Given(new GardenCreated(id) { EntityVersion = 1 });
-            When(new CreateGarden(id));
+            Given(new GardenCreated(new CreateGarden(id, Guid.NewGuid())) { EntityVersion = 1 });
+            When(new CreateGarden(id, Guid.NewGuid()));
             Expect("rebirth");
         }
 

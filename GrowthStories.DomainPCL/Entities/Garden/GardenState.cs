@@ -17,6 +17,8 @@ namespace Growthstories.Domain.Entities
 
     public class GardenState : AggregateState<GardenCreated>
     {
+        private GardenCreated @event;
+
 
         public Guid UserId { get; private set; }
 
@@ -26,6 +28,13 @@ namespace Growthstories.Domain.Entities
             : base()
         {
             PlantIds = new List<Guid>();
+        }
+
+        public GardenState(GardenCreated @event)
+            : this()
+        {
+            // TODO: Complete member initialization
+            Apply(@event);
         }
 
         //public GardenState(Guid id, int version, bool Public, ICollection<Guid> plantIds)

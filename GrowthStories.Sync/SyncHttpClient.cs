@@ -13,6 +13,7 @@ namespace Growthstories.Sync
     public class SyncHttpClient : IHttpClient
     {
         HttpClient Client;
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SyncHttpClient));
 
 
         void InitClient()
@@ -35,8 +36,11 @@ namespace Growthstories.Sync
             {
                 try
                 {
+
                     var r = await SendAsync(request);
+
                     var s = await r.Content.ReadAsStringAsync();
+                    Logger.Info("[RESPONSEBODY]\n" + s);
                     return s;
                 }
                 catch (Exception e)

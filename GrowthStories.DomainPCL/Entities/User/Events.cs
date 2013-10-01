@@ -3,6 +3,7 @@ using Growthstories.Core;
 using System;
 using Growthstories.Sync;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace Growthstories.Domain.Messaging
@@ -39,12 +40,19 @@ namespace Growthstories.Domain.Messaging
             this.Username = username;
             this.Password = password;
             this.Email = email;
-            this.HasAncestor = false;
-            this.HasParent = false;
+            this.StreamType = DTOType.user;
+            this.StreamEntityId = id;
         }
         public UserCreated(CreateUser cmd)
-            : this(cmd.EntityId, cmd.Username, cmd.Password, cmd.Email)
+            : base(cmd)
         {
+            if (cmd.Username == null || cmd.Password == null || cmd.Email == null)
+                throw new ArgumentNullException();
+            this.Username = cmd.Username;
+            this.Password = cmd.Password;
+            this.Email = cmd.Email;
+
+            //this.StreamEntityId = cmd.
         }
 
         public override string ToString()
@@ -80,22 +88,26 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Guid OfUser { get; private set; }
 
+        [JsonProperty]
+        public Guid RelationshipId { get; private set; }
+
         protected BecameFollower() { }
-        public BecameFollower(Guid id, Guid OfUser)
-            : base(id)
-        {
-            this.OfUser = OfUser;
-        }
+        //public BecameFollower(Guid id, Guid OfUser)
+        //    : base(id)
+        //{
+        //    this.OfUser = OfUser;
+        //}
 
-        public BecameFollower(BecomeFollower command)
-            : this(command.EntityId, command.OfUser)
+        public BecameFollower(BecomeFollower cmd)
+            : base(cmd)
         {
-
+            this.RelationshipId = cmd.RelationshipId;
+            this.OfUser = cmd.OfUser;
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} wants to become a follower of user {1}.", this.EntityId, this.OfUser);
+            return string.Format(@"User {0} became a follower of user {1}.", this.EntityId, this.OfUser);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -103,6 +115,7 @@ namespace Growthstories.Domain.Messaging
             var D = (IAddRelationshipDTO)Dto;
             base.FillDTO(D);
             D.To = this.OfUser;
+            D.EntityId = this.RelationshipId;
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -114,7 +127,116 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
+    public class FriendshipRequested : EventBase
+    {
 
+
+        [JsonProperty]
+        public Guid RelationshipId { get; private set; }
+
+        protected FriendshipRequested() { }
+
+
+        public FriendshipRequested(RequestFriendship cmd)
+            : base(cmd)
+        {
+            this.RelationshipId = cmd.RelationshipId;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} requested friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.relationship;
+            D.PropertyName = "state";
+            D.PropertyValue = "requested";
+
+            base.FillDTO(D);
+
+            D.EntityId = this.RelationshipId;
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.relationship
+                || D.PropertyName != "state"
+                || D.PropertyValue != "requested")
+                throw new ArgumentException();
+
+            base.FromDTO(D);
+            this.RelationshipId = D.EntityId;
+            this.EntityId = this.StreamEntityId ?? default(Guid);
+
+        }
+
+    }
+
+
+    [DTOObject(DTOType.setProperty)]
+    public class FriendshipAccepted : EventBase
+    {
+
+
+        [JsonProperty]
+        public Guid RelationshipId { get; private set; }
+
+        protected FriendshipAccepted() { }
+
+        public FriendshipAccepted(AcceptFriendship cmd)
+            : base(cmd)
+        {
+            this.RelationshipId = cmd.RelationshipId;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} accepted friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.relationship;
+            D.PropertyName = "state";
+            D.PropertyValue = "accepted";
+
+
+            base.FillDTO(D);
+
+            D.EntityId = this.RelationshipId;
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.relationship
+                || D.PropertyName != "state"
+                || D.PropertyValue != "accepted")
+                throw new ArgumentException();
+
+            base.FromDTO(D);
+            this.RelationshipId = D.EntityId;
+            this.EntityId = this.StreamEntityId ?? default(Guid);
+
+
+            base.FromDTO(D);
+        }
+
+    }
+
+
+
+    [DTOObject(DTOType.setProperty)]
     public class GardenAdded : EventBase
     {
 
@@ -128,10 +250,10 @@ namespace Growthstories.Domain.Messaging
             this.GardenId = gardenId;
         }
 
-        public GardenAdded(AddGarden command)
-            : this(command.EntityId, command.GardenId)
+        public GardenAdded(AddGarden cmd)
+            : base(cmd)
         {
-
+            this.GardenId = cmd.GardenId;
         }
 
         public override string ToString()
@@ -139,6 +261,27 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0} added garden {1}.", this.EntityId, this.GardenId);
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.user;
+            D.PropertyName = "garden";
+            D.PropertyValue = new JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.EntityId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.GardenId.ToString();
+
+            base.FillDTO(D);
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "garden")
+                throw new ArgumentException();
+
+            base.FromDTO(D);
+        }
 
     }
 
@@ -155,7 +298,14 @@ namespace Growthstories.Domain.Messaging
 
         protected AuthTokenSet() { }
 
-        public AuthTokenSet(SetAuthToken cmd) : this(cmd.EntityId, cmd.AccessToken, cmd.RefreshToken, cmd.ExpiresIn) { }
+        public AuthTokenSet(SetAuthToken cmd)
+            : base(cmd)
+        {
+            this.AccessToken = cmd.AccessToken;
+            this.ExpiresIn = cmd.ExpiresIn;
+            this.RefreshToken = cmd.RefreshToken;
+
+        }
 
         public AuthTokenSet(Guid id, string accessToken, string refreshToken, int expiresIn)
             : base(id)

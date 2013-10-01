@@ -20,7 +20,7 @@ namespace Growthstories.Sync
         referenceSchedule,
         addReferenceSchedule,
         intervalSchedule,
-        addIntervalSchedule,
+        createIntervalSchedule,
         comment,
         addComment,
         addFBComment,

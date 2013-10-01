@@ -38,5 +38,11 @@ namespace Growthstories.Sync
                 return new Uri(_Uri, "/api/auth");
             }
         }
+
+
+        public Uri ClearDBUri
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

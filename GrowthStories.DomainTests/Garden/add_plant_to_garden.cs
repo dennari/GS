@@ -33,8 +33,9 @@ namespace Growthstories.DomainTests
         public void given_created_garden()
         {
             var PlantId = Guid.NewGuid();
-            Given(new GardenCreated(id));
-            When(new AddPlant(id, PlantId, "Jore"));
+            var UserId = Guid.NewGuid();
+            Given(new GardenCreated(new CreateGarden(PlantId, UserId)));
+            When(new AddPlant(id, PlantId, UserId, "Jore"));
             Expect(new PlantAdded(id, PlantId)
             {
                 EntityVersion = 2,
@@ -48,7 +49,7 @@ namespace Growthstories.DomainTests
         {
             var PlantId = Guid.NewGuid();
             Given();
-            When(new AddPlant(id, PlantId, "Jore"));
+            When(new AddPlant(id, PlantId, Guid.NewGuid(), "Jore"));
             Expect("premature");
         }
 

@@ -23,12 +23,19 @@ namespace Growthstories.Sync
 
         }
 
-        [JsonProperty(PropertyName = Language.EVENTS, Required = Required.AllowNull)]
+
+        [JsonProperty(PropertyName = Language.COMMANDS, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IList<EventDTOUnion> DTOs { get; set; }
 
         [JsonIgnore]
-        public ICollection<ISyncEventStream> Streams { get; set; }
+        public IEnumerable<IEvent> Events { get; set; }
 
 
+
+        [JsonProperty(PropertyName = Language.STATUS_CODE, Required = Required.Default)]
+        public int StatusCode { get; set; }
+
+        [JsonProperty(PropertyName = Language.STATUS_DESCRIPTION, Required = Required.Default)]
+        public string StatusDesc { get; set; }
     }
 }

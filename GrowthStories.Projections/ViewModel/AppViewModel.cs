@@ -142,10 +142,23 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        protected UserState _CurrentUserState;
+        public UserState CurrentUserState
+        {
+            get
+            {
+                if (_CurrentUserState == null)
+                {
+                    _CurrentUserState = Context.CurrentUser as UserState;
+                }
+                return _CurrentUserState;
+            }
+        }
+
         public IGardenViewModel GardenFactory(Guid id)
         {
             return new GardenViewModel(
-                ((Garden)Kernel.Get<IGSRepository>().GetById(id)).State,
+                CurrentUserState.Gardens[id],
                 this.PlantFactory,
                 this
             );
@@ -296,8 +309,8 @@ namespace Growthstories.UI.ViewModel
             if (plantState != null)
             {
                 Guid id = scheduleType == ScheduleType.FERTILIZING ? plantState.FertilizingScheduleId : plantState.WateringScheduleId;
-                if (id != default(Guid))
-                    state = ((Schedule)Kernel.Get<IGSRepository>().GetById(id)).State;
+                //if (id != default(Guid))
+                //    state = ((Schedule)Kernel.Get<IGSRepository>().GetById(id)).State;
             }
             return new ScheduleViewModel(state, scheduleType, this);
         }

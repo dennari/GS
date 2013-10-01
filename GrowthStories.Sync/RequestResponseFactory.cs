@@ -28,10 +28,10 @@ namespace Growthstories.Sync
         {
             var streamsC = streams.ToArray();
 
-            var ee = Translator.Out(streamsC).ToArray();
+            //var ee = Translator.Out(streamsC).ToArray();
             var req = new HttpPushRequest()
             {
-                Events = ee,
+                Events = Translator.Out(streamsC),
                 Streams = streamsC,
                 //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()
@@ -54,7 +54,13 @@ namespace Growthstories.Sync
         {
             Logger.Info(reponse);
             var r = jFactory.Deserialize<HttpPullResponse>(reponse);
-            r.Streams = Translator.In(r.DTOs);
+            if (r.DTOs != null && r.DTOs.Count > 0)
+            {
+                r.StatusCode = 200;
+                r.Events = r.DTOs.Select(x => Translator.In(x));
+            }
+
+            //r.Translate = () => r.Streams = Translator.In(r.DTOs);
             return r;
         }
 

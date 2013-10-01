@@ -8,8 +8,18 @@ namespace Growthstories.Sync
 {
     public interface ISyncPullResponse : ISyncResponse
     {
-        //IEnumerable<IEvent> Events { get; }
-        ICollection<ISyncEventStream> Streams { get; }
+        IEnumerable<IEvent> Events { get; }
+        //ICollection<ISyncEventStream> Streams { get; }
+
+        //Guid ClientDatabaseId { get; }
+        //Guid PushId { get; }
+
+        /**
+         * Status code
+         */
+        int StatusCode { get; }
+
+        String StatusDesc { get; }
 
     }
 }

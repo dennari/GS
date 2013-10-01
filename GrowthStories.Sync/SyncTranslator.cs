@@ -14,15 +14,15 @@ namespace Growthstories.Sync
     public class SyncTranslator : ITranslateEvents
     {
         private readonly IUserService UserService;
-        private readonly IConstructSyncEventStreams StreamFactory;
+        //private readonly IConstructSyncEventStreams StreamFactory;
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncTranslator));
 
 
-        public SyncTranslator(IUserService ancestorFactory, IConstructSyncEventStreams streamFactory)
+        public SyncTranslator(IUserService ancestorFactory)
         {
             this.UserService = ancestorFactory;
-            this.StreamFactory = streamFactory;
+            //this.StreamFactory = streamFactory;
         }
 
 
@@ -36,18 +36,18 @@ namespace Growthstories.Sync
                 return null;
 
             ed.EntityVersion -= 1;
-            ed.StreamEntity = e.EntityId;
-            ed.AncestorId = UserService.CurrentUser.Id;
-            if (ee.HasAncestor)
-            {
+            //ed.StreamEntity = e.EntityId;
+            //ed.AncestorId = UserService.CurrentUser.Id;
+            //if (ee.HasAncestor)
+            //{
 
-                ed.StreamAncestor = ed.AncestorId;
-            }
+            //    ed.StreamAncestor = ed.AncestorId;
+            //}
 
-            if (ee.HasParent && ed is IAddEntityDTO)
-            {
-                ((IAddEntityDTO)ed).ParentAncestorId = ed.AncestorId;
-            }
+            //if (ee.HasParent && ed is IAddEntityDTO)
+            //{
+            //    ((IAddEntityDTO)ed).ParentAncestorId = ed.AncestorId;
+            //}
 
 
             return ed;
@@ -76,13 +76,8 @@ namespace Growthstories.Sync
         {
 
             foreach (var stream in streams)
-            {
-                foreach (var e in Out(stream.CommittedEvents.Select(x => (IDomainEvent)x.Body)))
-                {
-                    //e.EntityVersion += stream.UncommittedRemoteEvents.Count;
+                foreach (var e in stream.Translate(this))
                     yield return e;
-                }
-            }
 
         }
 
@@ -94,13 +89,13 @@ namespace Growthstories.Sync
 
         }
 
-        public ICollection<ISyncEventStream> In(IEnumerable<IEventDTO> enumerable)
+        public IGrouping<Guid, IEvent>[] In(IEnumerable<IEventDTO> enumerable)
         {
 
             return enumerable
                 .Select(x => In(x))
-                .GroupBy(x => x.EntityId)
-                .Select(x => this.StreamFactory.CreateStreamFromRemoteEvents(x))
+                .OfType<EventBase>()
+                .GroupBy(x => x.StreamEntityId ?? x.EntityId)
                 .ToArray();
 
 

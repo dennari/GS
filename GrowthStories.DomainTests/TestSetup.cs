@@ -185,7 +185,7 @@ namespace Growthstories.DomainTests
             Bind<IJsonFactory>().To<JsonFactory>().InSingletonScope();
 
 
-            Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
+            //Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
             //Bind<ActionProjection>().ToSelf().InSingletonScope();
             //Bind<PlantProjection>().ToSelf().InSingletonScope();
             Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();

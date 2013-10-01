@@ -7,14 +7,10 @@ using Growthstories.Core;
 namespace Growthstories.Domain.Messaging
 {
 
-    public abstract class ScheduleCommand : EntityCommand<Schedule>
-    {
-        protected ScheduleCommand() { }
-        public ScheduleCommand(Guid EntityId) : base(EntityId) { }
-    }
+
 
     #region Schedule
-    public class CreateSchedule : ScheduleCommand, ICreateCommand
+    public class CreateSchedule : EntityCommand<User>
     {
 
         public Guid UserId { get; set; }
@@ -25,8 +21,13 @@ namespace Growthstories.Domain.Messaging
         public CreateSchedule(Guid id, Guid userId, long interval)
             : base(id)
         {
+
             this.UserId = userId;
             this.Interval = interval;
+            this.StreamEntityId = userId;
+            this.AncestorId = userId;
+            this.ParentId = userId;
+            //this.StreamAncestorId = userId;
         }
 
         public override string ToString()
@@ -36,7 +37,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DeleteSchedule : ScheduleCommand
+    public class DeleteSchedule : EntityCommand<User>
     {
 
         protected DeleteSchedule() { }

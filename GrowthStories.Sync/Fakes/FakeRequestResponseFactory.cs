@@ -30,7 +30,7 @@ namespace Growthstories.Sync
             if (r.Item2 != null)
                 this.BuildPushResponse = r.Item2;
             var resp = r.Item1;
-            resp.Streams = Translator.In(resp.DTOs);
+            //resp.Streams = Translator.In(resp.DTOs);
             return r.Item1;
         }
 
@@ -44,9 +44,10 @@ namespace Growthstories.Sync
         {
             var streamsC = streams.ToArray();
 
+            //var events = streamsC.
             var req = new HttpPushRequest()
             {
-                Events = Translator.Out(streamsC),
+                Events = Translator.Out(streamsC).ToArray(),
                 Streams = streamsC,
                 //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()

@@ -1,4 +1,5 @@
 ﻿using Growthstories.Core;
+using Growthstories.DomainTests.Staging;
 using Growthstories.Sync;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,10 @@ namespace Growthstories.DomainTests
 
         }
 
-        //protected override void UserConfiguration()
-        //{
-        //    Bind<IUserService>().To<SyncUserService>().InSingletonScope();
-        //}
+        protected override void UserConfiguration()
+        {
+            Bind<IUserService>().To<StagingUserService>().InSingletonScope();
+        }
 
         protected override void EventFactoryConfiguration()
         {

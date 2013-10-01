@@ -21,7 +21,9 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<SetSpecies>,
         ICommandHandler<SetProfilepicture>,
         ICommandHandler<MarkPlantPublic>,
-        ICommandHandler<MarkPlantPrivate>
+        ICommandHandler<MarkPlantPrivate>,
+        ICommandHandler<CreatePlantAction>,
+        ICommandHandler<SetPlantActionProperty>
     {
 
 
@@ -34,17 +36,32 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PlantCreated(command));
         }
 
+        public void Handle(CreatePlantAction command)
+        {
+            RaiseEvent(new PlantActionCreated(command));
+        }
+
+        public void Handle(SetPlantActionProperty command)
+        {
+            PlantActionState plantAction = null;
+            if (!this.State.PlantActions.TryGetValue(command.EntityId, out plantAction))
+                throw new InvalidOperationException("Can't modify nonexistent plantACtion");
+            RaiseEvent(new PlantActionPropertySet(command, this.State.UserId, plantAction.Type));
+        }
 
         public void Handle(SetWateringSchedule command)
         {
-
-            RaiseEvent(new WateringScheduleSet(command));
+            if (command.EntityId != this.State.Id)
+                throw new InvalidOperationException("command was misrouted.");
+            RaiseEvent(new WateringScheduleSet(command, this.State.UserId));
         }
 
         public void Handle(SetFertilizingSchedule command)
         {
 
-            RaiseEvent(new FertilizingScheduleSet(command));
+            if (command.EntityId != this.State.Id)
+                throw new InvalidOperationException("command was misrouted.");
+            RaiseEvent(new FertilizingScheduleSet(command, this.State.UserId));
         }
 
         public void Handle(SetTags command)

@@ -3,20 +3,22 @@ using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Growthstories.Sync
+namespace Growthstories.DomainTests.Staging
 {
-    public class FakeUserService : IUserService
+
+    public class StagingUserService : IUserService
     {
         private User u;
 
-        public static Guid FakeUserId = Guid.Parse("12000000-0000-0000-0000-000000000000");
-        public static Guid FakeUserGardenId = Guid.Parse("11100000-0000-0000-0000-000000000000");
+        public static Guid FakeUserId = Guid.Parse("10000000-0000-0000-0000-000000000000");
+        //public static Guid FakeUserGardenId = Guid.Parse("11100000-0000-0000-0000-000000000000");
         //public static Guid FakeUserId = Guid.NewGuid();
         //public static Guid FakeUserGardenId = Guid.NewGuid();
 
@@ -25,7 +27,7 @@ namespace Growthstories.Sync
         private readonly IAggregateFactory Factory;
         private readonly IAuthTokenService AuthService;
 
-        public FakeUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
+        public StagingUserService(IGSRepository store, IAggregateFactory factory, IAuthTokenService authService)
         {
             this.Store = store;
             this.Factory = factory;
@@ -57,8 +59,8 @@ namespace Growthstories.Sync
             if (u.Version == 0)
             {
                 u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
-                u.Handle(new CreateGarden(FakeUserGardenId, FakeUserId));
-                u.Handle(new AddGarden(FakeUserId, FakeUserGardenId));
+                //u.Handle(new CreateGarden(FakeUserGardenId, FakeUserId));
+                //u.Handle(new AddGarden(FakeUserId, FakeUserGardenId));
 
                 //var g = Factory.Build<Garden>();
                 //g.Handle(new CreateGarden(FakeUserGardenId)
@@ -84,3 +86,4 @@ namespace Growthstories.Sync
         }
     }
 }
+

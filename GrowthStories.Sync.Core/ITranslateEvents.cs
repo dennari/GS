@@ -1,6 +1,8 @@
 ﻿using EventStore;
 using Growthstories.Core;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Growthstories.Sync
@@ -15,7 +17,7 @@ namespace Growthstories.Sync
         IEnumerable<IEventDTO> Out(IEnumerable<ISyncEventStream> streams);
 
         IEvent In(IEventDTO dto);
-        ICollection<ISyncEventStream> In(IEnumerable<IEventDTO> enumerable);
+        IGrouping<Guid, IEvent>[] In(IEnumerable<IEventDTO> enumerable);
 
     }
 }

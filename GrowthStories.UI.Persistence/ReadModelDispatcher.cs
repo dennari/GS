@@ -28,8 +28,16 @@ namespace Growthstories.UI.Persistence
                                 .OfType<IEvent>()
                                 .Where(x => x is PlantActionCreated || x is PlantActionPropertySet))
             {
-                var state = ((PlantAction)Repo.GetById(e.EntityId)).State;
-                Store.PersistAction(state);
+
+                Guid id = default(Guid);
+                if (e is PlantActionCreated)
+                    id = ((PlantActionCreated)e).PlantId;
+                else
+                    id = ((PlantActionPropertySet)e).PlantId;
+
+                var state = ((Plant)Repo.GetById(id)).State;
+                var actionState = state.PlantActions[e.EntityId];
+                Store.PersistAction(actionState);
 
             }
 

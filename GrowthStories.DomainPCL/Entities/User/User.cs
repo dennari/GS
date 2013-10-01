@@ -21,8 +21,36 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<CreateUser>,
         ICommandHandler<SetAuthToken>,
         ICommandHandler<BecomeFollower>,
-        ICommandHandler<AddGarden>
+        ICommandHandler<RequestFriendship>,
+        ICommandHandler<AcceptFriendship>,
+        ICommandHandler<AddGarden>,
+        ICommandHandler<CreateSchedule>,
+        ICommandHandler<AddPlant>,
+        ICommandHandler<CreateGarden>,
+        ICommandHandler<MarkGardenPublic>
     {
+
+
+        public void Handle(AddPlant command)
+        {
+            RaiseEvent(new PlantAdded(command));
+
+        }
+
+        public void Handle(CreateGarden command)
+        {
+            RaiseEvent(new GardenCreated(command));
+        }
+
+        public void Handle(MarkGardenPublic command)
+        {
+            RaiseEvent(new MarkedGardenPublic(command));
+        }
+
+        public void Handle(CreateSchedule command)
+        {
+            RaiseEvent(new ScheduleCreated(command));
+        }
 
         public void Handle(CreateUser command)
         {
@@ -39,6 +67,16 @@ namespace Growthstories.Domain.Entities
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new BecameFollower(command));
+        }
+
+        public void Handle(RequestFriendship command)
+        {
+            RaiseEvent(new FriendshipRequested(command));
+        }
+
+        public void Handle(AcceptFriendship command)
+        {
+            RaiseEvent(new FriendshipAccepted(command));
         }
 
         public void Handle(AddGarden command)

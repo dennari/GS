@@ -308,7 +308,7 @@ namespace Growthstories.UI.ViewModel
                     Tags = new HashSet<string>(this.Tags)
                 }, false);
 
-                this.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, plantId, this.Name), true);
+                this.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, plantId, App.Context.CurrentUser.Id, this.Name), true);
 
 
             }

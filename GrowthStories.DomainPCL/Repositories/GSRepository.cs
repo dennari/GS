@@ -20,11 +20,17 @@ namespace Growthstories.Domain
         private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
         private readonly IDictionary<Guid, IGSAggregate> aggregates = new Dictionary<Guid, IGSAggregate>();
         private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
-        private readonly IStoreEvents eventStore;
+        private readonly GSEventStore eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
+
+        public GSEventStore EventStore
+        {
+            get { return eventStore; }
+        }
+
         public GSRepository(
-            IStoreEvents eventStore,
+            GSEventStore eventStore,
             IDetectConflicts conflictDetector,
             IAggregateFactory factory)
         {
@@ -46,6 +52,23 @@ namespace Growthstories.Domain
                 this.snapshots.Clear();
                 this.streams.Clear();
                 this.aggregates.Clear();
+            }
+        }
+
+        public void ClearAggregateFromCache(Guid id)
+        {
+            lock (this.streams)
+            {
+                try
+                {
+                    this.streams.Remove(id);
+                    this.aggregates.Remove(id);
+                    this.snapshots.Remove(id);
+                }
+                catch
+                {
+
+                }
             }
         }
 

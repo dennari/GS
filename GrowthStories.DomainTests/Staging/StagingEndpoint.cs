@@ -27,7 +27,7 @@ namespace Growthstories.DomainTests
         {
             get
             {
-                return new Uri(_Uri, "/api/push");
+                return new Uri(_Uri, "/api/pull");
             }
         }
 
@@ -38,6 +38,12 @@ namespace Growthstories.DomainTests
             {
                 return new Uri(_Uri, "/api/auth");
             }
+        }
+
+
+        public Uri ClearDBUri
+        {
+            get { return new Uri(_Uri, "/api/test/clearDS"); }
         }
     }
 }

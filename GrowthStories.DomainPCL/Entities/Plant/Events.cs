@@ -4,6 +4,7 @@ using System;
 using Growthstories.Sync;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 
 namespace Growthstories.Domain.Messaging
@@ -64,13 +65,27 @@ namespace Growthstories.Domain.Messaging
         }
 
         public PlantCreated(CreatePlant cmd) :
-            this(cmd.EntityId, cmd.Name, cmd.UserId)
+            base(cmd)
         {
+
+            if (cmd.Name == null)
+            {
+                throw new ArgumentNullException("a name has to be provided");
+            }
+            if (cmd.UserId == default(Guid))
+            {
+                throw new ArgumentNullException("userId has to be provided");
+            }
+            this.Name = cmd.Name;
+            this.UserId = cmd.UserId;
             this.Profilepicture = cmd.Profilepicture;
             this.Species = cmd.Species;
             this.WateringScheduleId = cmd.WateringScheduleId;
             this.FertilizingScheduleId = cmd.FertilizingScheduleId;
             this.Tags = cmd.Tags;
+
+
+
 
         }
 
@@ -111,8 +126,10 @@ namespace Growthstories.Domain.Messaging
         }
 
         public ProfilepictureSet(SetProfilepicture cmd)
-            : this(cmd.EntityId, cmd.Profilepicture)
+            : base(cmd)
         {
+            this.Profilepicture = cmd.Profilepicture;
+
         }
 
         public override string ToString()
@@ -127,6 +144,7 @@ namespace Growthstories.Domain.Messaging
     {
         protected MarkedPlantPublic() { }
         public MarkedPlantPublic(Guid entityId) : base(entityId) { }
+        public MarkedPlantPublic(MarkPlantPublic cmd) : base(cmd) { }
 
 
         public override string ToString()
@@ -166,6 +184,8 @@ namespace Growthstories.Domain.Messaging
     {
         public MarkedPlantPrivate() { }
         public MarkedPlantPrivate(Guid entityId) : base(entityId) { }
+        public MarkedPlantPrivate(MarkPlantPrivate cmd) : base(cmd) { }
+
 
         public override string ToString()
         {
@@ -203,13 +223,20 @@ namespace Growthstories.Domain.Messaging
         public Guid ScheduleId { get; protected set; }
 
         protected WateringScheduleSet() { }
-        public WateringScheduleSet(Guid entityId, Guid scheduleId)
-            : base(entityId)
-        {
-            this.ScheduleId = ScheduleId;
-        }
+        //public WateringScheduleSet(Guid plantId, Guid scheduleId)
+        //    : base(plantId)
+        //{
+        //    this.ScheduleId = ScheduleId;
+        //}
 
-        public WateringScheduleSet(SetWateringSchedule cmd) : this(cmd.EntityId, cmd.ScheduleId) { }
+        public WateringScheduleSet(SetWateringSchedule cmd, Guid userId)
+            : base(cmd)
+        {
+            this.ScheduleId = cmd.ScheduleId;
+            this.StreamEntityId = cmd.EntityId;
+            this.StreamAncestorId = userId;
+            this.AncestorId = userId;
+        }
 
         public override string ToString()
         {
@@ -218,23 +245,22 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            base.FillDTO(D);
-            D.PropertyName = Language.SHARED;
-            D.PropertyValue = false;
             D.EntityType = DTOType.plant;
+            D.PropertyName = "wateringSchedule";
+            D.PropertyValue = new JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.ScheduleId.ToString();
+
+            base.FillDTO(D);
+
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.PropertyName != Language.SHARED)
-                throw new ArgumentException();
-            if ((bool)D.PropertyValue != false)
-                throw new ArgumentException();
-            if (D.EntityType != DTOType.plant)
-                throw new ArgumentException();
-            base.FromDTO(D);
 
+
+            base.FromDTO(D);
         }
 
     }
@@ -246,13 +272,21 @@ namespace Growthstories.Domain.Messaging
         public Guid ScheduleId { get; protected set; }
 
         protected FertilizingScheduleSet() { }
-        public FertilizingScheduleSet(Guid entityId, Guid scheduleId)
-            : base(entityId)
+        //public FertilizingScheduleSet(Guid entityId, Guid scheduleId)
+        //    : base(entityId)
+        //{
+        //    this.ScheduleId = ScheduleId;
+        //}
+
+        public FertilizingScheduleSet(SetFertilizingSchedule cmd, Guid userId)
+            : base(cmd)
         {
-            this.ScheduleId = ScheduleId;
+            this.ScheduleId = cmd.ScheduleId;
+            this.StreamEntityId = cmd.EntityId;
+            this.StreamAncestorId = userId;
+            this.AncestorId = userId;
         }
 
-        public FertilizingScheduleSet(SetFertilizingSchedule cmd) : this(cmd.EntityId, cmd.ScheduleId) { }
 
         public override string ToString()
         {
@@ -294,7 +328,11 @@ namespace Growthstories.Domain.Messaging
             this.Tags = tags;
         }
 
-        public TagsSet(SetTags cmd) : this(cmd.EntityId, cmd.Tags) { }
+        public TagsSet(SetTags cmd)
+            : base(cmd)
+        {
+            this.Tags = cmd.Tags;
+        }
 
 
         public override string ToString()
@@ -316,7 +354,11 @@ namespace Growthstories.Domain.Messaging
             this.Name = name;
         }
 
-        public NameSet(SetName cmd) : this(cmd.EntityId, cmd.Name) { }
+        public NameSet(SetName cmd)
+            : base(cmd)
+        {
+            this.Name = cmd.Name;
+        }
 
         public override string ToString()
         {
@@ -337,7 +379,11 @@ namespace Growthstories.Domain.Messaging
             this.Species = species;
         }
 
-        public SpeciesSet(SetSpecies cmd) : this(cmd.EntityId, cmd.Species) { }
+        public SpeciesSet(SetSpecies cmd)
+            : base(cmd)
+        {
+            this.Species = cmd.Species;
+        }
 
         public override string ToString()
         {

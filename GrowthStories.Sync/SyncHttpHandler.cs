@@ -18,13 +18,13 @@ namespace Growthstories.Sync
 
         protected override HttpRequestMessage ProcessRequest(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Logger.Info(request.ToString());
+            Logger.Info("[HTTPREQUEST]\n" + request.ToString());
             return request;
         }
 
         protected override HttpResponseMessage ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
-            Logger.Info(response.ToString());
+            Logger.Info("[HTTPRESPONSE]\n" + response.ToString());
             return response;
         }
 

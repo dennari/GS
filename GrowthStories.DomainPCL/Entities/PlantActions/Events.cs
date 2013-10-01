@@ -5,6 +5,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using Growthstories.Sync;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 
 namespace Growthstories.Domain.Messaging
@@ -15,15 +17,9 @@ namespace Growthstories.Domain.Messaging
     #region PlantAction
 
     [DTOObject(DTOType.addComment, DTOType.addWatering, DTOType.addPhoto, DTOType.addFertilizing, DTOType.addMeasurement)]
-    public class PlantActionCreated : EventBase, ICreateEvent
+    public class PlantActionCreated : EventBase
     {
-        [JsonIgnore]
-        private Type _AggregateType;
-        [JsonIgnore]
-        public Type AggregateType
-        {
-            get { return _AggregateType == null ? _AggregateType = typeof(PlantAction) : _AggregateType; }
-        }
+
 
         [JsonProperty]
         public PlantActionType Type { get; private set; }
@@ -57,11 +53,20 @@ namespace Growthstories.Domain.Messaging
         }
 
         public PlantActionCreated(CreatePlantAction cmd)
-            : this(cmd.EntityId, cmd.UserId, cmd.PlantId, cmd.Type, cmd.Note)
+            : base(cmd)
         {
             this.MeasurementType = cmd.MeasurementType;
             this.Value = cmd.Value;
             this.Photo = cmd.Photo;
+            this.UserId = cmd.UserId;
+            this.PlantId = cmd.PlantId;
+            this.Type = cmd.Type;
+            this.Note = cmd.Note;
+            //this.AncestorId = userId;
+            //this.ParentId = plantId;
+            //this.ParentAncestorId = userId;
+            //this.StreamAncestorId = userId;
+            //this.StreamEntityId = plantId;
         }
 
         public override string ToString()
@@ -132,6 +137,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
     public class PlantActionPropertySet : EventBase
     {
 
@@ -150,20 +156,83 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Photo Photo { get; set; }
 
+        [JsonProperty]
+        public Guid PlantId { get; set; }
+
         protected PlantActionPropertySet() { }
-        public PlantActionPropertySet(Guid id, PlantActionType type)
-            : base(id)
+        //public PlantActionPropertySet(Guid id, PlantActionType type)
+        //    : base(id)
+        //{
+        //    this.Type = type;
+        //}
+
+        public PlantActionPropertySet(SetPlantActionProperty cmd, Guid userId, PlantActionType type)
+            : base(cmd)
         {
             this.Type = type;
-        }
-
-        public PlantActionPropertySet(SetPlantActionProperty cmd)
-            : this(cmd.EntityId, cmd.Type)
-        {
             this.Note = cmd.Note;
             this.MeasurementType = cmd.MeasurementType;
             this.Value = cmd.Value;
             this.Photo = cmd.Photo;
+            this.PlantId = cmd.PlantId;
+
+            this.StreamAncestorId = userId;
+            this.AncestorId = userId;
+
+        }
+
+        protected Dictionary<DTOType, PlantActionType> _ValidTypes;
+        protected Dictionary<DTOType, PlantActionType> ValidTypes
+        {
+            get
+            {
+                if (_ValidTypes == null)
+                {
+                    _ValidTypes = new Dictionary<DTOType, PlantActionType>() { 
+                {DTOType.comment, PlantActionType.COMMENTED},
+                {DTOType.fertilizing, PlantActionType.FERTILIZED},
+                {DTOType.watering, PlantActionType.WATERED},
+                {DTOType.measurement, PlantActionType.MEASURED},
+                {DTOType.photo, PlantActionType.PHOTOGRAPHED} 
+            };
+                }
+                return _ValidTypes;
+            }
+        }
+
+
+
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+
+            if (!ValidTypes.ContainsKey(D.EntityType))
+                throw new ArgumentException();
+
+            this.Type = ValidTypes[D.EntityType];
+
+
+            base.FromDTO(D);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.PropertyName = "note";
+            D.PropertyValue = this.Note;
+
+            D.EntityType = this.ValidTypes
+                .Where(x => x.Value == this.Type)
+                .Select(x => x.Key)
+                .FirstOrDefault();
+
+
+
+
+            base.FillDTO(D);
+
+            D.ParentId = null;
         }
     }
     #endregion

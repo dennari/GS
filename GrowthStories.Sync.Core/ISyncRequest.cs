@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public interface ISyncRequest
+
+    public interface ISyncCommunication
+    {
+
+    }
+
+    public interface ISyncRequest : ISyncCommunication
     {
 
     }

@@ -26,6 +26,7 @@ namespace Growthstories.Domain.Entities
 
         public Photo Profilepicture { get; private set; }
 
+        public IDictionary<Guid, PlantActionState> PlantActions { get; private set; }
 
 
         public PlantState()
@@ -50,7 +51,50 @@ namespace Growthstories.Domain.Entities
             this.WateringScheduleId = @event.WateringScheduleId;
             this.FertilizingScheduleId = @event.FertilizingScheduleId;
             this.Tags = @event.Tags;
+
+            this.PlantActions = new Dictionary<Guid, PlantActionState>();
         }
+
+        public void Apply(PlantActionCreated @event)
+        {
+
+            if (@event.PlantId != this.Id)
+            {
+                throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
+            }
+            PlantActionState actionState = null;
+            if (this.PlantActions.TryGetValue(@event.EntityId, out actionState))
+            {
+                throw new InvalidOperationException("PlantAction with this id already exists");
+            }
+            else
+            {
+                actionState = new PlantActionState(@event);
+            }
+
+
+            this.PlantActions[actionState.Id] = actionState;
+
+        }
+
+        public void Apply(PlantActionPropertySet @event)
+        {
+            if (@event.PlantId != this.Id)
+            {
+                throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
+            }
+            PlantActionState actionState = null;
+            if (this.PlantActions.TryGetValue(@event.EntityId, out actionState))
+            {
+                actionState.Apply(@event);
+            }
+            else
+            {
+                throw new InvalidOperationException("PlantAction this id doesn't exist");
+            }
+
+        }
+
 
         //public void Apply(MarkedPlantPublic @event)
         //{

@@ -30,7 +30,7 @@ namespace Growthstories.Sync
 
         #region IEventDTO
         [JsonProperty(PropertyName = Language.ANCESTOR_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Guid AncestorId { get; set; }
+        public Guid? AncestorId { get; set; }
 
         [JsonProperty(PropertyName = Language.EVENT_TYPE, Required = Required.Always)]
         public DTOType EventType { get; set; }
@@ -38,24 +38,28 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.CREATED, Required = Required.Always)]
         public long Created { get; set; }
 
-        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
-        public Guid StreamEntity { get; set; }
+        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Include)]
+        public Guid? StreamEntity { get; set; }
 
         [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Guid StreamAncestor { get; set; }
+        public Guid? StreamAncestor { get; set; }
+
+        [JsonProperty(PropertyName = Language.PARENT_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid? ParentId { get; set; }
+
+        [JsonProperty(PropertyName = Language.PARENT_ANCESTOR_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid? ParentAncestorId { get; set; }
         #endregion
 
         #region IAddEntityDTO
-        [JsonProperty(PropertyName = Language.PARENT_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Guid ParentId { get; set; }
-
-        [JsonProperty(PropertyName = Language.PARENT_ANCESTOR_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Guid ParentAncestorId { get; set; }
         #endregion
 
         #region ISetPropertyDTO
         [JsonProperty(PropertyName = Language.ENTITY_TYPE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public DTOType EntityType { get; set; }
+
+        [JsonProperty(PropertyName = Language.PROPERTY_ENTITY_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid PropertyEntityId { get; set; }
 
         [JsonProperty(PropertyName = Language.PROPERTY_NAME, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string PropertyName { get; set; }

@@ -8,14 +8,9 @@ using Growthstories.Sync;
 namespace Growthstories.Domain.Messaging
 {
 
-    public abstract class PlantActionCommand : EntityCommand<PlantAction>
-    {
-        protected PlantActionCommand() { }
-        public PlantActionCommand(Guid EntityId) : base(EntityId) { }
-    }
 
     #region PlantAction
-    public class CreatePlantAction : PlantActionCommand, ICreateCommand
+    public class CreatePlantAction : PlantCommand
     {
 
         public PlantActionType Type { get; private set; }
@@ -40,6 +35,13 @@ namespace Growthstories.Domain.Messaging
             this.PlantId = plantId;
             this.Type = type;
             this.Note = note;
+
+            this.AncestorId = userId;
+            this.ParentId = plantId;
+            this.ParentAncestorId = userId;
+            this.StreamAncestorId = userId;
+            this.StreamEntityId = plantId;
+
         }
 
         public override string ToString()
@@ -49,7 +51,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DeletePlantAction : PlantActionCommand
+    public class DeletePlantAction : PlantCommand
     {
 
         protected DeletePlantAction() { }
@@ -62,9 +64,9 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class SetPlantActionProperty : PlantActionCommand
+    public class SetPlantActionProperty : PlantCommand
     {
-        public PlantActionType Type { get; private set; }
+        //public PlantActionType Type { get; private set; }
 
         public string Note { get; set; }
 
@@ -74,11 +76,21 @@ namespace Growthstories.Domain.Messaging
 
         public Photo Photo { get; set; }
 
+        public Guid PlantId { get; set; }
+
+        public Guid UserId { get; set; }
+
         protected SetPlantActionProperty() { }
-        public SetPlantActionProperty(Guid id, PlantActionType type)
+        public SetPlantActionProperty(Guid id, Guid plantId)
             : base(id)
         {
-            this.Type = type;
+            //this.Type = type;
+            this.ParentId = plantId;
+            this.PlantId = plantId;
+            this.StreamEntityId = plantId;
+            //this.StreamAncestorId = userId;
+            //this.AncestorId = userId;
+            //this.UserId = userId;
         }
     }
 

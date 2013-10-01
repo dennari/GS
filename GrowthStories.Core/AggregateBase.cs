@@ -119,8 +119,11 @@ namespace Growthstories.Core
         {
             if (Event == null)
                 throw new ArgumentNullException("Event");
-            if (this.Version > 0 && Event.EntityId != this.Id)
-                throw new ArgumentException(string.Format("Event {0} EntityId doesn't match the Id of the raising entity {1}", Event.GetType(), this.GetType()));
+            //var eb = Event as EventBase;
+            //if (this.Version > 0 && Event.ParentId != this.Id)
+            //    throw new ArgumentException(string.Format("Event {0} EntityId doesn't match the Id of the raising entity {1}", Event.GetType(), this.GetType()));
+            //if (this.Version > 0 && Event.EntityId != this.Id)
+            //    throw new ArgumentException(string.Format("Event {0} EntityId doesn't match the Id of the raising entity {1}", Event.GetType(), this.GetType()));
         }
 
         //public void Create(Guid Id)
