@@ -9,7 +9,7 @@ namespace Growthstories.Sync
 {
 
 
-    public class HttpAuthTokenResponse : IAuthTokenResponse
+    public class AuthToken : IAuthToken
     {
 
         [JsonProperty(PropertyName = "access_token", Required = Required.Always)]
@@ -19,7 +19,7 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = "refresh_token", Required = Required.Always)]
         public string RefreshToken { get; private set; }
 
-        public HttpAuthTokenResponse(string accessToken, int expiresIn, string refreshToken)
+        public AuthToken(string accessToken, int expiresIn, string refreshToken)
         {
             this.AccessToken = accessToken;
             this.ExpiresIn = expiresIn;

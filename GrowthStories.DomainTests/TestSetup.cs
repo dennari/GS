@@ -40,10 +40,11 @@ namespace Growthstories.DomainTests
 
         protected virtual void HttpConfiguration()
         {
-            Bind<IHttpClient, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
+            Bind<IHttpClient, ITransportEvents, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
             Bind<IEndpoint, FakeEndpoint>().To<FakeEndpoint>().InSingletonScope();
             Bind<IRequestFactory, IResponseFactory, FakeRequestResponseFactory>().To<FakeRequestResponseFactory>().InSingletonScope();
-            Bind<IHttpResponseFactory, IHttpRequestFactory, FakeHttpRequestResponseFactory>().To<FakeHttpRequestResponseFactory>().InSingletonScope();
+            Bind<FakeHttpRequestFactory>().To<FakeHttpRequestFactory>().InSingletonScope();
+
 
         }
 
@@ -134,7 +135,6 @@ namespace Growthstories.DomainTests
             UIConfiguration();
 
             Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
-            Bind<ITransportEvents>().To<HttpSyncTransporter>().InSingletonScope();
 
 
 
@@ -174,7 +174,6 @@ namespace Growthstories.DomainTests
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
             Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
-            Bind<IConstructSyncEventStreams>().To<SyncEventStreamFactory>().InSingletonScope();
 
             //Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();
             Bind<IAggregateFactory>().To<AggregateFactory>().InSingletonScope();
@@ -188,7 +187,7 @@ namespace Growthstories.DomainTests
             //Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
             //Bind<ActionProjection>().ToSelf().InSingletonScope();
             //Bind<PlantProjection>().ToSelf().InSingletonScope();
-            Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
+            //Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
             //RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
 

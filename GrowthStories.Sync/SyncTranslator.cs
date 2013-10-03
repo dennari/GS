@@ -13,18 +13,9 @@ namespace Growthstories.Sync
 {
     public class SyncTranslator : ITranslateEvents
     {
-        private readonly IUserService UserService;
-        //private readonly IConstructSyncEventStreams StreamFactory;
+
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncTranslator));
-
-
-        public SyncTranslator(IUserService ancestorFactory)
-        {
-            this.UserService = ancestorFactory;
-            //this.StreamFactory = streamFactory;
-        }
-
 
 
         public IEventDTO Out(IEvent e)
@@ -36,18 +27,6 @@ namespace Growthstories.Sync
                 return null;
 
             ed.EntityVersion -= 1;
-            //ed.StreamEntity = e.EntityId;
-            //ed.AncestorId = UserService.CurrentUser.Id;
-            //if (ee.HasAncestor)
-            //{
-
-            //    ed.StreamAncestor = ed.AncestorId;
-            //}
-
-            //if (ee.HasParent && ed is IAddEntityDTO)
-            //{
-            //    ((IAddEntityDTO)ed).ParentAncestorId = ed.AncestorId;
-            //}
 
 
             return ed;

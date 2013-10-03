@@ -7,7 +7,7 @@ namespace Growthstories.Sync
     {
         IAuthUser CurrentUser { get; }
 
-        Task TryAuth();
+        Task AuthorizeUser();
     }
 
     public class NullUserService : IUserService
@@ -18,7 +18,7 @@ namespace Growthstories.Sync
             get { throw new System.NotImplementedException(); }
         }
 
-        public Task TryAuth()
+        public Task AuthorizeUser()
         {
             throw new System.NotImplementedException();
         }

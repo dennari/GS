@@ -44,5 +44,17 @@ namespace Growthstories.Sync
         {
             get { throw new NotImplementedException(); }
         }
+
+
+        public Uri UserListUri(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Uri PhotoUploadUri
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

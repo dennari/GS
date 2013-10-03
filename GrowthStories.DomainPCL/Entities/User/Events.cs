@@ -123,6 +123,8 @@ namespace Growthstories.Domain.Messaging
             var D = (IAddRelationshipDTO)Dto;
             base.FromDTO(D);
             this.OfUser = D.To;
+            this.RelationshipId = D.EntityId;
+            this.EntityId = this.StreamEntityId ?? default(Guid);
         }
 
     }
@@ -281,6 +283,18 @@ namespace Growthstories.Domain.Messaging
                 throw new ArgumentException();
 
             base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.GardenId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                this.EntityId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
+
         }
 
     }

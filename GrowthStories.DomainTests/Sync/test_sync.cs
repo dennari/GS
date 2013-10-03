@@ -118,8 +118,8 @@ namespace Growthstories.DomainTests
                 return new HttpPushResponse()
                 {
                     ClientDatabaseId = request.ClientDatabaseId,
-                    StatusCode = 200,
-                    StatusDesc = "OK"
+                    StatusCode = GSStatusCode.OK,
+                    StatusDescription = "OK"
                 };
             };
 
@@ -159,8 +159,8 @@ namespace Growthstories.DomainTests
             {
                 return new HttpPushResponse()
                 {
-                    StatusCode = 200,
-                    StatusDesc = "OK",
+                    StatusCode = GSStatusCode.OK,
+                    StatusDescription = "OK",
                     AlreadyExecuted = false
                 };
             };
@@ -189,8 +189,8 @@ namespace Growthstories.DomainTests
 
                 return new HttpPushResponse()
                  {
-                     StatusCode = 404,
-                     StatusDesc = "Needs pulling",
+                     StatusCode = GSStatusCode.VERSION_TOO_LOW,
+                     StatusDescription = "sdfsdf",
                      AlreadyExecuted = false
                  };
             };
@@ -231,8 +231,8 @@ namespace Growthstories.DomainTests
                             throw new TaskCanceledException("BLAA");
                             return new HttpPushResponse()
                             {
-                                StatusCode = 200,
-                                StatusDesc = "OK",
+                                StatusCode = GSStatusCode.OK,
+                                StatusDescription = "OK",
                                 AlreadyExecuted = false
                             };
                         }

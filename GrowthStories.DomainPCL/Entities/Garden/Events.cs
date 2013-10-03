@@ -37,6 +37,18 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created garden {0}", EntityId);
         }
 
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ICreateGardenDTO)Dto;
+
+            base.FromDTO(D);
+
+            this.UserId = this.StreamEntityId ?? default(Guid);
+
+        }
+
+
+
     }
 
     [DTOObject(DTOType.setProperty)]

@@ -60,16 +60,10 @@ namespace Growthstories.DomainTests
                 Kernel.Dispose();
             Kernel = new StandardKernel(new StagingModule());
             App = new TestAppViewModel(Kernel);
-            this.Ctx = Get<IUserService>().CurrentUser;
-
+            Ctx = Get<IUserService>().CurrentUser;
 
         }
 
-        public async Task ClearRemoteDB()
-        {
-            var rFactory = (HttpRequestResponseFactory)Get<IHttpRequestFactory>();
-            await HttpClient.SendAsync(rFactory.CreateClearDBRequest());
-        }
 
         private ILog Log = new LogToNLog(typeof(StagingTestBase));
 
@@ -85,7 +79,7 @@ namespace Growthstories.DomainTests
         public ITranslateEvents Translator { get { return Get<ITranslateEvents>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
         public IGSRepository Repository { get { return Get<IGSRepository>(); } }
-        public IStoreEvents EventStore { get { return Get<IStoreEvents>(); } }
+        public GSEventStore EventStore { get { return (GSEventStore)Get<IStoreEvents>(); } }
 
         public IMessageBus Bus { get { return Get<IMessageBus>(); } }
         public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
@@ -93,7 +87,7 @@ namespace Growthstories.DomainTests
 
         public IUserService UserService { get { return Get<IUserService>(); } }
 
-        public IHttpClient HttpClient { get { return Kernel.Get<IHttpClient>(); } }
+        public SyncHttpClient HttpClient { get { return (SyncHttpClient)Kernel.Get<IHttpClient>(); } }
         public CompareObjects Comparer { get { return new CompareObjects(); } }
 
 

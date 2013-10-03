@@ -157,7 +157,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Schema.resx</DependentUpon>
     </Compile>
-    <Compile Include="Sync\test_sync.cs" />
     <Compile Include="SimpleTest\CompareObjects.cs" />
     <Compile Include="SimpleTest\gs_spec.cs" />
     <Compile Include="SimpleTest\spec_syntax.cs" />
@@ -249,6 +248,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Schema.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plant_bg.jpg" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

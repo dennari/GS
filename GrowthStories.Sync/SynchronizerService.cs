@@ -11,6 +11,7 @@ using System.Net.Http;
 using Growthstories.Domain.Messaging;
 using EventStore.Persistence;
 using Growthstories.Domain;
+using System.Net;
 
 namespace Growthstories.Sync
 {
@@ -24,9 +25,7 @@ namespace Growthstories.Sync
         private readonly GSEventStore Persistence;
         private readonly IGSRepository Repository;
 
-        private readonly IConstructSyncEventStreams StreamFactory;
         private ISyncPushRequest LastPushRequest;
-        private readonly IUserService Context;
         //private AuthTokenService AuthService;
 
         public IList<ISyncPushRequest> PushRequests;
@@ -39,10 +38,7 @@ namespace Growthstories.Sync
         public SynchronizerService(
             ITransportEvents transporter,
             IRequestFactory requestFactory,
-            IGSRepository repository,
-            IConstructSyncEventStreams streamFactory,
-            IUserService ctx,
-            IAuthTokenService authService
+            IGSRepository repository
             )
         {
             Transporter = transporter;
@@ -51,8 +47,6 @@ namespace Growthstories.Sync
             var r = repository as GSRepository;
             if (r != null)
                 Persistence = r.EventStore;
-            StreamFactory = streamFactory;
-            Context = ctx;
         }
 
         //public ITransportEvents GetTransporter
@@ -78,35 +72,15 @@ namespace Growthstories.Sync
             return RequestFactory.CreatePullRequest(this.LastPushRequest.Streams);
         }
 
-        //public IEnumerable<RebasePair> MatchStreams(ISyncPushRequest pushReq, ISyncPullResponse pullResp)
-        //{
-        //    // save
-        //    //foreach (var remote in pullResp.Streams.Except(pushReq.Streams))
-        //    //{
-        //    //    remote.CommitPullChanges(Guid.NewGuid());
-        //    //}
-
-        //    // rebase
-        //    if (pushReq == null)
-        //        throw new ArgumentNullException("pushReq");
-        //    if (pullResp == null)
-        //        throw new ArgumentNullException("pullResp");
-
-        //    return from remote in pullResp.Streams
-        //           select new RebasePair()
-        //           {
-        //               Remote = remote,
-        //               Local = (from local in pushReq.Streams where local.StreamId == remote.StreamId select local).FirstOrDefault()
-        //           };
-
-        //}
-
-
+        public ISyncPullRequest GetRemoteStreamsRequest(IEnumerable<Guid> streamIds)
+        {
+            return RequestFactory.CreatePullRequest(streamIds.Select(x => new SyncEventStream(x, this.Persistence)));
+        }
 
         public void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null)
         {
             Guid? lastExecuted = null;
-            if (pushResp != null && pushResp.StatusCode == 452 && pushResp.LastExecuted != default(Guid))
+            if (pushResp != null && pushResp.StatusCode == GSStatusCode.VERSION_TOO_LOW && pushResp.LastExecuted != default(Guid))
                 lastExecuted = pushResp.LastExecuted;
             foreach (var stream in pushReq.Streams)
             {
@@ -145,34 +119,6 @@ namespace Growthstories.Sync
                 yield return new SyncEventStream(commits, Persistence);
             }
         }
-
-
-
-        //public void Synchronized(ISyncPushRequest pushReq)
-        //{
-        //    MarkSynchronized(pushReq);
-
-
-        //}
-
-
-        public Task TryAuth(ISyncPushRequest pushReq)
-        {
-
-
-            var UE = pushReq.EventsFromStreams().First(y => y is UserCreated && y.EntityId == Context.CurrentUser.Id) as UserCreated;
-
-
-
-
-            return Task.Run(async () =>
-            {
-
-                await Context.TryAuth();
-            });
-
-        }
-
 
 
 
@@ -225,13 +171,9 @@ namespace Growthstories.Sync
 
 
 
-        private async Task<ISyncPullResponse> doCycle(ISyncPushRequest pushReq, ISyncPullResponse pullResp)
+        private async Task<ISyncPullResponse> doCycle(ISyncPushRequest pushReq, ISyncPullResponse prevPullResp)
         {
 
-            if (pullResp != null)
-            {
-
-            }
 
             this.PushRequests.Add(pushReq);
             this.AllCommunication.Add(pushReq);
@@ -239,56 +181,33 @@ namespace Growthstories.Sync
             this.PushResponses.Add(pushResp);
             this.AllCommunication.Add(pushResp);
 
-            if (pushResp.StatusCode == 200) // OK
+            if (pushResp.StatusCode == GSStatusCode.OK) // OK
             {
                 MarkSynchronized(pushReq, pushResp);
-                //syncService.Synchronized(pushReq);
-                try
-                {
-                    await TryAuth(pushReq);
 
-                }
-                catch
-                {
-
-                }
-                //RaiseUserSynced(pushReq);
-                //return null;
             }
-            if (pushResp.StatusCode == 400) // BAD REQUEST
+            if (pushResp.StatusCode == GSStatusCode.BAD_REQUEST) // BAD REQUEST
             {
                 //return null;
             }
-            if (pushResp.StatusCode == 452) // VERSION_TOO_LOW
+            if (pushResp.StatusCode == GSStatusCode.VERSION_TOO_LOW) // VERSION_TOO_LOW
             {
                 MarkSynchronized(pushReq, pushResp);
-                var pullReq = GetPullRequest();
+                var pullReq = RequestFactory.CreatePullRequest(pushReq.Streams);
                 this.PullRequests.Add(pullReq);
                 this.AllCommunication.Add(pullReq);
-                var newPullResp = await Transporter.PullAsync(pullReq);
-                this.PullResponses.Add(newPullResp);
-                this.AllCommunication.Add(newPullResp);
 
-                if (newPullResp.StatusCode == 200)
+                var pullResp = await Transporter.PullAsync(pullReq);
+                this.PullResponses.Add(pullResp);
+                this.AllCommunication.Add(pullResp);
+
+                if (pullResp.StatusCode == GSStatusCode.OK)
                 {
-
-                    List<ISyncEventStream> newStreams = new List<ISyncEventStream>();
-                    foreach (var g in newPullResp.Events.OfType<EventBase>().GroupBy(x => x.StreamEntityId ?? x.EntityId))
-                    {
-                        ISyncEventStream match = pushReq.Streams.FirstOrDefault(x => x.StreamId == g.Key);
-                        if (match == null)
-                        {
-                            match = new SyncEventStream(g.Key, this.Persistence);
-                            newStreams.Add(match);
-                        }
-                        foreach (var e in g.OrderBy(y => y.EntityVersion))
-                            match.AddRemote(e);
-                    }
-
-                    this.HandleRemoteStreams(newStreams);
-                    return newPullResp;
+                    var newStreams = MatchStreams(pullResp, pushReq);
+                    if (newStreams.Count > 0)
+                        throw new InvalidOperationException("Extraneous streams present in the pull response.");
+                    return pullResp;
                 }
-
 
 
             }
@@ -297,23 +216,24 @@ namespace Growthstories.Sync
 
         }
 
-        private void HandleRemoteStreams(IEnumerable<ISyncEventStream> remoteStreams)
+
+
+        public List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req)
         {
-            foreach (var stream in remoteStreams)
+            List<ISyncEventStream> unmatched = new List<ISyncEventStream>();
+            foreach (var g in resp.Events)
             {
-                stream.CommitChanges(Guid.NewGuid());
+                ISyncEventStream match = req.Streams.FirstOrDefault(x => x.StreamId == g.Key);
+                if (match == null)
+                {
+                    match = new SyncEventStream(g.Key, this.Persistence);
+                    unmatched.Add(match);
+                }
+                foreach (var e in g.OrderBy(y => y.EntityVersion))
+                    match.AddRemote(e);
             }
+            return unmatched;
         }
-
-
-
-
-
-
-
-
-
-
 
 
 

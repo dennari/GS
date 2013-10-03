@@ -14,10 +14,9 @@ namespace Growthstories.DomainTests
 
         protected override void HttpConfiguration()
         {
-            Bind<IHttpClient>().To<SyncHttpClient>().InSingletonScope();
+            Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
             Bind<IEndpoint>().To<StagingEndpoint>();
             Bind<IRequestFactory, IResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
-            Bind<IHttpRequestFactory, IHttpResponseFactory>().To<HttpRequestResponseFactory>().InSingletonScope();
 
         }
 

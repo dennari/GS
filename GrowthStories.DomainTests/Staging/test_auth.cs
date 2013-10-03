@@ -25,6 +25,9 @@ using EventStore.Logging;
 using Growthstories.UI;
 using System.Text;
 using Growthstories.UI.ViewModel;
+using System.IO;
+
+
 
 namespace Growthstories.DomainTests
 {
@@ -47,14 +50,15 @@ namespace Growthstories.DomainTests
         public async Task TestAuth()
         {
 
-            await ClearRemoteDB();
-            var R = await App.Synchronize();
+            await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
+            await Get<IUserService>().AuthorizeUser();
+
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);
             Assert.Greater(Ctx.ExpiresIn, 0);
             //Assert.IsNull(auth.ExpiresIn);
-            SyncAssertions(R);
+            //SyncAssertions(R);
 
 
         }
@@ -104,7 +108,7 @@ namespace Growthstories.DomainTests
                 Assert.Fail("last communication should be of type ISyncPushResponse");
             }
 
-            Assert.AreEqual(200, lastResponse.StatusCode);
+            Assert.AreEqual(GSStatusCode.OK, lastResponse.StatusCode);
             return lastResponse;
         }
 
@@ -280,13 +284,13 @@ namespace Growthstories.DomainTests
 
 
 
-            var pushResp = await Transporter.PushAsync(new HttpPushRequest()
+            var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
                 Events = Translator.Out(new IEvent[] { plant, addPlant, fCmd }).ToArray(),
                 ClientDatabaseId = Guid.NewGuid()
             });
 
-            Assert.AreEqual(200, pushResp.StatusCode);
+            Assert.AreEqual(GSStatusCode.OK, pushResp.StatusCode);
 
 
             Log.Info("TestAddRelationship");
@@ -322,6 +326,180 @@ namespace Growthstories.DomainTests
 
             return relationshipCmd;
 
+        }
+
+        [Test]
+        public async void RealTestPullRemoteUser()
+        {
+
+            await TestPullRemoteUser();
+
+        }
+
+        public async Task TestPullRemoteUser()
+        {
+
+            var garden = await TestCreateGarden();
+
+            var originalRemoteEvents = await CreateRemoteData();
+
+            var remoteUser = (UserCreated)originalRemoteEvents[0];
+
+            var listUsersResponse = await Transporter.ListUsersAsync(remoteUser.Username);
+
+            Assert.AreEqual(GSStatusCode.OK, listUsersResponse.StatusCode);
+            Assert.AreEqual(1, listUsersResponse.Users.Count);
+
+            var fetchedUser = listUsersResponse.Users[0];
+            Assert.AreEqual(remoteUser.Username, fetchedUser.Username);
+            Assert.AreEqual(remoteUser.EntityId, fetchedUser.EntityId);
+
+
+
+            //var relationshipCmd = new BecomeFollower(Ctx.Id, remoteUser.EntityId, Guid.NewGuid());
+            //Bus.SendCommand(relationshipCmd);
+
+            var pullRequest = RequestFactory.CreatePullRequest(
+                    new Guid[] { remoteUser.EntityId }.Select(x => new SyncEventStream(x, EventStore) { Type = "USER" }));
+
+            var userStream = pullRequest.Streams.First() as SyncEventStream;
+
+            var pullResponse = await Transporter.PullAsync(pullRequest);
+
+
+            Assert.AreEqual(GSStatusCode.OK, pullResponse.StatusCode);
+            var remoteEvents = pullResponse.Events.ToArray();
+            Assert.AreEqual(1, remoteEvents.Length);
+            Assert.AreEqual(remoteUser.EntityId, remoteEvents[0].Key);
+
+            foreach (var remoteEvent in remoteEvents[0])
+                userStream.AddRemote(remoteEvent);
+
+            userStream.CommitRemoteChanges(Guid.NewGuid());
+
+
+            var remoteUserAggregate = (User)Repository.GetById(remoteUser.EntityId);
+
+            Assert.AreEqual(4, remoteUserAggregate.Version);
+            Assert.AreEqual(remoteUser.Username, remoteUserAggregate.State.Username);
+            Assert.AreEqual(1, remoteUserAggregate.State.Gardens.Count);
+            Assert.AreEqual(originalRemoteEvents[1].EntityId, remoteUserAggregate.State.GardenId);
+            Assert.AreEqual(originalRemoteEvents[3].EntityId, remoteUserAggregate.State.Gardens[remoteUserAggregate.State.GardenId].PlantIds[0]);
+
+        }
+
+        [Test]
+        public async void RealTestPhoto()
+        {
+
+            await TestPhoto();
+
+        }
+
+        public async Task TestPhoto()
+        {
+            var plant = (CreatePlant)(await TestCreatePlant());
+
+            var uploadUriResponse = await Transporter.RequestPhotoUploadUri();
+
+            Assert.AreEqual(GSStatusCode.OK, uploadUriResponse.StatusCode);
+
+
+            var T = Transporter as SyncHttpClient;
+
+            var file = File.Open(@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.DomainTests\plant_bg.jpg", FileMode.Open);
+
+            T.AuthToken = null;
+            var R = await T.Upload(uploadUriResponse.UploadUri, file);
+
+            Assert.IsTrue(R.IsSuccessStatusCode);
+
+            var blobkey = await R.Content.ReadAsStringAsync();
+
+            Log.Info(blobkey);
+
+
+        }
+
+
+        protected async Task<List<IEvent>> CreateRemoteData()
+        {
+            // create remote data
+            var remoteUser = new UserCreated(new CreateUser(
+                Guid.NewGuid(),
+                randomize("Bob"),
+                randomize("swordfish"),
+                randomize("bob") + "@wonderland.net"))
+            {
+                EntityVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                EventId = Guid.NewGuid()
+            };
+
+            var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            {
+                Events = new IEventDTO[] { Translator.Out(remoteUser) },
+                ClientDatabaseId = Guid.NewGuid()
+            });
+            Assert.AreEqual(GSStatusCode.OK, pushResp.StatusCode);
+
+            var remoteGarden = new GardenCreated(new CreateGarden(Guid.NewGuid(), remoteUser.EntityId))
+            {
+                EntityVersion = 2,
+                Created = DateTimeOffset.UtcNow,
+                EventId = Guid.NewGuid()
+            };
+
+            var remoteAddGarden = new GardenAdded(new AddGarden(remoteUser.EntityId, remoteGarden.EntityId))
+            {
+                EntityVersion = 3,
+                Created = DateTimeOffset.UtcNow,
+                EventId = Guid.NewGuid()
+            };
+
+            var remotePlant = new PlantCreated(new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteUser.EntityId))
+            {
+                EntityVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                EventId = Guid.NewGuid()
+            };
+
+
+            var remoteAddPlant = new PlantAdded(new AddPlant(remoteGarden.EntityId, remotePlant.EntityId, remoteUser.EntityId, "RemoteJare"))
+            {
+                EntityVersion = 4,
+                Created = DateTimeOffset.UtcNow,
+                EventId = Guid.NewGuid()
+            };
+
+            var remoteEvents = new List<IEvent>() { 
+                remoteGarden, 
+                remoteAddGarden, 
+                remotePlant, 
+                remoteAddPlant 
+            };
+
+
+
+            var currentAuth = HttpClient.AuthToken;
+
+            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Username, remoteUser.Password);
+            Assert.AreEqual(authResponse.StatusCode, GSStatusCode.OK);
+            HttpClient.AuthToken = authResponse.AuthToken;
+
+            var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            {
+                Events = Translator.Out(remoteEvents).ToArray(),
+                ClientDatabaseId = Guid.NewGuid()
+            });
+
+            Assert.AreEqual(GSStatusCode.OK, pushResp2.StatusCode);
+
+            HttpClient.AuthToken = currentAuth;
+
+            remoteEvents.Insert(0, remoteUser);
+
+            return remoteEvents;
         }
 
 

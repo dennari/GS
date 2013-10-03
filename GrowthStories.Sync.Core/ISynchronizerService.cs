@@ -29,7 +29,7 @@ namespace Growthstories.Sync
 
         //void Synchronized(ISyncPushRequest pushReq);
 
-        Task TryAuth(ISyncPushRequest pushReq);
+        //Task TryAuth(ISyncPushRequest pushReq);
     }
 
     public struct RebasePair

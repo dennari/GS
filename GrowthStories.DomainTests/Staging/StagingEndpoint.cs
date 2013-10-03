@@ -45,5 +45,17 @@ namespace Growthstories.DomainTests
         {
             get { return new Uri(_Uri, "/api/test/clearDS"); }
         }
+
+
+        public Uri UserListUri(string username)
+        {
+            return new Uri(_Uri, string.Format("/api/user/list?prefix={0}", username));
+        }
+
+
+        public Uri PhotoUploadUri
+        {
+            get { return new Uri(_Uri, "/api/photo/uploadurl"); }
+        }
     }
 }

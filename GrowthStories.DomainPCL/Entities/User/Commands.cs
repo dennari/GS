@@ -2,6 +2,7 @@
 //using CommonDomain;
 using System;
 using Growthstories.Core;
+using Growthstories.Sync;
 
 
 namespace Growthstories.Domain.Messaging
@@ -58,7 +59,7 @@ namespace Growthstories.Domain.Messaging
             this.RefreshToken = refreshToken;
         }
 
-        public SetAuthToken(Guid id, Sync.IAuthTokenResponse auth)
+        public SetAuthToken(Guid id, IAuthToken auth)
             : this(id, auth.AccessToken, auth.RefreshToken, auth.ExpiresIn)
         {
 

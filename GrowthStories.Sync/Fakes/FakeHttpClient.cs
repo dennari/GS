@@ -9,16 +9,20 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public class FakeHttpClient : IHttpClient
+    public class FakeHttpClient : IHttpClient, ITransportEvents
     {
 
-        public FakeHttpClient(IJsonFactory jFactory)
+
+        private readonly IResponseFactory ResponseFactory;
+
+
+        public FakeHttpClient(
+            IResponseFactory responseFactory
+            )
         {
-            this.jFactory = jFactory;
+            this.ResponseFactory = responseFactory;
         }
 
-
-        private IJsonFactory jFactory;
 
 
 
@@ -44,6 +48,59 @@ namespace Growthstories.Sync
             {
                 return "";
             });
+        }
+
+        public Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
+        {
+            return Task.Run<ISyncPushResponse>(async () =>
+            {
+                return ResponseFactory.CreatePushResponse(await SendAndGetBodyAsync(null));
+
+            });
+        }
+
+
+        public Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
+        {
+            return Task.Run<ISyncPullResponse>(async () =>
+            {
+                return ResponseFactory.CreatePullResponse(await SendAndGetBodyAsync(null));
+            });
+        }
+
+        public Task<IAuthResponse> RequestAuthAsync(string username, string password)
+        {
+            return Task.Run<IAuthResponse>(async () =>
+            {
+                return ResponseFactory.CreateAuthResponse(await SendAndGetBodyAsync(null));
+            });
+        }
+
+
+        protected IAuthToken _AuthToken;
+        public IAuthToken AuthToken
+        {
+            get
+            {
+                return _AuthToken;
+            }
+            set
+            {
+                _AuthToken = value;
+            }
+        }
+
+
+
+        public Task<IUserListResponse> ListUsersAsync(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
+        {
+            throw new NotImplementedException();
         }
     }
 }

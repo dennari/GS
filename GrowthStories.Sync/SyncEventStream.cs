@@ -23,6 +23,7 @@ namespace Growthstories.Sync
 
         public ICollection<IEvent> UncommittedRemoteEvents { get { return RemoteEvents; } }
 
+        public string Type { get; set; }
 
         private readonly IList<IEvent> Events = new List<IEvent>();
 

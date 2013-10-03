@@ -36,6 +36,10 @@ namespace Growthstories.Sync
         public const string COMMANDS = "cmds";
         public const string STATUS_CODE = "statusCode";
         public const string STATUS_DESCRIPTION = "statusDesc";
+        public const string TAGS = "tags";
+        public const string GARDEN = "garden";
+        public const string PLANTS = "plants";
+        public const string USERS = "users";
 
         //public const string PUSH_ID = "pushId";
         public const string CLIENT_ID = "clientDatabaseId";

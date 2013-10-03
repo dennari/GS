@@ -17,12 +17,11 @@ namespace Growthstories.Domain.Entities
 
     public class GardenState : AggregateState<GardenCreated>
     {
-        private GardenCreated @event;
 
 
         public Guid UserId { get; private set; }
 
-        public ICollection<Guid> PlantIds { get; private set; }
+        public IList<Guid> PlantIds { get; private set; }
 
         public GardenState()
             : base()

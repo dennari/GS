@@ -7,7 +7,8 @@ using Newtonsoft.Json;
 using EventStore.Logging;
 using Growthstories.Core;
 using System.Net.Http.Headers;
-
+using System.Net;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.Sync
 {
@@ -29,7 +30,7 @@ namespace Growthstories.Sync
             var streamsC = streams.ToArray();
 
             //var ee = Translator.Out(streamsC).ToArray();
-            var req = new HttpPushRequest()
+            var req = new HttpPushRequest(jFactory)
             {
                 Events = Translator.Out(streamsC),
                 Streams = streamsC,
@@ -43,7 +44,7 @@ namespace Growthstories.Sync
         public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
         {
             var streamsC = streams.ToArray();
-            var req = new HttpPullRequest()
+            var req = new HttpPullRequest(jFactory)
             {
                 Streams = streamsC
             };
@@ -53,16 +54,69 @@ namespace Growthstories.Sync
         public ISyncPullResponse CreatePullResponse(string reponse)
         {
             Logger.Info(reponse);
-            var r = jFactory.Deserialize<HttpPullResponse>(reponse);
-            if (r.DTOs != null && r.DTOs.Count > 0)
+            var helper = jFactory.Deserialize<HelperPullResponse>(reponse);
+            var r = new HttpPullResponse();
+            if (helper.DTOs != null && helper.DTOs.Count > 0)
             {
-                r.StatusCode = 200;
-                r.Events = r.DTOs.Select(x => Translator.In(x));
+                r.StatusCode = GSStatusCode.OK;
+                r.Events = helper.DTOs
+                    .Select(x => Translator.In(x))
+                    .OfType<EventBase>()
+                    .GroupBy(x => x.StreamEntityId ?? x.EntityId);
             }
 
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);
             return r;
         }
+
+        public IAuthResponse CreateAuthResponse(string response)
+        {
+
+            var r = new AuthResponse();
+            try
+            {
+                r.AuthToken = jFactory.Deserialize<AuthToken>(response);
+                if (string.IsNullOrWhiteSpace(r.AuthToken.AccessToken)
+                    || string.IsNullOrWhiteSpace(r.AuthToken.RefreshToken)
+                    || r.AuthToken.ExpiresIn < 60)
+                    throw new InvalidOperationException();
+                r.StatusCode = GSStatusCode.OK;
+            }
+            catch
+            {
+                r.StatusCode = GSStatusCode.INTERNAL_SERVER_ERROR;
+            }
+            return r;
+        }
+
+
+        public IUserListResponse CreateUserListResponse(string response)
+        {
+
+            var r = new UserListResponse();
+            try
+            {
+                r.Users = jFactory.Deserialize<List<RemoteUser>>(response);
+                r.StatusCode = GSStatusCode.OK;
+            }
+            catch
+            {
+                r.StatusCode = GSStatusCode.INTERNAL_SERVER_ERROR;
+            }
+            return r;
+        }
+
+        public IPhotoUploadUriResponse CreatePhotoUploadUriResponse(string response)
+        {
+
+            return new PhotoUploadUriResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                UploadUri = new Uri(response, UriKind.Absolute)
+            };
+
+        }
+
 
         public ISyncPushResponse CreatePushResponse(string response)
         {

@@ -13,5 +13,9 @@ namespace Growthstories.Sync
         Uri AuthUri { get; }
         Uri ClearDBUri { get; }
 
+
+        Uri UserListUri(string username);
+
+        Uri PhotoUploadUri { get; }
     }
 }

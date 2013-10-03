@@ -85,8 +85,6 @@ namespace Growthstories.Domain.Messaging
             this.Tags = cmd.Tags;
 
 
-
-
         }
 
         public override string ToString()
@@ -106,6 +104,7 @@ namespace Growthstories.Domain.Messaging
             var D = (ICreatePlantDTO)Dto;
             base.FromDTO(D);
             this.Name = D.Name;
+            this.UserId = this.AncestorId ?? default(Guid);
         }
 
 
@@ -258,7 +257,19 @@ namespace Growthstories.Domain.Messaging
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.plant || D.PropertyName != "wateringSchedule")
+                throw new ArgumentException();
 
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.ScheduleId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
 
             base.FromDTO(D);
         }
@@ -295,22 +306,31 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            base.FillDTO(D);
-            D.PropertyName = Language.SHARED;
-            D.PropertyValue = false;
             D.EntityType = DTOType.plant;
+            D.PropertyName = "fertilizingSchedule";
+            D.PropertyValue = new JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.ScheduleId.ToString();
+
+            base.FillDTO(D);
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.PropertyName != Language.SHARED)
+            if (D.EntityType != DTOType.plant || D.PropertyName != "fertilizingSchedule")
                 throw new ArgumentException();
-            if ((bool)D.PropertyValue != false)
-                throw new ArgumentException();
-            if (D.EntityType != DTOType.plant)
-                throw new ArgumentException();
-            base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.ScheduleId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
 
         }
 

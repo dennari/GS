@@ -17,12 +17,25 @@ namespace Growthstories.Sync
         private ISyncPushRequest LastPushRequest;
 
         private ITranslateEvents Translator;
+        private IJsonFactory jFac;
 
-        public FakeRequestResponseFactory(ITranslateEvents translator)
+        public FakeRequestResponseFactory(ITranslateEvents translator, IJsonFactory jFac)
         {
             this.Translator = translator;
+            this.jFac = jFac;
         }
 
+        public IAuthResponse CreateAuthResponse(string response)
+        {
+            return new AuthResponse()
+            {
+                AuthToken = new AuthToken("gfdg", 7200, "fghfghf"),
+                StatusCode = GSStatusCode.OK,
+                StatusDescription = "OK"
+            };
+
+
+        }
 
         public ISyncPullResponse CreatePullResponse(string reponse)
         {
@@ -45,7 +58,7 @@ namespace Growthstories.Sync
             var streamsC = streams.ToArray();
 
             //var events = streamsC.
-            var req = new HttpPushRequest()
+            var req = new HttpPushRequest(jFac)
             {
                 Events = Translator.Out(streamsC).ToArray(),
                 Streams = streamsC,
@@ -59,12 +72,18 @@ namespace Growthstories.Sync
         public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
         {
             var streamsC = streams.ToArray();
-            var req = new HttpPullRequest()
+            var req = new HttpPullRequest(jFac)
             {
                 Streams = streamsC
             };
             this.LastPullRequest = req;
             return req;
+        }
+
+
+        public IUserListResponse CreateUserListResponse(string response)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -51,28 +51,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
-    <Compile Include="IAuthTokenResponse.cs" />
-    <Compile Include="IAuthTokenService.cs" />
-    <Compile Include="IAuthUser.cs" />
     <Compile Include="IConstructSyncEventStreams.cs" />
     <Compile Include="IEndpoint.cs" />
     <Compile Include="IJsonFactory.cs" />
     <Compile Include="ISyncPushResponse.cs" />
     <Compile Include="ISynchronizerService.cs" />
     <Compile Include="IUserService.cs" />
-    <Compile Include="IResponseFactory.cs" />
+    <Compile Include="SyncMessageInterfaces.cs" />
     <Compile Include="ISyncEventStream.cs" />
-    <Compile Include="ISyncPullRequest.cs" />
-    <Compile Include="ISyncPushRequest.cs" />
-    <Compile Include="ISyncPullResponse.cs" />
     <Compile Include="IEventStream.cs" />
     <Compile Include="DTOType.cs" />
     <Compile Include="IEventDTO.cs" />
     <Compile Include="IHttpClient.cs" />
-    <Compile Include="IRequestFactory.cs" />
     <Compile Include="IStoreSyncHeads.cs" />
-    <Compile Include="ISyncRequest.cs" />
-    <Compile Include="ISyncResponse.cs" />
     <Compile Include="ITranslateEvents.cs" />
     <Compile Include="ITransportEvents.cs" />
     <Compile Include="Language.cs" />

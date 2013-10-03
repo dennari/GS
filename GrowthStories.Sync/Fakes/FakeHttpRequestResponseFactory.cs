@@ -6,26 +6,22 @@ using System.Text;
 
 namespace Growthstories.Sync
 {
-    public class FakeHttpRequestResponseFactory : IHttpResponseFactory, IHttpRequestFactory
+    public class FakeHttpRequestFactory
     {
 
 
-        public Func<string, string, IAuthTokenResponse> BuildAuthResponse;
+        public Func<string, string, IAuthToken> BuildAuthResponse;
 
         public ISyncPullRequest LastPullRequest;
         public ISyncPushRequest LastPushRequest;
         public string Username;
         public string Password;
 
-        public FakeHttpRequestResponseFactory()
+        public FakeHttpRequestFactory()
         {
-            this.BuildAuthResponse = (u, p) => new HttpAuthTokenResponse("1234", 5600, "1234");
+            this.BuildAuthResponse = (u, p) => new AuthToken("1234", 5600, "1234");
         }
 
-        public IAuthTokenResponse CreateAuthTokenResponse(string response)
-        {
-            return BuildAuthResponse(Username, Password);
-        }
 
         public HttpRequestMessage CreatePushRequest(ISyncPushRequest req)
         {
@@ -39,7 +35,7 @@ namespace Growthstories.Sync
             return new HttpRequestMessage();
         }
 
-        public HttpRequestMessage CreateAuthTokenRequest(string username, string password)
+        public HttpRequestMessage CreateAuthRequest(string username, string password)
         {
             this.Username = username;
             this.Password = password;
