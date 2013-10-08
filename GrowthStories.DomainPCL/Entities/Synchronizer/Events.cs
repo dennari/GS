@@ -20,7 +20,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created Synchronizer {0}", EntityId);
+            return string.Format(@"Created Synchronizer {0}", AggregateId);
         }
 
     }
@@ -32,7 +32,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Synchronized.", EntityId);
+            return string.Format(@"Synchronized.", AggregateId);
         }
 
     }

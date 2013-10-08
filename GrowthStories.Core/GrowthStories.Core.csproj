@@ -66,10 +66,8 @@
     <Compile Include="IAggregateFactory.cs" />
     <Compile Include="IAppliesEvents.cs" />
     <Compile Include="IApplyState.cs" />
-    <Compile Include="ICommand.cs" />
     <Compile Include="IEventHandler.cs" />
-    <Compile Include="IEvent.cs" />
-    <Compile Include="IMessage.cs" />
+    <Compile Include="MessageInterfaces.cs" />
     <Compile Include="IStateAggregate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions.cs" />

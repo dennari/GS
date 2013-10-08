@@ -1,8 +1,8 @@
 ﻿using EventStore;
 using EventStore.Dispatcher;
 using Growthstories.Core;
-using Growthstories.Domain.Messaging;
-using Growthstories.Domain;
+//using Growthstories.Domain.Messaging;
+//using Growthstories.Domain;
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace Growthstories.Sync
     {
         public const string REMOTE_COMMIT_HEADER = "REMOTE_COMMIT";
 
-        public Commit[] Commits { get; private set; }
+        public GSCommit[] Commits { get; private set; }
 
         private Commit[] PendingCommits { get; set; }
 
@@ -23,17 +23,26 @@ namespace Growthstories.Sync
 
         public ICollection<IEvent> UncommittedRemoteEvents { get { return RemoteEvents; } }
 
-        public string Type { get; set; }
+        public SyncStreamType Type { get; set; }
+        public long SyncStamp { get; set; }
 
         private readonly IList<IEvent> Events = new List<IEvent>();
 
 
-        private readonly GSEventStore Persistence;
+        private readonly ICommitEvents Persistence;
+        private readonly IPersistSyncStreams SyncPersistence;
+
         private static readonly ILog Logger = LogFactory.BuildLogger(typeof(SyncEventStream));
 
 
-        public SyncEventStream(IGrouping<Guid, Commit> commits, GSEventStore persistence)
-            : this(commits.Key, persistence)
+
+
+
+        public SyncEventStream(
+            IGrouping<Guid, GSCommit> commits,
+            ICommitEvents persistence,
+            IPersistSyncStreams syncPersistence)
+            : this(commits.Key, persistence, syncPersistence)
         {
             if (commits == null)
                 throw new ArgumentNullException();
@@ -42,38 +51,98 @@ namespace Growthstories.Sync
 
 
             this.PopulateStream(int.MinValue, int.MaxValue, this.Commits);
-            this.CheckSyncHead();
+            //this.CheckSyncHead();
 
         }
 
-        protected void CheckSyncHead()
+        public SyncEventStream(IGrouping<Guid, IEvent> events, ICommitEvents persistence, IPersistSyncStreams syncPersistence) :
+            this(events.Key, persistence, syncPersistence)
         {
-            var shouldBe = Persistence.MoreAdvanced.GetStreamRevision(this.StreamId);
-            //var actually = commits.Last().StreamRevision;
-            var diff = shouldBe - this.StreamRevision;
-            if (diff > 0)
+
+            //var commits = persistence.GetFrom(this.StreamId, 0, int.MaxValue);
+
+            //var first = commits.FirstOrDefault();
+
+            //if (first == null)
+            //    throw new StreamNotFoundException();
+
+            //var ffirst = first as GSCommit;
+            //if (ffirst != null)
+            //{
+            //    this.Type = ffirst.SyncStreamType;
+            //}
+
+
+            //this.PopulateStream(0, int.MaxValue, new Commit[] { first }.Concat(commits));
+
+
+
+
+            foreach (var e in events)
             {
-                foreach (var e in this.Events())
-                {
-                    e.EntityVersion += diff;
-                }
+
+                this.AddRemote(e);
+
             }
+
         }
 
 
-        public SyncEventStream(Guid streamId, GSEventStore persistence)
+
+
+        public SyncEventStream(Guid streamId, ICommitEvents persistence, IPersistSyncStreams syncPersistence)
             : base(streamId, persistence)
         {
 
             this.Persistence = persistence;
+            this.SyncPersistence = syncPersistence;
 
         }
+
+
+        public SyncEventStream(GSStreamHead streamHead, ICommitEvents persistence, IPersistSyncStreams syncPersistence)
+            : base(streamHead.StreamId, persistence)
+        {
+
+            this.Persistence = persistence;
+            this.SyncPersistence = syncPersistence;
+            this._StreamRevision = streamHead.HeadRevision;
+            this.Type = streamHead.SyncStreamType;
+            this.SyncStamp = streamHead.SyncStamp;
+
+        }
+
+        public SyncEventStream(Guid streamId, ICommitEvents persistence, int minRevision, int maxRevision, IPersistSyncStreams syncPersistence)
+            : base(streamId, persistence, minRevision, maxRevision)
+        {
+            this.SyncPersistence = syncPersistence;
+            this.Persistence = persistence;
+        }
+
+        public SyncEventStream(Snapshot snapshot, ICommitEvents persistence, int maxRevision, IPersistSyncStreams syncPersistence)
+            : base(snapshot, persistence, maxRevision)
+        {
+            this.SyncPersistence = syncPersistence;
+            this.Persistence = persistence;
+        }
+
+
+        protected int? _StreamRevision;
+        public override int StreamRevision
+        {
+            get
+            {
+                if (_StreamRevision.HasValue)
+                    return _StreamRevision.Value;
+                return base.StreamRevision;
+            }
+        }
+
 
         public void AddRemote(IEvent e)
         {
             this.RemoteEvents.Add(e);
             this.Add(e, true);
-            this.UncommittedHeaders[REMOTE_COMMIT_HEADER] = 1;
         }
 
         public IEnumerable<IEventDTO> Translate(ITranslateEvents translator)
@@ -82,7 +151,7 @@ namespace Growthstories.Sync
                 .Select(x =>
                 {
                     var re = translator.Out((IEvent)x.Body);
-                    re.EntityVersion += this.RemoteEvents.Count();
+                    re.AggregateVersion += this.RemoteEvents.Count();
                     return re;
                 });
 
@@ -91,11 +160,11 @@ namespace Growthstories.Sync
         public void Add(IEvent e, bool setVersion = false)
         {
             var correctVersion = this.StreamRevision + this.Events.Count + 1;
-            if (e.EntityVersion != correctVersion)
+            if (e.AggregateVersion != correctVersion)
             {
                 if (!setVersion)
-                    throw new InvalidOperationException(string.Format("SyncEventStream Add: event has version {0}, should have {1}", e.EntityVersion, correctVersion));
-                e.EntityVersion = correctVersion;
+                    throw new InvalidOperationException(string.Format("SyncEventStream Add: event has version {0}, should have {1}", e.AggregateVersion, correctVersion));
+                e.AggregateVersion = correctVersion;
             }
             this.Events.Add(e);
             base.Add(new EventMessage() { Body = e });
@@ -180,11 +249,26 @@ namespace Growthstories.Sync
 
         }
 
+
+
+        protected override Commit BuildCommitAttempt(Guid commitId)
+        {
+            //Logger.Debug(Resources.BuildingCommitAttempt, commitId, this.StreamId);
+            return new GSCommit(base.BuildCommitAttempt(commitId), false, Type);
+        }
+
+
         public void CommitRemoteChanges(Guid commitId)
         {
+
+            if (!this.HasChanges())
+                return;
+
             try
             {
-                var attempt = this.BuildCommitAttempt(commitId);
+                var attempt = this.BuildCommitAttempt(commitId) as GSCommit;
+                attempt.Synchronized = true;
+                attempt.SyncStamp = this.SyncStamp;
 
                 //Logger.Debug(Resources.PersistingCommit, commitId, this.StreamId);
                 this.Persistence.Commit(attempt);
@@ -195,7 +279,7 @@ namespace Growthstories.Sync
 
                 this.ClearChanges();
                 this.RemoteEvents.Clear();
-                this.Persistence.MoreAdvanced.MarkCommitAsSynchronized(attempt);
+                //this.Persistence.MoreAdvanced.MarkCommitAsSynchronized(attempt);
             }
             catch (ConcurrencyException)
             {
@@ -210,15 +294,53 @@ namespace Growthstories.Sync
 
         }
 
+        public bool MarkCommitsSynchronized(ISyncPushResponse pushResp = null)
+        {
+            if (this.Commits == null || this.Commits.Length == 0)
+                return false;
+
+            int outerCounter = 0;
+            Guid? lastExecuted = null;
+            if (pushResp != null && pushResp.StatusCode == GSStatusCode.VERSION_TOO_LOW && pushResp.LastExecuted != default(Guid))
+                lastExecuted = pushResp.LastExecuted;
+
+
+
+
+            foreach (var commit in this.Commits)
+            {
+                int counter = 0;
+                if (lastExecuted.HasValue)
+                {
+                    foreach (var e in commit.Events.Select(x => (IEvent)x.Body))
+                    {
+                        counter++;
+                        if (e.MessageId == lastExecuted.Value)
+                            break;
+                    }
+                }
+                if (!lastExecuted.HasValue || counter == commit.Events.Count)
+                {
+                    this.SyncPersistence.MarkCommitAsSynchronized(commit);
+                    outerCounter++;
+                }
+
+            }
+
+            return outerCounter == this.Commits.Length;
+
+        }
+
+
         private int EnumerateEvents(IEnumerable<EventMessage> events, int Revision, bool set)
         {
             foreach (var e in events)
             {
                 var ee = ((IEvent)e.Body);
                 if (set)
-                    ee.EntityVersion = Revision;
-                else if (ee.EntityVersion != Revision)
-                    throw new InvalidOperationException(string.Format("IEvent.EntityVersion = {0}, Revision = {1}", ee.EntityVersion, Revision));
+                    ee.AggregateVersion = Revision;
+                else if (ee.AggregateVersion != Revision)
+                    throw new InvalidOperationException(string.Format("IEvent.EntityVersion = {0}, Revision = {1}", ee.AggregateVersion, Revision));
                 Revision++;
             }
             return Revision;

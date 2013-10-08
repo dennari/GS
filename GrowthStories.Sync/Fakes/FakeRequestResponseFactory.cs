@@ -85,5 +85,21 @@ namespace Growthstories.Sync
         {
             throw new NotImplementedException();
         }
+
+
+        public ISyncPushRequest CreatePushRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISyncPullRequest CreatePullRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

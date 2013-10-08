@@ -200,7 +200,7 @@ namespace Growthstories.UI.ViewModel
 
         public virtual void SetProperty(PlantActionPropertySet prop)
         {
-            if (this.State == null || prop.EntityId != this.PlantActionId || prop.Type != this.State.Type)
+            if (this.State == null || prop.AggregateId != this.PlantActionId || prop.Type != this.State.Type)
                 throw new InvalidOperationException();
             if (prop.Note != null)
                 this.Note = prop.Note;

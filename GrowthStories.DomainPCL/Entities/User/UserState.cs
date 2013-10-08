@@ -32,6 +32,9 @@ namespace Growthstories.Domain.Entities
     public class UserState : AggregateState<UserCreated>, IAuthUser
     {
 
+        public static readonly Guid UnregUserId = new Guid("11000000-0000-0000-0000-000000000011");
+        public static readonly Guid UnregUserGardenId = new Guid("11100000-0000-0000-0000-000000000111");
+
         private IDictionary<Guid, Relationship> Relationships = new Dictionary<Guid, Relationship>();
 
         public IDictionary<Guid, ScheduleState> Schedules { get; private set; }
@@ -75,29 +78,29 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(BecameFollower @event)
         {
-            if (@event.EntityId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Relationship");
             }
             Relationship current = default(Relationship);
-            if (this.Relationships.TryGetValue(@event.RelationshipId, out current))
+            if (this.Relationships.TryGetValue(@event.EntityId.Value, out current))
             {
                 throw new InvalidOperationException("Already a follower");
 
             }
 
-            this.Relationships[@event.RelationshipId] = new Relationship(this.Id, @event.OfUser, RelationshipType.FOLLOWER);
+            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, @event.OfUser, RelationshipType.FOLLOWER);
         }
 
 
         public void Apply(FriendshipRequested @event)
         {
-            if (@event.EntityId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Relationship");
             }
             Relationship current = default(Relationship);
-            if (!this.Relationships.TryGetValue(@event.RelationshipId, out current))
+            if (!this.Relationships.TryGetValue(@event.EntityId.Value, out current))
             {
                 throw new InvalidOperationException("Tried to request friendship without becoming a follower first");
 
@@ -108,17 +111,17 @@ namespace Growthstories.Domain.Entities
 
             }
 
-            this.Relationships[@event.RelationshipId] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND_REQUEST);
+            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND_REQUEST);
         }
 
         public void Apply(FriendshipAccepted @event)
         {
-            if (@event.EntityId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Relationship");
             }
             Relationship current = default(Relationship);
-            if (!this.Relationships.TryGetValue(@event.RelationshipId, out current))
+            if (!this.Relationships.TryGetValue(@event.EntityId.Value, out current))
             {
                 throw new InvalidOperationException("Tried to accept friendship without having a request first");
 
@@ -129,7 +132,7 @@ namespace Growthstories.Domain.Entities
 
             }
 
-            this.Relationships[@event.RelationshipId] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND);
+            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND);
         }
 
         public void Apply(AuthTokenSet @event)
@@ -142,12 +145,12 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PlantAdded @event)
         {
-            if (@event.UserId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Can't create garden under user with incorrect id");
             }
             GardenState gardenState = null;
-            if (this.Gardens.TryGetValue(@event.EntityId, out gardenState))
+            if (this.Gardens.TryGetValue(@event.EntityId.Value, out gardenState))
             {
                 gardenState.Apply(@event);
             }
@@ -159,48 +162,40 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(GardenCreated @event)
         {
-            if (@event.UserId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Can't create garden under user with incorrect id");
             }
             GardenState gardenState = null;
-            if (this.Gardens.TryGetValue(@event.EntityId, out gardenState))
+            if (this.Gardens.TryGetValue(@event.EntityId.Value, out gardenState))
             {
                 throw new InvalidOperationException("garden already exists, can't recreate");
             }
             else
             {
-                this.Gardens[@event.EntityId] = new GardenState(@event);
+                this.Gardens[@event.EntityId.Value] = new GardenState(@event);
                 if (this.Gardens.Count == 1)
-                    this.GardenId = @event.EntityId;
+                    this.GardenId = @event.EntityId.Value;
             }
         }
 
         public void Apply(GardenAdded @event)
         {
-            if (@event.EntityId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Can't create garden under user with incorrect id");
             }
-            GardenState gardenState = null;
-            if (this.Gardens.TryGetValue(@event.GardenId, out gardenState))
-            {
-                //this.Gardens[@event.EntityId] = new GardenState(@event);
-            }
-            else
-            {
-                throw new InvalidOperationException("garden doesn't exists, can't add");
-            }
+
         }
 
         public void Apply(ScheduleCreated @event)
         {
-            if (@event.UserId != this.Id)
+            if (@event.AggregateId != this.Id)
             {
                 throw new InvalidOperationException("Can't create schedule under user with incorrect id");
             }
             ScheduleState scheduleState = null;
-            if (this.Schedules.TryGetValue(@event.EntityId, out scheduleState))
+            if (this.Schedules.TryGetValue(@event.EntityId.Value, out scheduleState))
             {
                 throw new InvalidOperationException("PlantAction with this id already exists");
             }

@@ -14,14 +14,14 @@ namespace Growthstories.Domain
     {
 
 
-        IGSAggregate Handle(IEntityCommand c);
+        IGSAggregate Handle(IAggregateCommand c);
 
     }
 
     public interface IRegisterHandlers
     {
-        IDictionary<Tuple<Type, Type>, Action<IGSAggregate, IEntityCommand>> RegisterHandlers();
-        IDictionary<Tuple<Type, Type>, Func<IGSAggregate, IEntityCommand, Task<object>>> RegisterAsyncHandlers();
+        IDictionary<Tuple<Type, Type>, Action<IGSAggregate, IAggregateCommand>> RegisterHandlers();
+        IDictionary<Tuple<Type, Type>, Func<IGSAggregate, IAggregateCommand, Task<object>>> RegisterAsyncHandlers();
 
     }
 
@@ -53,9 +53,9 @@ namespace Growthstories.Domain
         }
 
         public static void SendCommand<T>(this IMessageBus bus, T message)
-            where T : IEntityCommand
+            where T : IAggregateCommand
         {
-            bus.SendMessage((IEntityCommand)message);
+            bus.SendMessage((IAggregateCommand)message);
         }
     }
 

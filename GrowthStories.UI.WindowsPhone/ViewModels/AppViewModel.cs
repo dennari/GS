@@ -149,9 +149,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Store.Save(p1);
 
-            var g = (Garden)Store.GetById(Ctx.GardenId);
-            g.Handle(new AddPlant(Ctx.GardenId, p1.State.Id, p1.State.Name));
-            Store.Save(g);
+            //var g = (Garden)Store.GetById(Ctx.GardenId);
+            //g.Handle(new AddPlant(Ctx.GardenId, p1.State.Id, p1.State.Name));
+            //Store.Save(g);
 
             var u = (User)Store.GetById(Ctx.Id);
             //u.Handle(new Water(Ctx.Id, p1.State.Id, "NOTE"));

@@ -71,7 +71,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created PlantAction {0}", EntityId);
+            return string.Format(@"Created PlantAction {0}", AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)

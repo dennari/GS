@@ -12,8 +12,8 @@ namespace Growthstories.DomainTests
         {
             return new UserCreated(CreateUser())
             {
-                EntityVersion = 1,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 1,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             };
         }

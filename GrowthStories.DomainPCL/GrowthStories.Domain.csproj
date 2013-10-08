@@ -38,6 +38,10 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Entities\App\Commands.cs" />
+    <Compile Include="Entities\App\Events.cs" />
+    <Compile Include="Entities\App\GSApp.cs" />
+    <Compile Include="Entities\App\GSAppState.cs" />
     <Compile Include="Entities\PlantActions\Commands.cs" />
     <Compile Include="Entities\PlantActions\Events.cs" />
     <Compile Include="Entities\PlantActions\PlantAction.cs" />
@@ -54,10 +58,10 @@
     <Compile Include="Entities\User\Events.cs" />
     <Compile Include="Entities\User\User.cs" />
     <Compile Include="Entities\User\UserState.cs" />
-    <Compile Include="Entities\Garden\Commands.cs" />
-    <Compile Include="Entities\Garden\Events.cs" />
-    <Compile Include="Entities\Garden\Garden.cs" />
-    <Compile Include="Entities\Garden\GardenState.cs" />
+    <Compile Include="Entities\User\Garden\Commands.cs" />
+    <Compile Include="Entities\User\Garden\Events.cs" />
+    <Compile Include="Entities\User\Garden\Garden.cs" />
+    <Compile Include="Entities\User\Garden\GardenState.cs" />
     <Compile Include="Entities\Plant\Commands.cs" />
     <Compile Include="Entities\Plant\Events.cs" />
     <Compile Include="Entities\Plant\Plant.cs" />

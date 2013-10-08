@@ -149,18 +149,18 @@ namespace Growthstories.UI.Tests
             var plant = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
             Assert.AreSame(this.Bus, this.App.Bus);
             Bus.SendCommand(plant);
-            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.EntityId, plant.Name));
-            Bus.SendCommand(new MarkPlantPublic(plant.EntityId));
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.AggregateId, plant.Name));
+            Bus.SendCommand(new MarkPlantPublic(plant.AggregateId));
 
             var plant2 = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
             Bus.SendCommand(plant2);
-            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant2.EntityId, plant2.Name));
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant2.AggregateId, plant2.Name));
 
             var mvm = App.Resolver.GetService<IMainViewModel>();
 
             Assert.AreEqual(mvm.GardenVM.Id, Ctx.GardenId);
-            Assert.AreEqual(mvm.GardenVM.Plants[0].Id, plant.EntityId);
-            Assert.AreEqual(mvm.GardenVM.Plants[1].Id, plant2.EntityId);
+            Assert.AreEqual(mvm.GardenVM.Plants[0].Id, plant.AggregateId);
+            Assert.AreEqual(mvm.GardenVM.Plants[1].Id, plant2.AggregateId);
 
         }
 

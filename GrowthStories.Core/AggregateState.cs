@@ -96,6 +96,51 @@ namespace Growthstories.Core
 
     }
 
+    public abstract class EntityState<TCreateEvent> : AggregateState where TCreateEvent : IEvent
+    {
+
+        private bool applying = false;
+
+        protected EntityState()
+            : base()
+        {
+
+        }
+
+        public virtual void Apply(TCreateEvent @event)
+        {
+            if (Version != 0)
+            {
+                throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
+            }
+            Id = @event.EntityId.Value;
+            Created = @event.Created;
+        }
+
+        public override void Apply(IEvent @event)
+        {
+            if (Version == 0 && !(@event is TCreateEvent))
+            {
+                throw DomainError.Named("premature", "Event hasn't been created yet");
+            }
+            if (this.applying)
+                throw new InvalidOperationException(string.Format("Can't find handler for event {0}", @event.GetType().ToString()));
+            try
+            {
+                this.applying = true;
+                ((dynamic)this).Apply((dynamic)@event);
+                this.applying = false;
+                Version++;
+            }
+            catch (RuntimeBinderException)
+            {
+                throw;
+            }
+
+        }
+
+    }
+
     public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : IEvent
     {
 
@@ -113,7 +158,7 @@ namespace Growthstories.Core
             {
                 throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
             }
-            Id = @event.EntityId;
+            Id = @event.AggregateId;
             Created = @event.Created;
         }
 

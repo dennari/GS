@@ -6,55 +6,8 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public class FakeEndpoint : IEndpoint
+    public class FakeEndpoint : Endpoint
     {
-        private Uri _Uri = new Uri("http://gs-staging.appspot.com");
-        public string Name
-        {
-            get { return "Staging"; }
-        }
-
-        public Uri PushUri
-        {
-            get
-            {
-                return new Uri(_Uri, "/api/push");
-            }
-        }
-
-        public Uri PullUri
-        {
-            get
-            {
-                return new Uri(_Uri, "/api/push");
-            }
-        }
-
-
-        public Uri AuthUri
-        {
-            get
-            {
-                return new Uri(_Uri, "/api/auth");
-            }
-        }
-
-
-        public Uri ClearDBUri
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-
-        public Uri UserListUri(string username)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public Uri PhotoUploadUri
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public FakeEndpoint() : base(new Uri("http://server.lan:9000")) { }
     }
 }

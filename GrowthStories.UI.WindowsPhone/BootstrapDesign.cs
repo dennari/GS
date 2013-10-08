@@ -29,8 +29,6 @@ namespace Growthstories.UI.WindowsPhone
             Bind<IUIPersistence>().To<NullUIPersistence>().InSingletonScope();
             Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
 
-            Bind<AuthTokenService>().ToSelf().InSingletonScope();
-
         }
 
     }

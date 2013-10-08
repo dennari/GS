@@ -72,12 +72,12 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentNullException("a name has to be provided");
             }
-            if (cmd.UserId == default(Guid))
+            if (cmd.GardenId == default(Guid))
             {
                 throw new ArgumentNullException("userId has to be provided");
             }
             this.Name = cmd.Name;
-            this.UserId = cmd.UserId;
+            this.UserId = cmd.GardenId;
             this.Profilepicture = cmd.Profilepicture;
             this.Species = cmd.Species;
             this.WateringScheduleId = cmd.WateringScheduleId;
@@ -89,7 +89,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created plant {0}, {1}", Name, EntityId);
+            return string.Format(@"Created plant {0}, {1}", Name, AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -148,7 +148,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} public", EntityId);
+            return string.Format(@"Marked plant {0} public", AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -188,7 +188,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Marked plant {0} private", EntityId);
+            return string.Format(@"Marked plant {0} private", AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -215,37 +215,50 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public enum ScheduleType
+    {
+        WATERING,
+        FERTILIZING
+    }
+
     [DTOObject(DTOType.setProperty)]
-    public class WateringScheduleSet : EventBase
+    public class ScheduleSet : EventBase
     {
 
+        [JsonProperty]
         public Guid ScheduleId { get; protected set; }
 
-        protected WateringScheduleSet() { }
-        //public WateringScheduleSet(Guid plantId, Guid scheduleId)
-        //    : base(plantId)
-        //{
-        //    this.ScheduleId = ScheduleId;
-        //}
+        [JsonProperty]
+        public ScheduleType Type { get; protected set; }
 
-        public WateringScheduleSet(SetWateringSchedule cmd, Guid userId)
+        protected ScheduleSet() { }
+
+
+        public ScheduleSet(SetWateringSchedule cmd)
             : base(cmd)
         {
             this.ScheduleId = cmd.ScheduleId;
-            this.StreamEntityId = cmd.EntityId;
-            this.StreamAncestorId = userId;
-            this.AncestorId = userId;
+            this.Type = ScheduleType.WATERING;
+
+        }
+
+        public ScheduleSet(SetFertilizingSchedule cmd)
+            : base(cmd)
+        {
+            this.ScheduleId = cmd.ScheduleId;
+            this.Type = ScheduleType.FERTILIZING;
         }
 
         public override string ToString()
         {
-            return string.Format(@"WateringSchedule set to {1} for plant {0}.", EntityId, ScheduleId);
+            return string.Format(@"Schedule of type {2} set to {1} for plant {0}.", AggregateId, ScheduleId, Type);
         }
+
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
             D.EntityType = DTOType.plant;
-            D.PropertyName = "wateringSchedule";
+            D.PropertyName = this.Type == ScheduleType.WATERING ? "wateringSchedule" : "fertilizingSchedule";
             D.PropertyValue = new JObject();
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.ScheduleId.ToString();
@@ -257,14 +270,15 @@ namespace Growthstories.Domain.Messaging
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.EntityType != DTOType.plant || D.PropertyName != "wateringSchedule")
+            if (D.EntityType != DTOType.plant || (D.PropertyName != "wateringSchedule" && D.PropertyName != "fertilizingSchedule"))
                 throw new ArgumentException();
+            this.Type = D.PropertyName == "wateringSchedule" ? ScheduleType.WATERING : ScheduleType.FERTILIZING;
 
             try
             {
                 var val = (JObject)D.PropertyValue;
                 this.ScheduleId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+                //this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
             }
             catch
             {
@@ -276,65 +290,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    [DTOObject(DTOType.setProperty)]
-    public class FertilizingScheduleSet : EventBase
-    {
 
-        public Guid ScheduleId { get; protected set; }
-
-        protected FertilizingScheduleSet() { }
-        //public FertilizingScheduleSet(Guid entityId, Guid scheduleId)
-        //    : base(entityId)
-        //{
-        //    this.ScheduleId = ScheduleId;
-        //}
-
-        public FertilizingScheduleSet(SetFertilizingSchedule cmd, Guid userId)
-            : base(cmd)
-        {
-            this.ScheduleId = cmd.ScheduleId;
-            this.StreamEntityId = cmd.EntityId;
-            this.StreamAncestorId = userId;
-            this.AncestorId = userId;
-        }
-
-
-        public override string ToString()
-        {
-            return string.Format(@"Schedule set to {1} for plant {0}.", EntityId, ScheduleId);
-        }
-        public override void FillDTO(IEventDTO Dto)
-        {
-            var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.plant;
-            D.PropertyName = "fertilizingSchedule";
-            D.PropertyValue = new JObject();
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
-            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.ScheduleId.ToString();
-
-            base.FillDTO(D);
-        }
-
-        public override void FromDTO(IEventDTO Dto)
-        {
-            var D = (ISetPropertyDTO)Dto;
-            if (D.EntityType != DTOType.plant || D.PropertyName != "fertilizingSchedule")
-                throw new ArgumentException();
-
-            try
-            {
-                var val = (JObject)D.PropertyValue;
-                this.ScheduleId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
-            }
-            catch
-            {
-
-            }
-
-        }
-
-    }
 
     public class TagsSet : EventBase
     {
@@ -342,11 +298,6 @@ namespace Growthstories.Domain.Messaging
         public HashSet<string> Tags { get; private set; }
 
         protected TagsSet() { }
-        public TagsSet(Guid plantId, HashSet<string> tags)
-            : base(plantId)
-        {
-            this.Tags = tags;
-        }
 
         public TagsSet(SetTags cmd)
             : base(cmd)
@@ -357,7 +308,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Tags set for plant {0}.", EntityId);
+            return string.Format(@"Tags set for plant {0}.", AggregateId);
         }
 
     }
@@ -368,11 +319,7 @@ namespace Growthstories.Domain.Messaging
         public string Name { get; private set; }
 
         protected NameSet() { }
-        public NameSet(Guid plantId, string name)
-            : base(plantId)
-        {
-            this.Name = name;
-        }
+
 
         public NameSet(SetName cmd)
             : base(cmd)
@@ -382,7 +329,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Name set to {1} for plant {0}.", EntityId, Name);
+            return string.Format(@"Name set to {1} for plant {0}.", AggregateId, Name);
         }
 
     }
@@ -393,11 +340,7 @@ namespace Growthstories.Domain.Messaging
         public string Species { get; private set; }
 
         protected SpeciesSet() { }
-        public SpeciesSet(Guid plantId, string species)
-            : base(plantId)
-        {
-            this.Species = species;
-        }
+
 
         public SpeciesSet(SetSpecies cmd)
             : base(cmd)
@@ -407,7 +350,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Species set to {1} for plant {0}.", EntityId, Species);
+            return string.Format(@"Species set to {1} for plant {0}.", AggregateId, Species);
         }
 
     }
@@ -435,7 +378,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Added water to plant {0}", EntityId);
+            return string.Format(@"Added water to plant {0}", AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)

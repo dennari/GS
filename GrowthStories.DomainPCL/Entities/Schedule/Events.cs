@@ -18,25 +18,17 @@ namespace Growthstories.Domain.Messaging
     public class ScheduleCreated : EventBase
     {
 
-        [JsonProperty]
-        public Guid UserId { get; private set; }
+
 
         [JsonProperty]
         public long Interval { get; private set; }
 
         protected ScheduleCreated() { }
-        public ScheduleCreated(Guid id, Guid userId, long interval)
-            : base(id)
-        {
-            this.UserId = userId;
-            this.Interval = interval;
 
-        }
 
         public ScheduleCreated(CreateSchedule cmd)
             : base(cmd)
         {
-            this.UserId = cmd.UserId;
             this.Interval = cmd.Interval;
 
         }

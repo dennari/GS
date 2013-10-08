@@ -10,7 +10,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region User
-    public class CreateUser : EntityCommand<User>, ICreateCommand
+    public class CreateUser : AggregateCommand<User>, ICreateCommand
     {
 
         public string Username { get; private set; }
@@ -32,17 +32,16 @@ namespace Growthstories.Domain.Messaging
             this.Username = username;
             this.Password = password;
             this.Email = email;
-            this.StreamEntityId = id;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Create user {0}, username {1}, email {2}.", EntityId, Username, Email);
+            return string.Format(@"Create user {0}, username {1}, email {2}.", AggregateId, Username, Email);
         }
 
     }
 
-    public class SetAuthToken : EntityCommand<User>
+    public class SetAuthToken : AggregateCommand<User>
     {
 
 
@@ -67,104 +66,96 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"SetAuthToken access: {0}, refresh: {1}, expires {3}, for user {4}.", AccessToken, RefreshToken, ExpiresIn, EntityId);
+            return string.Format(@"SetAuthToken access: {0}, refresh: {1}, expires {3}, for user {4}.", AccessToken, RefreshToken, ExpiresIn, AggregateId);
         }
 
     }
 
 
 
-    public class DeleteUser : EntityCommand<User>
+    public class DeleteUser : AggregateCommand<User>
     {
         protected DeleteUser() { }
         public DeleteUser(Guid id) : base(id) { }
 
         public override string ToString()
         {
-            return string.Format(@"Delete user {0}.", EntityId);
+            return string.Format(@"Delete user {0}.", AggregateId);
         }
 
     }
 
-    public class AddGarden : EntityCommand<User>
+    public class AddGarden : AggregateCommand<User>
     {
-        public Guid GardenId { get; protected set; }
+        public readonly Guid GardenId;
         protected AddGarden() { }
-        public AddGarden(Guid id, Guid gardenId)
-            : base(id)
+        public AddGarden(Guid userId, Guid gardenId)
+            : base(userId)
         {
+            //this.EntityId = gardenId;
             this.GardenId = gardenId;
-            this.StreamEntityId = id;
+
         }
 
         public override string ToString()
         {
-            return string.Format(@"Added garden {0} to user {0}.", GardenId, EntityId);
+            return string.Format(@"Added garden {0} to user {0}.", EntityId, AggregateId);
         }
 
     }
 
-    public class BecomeFollower : EntityCommand<User>
+    public class BecomeFollower : AggregateCommand<User>
     {
         public Guid OfUser { get; private set; }
-        public Guid RelationshipId { get; private set; }
 
         protected BecomeFollower() { }
         public BecomeFollower(Guid userId, Guid OfUser, Guid relationshipId)
             : base(userId)
         {
             this.OfUser = OfUser;
-            this.RelationshipId = relationshipId;
-            this.ParentId = userId;
-            this.AncestorId = userId;
-            this.StreamEntityId = userId;
+            this.EntityId = relationshipId;
+
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} wants to become a follower of user {1}.", this.EntityId, this.OfUser);
+            return string.Format(@"User {0} wants to become a follower of user {1}.", this.AggregateId, this.OfUser);
         }
 
     }
 
-    public class RequestFriendship : EntityCommand<User>
+    public class RequestFriendship : AggregateCommand<User>
     {
-        public Guid RelationshipId { get; private set; }
         protected RequestFriendship() { }
         public RequestFriendship(Guid userId, Guid relationshipId)
             : base(userId)
         {
 
-            this.RelationshipId = relationshipId;
-            this.ParentId = userId;
-            this.AncestorId = userId;
-            this.StreamEntityId = userId;
+            this.EntityId = relationshipId;
+
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requests friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+            return string.Format(@"User {0} requests friendship in relationship {1}.", this.AggregateId, this.EntityId);
         }
 
     }
 
-    public class AcceptFriendship : EntityCommand<User>
+    public class AcceptFriendship : AggregateCommand<User>
     {
-        public Guid RelationshipId { get; private set; }
         protected AcceptFriendship() { }
         public AcceptFriendship(Guid userId, Guid relationshipId)
             : base(userId)
         {
 
-            this.RelationshipId = relationshipId;
-            this.ParentId = userId;
-            this.AncestorId = userId;
-            this.StreamEntityId = userId;
+            this.EntityId = relationshipId;
+
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requests friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+            return string.Format(@"User {0} requests friendship in relationship {1}.", this.AggregateId, this.EntityId);
         }
 
     }

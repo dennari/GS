@@ -26,6 +26,7 @@ using Growthstories.UI;
 using System.Text;
 using Growthstories.UI.ViewModel;
 using System.IO;
+using EventStore.Persistence;
 
 
 
@@ -72,17 +73,17 @@ namespace Growthstories.DomainTests
 
         }
 
-        public async Task<IEntityCommand> TestCreateGarden()
+        public async Task<IAggregateCommand> TestCreateGarden()
         {
 
             await TestAuth();
 
-            var garden = new CreateGarden(Guid.NewGuid(), Ctx.Id);
+            var garden = App.SetIds(new CreateGarden(Guid.NewGuid(), Ctx.Id));
 
             Bus.SendCommand(garden);
-            var addGarden = new AddGarden(Ctx.Id, garden.EntityId);
+            //var addGarden = App.SetIds(new AddGarden(Ctx.Id, garden.EntityId.Value));
 
-            Bus.SendCommand(addGarden);
+            //Bus.SendCommand(addGarden);
 
 
             var R = await App.Synchronize();
@@ -95,21 +96,17 @@ namespace Growthstories.DomainTests
 
         public ISyncPushResponse SyncAssertions(SyncResult syncResult)
         {
-            ISyncPushResponse lastResponse = null;
+            // if everything goes smoothly, we should have a single pull and a single push
+            Assert.AreEqual(1, syncResult.Pushes.Count);
+            Assert.AreEqual(1, syncResult.Pulls.Count);
+            Assert.IsNotNull(syncResult.Pulls[0].Item2);
+            Assert.AreEqual(GSStatusCode.OK, syncResult.Pulls[0].Item2.StatusCode);
 
-            Assert.IsInstanceOf<ISyncPushResponse>(syncResult.Communication.Last());
-            try
-            {
-                lastResponse = (ISyncPushResponse)syncResult.Communication.Last();
-            }
-            catch (Exception)
-            {
+            if (syncResult.Pushes[0].Item2 != null)
+                Assert.AreEqual(GSStatusCode.OK, syncResult.Pushes[0].Item2.StatusCode);
 
-                Assert.Fail("last communication should be of type ISyncPushResponse");
-            }
 
-            Assert.AreEqual(GSStatusCode.OK, lastResponse.StatusCode);
-            return lastResponse;
+            return syncResult.Pushes[0].Item2;
         }
 
 
@@ -119,11 +116,11 @@ namespace Growthstories.DomainTests
             await TestCreateSchedule();
         }
 
-        public async Task<IEntityCommand> TestCreateSchedule()
+        public async Task<IAggregateCommand> TestCreateSchedule()
         {
 
             await TestAuth();
-            var wateringSchedule = new CreateSchedule(Guid.NewGuid(), Ctx.Id, 24 * 2 * 3600);
+            var wateringSchedule = App.SetIds(new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600));
 
             Bus.SendCommand(wateringSchedule);
 
@@ -142,31 +139,31 @@ namespace Growthstories.DomainTests
         }
 
 
-        public async Task<IEntityCommand> TestCreatePlant()
+        public async Task<IAggregateCommand> TestCreatePlant()
         {
 
             var garden = await TestCreateGarden();
 
-            var plant = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id)
+            var plant = App.SetIds(new CreatePlant(Guid.NewGuid(), "Jore", garden.EntityId.Value)
             {
                 Profilepicture = new Photo(),
                 Species = "Aloe Vera",
-                Tags = new HashSet<string>() { "testtag", "testtag2" }
-            };
+                Tags = new HashSet<string>() { "testtag", "testtag2" },
+            });
 
             Bus.SendCommand(plant);
 
-            var addPlant = new AddPlant(garden.EntityId, plant.EntityId, Ctx.Id, "Jore");
+            var addPlant = App.SetIds(new AddPlant(garden.EntityId.Value, plant.AggregateId, Ctx.Id, "Jore"));
 
             Bus.SendCommand(addPlant);
 
-            var wateringSchedule = new CreateSchedule(Guid.NewGuid(), Ctx.Id, 24 * 2 * 3600);
+            //var wateringSchedule = App.SetIds(new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600));
 
-            Bus.SendCommand(wateringSchedule);
+            //Bus.SendCommand(wateringSchedule);
 
-            var wateringScheduleSet = new SetWateringSchedule(plant.EntityId, wateringSchedule.EntityId);
+            //var wateringScheduleSet = new SetWateringSchedule(plant.AggregateId, wateringSchedule.AggregateId);
 
-            Bus.SendCommand(wateringScheduleSet);
+            //Bus.SendCommand(wateringScheduleSet);
 
             var R = await App.Synchronize();
             SyncAssertions(R);
@@ -183,7 +180,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        public async Task<IEntityCommand> TestCreatePlantAction()
+        public async Task<IAggregateCommand> TestCreatePlantAction()
         {
 
             //await TestAuth();
@@ -192,7 +189,7 @@ namespace Growthstories.DomainTests
             var comment = new CreatePlantAction(
                 Guid.NewGuid(),
                 Ctx.Id,
-                plant.EntityId,
+                plant.AggregateId,
                 PlantActionType.COMMENTED,
                 "new note");
 
@@ -212,14 +209,14 @@ namespace Growthstories.DomainTests
         }
 
 
-        public async Task<IEntityCommand> TestUpdatePlantAction()
+        public async Task<IAggregateCommand> TestUpdatePlantAction()
         {
 
             //await TestAuth();
             var comment = (CreatePlantAction)(await TestCreatePlantAction());
 
             var prop = new SetPlantActionProperty(
-                comment.EntityId,
+                comment.AggregateId,
                 comment.PlantId
                 )
                 {
@@ -245,7 +242,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        public async Task<IEntityCommand> TestAddRelationship()
+        public async Task<IAggregateCommand> TestAddRelationship()
         {
 
             var garden = await TestCreateGarden();
@@ -257,9 +254,9 @@ namespace Growthstories.DomainTests
                 randomize("swordfish"),
                 randomize("bob") + "@wonderland.net"))
                 {
-                    EntityVersion = 1,
+                    AggregateVersion = 1,
                     Created = DateTimeOffset.UtcNow,
-                    EventId = Guid.NewGuid()
+                    MessageId = Guid.NewGuid()
                 };
 
             var plant = new PlantCreated(new CreatePlant(Guid.NewGuid(), "Jari", Ctx.Id)
@@ -269,17 +266,17 @@ namespace Growthstories.DomainTests
                 Tags = new HashSet<string>() { "testtag", "testtag2" }
             })
             {
-                EntityVersion = 1,
+                AggregateVersion = 1,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
 
-            var addPlant = new PlantAdded(new AddPlant(garden.EntityId, plant.EntityId, Ctx.Id, "Jare"))
+            var addPlant = new PlantAdded(new AddPlant(garden.EntityId.Value, plant.AggregateId, Ctx.Id, "Jare"))
             {
-                EntityVersion = 4,
+                AggregateVersion = 4,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
 
@@ -297,10 +294,10 @@ namespace Growthstories.DomainTests
 
 
 
-            var relationshipCmd = new BecomeFollower(Ctx.Id, fCmd.EntityId, Guid.NewGuid());
+            var relationshipCmd = new BecomeFollower(Ctx.Id, fCmd.AggregateId, Guid.NewGuid());
             Bus.SendCommand(relationshipCmd);
 
-            var friendshipCmd = new RequestFriendship(Ctx.Id, relationshipCmd.RelationshipId);
+            var friendshipCmd = new RequestFriendship(Ctx.Id, relationshipCmd.EntityId.Value);
             Bus.SendCommand(friendshipCmd);
 
 
@@ -316,7 +313,7 @@ namespace Growthstories.DomainTests
             };
             Bus.SendCommand(plant2);
 
-            var addPlant2 = new AddPlant(garden.EntityId, plant2.EntityId, Ctx.Id, "Jare");
+            var addPlant2 = new AddPlant(garden.EntityId.Value, plant2.AggregateId, Ctx.Id, "Jare");
             Bus.SendCommand(addPlant2);
 
 
@@ -352,7 +349,7 @@ namespace Growthstories.DomainTests
 
             var fetchedUser = listUsersResponse.Users[0];
             Assert.AreEqual(remoteUser.Username, fetchedUser.Username);
-            Assert.AreEqual(remoteUser.EntityId, fetchedUser.EntityId);
+            Assert.AreEqual(remoteUser.AggregateId, fetchedUser.EntityId);
 
 
 
@@ -360,33 +357,90 @@ namespace Growthstories.DomainTests
             //Bus.SendCommand(relationshipCmd);
 
             var pullRequest = RequestFactory.CreatePullRequest(
-                    new Guid[] { remoteUser.EntityId }.Select(x => new SyncEventStream(x, EventStore) { Type = "USER" }));
+                new Guid[] { remoteUser.AggregateId }.Select(x => new SyncEventStream(x, EventStore, Get<IPersistSyncStreams>()) { Type = SyncStreamType.USER }));
+            //;
 
-            var userStream = pullRequest.Streams.First() as SyncEventStream;
+            //var userStream = pullRequest.Streams.First() as SyncEventStream;
 
             var pullResponse = await Transporter.PullAsync(pullRequest);
 
 
             Assert.AreEqual(GSStatusCode.OK, pullResponse.StatusCode);
-            var remoteEvents = pullResponse.Events.ToArray();
-            Assert.AreEqual(1, remoteEvents.Length);
-            Assert.AreEqual(remoteUser.EntityId, remoteEvents[0].Key);
-
-            foreach (var remoteEvent in remoteEvents[0])
-                userStream.AddRemote(remoteEvent);
-
-            userStream.CommitRemoteChanges(Guid.NewGuid());
+            var remoteStreams = pullResponse.Streams.ToArray();
+            Assert.AreEqual(1, remoteStreams.Length);
+            Assert.AreEqual(remoteUser.AggregateId, remoteStreams[0].StreamId);
 
 
-            var remoteUserAggregate = (User)Repository.GetById(remoteUser.EntityId);
+            remoteStreams[0].CommitRemoteChanges(Guid.NewGuid());
+
+
+            var remoteUserAggregate = (User)Repository.GetById(remoteUser.AggregateId);
 
             Assert.AreEqual(4, remoteUserAggregate.Version);
             Assert.AreEqual(remoteUser.Username, remoteUserAggregate.State.Username);
             Assert.AreEqual(1, remoteUserAggregate.State.Gardens.Count);
-            Assert.AreEqual(originalRemoteEvents[1].EntityId, remoteUserAggregate.State.GardenId);
-            Assert.AreEqual(originalRemoteEvents[3].EntityId, remoteUserAggregate.State.Gardens[remoteUserAggregate.State.GardenId].PlantIds[0]);
+            Assert.AreEqual(originalRemoteEvents[1].EntityId.Value, remoteUserAggregate.State.GardenId);
+            Assert.AreEqual(originalRemoteEvents[3].AggregateId, remoteUserAggregate.State.Gardens[remoteUserAggregate.State.GardenId].PlantIds[0]);
 
         }
+
+
+        [Test]
+        public async void RealTestSync()
+        {
+
+            await TestSync();
+
+        }
+
+        public async Task TestSync()
+        {
+
+            var garden = await TestCreateGarden();
+
+            var originalRemoteEvents = await CreateRemoteData();
+
+            var remoteUser = (UserCreated)originalRemoteEvents[0];
+
+            var listUsersResponse = await Transporter.ListUsersAsync(remoteUser.Username);
+
+            var fetchedUser = listUsersResponse.Users[0];
+
+            var stream = new SyncEventStream(fetchedUser.EntityId, EventStore, Get<IPersistSyncStreams>())
+            {
+                Type = SyncStreamType.USER
+            };
+            stream.AddRemote(
+            new UserCreated(App.SetIds(new CreateUser(
+                fetchedUser.EntityId,
+                fetchedUser.Username,
+                randomize("swordfish"),
+                randomize("bob") + "@wonderland.net"), null, fetchedUser.EntityId))
+            {
+                AggregateVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            });
+            stream.CommitRemoteChanges(Guid.NewGuid());
+
+            var R2 = await App.Synchronize();
+            SyncAssertions(R2);
+
+            var remoteUserAggregate = (User)Repository.GetById(remoteUser.AggregateId);
+
+            Assert.AreEqual(4, remoteUserAggregate.Version);
+            Assert.AreEqual(remoteUser.Username, remoteUserAggregate.State.Username);
+            Assert.AreEqual(1, remoteUserAggregate.State.Gardens.Count);
+            Assert.AreEqual(originalRemoteEvents[1].EntityId.Value, remoteUserAggregate.State.GardenId);
+            Assert.AreEqual(originalRemoteEvents[3].AggregateId, remoteUserAggregate.State.Gardens[remoteUserAggregate.State.GardenId].PlantIds[0]);
+
+            var R3 = await App.Synchronize();
+            SyncAssertions(R3);
+            Assert.IsNull(R3.Pushes[0].Item2);
+
+        }
+
+
 
         [Test]
         public async void RealTestPhoto()
@@ -407,7 +461,7 @@ namespace Growthstories.DomainTests
 
             var T = Transporter as SyncHttpClient;
 
-            var file = File.Open(@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.DomainTests\plant_bg.jpg", FileMode.Open);
+            var file = File.Open(@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg", FileMode.Open);
 
             T.AuthToken = null;
             var R = await T.Upload(uploadUriResponse.UploadUri, file);
@@ -431,9 +485,9 @@ namespace Growthstories.DomainTests
                 randomize("swordfish"),
                 randomize("bob") + "@wonderland.net"))
             {
-                EntityVersion = 1,
+                AggregateVersion = 1,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
             var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
@@ -443,33 +497,33 @@ namespace Growthstories.DomainTests
             });
             Assert.AreEqual(GSStatusCode.OK, pushResp.StatusCode);
 
-            var remoteGarden = new GardenCreated(new CreateGarden(Guid.NewGuid(), remoteUser.EntityId))
+            var remoteGarden = new GardenCreated(App.SetIds(new CreateGarden(Guid.NewGuid(), remoteUser.AggregateId), null, remoteUser.AggregateId))
             {
-                EntityVersion = 2,
+                AggregateVersion = 2,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
-            var remoteAddGarden = new GardenAdded(new AddGarden(remoteUser.EntityId, remoteGarden.EntityId))
+            var remoteAddGarden = new GardenAdded(App.SetIds(new AddGarden(remoteUser.AggregateId, remoteGarden.EntityId.Value), null, remoteUser.AggregateId))
             {
-                EntityVersion = 3,
+                AggregateVersion = 3,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
-            var remotePlant = new PlantCreated(new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteUser.EntityId))
+            var remotePlant = new PlantCreated(App.SetIds(new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteGarden.EntityId.Value), null, remoteUser.AggregateId))
             {
-                EntityVersion = 1,
+                AggregateVersion = 1,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
 
-            var remoteAddPlant = new PlantAdded(new AddPlant(remoteGarden.EntityId, remotePlant.EntityId, remoteUser.EntityId, "RemoteJare"))
+            var remoteAddPlant = new PlantAdded(App.SetIds(new AddPlant(remoteGarden.EntityId.Value, remotePlant.AggregateId, remoteUser.AggregateId, "RemoteJare"), null, remoteUser.AggregateId))
             {
-                EntityVersion = 4,
+                AggregateVersion = 4,
                 Created = DateTimeOffset.UtcNow,
-                EventId = Guid.NewGuid()
+                MessageId = Guid.NewGuid()
             };
 
             var remoteEvents = new List<IEvent>() { 

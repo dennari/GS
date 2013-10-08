@@ -19,8 +19,8 @@ namespace Growthstories.DomainTests
             When(new CreatePlant(id, "Jore", UserId));
             Expect(new PlantCreated(id, "Jore", UserId)
             {
-                EntityVersion = 1,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 1,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             });
         }

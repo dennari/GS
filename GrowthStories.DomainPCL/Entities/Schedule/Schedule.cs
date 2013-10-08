@@ -11,6 +11,12 @@ namespace Growthstories.Domain.Entities
 {
 
 
-
-
+    public class Schedule : AggregateBase<ScheduleState, ScheduleCreated>,
+       ICommandHandler<CreateSchedule>
+    {
+        public void Handle(CreateSchedule command)
+        {
+            RaiseEvent(new ScheduleCreated(command));
+        }
+    }
 }

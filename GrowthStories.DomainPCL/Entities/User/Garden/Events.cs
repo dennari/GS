@@ -19,22 +19,19 @@ namespace Growthstories.Domain.Messaging
     public class GardenCreated : EventBase
     {
 
-        [JsonProperty]
-        public Guid UserId { get; private set; }
 
         protected GardenCreated() { }
-        public GardenCreated(Guid id) : base(id) { }
+        //public GardenCreated(Guid id) : base(id) { }
 
         public GardenCreated(CreateGarden cmd)
             : base(cmd)
         {
-            this.UserId = cmd.UserId;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"Created garden {0}", EntityId);
+            return string.Format(@"Created garden {0}", AggregateId);
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -43,10 +40,17 @@ namespace Growthstories.Domain.Messaging
 
             base.FromDTO(D);
 
-            this.UserId = this.StreamEntityId ?? default(Guid);
 
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ICreateGardenDTO)Dto;
+
+            base.FillDTO(D);
+            D.StreamAncestor = null;
+
+        }
 
 
     }
@@ -59,8 +63,6 @@ namespace Growthstories.Domain.Messaging
         public Guid PlantId { get; private set; }
 
 
-        [JsonProperty]
-        public Guid UserId { get; private set; }
 
 
         protected PlantAdded() { }
@@ -75,7 +77,6 @@ namespace Growthstories.Domain.Messaging
             : base(cmd)
         {
             PlantId = cmd.PlantId;
-            UserId = cmd.UserId;
         }
 
         public override string ToString()
@@ -96,7 +97,7 @@ namespace Growthstories.Domain.Messaging
             {
                 var val = (JObject)D.PropertyValue;
                 this.PlantId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                this.UserId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+                this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
             }
             catch
             {
@@ -111,12 +112,13 @@ namespace Growthstories.Domain.Messaging
             D.EntityType = DTOType.garden;
             D.PropertyName = "plants";
             D.PropertyValue = new JObject();
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.UserId.ToString();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AggregateId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantId.ToString();
 
             base.FillDTO(D);
 
             D.ParentId = null;
+            D.StreamAncestor = null;
         }
 
 
@@ -124,41 +126,38 @@ namespace Growthstories.Domain.Messaging
 
     public class MarkedGardenPublic : EventBase
     {
-        [JsonProperty]
-        public Guid UserId { get; private set; }
+
 
         protected MarkedGardenPublic() { }
         public MarkedGardenPublic(Guid entityId) : base(entityId) { }
         public MarkedGardenPublic(MarkGardenPublic cmd)
             : base(cmd)
         {
-            UserId = cmd.UserId;
+
         }
 
 
         public override string ToString()
         {
-            return string.Format(@"Marked garden {0} public", EntityId);
+            return string.Format(@"Marked garden {0} public", AggregateId);
         }
 
     }
 
     public class MarkedGardenPrivate : EventBase
     {
-        [JsonProperty]
-        public Guid UserId { get; private set; }
+
 
         protected MarkedGardenPrivate() { }
         public MarkedGardenPrivate(Guid entityId) : base(entityId) { }
         public MarkedGardenPrivate(MarkGardenPrivate cmd)
             : base(cmd)
         {
-            UserId = cmd.UserId;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Marked garden {0} private", EntityId);
+            return string.Format(@"Marked garden {0} private", AggregateId);
         }
 
     }

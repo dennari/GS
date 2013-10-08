@@ -18,7 +18,7 @@ namespace Growthstories.Domain.Entities
     public class ScheduleState : AggregateState<ScheduleCreated>
     {
 
-        public Guid UserId { get; private set; }
+        //public Guid UserId { get; private set; }
 
         public long Interval { get; private set; }
 
@@ -37,7 +37,6 @@ namespace Growthstories.Domain.Entities
         public override void Apply(ScheduleCreated @event)
         {
             base.Apply(@event);
-            this.UserId = @event.UserId;
             this.Interval = @event.Interval;
         }
 

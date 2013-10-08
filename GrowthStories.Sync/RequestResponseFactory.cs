@@ -9,6 +9,8 @@ using Growthstories.Core;
 using System.Net.Http.Headers;
 using System.Net;
 using Growthstories.Domain.Messaging;
+using EventStore.Persistence;
+using EventStore;
 
 namespace Growthstories.Sync
 {
@@ -17,12 +19,54 @@ namespace Growthstories.Sync
     {
         private readonly IJsonFactory jFactory;
         private readonly ITranslateEvents Translator;
+        private readonly IPersistSyncStreams SyncPersistence;
         private static ILog Logger = LogFactory.BuildLogger(typeof(RequestResponseFactory));
+        private readonly ICommitEvents Persistence;
 
-        public RequestResponseFactory(ITranslateEvents translator, IJsonFactory jFactory)
+        public RequestResponseFactory(
+            ITranslateEvents translator,
+            IJsonFactory jFactory,
+            ICommitEvents persistence,
+            IPersistSyncStreams syncPersistence)
         {
             this.jFactory = jFactory;
             this.Translator = translator;
+            this.SyncPersistence = syncPersistence;
+            this.Persistence = persistence;
+        }
+
+
+        public List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req)
+        {
+            List<ISyncEventStream> unmatched = new List<ISyncEventStream>();
+            //foreach (var g in resp.Events)
+            //{
+            //    ISyncEventStream match = req.Streams.FirstOrDefault(x => x.StreamId == g.Key);
+            //    if (match == null)
+            //    {
+            //        match = new SyncEventStream(g.Key, this.Persistence, this.SyncPersistence);
+            //        unmatched.Add(match);
+            //    }
+            //    foreach (var e in g.OrderBy(y => y.AggregateVersion))
+            //        match.AddRemote(e);
+            //}
+            return unmatched;
+        }
+
+
+
+        public ISyncPushRequest CreatePushRequest()
+        {
+
+            return CreatePushRequest(GetPushStreams());
+        }
+
+        private IEnumerable<ISyncEventStream> GetPushStreams()
+        {
+            foreach (var commits in SyncPersistence.GetUnsynchronizedCommits().GroupBy(x => x.StreamId))
+            {
+                yield return new SyncEventStream(commits, Persistence, SyncPersistence);
+            }
         }
 
         public ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams)
@@ -39,6 +83,21 @@ namespace Growthstories.Sync
             };
 
             return req;
+        }
+
+
+        public ISyncPullRequest CreatePullRequest()
+        {
+
+            return CreatePullRequest(GetPullStreams());
+        }
+
+        private IEnumerable<ISyncEventStream> GetPullStreams()
+        {
+            foreach (var streamHead in SyncPersistence.GetAllSyncStreams())
+            {
+                yield return new SyncEventStream(streamHead, Persistence, SyncPersistence);
+            }
         }
 
         public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
@@ -59,10 +118,13 @@ namespace Growthstories.Sync
             if (helper.DTOs != null && helper.DTOs.Count > 0)
             {
                 r.StatusCode = GSStatusCode.OK;
-                r.Events = helper.DTOs
+                r.Streams = helper.DTOs
                     .Select(x => Translator.In(x))
                     .OfType<EventBase>()
-                    .GroupBy(x => x.StreamEntityId ?? x.EntityId);
+                    .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
+                    .Select(x => new SyncEventStream(x, Persistence, SyncPersistence) { SyncStamp = helper.SyncStamp })
+                    .ToArray();
+                r.SyncStamp = helper.SyncStamp;
             }
 
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);

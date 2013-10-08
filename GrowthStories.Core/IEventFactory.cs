@@ -16,7 +16,7 @@ namespace Growthstories.Core
         public void Fill(IEvent Event, IGSAggregate aggregate)
         {
             Event.Created = DateTimeOffset.Now;
-            Event.EventId = Guid.NewGuid();
+            Event.MessageId = Guid.NewGuid();
         }
     }
 
@@ -30,7 +30,7 @@ namespace Growthstories.Core
         public void Fill(IEvent Event, IGSAggregate aggregate)
         {
             Event.Created = FakeCreated;
-            Event.EventId = FakeEventId;
+            Event.MessageId = FakeEventId;
         }
     }
 }

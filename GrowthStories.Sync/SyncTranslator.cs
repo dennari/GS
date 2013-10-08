@@ -26,7 +26,7 @@ namespace Growthstories.Sync
             if (ed == null)
                 return null;
 
-            ed.EntityVersion -= 1;
+            ed.AggregateVersion -= 1;
 
 
             return ed;
@@ -63,7 +63,7 @@ namespace Growthstories.Sync
         public IEvent In(IEventDTO dto)
         {
             var e = ((EventDTOUnion)dto).ToEvent();
-            e.EntityVersion += 1;
+            e.AggregateVersion += 1;
             return e;
 
         }
@@ -74,7 +74,7 @@ namespace Growthstories.Sync
             return enumerable
                 .Select(x => In(x))
                 .OfType<EventBase>()
-                .GroupBy(x => x.StreamEntityId ?? x.EntityId)
+                .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
                 .ToArray();
 
 

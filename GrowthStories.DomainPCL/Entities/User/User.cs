@@ -31,6 +31,11 @@ namespace Growthstories.Domain.Entities
     {
 
 
+        public User()
+        {
+            this.StreamType = EventStore.SyncStreamType.USER;
+        }
+
         public void Handle(AddPlant command)
         {
             RaiseEvent(new PlantAdded(command));

@@ -8,17 +8,20 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    public interface IEventDTO : IEvent
+    public interface IEventDTO
     {
-        Guid EventId { get; set; }
-        Guid EntityId { get; set; }
-        int EntityVersion { get; set; }
+        Guid AggregateId { get; set; }
+        int AggregateVersion { get; set; }
+
+        Guid? EntityId { get; set; }
+
+        Guid MessageId { get; set; }
         long Created { get; set; }
 
         DTOType EventType { get; set; }
 
         Guid? AncestorId { get; set; }
-        Guid? StreamEntity { get; set; }
+        //Guid? StreamEntity { get; set; }
         Guid? StreamAncestor { get; set; }
         Guid? ParentId { get; set; }
         Guid? ParentAncestorId { get; set; }

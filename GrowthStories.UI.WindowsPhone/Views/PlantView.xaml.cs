@@ -22,7 +22,7 @@ namespace Growthstories.UI.WindowsPhone
 
         bool isPinch = false;
         bool isDrag = false;
-        double initialAngle;
+        //double initialAngle;
         bool isGestureOnTarget = true;
 
         public PlantView()

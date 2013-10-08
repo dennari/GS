@@ -46,7 +46,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Create PlantAction {0}.", EntityId);
+            return string.Format(@"Create PlantAction {0}.", AggregateId);
         }
 
     }
@@ -59,7 +59,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Delete PlantAction {0}.", EntityId);
+            return string.Format(@"Delete PlantAction {0}.", AggregateId);
         }
 
     }

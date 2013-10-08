@@ -15,6 +15,7 @@ namespace Growthstories.Core
         //TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IGSAggregate;
         void PlayById(IGSAggregate aggregate, Guid id);
         void Save(IGSAggregate aggregate);
+        void SaveRemote(IGSAggregate aggregate, long syncStamp);
         void ClearCaches();
         void ClearAggregateFromCache(Guid id);
         //GSEventStore 

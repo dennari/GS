@@ -38,8 +38,8 @@ namespace Growthstories.DomainTests
             When(new AddPlant(id, PlantId, UserId, "Jore"));
             Expect(new PlantAdded(id, PlantId)
             {
-                EntityVersion = 2,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 2,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             });
         }

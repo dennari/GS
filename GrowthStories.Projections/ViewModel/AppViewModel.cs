@@ -25,6 +25,8 @@ namespace Growthstories.UI.ViewModel
         IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
 
+        T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
+
         Task<SyncResult> Synchronize();
 
         IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel;
@@ -52,7 +54,21 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null)
+            where T : IAggregateCommand
+        {
 
+            Guid AncestorId = ancestorId ?? this.Context.CurrentUser.Id;
+            cmd.StreamAncestorId = AncestorId;
+            cmd.AncestorId = AncestorId;
+            if (parentId != null)
+            {
+                cmd.ParentId = parentId;
+                cmd.ParentAncestorId = AncestorId;
+            }
+            return cmd;
+
+        }
 
         public const string APPNAME = "GROWTH STORIES";
 
@@ -140,6 +156,50 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        }
+
+        protected GSApp _App;
+        protected GSAppState _State;
+        public GSAppState State
+        {
+            get
+            {
+                if (_App == null)
+                {
+                    _App = Initialize(Kernel.Get<IGSRepository>(), Kernel.Get<IAggregateFactory>());
+                }
+
+                return _App.State;
+            }
+            //set { this.RaiseAndSetIfChanged(ref _State, value); }
+        }
+
+        protected GSApp Initialize(IGSRepository repository, IAggregateFactory factory)
+        {
+            GSApp app = factory.Build<GSApp>();
+            // TODO execute in the threadpool
+            repository.PlayById(app, GSAppState.GSAppId);
+            if (app.Version == 0)
+            {
+                // initialize temp user
+                var u = factory.Build<User>();
+                repository.PlayById(u, UserState.UnregUserId);
+                if (u.Version == 0)
+                {
+                    u.Handle(new CreateUser(UserState.UnregUserId, "UnregUser", "UnregPassword", "unreg@user.net"));
+                    u.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
+                    u.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
+
+                    repository.Save(u);
+                }
+
+
+                app.Handle(new AssignAppUser(UserState.UnregUserId));
+
+                repository.Save(app);
+
+            }
+            return app;
         }
 
         protected UserState _CurrentUserState;
@@ -259,6 +319,8 @@ namespace Growthstories.UI.ViewModel
         {
             if (_SyncService == null)
                 _SyncService = Kernel.Get<ISynchronizerService>();
+
+
 
             return _SyncService.Synchronize();
         }

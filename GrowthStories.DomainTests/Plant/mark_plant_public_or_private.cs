@@ -18,8 +18,8 @@ namespace Growthstories.DomainTests
             When(new MarkPlantPublic(id));
             Expect(new MarkedPlantPublic(id)
             {
-                EntityVersion = 2,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 2,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             });
         }
@@ -32,8 +32,8 @@ namespace Growthstories.DomainTests
             When(new MarkPlantPrivate(id));
             Expect(new MarkedPlantPrivate(id)
             {
-                EntityVersion = 2,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 2,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             });
         }

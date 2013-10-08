@@ -23,17 +23,17 @@ namespace Growthstories.Sync
 
         public EntityEventStream(IEnumerable<IEvent> events)
         {
-            var g = events.GroupBy(x => x.EntityId);
+            var g = events.GroupBy(x => x.AggregateId);
             if (g.Count() != 1)
                 throw new ArgumentException("");
-            this.EntityVersion = events.Max(x => x.EntityVersion);
+            this.EntityVersion = events.Max(x => x.AggregateVersion);
             this.EntityId = g.First().Key;
         }
 
         public EntityEventStream(IGrouping<Guid, IEvent> events)
         {
             this.Events = events.ToList();
-            this.EntityVersion = events.Max(x => x.EntityVersion);
+            this.EntityVersion = events.Max(x => x.AggregateVersion);
             this.EntityId = events.Key;
         }
 

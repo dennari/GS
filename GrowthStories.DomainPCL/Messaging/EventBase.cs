@@ -26,11 +26,15 @@ namespace Growthstories.Domain.Messaging
     public abstract class EventBase : IDomainEvent
     {
         [JsonProperty]
-        public Guid EntityId { get; protected set; }
+        public Guid AggregateId { get; protected set; }
         [JsonProperty]
-        public int EntityVersion { get; set; }
+        public int AggregateVersion { get; set; }
         [JsonProperty]
-        public Guid EventId { get; set; }
+        public Guid? EntityId { get; set; }
+
+
+        [JsonProperty]
+        public Guid MessageId { get; set; }
         [JsonProperty]
         public DateTimeOffset Created { get; set; }
 
@@ -53,8 +57,18 @@ namespace Growthstories.Domain.Messaging
 
         }
 
-        public EventBase(Guid entityId)
+        public EventBase(Guid aggregateId)
             : this()
+        {
+            if (aggregateId == default(Guid))
+            {
+                throw new ArgumentException("argument has to be specified", "aggregateId");
+            }
+            AggregateId = aggregateId;
+        }
+
+        public EventBase(Guid aggregateId, Guid entityId)
+            : this(aggregateId)
         {
             if (entityId == default(Guid))
             {
@@ -63,27 +77,36 @@ namespace Growthstories.Domain.Messaging
             EntityId = entityId;
         }
 
-        public EventBase(IEntityCommand cmd)
-            : this(cmd.EntityId)
+        public EventBase(IMessage msg)
+            : this(msg.AggregateId)
         {
+            this.EntityId = msg.EntityId;
+
+        }
+        public EventBase(IAggregateCommand cmd)
+            : this((IMessage)cmd)
+        {
+
+
             this.StreamEntityId = cmd.StreamEntityId;
             this.StreamAncestorId = cmd.StreamAncestorId;
             //this.StreamVersion = cmd.StreamVersion;
             this.ParentId = cmd.ParentId;
             this.ParentAncestorId = cmd.ParentAncestorId;
             this.AncestorId = cmd.AncestorId;
-            this.StreamType = cmd.StreamType;
+            //this.StreamType = cmd.StreamType;
 
         }
 
         public virtual void FromDTO(IEventDTO Dto)
         {
+            this.AggregateId = Dto.AggregateId;
+            this.AggregateVersion = Dto.AggregateVersion;
             this.EntityId = Dto.EntityId;
-            this.EntityVersion = Dto.EntityVersion;
-            this.EventId = Dto.EventId;
+            this.MessageId = Dto.MessageId;
             this.Created = Dto.Created.DateTimeFromUnixTimestampMillis();
-            this.StreamEntityId = Dto.StreamEntity;
-            this.StreamAncestorId = Dto.StreamAncestor;
+            //this.StreamEntityId = Dto.StreamEntity;
+            //this.StreamAncestorId = Dto.StreamAncestor;
             this.ParentAncestorId = Dto.ParentAncestorId;
             this.ParentId = Dto.ParentId;
             this.AncestorId = Dto.AncestorId;
@@ -93,11 +116,12 @@ namespace Growthstories.Domain.Messaging
 
         public virtual void FillDTO(IEventDTO Dto)
         {
-            Dto.EntityId = this.EntityId;
-            Dto.EntityVersion = this.EntityVersion;
-            Dto.EventId = this.EventId;
+            Dto.AggregateId = this.AggregateId;
+            Dto.EntityId = this.EntityId ?? this.AggregateId;
+            Dto.AggregateVersion = this.AggregateVersion;
+            Dto.MessageId = this.MessageId;
             Dto.Created = this.Created.GetUnixTimestampMillis();
-            Dto.StreamEntity = this.StreamEntityId;
+            //Dto.StreamEntity = this.StreamEntityId;
             Dto.StreamAncestor = this.StreamAncestorId;
             Dto.ParentAncestorId = this.ParentAncestorId;
             Dto.ParentId = this.ParentId;

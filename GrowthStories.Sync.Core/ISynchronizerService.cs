@@ -9,6 +9,9 @@ namespace Growthstories.Sync
     public class SyncResult
     {
         public IList<ISyncCommunication> Communication { get; set; }
+        public IList<Tuple<ISyncPushRequest, ISyncPushResponse>> Pushes { get; set; }
+        public IList<Tuple<ISyncPullRequest, ISyncPullResponse>> Pulls { get; set; }
+
     }
 
 
@@ -17,13 +20,13 @@ namespace Growthstories.Sync
         Task<SyncResult> Synchronize();
 
         //IEnumerable<ISyncEventStream> Pending();
-        ISyncPullRequest GetPullRequest();
+        //ISyncPullRequest GetPullRequest();
 
-        ISyncPushRequest GetPushRequest();
+        //ISyncPushRequest GetPushRequest();
 
         ITransportEvents Transporter { get; }
 
-        void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null);
+        //void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null);
 
         //IEnumerable<RebasePair> MatchStreams(ISyncPushRequest pushReq, ISyncPullResponse pullResp);
 
@@ -32,17 +35,5 @@ namespace Growthstories.Sync
         //Task TryAuth(ISyncPushRequest pushReq);
     }
 
-    public struct RebasePair
-    {
 
-        public ISyncEventStream Local;
-        public ISyncEventStream Remote;
-
-        public RebasePair(ISyncEventStream local, ISyncEventStream remote)
-        {
-            this.Local = local;
-            this.Remote = remote;
-        }
-
-    }
 }

@@ -114,7 +114,7 @@ namespace Growthstories.UI.ViewModel
             // THINK ABOUT NOT HAVING TO DO THE ROUNDTRIP!!!
             this.ListenTo<PlantActionCreated>()
                 .Where(x => x.PlantId == this.State.Id)
-                .Select(x => App.PlantActionViewModelFactory(this.State, x.EntityId))
+                .Select(x => App.PlantActionViewModelFactory(this.State, x.AggregateId))
                 .Switch()
                 .Subscribe(x =>
                 {
@@ -123,7 +123,7 @@ namespace Growthstories.UI.ViewModel
                 });
 
             this.ListenTo<PlantActionPropertySet>()
-                .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.EntityId)))
+                .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.AggregateId)))
                 .Where(x => x.Item2 != null)
                 .Subscribe(x =>
                 {

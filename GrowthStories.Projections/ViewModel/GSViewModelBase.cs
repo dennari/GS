@@ -34,7 +34,7 @@ namespace Growthstories.UI.ViewModel
             this.App = app;
         }
 
-        protected void SendCommand(IEntityCommand cmd, bool GoBack = false)
+        protected void SendCommand(IAggregateCommand cmd, bool GoBack = false)
         {
             App.Bus.SendCommand(cmd);
             if (GoBack)
@@ -52,7 +52,7 @@ namespace Growthstories.UI.ViewModel
             if (id == default(Guid))
                 return allEvents;
             else
-                return allEvents.Where(x => x.EntityId == id);
+                return allEvents.Where(x => x.AggregateId == id);
         }
 
 

@@ -23,16 +23,16 @@ namespace Growthstories.UI.Tests
         {
             var plant = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
             Bus.SendCommand(plant);
-            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.EntityId, plant.Name));
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.AggregateId, plant.Name));
 
-            var measurement = new CreatePlantAction(Guid.NewGuid(), Ctx.Id, plant.EntityId, PlantActionType.MEASURED, "new measurement")
+            var measurement = new CreatePlantAction(Guid.NewGuid(), Ctx.Id, plant.AggregateId, PlantActionType.MEASURED, "new measurement")
             {
                 MeasurementType = MeasurementType.LENGTH,
                 Value = 26.0
             };
             Bus.SendCommand(measurement);
 
-            var change = new SetPlantActionProperty(measurement.EntityId, PlantActionType.MEASURED)
+            var change = new SetPlantActionProperty(measurement.AggregateId, PlantActionType.MEASURED)
             {
                 MeasurementType = MeasurementType.LENGTH,
                 Value = 57.9
@@ -41,7 +41,7 @@ namespace Growthstories.UI.Tests
             Bus.SendCommand(change);
 
             var vm = new PlantViewModel(
-                ((Plant)Repository.GetById(plant.EntityId)).State,
+                ((Plant)Repository.GetById(plant.AggregateId)).State,
                 null,
                 this.App
              );
@@ -51,11 +51,11 @@ namespace Growthstories.UI.Tests
 
             Assert.IsInstanceOf<PlantMeasureViewModel>(vm.Actions[0]);
             var result = (PlantMeasureViewModel)vm.Actions[0];
-            Assert.AreEqual(measurement.EntityId, result.PlantActionId);
+            Assert.AreEqual(measurement.AggregateId, result.PlantActionId);
             Assert.AreEqual(measurement.MeasurementType, result.Series.Type);
             Assert.AreEqual(change.Value, result.Value.Value);
 
-            var watering = new CreatePlantAction(Guid.NewGuid(), Ctx.Id, plant.EntityId, PlantActionType.WATERED, "new watering");
+            var watering = new CreatePlantAction(Guid.NewGuid(), Ctx.Id, plant.AggregateId, PlantActionType.WATERED, "new watering");
             Bus.SendCommand(watering);
 
             Assert.AreEqual(2, vm.Actions.Count);
@@ -63,10 +63,10 @@ namespace Growthstories.UI.Tests
 
             Assert.IsInstanceOf<PlantWaterViewModel>(vm.Actions[0]);
             var result2 = (PlantWaterViewModel)vm.Actions[0];
-            Assert.AreEqual(watering.EntityId, result2.PlantActionId);
+            Assert.AreEqual(watering.AggregateId, result2.PlantActionId);
             Assert.AreEqual(watering.Note, result2.Note);
 
-            var wateringPropSet = new SetPlantActionProperty(watering.EntityId, watering.Type)
+            var wateringPropSet = new SetPlantActionProperty(watering.AggregateId, watering.Type)
             {
                 Note = "changed note"
             };

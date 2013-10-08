@@ -19,7 +19,7 @@ namespace Growthstories.Domain.Entities
     {
 
 
-        public Guid UserId { get; private set; }
+        public Guid GardenId { get; private set; }
 
         public IList<Guid> PlantIds { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PlantAdded @event)
         {
-            if (@event.EntityId != Id)
+            if (@event.AggregateId != Id)
             {
                 throw DomainError.Named("ALIEN_ID", "Nonmatching EntityId");
             }
@@ -55,7 +55,7 @@ namespace Growthstories.Domain.Entities
         public override void Apply(GardenCreated @event)
         {
             base.Apply(@event);
-            this.UserId = @event.UserId;
+            this.GardenId = @event.EntityId.Value;
         }
 
         //public void Apply(MarkedGardenPublic @event)

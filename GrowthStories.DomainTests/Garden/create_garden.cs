@@ -19,12 +19,13 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_no_prior_history()
         {
+            var cmd = new CreateGarden(id, Guid.NewGuid());
             Given();
-            When(new CreateGarden(id, Guid.NewGuid()));
-            Expect(new GardenCreated(id)
+            When(cmd);
+            Expect(new GardenCreated(cmd)
             {
-                EntityVersion = 1,
-                EventId = FakeEventFactory.FakeEventId,
+                AggregateVersion = 1,
+                MessageId = FakeEventFactory.FakeEventId,
                 Created = FakeEventFactory.FakeCreated
             });
         }
@@ -32,7 +33,7 @@ namespace Growthstories.DomainTests
         [Test]
         public void given_created_garden()
         {
-            Given(new GardenCreated(new CreateGarden(id, Guid.NewGuid())) { EntityVersion = 1 });
+            Given(new GardenCreated(new CreateGarden(id, Guid.NewGuid())) { AggregateVersion = 1 });
             When(new CreateGarden(id, Guid.NewGuid()));
             Expect("rebirth");
         }

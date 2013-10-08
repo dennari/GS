@@ -149,7 +149,7 @@ namespace Growthstories.UI.ViewModel
             try
             {
 
-                var cmd = new CreateSchedule(Id, App.Context.CurrentUser.Id, val);
+                var cmd = new CreateSchedule(Id, val);
                 this.SendCommand(cmd, false);
                 this.App.Router.NavigateBack.Execute(null);
             }

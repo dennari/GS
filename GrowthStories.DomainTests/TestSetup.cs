@@ -31,6 +31,8 @@ using Growthstories.UI.ViewModel;
 //using GalaSoft.MvvmLight.Messaging;
 using ReactiveUI;
 using EventStore.Persistence.InMemoryPersistence;
+using Growthstories.Domain.Entities;
+using System.Collections.Generic;
 
 
 namespace Growthstories.DomainTests
@@ -165,14 +167,18 @@ namespace Growthstories.DomainTests
 
 
 
-            Bind<IStoreEvents, ICommitEvents>().To<GSEventStore>().InSingletonScope();
+            Bind<IStoreEvents, ICommitEvents, GSEventStore>().To<GSEventStore>().InSingletonScope();
             Bind<ISerialize>().To<JsonSerializer>();
 
             #endregion
 
 
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
-            Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
+            Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope().OnActivation((_, x) =>
+            {
+                //x.OtherHandlers[typeof(CreateUser)] = new List<Guid>() { GSAppState.GSAppId };
+                //x.OtherHandlers[typeof(CreatePlant)] = new List<Guid>() { GSAppState.GSAppId };
+            });
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
 
             //Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();
@@ -191,7 +197,7 @@ namespace Growthstories.DomainTests
 
             //RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
 
-            Kernel.Get<IMessageBus>().Listen<IEntityCommand>().Subscribe(x =>
+            Kernel.Get<IMessageBus>().Listen<IAggregateCommand>().Subscribe(x =>
             {
                 Kernel.Get<IDispatchCommands>().Handle(x);
             });
@@ -216,7 +222,7 @@ namespace Growthstories.DomainTests
         {
             // Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
             //var allEvents = bus.Listen<IEvent>();
-            var allCommands = bus.Listen<IEntityCommand>();
+            var allCommands = bus.Listen<IAggregateCommand>();
 
             var handler = Kernel.Get<IDispatchCommands>();
             allCommands.Subscribe(c => handler.Handle(c));

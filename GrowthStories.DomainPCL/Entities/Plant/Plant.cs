@@ -25,7 +25,10 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<CreatePlantAction>,
         ICommandHandler<SetPlantActionProperty>
     {
-
+        public Plant()
+        {
+            this.StreamType = EventStore.SyncStreamType.PLANT;
+        }
 
 
         public void Handle(CreatePlant command)
@@ -44,24 +47,24 @@ namespace Growthstories.Domain.Entities
         public void Handle(SetPlantActionProperty command)
         {
             PlantActionState plantAction = null;
-            if (!this.State.PlantActions.TryGetValue(command.EntityId, out plantAction))
+            if (!this.State.PlantActions.TryGetValue(command.AggregateId, out plantAction))
                 throw new InvalidOperationException("Can't modify nonexistent plantACtion");
             RaiseEvent(new PlantActionPropertySet(command, this.State.UserId, plantAction.Type));
         }
 
         public void Handle(SetWateringSchedule command)
         {
-            if (command.EntityId != this.State.Id)
+            if (command.AggregateId != this.State.Id)
                 throw new InvalidOperationException("command was misrouted.");
-            RaiseEvent(new WateringScheduleSet(command, this.State.UserId));
+            RaiseEvent(new ScheduleSet(command));
         }
 
         public void Handle(SetFertilizingSchedule command)
         {
 
-            if (command.EntityId != this.State.Id)
+            if (command.AggregateId != this.State.Id)
                 throw new InvalidOperationException("command was misrouted.");
-            RaiseEvent(new FertilizingScheduleSet(command, this.State.UserId));
+            RaiseEvent(new ScheduleSet(command));
         }
 
         public void Handle(SetTags command)
@@ -84,12 +87,12 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(MarkPlantPublic command)
         {
-            RaiseEvent(new MarkedPlantPublic(command.EntityId));
+            RaiseEvent(new MarkedPlantPublic(command.AggregateId));
         }
 
         public void Handle(MarkPlantPrivate command)
         {
-            RaiseEvent(new MarkedPlantPrivate(command.EntityId));
+            RaiseEvent(new MarkedPlantPrivate(command.AggregateId));
         }
 
         public void Handle(SetProfilepicture command)

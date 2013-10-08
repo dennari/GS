@@ -4,6 +4,8 @@ using CommonDomain.Persistence;
 using EventStore;
 using EventStore.Persistence;
 using Growthstories.Core;
+using Growthstories.Domain.Entities;
+using Growthstories.Sync;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,14 @@ using System.Text;
 
 namespace Growthstories.Domain
 {
-    public class GSRepository : IGSRepository, IDisposable
+    public sealed class GSRepository : IGSRepository, IDisposable
     {
 
         private const string AggregateTypeHeader = "AggregateType";
 
         private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
         private readonly IDictionary<Guid, IGSAggregate> aggregates = new Dictionary<Guid, IGSAggregate>();
-        private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
+        private readonly IDictionary<Guid, SyncEventStream> streams = new Dictionary<Guid, SyncEventStream>();
         private readonly GSEventStore eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
@@ -78,7 +80,8 @@ namespace Growthstories.Domain
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-        protected virtual void Dispose(bool disposing)
+
+        protected void Dispose(bool disposing)
         {
             if (!disposing)
                 return;
@@ -135,31 +138,52 @@ namespace Growthstories.Domain
         }
         private IEventStream OpenStream(Guid id, int version, Snapshot snapshot)
         {
-            IEventStream stream;
+            SyncEventStream stream;
             if (this.streams.TryGetValue(id, out stream))
                 return stream;
 
             stream = snapshot == null
-                ? this.eventStore.OpenStream(id, 0, version)
-                : this.eventStore.OpenStream(snapshot, version);
+                ? (SyncEventStream)this.eventStore.OpenStream(id, 0, version)
+                : (SyncEventStream)this.eventStore.OpenStream(snapshot, version);
 
             return this.streams[id] = stream;
         }
 
-        public virtual void Save(IGSAggregate aggregate)
+        public void SaveRemote(IGSAggregate aggregate, long syncStamp)
+        {
+            var stream = this.GetStreamForAggregate(aggregate);
+            stream.SyncStamp = syncStamp;
+
+            foreach (var e in aggregate.GetUncommittedEvents())
+            {
+                stream.AddRemote((IEvent)e);
+            }
+
+            SaveStream(aggregate, stream, true);
+
+        }
+        public void Save(IGSAggregate aggregate)
         {
 
-            Guid commitId = Guid.NewGuid();
-            Action<IDictionary<string, object>> updateHeaders = null;
-            var headers = PrepareHeaders(aggregate, updateHeaders);
+
+            var stream = this.PrepareStream(aggregate);
+
+            SaveStream(aggregate, stream);
+
+        }
+
+        private void SaveStream(IAggregate aggregate, SyncEventStream stream, bool isRemote = false)
+        {
             while (true)
             {
-                var stream = this.PrepareStream(aggregate, headers);
                 var commitEventCount = stream.CommittedEvents.Count;
 
                 try
                 {
-                    stream.CommitChanges(commitId);
+                    if (isRemote)
+                        stream.CommitRemoteChanges(Guid.NewGuid());
+                    else
+                        stream.CommitChanges(Guid.NewGuid());
                     aggregate.ClearUncommittedEvents();
                     return;
                 }
@@ -181,15 +205,17 @@ namespace Growthstories.Domain
                 }
             }
         }
-        private IEventStream PrepareStream(IAggregate aggregate, Dictionary<string, object> headers)
+
+        private SyncEventStream PrepareStream(IGSAggregate aggregate, Dictionary<string, object> headers = null)
         {
-            IEventStream stream;
-            if (!this.streams.TryGetValue(aggregate.Id, out stream))
-                this.streams[aggregate.Id] = stream = this.eventStore.CreateStream(aggregate.Id);
 
-            foreach (var item in headers)
-                stream.UncommittedHeaders[item.Key] = item.Value;
+            var stream = GetStreamForAggregate(aggregate);
 
+            if (headers != null)
+            {
+                foreach (var item in headers)
+                    stream.UncommittedHeaders[item.Key] = item.Value;
+            }
             foreach (var e in aggregate.GetUncommittedEvents()
                 .Cast<object>()
                 .Select(x => new EventMessage { Body = x }))
@@ -199,13 +225,25 @@ namespace Growthstories.Domain
 
             return stream;
         }
-        private static Dictionary<string, object> PrepareHeaders(IAggregate aggregate, Action<IDictionary<string, object>> updateHeaders)
+
+        private SyncEventStream GetStreamForAggregate(IGSAggregate aggregate)
+        {
+            SyncEventStream stream;
+            if (!this.streams.TryGetValue(aggregate.Id, out stream))
+            {
+                this.streams[aggregate.Id] = stream = (SyncEventStream)this.eventStore.CreateStream(aggregate.Id);
+            }
+            stream.Type = aggregate.StreamType;
+            return stream;
+        }
+
+        private static Dictionary<string, object> PrepareHeaders(IAggregate aggregate)
         {
             var headers = new Dictionary<string, object>();
 
             headers[AggregateTypeHeader] = aggregate.GetType().FullName;
-            if (updateHeaders != null)
-                updateHeaders(headers);
+            //if (updateHeaders != null)
+            //    updateHeaders(headers);
 
             return headers;
         }

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Growthstories.Domain.Messaging
 {
 
-    public abstract class PlantCommand : EntityCommand<Plant>
+    public abstract class PlantCommand : AggregateCommand<Plant>
     {
         public PlantCommand() { }
         public PlantCommand(Guid EntityId) : base(EntityId) { }
@@ -30,23 +30,20 @@ namespace Growthstories.Domain.Messaging
 
         public HashSet<string> Tags { get; set; }
 
-        public Guid UserId { get; private set; }
+        public Guid GardenId { get; private set; }
 
         public CreatePlant() { }
-        public CreatePlant(Guid id, string name, Guid userId)
+        public CreatePlant(Guid id, string name, Guid gardenId)
             : base(id)
         {
             Name = name;
-            this.UserId = userId;
-            this.AncestorId = userId;
-            this.ParentAncestorId = userId;
-            this.StreamEntityId = id;
-            this.StreamAncestorId = userId;
+            this.GardenId = gardenId;
+
         }
 
         public override string ToString()
         {
-            return string.Format(@"Create plant {0}.", EntityId);
+            return string.Format(@"Create plant {0}.", AggregateId);
         }
 
 
@@ -79,7 +76,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Mark plant {0} public", EntityId);
+            return string.Format(@"Mark plant {0} public", AggregateId);
         }
 
     }
@@ -91,7 +88,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Mark plant {0} private", EntityId);
+            return string.Format(@"Mark plant {0} private", AggregateId);
         }
 
     }
@@ -104,7 +101,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Delete plant {0}.", EntityId);
+            return string.Format(@"Delete plant {0}.", AggregateId);
         }
 
     }
@@ -122,7 +119,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Set name to {1} for plant {0}.", EntityId, Name);
+            return string.Format(@"Set name to {1} for plant {0}.", AggregateId, Name);
         }
 
     }
@@ -139,7 +136,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Set species to {1} for plant {0}.", EntityId, Species);
+            return string.Format(@"Set species to {1} for plant {0}.", AggregateId, Species);
         }
 
     }
@@ -158,7 +155,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Set watering schedule {1} to plant {0}.", EntityId, ScheduleId);
+            return string.Format(@"Set watering schedule {1} to plant {0}.", AggregateId, ScheduleId);
         }
 
     }
@@ -176,7 +173,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Set fertilizing schedule {1} to plant {0}.", EntityId, ScheduleId);
+            return string.Format(@"Set fertilizing schedule {1} to plant {0}.", AggregateId, ScheduleId);
         }
 
     }
@@ -194,7 +191,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Set tags for plant {0}.", EntityId);
+            return string.Format(@"Set tags for plant {0}.", AggregateId);
         }
 
     }

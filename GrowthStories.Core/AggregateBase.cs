@@ -5,6 +5,7 @@ using CommonDomain.Core;
 using Growthstories.Core;
 using System.Reflection;
 using EventStore.Logging;
+using EventStore;
 
 namespace Growthstories.Core
 {
@@ -12,6 +13,9 @@ namespace Growthstories.Core
     public interface IGSAggregate : IAggregate, IApplyState
     {
         void SetEventFactory(IEventFactory factory);
+        SyncStreamType StreamType { get; }
+        void ApplyRemoteEvent(IEvent Event);
+
     }
 
     public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate, ICommandHandler
@@ -29,10 +33,15 @@ namespace Growthstories.Core
 
 
 
+        public SyncStreamType StreamType { get; protected set; }
+
         private TState _state;
         private IEventFactory _eventFactory;
         private static ILog Logger = LogFactory.BuildLogger(typeof(TState));
 
+        private readonly ICollection<IEvent> UncommittedRemoteEvents = new LinkedList<IEvent>();
+
+        private readonly HashSet<Guid> AppliedEventIds = new HashSet<Guid>();
 
         public AggregateBase()
         {
@@ -107,13 +116,32 @@ namespace Growthstories.Core
 
             if (this._eventFactory != null)
                 this._eventFactory.Fill(Event, this);
-            Event.EntityVersion = this.Version + 1;
+            Event.AggregateVersion = this.Version + 1;
             Logger.Info("Raised event: {0}", Event.ToString());
             base.RaiseEvent(Event); // calls ApplyEvent and increases Version
-
-
+            this.AppliedEventIds.Add(Event.MessageId);
 
         }
+
+        public void ApplyRemoteEvent(IEvent Event)
+        {
+            Validate(Event);
+            //if (((IAggregate)this).GetUncommittedEvents().Count > 0)
+            //    throw new InvalidOperationException("All pending local changes need to be saved before applying remote events.");
+            if (Event is ICreateEvent || this.AppliedEventIds.Contains(Event.MessageId))
+                return;
+
+            //if (this._eventFactory != null)
+            //    this._eventFactory.Fill(Event, this);
+            //Event.AggregateVersion = this.Version + 1;
+            Logger.Info("Raised remote event: {0}", Event.ToString());
+            base.RaiseEvent(Event);
+            this.AppliedEventIds.Add(Event.MessageId);
+            //this.RegisteredRoutes.Dispatch(Event);
+            //this.Version++;
+            //this.UncommittedRemoteEvents.Add(Event);
+        }
+
 
         private void Validate(IEvent Event)
         {

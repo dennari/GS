@@ -1,6 +1,10 @@
-﻿using Growthstories.Core;
+﻿using EventStore.Persistence;
+using EventStore.Persistence.SqlPersistence;
+using Growthstories.Core;
 using Growthstories.DomainTests.Staging;
 using Growthstories.Sync;
+using Growthstories.UI;
+using Growthstories.UI.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +33,28 @@ namespace Growthstories.DomainTests
         {
             Bind<IEventFactory>().To<EventFactory>().InSingletonScope();
         }
+
+        protected override void PersistenceConfiguration()
+        {
+            Bind<IPersistSyncStreams, IPersistStreams>()
+                .To<SQLitePersistenceEngine>()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.ReInitialize();
+                });
+
+
+            Bind<IUIPersistence>().To<SQLiteUIPersistence>()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =>
+                {
+                    eng.Initialize();
+                    eng.Purge();
+                });
+
+        }
+
 
     }
 }

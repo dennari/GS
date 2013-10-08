@@ -57,7 +57,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created user {0}", EntityId);
+            return string.Format(@"Created user {0}", AggregateId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -67,6 +67,8 @@ namespace Growthstories.Domain.Messaging
             D.Username = this.Username;
             D.Password = this.Password;
             D.Email = this.Email;
+            D.StreamAncestor = null;
+            D.AncestorId = null;
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -88,8 +90,6 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Guid OfUser { get; private set; }
 
-        [JsonProperty]
-        public Guid RelationshipId { get; private set; }
 
         protected BecameFollower() { }
         //public BecameFollower(Guid id, Guid OfUser)
@@ -101,13 +101,12 @@ namespace Growthstories.Domain.Messaging
         public BecameFollower(BecomeFollower cmd)
             : base(cmd)
         {
-            this.RelationshipId = cmd.RelationshipId;
             this.OfUser = cmd.OfUser;
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} became a follower of user {1}.", this.EntityId, this.OfUser);
+            return string.Format(@"User {0} became a follower of user {1}.", this.AggregateId, this.OfUser);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -115,7 +114,9 @@ namespace Growthstories.Domain.Messaging
             var D = (IAddRelationshipDTO)Dto;
             base.FillDTO(D);
             D.To = this.OfUser;
-            D.EntityId = this.RelationshipId;
+            D.StreamAncestor = null;
+            D.AncestorId = null;
+
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -123,8 +124,6 @@ namespace Growthstories.Domain.Messaging
             var D = (IAddRelationshipDTO)Dto;
             base.FromDTO(D);
             this.OfUser = D.To;
-            this.RelationshipId = D.EntityId;
-            this.EntityId = this.StreamEntityId ?? default(Guid);
         }
 
     }
@@ -134,8 +133,7 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-        [JsonProperty]
-        public Guid RelationshipId { get; private set; }
+
 
         protected FriendshipRequested() { }
 
@@ -143,13 +141,12 @@ namespace Growthstories.Domain.Messaging
         public FriendshipRequested(RequestFriendship cmd)
             : base(cmd)
         {
-            this.RelationshipId = cmd.RelationshipId;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requested friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+            return string.Format(@"User {0} requested friendship in relationship {1}.", this.AggregateId, this.EntityId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -160,8 +157,9 @@ namespace Growthstories.Domain.Messaging
             D.PropertyValue = "requested";
 
             base.FillDTO(D);
+            D.StreamAncestor = null;
+            D.AncestorId = null;
 
-            D.EntityId = this.RelationshipId;
 
         }
 
@@ -174,8 +172,6 @@ namespace Growthstories.Domain.Messaging
                 throw new ArgumentException();
 
             base.FromDTO(D);
-            this.RelationshipId = D.EntityId;
-            this.EntityId = this.StreamEntityId ?? default(Guid);
 
         }
 
@@ -187,21 +183,19 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-        [JsonProperty]
-        public Guid RelationshipId { get; private set; }
+
 
         protected FriendshipAccepted() { }
 
         public FriendshipAccepted(AcceptFriendship cmd)
             : base(cmd)
         {
-            this.RelationshipId = cmd.RelationshipId;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} accepted friendship in relationship {1}.", this.EntityId, this.RelationshipId);
+            return string.Format(@"User {0} accepted friendship in relationship {1}.", this.AggregateId, this.EntityId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -213,8 +207,9 @@ namespace Growthstories.Domain.Messaging
 
 
             base.FillDTO(D);
+            D.StreamAncestor = null;
+            D.AncestorId = null;
 
-            D.EntityId = this.RelationshipId;
 
         }
 
@@ -227,11 +222,7 @@ namespace Growthstories.Domain.Messaging
                 throw new ArgumentException();
 
             base.FromDTO(D);
-            this.RelationshipId = D.EntityId;
-            this.EntityId = this.StreamEntityId ?? default(Guid);
 
-
-            base.FromDTO(D);
         }
 
     }
@@ -241,16 +232,13 @@ namespace Growthstories.Domain.Messaging
     [DTOObject(DTOType.setProperty)]
     public class GardenAdded : EventBase
     {
-
         [JsonProperty]
-        public Guid GardenId { get; private set; }
+        public Guid GardenId { get; protected set; }
+
+
 
         protected GardenAdded() { }
-        public GardenAdded(Guid id, Guid gardenId)
-            : base(id)
-        {
-            this.GardenId = gardenId;
-        }
+
 
         public GardenAdded(AddGarden cmd)
             : base(cmd)
@@ -260,7 +248,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"User {0} added garden {1}.", this.EntityId, this.GardenId);
+            return string.Format(@"User {0} added garden {1}.", this.AggregateId, this.GardenId);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -269,10 +257,15 @@ namespace Growthstories.Domain.Messaging
             D.EntityType = DTOType.user;
             D.PropertyName = "garden";
             D.PropertyValue = new JObject();
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.EntityId.ToString();
+
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AggregateId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.GardenId.ToString();
 
             base.FillDTO(D);
+
+            D.StreamAncestor = null;
+            D.AncestorId = null;
+
 
         }
 
@@ -288,7 +281,7 @@ namespace Growthstories.Domain.Messaging
             {
                 var val = (JObject)D.PropertyValue;
                 this.GardenId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                this.EntityId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
             }
             catch
             {
@@ -331,7 +324,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"AuthTokenSet access: {0}, refresh: {1}, expires {2}, for user {3}.", AccessToken, RefreshToken, ExpiresIn, EntityId);
+            return string.Format(@"AuthTokenSet access: {0}, refresh: {1}, expires {2}, for user {3}.", AccessToken, RefreshToken, ExpiresIn, AggregateId);
         }
 
     }

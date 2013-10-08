@@ -71,8 +71,8 @@ namespace Growthstories.DomainTests
                 "new note")
             )
             {
-                EntityVersion = 1,
-                EventId = Guid.NewGuid(),
+                AggregateVersion = 1,
+                MessageId = Guid.NewGuid(),
                 Created = DateTimeOffset.UtcNow
             };
 
@@ -104,8 +104,8 @@ namespace Growthstories.DomainTests
                 }
             )
             {
-                EntityVersion = 1,
-                EventId = Guid.NewGuid(),
+                AggregateVersion = 1,
+                MessageId = Guid.NewGuid(),
                 Created = DateTimeOffset.UtcNow
             };
 
@@ -131,8 +131,8 @@ namespace Growthstories.DomainTests
             }
             )
             {
-                EntityVersion = 1,
-                EventId = Guid.NewGuid(),
+                AggregateVersion = 1,
+                MessageId = Guid.NewGuid(),
                 Created = DateTimeOffset.UtcNow
             };
 
@@ -150,15 +150,14 @@ namespace Growthstories.DomainTests
 
             var C = new ScheduleCreated(new CreateSchedule(
                 Guid.NewGuid(),
-                User.Id,
                 234234)
             {
 
             }
             )
             {
-                EntityVersion = 1,
-                EventId = Guid.NewGuid(),
+                AggregateVersion = 1,
+                MessageId = Guid.NewGuid(),
                 Created = DateTimeOffset.UtcNow
             };
 
@@ -211,28 +210,30 @@ namespace Growthstories.DomainTests
         }
 
 
-        protected void DTOAssertions(IEvent C, IEvent CD, DTOType DT, IAuthUser U)
+        protected void DTOAssertions(IEvent C, object CD, DTOType DT, IAuthUser U)
         {
-            Assert.AreEqual(C.EntityId, CD.EntityId);
-            //Assert.AreEqual(C.EntityVersion, CD.EntityVersion);
-            Assert.AreEqual(C.EventId, CD.EventId);
 
+
+            var E = CD as IDomainEvent;
+            if (E != null)
+            {
+                Assert.AreEqual(C.AggregateId, E.AggregateId);
+                Assert.AreEqual(C.MessageId, E.MessageId);
+                Assert.IsTrue(C.GetType() == E.GetType());
+                Assert.IsTrue(E.GetDTOType().Contains(DT));
+                Assert.AreEqual(C.Created.GetUnixTimestampMillis(), E.Created.GetUnixTimestampMillis());
+
+            }
 
             var DTO = CD as IEventDTO;
             if (DTO != null)
             {
+                Assert.AreEqual(C.AggregateId, DTO.AggregateId);
+                Assert.AreEqual(C.MessageId, DTO.MessageId);
                 Assert.AreEqual(DT, DTO.EventType);
                 Assert.AreEqual(U.Id, DTO.AncestorId);
             }
-            else
-            {
-                Assert.IsTrue(C.GetType() == CD.GetType());
-                Assert.IsTrue(CD.GetDTOType().Contains(DT));
-                Assert.AreEqual(C.Created.GetUnixTimestampMillis(), CD.Created.GetUnixTimestampMillis());
-                //Assert.AreEqual(C.Created, CD.);
-
-            }
-
         }
+
     }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Growthstories.Domain.Messaging;
 using Growthstories.Core;
 using System.Net;
+using EventStore;
 
 namespace Growthstories.Sync
 {
@@ -45,16 +46,18 @@ namespace Growthstories.Sync
 
     public class HelperPullResponse
     {
-        [JsonProperty(PropertyName = Language.COMMANDS, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty(PropertyName = Language.EVENTS, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IList<EventDTOUnion> DTOs { get; set; }
+
+        [JsonProperty(PropertyName = Language.USE_SINCE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public long SyncStamp { get; set; }
     }
 
     public class HttpPullResponse : HttpResponse, ISyncPullResponse
     {
+        public long SyncStamp { get; set; }
 
-
-        [JsonIgnore]
-        public IEnumerable<IGrouping<Guid, IEvent>> Events { get; set; }
+        public ICollection<ISyncEventStream> Streams { get; set; }
 
 
     }
@@ -145,8 +148,8 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.STREAM_TYPE, Required = Required.Always)]
         public string Type { get; protected set; }
 
-        [JsonProperty(PropertyName = Language.ENTITY_VERSION_SINCE, Required = Required.Always)]
-        public int SinceVersion { get; protected set; }
+        [JsonProperty(PropertyName = Language.STREAM_SINCE, Required = Required.Always)]
+        public long SyncStamp { get; protected set; }
 
         [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
         public Guid StreamId { get; protected set; }
@@ -157,27 +160,9 @@ namespace Growthstories.Sync
         public static ISyncEventStreamDTO Translate(ISyncEventStream stream)
         {
             var r = new SyncEventStreamDTO();
-            r.SinceVersion = stream.StreamRevision - stream.CommittedEvents.Count();
+            r.SyncStamp = stream.SyncStamp;
             r.StreamId = stream.StreamId;
-
-            EventBase firstEvent = stream.Events(Growthstories.Core.Extensions.EventTypes.All)
-                .OfType<EventBase>()
-                .FirstOrDefault();
-
-            if (firstEvent != null)
-            {
-                r.StreamAncestorId = firstEvent.StreamAncestorId;
-                r.Type = firstEvent.StreamType.ToString().ToUpper();
-            }
-            else
-            {
-                var cheat = stream as SyncEventStream;
-                if (cheat != null)
-                    r.Type = cheat.Type;
-
-            }
-
-
+            r.Type = stream.Type == SyncStreamType.PLANT ? "PLANT" : "USER";
 
             return r;
         }

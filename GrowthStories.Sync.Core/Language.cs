@@ -20,6 +20,9 @@ namespace Growthstories.Sync
         public const string STREAM_ENTITY = "streamEntity";
         public const string STREAM_ANCESTOR = "streamAncestor";
         public const string STREAM_TYPE = "streamType";
+        public const string STREAM_SINCE = "since";
+        public const string USE_SINCE = "useSince";
+
         public const string STREAMS = "streams";
         public const string EVENT_TYPE = "type";
         public const string ENTITY_TYPE = "kind";

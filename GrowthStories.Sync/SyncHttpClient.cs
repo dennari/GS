@@ -100,7 +100,7 @@ namespace Growthstories.Sync
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, uri);
                 var form = new MultipartFormDataContent();
-                form.Add(new StreamContent(file), "file", "image.jpg");
+                form.Add(new StreamContent(file), "file", "filename");
 
                 req.Content = form;
 

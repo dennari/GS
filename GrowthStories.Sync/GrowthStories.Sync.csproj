@@ -80,7 +80,6 @@
     <Compile Include="Fakes\FakeRequestResponseFactory.cs" />
     <Compile Include="Fakes\FakeEndpoint.cs" />
     <Compile Include="AuthToken.cs" />
-    <Compile Include="SyncEventStream.cs" />
     <Compile Include="DTO\DTOExtensions.cs" />
     <Compile Include="Fakes\FakeHttpClient.cs" />
     <Compile Include="HttpMessages.cs" />

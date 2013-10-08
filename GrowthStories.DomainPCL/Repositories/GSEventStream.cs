@@ -38,11 +38,11 @@ namespace Growthstories.Sync
         public void Add(IEvent e, bool setVersion = false)
         {
             var correctVersion = this.StreamRevision + this.Events.Count + 1;
-            if (e.EntityVersion != correctVersion)
+            if (e.AggregateVersion != correctVersion)
             {
                 if (!setVersion)
-                    throw new InvalidOperationException(string.Format("SyncEventStream Add: event has version {0}, should have {1}", e.EntityVersion, correctVersion));
-                e.EntityVersion = correctVersion;
+                    throw new InvalidOperationException(string.Format("SyncEventStream Add: event has version {0}, should have {1}", e.AggregateVersion, correctVersion));
+                e.AggregateVersion = correctVersion;
             }
             this.Events.Add(e);
             base.Add(new EventMessage() { Body = e });

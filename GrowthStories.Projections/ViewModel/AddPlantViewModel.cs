@@ -204,7 +204,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         private ObservableAsPropertyHelper<string> _PlantTitle;
-        public new string PlantTitle
+        public string PlantTitle
         {
             get
             {

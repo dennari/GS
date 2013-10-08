@@ -9,7 +9,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region User
-    public class CreateSynchronizer : EntityCommand<Synchronizer>
+    public class CreateSynchronizer : AggregateCommand<Synchronizer>
     {
 
         public CreateSynchronizer(Guid id)
@@ -20,12 +20,12 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Create synchronizer.", EntityId);
+            return string.Format(@"Create synchronizer.", AggregateId);
         }
 
     }
 
-    public class Synchronize : EntityCommand<Synchronizer>
+    public class Synchronize : AggregateCommand<Synchronizer>
     {
 
         public Synchronize(Guid id)

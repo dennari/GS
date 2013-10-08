@@ -22,39 +22,39 @@ namespace Growthstories.Domain.Services
 
         public TEntity Handle<TEntity, TCommand>(TCommand c)
             where TEntity : class, ICommandHandler<TCommand>, IGSAggregate, new()
-            where TCommand : IEntityCommand
+            where TCommand : IAggregateCommand
         {
             return null;
         }
 
         public void HandlerHandle<TEntity, TCommand>(TCommand c)
             where TEntity : class, IGSAggregate, new()
-            where TCommand : IEntityCommand
+            where TCommand : IAggregateCommand
         {
             //throw new NotImplementedException();
         }
 
         public Task<object> HandleAsync<TEntity, TCommand>(TCommand c)
             where TEntity : class, IAsyncCommandHandler<TCommand>, IGSAggregate, new()
-            where TCommand : IEntityCommand
+            where TCommand : IAggregateCommand
         {
             return null;
         }
 
         public Task<object> HandlerHandleAsync<TEntity, TCommand>(TCommand c)
             where TEntity : class, IGSAggregate, new()
-            where TCommand : IEntityCommand
+            where TCommand : IAggregateCommand
         {
             return null;
         }
 
 
-        public IGSAggregate Handle(IEntityCommand c)
+        public IGSAggregate Handle(IAggregateCommand c)
         {
             return null;
         }
 
-        public Task<IGSAggregate> HandleAsync(IEntityCommand c)
+        public Task<IGSAggregate> HandleAsync(IAggregateCommand c)
         {
             throw new NotImplementedException();
         }

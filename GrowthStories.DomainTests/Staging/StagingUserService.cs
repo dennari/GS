@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using EventStore.Persistence;
 namespace Growthstories.DomainTests.Staging
 {
 
@@ -28,16 +29,19 @@ namespace Growthstories.DomainTests.Staging
         private readonly IAggregateFactory Factory;
         private readonly ITransportEvents Transporter;
         private readonly IRequestFactory RequestFactory;
-        private IGrouping<Guid, EventStore.Commit> UserCreateCommit;
+        private IGrouping<Guid, EventStore.GSCommit> UserCreateCommit;
+        private IPersistSyncStreams SyncPersistence;
 
         public StagingUserService(
             IGSRepository store,
+            IPersistSyncStreams syncPersistence,
             IAggregateFactory factory,
             ITransportEvents transporter,
             IRequestFactory requestFactory
             )
         {
             this.Repository = store;
+            this.SyncPersistence = syncPersistence;
             this.Store = (Repository as GSRepository).EventStore;
             this.Factory = factory;
             this.Transporter = transporter;
@@ -71,7 +75,7 @@ namespace Growthstories.DomainTests.Staging
             {
                 u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
                 Repository.Save(u);
-                var commits = Store.MoreAdvanced.GetUnsynchronizedCommits().GroupBy(x => x.StreamId).ToArray();
+                var commits = SyncPersistence.GetUnsynchronizedCommits().GroupBy(x => x.StreamId).ToArray();
                 if (commits.Length != 1 || commits[0].Key != u.Id)
                     throw new InvalidOperationException("UserCreated Event needs to be synchronized alone");
                 this.UserCreateCommit = commits[0];
@@ -87,13 +91,13 @@ namespace Growthstories.DomainTests.Staging
             {
                 var pushResponse = await Transporter.PushAsync(
                     RequestFactory.CreatePushRequest(
-                        new ISyncEventStream[] { new SyncEventStream(UserCreateCommit, Store) }));
+                        new ISyncEventStream[] { new SyncEventStream(UserCreateCommit, Store, SyncPersistence) }));
 
 
                 if (pushResponse.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Can't create user");
 
-                Store.MoreAdvanced.MarkCommitAsSynchronized(UserCreateCommit.First());
+                SyncPersistence.MarkCommitAsSynchronized(UserCreateCommit.First());
 
                 var authResponse = await Transporter.RequestAuthAsync(u.State.Username, u.State.Password);
                 if (authResponse.StatusCode != GSStatusCode.OK)

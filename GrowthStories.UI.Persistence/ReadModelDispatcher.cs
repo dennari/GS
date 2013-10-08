@@ -36,7 +36,7 @@ namespace Growthstories.UI.Persistence
                     id = ((PlantActionPropertySet)e).PlantId;
 
                 var state = ((Plant)Repo.GetById(id)).State;
-                var actionState = state.PlantActions[e.EntityId];
+                var actionState = state.PlantActions[e.AggregateId];
                 Store.PersistAction(actionState);
 
             }

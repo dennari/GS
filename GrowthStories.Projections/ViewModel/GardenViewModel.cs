@@ -106,7 +106,7 @@ namespace Growthstories.UI.ViewModel
             App.Bus.Listen<IEvent>().OfType<PlantAdded>()
                 .Where(x =>
                 {
-                    return x.EntityId == this.State.Id;
+                    return x.AggregateId == this.State.Id;
                 })
                 .Subscribe(x =>
                 {

@@ -18,13 +18,19 @@ namespace Growthstories.Sync
     {
         #region IEvent
         [JsonProperty(PropertyName = Language.EVENT_ID, Required = Required.Always)]
-        public Guid EventId { get; set; }
+        public Guid MessageId { get; set; }
 
-        [JsonProperty(PropertyName = Language.ENTITY_ID, Required = Required.Always)]
-        public Guid EntityId { get; set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
+        public Guid AggregateId { get; set; }
 
         [JsonProperty(PropertyName = Language.ENTITY_VERSION, Required = Required.Always)]
-        public int EntityVersion { get; set; }
+        public int AggregateVersion { get; set; }
+
+        [JsonProperty(PropertyName = Language.ENTITY_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid? EntityId { get; set; }
+
+
         #endregion
 
 
@@ -38,8 +44,6 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.CREATED, Required = Required.Always)]
         public long Created { get; set; }
 
-        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Include)]
-        public Guid? StreamEntity { get; set; }
 
         [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Guid? StreamAncestor { get; set; }
@@ -105,10 +109,6 @@ namespace Growthstories.Sync
         [JsonProperty(PropertyName = Language.VALUE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public double Value { get; set; }
 
-
-
-        [JsonIgnore]
-        DateTimeOffset IEvent.Created { get; set; }
 
     }
 

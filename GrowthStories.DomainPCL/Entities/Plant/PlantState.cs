@@ -63,7 +63,7 @@ namespace Growthstories.Domain.Entities
                 throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
             }
             PlantActionState actionState = null;
-            if (this.PlantActions.TryGetValue(@event.EntityId, out actionState))
+            if (this.PlantActions.TryGetValue(@event.AggregateId, out actionState))
             {
                 throw new InvalidOperationException("PlantAction with this id already exists");
             }
@@ -84,7 +84,7 @@ namespace Growthstories.Domain.Entities
                 throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
             }
             PlantActionState actionState = null;
-            if (this.PlantActions.TryGetValue(@event.EntityId, out actionState))
+            if (this.PlantActions.TryGetValue(@event.AggregateId, out actionState))
             {
                 actionState.Apply(@event);
             }
@@ -111,15 +111,15 @@ namespace Growthstories.Domain.Entities
             this.Profilepicture = @event.Profilepicture;
         }
 
-        public void Apply(WateringScheduleSet @event)
+        public void Apply(ScheduleSet @event)
         {
-            this.WateringScheduleId = @event.ScheduleId;
+            if (@event.Type == ScheduleType.WATERING)
+                this.WateringScheduleId = @event.ScheduleId;
+            else
+                this.FertilizingScheduleId = @event.ScheduleId;
         }
 
-        public void Apply(FertilizingScheduleSet @event)
-        {
-            this.FertilizingScheduleId = @event.ScheduleId;
-        }
+
         public void Apply(TagsSet @event)
         {
             this.Tags = @event.Tags;

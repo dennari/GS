@@ -68,7 +68,7 @@ namespace Growthstories.DomainTests
         protected override void ExecuteCommand(IStoreEvents store, ICommand cmd)
         {
 
-            var Cmd = (IEntityCommand)cmd;
+            var Cmd = (IAggregateCommand)cmd;
             //MethodInfo method = typeof(CommandHandler).GetMethod("Handle");
             //MethodInfo generic = method.MakeGenericMethod(Cmd.EntityType, Cmd.GetType());
             try

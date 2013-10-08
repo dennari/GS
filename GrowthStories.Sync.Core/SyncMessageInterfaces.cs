@@ -14,8 +14,12 @@ namespace Growthstories.Sync
     public interface IRequestFactory
     {
         ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams);
+        ISyncPushRequest CreatePushRequest();
 
         ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams);
+        ISyncPullRequest CreatePullRequest();
+
+        List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req);
 
     }
 
@@ -128,7 +132,9 @@ namespace Growthstories.Sync
 
     public interface ISyncPullResponse : ISyncResponse
     {
-        IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
+        //IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
+        ICollection<ISyncEventStream> Streams { get; }
+        long SyncStamp { get; }
 
     }
 
@@ -181,6 +187,7 @@ namespace Growthstories.Sync
         GSStatusCode StatusCode { get; }
 
         string StatusDescription { get; }
+
 
     }
 

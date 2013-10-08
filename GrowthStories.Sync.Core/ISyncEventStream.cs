@@ -10,11 +10,11 @@ namespace Growthstories.Sync
 {
     public interface ISyncEventStream : IEventStream, IEquatable<ISyncEventStream>
     {
-        void Rebase(ISyncEventStream remoteStream);
+        //void Rebase(ISyncEventStream remoteStream);
 
         //void CommitPullChanges(Guid commitId);
 
-        Commit[] Commits { get; }
+        GSCommit[] Commits { get; }
 
         IEnumerable<IEventDTO> Translate(ITranslateEvents translator);
 
@@ -24,13 +24,20 @@ namespace Growthstories.Sync
 
         void CommitRemoteChanges(Guid commitId);
 
+        /// <summary>
+        /// Commits the changes to durable storage.
+        bool MarkCommitsSynchronized(ISyncPushResponse pushResp = null);
+
         void Add(IEvent e, bool setVersion = false);
+
+        SyncStreamType Type { get; }
+        long SyncStamp { get; }
     }
 
     public interface ISyncEventStreamDTO
     {
         string Type { get; }
-        int SinceVersion { get; }
+        long SyncStamp { get; }
         Guid StreamId { get; }
         Guid? StreamAncestorId { get; }
     }

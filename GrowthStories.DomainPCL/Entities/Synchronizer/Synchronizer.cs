@@ -27,10 +27,10 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(CreateSynchronizer command)
         {
-            if (command.EntityId == default(Guid))
+            if (command.AggregateId == default(Guid))
                 throw new ArgumentNullException();
 
-            RaiseEvent(new SynchronizerCreated(command.EntityId));
+            RaiseEvent(new SynchronizerCreated(command.AggregateId));
 
         }
 

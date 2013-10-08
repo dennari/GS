@@ -9,35 +9,16 @@ namespace Growthstories.Domain.Messaging
 {
 
 
-    public abstract class CommandBase : ICommand
+
+
+    public abstract class AggregateCommand<T> : IAggregateCommand
     {
+        public Guid AggregateId { get; protected set; }
+        public Guid? EntityId { get; protected set; }
 
-    }
+        public DateTimeOffset Created { get; set; }
+        public Guid MessageId { get; set; }
 
-    public interface IEntityCommand : ICommand
-    {
-        Guid EntityId { get; }
-        Type EntityType { get; }
-
-        DTOType StreamType { get; }
-        Guid? AncestorId { get; }
-        Guid? ParentAncestorId { get; }
-        Guid? ParentId { get; }
-
-        Guid? StreamEntityId { get; }
-        Guid? StreamAncestorId { get; }
-    }
-
-    public interface ICreateCommand : IEntityCommand
-    {
-
-    }
-
-
-
-    public abstract class EntityCommand<T> : CommandBase, IEntityCommand
-    {
-        public Guid EntityId { get; private set; }
         private readonly Type _EntityType = typeof(T);
 
 
@@ -49,28 +30,37 @@ namespace Growthstories.Domain.Messaging
         public Guid? ParentId { get; set; }
 
 
-        public Type EntityType
+        public Type AggregateType
         {
             get
             {
                 return _EntityType;
             }
         }
-        protected EntityCommand() { }
-        public EntityCommand(Guid EntityId)
+        protected AggregateCommand() { }
+        public AggregateCommand(Guid AggregateId)
         {
-            if (EntityId == default(Guid))
+            if (AggregateId == default(Guid))
                 throw new ArgumentNullException();
-            this.EntityId = EntityId;
-            if (EntityType == typeof(User))
+            this.AggregateId = AggregateId;
+            if (AggregateType == typeof(User))
             {
                 this.StreamType = DTOType.user;
             }
-            if (EntityType == typeof(Plant))
+            if (AggregateType == typeof(Plant))
             {
                 this.StreamType = DTOType.plant;
             }
         }
+
+        public AggregateCommand(Guid AggregateId, Guid entityId)
+            : this(AggregateId)
+        {
+            if (entityId == default(Guid))
+                throw new ArgumentNullException();
+            this.EntityId = entityId;
+        }
+
     }
 
 
