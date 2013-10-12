@@ -52,28 +52,19 @@ namespace Growthstories.Sync
 
         public Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-            return Task.Run<ISyncPushResponse>(async () =>
-            {
-                return ResponseFactory.CreatePushResponse(await SendAndGetBodyAsync(null));
-
-            });
+            throw new NotImplementedException();
         }
 
 
         public Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-            return Task.Run<ISyncPullResponse>(async () =>
-            {
-                return ResponseFactory.CreatePullResponse(await SendAndGetBodyAsync(null));
-            });
+            throw new NotImplementedException();
         }
 
         public Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
-            return Task.Run<IAuthResponse>(async () =>
-            {
-                return ResponseFactory.CreateAuthResponse(await SendAndGetBodyAsync(null));
-            });
+            throw new NotImplementedException();
+
         }
 
 

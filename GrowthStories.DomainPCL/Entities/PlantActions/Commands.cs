@@ -8,9 +8,14 @@ using Growthstories.Sync;
 namespace Growthstories.Domain.Messaging
 {
 
+    public abstract class PlantActionCommand : AggregateCommand<PlantAction>
+    {
+
+        public PlantActionCommand(Guid AggregateId) : base(AggregateId) { }
+    }
 
     #region PlantAction
-    public class CreatePlantAction : PlantCommand
+    public class CreatePlantAction : PlantActionCommand, ICreateCommand
     {
 
         public PlantActionType Type { get; private set; }
@@ -27,7 +32,7 @@ namespace Growthstories.Domain.Messaging
 
         public Photo Photo { get; set; }
 
-        protected CreatePlantAction() { }
+        //protected CreatePlantAction() { }
         public CreatePlantAction(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
             : base(id)
         {
@@ -51,10 +56,10 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DeletePlantAction : PlantCommand
+    public class DeletePlantAction : PlantActionCommand
     {
 
-        protected DeletePlantAction() { }
+        //protected DeletePlantAction() { }
         public DeletePlantAction(Guid id) : base(id) { }
 
         public override string ToString()
@@ -64,7 +69,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class SetPlantActionProperty : PlantCommand
+    public class SetPlantActionProperty : PlantActionCommand
     {
         //public PlantActionType Type { get; private set; }
 
@@ -76,21 +81,12 @@ namespace Growthstories.Domain.Messaging
 
         public Photo Photo { get; set; }
 
-        public Guid PlantId { get; set; }
 
-        public Guid UserId { get; set; }
-
-        protected SetPlantActionProperty() { }
-        public SetPlantActionProperty(Guid id, Guid plantId)
+        //protected SetPlantActionProperty() { }
+        public SetPlantActionProperty(Guid id)
             : base(id)
         {
-            //this.Type = type;
-            this.ParentId = plantId;
-            this.PlantId = plantId;
-            this.StreamEntityId = plantId;
-            //this.StreamAncestorId = userId;
-            //this.AncestorId = userId;
-            //this.UserId = userId;
+
         }
     }
 

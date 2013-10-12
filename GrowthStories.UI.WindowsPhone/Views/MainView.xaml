@@ -103,6 +103,11 @@
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
                         </Button>
+                        <Button  Command="{Binding SyncCommand}">
+                            <TextBlock Text="Sync"
+                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </phone:PanoramaItem>

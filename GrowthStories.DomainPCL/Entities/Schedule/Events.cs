@@ -15,10 +15,16 @@ namespace Growthstories.Domain.Messaging
     #region Schedule
 
     [DTOObject(DTOType.createIntervalSchedule)]
-    public class ScheduleCreated : EventBase
+    public class ScheduleCreated : EventBase, ICreateEvent
     {
 
-
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType ?? (_AggregateType = typeof(Schedule)); }
+        }
 
         [JsonProperty]
         public long Interval { get; private set; }

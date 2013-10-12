@@ -12,8 +12,16 @@ namespace Growthstories.Domain.Messaging
 
     #region User
 
-    public class SynchronizerCreated : EventBase
+    public class SynchronizerCreated : EventBase, ICreateEvent
     {
+
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType ?? (_AggregateType = typeof(Synchronizer)); }
+        }
 
         protected SynchronizerCreated() { }
         public SynchronizerCreated(Guid id) : base(id) { }

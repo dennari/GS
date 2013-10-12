@@ -24,7 +24,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
 
-    public class AppViewModel : Growthstories.UI.ViewModel.AppViewModel, IApplicationRootState
+    public sealed class AppViewModel : Growthstories.UI.ViewModel.AppViewModel, IApplicationRootState
     {
 
 
@@ -72,11 +72,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new AddMeasurementView(), typeof(IViewFor<PlantMeasureViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<ClientPlantPhotographViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
+            Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ListUsersViewModel>));
 
 
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x => this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x);
 
 
+            //this._Model = Initialize(Kernel.Get<IGSRepository>(), Kernel.Get<IAggregateFactory>());
 
 
 

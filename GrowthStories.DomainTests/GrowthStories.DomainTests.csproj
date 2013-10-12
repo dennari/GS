@@ -147,10 +147,10 @@
     <Compile Include="LogToNLog.cs" />
     <Compile Include="Plant\create_plant2.cs" />
     <Compile Include="Plant\mark_plant_public_or_private.cs" />
+    <Compile Include="Staging\test_sync.cs" />
     <Compile Include="Staging\StagingTestBase.cs" />
     <Compile Include="StagingModule.cs" />
     <Compile Include="Staging\StagingEndpoint.cs" />
-    <Compile Include="Staging\StagingUserService.cs" />
     <Compile Include="Staging\test_auth.cs" />
     <Compile Include="Sync\Schema.Designer.cs">
       <AutoGen>True</AutoGen>

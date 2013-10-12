@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Entities
 
 
 
-    public class GardenState : AggregateState<GardenCreated>
+    public class GardenState : EntityState<GardenCreated>
     {
 
 
@@ -45,10 +45,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PlantAdded @event)
         {
-            if (@event.AggregateId != Id)
-            {
-                throw DomainError.Named("ALIEN_ID", "Nonmatching EntityId");
-            }
+
             PlantIds.Add(@event.PlantId);
         }
 

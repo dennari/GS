@@ -21,13 +21,12 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<SetSpecies>,
         ICommandHandler<SetProfilepicture>,
         ICommandHandler<MarkPlantPublic>,
-        ICommandHandler<MarkPlantPrivate>,
-        ICommandHandler<CreatePlantAction>,
-        ICommandHandler<SetPlantActionProperty>
+        ICommandHandler<MarkPlantPrivate>
     {
         public Plant()
         {
             this.StreamType = EventStore.SyncStreamType.PLANT;
+            this.SyncStreamType = Core.StreamType.PLANT;
         }
 
 
@@ -39,18 +38,6 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PlantCreated(command));
         }
 
-        public void Handle(CreatePlantAction command)
-        {
-            RaiseEvent(new PlantActionCreated(command));
-        }
-
-        public void Handle(SetPlantActionProperty command)
-        {
-            PlantActionState plantAction = null;
-            if (!this.State.PlantActions.TryGetValue(command.AggregateId, out plantAction))
-                throw new InvalidOperationException("Can't modify nonexistent plantACtion");
-            RaiseEvent(new PlantActionPropertySet(command, this.State.UserId, plantAction.Type));
-        }
 
         public void Handle(SetWateringSchedule command)
         {

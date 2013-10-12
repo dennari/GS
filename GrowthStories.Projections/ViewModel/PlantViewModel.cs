@@ -70,7 +70,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(PlantState state, IGardenViewModel garden, IGSApp app)
+        public PlantViewModel(PlantState state, IGSApp app)
             : base(app)
         {
             //this.ActionProjection = actionProjection;
@@ -79,7 +79,6 @@ namespace Growthstories.UI.ViewModel
             if (state == null)
                 throw new ArgumentNullException("PlantState has to be given in PlantViewModel");
             this.State = state;
-            this.Garden = garden;
 
 
 
@@ -88,19 +87,19 @@ namespace Growthstories.UI.ViewModel
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
             this.FlickCommand = new ReactiveCommand();
-            this.FlickCommand.Subscribe(x =>
-            {
-                var xx = x as Tuple<double, double>;
-                if (garden != null && xx != null && Math.Abs(xx.Item1) > Math.Abs(xx.Item2))
-                {
-                    var myIdx = garden.Plants.IndexOf(this);
-                    if (myIdx < garden.Plants.Count - 1 && xx.Item1 < 0)
-                        App.Router.Navigate.Execute(garden.Plants[myIdx + 1]);
-                    if (myIdx > 0 && xx.Item1 > 0)
-                        App.Router.Navigate.Execute(garden.Plants[myIdx - 1]);
+            //this.FlickCommand.Subscribe(x =>
+            //{
+            //    var xx = x as Tuple<double, double>;
+            //    if (garden != null && xx != null && Math.Abs(xx.Item1) > Math.Abs(xx.Item2))
+            //    {
+            //        var myIdx = garden.Plants.IndexOf(this);
+            //        if (myIdx < garden.Plants.Count - 1 && xx.Item1 < 0)
+            //            App.Router.Navigate.Execute(garden.Plants[myIdx + 1]);
+            //        if (myIdx > 0 && xx.Item1 > 0)
+            //            App.Router.Navigate.Execute(garden.Plants[myIdx - 1]);
 
-                }
-            });
+            //    }
+            //});
             this.ScrollCommand = new ReactiveCommand();
 
 

@@ -53,7 +53,12 @@ namespace Growthstories.Sync
             return unmatched;
         }
 
-
+        protected GSStatusCode HandleHttpResponse(HttpResponseMessage resp)
+        {
+            if (resp.IsSuccessStatusCode)
+                return GSStatusCode.OK;
+            return GSStatusCode.FAIL;
+        }
 
         public ISyncPushRequest CreatePushRequest()
         {
@@ -73,10 +78,11 @@ namespace Growthstories.Sync
         {
             var streamsC = streams.ToArray();
 
-            //var ee = Translator.Out(streamsC).ToArray();
+            var ee = Translator.Out(streamsC).ToArray();
             var req = new HttpPushRequest(jFactory)
             {
-                Events = Translator.Out(streamsC),
+                Events = ee,
+                IsEmpty = ee.Length == 0,
                 Streams = streamsC,
                 //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()
@@ -86,11 +92,11 @@ namespace Growthstories.Sync
         }
 
 
-        public ISyncPullRequest CreatePullRequest()
-        {
+        //public ISyncPullRequest CreatePullRequest()
+        //{
 
-            return CreatePullRequest(GetPullStreams());
-        }
+        //    return CreatePullRequest(GetPullStreams());
+        //}
 
         private IEnumerable<ISyncEventStream> GetPullStreams()
         {
@@ -100,44 +106,48 @@ namespace Growthstories.Sync
             }
         }
 
-        public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
+        public ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams)
         {
-            var streamsC = streams.ToArray();
-            var req = new HttpPullRequest(jFactory)
+            //var streamsC = streams.ToArray();
+            return new HttpPullRequest(jFactory)
             {
-                Streams = streamsC
+                Streams = streams
             };
-            return req;
+            //return req;
         }
 
-        public ISyncPullResponse CreatePullResponse(string reponse)
+        public ISyncPullResponse CreatePullResponse(HttpResponseMessage resp, string content = null)
         {
-            Logger.Info(reponse);
-            var helper = jFactory.Deserialize<HelperPullResponse>(reponse);
-            var r = new HttpPullResponse();
-            if (helper.DTOs != null && helper.DTOs.Count > 0)
-            {
-                r.StatusCode = GSStatusCode.OK;
-                r.Streams = helper.DTOs
-                    .Select(x => Translator.In(x))
-                    .OfType<EventBase>()
-                    .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
-                    .Select(x => new SyncEventStream(x, Persistence, SyncPersistence) { SyncStamp = helper.SyncStamp })
-                    .ToArray();
-                r.SyncStamp = helper.SyncStamp;
-            }
 
+            var r = new HttpPullResponse();
+            r.StatusCode = HandleHttpResponse(resp);
+
+            if (r.StatusCode == GSStatusCode.OK)
+            {
+                var helper = jFactory.Deserialize<HelperPullResponse>(content);
+                r.SyncStamp = helper.SyncStamp;
+
+                if (helper.DTOs != null && helper.DTOs.Count > 0)
+                {
+                    r.Streams = helper.DTOs
+                        .Select(x => Translator.In(x))
+                        .OfType<EventBase>()
+                        .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
+                        .Select(x => new SyncEventStream(x, Persistence, SyncPersistence) { SyncStamp = helper.SyncStamp })
+                        .ToArray();
+                }
+            }
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);
             return r;
         }
 
-        public IAuthResponse CreateAuthResponse(string response)
+        public IAuthResponse CreateAuthResponse(HttpResponseMessage resp, string content = null)
         {
 
             var r = new AuthResponse();
             try
             {
-                r.AuthToken = jFactory.Deserialize<AuthToken>(response);
+                r.AuthToken = jFactory.Deserialize<AuthToken>(content);
                 if (string.IsNullOrWhiteSpace(r.AuthToken.AccessToken)
                     || string.IsNullOrWhiteSpace(r.AuthToken.RefreshToken)
                     || r.AuthToken.ExpiresIn < 60)
@@ -152,13 +162,13 @@ namespace Growthstories.Sync
         }
 
 
-        public IUserListResponse CreateUserListResponse(string response)
+        public IUserListResponse CreateUserListResponse(HttpResponseMessage resp, string content = null)
         {
 
             var r = new UserListResponse();
             try
             {
-                r.Users = jFactory.Deserialize<List<RemoteUser>>(response);
+                r.Users = jFactory.Deserialize<List<RemoteUser>>(content);
                 r.StatusCode = GSStatusCode.OK;
             }
             catch
@@ -168,22 +178,28 @@ namespace Growthstories.Sync
             return r;
         }
 
-        public IPhotoUploadUriResponse CreatePhotoUploadUriResponse(string response)
+        public IPhotoUploadUriResponse CreatePhotoUploadUriResponse(HttpResponseMessage resp, string content = null)
         {
 
             return new PhotoUploadUriResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                UploadUri = new Uri(response, UriKind.Absolute)
+                UploadUri = new Uri(content, UriKind.Absolute)
             };
 
         }
 
 
-        public ISyncPushResponse CreatePushResponse(string response)
+        public ISyncPushResponse CreatePushResponse(HttpResponseMessage resp, string content = null)
         {
-            Logger.Info(response);
-            return jFactory.Deserialize<HttpPushResponse>(response);
+
+            if (!resp.IsSuccessStatusCode)
+                return new HttpPushResponse()
+                {
+                    StatusCode = GSStatusCode.FAIL
+                };
+
+            return jFactory.Deserialize<HttpPushResponse>(content);
         }
 
 

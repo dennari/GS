@@ -29,10 +29,16 @@ namespace Growthstories.Domain.Messaging
         }
     }
 
-    public class GSAppCreated : GSAppEvent
+    public class GSAppCreated : GSAppEvent, ICreateEvent
     {
 
-
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType ?? (_AggregateType = typeof(GSApp)); }
+        }
         protected GSAppCreated() { }
 
 
@@ -49,6 +55,8 @@ namespace Growthstories.Domain.Messaging
 
 
 
+
+
     }
 
     public class AppUserAssigned : GSAppEvent
@@ -56,11 +64,31 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Guid UserId { get; protected set; }
 
+        [JsonProperty]
+        public Guid UserGardenId { get; protected set; }
+
+        [JsonProperty]
+        public int UserVersion { get; protected set; }
+
+        [JsonProperty]
+        public string Username { get; private set; }
+
+        [JsonProperty]
+        public string Password { get; private set; }
+
+        [JsonProperty]
+        public string Email { get; private set; }
+
         protected AppUserAssigned() { }
         public AppUserAssigned(AssignAppUser cmd)
             : base(cmd)
         {
             this.UserId = cmd.UserId;
+            this.Username = cmd.Username;
+            this.Password = cmd.Password;
+            this.Email = cmd.Email;
+            this.UserGardenId = cmd.UserGardenId;
+            this.UserVersion = cmd.UserVersion;
         }
 
         public override string ToString()
@@ -70,16 +98,13 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public enum StreamType
-    {
-        USER,
-        PLANT
-    }
 
     public class SyncStreamCreated : GSAppEvent
     {
         [JsonProperty]
         public Guid StreamId { get; protected set; }
+        [JsonProperty]
+        public Guid? AncestorId { get; protected set; }
         [JsonProperty]
         public StreamType StreamType { get; protected set; }
 
@@ -95,6 +120,21 @@ namespace Growthstories.Domain.Messaging
         {
             this.StreamId = createEvent.AggregateId;
             this.StreamType = StreamType.PLANT;
+            this.AncestorId = createEvent.AncestorId;
+        }
+
+        public SyncStreamCreated(BecomeFollower createEvent)
+        {
+            this.StreamId = createEvent.Target;
+            this.StreamType = StreamType.USER;
+            //this.AncestorId = createEvent.AncestorId;
+        }
+
+        public SyncStreamCreated(CreateSyncStream createEvent)
+        {
+            this.StreamId = createEvent.StreamId;
+            this.StreamType = createEvent.StreamType;
+            this.AncestorId = createEvent.AncestorId;
         }
 
         public override string ToString()
@@ -102,6 +142,68 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Added syncstream {0} of type {1}", StreamId, StreamType);
         }
 
+
+    }
+
+    public class SyncStampSet : GSAppEvent
+    {
+        [JsonProperty]
+        public Guid StreamId { get; protected set; }
+        [JsonProperty]
+        public long SyncStamp { get; protected set; }
+
+
+        protected SyncStampSet() { }
+        public SyncStampSet(SetSyncStamp cmd)
+        {
+            this.StreamId = cmd.StreamId;
+            this.SyncStamp = cmd.SyncStamp;
+
+        }
+
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Syncstamp set to {0} for stream {1}", SyncStamp, StreamId);
+        }
+
+
+    }
+
+    public class AuthTokenSet : EventBase
+    {
+
+        [JsonProperty]
+        public string AccessToken { get; protected set; }
+        [JsonProperty]
+        public int ExpiresIn { get; protected set; }
+        [JsonProperty]
+        public string RefreshToken { get; protected set; }
+
+        protected AuthTokenSet() { }
+
+        public AuthTokenSet(SetAuthToken cmd)
+            : base(cmd)
+        {
+            this.AccessToken = cmd.AccessToken;
+            this.ExpiresIn = cmd.ExpiresIn;
+            this.RefreshToken = cmd.RefreshToken;
+
+        }
+
+        public AuthTokenSet(Guid id, string accessToken, string refreshToken, int expiresIn)
+            : base(id)
+        {
+            this.AccessToken = accessToken;
+            this.ExpiresIn = expiresIn;
+            this.RefreshToken = refreshToken;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"AuthTokenSet access: {0}, refresh: {1}, expires {2}, for user {3}.", AccessToken, RefreshToken, ExpiresIn, AggregateId);
+        }
 
     }
 

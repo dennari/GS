@@ -140,6 +140,9 @@
     <Compile Include="Views\AddCommentView.xaml.cs">
       <DependentUpon>AddCommentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ListUsersView.xaml.cs">
+      <DependentUpon>ListUsersView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ScheduleView.xaml.cs">
       <DependentUpon>ScheduleView.xaml</DependentUpon>
     </Compile>
@@ -215,6 +218,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\AddCommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ListUsersView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

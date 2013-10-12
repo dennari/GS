@@ -17,8 +17,8 @@ namespace Growthstories.Sync
 
     public interface ISynchronizerService
     {
-        Task<SyncResult> Synchronize();
-
+        Task<SyncResult> Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq = null);
+        Task<bool> CreateUserAsync(Guid userId);
         //IEnumerable<ISyncEventStream> Pending();
         //ISyncPullRequest GetPullRequest();
 

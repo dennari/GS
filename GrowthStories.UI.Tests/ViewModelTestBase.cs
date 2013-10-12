@@ -57,7 +57,7 @@ namespace Growthstories.UI.Tests
                 Kernel.Dispose();
             Kernel = new StandardKernel(new TestModule());
             App = new TestAppViewModel(Kernel);
-            this.Ctx = Get<IUserService>().CurrentUser;
+            this.Ctx = App.Context.CurrentUser;
 
         }
         //private ILog Log = new LogTo4Net(typeof(GardenViewTest));

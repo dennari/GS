@@ -14,7 +14,12 @@ namespace Growthstories.Domain.Entities
     public class GSApp : AggregateBase<GSAppState, GSAppCreated>,
        ICommandHandler<CreateGSApp>,
        ICommandHandler<CreateUser>,
-       ICommandHandler<CreatePlant>
+       ICommandHandler<CreatePlant>,
+       ICommandHandler<AssignAppUser>,
+       ICommandHandler<SetAuthToken>,
+       ICommandHandler<CreateSyncStream>,
+       ICommandHandler<BecomeFollower>,
+       ICommandHandler<SetSyncStamp>
     {
         public void Handle(CreateGSApp command)
         {
@@ -27,6 +32,26 @@ namespace Growthstories.Domain.Entities
         public void Handle(CreateUser command)
         {
             RaiseEvent(new SyncStreamCreated(command));
+        }
+        public void Handle(BecomeFollower command)
+        {
+            RaiseEvent(new SyncStreamCreated(command));
+        }
+        public void Handle(CreateSyncStream command)
+        {
+            RaiseEvent(new SyncStreamCreated(command));
+        }
+        public void Handle(AssignAppUser command)
+        {
+            RaiseEvent(new AppUserAssigned(command));
+        }
+        public void Handle(SetAuthToken command)
+        {
+            RaiseEvent(new AuthTokenSet(command));
+        }
+        public void Handle(SetSyncStamp command)
+        {
+            RaiseEvent(new SyncStampSet(command));
         }
     }
 }

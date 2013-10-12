@@ -26,29 +26,14 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface IFriendsViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
-    {
 
-    }
 
     public class GardenViewModel : RoutableViewModel, IGardenViewModel
     {
 
-        protected ReactiveList<IPlantViewModel> _Plants;
-        public ReactiveList<IPlantViewModel> Plants
-        {
-            get
-            {
-                if (_Plants == null)
-                {
-                    _Plants = new ReactiveList<IPlantViewModel>();
-                    LoadPlants();
-                    //a();
 
-                }
-                return _Plants;
-            }
-        }
+        public ReactiveList<IPlantViewModel> Plants { get; protected set; }
+
 
         public ReactiveList<IPlantViewModel> SelectedPlants { get; protected set; }
         public ReactiveList<ButtonViewModel> AppBarButtons { get; protected set; }
@@ -59,28 +44,36 @@ namespace Growthstories.UI.ViewModel
 
 
         //public PlantProjection PlantProjection { get; private set; }
-        private readonly GardenState State;
+        private GardenState State;
 
-        public Guid Id { get { return State.Id; } }
+        public Guid Id { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public GardenViewModel(
-            GardenState state,
-            Func<Guid, IGardenViewModel, IPlantViewModel> pvmFactory,
+            IObservable<GardenState> stateObservable,
+            IObservable<IPlantViewModel> plants,
             IGSApp app)
             : base(app)
         {
 
-            this.State = state;
 
+
+            stateObservable.Subscribe(x =>
+            {
+                this.Id = x.Id;
+                this.State = x;
+            });
+
+            //this.Id = iid;
             this.SelectedPlants = new ReactiveList<IPlantViewModel>();
             this.AppBarButtons = new ReactiveList<ButtonViewModel>();
             this.AppBarButtons.Add(this.AddPlantButton);
 
-
-
+            this.Plants = new ReactiveList<IPlantViewModel>();
+            Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(SelectPlantsButton));
+            Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(SelectPlantsButton));
 
             this.SelectedPlants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(DeletePlantsButton));
             this.SelectedPlants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(DeletePlantsButton));
@@ -94,38 +87,20 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            this.GetPlantCommand = new ReactiveCommand();
-            this.GetPlantPipe = this.GetPlantCommand
-                .RegisterAsyncFunction((id) => pvmFactory((Guid)id, this), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+            //this.GetPlantCommand = new ReactiveCommand();
+            //this.GetPlantPipe = this.GetPlantCommand
+            //    .RegisterAsyncFunction((id) => pvmFactory((Guid)id, this), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            this.GetPlantPipe.Subscribe(x => this.Plants.Add(x));
+            plants.Subscribe(x =>
+            {
+                this.Plants.Add(x);
+            });
 
             this.ShowDetailsCommand = new ReactiveCommand();
             this.ShowDetailsCommand.Subscribe(x => App.Router.Navigate.Execute(x));
 
-            App.Bus.Listen<IEvent>().OfType<PlantAdded>()
-                .Where(x =>
-                {
-                    return x.AggregateId == this.State.Id;
-                })
-                .Subscribe(x =>
-                {
-                    this.GetPlantCommand.Execute(x.PlantId);
-                });
 
-        }
 
-        protected void LoadPlants()
-        {
-
-            _Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(SelectPlantsButton));
-            _Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(SelectPlantsButton));
-            foreach (var id in this.State.PlantIds)
-            {
-                this.GetPlantCommand.Execute(id);
-                //var vm = await this.GetPlantPipe.FirstAsync();
-                //this.Plants.Add(vm);
-            }
         }
 
 
@@ -263,18 +238,40 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public class FriendsViewModel : RoutableViewModel, IFriendsViewModel
+    public class FriendsViewModel : RoutableViewModel, IHasAppBarButtons, IControlsAppBar
     {
-        public FriendsViewModel(IGSApp app)
+
+        public ReactiveList<IGardenViewModel> Friends { get; protected set; }
+        public ReactiveCommand FriendSelected { get; protected set; }
+
+        public FriendsViewModel(IObservable<IGardenViewModel> gardens, IGSApp app)
             : base(app)
         {
+
+            var listUsersCommand = new ReactiveCommand();
+            listUsersCommand.Subscribe(x =>
+            {
+                var lvm = App.Resolver.GetService<ListUsersViewModel>();
+                App.Router.Navigate.Execute(lvm);
+            });
 
             this.AppBarButtons.Add(
             new ButtonViewModel(null)
             {
                 Text = "add",
                 IconUri = App.IconUri[IconType.ADD],
-                Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
+                Command = listUsersCommand
+            });
+
+
+            this.Friends = new ReactiveList<IGardenViewModel>();
+
+            gardens.Subscribe(x => Friends.Add(x));
+
+            this.FriendSelected = new ReactiveCommand();
+            this.FriendSelected.OfType<IGardenViewModel>().Subscribe(x =>
+            {
+                App.Router.Navigate.Execute(x);
             });
 
         }

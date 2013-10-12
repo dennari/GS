@@ -12,18 +12,18 @@ namespace Growthstories.Domain.Entities
     public enum RelationshipType
     {
         FOLLOWER,
-        FRIEND_REQUEST,
-        FRIEND
+        WANNABE,
+        UNWORTHY
     }
 
-    public struct Relationship
+    public sealed class Relationship
     {
-        public readonly Guid Follower;
+        public readonly Guid Source;
         public readonly Guid Target;
         public RelationshipType Type;
-        public Relationship(Guid follower, Guid target, RelationshipType type)
+        public Relationship(Guid source, Guid target, RelationshipType type)
         {
-            this.Follower = follower;
+            this.Source = source;
             this.Target = target;
             this.Type = type;
         }
@@ -35,7 +35,15 @@ namespace Growthstories.Domain.Entities
         public static readonly Guid UnregUserId = new Guid("11000000-0000-0000-0000-000000000011");
         public static readonly Guid UnregUserGardenId = new Guid("11100000-0000-0000-0000-000000000111");
 
-        private IDictionary<Guid, Relationship> Relationships = new Dictionary<Guid, Relationship>();
+        private HashSet<Guid> Friends = new HashSet<Guid>();
+
+        private HashSet<Guid> Collaborators = new HashSet<Guid>();
+
+        private HashSet<Guid> Rejects = new HashSet<Guid>();
+
+
+        // private IDictionary<Guid, Relationship> OutsiderSourcedRelationships = new Dictionary<Guid, Relationship>();
+
 
         public IDictionary<Guid, ScheduleState> Schedules { get; private set; }
 
@@ -78,68 +86,20 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(BecameFollower @event)
         {
-            if (@event.AggregateId != this.Id)
-            {
-                throw new InvalidOperationException("Relationship");
-            }
-            Relationship current = default(Relationship);
-            if (this.Relationships.TryGetValue(@event.EntityId.Value, out current))
-            {
-                throw new InvalidOperationException("Already a follower");
 
-            }
+            this.Friends.Add(@event.Target);
 
-            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, @event.OfUser, RelationshipType.FOLLOWER);
         }
 
 
-        public void Apply(FriendshipRequested @event)
+        public void Apply(CollaborationRequested @event)
         {
-            if (@event.AggregateId != this.Id)
-            {
-                throw new InvalidOperationException("Relationship");
-            }
-            Relationship current = default(Relationship);
-            if (!this.Relationships.TryGetValue(@event.EntityId.Value, out current))
-            {
-                throw new InvalidOperationException("Tried to request friendship without becoming a follower first");
-
-            }
-            if (current.Type != RelationshipType.FOLLOWER)
-            {
-                throw new InvalidOperationException("Tried to request friendship without becoming a follower first");
-
-            }
-
-            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND_REQUEST);
+            this.Collaborators.Add(@event.Target);
         }
 
-        public void Apply(FriendshipAccepted @event)
+        public void Apply(CollaborationDenied @event)
         {
-            if (@event.AggregateId != this.Id)
-            {
-                throw new InvalidOperationException("Relationship");
-            }
-            Relationship current = default(Relationship);
-            if (!this.Relationships.TryGetValue(@event.EntityId.Value, out current))
-            {
-                throw new InvalidOperationException("Tried to accept friendship without having a request first");
-
-            }
-            if (current.Type != RelationshipType.FRIEND_REQUEST)
-            {
-                throw new InvalidOperationException("Tried to accept friendship without having a request first");
-
-            }
-
-            this.Relationships[@event.EntityId.Value] = new Relationship(this.Id, current.Target, RelationshipType.FRIEND);
-        }
-
-        public void Apply(AuthTokenSet @event)
-        {
-            this.AccessToken = @event.AccessToken;
-            this.ExpiresIn = @event.ExpiresIn;
-            this.RefreshToken = @event.RefreshToken;
+            this.Rejects.Add(@event.Target);
         }
 
 

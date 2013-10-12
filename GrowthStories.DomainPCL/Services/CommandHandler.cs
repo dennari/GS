@@ -81,19 +81,15 @@ namespace Growthstories.Domain.Services
 
 
             foreach (var agg in handlers)
-            {
-                try
-                {
-                    ((dynamic)agg).Handle((dynamic)c);
-                }
-                catch
-                {
+                agg.Handle(c);
 
-                }
-            }
 
             //var changes = aggregate.GetUncommittedEvents();
-            _persistence.RunInTransaction(() => _repository.Save(aggregate));
+            _persistence.RunInTransaction(() =>
+            {
+                foreach (var agg in handlers)
+                    _repository.Save(agg);
+            });
 
 
 

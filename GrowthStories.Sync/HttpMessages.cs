@@ -9,6 +9,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Core;
 using System.Net;
 using EventStore;
+using Growthstories.Domain.Entities;
 
 namespace Growthstories.Sync
 {
@@ -17,9 +18,9 @@ namespace Growthstories.Sync
         private readonly IJsonFactory jF;
 
 
-        protected ICollection<ISyncEventStream> _Streams;
+        protected ICollection<SyncStreamInfo> _Streams;
         [JsonIgnore]
-        public ICollection<ISyncEventStream> Streams
+        public ICollection<SyncStreamInfo> Streams
         {
             get { return _Streams; }
             set
@@ -30,7 +31,7 @@ namespace Growthstories.Sync
         }
 
         [JsonProperty(PropertyName = Language.STREAMS, Required = Required.Always)]
-        public ICollection<ISyncEventStreamDTO> OutputStreams { get; set; }
+        public ISyncEventStreamDTO[] OutputStreams { get; protected set; }
 
         public HttpPullRequest(IJsonFactory jF)
         {
@@ -104,6 +105,10 @@ namespace Growthstories.Sync
             return jF.Serialize(this);
         }
 
+
+
+        public bool IsEmpty { get; set; }
+
     }
 
     public class HttpPushResponse : HttpResponse, ISyncPushResponse
@@ -163,6 +168,17 @@ namespace Growthstories.Sync
             r.SyncStamp = stream.SyncStamp;
             r.StreamId = stream.StreamId;
             r.Type = stream.Type == SyncStreamType.PLANT ? "PLANT" : "USER";
+
+            return r;
+        }
+
+        public static ISyncEventStreamDTO Translate(SyncStreamInfo stream)
+        {
+            var r = new SyncEventStreamDTO();
+            r.SyncStamp = stream.SyncStamp;
+            r.StreamId = stream.StreamId;
+            r.Type = stream.Type == StreamType.PLANT ? "PLANT" : "USER";
+            r.StreamAncestorId = stream.AncestorId;
 
             return r;
         }

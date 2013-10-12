@@ -123,6 +123,12 @@ namespace Growthstories.Core
             {
                 throw DomainError.Named("premature", "Event hasn't been created yet");
             }
+
+            if (this.Id != default(Guid) && @event.EntityId != this.Id)
+            {
+                throw DomainError.Named("ALIEN_ID", "Nonmatching AggregateId");
+            }
+
             if (this.applying)
                 throw new InvalidOperationException(string.Format("Can't find handler for event {0}", @event.GetType().ToString()));
             try
@@ -141,10 +147,11 @@ namespace Growthstories.Core
 
     }
 
-    public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : IEvent
+    public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : ICreateEvent
     {
 
         private bool applying = false;
+        private readonly HashSet<Guid> AppliedEventIds = new HashSet<Guid>();
 
         protected AggregateState()
             : base()
@@ -164,18 +171,30 @@ namespace Growthstories.Core
 
         public override void Apply(IEvent @event)
         {
-            if (Version == 0 && !(@event is TCreateEvent))
+            if (!(@event is TCreateEvent))
             {
-                throw DomainError.Named("premature", "Aggregate hasn't been created yet");
+                if (Version == 0)
+                {
+                    throw DomainError.Named("premature", "Aggregate hasn't been created yet");
+                }
+                if (@event.AggregateId != this.Id)
+                {
+                    throw DomainError.Named("ALIEN_ID", "Nonmatching AggregateId");
+                }
             }
             if (this.applying)
-                throw new InvalidOperationException(string.Format("Can't find handler for event {0}", @event.GetType().ToString()));
+                throw DomainError.Named("nohandler", "Can't find handler for event {0}", @event.GetType().ToString());
+            if (AppliedEventIds.Contains(@event.MessageId))
+                throw DomainError.Named("duplicate_event", "Event {0} of type {1} has already been applied", @event.MessageId, @event.GetType().ToString());
+
             try
             {
                 this.applying = true;
                 ((dynamic)this).Apply((dynamic)@event);
                 this.applying = false;
                 Version++;
+                AppliedEventIds.Add(@event.MessageId);
+
             }
             catch (RuntimeBinderException)
             {

@@ -17,9 +17,15 @@ namespace Growthstories.Domain.Messaging
     #region PlantAction
 
     [DTOObject(DTOType.addComment, DTOType.addWatering, DTOType.addPhoto, DTOType.addFertilizing, DTOType.addMeasurement)]
-    public class PlantActionCreated : EventBase
+    public class PlantActionCreated : EventBase, ICreateEvent
     {
-
+        [JsonIgnore]
+        private Type _AggregateType;
+        [JsonIgnore]
+        public Type AggregateType
+        {
+            get { return _AggregateType ?? (_AggregateType = typeof(PlantAction)); }
+        }
 
         [JsonProperty]
         public PlantActionType Type { get; private set; }
@@ -156,9 +162,6 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Photo Photo { get; set; }
 
-        [JsonProperty]
-        public Guid PlantId { get; set; }
-
         protected PlantActionPropertySet() { }
         //public PlantActionPropertySet(Guid id, PlantActionType type)
         //    : base(id)
@@ -166,7 +169,7 @@ namespace Growthstories.Domain.Messaging
         //    this.Type = type;
         //}
 
-        public PlantActionPropertySet(SetPlantActionProperty cmd, Guid userId, PlantActionType type)
+        public PlantActionPropertySet(SetPlantActionProperty cmd, PlantActionType type)
             : base(cmd)
         {
             this.Type = type;
@@ -174,10 +177,7 @@ namespace Growthstories.Domain.Messaging
             this.MeasurementType = cmd.MeasurementType;
             this.Value = cmd.Value;
             this.Photo = cmd.Photo;
-            this.PlantId = cmd.PlantId;
 
-            this.StreamAncestorId = userId;
-            this.AncestorId = userId;
 
         }
 

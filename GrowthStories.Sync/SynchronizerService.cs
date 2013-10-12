@@ -12,6 +12,8 @@ using Growthstories.Domain.Messaging;
 using EventStore.Persistence;
 using Growthstories.Domain;
 using System.Net;
+using ReactiveUI;
+using EventStore.Logging;
 
 namespace Growthstories.Sync
 {
@@ -28,17 +30,35 @@ namespace Growthstories.Sync
         private IList<Tuple<ISyncPullRequest, ISyncPullResponse>> Pulls;
 
         public IList<ISyncCommunication> AllCommunication;
+        private readonly GSEventStore Store;
+        private readonly IAggregateFactory Factory;
+        private readonly IMessageBus Bus;
 
-        public SynchronizerService(ITransportEvents transporter, IRequestFactory requestFactory, IGSRepository repository)
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SynchronizerService));
+        private IUserService AuthService;
+
+        public SynchronizerService(
+            ITransportEvents transporter,
+            IRequestFactory requestFactory,
+            IGSRepository repository,
+            GSEventStore store,
+            IAggregateFactory factory,
+            IMessageBus bus,
+            IUserService authService
+            )
         {
             Transporter = transporter;
             RequestFactory = requestFactory;
             Repository = repository;
+            Store = store;
+            Factory = factory;
+            Bus = bus;
+            this.AuthService = authService;
         }
 
 
 
-        public Task<SyncResult> Synchronize()
+        public Task<SyncResult> Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq = null)
         {
 
             this.Pushes = new List<Tuple<ISyncPushRequest, ISyncPushResponse>>();
@@ -49,13 +69,13 @@ namespace Growthstories.Sync
             return Task.Run<SyncResult>(async () =>
             {
 
-                ISyncPushRequest pushReq = null;
-                ISyncPullRequest pullReq = null;
+                if (Transporter.AuthToken == null)
+                    await AuthService.AuthorizeUser();
+
+                ISyncPushRequest pushReq = aPushReq ?? RequestFactory.CreatePushRequest();
+                ISyncPullRequest pullReq = aPullReq;
                 ISyncPullResponse pullResp = null;
                 ISyncPushResponse pushResp = null;
-
-                pullReq = RequestFactory.CreatePullRequest();
-                pushReq = RequestFactory.CreatePushRequest();
 
                 int cycles = 0;
                 int mCycles = 3;
@@ -104,7 +124,16 @@ namespace Growthstories.Sync
             //return await Agg.Handle((Synchronize)command, syncService);
         }
 
-
+        public async Task<bool> CreateUserAsync(Guid userId)
+        {
+            var userStream = (SyncEventStream)Store.OpenStream(userId, 0, 1);
+            var pushReq = RequestFactory.CreatePushRequest(new ISyncEventStream[] { userStream });
+            var pushResp = await Transporter.PushAsync(pushReq);
+            if (pushResp.StatusCode != GSStatusCode.OK)
+                return false;
+            userStream.MarkCommitsSynchronized();
+            return true;
+        }
 
 
         private async Task<Tuple<ISyncPullResponse, ISyncPushResponse>> doCycle(ISyncPullRequest pullReq, ISyncPushRequest pushReq)
@@ -128,14 +157,15 @@ namespace Growthstories.Sync
                     //foreach (var stream in pullResp.Streams)
                     //    stream.CommitRemoteChanges(Guid.NewGuid());
                     //return pullResp;
-                    this.HandleRemoteStreams(pullResp);
+                    if (pullResp.Streams != null)
+                        this.HandleRemoteStreams(pullResp);
 
                 }
 
             }
             ISyncPushResponse pushResp = null;
 
-            if (pushReq.Streams.Count > 0)
+            if (!pushReq.IsEmpty)
             {
                 pushResp = await Transporter.PushAsync(pushReq);
 
@@ -162,16 +192,75 @@ namespace Growthstories.Sync
 
         }
 
+
+        private bool IsRelationshipNotification(IEvent e)
+        {
+            if (e is BecameFollower)
+                return true;
+            if (e is CollaborationRequested)
+                return true;
+            if (e is CollaborationDenied)
+                return true;
+            return false;
+        }
+
         private void HandleRemoteStreams(ISyncPullResponse r)
         {
+
             foreach (var stream in r.Streams)
             {
-                var aggregate = Repository.GetById(stream.StreamId);
+
+                if (stream.UncommittedRemoteEvents.Count == 0)
+                    continue;
+                if (stream.StreamId == UserState.UnregUserId)
+                    continue;
+                IGSAggregate aggregate = null;
+                try
+                {
+                    aggregate = Repository.GetById(stream.StreamId);
+                }
+                catch (DomainError err)
+                {
+                    var first = stream.UncommittedRemoteEvents.First() as ICreateEvent;
+                    if (first == null)
+                    {
+                        if (stream.UncommittedRemoteEvents.Count == 1 && IsRelationshipNotification(stream.UncommittedRemoteEvents.First()))
+                        {
+                            this.HandleReadModelStream(stream);
+                            continue;
+                        }
+                        else
+                            throw err;
+                    }
+
+                    aggregate = Factory.Build(first.AggregateType);
+                }
+
                 foreach (var e in stream.UncommittedRemoteEvents)
-                    aggregate.ApplyRemoteEvent(e);
+                {
+                    try
+                    {
+                        aggregate.ApplyRemoteEvent(e);
+                    }
+                    catch (DomainError err2)
+                    {
+
+                        if (err2.Name != "duplicate_event")
+                            throw err2;
+                        Logger.Info(err2.Message);
+                    }
+                }
+
                 Repository.SaveRemote(aggregate, r.SyncStamp);
+                if (aggregate.SyncStreamType != StreamType.NULL)
+                    Bus.SendCommand(new SetSyncStamp(aggregate.Id, r.SyncStamp));
 
             }
+        }
+
+        private void HandleReadModelStream(ISyncEventStream stream)
+        {
+            throw new NotImplementedException();
         }
 
 

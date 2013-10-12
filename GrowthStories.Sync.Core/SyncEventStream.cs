@@ -113,10 +113,42 @@ namespace Growthstories.Sync
         }
 
         public SyncEventStream(Guid streamId, ICommitEvents persistence, int minRevision, int maxRevision, IPersistSyncStreams syncPersistence)
-            : base(streamId, persistence, minRevision, maxRevision)
+            : base(streamId, persistence)
         {
             this.SyncPersistence = syncPersistence;
             this.Persistence = persistence;
+
+            this.Commits = persistence.GetFrom(streamId, minRevision, maxRevision).Cast<GSCommit>().ToArray();
+            if (minRevision > 0 && this.Commits.Length == 0)
+                throw new StreamNotFoundException();
+
+            this.PopulateStream(minRevision, maxRevision, this.Commits);
+
+            if (this.Commits.Length > 0)
+            {
+                Commit last = this.Commits[this.Commits.Length - 1];
+                if (last.StreamRevision != this.StreamRevision)
+                {
+                    this.Commits = this.Commits.Take(this.Commits.Length - 1).ToArray();
+                    if (this.Commits.Length > 0)
+                    {
+                        last = this.Commits[this.Commits.Length - 1];
+                        if (last.StreamRevision != this.StreamRevision)
+                        {
+                            this.Commits = null;
+
+                        }
+
+                    }
+
+
+                }
+
+            }
+
+
+
+
         }
 
         public SyncEventStream(Snapshot snapshot, ICommitEvents persistence, int maxRevision, IPersistSyncStreams syncPersistence)
@@ -151,7 +183,8 @@ namespace Growthstories.Sync
                 .Select(x =>
                 {
                     var re = translator.Out((IEvent)x.Body);
-                    re.AggregateVersion += this.RemoteEvents.Count();
+                    if (re != null)
+                        re.AggregateVersion += this.RemoteEvents.Count();
                     return re;
                 });
 

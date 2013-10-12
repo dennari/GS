@@ -22,20 +22,20 @@ namespace Growthstories.UI.ViewModel
     {
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }
-        IFriendsViewModel FriendsVM { get; }
+        FriendsViewModel FriendsVM { get; }
     }
 
     [DataContract]
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
-        private readonly Func<Guid, IGardenViewModel> GardenFactory;
 
-        public MainViewModel(Func<Guid, IGardenViewModel> gardenFactory, IGSApp app)
+
+        public MainViewModel(IGSApp app)
             : base(app)
         {
 
-            this.GardenFactory = gardenFactory;
+
 
             this.Pages.Add(this.GardenVM);
             this.Pages.Add(this.NotificationsVM);
@@ -52,7 +52,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenVM ?? (_GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
+                return _GardenVM ?? (_GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
             }
             protected set
             {
@@ -69,12 +69,12 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private IFriendsViewModel _FriendsVM;
-        public IFriendsViewModel FriendsVM
+        private FriendsViewModel _FriendsVM;
+        public FriendsViewModel FriendsVM
         {
             get
             {
-                return _FriendsVM ?? (_FriendsVM = App.Resolver.GetService<IFriendsViewModel>());
+                return _FriendsVM ?? (_FriendsVM = App.Resolver.GetService<FriendsViewModel>());
             }
         }
 
@@ -85,8 +85,8 @@ namespace Growthstories.UI.ViewModel
             {
                 var vm = _TestingVM ?? (_TestingVM = new TestingViewModel(App));
 
-                vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
-                vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = GardenFactory(App.Context.CurrentUser.GardenId));
+                vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+                vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
 
                 return vm;
             }
@@ -107,18 +107,23 @@ namespace Growthstories.UI.ViewModel
             this.AddTestDataCommandAsync = this.AddTestDataCommand.RegisterAsyncTask(async (x) => await this.App.AddTestData());
             this.ClearDBCommand = new ReactiveCommand();
             this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
+            this.SyncCommand = new ReactiveCommand();
+            this.SyncCommandAsync = this.SyncCommand.RegisterAsyncTask(async (x) => await this.App.Synchronize());
 
 
         }
 
         public ReactiveCommand AddTestDataCommand { get; protected set; }
         public ReactiveCommand ClearDBCommand { get; protected set; }
+        public ReactiveCommand SyncCommand { get; protected set; }
         //public ReactiveCommand ClearDBCommandAsync { get; protected set; }
 
 
         public IObservable<System.Reactive.Unit> ClearDBCommandAsync { get; protected set; }
 
         public IObservable<System.Reactive.Unit> AddTestDataCommandAsync { get; protected set; }
+
+        public IObservable<SyncResult> SyncCommandAsync { get; protected set; }
     }
 
     public class ButtonViewModel : MenuItemViewModel

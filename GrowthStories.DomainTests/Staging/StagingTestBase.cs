@@ -60,7 +60,7 @@ namespace Growthstories.DomainTests
                 Kernel.Dispose();
             Kernel = new StandardKernel(new StagingModule());
             App = new TestAppViewModel(Kernel);
-            Ctx = Get<IUserService>().CurrentUser;
+            //Ctx = Get<IUserService>().CurrentUser;
 
         }
 
@@ -103,6 +103,24 @@ namespace Growthstories.DomainTests
             return i + Guid.NewGuid().ToString().Substring(0, 4);
         }
 
+        public ISyncPushResponse SyncAssertions(SyncResult syncResult, bool hasPush = false)
+        {
+            // if everything goes smoothly, we should have a single pull and a single push
+            Assert.AreEqual(1, syncResult.Pushes.Count);
+            Assert.AreEqual(1, syncResult.Pulls.Count);
+            Assert.IsNotNull(syncResult.Pulls[0].Item2);
+            Assert.AreEqual(GSStatusCode.OK, syncResult.Pulls[0].Item2.StatusCode);
+
+            if (hasPush || syncResult.Pushes[0].Item2 != null)
+            {
+                Assert.IsNotNull(syncResult.Pushes[0].Item2);
+                Assert.AreEqual(GSStatusCode.OK, syncResult.Pushes[0].Item2.StatusCode);
+
+            }
+
+
+            return syncResult.Pushes[0].Item2;
+        }
 
 
 

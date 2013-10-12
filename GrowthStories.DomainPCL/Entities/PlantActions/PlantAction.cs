@@ -10,7 +10,24 @@ using CommonDomain;
 namespace Growthstories.Domain.Entities
 {
 
+    public class PlantAction : AggregateBase<PlantActionState, PlantActionCreated>,
+        ICommandHandler<CreatePlantAction>,
+        ICommandHandler<SetPlantActionProperty>
+    {
 
+
+        public void Handle(CreatePlantAction command)
+        {
+            RaiseEvent(new PlantActionCreated(command));
+        }
+
+        public void Handle(SetPlantActionProperty command)
+        {
+
+            RaiseEvent(new PlantActionPropertySet(command, this.State.Type));
+        }
+
+    }
 
 
 }

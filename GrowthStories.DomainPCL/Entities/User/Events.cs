@@ -83,12 +83,12 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    [DTOObject(DTOType.addRelationship)]
+    [DTOObject(DTOType.setProperty)]
     public class BecameFollower : EventBase
     {
 
         [JsonProperty]
-        public Guid OfUser { get; private set; }
+        public Guid Target { get; private set; }
 
 
         protected BecameFollower() { }
@@ -101,77 +101,111 @@ namespace Growthstories.Domain.Messaging
         public BecameFollower(BecomeFollower cmd)
             : base(cmd)
         {
-            this.OfUser = cmd.OfUser;
+            this.Target = cmd.Target;
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} became a follower of user {1}.", this.AggregateId, this.OfUser);
+            return string.Format(@"User {0} became a follower of user {1}.", this.AggregateId, this.Target);
         }
 
         public override void FillDTO(IEventDTO Dto)
         {
-            var D = (IAddRelationshipDTO)Dto;
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.user;
+            D.PropertyName = "following";
+            D.PropertyValue = new JObject();
+
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
+
             base.FillDTO(D);
-            D.To = this.OfUser;
+
             D.StreamAncestor = null;
             D.AncestorId = null;
+
 
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
-            var D = (IAddRelationshipDTO)Dto;
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "following")
+                throw new ArgumentException();
+
             base.FromDTO(D);
-            this.OfUser = D.To;
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
+
         }
 
     }
 
     [DTOObject(DTOType.setProperty)]
-    public class FriendshipRequested : EventBase
+    public class CollaborationRequested : EventBase
     {
 
 
+        [JsonProperty]
+        public Guid Target { get; private set; }
+
+        protected CollaborationRequested() { }
 
 
-        protected FriendshipRequested() { }
-
-
-        public FriendshipRequested(RequestFriendship cmd)
+        public CollaborationRequested(RequestCollaboration cmd)
             : base(cmd)
         {
-
+            this.Target = cmd.Target;
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requested friendship in relationship {1}.", this.AggregateId, this.EntityId);
+            return string.Format(@"User {0}: requested collaboration with {1}.", this.AggregateId, this.Target);
         }
 
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.relationship;
-            D.PropertyName = "state";
-            D.PropertyValue = "requested";
+            D.EntityType = DTOType.user;
+            D.PropertyName = "wannabes";
+            D.PropertyValue = new JObject();
+
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
 
             base.FillDTO(D);
+
             D.StreamAncestor = null;
             D.AncestorId = null;
-
-
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.EntityType != DTOType.relationship
-                || D.PropertyName != "state"
-                || D.PropertyValue != "requested")
+            if (D.EntityType != DTOType.user || D.PropertyName != "wannabes")
                 throw new ArgumentException();
 
             base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
 
         }
 
@@ -179,49 +213,61 @@ namespace Growthstories.Domain.Messaging
 
 
     [DTOObject(DTOType.setProperty)]
-    public class FriendshipAccepted : EventBase
+    public class CollaborationDenied : EventBase
     {
 
 
+        [JsonProperty]
+        public Guid Target { get; private set; }
+
+        protected CollaborationDenied() { }
 
 
-        protected FriendshipAccepted() { }
-
-        public FriendshipAccepted(AcceptFriendship cmd)
+        public CollaborationDenied(DenyCollaboration cmd)
             : base(cmd)
         {
-
+            this.Target = cmd.Target;
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} accepted friendship in relationship {1}.", this.AggregateId, this.EntityId);
+            return string.Format(@"User {0}: denied collaboration with {1}.", this.AggregateId, this.Target);
         }
 
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.relationship;
-            D.PropertyName = "state";
-            D.PropertyValue = "accepted";
+            D.EntityType = DTOType.user;
+            D.PropertyName = "unworthies";
+            D.PropertyValue = new JObject();
 
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
 
             base.FillDTO(D);
+
             D.StreamAncestor = null;
             D.AncestorId = null;
-
-
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.EntityType != DTOType.relationship
-                || D.PropertyName != "state"
-                || D.PropertyValue != "accepted")
+            if (D.EntityType != DTOType.user || D.PropertyName != "unworthies")
                 throw new ArgumentException();
 
             base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
 
         }
 
@@ -293,41 +339,7 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    public class AuthTokenSet : EventBase
-    {
 
-        [JsonProperty]
-        public string AccessToken { get; protected set; }
-        [JsonProperty]
-        public int ExpiresIn { get; protected set; }
-        [JsonProperty]
-        public string RefreshToken { get; protected set; }
-
-        protected AuthTokenSet() { }
-
-        public AuthTokenSet(SetAuthToken cmd)
-            : base(cmd)
-        {
-            this.AccessToken = cmd.AccessToken;
-            this.ExpiresIn = cmd.ExpiresIn;
-            this.RefreshToken = cmd.RefreshToken;
-
-        }
-
-        public AuthTokenSet(Guid id, string accessToken, string refreshToken, int expiresIn)
-            : base(id)
-        {
-            this.AccessToken = accessToken;
-            this.ExpiresIn = expiresIn;
-            this.RefreshToken = refreshToken;
-        }
-
-        public override string ToString()
-        {
-            return string.Format(@"AuthTokenSet access: {0}, refresh: {1}, expires {2}, for user {3}.", AccessToken, RefreshToken, ExpiresIn, AggregateId);
-        }
-
-    }
 
 
 

@@ -29,15 +29,15 @@ namespace Growthstories.UI.Persistence
                                 .Where(x => x is PlantActionCreated || x is PlantActionPropertySet))
             {
 
-                Guid id = default(Guid);
-                if (e is PlantActionCreated)
-                    id = ((PlantActionCreated)e).PlantId;
-                else
-                    id = ((PlantActionPropertySet)e).PlantId;
+                //Guid id = default(Guid);
+                //if (e is PlantActionCreated)
+                //    id = ((PlantActionCreated)e).AggregateId;
+                //else
+                //    id = ((PlantActionPropertySet)e).AggregateId;
 
-                var state = ((Plant)Repo.GetById(id)).State;
-                var actionState = state.PlantActions[e.AggregateId];
-                Store.PersistAction(actionState);
+                //var state = ((PlantAction)Repo.GetById(id)).State;
+                //var actionState = state.PlantActions[e.AggregateId];
+                //Store.PersistAction(state);
 
             }
 

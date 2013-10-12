@@ -16,10 +16,10 @@ namespace Growthstories.Sync
         ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams);
         ISyncPushRequest CreatePushRequest();
 
-        ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams);
-        ISyncPullRequest CreatePullRequest();
+        ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams);
+        //ISyncPullRequest CreatePullRequest();
 
-        List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req);
+        //List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req);
 
     }
 
@@ -35,11 +35,11 @@ namespace Growthstories.Sync
 
     public class RemoteUser
     {
-        [JsonProperty(PropertyName = Language.GARDEN, Required = Required.Always)]
+        [JsonProperty(PropertyName = Language.GARDEN, Required = Required.Default)]
         public RemoteGarden Garden { get; set; }
 
         [JsonProperty(PropertyName = Language.PROPERTY_ENTITY_ID, Required = Required.Always)]
-        public Guid EntityId { get; set; }
+        public Guid AggregateId { get; set; }
 
         [JsonProperty(PropertyName = Language.USERNAME, Required = Required.Always)]
         public string Username { get; set; }
@@ -73,21 +73,26 @@ namespace Growthstories.Sync
 
     public class RemoteGarden
     {
+        [JsonProperty(PropertyName = Language.PROPERTY_ENTITY_ID, Required = Required.Always)]
+        public Guid EntityId { get; set; }
 
-        [JsonProperty(PropertyName = Language.PLANTS, Required = Required.Always)]
+        [JsonProperty(PropertyName = Language.PLANTS, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public List<RemotePlant> Plants { get; set; }
 
     }
 
     public class RemotePlant
     {
+        [JsonProperty(PropertyName = Language.PROPERTY_ENTITY_ID, Required = Required.Always)]
+        public Guid AggregateId { get; set; }
+
         [JsonProperty(PropertyName = Language.PLANT_NAME, Required = Required.Always)]
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = Language.SHARED, Required = Required.Always)]
+        [JsonProperty(PropertyName = Language.SHARED, Required = Required.Default)]
         public bool Public { get; set; }
 
-        [JsonProperty(PropertyName = Language.TAGS, Required = Required.Always)]
+        [JsonProperty(PropertyName = Language.TAGS, Required = Required.Default)]
         public HashSet<string> Tags { get; set; }
 
     }
@@ -115,19 +120,38 @@ namespace Growthstories.Sync
 
     public interface IResponseFactory
     {
-        ISyncPullResponse CreatePullResponse(string reponse);
+        ISyncPullResponse CreatePullResponse(HttpResponseMessage resp, string content = null);
 
-        ISyncPushResponse CreatePushResponse(string response);
+        ISyncPushResponse CreatePushResponse(HttpResponseMessage resp, string content = null);
 
-        IAuthResponse CreateAuthResponse(string response);
+        IAuthResponse CreateAuthResponse(HttpResponseMessage resp, string content = null);
 
 
-        IUserListResponse CreateUserListResponse(string response);
+        IUserListResponse CreateUserListResponse(HttpResponseMessage resp, string content = null);
+    }
+
+
+
+
+    public sealed class SyncStreamInfo
+    {
+        public readonly StreamType Type;
+        public readonly Guid StreamId;
+        public readonly Guid? AncestorId;
+
+        public long SyncStamp;
+
+        public SyncStreamInfo(Guid streamId, StreamType type, Guid? ancestorId = null)
+        {
+            this.Type = type;
+            this.StreamId = streamId;
+            this.AncestorId = ancestorId;
+        }
     }
 
     public interface ISyncPullRequest : ISyncRequest
     {
-
+        ICollection<SyncStreamInfo> Streams { get; }
     }
 
     public interface ISyncPullResponse : ISyncResponse
@@ -144,8 +168,9 @@ namespace Growthstories.Sync
         Guid ClientDatabaseId { get; }
         //Guid PushId { get; }
 
-
-        IEnumerable<IEventDTO> Events { get; }
+        ICollection<ISyncEventStream> Streams { get; }
+        //IEnumerable<IEventDTO> Events { get; }
+        bool IsEmpty { get; }
 
     }
 
@@ -176,7 +201,7 @@ namespace Growthstories.Sync
 
     public interface ISyncRequest : ISyncCommunication
     {
-        ICollection<ISyncEventStream> Streams { get; }
+        //ICollection<ISyncEventStream> Streams { get; }
     }
 
     public interface ISyncResponse : ISyncCommunication

@@ -66,8 +66,8 @@ namespace Growthstories.Domain.Messaging
 
 
         protected PlantAdded() { }
-        public PlantAdded(Guid gardenId, Guid plantId)
-            : base(gardenId)
+        public PlantAdded(Guid userId, Guid gardenId, Guid plantId)
+            : base(userId, gardenId)
         {
             PlantId = plantId;
 

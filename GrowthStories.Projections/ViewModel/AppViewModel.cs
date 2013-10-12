@@ -7,10 +7,14 @@ using System;
 using System.Collections.Generic;
 using Ninject;
 using Growthstories.Domain.Entities;
+using Growthstories.Domain;
 using Growthstories.Core;
 using Growthstories.Sync;
 using Growthstories.Domain.Messaging;
 using System.Threading.Tasks;
+using Growthstories.UI.Services;
+using CommonDomain;
+using System.Reactive.Subjects;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -24,7 +28,7 @@ namespace Growthstories.UI.ViewModel
         IDictionary<IconType, Uri> IconUri { get; }
         IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
-
+        GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         Task<SyncResult> Synchronize();
@@ -39,6 +43,8 @@ namespace Growthstories.UI.ViewModel
         Task AddTestData();
         Task ClearDB();
 
+
+        IGardenViewModel GardenFactory(Guid guid);
     }
 
 
@@ -148,88 +154,154 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            resolver.RegisterLazySingleton(() => new MainViewModel(this.GardenFactory, this), typeof(IMainViewModel));
+            resolver.RegisterLazySingleton(() => new MainViewModel(this), typeof(IMainViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
-            resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(IFriendsViewModel));
+
+            resolver.RegisterLazySingleton(() => FriendsViewModelFactory(), typeof(FriendsViewModel));
+
+
+            resolver.RegisterLazySingleton(() => new ListUsersViewModel(Kernel.Get<ITransportEvents>(), this), typeof(ListUsersViewModel));
+
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
 
 
-
         }
 
-        protected GSApp _App;
-        protected GSAppState _State;
-        public GSAppState State
+        protected FriendsViewModel FriendsViewModelFactory()
+        {
+            return new FriendsViewModel(Bus.Listen<IEvent>()
+                .OfType<GardenAdded>()
+                .Where(x =>
+                {
+                    return x.AggregateId != Context.CurrentUser.Id;
+                })
+                .Select(x => GardenFactory(x.AggregateId)), this);
+        }
+
+
+        protected GSApp _Model;
+        public GSApp Model
         {
             get
             {
-                if (_App == null)
+                if (_Model == null)
                 {
-                    _App = Initialize(Kernel.Get<IGSRepository>(), Kernel.Get<IAggregateFactory>());
+                    _Model = Initialize(Kernel.Get<IGSRepository>(), Kernel.Get<IDispatchCommands>());
+
                 }
 
-                return _App.State;
+                return _Model;
             }
             //set { this.RaiseAndSetIfChanged(ref _State, value); }
         }
 
-        protected GSApp Initialize(IGSRepository repository, IAggregateFactory factory)
+
+        protected GSApp Initialize(IGSRepository repository, IDispatchCommands handler)
         {
-            GSApp app = factory.Build<GSApp>();
-            // TODO execute in the threadpool
-            repository.PlayById(app, GSAppState.GSAppId);
-            if (app.Version == 0)
+
+            GSApp app = null;
+
+            try
             {
-                // initialize temp user
-                var u = factory.Build<User>();
-                repository.PlayById(u, UserState.UnregUserId);
-                if (u.Version == 0)
-                {
-                    u.Handle(new CreateUser(UserState.UnregUserId, "UnregUser", "UnregPassword", "unreg@user.net"));
-                    u.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
-                    u.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
-
-                    repository.Save(u);
-                }
-
-
-                app.Handle(new AssignAppUser(UserState.UnregUserId));
-
-                repository.Save(app);
+                app = (GSApp)repository.GetById(GSAppState.GSAppId);
+            }
+            catch (DomainError e)
+            {
 
             }
+
+            if (app == null)
+            {
+                app = (GSApp)handler.Handle(new CreateGSApp());
+                //app = Bus.ListenIncludeLatest<IEvent>()
+                //        .OfType<GSAppCreated>()
+                //        .Select(x => (GSApp)repository.GetById(x.AggregateId))
+                //        .Take(1)
+                //        .GetAwaiter()
+                //        .Wait();
+                //app = factory.Build<GSApp>();
+
+            }
+
+
             return app;
         }
 
-        protected UserState _CurrentUserState;
-        public UserState CurrentUserState
+        IUserService _Context = null;
+        public IUserService Context
         {
             get
             {
-                if (_CurrentUserState == null)
+                if (_Context == null)
                 {
-                    _CurrentUserState = Context.CurrentUser as UserState;
+                    var s = Kernel.Get<AppUserService>();
+                    _Context = s;
+                    s.SetupCurrentUser(this);
                 }
-                return _CurrentUserState;
+                return _Context;
             }
         }
 
-        public IGardenViewModel GardenFactory(Guid id)
+        protected IGSRepository Repository;
+        protected IObservable<T> GetById<T>(Guid id) where T : IGSAggregate
         {
+            if (Repository == null)
+                Repository = Kernel.Get<IGSRepository>();
+            //Func<T> f = () => (T)Repository.GetById(id);
+            var subj = new AsyncSubject<T>();
+            var obs = Observable.Start(() => (T)Repository.GetById(id), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler)
+                .Subscribe(x =>
+                {
+                    subj.OnNext(x);
+                    subj.OnCompleted();
+                });
+
+            return subj;
+
+            //return //f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+        }
+
+        public IGardenViewModel GardenFactory(Guid userId)
+        {
+
+            var gardenObs = GetById<User>(userId).Select(x => x.State.Gardens[x.State.GardenId]);
+
+            var plantObs1 = gardenObs
+                                .Select(x => Bus.Listen<IEvent>().OfType<PlantAdded>().Where(y =>
+                                {
+                                    return y.EntityId == x.Id;
+                                }))
+                                .Merge()
+                                .Select(x => GetById<Plant>(x.PlantId))
+                                .Merge()
+                                .Select(x => new PlantViewModel(x.State, this));
+
+
+            var plantObs2 = gardenObs
+                            .Select(x => x.PlantIds.ToObservable())
+                            .Merge()
+                            .Select(y => GetById<Plant>(y))
+                            .Merge()
+                            .Select(x => new PlantViewModel(x.State, this));
+
+            var plantObs = Observable.Merge(plantObs1, plantObs2);
+
             return new GardenViewModel(
-                CurrentUserState.Gardens[id],
-                this.PlantFactory,
+                gardenObs,
+                plantObs,
                 this
             );
 
         }
 
-        public IPlantViewModel PlantFactory(Guid id, IGardenViewModel garden)
+
+
+        public IPlantViewModel PlantFactory(Guid id)
         {
             return new PlantViewModel(
              ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-             garden,
              this
             );
 
@@ -307,11 +379,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        IUserService _Context;
-        public IUserService Context
-        {
-            get { return _Context ?? (_Context = Kernel.Get<IUserService>()); }
-        }
+
 
 
         ISynchronizerService _SyncService;
@@ -322,7 +390,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            return _SyncService.Synchronize();
+            var syncStreams = Model.State.SyncStreams.Select(x => x.Value).ToArray();
+            return _SyncService.Synchronize(Kernel.Get<IRequestFactory>().CreatePullRequest(syncStreams));
         }
 
         public PageOrientation _Orientation;

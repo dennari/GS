@@ -64,7 +64,7 @@ namespace Growthstories.UI.WindowsPhone
         {
 
             var id = Guid.Parse(qs["plant"]);
-            this.ViewModel.Router.Navigate.Execute(this.ViewModel.PlantFactory(id, null));
+            this.ViewModel.Router.Navigate.Execute(this.ViewModel.PlantFactory(id));
 
         }
 

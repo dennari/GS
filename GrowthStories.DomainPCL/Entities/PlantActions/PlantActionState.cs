@@ -75,15 +75,15 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PlantActionPropertySet @event)
         {
-            if (@event.Type != this.Type)
-                throw new InvalidOperationException("Can't set properties of incompatible PlantActionTypes");
+            //if (@event.Type != this.Type)
+            //    throw new InvalidOperationException("Can't set properties of incompatible PlantActionTypes");
 
             if (@event.Note != null)
                 this.Note = @event.Note;
 
-            if (@event.Type == PlantActionType.MEASURED)
+            if (Type == PlantActionType.MEASURED)
                 this.Value = @event.Value;
-            if (@event.Type == PlantActionType.PHOTOGRAPHED)
+            if (Type == PlantActionType.PHOTOGRAPHED)
                 this.Photo = @event.Photo;
 
         }

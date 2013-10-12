@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using Growthstories.Domain.Entities;
+using Growthstories.Sync;
 
 
 namespace Growthstories.UI.Tests
@@ -23,7 +24,7 @@ namespace Growthstories.UI.Tests
         {
             var plant = new CreatePlant(Guid.NewGuid(), "Jore", Ctx.Id);
             Bus.SendCommand(plant);
-            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.AggregateId, plant.Name));
+            Bus.SendCommand(new AddPlant(Ctx.GardenId, plant.AggregateId, Ctx.Id, plant.Name));
 
             var measurement = new CreatePlantAction(Guid.NewGuid(), Ctx.Id, plant.AggregateId, PlantActionType.MEASURED, "new measurement")
             {
@@ -32,7 +33,7 @@ namespace Growthstories.UI.Tests
             };
             Bus.SendCommand(measurement);
 
-            var change = new SetPlantActionProperty(measurement.AggregateId, PlantActionType.MEASURED)
+            var change = new SetPlantActionProperty(measurement.AggregateId)
             {
                 MeasurementType = MeasurementType.LENGTH,
                 Value = 57.9
@@ -42,7 +43,6 @@ namespace Growthstories.UI.Tests
 
             var vm = new PlantViewModel(
                 ((Plant)Repository.GetById(plant.AggregateId)).State,
-                null,
                 this.App
              );
 
@@ -66,7 +66,7 @@ namespace Growthstories.UI.Tests
             Assert.AreEqual(watering.AggregateId, result2.PlantActionId);
             Assert.AreEqual(watering.Note, result2.Note);
 
-            var wateringPropSet = new SetPlantActionProperty(watering.AggregateId, watering.Type)
+            var wateringPropSet = new SetPlantActionProperty(watering.AggregateId)
             {
                 Note = "changed note"
             };

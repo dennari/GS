@@ -71,13 +71,14 @@ namespace Growthstories.Sync
 
         public ISyncPullRequest CreatePullRequest(IEnumerable<ISyncEventStream> streams)
         {
-            var streamsC = streams.ToArray();
-            var req = new HttpPullRequest(jFac)
-            {
-                Streams = streamsC
-            };
-            this.LastPullRequest = req;
-            return req;
+            //var streamsC = streams.ToArray();
+            //var req = new HttpPullRequest(jFac)
+            //{
+            //    Streams = streamsC
+            //};
+            //this.LastPullRequest = req;
+            //return req;
+            throw new NotImplementedException();
         }
 
 
@@ -98,6 +99,32 @@ namespace Growthstories.Sync
         }
 
         public List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISyncPullResponse CreatePullResponse(HttpResponseMessage resp, string content = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISyncPushResponse CreatePushResponse(HttpResponseMessage resp, string content = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAuthResponse CreateAuthResponse(HttpResponseMessage resp, string content = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IUserListResponse CreateUserListResponse(HttpResponseMessage resp, string content = null)
         {
             throw new NotImplementedException();
         }

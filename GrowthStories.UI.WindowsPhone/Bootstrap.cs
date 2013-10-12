@@ -17,12 +17,25 @@ using Windows.Storage;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
+    class StagingEndpoint : Endpoint
+    {
+        public StagingEndpoint() : base(new Uri("http://server.lan:9000")) { }
+    }
     public class Bootstrap : TestModule
     {
         public override void Load()
         {
             base.Load();
 
+
+        }
+
+        protected override void HttpConfiguration()
+        {
+            Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
+            Bind<IEndpoint>().To<StagingEndpoint>();
+            Bind<IRequestFactory, IResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
 
         }
 
@@ -61,13 +74,12 @@ namespace Growthstories.UI.WindowsPhone
         {
             Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope().OnActivation((ctx, eng) =>
                 {
-                    eng.Initialize();
-                    //eng.Purge();
+                    eng.ReInitialize();
                 });
             Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
             {
                 eng.Initialize();
-                //eng.Purge();
+                eng.Purge();
             });
 
 

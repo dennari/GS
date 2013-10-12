@@ -11,6 +11,7 @@ namespace Growthstories.Domain.Entities
 {
     public sealed class PlantState : AggregateState<PlantCreated>
     {
+        public bool Public { get; private set; }
 
         public Guid UserId { get; private set; }
 
@@ -26,12 +27,13 @@ namespace Growthstories.Domain.Entities
 
         public Photo Profilepicture { get; private set; }
 
-        public IDictionary<Guid, PlantActionState> PlantActions { get; private set; }
+
 
 
         public PlantState()
         {
             this.Tags = new HashSet<string>();
+            this.Public = false;
         }
 
         public PlantState(PlantCreated @event)
@@ -52,59 +54,19 @@ namespace Growthstories.Domain.Entities
             this.FertilizingScheduleId = @event.FertilizingScheduleId;
             this.Tags = @event.Tags;
 
-            this.PlantActions = new Dictionary<Guid, PlantActionState>();
+
         }
 
-        public void Apply(PlantActionCreated @event)
+
+        public void Apply(MarkedPlantPublic @event)
         {
-
-            if (@event.PlantId != this.Id)
-            {
-                throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
-            }
-            PlantActionState actionState = null;
-            if (this.PlantActions.TryGetValue(@event.AggregateId, out actionState))
-            {
-                throw new InvalidOperationException("PlantAction with this id already exists");
-            }
-            else
-            {
-                actionState = new PlantActionState(@event);
-            }
-
-
-            this.PlantActions[actionState.Id] = actionState;
-
+            Public = true;
         }
 
-        public void Apply(PlantActionPropertySet @event)
+        public void Apply(MarkedPlantPrivate @event)
         {
-            if (@event.PlantId != this.Id)
-            {
-                throw new InvalidOperationException("Can't create plantaction under plant with incorrect id");
-            }
-            PlantActionState actionState = null;
-            if (this.PlantActions.TryGetValue(@event.AggregateId, out actionState))
-            {
-                actionState.Apply(@event);
-            }
-            else
-            {
-                throw new InvalidOperationException("PlantAction this id doesn't exist");
-            }
-
+            Public = false;
         }
-
-
-        //public void Apply(MarkedPlantPublic @event)
-        //{
-        //    Public = true;
-        //}
-
-        //public void Apply(MarkedPlantPrivate @event)
-        //{
-        //    Public = false;
-        //}
 
         public void Apply(ProfilepictureSet @event)
         {

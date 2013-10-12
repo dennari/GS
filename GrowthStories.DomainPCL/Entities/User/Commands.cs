@@ -41,35 +41,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class SetAuthToken : AggregateCommand<User>
-    {
 
-
-        public string AccessToken { get; protected set; }
-        public int ExpiresIn { get; protected set; }
-        public string RefreshToken { get; protected set; }
-
-
-        public SetAuthToken(Guid id, string accessToken, string refreshToken, int expiresIn)
-            : base(id)
-        {
-            this.AccessToken = accessToken;
-            this.ExpiresIn = expiresIn;
-            this.RefreshToken = refreshToken;
-        }
-
-        public SetAuthToken(Guid id, IAuthToken auth)
-            : this(id, auth.AccessToken, auth.RefreshToken, auth.ExpiresIn)
-        {
-
-        }
-
-        public override string ToString()
-        {
-            return string.Format(@"SetAuthToken access: {0}, refresh: {1}, expires {3}, for user {4}.", AccessToken, RefreshToken, ExpiresIn, AggregateId);
-        }
-
-    }
 
 
 
@@ -106,60 +78,62 @@ namespace Growthstories.Domain.Messaging
 
     public class BecomeFollower : AggregateCommand<User>
     {
-        public Guid OfUser { get; private set; }
+        public Guid Target { get; private set; }
 
         protected BecomeFollower() { }
-        public BecomeFollower(Guid userId, Guid OfUser, Guid relationshipId)
+        public BecomeFollower(Guid userId, Guid OfUser)
             : base(userId)
         {
-            this.OfUser = OfUser;
-            this.EntityId = relationshipId;
+            this.Target = OfUser;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} wants to become a follower of user {1}.", this.AggregateId, this.OfUser);
+            return string.Format(@"User {0} wants to become a follower of user {1}.", this.AggregateId, this.Target);
         }
 
     }
 
-    public class RequestFriendship : AggregateCommand<User>
+    public class RequestCollaboration : AggregateCommand<User>
     {
-        protected RequestFriendship() { }
-        public RequestFriendship(Guid userId, Guid relationshipId)
+        public Guid Target { get; private set; }
+
+        protected RequestCollaboration() { }
+        public RequestCollaboration(Guid userId, Guid target)
             : base(userId)
         {
 
-            this.EntityId = relationshipId;
+            this.Target = target;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requests friendship in relationship {1}.", this.AggregateId, this.EntityId);
+            return string.Format(@"User {0}: request collaboration with {1}.", this.AggregateId, this.Target);
         }
 
     }
 
-    public class AcceptFriendship : AggregateCommand<User>
+    public class DenyCollaboration : AggregateCommand<User>
     {
-        protected AcceptFriendship() { }
-        public AcceptFriendship(Guid userId, Guid relationshipId)
+        public Guid Target { get; private set; }
+
+        protected DenyCollaboration() { }
+        public DenyCollaboration(Guid userId, Guid target)
             : base(userId)
         {
 
-            this.EntityId = relationshipId;
+            this.Target = target;
 
         }
 
         public override string ToString()
         {
-            return string.Format(@"User {0} requests friendship in relationship {1}.", this.AggregateId, this.EntityId);
+            return string.Format(@"User {0}: deny collaboration with {1}.", this.AggregateId, this.Target);
         }
 
     }
-
 
     #endregion
 

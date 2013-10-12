@@ -33,6 +33,7 @@ using ReactiveUI;
 using EventStore.Persistence.InMemoryPersistence;
 using Growthstories.Domain.Entities;
 using System.Collections.Generic;
+using Growthstories.UI.Services;
 
 
 namespace Growthstories.DomainTests
@@ -60,7 +61,7 @@ namespace Growthstories.DomainTests
 
         protected virtual void UserConfiguration()
         {
-            Bind<IUserService>().To<FakeUserService>().InSingletonScope();
+            Bind<IUserService, AppUserService>().To<AppUserService>().InSingletonScope();
             //Bind<IUserService>().To<FakeUIContext>().InSingletonScope();
 
 
@@ -68,7 +69,7 @@ namespace Growthstories.DomainTests
 
         protected virtual void EventFactoryConfiguration()
         {
-            Bind<IEventFactory>().To<FakeEventFactory>().InSingletonScope();
+            Bind<IEventFactory>().To<EventFactory>().InSingletonScope();
         }
 
         protected virtual void SQLiteConnectionConfiguration()
@@ -176,8 +177,9 @@ namespace Growthstories.DomainTests
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
             Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope().OnActivation((_, x) =>
             {
-                //x.OtherHandlers[typeof(CreateUser)] = new List<Guid>() { GSAppState.GSAppId };
-                //x.OtherHandlers[typeof(CreatePlant)] = new List<Guid>() { GSAppState.GSAppId };
+                x.OtherHandlers[typeof(CreateUser)] = new List<Guid>() { GSAppState.GSAppId };
+                x.OtherHandlers[typeof(CreatePlant)] = new List<Guid>() { GSAppState.GSAppId };
+                x.OtherHandlers[typeof(BecomeFollower)] = new List<Guid>() { GSAppState.GSAppId };
             });
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
 

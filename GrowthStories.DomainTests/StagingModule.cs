@@ -1,7 +1,7 @@
 ﻿using EventStore.Persistence;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.Core;
-using Growthstories.DomainTests.Staging;
+
 using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.Persistence;
@@ -24,15 +24,8 @@ namespace Growthstories.DomainTests
 
         }
 
-        protected override void UserConfiguration()
-        {
-            Bind<IUserService>().To<StagingUserService>().InSingletonScope();
-        }
 
-        protected override void EventFactoryConfiguration()
-        {
-            Bind<IEventFactory>().To<EventFactory>().InSingletonScope();
-        }
+
 
         protected override void PersistenceConfiguration()
         {

@@ -11,7 +11,7 @@ namespace Growthstories.Sync
     {
 
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
-        Task<string> SendAndGetBodyAsync(HttpRequestMessage request);
+        //Task<string> SendAndGetBodyAsync(HttpRequestMessage request);
     }
 
 

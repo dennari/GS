@@ -56,7 +56,11 @@ namespace Growthstories.Sync
 
             foreach (var stream in streams)
                 foreach (var e in stream.Translate(this))
-                    yield return e;
+                {
+                    if (e != null)
+                        yield return e;
+                }
+
 
         }
 

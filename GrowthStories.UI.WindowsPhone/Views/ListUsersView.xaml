@@ -1,0 +1,59 @@
+﻿<UserControl
+    x:Class="Growthstories.UI.WindowsPhone.ListUsersView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    
+    d:DataContext="{StaticResource ListUsersViewModelDesign}"
+    mc:Ignorable="d" Width="480" Height="800">
+    <UserControl.Resources>
+        <DataTemplate x:Key="ListUsersTemplate">
+            <TextBlock 
+                Text="{Binding Username}"               
+                FontSize="{StaticResource PhoneFontSizeExtraLarge}"/>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <StackPanel Grid.Row="0" Margin="24,17,24,28">
+            <TextBlock 
+                Text="FOLLOW USER" 
+                Style="{StaticResource GSAppTitleStyle}"/>
+            <toolkit:PhoneTextBox
+                    x:Name="UserListBox"
+                    KeyUp="UserListBox_KeyUp"
+                    ActionIcon="/Assets/Icons/appbar.add.png"
+                    ActionIconTapped="UserListBox_IconTapped" BorderThickness="3" Margin="-12,0,0,0"
+                            />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel x:Name="ContentPanel" Margin="24,0">
+                <phone:LongListSelector 
+                    x:Name="UserSelector"
+                    ItemsSource="{Binding List}" 
+                    ItemTemplate="{StaticResource ListUsersTemplate}">
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <command:InvokeCommandAction Command="{Binding UserSelectedCommand, Mode=OneWay}"
+												CommandParameter="{Binding SelectedItem,ElementName=UserSelector,Mode=OneWay}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </phone:LongListSelector>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+
+
+</UserControl>

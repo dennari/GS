@@ -6,42 +6,68 @@ using Growthstories.Core;
 using System.Reflection;
 using EventStore.Logging;
 using EventStore;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace Growthstories.Core
 {
+    public enum StreamType
+    {
+        NULL,
+        USER,
+        PLANT
+    }
 
-    public interface IGSAggregate : IAggregate, IApplyState
+
+    public interface IGSAggregate : IAggregate, IApplyState, ICommandHandler
     {
         void SetEventFactory(IEventFactory factory);
         SyncStreamType StreamType { get; }
+        StreamType SyncStreamType { get; }
+
         void ApplyRemoteEvent(IEvent Event);
 
     }
 
-    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate, ICommandHandler
+    public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
         where TState : AggregateState, new()
-        where TCreate : IEvent
+        where TCreate : ICreateEvent
     {
 
         public void Handle(ICommand @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
-            ((dynamic)this).Handle((dynamic)@event);
+
+            if (this.applying)
+                throw new InvalidOperationException(string.Format("Can't find handler for command {0}", @event.GetType().ToString()));
+            try
+            {
+                this.applying = true;
+                ((dynamic)this).Handle((dynamic)@event);
+                this.applying = false;
+            }
+            catch (RuntimeBinderException)
+            {
+                throw;
+            }
+
 
         }
 
 
 
         public SyncStreamType StreamType { get; protected set; }
+        public StreamType SyncStreamType { get; protected set; }
 
+
+        private bool applying = false;
         private TState _state;
         private IEventFactory _eventFactory;
         private static ILog Logger = LogFactory.BuildLogger(typeof(TState));
 
         private readonly ICollection<IEvent> UncommittedRemoteEvents = new LinkedList<IEvent>();
 
-        private readonly HashSet<Guid> AppliedEventIds = new HashSet<Guid>();
+
 
         public AggregateBase()
         {
@@ -119,24 +145,27 @@ namespace Growthstories.Core
             Event.AggregateVersion = this.Version + 1;
             Logger.Info("Raised event: {0}", Event.ToString());
             base.RaiseEvent(Event); // calls ApplyEvent and increases Version
-            this.AppliedEventIds.Add(Event.MessageId);
+            //this.AppliedEventIds.Add(Event.MessageId);
 
         }
 
         public void ApplyRemoteEvent(IEvent Event)
         {
             Validate(Event);
+
+            // TODO check here if there's a version mismatch
+
             //if (((IAggregate)this).GetUncommittedEvents().Count > 0)
             //    throw new InvalidOperationException("All pending local changes need to be saved before applying remote events.");
-            if (Event is ICreateEvent || this.AppliedEventIds.Contains(Event.MessageId))
-                return;
+            //if (this.AppliedEventIds.Contains(Event.MessageId))
+            //   return;
 
             //if (this._eventFactory != null)
             //    this._eventFactory.Fill(Event, this);
             //Event.AggregateVersion = this.Version + 1;
             Logger.Info("Raised remote event: {0}", Event.ToString());
             base.RaiseEvent(Event);
-            this.AppliedEventIds.Add(Event.MessageId);
+            //this.AppliedEventIds.Add(Event.MessageId);
             //this.RegisteredRoutes.Dispatch(Event);
             //this.Version++;
             //this.UncommittedRemoteEvents.Add(Event);
