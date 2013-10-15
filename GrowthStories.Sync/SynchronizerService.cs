@@ -36,6 +36,7 @@ namespace Growthstories.Sync
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SynchronizerService));
         private IUserService AuthService;
+        private readonly IUIPersistence UIPersistence;
 
         public SynchronizerService(
             ITransportEvents transporter,
@@ -44,7 +45,8 @@ namespace Growthstories.Sync
             GSEventStore store,
             IAggregateFactory factory,
             IMessageBus bus,
-            IUserService authService
+            IUserService authService,
+            IUIPersistence UIPersistence
             )
         {
             Transporter = transporter;
@@ -54,11 +56,12 @@ namespace Growthstories.Sync
             Factory = factory;
             Bus = bus;
             this.AuthService = authService;
+            this.UIPersistence = UIPersistence;
         }
 
 
 
-        public Task<SyncResult> Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq = null)
+        public Task<SyncResult> Synchronize(IGSApp app, ISyncPullRequest aPullReq = null, ISyncPushRequest aPushReq = null)
         {
 
             this.Pushes = new List<Tuple<ISyncPushRequest, ISyncPushResponse>>();
@@ -73,16 +76,16 @@ namespace Growthstories.Sync
                     await AuthService.AuthorizeUser();
 
                 ISyncPushRequest pushReq = aPushReq ?? RequestFactory.CreatePushRequest();
-                ISyncPullRequest pullReq = aPullReq;
+                ISyncPullRequest pullReq = aPullReq ?? RequestFactory.CreatePullRequest(app.State.SyncStreams.ToArray());
                 ISyncPullResponse pullResp = null;
                 ISyncPushResponse pushResp = null;
 
                 int cycles = 0;
-                int mCycles = 3;
+                int mCycles = 1;
                 do
                 {
 
-                    var R = await doCycle(pullReq, pushReq);
+                    var R = await doCycle(app, pullReq, pushReq);
                     pullResp = R.Item1;
                     pushResp = R.Item2;
 
@@ -110,7 +113,7 @@ namespace Growthstories.Sync
 
 
                     cycles++;
-                } while (cycles <= mCycles);
+                } while (cycles < mCycles);
 
                 return new SyncResult()
                 {
@@ -136,7 +139,7 @@ namespace Growthstories.Sync
         }
 
 
-        private async Task<Tuple<ISyncPullResponse, ISyncPushResponse>> doCycle(ISyncPullRequest pullReq, ISyncPushRequest pushReq)
+        private async Task<Tuple<ISyncPullResponse, ISyncPushResponse>> doCycle(IGSApp app, ISyncPullRequest pullReq, ISyncPushRequest pushReq)
         {
 
             ISyncPullResponse pullResp = null;
@@ -158,7 +161,7 @@ namespace Growthstories.Sync
                     //    stream.CommitRemoteChanges(Guid.NewGuid());
                     //return pullResp;
                     if (pullResp.Streams != null)
-                        this.HandleRemoteStreams(pullResp);
+                        this.HandleRemoteStreams(app, pullResp, pushReq);
 
                 }
 
@@ -204,16 +207,20 @@ namespace Growthstories.Sync
             return false;
         }
 
-        private void HandleRemoteStreams(ISyncPullResponse r)
+        private void HandleRemoteStreams(IGSApp app, ISyncPullResponse resp, ISyncPushRequest req)
         {
+            var syncStampCommands = new List<SetSyncStamp>();
 
-            foreach (var stream in r.Streams)
+            foreach (var stream in resp.Streams)
             {
 
                 if (stream.UncommittedRemoteEvents.Count == 0)
                     continue;
                 if (stream.StreamId == UserState.UnregUserId)
                     continue;
+
+
+
                 IGSAggregate aggregate = null;
                 try
                 {
@@ -221,21 +228,25 @@ namespace Growthstories.Sync
                 }
                 catch (DomainError err)
                 {
-                    var first = stream.UncommittedRemoteEvents.First() as ICreateEvent;
-                    if (first == null)
+                    var first = stream.UncommittedRemoteEvents.First();
+                    var cFirst = first as ICreateEvent;
+
+                    if (cFirst == null)
                     {
-                        if (stream.UncommittedRemoteEvents.Count == 1 && IsRelationshipNotification(stream.UncommittedRemoteEvents.First()))
+                        if (stream.UncommittedRemoteEvents.Count == 1 && IsRelationshipNotification(first))
                         {
-                            this.HandleReadModelStream(stream);
+                            this.HandleRelationshipNotification(first);
                             continue;
                         }
                         else
                             throw err;
                     }
 
-                    aggregate = Factory.Build(first.AggregateType);
+                    aggregate = Factory.Build(cFirst.AggregateType);
                 }
 
+                var mergeFlag = false;
+                var duplicates = new HashSet<Guid>();
                 foreach (var e in stream.UncommittedRemoteEvents)
                 {
                     try
@@ -245,22 +256,115 @@ namespace Growthstories.Sync
                     catch (DomainError err2)
                     {
 
-                        if (err2.Name != "duplicate_event")
+                        if (err2.Name == "duplicate_event")
+                        {
+                            Logger.Info(err2.Message);
+                            duplicates.Add(e.MessageId);
+                        }
+                        else if (err2.Name == "version_mismatch")
+                        {
+                            Merge(aggregate, stream, req, duplicates);
+                            mergeFlag = true;
+                            break;
+                        }
+                        else
                             throw err2;
-                        Logger.Info(err2.Message);
+
                     }
                 }
 
-                Repository.SaveRemote(aggregate, r.SyncStamp);
+
+                if (mergeFlag) // retry
+                {
+                    foreach (var e in stream.UncommittedRemoteEvents)
+                    {
+                        try
+                        {
+                            aggregate.ApplyRemoteEvent(e);
+                        }
+                        catch (DomainError err2)
+                        {
+
+                            if (err2.Name == "duplicate_event")
+                                Logger.Info(err2.Message);
+                            else if (err2.Name == "version_mismatch")
+                                throw err2;
+                            else
+                                throw err2;
+
+                        }
+                    }
+                }
+
+
+
+
+
+                Repository.SaveRemote(aggregate, resp.SyncStamp);
                 if (aggregate.SyncStreamType != StreamType.NULL)
-                    Bus.SendCommand(new SetSyncStamp(aggregate.Id, r.SyncStamp));
+                    syncStampCommands.Add(new SetSyncStamp(aggregate.Id, resp.SyncStamp));
+
+
+            }
+
+
+            if (syncStampCommands.Count > 0)
+            {
+                foreach (var cmd in syncStampCommands)
+                    app.Handle(cmd);
+                Repository.Save(app);
+            }
+
+        }
+
+        private void Merge(IGSAggregate aggregate, ISyncEventStream remote, ISyncPushRequest req, ISet<Guid> duplicates)
+        {
+            ISyncEventStream local = null;
+            if (req != null && (local = req.Streams.FirstOrDefault(x => x.StreamId == remote.StreamId)) != null)
+            {
+
+                aggregate.Resolve(
+                    local.CommittedEvents.Select(x => (IEvent)x.Body).ToArray(),
+                    remote.UncommittedRemoteEvents.ToArray(),
+                    duplicates
+                 );
+
+                var httpreq = req as HttpPushRequest;
+                if (httpreq != null)
+                    httpreq.Retranslate();
 
             }
         }
 
-        private void HandleReadModelStream(ISyncEventStream stream)
+        //private void Merge(ISyncEventStream local, ISyncEventStream remote)
+        //{
+
+        //}
+
+        private void HandleRelationshipNotification(IEvent notification)
         {
-            throw new NotImplementedException();
+            var req = notification as CollaborationRequested;
+            if (req != null)
+            {
+                var u = (User)Repository.GetById(req.Target);
+
+                if (u.State.Collaborators.Contains(req.AggregateId))
+                {
+                    UIPersistence.SaveCollaborator(req.AggregateId, true);
+                }
+
+            }
+            var req2 = notification as CollaborationDenied;
+            if (req2 != null)
+            {
+                UIPersistence.SaveCollaborator(req.AggregateId, false);
+            }
+            //var req3 = notification as BecameFollower;
+            //if (req3 != null)
+            //{
+            //    UIPersistence.SaveCollaborator(req.AggregateId, false);
+            //}
+
         }
 
 

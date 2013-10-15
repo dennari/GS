@@ -7,45 +7,31 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using System.ComponentModel;
+using BindableApplicationBar;
 using Growthstories.UI.ViewModel;
-using Growthstories.Domain.Messaging;
 using ReactiveUI;
 
-namespace GrowthStories.UI.WindowsPhone.Views
+namespace Growthstories.UI.WindowsPhone
 {
-    public partial class GardenView : PhoneApplicationPage, IViewFor<GardenViewModel>
+    public partial class GardenView : UserControl
     {
+
+
         public GardenView()
         {
             InitializeComponent();
+            //FriendsSelector.SelectedItem = null;
         }
 
-        private GardenViewModel VM
+
+
+
+        private void PlantsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            get
-            {
-                return (GardenViewModel)this.DataContext;
-            }
+
         }
 
-        //protected override void OnNavigatedTo(NavigationEventArgs e)
-        //{
-        //    this.VM.LoadPlants();
-        //}
 
-
-        public GardenViewModel ViewModel
-        {
-            get { return (GardenViewModel)GetValue(ViewModelProperty); }
-            set { SetValue(ViewModelProperty, value); }
-        }
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(GardenViewModel), typeof(GardenView), new PropertyMetadata(null));
-
-        object IViewFor.ViewModel
-        {
-            get { return ViewModel; }
-            set { ViewModel = (GardenViewModel)value; }
-        }
     }
 }

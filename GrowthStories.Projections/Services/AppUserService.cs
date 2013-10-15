@@ -47,7 +47,9 @@ namespace Growthstories.UI.Services
 
         }
 
-        public void SetupCurrentUser(IGSApp app)
+
+
+        public void SetupCurrentUser(AppViewModel app)
         {
             //u = Factory.Build<User>();
             //Repository.PlayById(u, FakeUserId);
@@ -67,7 +69,7 @@ namespace Growthstories.UI.Services
             {
 
                 var u = new CreateUser(UserState.UnregUserId, "UnregUser", "UnregPassword", "unreg@user.net");
-                Handler.Handle(u);
+                var U = (User)Handler.Handle(u);
                 Handler.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
                 Handler.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
                 Handler.Handle(new AssignAppUser(UserState.UnregUserId, u.Username, u.Password, u.Email)
@@ -75,6 +77,7 @@ namespace Growthstories.UI.Services
                     UserGardenId = UserState.UnregUserGardenId,
                     UserVersion = 0
                 });
+                //app.CurrentUserState = U.State;
 
                 //Repository.Save(app);
 

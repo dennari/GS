@@ -30,7 +30,7 @@ namespace Growthstories.UI.ViewModel
         protected string _Title;
         public string Title { get { return _Title; } protected set { this.RaiseAndSetIfChanged(ref _Title, value); } }
 
-        public CommandViewModel(IGSApp app)
+        public CommandViewModel(IGSAppViewModel app)
             : base(app)
         { }
 
@@ -105,7 +105,7 @@ namespace Growthstories.UI.ViewModel
         Guid PlantActionId { get; }
         DateTimeOffset Created { get; }
 
-
+        PlantActionState State { get; }
 
         void SetProperty(PlantActionPropertySet prop);
     }
@@ -164,7 +164,7 @@ namespace Growthstories.UI.ViewModel
         //    }
         //}
 
-        protected readonly PlantActionState State;
+        public PlantActionState State { get; protected set; }
 
         public string WeekDay { get; protected set; }
         public string Date { get; protected set; }
@@ -180,7 +180,7 @@ namespace Growthstories.UI.ViewModel
         public Guid PlantActionId { get; protected set; }
         public DateTimeOffset Created { get; protected set; }
 
-        public PlantActionViewModel(PlantActionState state, IGSApp app)
+        public PlantActionViewModel(PlantActionState state, IGSAppViewModel app)
             : base(app)
         {
 
@@ -247,7 +247,7 @@ namespace Growthstories.UI.ViewModel
 
         private IconType _Icon;
 
-        public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon, IGSApp app)
+        public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon, IGSAppViewModel app)
             : base(app)
         {
             this.Type = type;
@@ -268,7 +268,7 @@ namespace Growthstories.UI.ViewModel
 
         public Uri Icon { get { return App != null ? App.IconUri[this._Icon] : new Uri("/Assets/Icons/icon_length_appbar.png", UriKind.RelativeOrAbsolute); } }
 
-        public static IList<MeasurementTypeViewModel> GetAll(IGSApp app)
+        public static IList<MeasurementTypeViewModel> GetAll(IGSAppViewModel app)
         {
             return new List<MeasurementTypeViewModel>()
             {
@@ -292,7 +292,7 @@ namespace Growthstories.UI.ViewModel
 
         public new string Title { get { return "COMMENTED"; } }
 
-        public PlantCommentViewModel(PlantActionState state, IGSApp app)
+        public PlantCommentViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
 
@@ -351,7 +351,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public PlantMeasureViewModel(PlantActionState state, IGSApp app)
+        public PlantMeasureViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
             if (state != null && state.Type != PlantActionType.MEASURED)
@@ -377,7 +377,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.SValue = state.Value.ToString("F1");
+                this.SValue = state.Value.Value.ToString("F1");
                 this.Value = state.Value;
             }
         }
@@ -386,7 +386,7 @@ namespace Growthstories.UI.ViewModel
         {
             base.SetProperty(prop);
             this.Value = prop.Value;
-            this.SValue = prop.Value.ToString("F1");
+            this.SValue = prop.Value.Value.ToString("F1");
 
         }
 
@@ -398,7 +398,7 @@ namespace Growthstories.UI.ViewModel
         public new string Title { get { return "WATERED"; } }
 
 
-        public PlantWaterViewModel(PlantActionState state, IGSApp app)
+        public PlantWaterViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
             if (state != null && state.Type != PlantActionType.WATERED)
@@ -418,7 +418,7 @@ namespace Growthstories.UI.ViewModel
 
         public new string Title { get { return "NOURISHED"; } }
 
-        public PlantFertilizeViewModel(PlantActionState state, IGSApp app)
+        public PlantFertilizeViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
             if (state != null && state.Type != PlantActionType.FERTILIZED)
@@ -453,7 +453,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public PlantPhotographViewModel(PlantActionState state, IGSApp app)
+        public PlantPhotographViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
 
@@ -464,7 +464,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.PhotoData = state.Photo;
+                this.PhotoData = state.Photo.Value;
             }
         }
 
@@ -478,7 +478,7 @@ namespace Growthstories.UI.ViewModel
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
-            this.PhotoData = prop.Photo;
+            this.PhotoData = prop.Photo.Value;
         }
 
 

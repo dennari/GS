@@ -1,8 +1,7 @@
 
 using ReactiveUI;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive;
+
 using System;
 using System.Collections.Generic;
 using Ninject;
@@ -14,12 +13,22 @@ using Growthstories.Domain.Messaging;
 using System.Threading.Tasks;
 using Growthstories.UI.Services;
 using CommonDomain;
+
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Concurrency;
+using System.Reactive.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IGSApp : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
+    public interface IUserViewModel
+    {
+
+    }
+
+    public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
         string AppName { get; }
@@ -33,8 +42,22 @@ namespace Growthstories.UI.ViewModel
 
         Task<SyncResult> Synchronize();
 
-        IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel;
-        IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state, Guid? PlantActionId = null);
+        //IObservable<IUserViewModel> Users();
+        //IObservable<IGardenViewModel> Gardens { get; }
+        //IObservable<IPlantViewModel> Plants { get; }
+        //IObservable<IPlantActionViewModel> PlantActions(Guid guid);
+
+
+        //IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel;
+        IObservable<IPlantActionViewModel> CurrentPlantActions(PlantState state, Guid? PlantActionId = null);
+        IObservable<IPlantActionViewModel> FuturePlantActions(PlantState state, Guid? PlantActionId = null);
+
+        IObservable<IPlantViewModel> CurrentPlants(IAuthUser user);
+        IObservable<IPlantViewModel> FuturePlants(IAuthUser user);
+
+        IObservable<IGardenViewModel> CurrentGardens(IAuthUser user = null);
+        IObservable<IGardenViewModel> FutureGardens(IAuthUser user = null);
+
 
         ScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
         AddPlantViewModel AddPlantViewModelFactory(PlantState state);
@@ -44,11 +67,13 @@ namespace Growthstories.UI.ViewModel
         Task ClearDB();
 
 
-        IGardenViewModel GardenFactory(Guid guid);
+        //IGardenViewModel GardenFactory(Guid guid);
+
+
     }
 
 
-    public class AppViewModel : ReactiveObject, IGSApp
+    public class AppViewModel : ReactiveObject, IGSAppViewModel
     {
 
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
@@ -111,12 +136,21 @@ namespace Growthstories.UI.ViewModel
         public AppViewModel()
         {
 
-            var resolver = RxApp.MutableResolver;
+            var resolver = new ModernDependencyResolver();
+            resolver.InitializeResolver();
+            RxApp.DependencyResolver = resolver;
+
             this.Resolver = resolver;
 
             resolver.RegisterConstant(this, typeof(IScreen));
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
 
+
+            this.Router.CurrentViewModel.Subscribe(x =>
+            {
+                UpdateAppBar();
+                UpdateMenuItems();
+            });
 
             this.Router.CurrentViewModel
                 .OfType<IHasAppBarButtons>()
@@ -143,6 +177,20 @@ namespace Growthstories.UI.ViewModel
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
             this.Router.CurrentViewModel
+                 .OfType<IControlsSystemTray>()
+                 .Select(x => x.WhenAny(y => y.SystemTrayIsVisible, y => y.GetValue()).StartWith(x.SystemTrayIsVisible))
+                 .Switch()
+                 .ToProperty(this, x => x.SystemTrayIsVisible, out this._SystemTrayIsVisible, false);
+
+            this.Router.CurrentViewModel
+                 .OfType<IControlsProgressIndicator>()
+                 .Select(x => x.WhenAny(y => y.ProgressIndicatorIsVisible, y => y.GetValue()).StartWith(x.ProgressIndicatorIsVisible))
+                 .Switch()
+                 .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true);
+
+
+
+            this.Router.CurrentViewModel
                 //.OfType<IControlsPageOrientation>()
                 .Select(x =>
                 {
@@ -154,29 +202,21 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            resolver.RegisterLazySingleton(() => new MainViewModel(this), typeof(IMainViewModel));
+            resolver.RegisterLazySingleton(() => new MainViewModel(this, new GardenViewModel(this.Context.CurrentUser, this)), typeof(IMainViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
 
-            resolver.RegisterLazySingleton(() => FriendsViewModelFactory(), typeof(FriendsViewModel));
+            resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(FriendsViewModel));
 
 
-            resolver.RegisterLazySingleton(() => new ListUsersViewModel(Kernel.Get<ITransportEvents>(), this), typeof(ListUsersViewModel));
+            resolver.RegisterLazySingleton(() => new ListUsersViewModel(
+                Kernel.Get<ITransportEvents>(),
+                Kernel.Get<IGSRepository>(),
+                this), typeof(ListUsersViewModel));
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
 
 
-        }
-
-        protected FriendsViewModel FriendsViewModelFactory()
-        {
-            return new FriendsViewModel(Bus.Listen<IEvent>()
-                .OfType<GardenAdded>()
-                .Where(x =>
-                {
-                    return x.AggregateId != Context.CurrentUser.Id;
-                })
-                .Select(x => GardenFactory(x.AggregateId)), this);
         }
 
 
@@ -185,20 +225,37 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                if (_Model == null)
-                {
-                    _Model = Initialize(Kernel.Get<IGSRepository>(), Kernel.Get<IDispatchCommands>());
-
-                }
 
                 return _Model;
             }
-            //set { this.RaiseAndSetIfChanged(ref _State, value); }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _Model, value);
+            }
         }
 
 
-        protected GSApp Initialize(IGSRepository repository, IDispatchCommands handler)
+
+        protected IDispatchCommands _Handler;
+        protected IDispatchCommands Handler
         {
+            get
+            {
+                return _Handler ?? (_Handler = Kernel.Get<IDispatchCommands>());
+            }
+        }
+
+        protected GSApp Initialize(IGSRepository repository)
+        {
+
+
+            // Subscriptions where we need to catch all the happenings
+            Bus.Listen<IAggregateCommand>().Subscribe(x =>
+            {
+                Handler.Handle(x);
+            });
+
+
 
             GSApp app = null;
 
@@ -213,7 +270,7 @@ namespace Growthstories.UI.ViewModel
 
             if (app == null)
             {
-                app = (GSApp)handler.Handle(new CreateGSApp());
+                app = (GSApp)Handler.Handle(new CreateGSApp());
                 //app = Bus.ListenIncludeLatest<IEvent>()
                 //        .OfType<GSAppCreated>()
                 //        .Select(x => (GSApp)repository.GetById(x.AggregateId))
@@ -224,6 +281,9 @@ namespace Growthstories.UI.ViewModel
 
             }
 
+            this.Model = app;
+
+            ((AppUserService)Context).SetupCurrentUser(this);
 
             return app;
         }
@@ -237,80 +297,245 @@ namespace Growthstories.UI.ViewModel
                 {
                     var s = Kernel.Get<AppUserService>();
                     _Context = s;
-                    s.SetupCurrentUser(this);
+
                 }
                 return _Context;
             }
         }
 
-        protected IGSRepository Repository;
-        protected IObservable<T> GetById<T>(Guid id) where T : IGSAggregate
+        //protected IGSRepository Repository;
+        //protected IObservable<T> GetById<T>(Guid id) where T : IGSAggregate
+        //{
+        //    if (Repository == null)
+        //        Repository = Kernel.Get<IGSRepository>();
+        //    //Func<T> f = () => (T)Repository.GetById(id);
+        //    var subj = new AsyncSubject<T>();
+        //    var obs = Observable.Start(() => (T)Repository.GetById(id), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler)
+        //        .Subscribe(x =>
+        //        {
+        //            subj.OnNext(x);
+        //            subj.OnCompleted();
+        //        });
+
+        //    return subj;
+
+        //    //return //f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+        //}
+
+        //public IGardenViewModel GardenFactory(UserState uState)
+        //{
+
+        //    //var userObs = GetById<User>(userId);
+
+        //    //var gardenObs = userObs.Select(x => Tuple.Create(x.State, x.State.Gardens[x.State.GardenId]));
+
+        //    var plantObs1 = Bus.Listen<IEvent>().OfType<PlantCreated>().Where(x => x.UserId == uState.Id)
+        //                        .Select(x =>
+        //                        {
+        //                            return new PlantViewModel(x.State, this);
+        //                        });
+
+
+        //    var plantObs2 = gardenObs.Select(x => x.Item2)
+        //                    .Select(x => x.PlantIds.ToObservable())
+        //                    .Merge()
+        //                    .Select(y => GetById<Plant>(y))
+        //                    .Merge()
+        //                    .Select(x => new PlantViewModel(x.State, this));
+
+        //    var plantObs = Observable.Merge(plantObs1, plantObs2);
+
+        //    return new GardenViewModel(
+        //        gardenObs,
+        //        plantObs,
+        //        this
+        //    );
+
+        //}
+
+        IObservable<IGardenViewModel> _Gardens;
+        public IObservable<IGardenViewModel> FutureGardens(IAuthUser user = null)
         {
-            if (Repository == null)
-                Repository = Kernel.Get<IGSRepository>();
-            //Func<T> f = () => (T)Repository.GetById(id);
-            var subj = new AsyncSubject<T>();
-            var obs = Observable.Start(() => (T)Repository.GetById(id), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler)
-                .Subscribe(x =>
-                {
-                    subj.OnNext(x);
-                    subj.OnCompleted();
-                });
 
-            return subj;
 
-            //return //f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+            if (_Gardens == null)
+            {
+                var U = Bus.Listen<IEvent>()
+                    .OfType<UserCreated>();
+
+                var garden = Bus.Listen<IEvent>()
+                    .OfType<GardenAdded>();
+
+
+
+                _Gardens = Observable.CombineLatest(U, garden, (u, g) => Tuple.Create(u, g))
+                    .Where(x =>
+                    {
+                        return x.Item1.AggregateId == x.Item2.AggregateId;
+                    })
+                    .DistinctUntilChanged()
+                    .Select(x => new GardenViewModel(x.Item2.AggregateState, this));
+            }
+
+            if (user != null)
+                return _Gardens.Where(x => x.UserState.Id == user.Id);
+            return _Gardens;
 
         }
 
-        public IGardenViewModel GardenFactory(Guid userId)
+
+        public IObservable<IGardenViewModel> CurrentGardens(IAuthUser user = null)
         {
 
-            var gardenObs = GetById<User>(userId).Select(x => x.State.Gardens[x.State.GardenId]);
 
-            var plantObs1 = gardenObs
-                                .Select(x => Bus.Listen<IEvent>().OfType<PlantAdded>().Where(y =>
-                                {
-                                    return y.EntityId == x.Id;
-                                }))
-                                .Merge()
-                                .Select(x => GetById<Plant>(x.PlantId))
-                                .Merge()
-                                .Select(x => new PlantViewModel(x.State, this));
+            Func<Guid?, IEnumerable<UserState>> f = UIPersistence.GetUsers;
 
+            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            var plantObs2 = gardenObs
-                            .Select(x => x.PlantIds.ToObservable())
-                            .Merge()
-                            .Select(y => GetById<Plant>(y))
-                            .Merge()
-                            .Select(x => new PlantViewModel(x.State, this));
+            Guid? id = null;
+            if (user != null)
+                id = user.Id;
 
-            var plantObs = Observable.Merge(plantObs1, plantObs2);
+            var current = af(id)
+                //.OfType<User>()
+                .Select(x => x.ToObservable())
+                .Switch()
+                .Select(x => new GardenViewModel(x, this));
 
-            return new GardenViewModel(
-                gardenObs,
-                plantObs,
-                this
-            );
+            return current;
 
         }
 
 
 
-        public IPlantViewModel PlantFactory(Guid id)
+        protected IUIPersistence _UIPersistence;
+        protected IUIPersistence UIPersistence { get { return _UIPersistence ?? (_UIPersistence = Kernel.Get<IUIPersistence>()); } }
+
+
+
+        public IObservable<IPlantActionViewModel> CurrentPlantActions(PlantState state, Guid? PlantActionId = null)
         {
-            return new PlantViewModel(
-             ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-             this
-            );
+
+
+            Func<Guid?, Guid?, Guid?, IEnumerable<PlantActionState>> f = UIPersistence.GetActions;
+
+            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+            var current = af(PlantActionId, state.Id, null)
+                //.OfType<User>()
+                .Select(x => x.ToObservable())
+                .Switch()
+                .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x));
+
+            return current;
 
         }
+
+        public IObservable<IPlantActionViewModel> FuturePlantActions(PlantState state, Guid? PlantActionId = null)
+        {
+
+            return Bus.Listen<IEvent>()
+                    .OfType<PlantActionCreated>()
+                    .Where(x => x.PlantId == state.Id)
+                    .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x.AggregateState));
+        }
+
+
+
+
+
+        public IObservable<IPlantViewModel> CurrentPlants(IAuthUser user)
+        {
+
+
+            Func<Guid?, Guid?, Guid?, IEnumerable<PlantState>> f = UIPersistence.GetPlants;
+
+            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
+
+            var current = af(null, null, user.Id)
+                //.OfType<User>()
+                .Select(x => x.ToObservable())
+                .Switch()
+                .Select(x => new PlantViewModel(x, this));
+
+            return current;
+
+        }
+
+        public IObservable<IPlantViewModel> FuturePlants(IAuthUser user)
+        {
+            return Bus.Listen<IEvent>()
+               .OfType<PlantCreated>()
+               .Where(x =>
+               {
+                   return x.UserId == user.Id;
+               })
+               .Select(x => new PlantViewModel(x.AggregateState, this));
+        }
+
+
+
+
+        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel
+        {
+
+            if (state != null)
+            {
+                if (state.Type == PlantActionType.COMMENTED)
+                    return new PlantCommentViewModel(state, this);
+                if (state.Type == PlantActionType.FERTILIZED)
+                    return new PlantFertilizeViewModel(state, this);
+                if (state.Type == PlantActionType.WATERED)
+                    return new PlantWaterViewModel(state, this);
+                if (state.Type == PlantActionType.MEASURED)
+                    return new PlantMeasureViewModel(state, this);
+                if (state.Type == PlantActionType.PHOTOGRAPHED)
+                    return new PlantPhotographViewModel(state, this);
+            }
+
+            var t = typeof(T);
+            if (t == typeof(IPlantCommentViewModel))
+                return new PlantCommentViewModel(state, this);
+            if (t == typeof(IPlantFertilizeViewModel))
+                return new PlantFertilizeViewModel(state, this);
+            if (t == typeof(IPlantWaterViewModel))
+                return new PlantWaterViewModel(state, this);
+            if (t == typeof(IPlantMeasureViewModel))
+                return new PlantMeasureViewModel(state, this);
+            if (t == typeof(IPlantPhotographViewModel))
+                return new PlantPhotographViewModel(state, this);
+
+            return null;
+        }
+
+
+
+        //public IPlantViewModel PlantFactory(Guid id)
+        //{
+        //    return new PlantViewModel(
+        //     ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
+        //     this
+        //    );
+
+        //}
 
         protected ObservableAsPropertyHelper<bool> _AppBarIsVisible;
         public bool AppBarIsVisible
         {
             get { return _AppBarIsVisible.Value; }
+        }
+
+        protected ObservableAsPropertyHelper<bool> _SystemTrayIsVisible;
+        public bool SystemTrayIsVisible
+        {
+            get { return _SystemTrayIsVisible.Value; }
+        }
+
+        protected ObservableAsPropertyHelper<bool> _ProgressIndicatorIsVisible;
+        public bool ProgressIndicatorIsVisible
+        {
+            get { return _ProgressIndicatorIsVisible.Value; }
         }
 
         protected ObservableAsPropertyHelper<ApplicationBarMode> _AppBarMode;
@@ -319,16 +544,18 @@ namespace Growthstories.UI.ViewModel
             get { return _AppBarMode.Value; }
         }
 
-        private void UpdateAppBar(IList<ButtonViewModel> x)
+        private void UpdateAppBar(IList<ButtonViewModel> x = null)
         {
             this.AppBarButtons.RemoveRange(0, this.AppBarButtons.Count);
-            this.AppBarButtons.AddRange(x);
+            if (x != null)
+                this.AppBarButtons.AddRange(x);
         }
 
-        private void UpdateMenuItems(IList<MenuItemViewModel> x)
+        private void UpdateMenuItems(IList<MenuItemViewModel> x = null)
         {
             this.AppBarMenuItems.RemoveRange(0, this.AppBarMenuItems.Count);
-            this.AppBarMenuItems.AddRange(x);
+            if (x != null)
+                this.AppBarMenuItems.AddRange(x);
         }
 
 
@@ -390,8 +617,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            var syncStreams = Model.State.SyncStreams.Select(x => x.Value).ToArray();
-            return _SyncService.Synchronize(Kernel.Get<IRequestFactory>().CreatePullRequest(syncStreams));
+            //var syncStreams = ;
+            return _SyncService.Synchronize(Model);
         }
 
         public PageOrientation _Orientation;
@@ -446,55 +673,6 @@ namespace Growthstories.UI.ViewModel
             return new ScheduleViewModel(state, scheduleType, this);
         }
 
-        public virtual IObservable<IPlantActionViewModel> PlantActionViewModelFactory(PlantState state, Guid? PlantActionId = null)
-        {
-
-
-            Func<Guid?, Guid?, Guid?, IEnumerable<PlantActionState>> f = Kernel.Get<IUIPersistence>().GetActions;
-
-            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-            return af(PlantActionId, state.Id, state.UserId)
-                //.OfType<User>()
-                .Select(x => x.ToObservable())
-                .Switch()
-                .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x));
-
-
-
-        }
-
-        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel
-        {
-
-            if (state != null)
-            {
-                if (state.Type == PlantActionType.COMMENTED)
-                    return new PlantCommentViewModel(state, this);
-                if (state.Type == PlantActionType.FERTILIZED)
-                    return new PlantFertilizeViewModel(state, this);
-                if (state.Type == PlantActionType.WATERED)
-                    return new PlantWaterViewModel(state, this);
-                if (state.Type == PlantActionType.MEASURED)
-                    return new PlantMeasureViewModel(state, this);
-                if (state.Type == PlantActionType.PHOTOGRAPHED)
-                    return new PlantPhotographViewModel(state, this);
-            }
-
-            var t = typeof(T);
-            if (t == typeof(IPlantCommentViewModel))
-                return new PlantCommentViewModel(state, this);
-            if (t == typeof(IPlantFertilizeViewModel))
-                return new PlantFertilizeViewModel(state, this);
-            if (t == typeof(IPlantWaterViewModel))
-                return new PlantWaterViewModel(state, this);
-            if (t == typeof(IPlantMeasureViewModel))
-                return new PlantMeasureViewModel(state, this);
-            if (t == typeof(IPlantPhotographViewModel))
-                return new PlantPhotographViewModel(state, this);
-
-            return null;
-        }
 
         public string PageTitle
         {
@@ -513,7 +691,9 @@ namespace Growthstories.UI.ViewModel
 
         public virtual Task AddTestData()
         {
+
             throw new NotImplementedException();
+
         }
 
         public virtual Task ClearDB()

@@ -1,4 +1,5 @@
-﻿using Growthstories.Domain.Entities;
+﻿using Growthstories.Domain;
+using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
@@ -7,27 +8,7 @@ using System.Text;
 
 namespace Growthstories.UI
 {
-    public interface IUIPersistence
-    {
 
-        void Purge();
-
-
-        //void PersistAction(ActionBase a);
-        void PersistAction(PlantActionState state);
-        void PersistPlant(PlantState a);
-
-        IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
-        //IEnumerable<ActionBase> UserActions(Guid UserId);
-        //IEnumerable<PlantCreated> UserPlants(Guid UserId);
-
-
-
-
-
-
-
-    }
 
     public class NullUIPersistence : IUIPersistence
     {
@@ -62,6 +43,30 @@ namespace Growthstories.UI
         public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
         {
             return new PlantActionState[0];
+        }
+
+
+        public void Save(Core.IGSAggregate aggregate)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IEnumerable<UserState> GetUsers(Guid? UserId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void SaveCollaborator(Guid collaboratorId, bool status)
+        {
+            throw new NotImplementedException();
         }
     }
 }

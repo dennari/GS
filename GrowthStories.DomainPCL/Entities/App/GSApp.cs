@@ -6,12 +6,13 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Core;
 using EventStore;
 using CommonDomain;
+using Growthstories.Sync;
 
 namespace Growthstories.Domain.Entities
 {
 
 
-    public class GSApp : AggregateBase<GSAppState, GSAppCreated>,
+    public class GSApp : AggregateBase<GSAppState, GSAppCreated>, IGSApp,
        ICommandHandler<CreateGSApp>,
        ICommandHandler<CreateUser>,
        ICommandHandler<CreatePlant>,
@@ -52,6 +53,14 @@ namespace Growthstories.Domain.Entities
         public void Handle(SetSyncStamp command)
         {
             RaiseEvent(new SyncStampSet(command));
+        }
+
+        IGSAppState IGSApp.State
+        {
+            get
+            {
+                return (IGSAppState)this.State;
+            }
         }
     }
 }

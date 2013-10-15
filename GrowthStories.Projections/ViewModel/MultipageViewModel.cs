@@ -21,7 +21,7 @@ namespace Growthstories.UI.ViewModel
 
     public abstract class MultipageViewModel : RoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
-        public MultipageViewModel(IGSApp app)
+        public MultipageViewModel(IGSAppViewModel app)
             : base(app)
         {
             this.PageChangedCommand

@@ -16,7 +16,9 @@
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
                 Text="{Binding Username}"               
-                FontSize="{StaticResource PhoneFontSizeExtraLarge}"/>
+                FontSize="{StaticResource PhoneFontSizeExtraLarge}"
+                toolkit:TiltEffect.IsTiltEnabled="True"
+                />
         </DataTemplate>
     </UserControl.Resources>
     <Grid>
@@ -42,15 +44,10 @@
                 <phone:LongListSelector 
                     x:Name="UserSelector"
                     ItemsSource="{Binding List}" 
-                    ItemTemplate="{StaticResource ListUsersTemplate}">
+                    ItemTemplate="{StaticResource ListUsersTemplate}"
+                    SelectionChanged="UserSelector_SelectionChanged"/>
 
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <command:InvokeCommandAction Command="{Binding UserSelectedCommand, Mode=OneWay}"
-												CommandParameter="{Binding SelectedItem,ElementName=UserSelector,Mode=OneWay}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </phone:LongListSelector>
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

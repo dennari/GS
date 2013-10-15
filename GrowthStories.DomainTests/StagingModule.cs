@@ -1,7 +1,7 @@
 ﻿using EventStore.Persistence;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.Core;
-
+using Growthstories.Domain;
 using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.Persistence;
@@ -42,8 +42,7 @@ namespace Growthstories.DomainTests
                 .InSingletonScope()
                 .OnActivation((ctx, eng) =>
                 {
-                    eng.Initialize();
-                    eng.Purge();
+                    eng.ReInitialize();
                 });
 
         }

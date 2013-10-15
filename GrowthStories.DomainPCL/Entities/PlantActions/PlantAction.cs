@@ -15,6 +15,10 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<SetPlantActionProperty>
     {
 
+        public PlantAction()
+        {
+            this.UIPersistable = true;
+        }
 
         public void Handle(CreatePlantAction command)
         {

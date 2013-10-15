@@ -87,6 +87,7 @@ namespace Growthstories.Sync
                 //PushId = Guid.NewGuid(),
                 ClientDatabaseId = Guid.NewGuid()
             };
+            req.SetTranslator(Translator);
 
             return req;
         }

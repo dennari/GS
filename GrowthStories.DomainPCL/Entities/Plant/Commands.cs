@@ -31,13 +31,16 @@ namespace Growthstories.Domain.Messaging
         public HashSet<string> Tags { get; set; }
 
         public Guid GardenId { get; private set; }
+        public Guid UserId { get; private set; }
 
-        public CreatePlant() { }
-        public CreatePlant(Guid id, string name, Guid gardenId)
+
+        //public CreatePlant() { }
+        public CreatePlant(Guid id, string name, Guid gardenId, Guid UserId)
             : base(id)
         {
             Name = name;
             this.GardenId = gardenId;
+            this.UserId = UserId;
 
         }
 

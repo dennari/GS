@@ -140,6 +140,12 @@
     <Compile Include="Views\AddCommentView.xaml.cs">
       <DependentUpon>AddCommentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\GardenViewPage.xaml.cs">
+      <DependentUpon>GardenViewPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GardenView.xaml.cs">
+      <DependentUpon>GardenView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ListUsersView.xaml.cs">
       <DependentUpon>ListUsersView.xaml</DependentUpon>
     </Compile>
@@ -219,6 +225,14 @@
     </Page>
     <Page Include="Views\AddCommentView.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GardenViewPage.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GardenView.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ListUsersView.xaml">

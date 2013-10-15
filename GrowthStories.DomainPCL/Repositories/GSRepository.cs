@@ -6,6 +6,7 @@ using EventStore.Persistence;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
+using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Growthstories.Domain
         private readonly GSEventStore eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
+        private readonly IUIPersistence UIPersistence;
 
         public GSEventStore EventStore
         {
@@ -34,12 +36,14 @@ namespace Growthstories.Domain
         public GSRepository(
             GSEventStore eventStore,
             IDetectConflicts conflictDetector,
-            IAggregateFactory factory)
+            IAggregateFactory factory,
+            IUIPersistence uipersistence)
         {
 
             this.eventStore = eventStore;
             this.conflictDetector = conflictDetector;
             this.factory = factory;
+            this.UIPersistence = uipersistence;
 
         }
 
@@ -172,7 +176,7 @@ namespace Growthstories.Domain
 
         }
 
-        private void SaveStream(IAggregate aggregate, SyncEventStream stream, bool isRemote = false)
+        private void SaveStream(IGSAggregate aggregate, SyncEventStream stream, bool isRemote = false)
         {
             while (true)
             {
@@ -180,6 +184,8 @@ namespace Growthstories.Domain
 
                 try
                 {
+                    UIPersistence.Save(aggregate);
+
                     if (isRemote)
                         stream.CommitRemoteChanges(Guid.NewGuid());
                     else
@@ -190,6 +196,10 @@ namespace Growthstories.Domain
                 catch (DuplicateCommitException)
                 {
                     stream.ClearChanges();
+                    return;
+                }
+                catch (RuntimeBinderException e)
+                {
                     return;
                 }
                 catch (ConcurrencyException e)

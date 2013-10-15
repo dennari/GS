@@ -1,5 +1,6 @@
 ﻿using CommonDomain;
 using Growthstories.Core;
+using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
 using System;
@@ -15,6 +16,28 @@ namespace Growthstories.Domain
 
 
         IGSAggregate Handle(IAggregateCommand c);
+
+    }
+
+
+    public interface IUIPersistence
+    {
+
+        void Purge();
+
+
+
+
+        IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
+        IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
+        IEnumerable<UserState> GetUsers(Guid? UserId = null);
+
+        //IEnumerable<ActionBase> UserActions(Guid UserId);
+        //IEnumerable<PlantCreated> UserPlants(Guid UserId);
+
+        void Save(IGSAggregate aggregate);
+        void SaveCollaborator(Guid collaboratorId, bool status);
+
 
     }
 

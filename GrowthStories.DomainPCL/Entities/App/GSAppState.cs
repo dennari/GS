@@ -42,15 +42,25 @@ namespace Growthstories.Domain.Entities
 
         public int Version { get; set; }
 
+        public bool IsCollaborator { get; set; }
+
     }
 
 
-    public class GSAppState : AggregateState<GSAppCreated>
+    public class GSAppState : AggregateState<GSAppCreated>, IGSAppState
     {
 
         public static readonly Guid GSAppId = new Guid("10000000-0000-0000-0000-000000000001");
 
-        public readonly IDictionary<Guid, SyncStreamInfo> SyncStreams;
+        public readonly IDictionary<Guid, SyncStreamInfo> SyncStreamDict;
+
+        public IEnumerable<SyncStreamInfo> SyncStreams
+        {
+            get
+            {
+                return SyncStreamDict.Select(x => x.Value);
+            }
+        }
 
         protected AuthUser _User;
 
@@ -59,7 +69,7 @@ namespace Growthstories.Domain.Entities
         public GSAppState()
             : base()
         {
-            this.SyncStreams = new Dictionary<Guid, SyncStreamInfo>();
+            this.SyncStreamDict = new Dictionary<Guid, SyncStreamInfo>();
 
         }
 
@@ -81,13 +91,15 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(SyncStreamCreated @event)
         {
-            SyncStreams[@event.StreamId] = new SyncStreamInfo(@event.StreamId, @event.StreamType, @event.AncestorId);
+            if (SyncStreamDict.ContainsKey(@event.StreamId))
+                throw DomainError.Named("duplicate_syncstreams", "Stream already exists");
+            SyncStreamDict[@event.StreamId] = new SyncStreamInfo(@event.StreamId, @event.StreamType, @event.AncestorId);
         }
 
         public void Apply(SyncStampSet @event)
         {
             SyncStreamInfo syncStream = null;
-            if (SyncStreams.TryGetValue(@event.StreamId, out syncStream))
+            if (SyncStreamDict.TryGetValue(@event.StreamId, out syncStream))
             {
                 syncStream.SyncStamp = @event.SyncStamp;
             }

@@ -79,6 +79,15 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to @Email.
+        /// </summary>
+        internal static string Email {
+            get {
+                return ResourceManager.GetString("Email", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to @GardenId.
         /// </summary>
         internal static string GardenId {
@@ -129,18 +138,15 @@ namespace Growthstories.UI.Persistence {
         ///       Created INT NOT NULL,  
         ///       UserId guid NOT NULL,
         ///       PlantId guid NOT NULL,
+        ///       Type int NOT NULL,
         ///       Payload blob NOT NULL,
         ///       CONSTRAINT PK_Actions PRIMARY KEY (PlantActionId)
         ///);
+        ///CREATE INDEX IF NOT EXISTS IX_Actions_UserId ON Actions (UserId);
+        ///CREATE INDEX IF NOT EXISTS IX_Actions_PlantId ON Actions (PlantId);
+        ///CREATE INDEX IF NOT EXISTS IX_Actions_Created ON Actions (Created);
         ///
-        ///CREATE TABLE IF NOT EXISTS Plants
-        ///(
-        ///       UserId guid NOT NULL,
-        ///       Created INT NOT NULL,
-        ///       GardenId guid NOT NULL,
-        ///       PlantId guid NOT NULL,
-        ///       Payload blob NOT NULL,
-        ///       CONSTRAINT PK_Plants PRIMARY KEY (UserId, PlantId [rest of string was truncated]&quot;;.
+        ///CREATE TABLE IF  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string InitializeStorage {
             get {
@@ -159,9 +165,9 @@ namespace Growthstories.UI.Persistence {
         
         /// <summary>
         ///   Looks up a localized string similar to INSERT OR REPLACE INTO Actions 
-        ///(PlantActionId, Created, UserId, PlantId, Payload) 
+        ///(PlantActionId, Created, UserId, PlantId, Type, Payload) 
         ///VALUES(
-        ///@PlantActionId,@Created,@UserId,@PlantId,@Payload
+        ///@PlantActionId,@Created,@UserId,@PlantId,@Type,@Payload
         ///);.
         /// </summary>
         internal static string PersistAction {
@@ -184,6 +190,19 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to INSERT OR REPLACE INTO Users
+        ///(UserId, Created,GardenId,Username,Email,Payload) 
+        ///VALUES(
+        ///@UserId,@Created,@GardenId,@Username,@Email,@Payload
+        ///);.
+        /// </summary>
+        internal static string PersistUser {
+            get {
+                return ResourceManager.GetString("PersistUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to @PlantActionId.
         /// </summary>
         internal static string PlantActionId {
@@ -202,11 +221,29 @@ namespace Growthstories.UI.Persistence {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DELETE FROM Actions; DELETE FROM Plants;.
+        ///   Looks up a localized string similar to DELETE FROM Actions; DELETE FROM Plants; DELETE FROM Users; DELETE FROM Collaborators;.
         /// </summary>
         internal static string PurgeStorage {
             get {
                 return ResourceManager.GetString("PurgeStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @Status.
+        /// </summary>
+        internal static string Status {
+            get {
+                return ResourceManager.GetString("Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
             }
         }
         
@@ -216,6 +253,15 @@ namespace Growthstories.UI.Persistence {
         internal static string UserId {
             get {
                 return ResourceManager.GetString("UserId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @Username.
+        /// </summary>
+        internal static string Username {
+            get {
+                return ResourceManager.GetString("Username", resourceCulture);
             }
         }
         

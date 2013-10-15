@@ -95,6 +95,19 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public ICollection<ISyncEventStream> Streams { get; set; }
 
+        [JsonIgnore]
+        private ITranslateEvents translator;
+        public void SetTranslator(ITranslateEvents tr)
+        {
+            translator = tr;
+        }
+
+        public void Retranslate()
+        {
+            if (translator != null && Streams.Count > 0)
+                this.Events = translator.Out(Streams).ToArray();
+        }
+
         public HttpPushRequest(IJsonFactory jF)
         {
             this.jF = jF;

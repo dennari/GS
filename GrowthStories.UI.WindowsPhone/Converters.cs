@@ -225,6 +225,10 @@ namespace Growthstories.UI.WindowsPhone
             {
 
             }
+            catch (ArgumentNullException)
+            {
+
+            }
             return null;
 
 

@@ -23,9 +23,11 @@ namespace Growthstories.Core
         void SetEventFactory(IEventFactory factory);
         SyncStreamType StreamType { get; }
         StreamType SyncStreamType { get; }
-
+        bool UIPersistable { get; }
         void ApplyRemoteEvent(IEvent Event);
+        bool HasUncommittedEvents { get; }
 
+        void Resolve(IEvent[] local, IEvent[] remote, ISet<Guid> duplicates);
     }
 
     public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
@@ -54,11 +56,37 @@ namespace Growthstories.Core
 
         }
 
+        public bool HasUncommittedEvents
+        {
+            get
+            {
+                return ((IAggregate)this).GetUncommittedEvents().Count > 0;
+            }
+        }
+
+        public virtual void Resolve(IEvent[] local, IEvent[] remote, ISet<Guid> duplicates)
+        {
+            // these need to be ordered already
+            int c = 0;
+            foreach (var e in remote)
+            {
+                if (duplicates.Contains(e.MessageId))
+                    continue;
+                c++;
+                e.AggregateVersion = this.Version + c;
+            }
+            c = remote.Length - duplicates.Count;
+            foreach (var e in local)
+            {
+
+                e.AggregateVersion += c;
+            }
+        }
 
 
         public SyncStreamType StreamType { get; protected set; }
         public StreamType SyncStreamType { get; protected set; }
-
+        public bool UIPersistable { get; protected set; }
 
         private bool applying = false;
         private TState _state;
@@ -135,7 +163,7 @@ namespace Growthstories.Core
 
         }
 
-        protected void RaiseEvent(IEvent Event)
+        protected new void RaiseEvent(IEvent Event)
         {
 
             Validate(Event);
@@ -143,6 +171,14 @@ namespace Growthstories.Core
             if (this._eventFactory != null)
                 this._eventFactory.Fill(Event, this);
             Event.AggregateVersion = this.Version + 1;
+
+            var sE = Event as IAggregateEvent<TState>;
+            if (sE != null)
+            {
+                sE.AggregateState = this.State;
+            }
+
+
             Logger.Info("Raised event: {0}", Event.ToString());
             base.RaiseEvent(Event); // calls ApplyEvent and increases Version
             //this.AppliedEventIds.Add(Event.MessageId);
@@ -163,6 +199,13 @@ namespace Growthstories.Core
             //if (this._eventFactory != null)
             //    this._eventFactory.Fill(Event, this);
             //Event.AggregateVersion = this.Version + 1;
+
+
+            var sE = Event as IAggregateEvent<TState>;
+            if (sE != null)
+            {
+                sE.AggregateState = this.State;
+            }
             Logger.Info("Raised remote event: {0}", Event.ToString());
             base.RaiseEvent(Event);
             //this.AppliedEventIds.Add(Event.MessageId);

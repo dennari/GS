@@ -116,6 +116,7 @@ namespace Growthstories.Sync
         string Password { get; }
         string Email { get; }
         Guid GardenId { get; }
+        bool IsCollaborator { get; }
     }
 
     public interface IResponseFactory

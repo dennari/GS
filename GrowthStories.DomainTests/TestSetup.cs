@@ -157,12 +157,8 @@ namespace Growthstories.DomainTests
 
             //Bind<IDispatchCommits>().To<MessageBusDispatcher>().InSingletonScope();
 
-            Bind<IDispatchCommits>().ToConstructor(p => new DelegateMessageDispatcher(this.DoubleDispatch)).InSingletonScope();
-            Bind<MessageBusDispatcher>().ToSelf().InSingletonScope();
-            Bind<ReadModelDispatcher>().ToSelf().InSingletonScope();
+            Bind<IDispatchCommits, MessageBusDispatcher>().To<MessageBusDispatcher>();
 
-
-            //Bind<IDispatchCommits, IAsyncDispatchCommits, IRegisterEventHandlers>().To<EventDispatcher>().InSingletonScope();
 
             #endregion
 
@@ -192,85 +188,11 @@ namespace Growthstories.DomainTests
             Bind<IJsonFactory>().To<JsonFactory>().InSingletonScope();
 
 
-            //Bind<SynchronizerCommandHandler>().ToSelf().InSingletonScope();
-            //Bind<ActionProjection>().ToSelf().InSingletonScope();
-            //Bind<PlantProjection>().ToSelf().InSingletonScope();
-            //Bind<IAuthTokenService>().To<AuthTokenService>().InSingletonScope();
 
-            //RegisterHandlers(Kernel.Get<IMessageBus>(), Kernel);
-
-            Kernel.Get<IMessageBus>().Listen<IAggregateCommand>().Subscribe(x =>
-            {
-                Kernel.Get<IDispatchCommands>().Handle(x);
-            });
-
-        }
-
-        IDispatchCommits MBDispatcher;
-        IDispatchCommits UIDispatcher;
-        private void DoubleDispatch(Commit commit)
-        {
-            var mb = this.MBDispatcher ?? (this.MBDispatcher = Kernel.Get<MessageBusDispatcher>());
-            var ui = this.UIDispatcher ?? (this.UIDispatcher = Kernel.Get<ReadModelDispatcher>());
-            ui.Dispatch(commit);
-            mb.Dispatch(commit);
 
         }
 
 
-
-
-        void RegisterHandlers(IMessageBus bus, IKernel kernel)
-        {
-            // Bind<IAsyncEventHandler<UserSynchronized>>().To<AuthTokenService>().InSingletonScope();
-            //var allEvents = bus.Listen<IEvent>();
-            var allCommands = bus.Listen<IAggregateCommand>();
-
-            var handler = Kernel.Get<IDispatchCommands>();
-            allCommands.Subscribe(c => handler.Handle(c));
-
-
-            //PlantProjection pproj = null;
-            //ActionProjection aproj = null;
-            //IDispatchCommands handler = null;
-
-            //allEvents.Take(1).Subscribe(_ =>
-            //{
-            //    pproj = Kernel.Get<PlantProjection>();
-            //    aproj = Kernel.Get<ActionProjection>();
-
-            //    allEvents.OfType<Commented>().Subscribe(e => aproj.Handle(e));
-            //    allEvents.OfType<Watered>().Subscribe(e => aproj.Handle(e));
-            //    allEvents.OfType<Photographed>().Subscribe(e => aproj.Handle(e));
-            //    allEvents.OfType<Fertilized>().Subscribe(e => aproj.Handle(e));
-
-
-
-            //});
-
-            //allCommands.Take(1).Subscribe(_ =>
-            //{
-            //    var handler = Kernel.Get<IDispatchCommands>();
-            //    allCommands.Subscribe(c => handler.Handle(c));
-            //    handler.Handle(_);
-
-            //});
-
-
-
-
-            //var aproj = Kernel.Get<ActionProjection>();
-            //registry.Register<Commented>(aproj);
-            //registry.Register<Watered>(aproj);
-            //registry.Register<Photographed>(aproj);
-            //registry.Register<Fertilized>(aproj);
-            //registry.RegisterAsync<UserSynchronized>(Kernel.Get<AuthTokenService>());
-
-
-            //var PVM = kernel.Get<PlantViewModel>();
-            //kernel.Get<IMessenger>().Register<ShowPlantView>(PVM, PVM.Handle);
-
-        }
 
     }
 

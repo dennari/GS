@@ -1,5 +1,6 @@
 ﻿
 
+using Growthstories.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,10 +15,19 @@ namespace Growthstories.Sync
 
     }
 
+    public interface IGSAppState
+    {
+        IEnumerable<SyncStreamInfo> SyncStreams { get; }
+    }
+
+    public interface IGSApp : IGSAggregate
+    {
+        IGSAppState State { get; }
+    }
 
     public interface ISynchronizerService
     {
-        Task<SyncResult> Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq = null);
+        Task<SyncResult> Synchronize(IGSApp app, ISyncPullRequest aPullReq = null, ISyncPushRequest aPushReq = null);
         Task<bool> CreateUserAsync(Guid userId);
         //IEnumerable<ISyncEventStream> Pending();
         //ISyncPullRequest GetPullRequest();

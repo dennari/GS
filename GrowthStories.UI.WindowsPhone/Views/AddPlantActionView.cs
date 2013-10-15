@@ -25,7 +25,6 @@ namespace Growthstories.UI.WindowsPhone
                 if (value != null)
                 {
                     SetValue(NoteVisibilityProperty, value);
-                    this.DataContext = value;
                 }
             }
         }

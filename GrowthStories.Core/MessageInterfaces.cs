@@ -20,10 +20,18 @@ namespace Growthstories.Core
         //IEvent ShallowCopy();
     }
 
+    public interface IAggregateEvent<TState> : IEvent
+        where TState : IAggregateState
+    {
+        TState AggregateState { get; set; }
+    }
+
     public interface ICreateEvent : IEvent
     {
         Type AggregateType { get; }
     }
+
+
 
     public interface ICommand : IMessage
     {

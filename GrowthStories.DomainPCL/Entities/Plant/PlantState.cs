@@ -1,6 +1,7 @@
 ﻿using CommonDomain;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,20 +12,25 @@ namespace Growthstories.Domain.Entities
 {
     public sealed class PlantState : AggregateState<PlantCreated>
     {
+        [JsonProperty]
         public bool Public { get; private set; }
 
+        [JsonProperty]
         public Guid UserId { get; private set; }
 
+        [JsonProperty]
+        public Guid GardenId { get; private set; }
+        [JsonProperty]
         public Guid WateringScheduleId { get; private set; }
-
+        [JsonProperty]
         public Guid FertilizingScheduleId { get; private set; }
-
+        [JsonProperty]
         public HashSet<string> Tags { get; private set; }
-
+        [JsonProperty]
         public string Name { get; private set; }
-
+        [JsonProperty]
         public string Species { get; private set; }
-
+        [JsonProperty]
         public Photo Profilepicture { get; private set; }
 
 
@@ -46,9 +52,20 @@ namespace Growthstories.Domain.Entities
         public override void Apply(PlantCreated @event)
         {
             base.Apply(@event);
+
+            if (@event.UserId == default(Guid))
+            {
+                throw DomainError.Named("empty_id", "UserId is required");
+            }
+            //if (@event.GardenId == default(Guid))
+            //{
+            //    throw DomainError.Named("empty_id", "GardenId is required");
+            //}
+
             this.Name = @event.Name;
             this.Species = @event.Species;
             this.UserId = @event.UserId;
+            this.GardenId = @event.GardenId;
             this.Profilepicture = @event.Profilepicture;
             this.WateringScheduleId = @event.WateringScheduleId;
             this.FertilizingScheduleId = @event.FertilizingScheduleId;

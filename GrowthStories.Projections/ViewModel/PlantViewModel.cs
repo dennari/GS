@@ -24,6 +24,8 @@ namespace Growthstories.UI.ViewModel
         ReactiveCommand PinCommand { get; }
         ReactiveCommand ScrollCommand { get; }
         Photo ProfilepictureData { get; }
+        PlantState State { get; }
+        ReactiveList<IPlantActionViewModel> Actions { get; }
     }
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
@@ -38,14 +40,23 @@ namespace Growthstories.UI.ViewModel
                 if (_Actions == null)
                 {
                     _Actions = new ReactiveList<IPlantActionViewModel>();
-                    App.PlantActionViewModelFactory(this.State).Subscribe(x => this.Actions.Add(x));
+                    App.CurrentPlantActions(this.State).Concat(App.FuturePlantActions(this.State)).Subscribe(x =>
+                    {
+                        Actions.Insert(0, x);
+                        ScrollCommand.Execute(x);
+                    });
+                    //App.FuturePlantActions(this.State).Subscribe(x =>
+                    //{
+                    //    Actions.Insert(0, x);
+                    //    ScrollCommand.Execute(x);
+                    //});
 
                 }
                 return _Actions;
             }
         }
 
-
+        public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
         public ReactiveCommand ShareCommand { get; protected set; }
         public ReactiveCommand DeleteCommand { get; protected set; }
@@ -57,7 +68,7 @@ namespace Growthstories.UI.ViewModel
         public Guid UserId { get { return State.UserId; } }
 
 
-        protected PlantState State { get; set; }
+        public PlantState State { get; protected set; }
         public IGardenViewModel Garden { get; protected set; }
 
 
@@ -70,7 +81,7 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public PlantViewModel(PlantState state, IGSApp app)
+        public PlantViewModel(PlantState state, IGSAppViewModel app)
             : base(app)
         {
             //this.ActionProjection = actionProjection;
@@ -111,24 +122,19 @@ namespace Growthstories.UI.ViewModel
 
 
             // THINK ABOUT NOT HAVING TO DO THE ROUNDTRIP!!!
-            this.ListenTo<PlantActionCreated>()
-                .Where(x => x.PlantId == this.State.Id)
-                .Select(x => App.PlantActionViewModelFactory(this.State, x.AggregateId))
-                .Switch()
-                .Subscribe(x =>
-                {
-                    Actions.Insert(0, x);
-                    ScrollCommand.Execute(x);
-                });
 
-            this.ListenTo<PlantActionPropertySet>()
-                .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.AggregateId)))
-                .Where(x => x.Item2 != null)
-                .Subscribe(x =>
-                {
-                    x.Item2.SetProperty(x.Item1);
-                    ScrollCommand.Execute(x.Item2);
-                });
+
+
+            //this.PlantActionStream = ;
+
+            //this.ListenTo<PlantActionPropertySet>()
+            //    .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.AggregateId)))
+            //    .Where(x => x.Item2 != null)
+            //    .Subscribe(x =>
+            //    {
+            //        x.Item2.SetProperty(x.Item1);
+            //        ScrollCommand.Execute(x.Item2);
+            //    });
 
             this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                 .ToProperty(this, x => x.Name, out this._Name, state.Name);
@@ -204,21 +210,71 @@ namespace Growthstories.UI.ViewModel
                             Text = "water",
                             IconUri = App.IconUri[IconType.WATER],
                             Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x => this.Navigate(this.AddWaterViewModel))
+                                .ToCommandWithSubscription(x => {
+                                    var vm = new PlantWaterViewModel(null, App);
+                                    vm.AddCommand.Subscribe(_ =>
+                                    {
+                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                                        this.SendCommand(
+                                            new CreatePlantAction(
+                                                Guid.NewGuid(),
+                                                this.UserId,
+                                                this.Id,
+                                                PlantActionType.WATERED,
+                                                vm.Note
+                                            ),
+                                        true);
+                                    });
+                                    this.Navigate(vm);
+                                })
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "photograph",
                             IconUri = App.IconUri[IconType.PHOTO],
                             Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x => this.Navigate(this.AddPhotographViewModel))
+                                .ToCommandWithSubscription(x =>  {
+                                    var vm = new PlantPhotographViewModel(null, App);
+                                    vm.AddCommand.Subscribe(_ =>
+                                    {
+                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                                        this.SendCommand(
+                                            new CreatePlantAction(
+                                                Guid.NewGuid(),
+                                                this.UserId,
+                                                this.Id,
+                                                PlantActionType.PHOTOGRAPHED,
+                                                vm.Note
+                                            ) {
+                                                Photo = vm.PhotoData
+                                            },
+                                        true);
+                                    });
+                                    this.Navigate(vm);
+                                })
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
                             IconUri = App.IconUri[IconType.NOTE],
                             Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x => this.Navigate(this.AddCommentViewModel))
+                                .ToCommandWithSubscription(x =>  {
+                                    var vm = new PlantCommentViewModel(null, App);
+                                    vm.AddCommand.Subscribe(_ =>
+                                    {
+                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                                        this.SendCommand(
+                                            new CreatePlantAction(
+                                                Guid.NewGuid(),
+                                                this.UserId,
+                                                this.Id,
+                                                PlantActionType.COMMENTED,
+                                                vm.Note
+                                            ),
+                                        true);
+                                    });
+                                    this.Navigate(vm);
+                                })
                         },
                         new ButtonViewModel(null)
                         {
@@ -244,13 +300,48 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "measure",
                             Command = Observable.Return(true)
-                               .ToCommandWithSubscription(x => this.Navigate(this.AddMeasureViewModel))
+                               .ToCommandWithSubscription(x =>  {
+                                    var vm = new PlantMeasureViewModel(null, App);
+                                    vm.AddCommand.Subscribe(_ =>
+                                    {
+                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                                        this.SendCommand(
+                                            new CreatePlantAction(
+                                                Guid.NewGuid(),
+                                                this.UserId,
+                                                this.Id,
+                                                PlantActionType.MEASURED,
+                                                vm.Note
+                                     ) {
+                                        MeasurementType = vm.Series.Type,
+                                        Value = vm.Value.Value
+                                    },
+                                        true);
+                                    });
+                                    this.Navigate(vm);
+                                })
                         },
                         new MenuItemViewModel(null)
                         {
                             Text = "nourish",
                             Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x => this.Navigate(this.AddFertilizeViewModel))
+                                .ToCommandWithSubscription(x =>  {
+                                    var vm = new PlantFertilizeViewModel(null, App);
+                                    vm.AddCommand.Subscribe(_ =>
+                                    {
+                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
+                                        this.SendCommand(
+                                            new CreatePlantAction(
+                                                Guid.NewGuid(),
+                                                this.UserId,
+                                                this.Id,
+                                                PlantActionType.FERTILIZED,
+                                                vm.Note
+                                            ),
+                                        true);
+                                    });
+                                    this.Navigate(vm);
+                                })
                         },
                         new MenuItemViewModel(null)
                         {
@@ -284,143 +375,13 @@ namespace Growthstories.UI.ViewModel
 
         #endregion
 
-        #region ADDVIEWMODELS
-        protected IPlantActionViewModel _AddWaterViewModel;
-        public IPlantActionViewModel AddWaterViewModel
-        {
-            get
-            {
-                if (_AddWaterViewModel == null)
-                {
-                    _AddWaterViewModel = App.PlantActionViewModelFactory<IPlantWaterViewModel>();
-                    _AddWaterViewModel.AddCommand.Subscribe(_ =>
-                    {
-                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                        this.SendCommand(
-                            new CreatePlantAction(
-                                Guid.NewGuid(),
-                                this.UserId,
-                                this.Id,
-                                PlantActionType.WATERED,
-                                _AddWaterViewModel.Note
-                            ),
-                        true);
-                    });
-                }
-                return _AddWaterViewModel;
-            }
-        }
 
-        protected IPlantActionViewModel _AddCommentViewModel;
-        public IPlantActionViewModel AddCommentViewModel
-        {
-            get
-            {
-                if (_AddCommentViewModel == null)
-                {
-                    _AddCommentViewModel = App.PlantActionViewModelFactory<IPlantCommentViewModel>();
-                    _AddCommentViewModel.AddCommand.Subscribe(_ =>
-                    {
-                        this.SendCommand(
-                            new CreatePlantAction(
-                                Guid.NewGuid(),
-                                this.UserId,
-                                this.Id,
-                                PlantActionType.COMMENTED,
-                                _AddCommentViewModel.Note
-                            ),
-                        true);
-                    });
-                }
-                return _AddCommentViewModel;
-            }
-        }
 
-        protected IPlantActionViewModel _AddFertilizeViewModel;
-        public IPlantActionViewModel AddFertilizeViewModel
-        {
-            get
-            {
-                if (_AddFertilizeViewModel == null)
-                {
-                    _AddFertilizeViewModel = App.PlantActionViewModelFactory<IPlantFertilizeViewModel>();
-                    _AddFertilizeViewModel.AddCommand.Subscribe(_ =>
-                    {
-                        this.SendCommand(
-                            new CreatePlantAction(
-                                Guid.NewGuid(),
-                                this.UserId,
-                                this.Id,
-                                PlantActionType.WATERED,
-                                _AddFertilizeViewModel.Note
-                            ),
-                        true);
-                    });
-                }
-                return _AddFertilizeViewModel;
-            }
-        }
 
-        protected IPlantPhotographViewModel _AddPhotographViewModel;
-        public IPlantPhotographViewModel AddPhotographViewModel
-        {
-            get
-            {
-                if (_AddPhotographViewModel == null)
-                {
-                    var vm = (IPlantPhotographViewModel)App.PlantActionViewModelFactory<IPlantPhotographViewModel>();
-                    vm.AddCommand.Subscribe(_ =>
-                    {
-                        this.SendCommand(
-                            new CreatePlantAction(
-                                Guid.NewGuid(),
-                                this.UserId,
-                                this.Id,
-                                PlantActionType.PHOTOGRAPHED,
-                                vm.Note
-                            )
-                            {
-                                Photo = vm.PhotoData
-                            },
-                        true);
-                    });
-                    _AddPhotographViewModel = vm;
-                }
-                return _AddPhotographViewModel;
-            }
-        }
 
-        protected IPlantMeasureViewModel _AddMeasureViewModel;
-        public IPlantMeasureViewModel AddMeasureViewModel
-        {
-            get
-            {
-                if (_AddMeasureViewModel == null)
-                {
-                    var vm = (IPlantMeasureViewModel)App.PlantActionViewModelFactory<IPlantMeasureViewModel>();
-                    vm.AddCommand.Subscribe(_ =>
-                    {
-                        this.SendCommand(
-                            new CreatePlantAction(
-                                Guid.NewGuid(),
-                                this.UserId,
-                                this.Id,
-                                PlantActionType.MEASURED,
-                                vm.Note
-                            )
-                            {
-                                MeasurementType = vm.Series.Type,
-                                Value = vm.Value.Value
-                            },
-                        true);
-                    });
-                    _AddMeasureViewModel = vm;
-                }
-                return _AddMeasureViewModel;
-            }
-        }
 
-        #endregion
+
+
 
         public SupportedPageOrientation SupportedOrientations
         {

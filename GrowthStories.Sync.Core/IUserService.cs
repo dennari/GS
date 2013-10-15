@@ -7,6 +7,7 @@ namespace Growthstories.Sync
     {
         IAuthUser CurrentUser { get; }
 
+
         Task AuthorizeUser();
     }
 

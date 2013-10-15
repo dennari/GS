@@ -27,9 +27,9 @@ namespace Growthstories.UI.ViewModel
 
     public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
     {
-        protected readonly IGSApp App;
+        protected readonly IGSAppViewModel App;
 
-        public GSViewModelBase(IGSApp app)
+        public GSViewModelBase(IGSAppViewModel app)
         {
             this.App = app;
         }
@@ -74,7 +74,7 @@ namespace Growthstories.UI.ViewModel
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public RoutableViewModel(
-            IGSApp app)
+            IGSAppViewModel app)
             : base(app)
         {
 
@@ -143,6 +143,15 @@ namespace Growthstories.UI.ViewModel
         bool AppBarIsVisible { get; }
     }
 
+    public interface IControlsSystemTray
+    {
+        bool SystemTrayIsVisible { get; }
+    }
+
+    public interface IControlsProgressIndicator
+    {
+        bool ProgressIndicatorIsVisible { get; }
+    }
 
 
 

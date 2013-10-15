@@ -2,9 +2,10 @@
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace Growthstories.Domain.Entities
 {
@@ -35,28 +36,55 @@ namespace Growthstories.Domain.Entities
         public static readonly Guid UnregUserId = new Guid("11000000-0000-0000-0000-000000000011");
         public static readonly Guid UnregUserGardenId = new Guid("11100000-0000-0000-0000-000000000111");
 
-        private HashSet<Guid> Friends = new HashSet<Guid>();
-
-        private HashSet<Guid> Collaborators = new HashSet<Guid>();
-
-        private HashSet<Guid> Rejects = new HashSet<Guid>();
+        [JsonIgnore]
+        public readonly HashSet<Guid> Friends = new HashSet<Guid>();
+        [JsonIgnore]
+        public readonly HashSet<Guid> Collaborators = new HashSet<Guid>();
+        [JsonIgnore]
+        public readonly HashSet<Guid> Rejects = new HashSet<Guid>();
 
 
         // private IDictionary<Guid, Relationship> OutsiderSourcedRelationships = new Dictionary<Guid, Relationship>();
 
-
+        [JsonIgnore]
         public IDictionary<Guid, ScheduleState> Schedules { get; private set; }
-
+        [JsonProperty]
         public IDictionary<Guid, GardenState> Gardens { get; private set; }
 
+        [JsonIgnore]
+        public GardenState Garden
+        {
+            get
+            {
+                try
+                {
+                    return Gardens.First().Value;
+                }
+                catch (Exception)
+                {
+
+                }
+                return null;
+            }
+        }
+
+
+        [JsonProperty]
         public string Password { get; private set; }
+        [JsonProperty]
         public string Username { get; private set; }
+        [JsonProperty]
         public string Email { get; private set; }
 
+        [JsonIgnore]
         public string AccessToken { get; private set; }
+        [JsonIgnore]
         public int ExpiresIn { get; private set; }
+        [JsonIgnore]
         public string RefreshToken { get; private set; }
 
+        [JsonProperty]
+        public bool IsCollaborator { get; set; }
 
 
 
@@ -133,9 +161,12 @@ namespace Growthstories.Domain.Entities
             }
             else
             {
-                this.Gardens[@event.EntityId.Value] = new GardenState(@event);
+                gardenState = new GardenState(@event);
+                this.Gardens[@event.EntityId.Value] = gardenState;
                 if (this.Gardens.Count == 1)
-                    this.GardenId = @event.EntityId.Value;
+                {
+                    this.GardenId = gardenState.Id;
+                }
             }
         }
 

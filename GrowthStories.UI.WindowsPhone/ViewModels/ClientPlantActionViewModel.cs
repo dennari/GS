@@ -35,7 +35,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-        public ClientPlantPhotographViewModel(PlantActionState state, IGSApp app)
+        public ClientPlantPhotographViewModel(PlantActionState state, IGSAppViewModel app)
             : base(state, app)
         {
 
@@ -44,7 +44,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
             if (state != null)
-                photoStream.StartWith(state.Photo);
+                photoStream.StartWith(state.Photo.Value);
 
             photoStream.Subscribe(x => Photo.SetSource(x));
         }

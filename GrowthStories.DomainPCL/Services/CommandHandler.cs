@@ -28,6 +28,7 @@ namespace Growthstories.Domain.Services
         //private readonly IMessageBus _bus;
 
         public readonly IDictionary<Type, IList<Guid>> OtherHandlers;
+        private readonly IUIPersistence UIPersistence;
 
         public CommandHandler(
             IGSRepository store,
@@ -39,6 +40,7 @@ namespace Growthstories.Domain.Services
             _repository = store;
             _persistence = persistence;
             _factory = factory;
+
             OtherHandlers = new Dictionary<Type, IList<Guid>>();
 
         }

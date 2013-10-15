@@ -17,7 +17,7 @@ namespace Growthstories.Domain.Messaging
     #region PlantAction
 
     [DTOObject(DTOType.addComment, DTOType.addWatering, DTOType.addPhoto, DTOType.addFertilizing, DTOType.addMeasurement)]
-    public class PlantActionCreated : EventBase, ICreateEvent
+    public class PlantActionCreated : EventBase, ICreateEvent, IAggregateEvent<PlantActionState>
     {
         [JsonIgnore]
         private Type _AggregateType;
@@ -43,24 +43,46 @@ namespace Growthstories.Domain.Messaging
         public MeasurementType MeasurementType { get; set; }
 
         [JsonProperty]
-        public double Value { get; set; }
+        public double? Value { get; set; }
 
         [JsonProperty]
-        public Photo Photo { get; set; }
+        public Photo? Photo { get; set; }
 
         protected PlantActionCreated() { }
-        public PlantActionCreated(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
-            : base(id)
-        {
-            this.UserId = userId;
-            this.PlantId = plantId;
-            this.Type = type;
-            this.Note = note;
-        }
+        //public PlantActionCreated(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
+        //    : base(id)
+        //{
+        //    this.UserId = userId;
+        //    this.PlantId = plantId;
+        //    this.Type = type;
+        //    this.Note = note;
+        //}
 
         public PlantActionCreated(CreatePlantAction cmd)
             : base(cmd)
         {
+
+            if (cmd.UserId == default(Guid))
+            {
+                throw new ArgumentNullException("UserId has to be provided");
+            }
+            if (cmd.PlantId == default(Guid))
+            {
+                throw new ArgumentNullException("PlantId has to be provided");
+            }
+            if (cmd.Type == PlantActionType.NOTYPE)
+            {
+                throw new ArgumentNullException("PlantActionType has to be provided");
+            }
+            if (cmd.Type == PlantActionType.PHOTOGRAPHED && !cmd.Photo.HasValue)
+            {
+                throw new ArgumentNullException("PhotoAction needs photo");
+            }
+            if (cmd.Type == PlantActionType.MEASURED && (cmd.MeasurementType == Sync.MeasurementType.NOTYPE || !cmd.Value.HasValue))
+            {
+                throw new ArgumentNullException("MeasurementAction needs measurementType and value");
+            }
+
             this.MeasurementType = cmd.MeasurementType;
             this.Value = cmd.Value;
             this.Photo = cmd.Photo;
@@ -96,12 +118,12 @@ namespace Growthstories.Domain.Messaging
             {
                 D.EventType = DTOType.addMeasurement;
                 D.MeasurementType = this.MeasurementType;
-                D.Value = this.Value;
+                D.Value = this.Value.Value;
             }
             if (this.Type == PlantActionType.PHOTOGRAPHED)
             {
                 D.EventType = DTOType.addPhoto;
-                D.BlobKey = this.Photo.BlobKey;
+                D.BlobKey = this.Photo.Value.BlobKey;
             }
 
 
@@ -132,14 +154,20 @@ namespace Growthstories.Domain.Messaging
             if (D.EventType == DTOType.addPhoto)
             {
                 this.Type = PlantActionType.PHOTOGRAPHED;
-                var p = this.Photo;
-                p.BlobKey = D.BlobKey;
-                this.Photo = p;
+                this.Photo = new Photo()
+                {
+                    BlobKey = D.BlobKey
+                };
             }
 
             base.FromDTO(D);
+            this.UserId = this.AncestorId.Value;
+            this.PlantId = this.ParentId.Value;
         }
 
+
+
+        public PlantActionState AggregateState { get; set; }
 
     }
 
@@ -157,10 +185,10 @@ namespace Growthstories.Domain.Messaging
         public MeasurementType MeasurementType { get; set; }
 
         [JsonProperty]
-        public double Value { get; set; }
+        public double? Value { get; set; }
 
         [JsonProperty]
-        public Photo Photo { get; set; }
+        public Photo? Photo { get; set; }
 
         protected PlantActionPropertySet() { }
         //public PlantActionPropertySet(Guid id, PlantActionType type)
@@ -172,6 +200,22 @@ namespace Growthstories.Domain.Messaging
         public PlantActionPropertySet(SetPlantActionProperty cmd, PlantActionType type)
             : base(cmd)
         {
+
+
+            if (type == PlantActionType.NOTYPE)
+            {
+                throw new ArgumentNullException("PlantActionType has to be provided");
+            }
+            if (type == PlantActionType.PHOTOGRAPHED && !cmd.Photo.HasValue)
+            {
+                throw new ArgumentNullException("PhotoAction needs photo");
+            }
+            if (type == PlantActionType.MEASURED && (cmd.MeasurementType == Sync.MeasurementType.NOTYPE || !cmd.Value.HasValue))
+            {
+                throw new ArgumentNullException("MeasurementAction needs measurementType and value");
+            }
+
+
             this.Type = type;
             this.Note = cmd.Note;
             this.MeasurementType = cmd.MeasurementType;

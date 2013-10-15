@@ -11,7 +11,7 @@ namespace Growthstories.Domain.Messaging
 {
 
 
-    public interface IDomainEvent : IEvent//, IEquatable<IEvent>
+    public interface IDomainEvent : IEvent
     {
 
 

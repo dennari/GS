@@ -145,7 +145,7 @@ namespace Growthstories.DomainTests
 
             var garden = await TestCreateGarden();
 
-            var plant = App.SetIds(new CreatePlant(Guid.NewGuid(), "Jore", garden.EntityId.Value)
+            var plant = App.SetIds(new CreatePlant(Guid.NewGuid(), "Jore", garden.EntityId.Value, Ctx.Id)
             {
                 Profilepicture = new Photo(),
                 Species = "Aloe Vera",

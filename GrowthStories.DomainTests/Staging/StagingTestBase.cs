@@ -43,6 +43,7 @@ namespace Growthstories.DomainTests
                 Kernel.Bind<IScreen>().ToConstant(this);
                 Kernel.Bind<IRoutingState>().ToConstant(this.Router);
                 this.Bus = kernel.Get<IMessageBus>();
+                Initialize(kernel.Get<IGSRepository>());
             }
 
 

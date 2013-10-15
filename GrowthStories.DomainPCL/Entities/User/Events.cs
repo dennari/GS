@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
     #region User
 
     [DTOObject(DTOType.createUser)]
-    public class UserCreated : EventBase, ICreateEvent
+    public class UserCreated : EventBase, ICreateEvent, IAggregateEvent<UserState>
     {
         [JsonProperty]
         public string Username { get; private set; }
@@ -79,6 +79,9 @@ namespace Growthstories.Domain.Messaging
             this.Password = D.Password;
             this.Email = D.Email;
         }
+
+
+        public UserState AggregateState { get; set; }
 
     }
 
@@ -276,7 +279,7 @@ namespace Growthstories.Domain.Messaging
 
 
     [DTOObject(DTOType.setProperty)]
-    public class GardenAdded : EventBase
+    public class GardenAdded : EventBase, IAggregateEvent<UserState>
     {
         [JsonProperty]
         public Guid GardenId { get; protected set; }
@@ -335,6 +338,9 @@ namespace Growthstories.Domain.Messaging
             }
 
         }
+
+
+        public UserState AggregateState { get; set; }
 
     }
 

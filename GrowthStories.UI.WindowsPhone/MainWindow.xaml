@@ -7,27 +7,34 @@
 	xmlns:local="clr-namespace:GrowthStories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:routing="clr-namespace:ReactiveUI.Xaml;assembly=ReactiveUI.Xaml"
-    xmlns:vm="clr-namespace:Growthstories.UI.ViewModel;assembly=GrowthStories.Projections"
-    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-	SupportedOrientations="{Binding ClientSupportedOrientations}"  
+	xmlns:vm="clr-namespace:Growthstories.UI.ViewModel;assembly=GrowthStories.Projections"
+	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    SupportedOrientations="{Binding ClientSupportedOrientations}"  
     Orientation="{Binding Orientation}"
 	Height="800"
-    >
-
-	<routing:RoutedViewHost 
-        x:Name="Content"
-        Router="{Binding Router}"
-        CacheMode="BitmapCache"
-        Transition="Fade"
-        TransitionPart="OutIn"
-       />
-    <bar:Bindable.ApplicationBar>
-        <bar:BindableApplicationBar
-            Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
-            Style="{StaticResource GSAppBarStyle}"
-            ButtonsSource="{Binding AppBarButtons}"
-            MenuItemsSource="{Binding AppBarMenuItems}"
-            IsVisible="{Binding AppBarIsVisible}"            
-            />
-    </bar:Bindable.ApplicationBar>
+    shell:SystemTray.IsVisible="{Binding SystemTrayIsVisible}"
+	>
+    <shell:SystemTray.ProgressIndicator>
+        <shell:ProgressIndicator 
+            IsIndeterminate="True" 
+            IsVisible="{Binding ProgressIndicatorIsVisible}" />
+    </shell:SystemTray.ProgressIndicator>
+    
+    <routing:RoutedViewHost 
+		x:Name="Content"
+		Router="{Binding Router}"
+		CacheMode="BitmapCache"
+		Transition="Fade"
+		TransitionPart="OutIn"
+	   />
+	<bar:Bindable.ApplicationBar>
+		<bar:BindableApplicationBar
+			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
+			Style="{StaticResource GSAppBarStyle}"
+			ButtonsSource="{Binding AppBarButtons}"
+			MenuItemsSource="{Binding AppBarMenuItems}"
+			IsVisible="{Binding AppBarIsVisible}"            
+			/>
+	</bar:Bindable.ApplicationBar>
 </phone:PhoneApplicationPage>

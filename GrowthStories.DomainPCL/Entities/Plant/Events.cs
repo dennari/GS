@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     #region Plant
 
     [DTOObject(DTOType.createPlant)]
-    public class PlantCreated : EventBase, ICreateEvent
+    public class PlantCreated : EventBase, ICreateEvent, IAggregateEvent<PlantState>
     {
 
         [JsonProperty]
@@ -29,6 +29,9 @@ namespace Growthstories.Domain.Messaging
 
         [JsonProperty]
         public Guid UserId { get; private set; }
+
+        [JsonProperty]
+        public Guid GardenId { get; private set; }
 
         [JsonProperty]
         public Guid FertilizingScheduleId { get; private set; }
@@ -74,10 +77,15 @@ namespace Growthstories.Domain.Messaging
             }
             if (cmd.GardenId == default(Guid))
             {
-                throw new ArgumentNullException("userId has to be provided");
+                throw new ArgumentNullException("GardenId has to be provided");
+            }
+            if (cmd.UserId == default(Guid))
+            {
+                throw new ArgumentNullException("UserId has to be provided");
             }
             this.Name = cmd.Name;
-            this.UserId = cmd.GardenId;
+            this.UserId = cmd.UserId;
+            this.GardenId = cmd.GardenId;
             this.Profilepicture = cmd.Profilepicture;
             this.Species = cmd.Species;
             this.WateringScheduleId = cmd.WateringScheduleId;
@@ -108,6 +116,9 @@ namespace Growthstories.Domain.Messaging
         }
 
 
+
+
+        public PlantState AggregateState { get; set; }
 
     }
 
@@ -313,6 +324,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
     public class NameSet : EventBase
     {
         [JsonProperty]
@@ -331,6 +343,29 @@ namespace Growthstories.Domain.Messaging
         {
             return string.Format(@"Name set to {1} for plant {0}.", AggregateId, Name);
         }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.plant;
+            D.PropertyName = "name";
+            D.PropertyValue = this.Name;
+
+            base.FillDTO(D);
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.plant || (D.PropertyName != "name"))
+                throw new ArgumentException();
+
+            this.Name = D.PropertyValue;
+
+            base.FromDTO(D);
+        }
+
 
     }
 

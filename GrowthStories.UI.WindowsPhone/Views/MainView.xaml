@@ -13,7 +13,14 @@
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     mc:Ignorable="d">
-    
+    <UserControl.Resources>
+        <DataTemplate x:Key="ListUsersTemplate">
+            <TextBlock 
+            Text="{Binding UserState.Username}"               
+            FontSize="{StaticResource PhoneFontSizeExtraLarge}"
+            toolkit:TiltEffect.IsTiltEnabled="True"/>
+        </DataTemplate>
+    </UserControl.Resources>
     <!--LayoutRoot contains the root grid where all other page content is placed-->
     <Grid x:Name="LayoutRoot">
         <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
@@ -36,46 +43,7 @@
 			
             <!-- MY GARDEN -->
 			<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
-                <Grid x:Name="ContentPanel1" Margin="0,0" DataContext="{Binding GardenVM}">
-                    <toolkit:LongListMultiSelector
-                        x:Name="PlantsSelector"
-                        ItemsSource="{Binding Plants}"
-                        Style="{StaticResource GSGardenPlantsStyle}"
-                        LayoutMode="Grid" 
-                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
-                        
-                      >
-                        <i:Interaction.Triggers>                          
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <command:InvokeCommandAction Command="{Binding SelectedPlantsChangedCommand, Mode=OneWay}"
-												CommandParameter="{Binding SelectedItem,ElementName=PlantsSelector,Mode=OneWay}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <toolkit:LongListMultiSelector.ItemTemplate>
-                            <DataTemplate>
-
-                                <Grid Width="Auto" Height="Auto" Margin="0,0,6,6">
-                                    <Grid.Background>
-                                        <RadialGradientBrush>
-                                            <GradientStop Color="#ffae2e5f" Offset="0"/>
-                                            <GradientStop Color="#FFD3799C" Offset="1"/>
-                                        </RadialGradientBrush>
-                                    </Grid.Background>
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Tap">
-                                            <command:InvokeCommandAction 
-                                                Command="{Binding DataContext.ShowDetailsCommand, ElementName=ContentPanel1}"
-												    CommandParameter="{Binding Mode=OneWay}" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center" Canvas.ZIndex="1"/>
-                                    <Image Width="173" Height="173" Source="{Binding ProfilepictureData, Converter={StaticResource PhotoToImageSource}}" VerticalAlignment="Center"/>
-
-                                </Grid>
-                            </DataTemplate>
-                        </toolkit:LongListMultiSelector.ItemTemplate>
-                    </toolkit:LongListMultiSelector>
-                </Grid>        
+                <local:GardenView DataContext="{Binding GardenVM}"/>
 			</phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
@@ -85,8 +53,12 @@
             </phone:PanoramaItem>
             <!-- FRIENDS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="friends" x:Name="friendsItem">
-                <Grid x:Name="ContentPanel3" Margin="0,0">
-                    <phone:LongListSelector />
+                <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
+                    <phone:LongListSelector
+                        x:Name="FriendsSelector"
+                        ItemsSource="{Binding Friends}"
+                        ItemTemplate="{StaticResource ListUsersTemplate}"
+                        SelectionChanged="FriendsSelector_SelectionChanged"/>
                 </Grid>
             </phone:PanoramaItem>
             <!-- TESTING -->

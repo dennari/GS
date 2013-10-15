@@ -26,15 +26,17 @@ namespace Growthstories.UI.ViewModel
     }
 
     [DataContract]
-    public class MainViewModel : MultipageViewModel, IMainViewModel
+    public class MainViewModel : MultipageViewModel, IMainViewModel, IControlsSystemTray, IControlsProgressIndicator
     {
 
 
 
-        public MainViewModel(IGSApp app)
+        public MainViewModel(IGSAppViewModel app, IGardenViewModel gvm = null)
             : base(app)
         {
 
+            if (gvm != null)
+                this.GardenVM = gvm;
 
 
             this.Pages.Add(this.GardenVM);
@@ -43,6 +45,12 @@ namespace Growthstories.UI.ViewModel
 
             this.CurrentPage = this.GardenVM;
 
+            //app.Gardens
+            //    .Where(x => x.UserState.Id == app.Context.CurrentUser.Id)
+            //    .Subscribe(x =>
+            //    {
+            //        this.GardenVM = x;
+            //    });
 
         }
 
@@ -52,7 +60,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenVM ?? (_GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+                return _GardenVM;
             }
             protected set
             {
@@ -85,8 +93,8 @@ namespace Growthstories.UI.ViewModel
             {
                 var vm = _TestingVM ?? (_TestingVM = new TestingViewModel(App));
 
-                vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
-                vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+                //vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+                //vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
 
                 return vm;
             }
@@ -96,11 +104,21 @@ namespace Growthstories.UI.ViewModel
         {
             get { throw new NotImplementedException(); }
         }
+
+        public bool SystemTrayIsVisible
+        {
+            get { return false; }
+        }
+
+        public bool ProgressIndicatorIsVisible
+        {
+            get { return false; }
+        }
     }
 
     public class TestingViewModel : GSViewModelBase
     {
-        public TestingViewModel(IGSApp app)
+        public TestingViewModel(IGSAppViewModel app)
             : base(app)
         {
             this.AddTestDataCommand = new ReactiveCommand();
@@ -128,7 +146,7 @@ namespace Growthstories.UI.ViewModel
 
     public class ButtonViewModel : MenuItemViewModel
     {
-        public ButtonViewModel(IGSApp app)
+        public ButtonViewModel(IGSAppViewModel app)
             : base(app)
         {
 
@@ -156,7 +174,7 @@ namespace Growthstories.UI.ViewModel
     public class MenuItemViewModel : GSViewModelBase
     {
 
-        public MenuItemViewModel(IGSApp app)
+        public MenuItemViewModel(IGSAppViewModel app)
             : base(app)
         {
 

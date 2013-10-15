@@ -20,7 +20,7 @@ namespace Growthstories.UI.ViewModel
     public sealed class IntervalValueViewModel : GSViewModelBase
     {
         private readonly IntervalValueType Type;
-        public IntervalValueViewModel(IntervalValueType type, IGSApp app)
+        public IntervalValueViewModel(IntervalValueType type, IGSAppViewModel app)
             : base(app)
         {
             this.Type = type;
@@ -56,7 +56,7 @@ namespace Growthstories.UI.ViewModel
             return this.Title;
         }
 
-        public static IList<IntervalValueViewModel> GetAll(IGSApp app)
+        public static IList<IntervalValueViewModel> GetAll(IGSAppViewModel app)
         {
             return new List<IntervalValueViewModel>()
             {
@@ -72,7 +72,7 @@ namespace Growthstories.UI.ViewModel
         private readonly ScheduleState ScheduleState;
 
 
-        public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSApp app)
+        public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSAppViewModel app)
             : base(null, app)
         {
             // TODO: Complete member initialization

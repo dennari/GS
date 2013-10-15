@@ -110,7 +110,7 @@ namespace Growthstories.DomainTests
             };
 
             var CC = PlantActionTests(C, DTOType.addPhoto);
-            Assert.AreEqual(C.Photo.BlobKey, CC.Photo.BlobKey);
+            Assert.AreEqual(C.Photo.Value.BlobKey, CC.Photo.Value.BlobKey);
 
         }
 

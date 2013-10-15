@@ -42,7 +42,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(PlantState state, IGSApp app)
+        public ClientAddPlantViewModel(PlantState state, IGSAppViewModel app)
             : base(state, app)
         {
 

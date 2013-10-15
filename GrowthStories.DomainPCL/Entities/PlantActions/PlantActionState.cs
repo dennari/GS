@@ -16,6 +16,7 @@ namespace Growthstories.Domain.Entities
 
     public enum PlantActionType
     {
+        NOTYPE,
         WATERED,
         FERTILIZED,
         PHOTOGRAPHED,
@@ -43,10 +44,10 @@ namespace Growthstories.Domain.Entities
         public MeasurementType MeasurementType { get; private set; }
 
         [JsonProperty]
-        public double Value { get; private set; }
+        public double? Value { get; private set; }
 
         [JsonProperty]
-        public Photo Photo { get; private set; }
+        public Photo? Photo { get; private set; }
 
         public PlantActionState()
             : base()
@@ -63,6 +64,20 @@ namespace Growthstories.Domain.Entities
         public override void Apply(PlantActionCreated @event)
         {
             base.Apply(@event);
+
+
+            if (@event.UserId == default(Guid))
+            {
+                throw DomainError.Named("empty_id", "UserId is required");
+            }
+            if (@event.PlantId == default(Guid))
+            {
+                throw DomainError.Named("empty_id", "PlantId is required");
+            }
+            if (@event.Type == PlantActionType.NOTYPE)
+            {
+                throw DomainError.Named("empty_id", "PlantActionType is required");
+            }
             this.Type = @event.Type;
             this.UserId = @event.UserId;
             this.PlantId = @event.PlantId;

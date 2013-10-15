@@ -34,7 +34,7 @@ namespace Growthstories.UI.ViewModel
 
         protected new PlantState State;
 
-        public AddPlantViewModel(PlantState state, IGSApp app)
+        public AddPlantViewModel(PlantState state, IGSAppViewModel app)
             : base(null, app)
         {
             this.State = state;
@@ -299,7 +299,7 @@ namespace Growthstories.UI.ViewModel
             else
             {
                 var plantId = Guid.NewGuid();
-                this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.Id)
+                this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
                 {
                     Species = this.Species,
                     Profilepicture = this.ProfilepictureData,

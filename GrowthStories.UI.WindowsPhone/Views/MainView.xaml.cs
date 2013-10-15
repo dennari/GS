@@ -21,7 +21,7 @@ namespace Growthstories.UI.WindowsPhone
         public MainView()
         {
             InitializeComponent();
-
+            //FriendsSelector.SelectedItem = null;
         }
 
         public MainViewModel ViewModel
@@ -42,6 +42,20 @@ namespace Growthstories.UI.WindowsPhone
 
 
         object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (MainViewModel)value; } }
+
+
+        private void FriendsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0)
+                return;
+            var item = e.AddedItems[0];
+            if (item == null || !(item is IGardenViewModel))
+                return;
+
+            ViewModel.FriendsVM.FriendSelected.Execute(item);
+
+            ((LongListSelector)sender).SelectedItem = null;
+        }
 
         //protected override void OnNavigatedTo(NavigationEventArgs e)
         //{

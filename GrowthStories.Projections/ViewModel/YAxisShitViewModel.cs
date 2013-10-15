@@ -21,7 +21,7 @@ namespace Growthstories.UI.ViewModel
         private readonly PlantState State;
 
 
-        public YAxisShitViewModel(PlantState state, IGSApp app)
+        public YAxisShitViewModel(PlantState state, IGSAppViewModel app)
             : base(app)
         {
 

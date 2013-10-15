@@ -13,7 +13,13 @@ namespace Growthstories.Core
 {
 
 
-    public abstract class AggregateState : IMemento, IAppliesEvents
+    public interface IAggregateState : IMemento
+    {
+        Type AggregateType { get; }
+
+    }
+
+    public abstract class AggregateState : IAggregateState, IAppliesEvents
     {
 
         [JsonIgnore]
@@ -165,6 +171,10 @@ namespace Growthstories.Core
             {
                 throw DomainError.Named("rebirth", "Can't create aggregate that already exists");
             }
+            if (@event.AggregateId == default(Guid))
+            {
+                throw DomainError.Named("empty_id", "AggregateId is required");
+            }
             Id = @event.AggregateId;
             Created = @event.Created;
         }
@@ -186,6 +196,8 @@ namespace Growthstories.Core
                 throw DomainError.Named("nohandler", "Can't find handler for event {0}", @event.GetType().ToString());
             if (AppliedEventIds.Contains(@event.MessageId))
                 throw DomainError.Named("duplicate_event", "Event {0} of type {1} has already been applied", @event.MessageId, @event.GetType().ToString());
+            if (@event.AggregateVersion != this.Version + 1)
+                throw DomainError.Named("version_mismatch", "Won't apply remote event with nonconsecutive version.");
 
             try
             {

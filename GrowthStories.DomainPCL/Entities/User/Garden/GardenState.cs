@@ -19,7 +19,6 @@ namespace Growthstories.Domain.Entities
     {
 
 
-        public Guid GardenId { get; private set; }
 
         public IList<Guid> PlantIds { get; private set; }
 
@@ -36,12 +35,6 @@ namespace Growthstories.Domain.Entities
             Apply(@event);
         }
 
-        //public GardenState(Guid id, int version, bool Public, ICollection<Guid> plantIds)
-        //    : base(id, version, Public)
-        //{
-        //    PlantIds = plantIds;
-        //}
-
 
         public void Apply(PlantAdded @event)
         {
@@ -49,21 +42,7 @@ namespace Growthstories.Domain.Entities
             PlantIds.Add(@event.PlantId);
         }
 
-        public override void Apply(GardenCreated @event)
-        {
-            base.Apply(@event);
-            this.GardenId = @event.EntityId.Value;
-        }
 
-        //public void Apply(MarkedGardenPublic @event)
-        //{
-        //    Public = true;
-        //}
-
-        //public void Apply(MarkedGardenPrivate @event)
-        //{
-        //    Public = false;
-        //}
 
 
     }

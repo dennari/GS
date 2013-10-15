@@ -118,6 +118,7 @@ namespace Growthstories.Sync
 
     public enum MeasurementType
     {
+        NOTYPE,
         PH,
         SOIL_HUMIDITY,
         AIR_HUMIDITY,

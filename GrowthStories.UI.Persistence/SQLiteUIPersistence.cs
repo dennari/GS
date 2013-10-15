@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-
+using Growthstories.Domain;
+using Growthstories.Core;
+using Microsoft.CSharp.RuntimeBinder;
 
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
@@ -83,6 +85,32 @@ namespace Growthstories.UI.Persistence
 
         }
 
+        public virtual void ReInitialize()
+        {
+            if (Interlocked.Increment(ref this.initialized) > 1)
+                return;
+
+            this.ExecuteCommand(Guid.Empty, (connection, statement) =>
+                        statement.ExecuteWithoutExceptions("DROP TABLE IF EXISTS Plants;"));
+            this.ExecuteCommand(Guid.Empty, (connection, statement) =>
+                        statement.ExecuteWithoutExceptions("DROP TABLE IF EXISTS Actions;"));
+            this.ExecuteCommand(Guid.Empty, (connection, statement) =>
+                       statement.ExecuteWithoutExceptions("DROP TABLE IF EXISTS Users;"));
+            this.ExecuteCommand(Guid.Empty, (connection, statement) =>
+                       statement.ExecuteWithoutExceptions("DROP TABLE IF EXISTS Collaborators;"));
+            //Logger.Debug(Messages.InitializingStorage);
+
+            foreach (var st in SQL.InitializeStorage.Split(';'))
+            {
+                if (st.Length > 3 && st != String.Empty)
+                {
+                    this.ExecuteCommand(Guid.Empty, (connection, statement) =>
+                        statement.ExecuteWithoutExceptions(st + ";"));
+                }
+            }
+
+        }
+
         public virtual void Purge()
         {
             Logger.Warn("Purging UI Persistence");
@@ -96,13 +124,20 @@ namespace Growthstories.UI.Persistence
             }
         }
 
+        public void Save(IGSAggregate aggregate)
+        {
+            try
+            {
+                ((dynamic)this).Persist(((dynamic)aggregate).State);
 
+            }
+            catch (RuntimeBinderException)
+            {
 
+            }
+        }
 
-
-
-
-        public void PersistAction(PlantActionState state)
+        void Persist(PlantActionState state)
         {
             this.ExecuteCommand(state.Id, (connection, cmd) =>
             {
@@ -110,6 +145,7 @@ namespace Growthstories.UI.Persistence
                 cmd.AddParameter(SQL.Created, state.Created.Ticks);
                 cmd.AddParameter(SQL.UserId, state.UserId);
                 cmd.AddParameter(SQL.PlantId, state.PlantId);
+                cmd.AddParameter(SQL.Type, (int)state.Type);
 
                 var payload = this.serializer.Serialize(state);
 
@@ -121,14 +157,40 @@ namespace Growthstories.UI.Persistence
         }
 
 
-        public void PersistPlant(PlantState a)
+        void Persist(PlantState a)
         {
             this.ExecuteCommand(a.Id, (connection, cmd) =>
             {
                 cmd.AddParameter(SQL.UserId, a.UserId);
                 cmd.AddParameter(SQL.PlantId, a.Id);
+                cmd.AddParameter(SQL.GardenId, a.GardenId);
+                cmd.AddParameter(SQL.Created, a.Created.Ticks);
                 cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
                 return cmd.ExecuteNonQuery(SQL.PersistPlant);
+            });
+        }
+
+        void Persist(UserState a)
+        {
+            this.ExecuteCommand(a.Id, (connection, cmd) =>
+            {
+                cmd.AddParameter(SQL.UserId, a.Id);
+                cmd.AddParameter(SQL.GardenId, a.GardenId);
+                cmd.AddParameter(SQL.Username, a.Username);
+                cmd.AddParameter(SQL.Email, a.Email);
+                cmd.AddParameter(SQL.Created, a.Created.Ticks);
+                cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
+                return cmd.ExecuteNonQuery(SQL.PersistUser);
+            });
+        }
+
+        public void SaveCollaborator(Guid collaboratorId, bool status)
+        {
+            this.ExecuteCommand(collaboratorId, (connection, cmd) =>
+            {
+                cmd.AddParameter(SQL.UserId, collaboratorId);
+                cmd.AddParameter(SQL.Status, status ? 1 : 0);
+                return cmd.ExecuteNonQuery("INSERT OR REPLACE INTO Collaborators (UserId,Status) VALUES(@UserId,@Status);");
             });
         }
 
@@ -138,6 +200,7 @@ namespace Growthstories.UI.Persistence
             Created,
             UserId,
             PlantId,
+            Type,
             Payload
         }
 
@@ -149,6 +212,18 @@ namespace Growthstories.UI.Persistence
             PlantId,
             Payload
         }
+
+        public enum UserIndex
+        {
+            UserId,
+            Created,
+            GardenId,
+            Username,
+            Email,
+            Payload,
+            Collaborator
+        }
+
 
         public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
         {
@@ -174,18 +249,66 @@ namespace Growthstories.UI.Persistence
             });
         }
 
-
-
-        public IEnumerable<PlantCreated> UserPlants(Guid UserId)
+        public IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
         {
-            return this.ExecuteQuery(UserId, query =>
-            {
-                query.AddParameter(SQL.PlantId, null);
-                query.AddParameter(SQL.UserId, UserId);
 
-                return query.ExecuteQuery<PlantCreated>(SQL.GetPlants, (stmt) => Deserialize<PlantCreated>(stmt, (int)PlantIndex.Payload));
+            var filters = new Dictionary<string, Guid?>(){
+                    {"GardenId",GardenId},
+                    {"PlantId",PlantId},
+                    {"UserId",UserId}
+                }.Where(x => x.Value.HasValue).ToArray();
+
+            if (filters.Length == 0)
+                throw new InvalidOperationException();
+            return this.ExecuteQuery(PlantId ?? default(Guid), query =>
+            {
+
+                foreach (var x in filters)
+                    query.AddParameter(@"@" + x.Key, x.Value);
+
+                var queryText = string.Format(@"SELECT * FROM Plants WHERE ({0});",
+                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+
+                return query.ExecuteQuery<PlantState>(queryText, (stmt) => Deserialize<PlantState>(stmt, (int)PlantIndex.Payload));
             });
         }
+
+
+        public IEnumerable<UserState> GetUsers(Guid? UserId = null)
+        {
+
+            var filters = new Dictionary<string, Guid?>(){
+                    {"C.UserId",UserId}
+                }.Where(x => x.Value.HasValue).ToArray();
+
+            //if (filters.Length == 0)
+            //    throw new InvalidOperationException();
+            return this.ExecuteQuery(UserId ?? default(Guid), query =>
+            {
+
+
+                var queryText = string.Format(@"SELECT U.*,C.Status FROM Users U LEFT JOIN Collaborators C ON (U.UserId = C.UserId)");
+                if (filters.Length > 0)
+                {
+                    foreach (var x in filters)
+                        query.AddParameter(@"@" + x.Key, x.Value);
+                    queryText += string.Format(" WHERE ({0})",
+                        string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+                }
+                queryText += ";";
+
+
+
+                return query.ExecuteQuery<UserState>(queryText, (stmt) =>
+                {
+                    var u = Deserialize<UserState>(stmt, (int)UserIndex.Payload);
+                    u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)UserIndex.Collaborator) > 0 ? true : false;
+                    return u;
+                });
+            });
+        }
+
+
 
         protected T Deserialize<T>(Sqlite3Statement stmt, int index)
         {
