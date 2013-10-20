@@ -29,7 +29,7 @@ namespace Growthstories.Domain.Messaging
         }
     }
 
-    public class GSAppCreated : GSAppEvent, ICreateEvent
+    public class GSAppCreated : GSAppEvent, ICreateMessage
     {
 
         [JsonIgnore]
@@ -158,6 +158,31 @@ namespace Growthstories.Domain.Messaging
         {
             this.StreamId = cmd.StreamId;
             this.SyncStamp = cmd.SyncStamp;
+
+        }
+
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Syncstamp set to {0} for stream {1}", SyncStamp, StreamId);
+        }
+
+
+    }
+
+    public class Synchronized : GSAppEvent
+    {
+        [JsonProperty]
+        public Guid StreamId { get; protected set; }
+        [JsonProperty]
+        public long SyncStamp { get; protected set; }
+
+
+        protected Synchronized() { }
+        public Synchronized(Synchronize cmd)
+        {
+
 
         }
 

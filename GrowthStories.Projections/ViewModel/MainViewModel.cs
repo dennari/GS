@@ -126,7 +126,7 @@ namespace Growthstories.UI.ViewModel
             this.ClearDBCommand = new ReactiveCommand();
             this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
             this.SyncCommand = new ReactiveCommand();
-            this.SyncCommandAsync = this.SyncCommand.RegisterAsyncTask(async (x) => await this.App.Synchronize());
+            //this.SyncCommandAsync = this.SyncCommand.RegisterAsyncTask(async (x) => await this.App.Synchronize());
 
 
         }

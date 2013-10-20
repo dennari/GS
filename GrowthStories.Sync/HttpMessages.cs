@@ -17,6 +17,7 @@ namespace Growthstories.Sync
     {
         private readonly IJsonFactory jF;
 
+        private ITransportEvents Transporter;
 
         protected ICollection<SyncStreamInfo> _Streams;
         [JsonIgnore]
@@ -43,6 +44,23 @@ namespace Growthstories.Sync
             return jF.Serialize(this);
         }
 
+
+
+        public Task<ISyncPullResponse> GetResponse()
+        {
+            return Transporter.PullAsync(this);
+        }
+
+        public void SetTransporter(ITransportEvents transport)
+        {
+            Transporter = transport;
+        }
+
+
+        public bool IsEmpty
+        {
+            get { return Streams.Count > 0; }
+        }
     }
 
     public class HelperPullResponse
@@ -85,6 +103,8 @@ namespace Growthstories.Sync
     public class HttpPushRequest : ISyncPushRequest
     {
         private readonly IJsonFactory jF;
+        private ITransportEvents Transporter;
+
 
         [JsonProperty(PropertyName = Language.EVENTS)]
         public IEnumerable<IEventDTO> Events { get; set; }
@@ -122,6 +142,17 @@ namespace Growthstories.Sync
 
         public bool IsEmpty { get; set; }
 
+
+
+        public Task<ISyncPushResponse> GetResponse()
+        {
+            return Transporter.PushAsync(this);
+        }
+
+        public void SetTransporter(ITransportEvents transport)
+        {
+            Transporter = transport;
+        }
     }
 
     public class HttpPushResponse : HttpResponse, ISyncPushResponse
@@ -178,9 +209,9 @@ namespace Growthstories.Sync
         public static ISyncEventStreamDTO Translate(ISyncEventStream stream)
         {
             var r = new SyncEventStreamDTO();
-            r.SyncStamp = stream.SyncStamp;
-            r.StreamId = stream.StreamId;
-            r.Type = stream.Type == SyncStreamType.PLANT ? "PLANT" : "USER";
+            //r.SyncStamp = stream.SyncStamp;
+            //r.StreamId = stream.StreamId;
+            //r.Type = stream.Type == SyncStreamType.PLANT ? "PLANT" : "USER";
 
             return r;
         }

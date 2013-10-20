@@ -17,7 +17,7 @@ namespace Growthstories.Domain.Messaging
     #region PlantAction
 
     [DTOObject(DTOType.addComment, DTOType.addWatering, DTOType.addPhoto, DTOType.addFertilizing, DTOType.addMeasurement)]
-    public class PlantActionCreated : EventBase, ICreateEvent, IAggregateEvent<PlantActionState>
+    public class PlantActionCreated : EventBase, ICreateMessage, IAggregateEvent<PlantActionState>
     {
         [JsonIgnore]
         private Type _AggregateType;

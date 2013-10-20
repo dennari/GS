@@ -32,7 +32,6 @@ namespace Growthstories.UI.ViewModel
     public sealed class ListUsersViewModel : RoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         private readonly ITransportEvents Transporter;
-        private readonly IGSRepository Repository;
 
         public readonly IObservable<IUserListResponse> SearchResults;
         public readonly IObservable<List<CreateSyncStream>> SyncStreams;
@@ -58,12 +57,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public ListUsersViewModel(ITransportEvents transporter, IGSRepository repository, IGSAppViewModel app)
+        public ListUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
             : base(app)
         {
 
             Transporter = transporter;
-            this.Repository = repository;
             List = new ReactiveList<RemoteUser>();
             SearchCommand = new ReactiveCommand();
             ProgressIndicatorIsVisible = false;
@@ -137,9 +135,9 @@ namespace Growthstories.UI.ViewModel
                         if (!app.Model.HasUncommittedEvents)
                             return null;
 
-                        Repository.Save(app.Model);
+                        //Repository.Save(app.Model);
 
-                        await App.Synchronize();
+                        //await App.Synchronize();
                         //App.Router.NavigateBack.Execute(null);
                         return cmds;
                     })

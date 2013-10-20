@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     }
 
     #region Plant
-    public class CreatePlant : PlantCommand, ICreateCommand
+    public class CreatePlant : PlantCommand, ICreateMessage
     {
 
         public string Name { get; private set; }
@@ -46,7 +46,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Create plant {0}.", AggregateId);
+            return string.Format(@"Create plant {0}, {1}.", Name, AggregateId);
         }
 
 

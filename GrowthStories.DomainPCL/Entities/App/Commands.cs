@@ -11,7 +11,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region GSApp
-    public class CreateGSApp : AggregateCommand<GSApp>, ICreateCommand
+    public class CreateGSApp : AggregateCommand<GSApp>, ICreateMessage
     {
 
 
@@ -145,6 +145,22 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Set syncstamp to {0} for stream {1}", SyncStamp, StreamId);
         }
 
+
+    }
+
+    public class Synchronize : AggregateCommand<GSApp>
+    {
+
+        public Synchronize()
+            : base(GSAppState.GSAppId)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Synchronize.");
+        }
 
     }
 

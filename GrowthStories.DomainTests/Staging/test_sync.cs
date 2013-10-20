@@ -52,7 +52,7 @@ namespace Growthstories.DomainTests
             Assert.IsNotNullOrEmpty(Ctx.Username);
 
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
-            await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
 
             await App.Context.AuthorizeUser();
@@ -181,6 +181,9 @@ namespace Growthstories.DomainTests
             return originalRemoteEvents;
 
         }
+
+
+
 
 
         [Test]

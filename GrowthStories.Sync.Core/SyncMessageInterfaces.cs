@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 
 namespace Growthstories.Sync
@@ -153,6 +154,8 @@ namespace Growthstories.Sync
     public interface ISyncPullRequest : ISyncRequest
     {
         ICollection<SyncStreamInfo> Streams { get; }
+        Task<ISyncPullResponse> GetResponse();
+
     }
 
     public interface ISyncPullResponse : ISyncResponse
@@ -160,6 +163,7 @@ namespace Growthstories.Sync
         //IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
         ICollection<ISyncEventStream> Streams { get; }
         long SyncStamp { get; }
+
 
     }
 
@@ -171,7 +175,8 @@ namespace Growthstories.Sync
 
         ICollection<ISyncEventStream> Streams { get; }
         //IEnumerable<IEventDTO> Events { get; }
-        bool IsEmpty { get; }
+
+        Task<ISyncPushResponse> GetResponse();
 
     }
 
@@ -203,6 +208,10 @@ namespace Growthstories.Sync
     public interface ISyncRequest : ISyncCommunication
     {
         //ICollection<ISyncEventStream> Streams { get; }
+        void SetTransporter(ITransportEvents transport);
+        bool IsEmpty { get; }
+
+
     }
 
     public interface ISyncResponse : ISyncCommunication

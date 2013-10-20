@@ -62,5 +62,17 @@ namespace Growthstories.Domain.Entities
                 return (IGSAppState)this.State;
             }
         }
+
+
+        public bool CanHandle(IMessage cmd)
+        {
+            if (cmd is CreatePlant)
+                return true;
+            if (cmd is CreateUser)
+                return true;
+            if (cmd is BecomeFollower)
+                return true;
+            return false;
+        }
     }
 }

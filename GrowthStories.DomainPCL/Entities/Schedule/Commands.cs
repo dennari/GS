@@ -10,7 +10,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region Schedule
-    public class CreateSchedule : AggregateCommand<Schedule>, ICreateCommand
+    public class CreateSchedule : AggregateCommand<Schedule>, ICreateMessage
     {
 
         public long Interval { get; set; }

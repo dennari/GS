@@ -13,6 +13,13 @@ namespace Growthstories.Core
         Guid MessageId { get; set; }
     }
 
+    public interface IAggregateMessages
+    {
+        Guid AggregateId { get; }
+        IReadOnlyList<IMessage> Messages { get; }
+
+    }
+
     public interface IEvent : IMessage//, IEnumerable<KeyValuePair<string, string>>
     {
 
@@ -26,7 +33,7 @@ namespace Growthstories.Core
         TState AggregateState { get; set; }
     }
 
-    public interface ICreateEvent : IEvent
+    public interface ICreateMessage : IMessage
     {
         Type AggregateType { get; }
     }
@@ -41,7 +48,7 @@ namespace Growthstories.Core
     public interface IAggregateCommand : ICommand
     {
 
-        Type AggregateType { get; }
+        //Type AggregateType { get; }
 
         //DTOType StreamType { get; }
         Guid? AncestorId { get; set; }
@@ -52,8 +59,4 @@ namespace Growthstories.Core
         Guid? StreamAncestorId { get; set; }
     }
 
-    public interface ICreateCommand : IAggregateCommand
-    {
-
-    }
 }

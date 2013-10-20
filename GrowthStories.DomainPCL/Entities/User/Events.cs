@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
     #region User
 
     [DTOObject(DTOType.createUser)]
-    public class UserCreated : EventBase, ICreateEvent, IAggregateEvent<UserState>
+    public class UserCreated : EventBase, ICreateMessage, IAggregateEvent<UserState>
     {
         [JsonProperty]
         public string Username { get; private set; }

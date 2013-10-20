@@ -23,18 +23,32 @@ namespace Growthstories.Sync
     public interface IGSApp : IGSAggregate
     {
         IGSAppState State { get; }
+        bool CanHandle(IMessage msg);
+    }
+
+    public interface ISyncInstance
+    {
+        ISyncPullRequest PullReq { get; }
+        ISyncPushRequest PushReq { get; }
+        ISyncPullResponse PullResp { get; }
+        ISyncPushResponse PushResp { get; }
+
+        Task<ISyncPullResponse> Pull();
+        Task<ISyncPushResponse> Push();
+
+
     }
 
     public interface ISynchronizerService
     {
-        Task<SyncResult> Synchronize(IGSApp app, ISyncPullRequest aPullReq = null, ISyncPushRequest aPushReq = null);
-        Task<bool> CreateUserAsync(Guid userId);
+        ISyncInstance Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq);
+        //Task<bool> CreateUserAsync(Guid userId);
         //IEnumerable<ISyncEventStream> Pending();
         //ISyncPullRequest GetPullRequest();
 
         //ISyncPushRequest GetPushRequest();
 
-        ITransportEvents Transporter { get; }
+        //ITransportEvents Transporter { get; }
 
         //void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null);
 

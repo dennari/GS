@@ -45,7 +45,7 @@ namespace Growthstories.DomainTests
         {
             Bind<IHttpClient, ITransportEvents, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
             Bind<IEndpoint, FakeEndpoint>().To<FakeEndpoint>().InSingletonScope();
-            Bind<IRequestFactory, IResponseFactory, FakeRequestResponseFactory>().To<FakeRequestResponseFactory>().InSingletonScope();
+            Bind<IRequestFactory, IResponseFactory, RequestResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
             Bind<FakeHttpRequestFactory>().To<FakeHttpRequestFactory>().InSingletonScope();
 
 
@@ -171,12 +171,8 @@ namespace Growthstories.DomainTests
 
 
             Bind<IGSRepository>().To<GSRepository>().InSingletonScope();
-            Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope().OnActivation((_, x) =>
-            {
-                x.OtherHandlers[typeof(CreateUser)] = new List<Guid>() { GSAppState.GSAppId };
-                x.OtherHandlers[typeof(CreatePlant)] = new List<Guid>() { GSAppState.GSAppId };
-                x.OtherHandlers[typeof(BecomeFollower)] = new List<Guid>() { GSAppState.GSAppId };
-            });
+            Bind<IDispatchCommands>().To<CommandHandler>().InSingletonScope();
+
             Bind<ISynchronizerService>().To<SynchronizerService>().InSingletonScope();
 
             //Bind<IRegisterHandlers>().To<SynchronizerCommandHandler>().InSingletonScope();

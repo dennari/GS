@@ -13,7 +13,7 @@ namespace Growthstories.Sync
 
         public Func<ISyncPullRequest, Tuple<HttpPullResponse, Func<ISyncPushRequest, ISyncPushResponse>>> BuildPullResponse;
 
-        private ISyncPullRequest LastPullRequest;
+        //private ISyncPullRequest LastPullRequest;
         private ISyncPushRequest LastPushRequest;
 
         private ITranslateEvents Translator;

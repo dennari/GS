@@ -81,7 +81,6 @@
     <Compile Include="Fakes\FakeHttpRequestResponseFactory.cs" />
     <Compile Include="RequestResponseFactory.cs" />
     <Compile Include="Fakes\FakeUserService.cs" />
-    <Compile Include="Fakes\FakeRequestResponseFactory.cs" />
     <Compile Include="Fakes\FakeEndpoint.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="DTO\DTOExtensions.cs" />

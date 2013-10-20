@@ -18,13 +18,15 @@ namespace Growthstories.Core
     }
 
 
-    public interface IGSAggregate : IAggregate, IApplyState, ICommandHandler
+    public interface IGSAggregate : IAggregate, IApplyState
     {
         void SetEventFactory(IEventFactory factory);
         SyncStreamType StreamType { get; }
         StreamType SyncStreamType { get; }
         bool UIPersistable { get; }
-        void ApplyRemoteEvent(IEvent Event);
+        void Handle(IMessage msg);
+
+        //void ApplyRemoteEvent(IEvent Event);
         bool HasUncommittedEvents { get; }
 
         void Resolve(IEvent[] local, IEvent[] remote, ISet<Guid> duplicates);
@@ -32,16 +34,16 @@ namespace Growthstories.Core
 
     public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
         where TState : AggregateState, new()
-        where TCreate : ICreateEvent
+        where TCreate : ICreateMessage
     {
 
-        public void Handle(ICommand @event)
+        public void Handle(IMessage @event)
         {
             if (@event == null)
                 throw new ArgumentNullException("event");
 
             if (this.applying)
-                throw new InvalidOperationException(string.Format("Can't find handler for command {0}", @event.GetType().ToString()));
+                throw new InvalidOperationException(string.Format("Can't find handler for message {0}", @event.GetType().ToString()));
             try
             {
                 this.applying = true;

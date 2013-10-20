@@ -93,19 +93,6 @@ namespace Growthstories.Sync
         }
 
 
-        //public ISyncPullRequest CreatePullRequest()
-        //{
-
-        //    return CreatePullRequest(GetPullStreams());
-        //}
-
-        private IEnumerable<ISyncEventStream> GetPullStreams()
-        {
-            foreach (var streamHead in SyncPersistence.GetAllSyncStreams())
-            {
-                yield return new SyncEventStream(streamHead, Persistence, SyncPersistence);
-            }
-        }
 
         public ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams)
         {

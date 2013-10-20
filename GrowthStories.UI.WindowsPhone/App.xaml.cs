@@ -9,6 +9,7 @@ using Microsoft.Phone.Shell;
 using Growthstories.UI.WindowsPhone.Resources;
 using System.Globalization;
 using ReactiveUI.Mobile;
+using BugSense;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -57,6 +58,8 @@ namespace Growthstories.UI.WindowsPhone
 
             //var host = RxApp.DependencyResolver.GetService<ISuspensionHost>();
             //host.SetupDefaultSuspendResume();
+            // BugSense
+            BugSenseHandler.Instance.InitAndStartSession(this, "e73c0669");
 
         }
 
@@ -95,14 +98,14 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         // Code to execute on Unhandled Exceptions
-        private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
-        {
-            if (Debugger.IsAttached)
-            {
-                // An unhandled exception has occurred; break into the debugger
-                Debugger.Break();
-            }
-        }
+        //private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
+        //{
+        //    if (Debugger.IsAttached)
+        //    {
+        //        // An unhandled exception has occurred; break into the debugger
+        //        Debugger.Break();
+        //    }
+        //}
 
         #region Phone application initialization
 

@@ -15,7 +15,7 @@ namespace Growthstories.Domain
     {
 
 
-        IGSAggregate Handle(IAggregateCommand c);
+        IGSAggregate Handle(IMessage c);
 
     }
 
@@ -41,32 +41,32 @@ namespace Growthstories.Domain
 
     }
 
-    public interface IRegisterHandlers
-    {
-        IDictionary<Tuple<Type, Type>, Action<IGSAggregate, IAggregateCommand>> RegisterHandlers();
-        IDictionary<Tuple<Type, Type>, Func<IGSAggregate, IAggregateCommand, Task<object>>> RegisterAsyncHandlers();
+    //public interface IRegisterHandlers
+    //{
+    //    IDictionary<Tuple<Type, Type>, Action<IGSAggregate, IAggregateCommand>> RegisterHandlers();
+    //    IDictionary<Tuple<Type, Type>, Func<IGSAggregate, IAggregateCommand, Task<object>>> RegisterAsyncHandlers();
 
-    }
+    //}
 
-    public interface IRegisterEventHandlers
-    {
-        void Register<TEvent>(IEventHandler<TEvent> handler)
-            where TEvent : IEvent;
+    //public interface IRegisterEventHandlers
+    //{
+    //    void Register<TEvent>(IEventHandler<TEvent> handler)
+    //        where TEvent : IEvent;
 
-        void RegisterAsync<TEvent>(IAsyncEventHandler<TEvent> handler)
-            where TEvent : IEvent;
+    //    void RegisterAsync<TEvent>(IAsyncEventHandler<TEvent> handler)
+    //        where TEvent : IEvent;
 
-    }
+    //}
 
-    public interface IRegisterCommandHandlers
-    {
-        void Register<TCommand>(ICommandHandler<TCommand> handler)
-            where TCommand : ICommand;
+    //public interface IRegisterCommandHandlers
+    //{
+    //    void Register<TCommand>(ICommandHandler<TCommand> handler)
+    //        where TCommand : ICommand;
 
-        void RegisterAsync<TCommand>(IAsyncCommandHandler<TCommand> handler)
-            where TCommand : ICommand;
+    //    void RegisterAsync<TCommand>(IAsyncCommandHandler<TCommand> handler)
+    //        where TCommand : ICommand;
 
-    }
+    //}
 
     public static class MBExtensions
     {

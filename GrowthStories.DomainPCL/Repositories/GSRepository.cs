@@ -27,6 +27,7 @@ namespace Growthstories.Domain
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
         private readonly IUIPersistence UIPersistence;
+        private IPersistSyncStreams Persistence;
 
         public GSEventStore EventStore
         {
@@ -37,13 +38,16 @@ namespace Growthstories.Domain
             GSEventStore eventStore,
             IDetectConflicts conflictDetector,
             IAggregateFactory factory,
-            IUIPersistence uipersistence)
+            IUIPersistence uipersistence,
+            IPersistSyncStreams persistence
+            )
         {
 
             this.eventStore = eventStore;
             this.conflictDetector = conflictDetector;
             this.factory = factory;
             this.UIPersistence = uipersistence;
+            this.Persistence = persistence;
 
         }
 
@@ -153,19 +157,7 @@ namespace Growthstories.Domain
             return this.streams[id] = stream;
         }
 
-        public void SaveRemote(IGSAggregate aggregate, long syncStamp)
-        {
-            var stream = this.GetStreamForAggregate(aggregate);
-            stream.SyncStamp = syncStamp;
 
-            foreach (var e in aggregate.GetUncommittedEvents())
-            {
-                stream.AddRemote((IEvent)e);
-            }
-
-            SaveStream(aggregate, stream, true);
-
-        }
         public void Save(IGSAggregate aggregate)
         {
 
@@ -176,7 +168,7 @@ namespace Growthstories.Domain
 
         }
 
-        private void SaveStream(IGSAggregate aggregate, SyncEventStream stream, bool isRemote = false)
+        private void SaveStream(IGSAggregate aggregate, SyncEventStream stream)
         {
             while (true)
             {
@@ -185,11 +177,7 @@ namespace Growthstories.Domain
                 try
                 {
                     UIPersistence.Save(aggregate);
-
-                    if (isRemote)
-                        stream.CommitRemoteChanges(Guid.NewGuid());
-                    else
-                        stream.CommitChanges(Guid.NewGuid());
+                    stream.CommitChanges(Guid.NewGuid());
                     aggregate.ClearUncommittedEvents();
                     return;
                 }
@@ -290,7 +278,7 @@ namespace Growthstories.Domain
             if (aggregate == null)
             {
 
-                var createEvent = stream.CommittedEvents.First().Body as ICreateEvent;
+                var createEvent = stream.CommittedEvents.First().Body as ICreateMessage;
                 if (createEvent != null)
                     aggregate = (IGSAggregate)factory.Build(createEvent.AggregateType);
             }
@@ -315,5 +303,17 @@ namespace Growthstories.Domain
         //    PlayById(aggregate, id);
         //    return aggregate;
         //}
+
+
+        void Save(IGSAggregate[] aggregates)
+        {
+            Persistence.RunInTransaction(() =>
+            {
+                foreach (var aggregate in aggregates)
+                    Save(aggregate);
+            });
+        }
+
+
     }
 }

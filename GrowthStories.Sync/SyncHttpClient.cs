@@ -49,70 +49,52 @@ namespace Growthstories.Sync
 
 
 
-        public Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
+        public async Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-            return Task.Run<ISyncPushResponse>(async () =>
-            {
-                var resp = await SendAndGetBodyAsync(CreatePushRequest(request));
-                return ResponseFactory.CreatePushResponse(resp.Item1, resp.Item2);
+            var resp = await SendAndGetBodyAsync(CreatePushRequest(request));
+            return ResponseFactory.CreatePushResponse(resp.Item1, resp.Item2);
 
-            });
         }
 
 
-        public Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
+        public async Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-            return Task.Run<ISyncPullResponse>(async () =>
-            {
-                var resp = await SendAndGetBodyAsync(CreatePullRequest(request));
-                return ResponseFactory.CreatePullResponse(resp.Item1, resp.Item2);
-            });
+            var resp = await SendAndGetBodyAsync(CreatePullRequest(request));
+            return ResponseFactory.CreatePullResponse(resp.Item1, resp.Item2);
         }
 
-        public Task<IAuthResponse> RequestAuthAsync(string username, string password)
+        public async Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
-            return Task.Run<IAuthResponse>(async () =>
-            {
-                var resp = await SendAndGetBodyAsync(CreateAuthRequest(username, password));
-                return ResponseFactory.CreateAuthResponse(resp.Item1, resp.Item2);
-            });
+            var resp = await SendAndGetBodyAsync(CreateAuthRequest(username, password));
+            return ResponseFactory.CreateAuthResponse(resp.Item1, resp.Item2);
         }
 
 
-        public Task<IUserListResponse> ListUsersAsync(string username)
+        public async Task<IUserListResponse> ListUsersAsync(string username)
         {
-            return Task.Run(async () =>
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserListUri(username));
-                var resp = await SendAndGetBodyAsync(request);
-                return ResponseFactory.CreateUserListResponse(resp.Item1, resp.Item2);
-            });
+            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserListUri(username));
+            var resp = await SendAndGetBodyAsync(request);
+            return ResponseFactory.CreateUserListResponse(resp.Item1, resp.Item2);
         }
 
-        public Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
+        public async Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
         {
-            return Task.Run(async () =>
-            {
-                var resp = await SendAndGetBodyAsync(new HttpRequestMessage(HttpMethod.Post,
-                        Endpoint.PhotoUploadUri));
-                return ((RequestResponseFactory)ResponseFactory).CreatePhotoUploadUriResponse(resp.Item1, resp.Item2);
-            });
+            var resp = await SendAndGetBodyAsync(new HttpRequestMessage(HttpMethod.Post,
+                    Endpoint.PhotoUploadUri));
+            return ((RequestResponseFactory)ResponseFactory).CreatePhotoUploadUriResponse(resp.Item1, resp.Item2);
         }
 
-        public Task<HttpResponseMessage> Upload(Uri uri, Stream file)
+        public async Task<HttpResponseMessage> Upload(Uri uri, Stream file)
         {
-            return Task.Run(async () =>
-            {
-                var req = new HttpRequestMessage(HttpMethod.Post, uri);
-                var form = new MultipartFormDataContent();
-                form.Add(new StreamContent(file), "file", "filename");
+            var req = new HttpRequestMessage(HttpMethod.Post, uri);
+            var form = new MultipartFormDataContent();
+            form.Add(new StreamContent(file), "file", "filename");
 
-                req.Content = form;
+            req.Content = form;
 
 
-                return await SendAsync(req);
+            return await SendAsync(req);
 
-            });
         }
 
 
@@ -124,16 +106,12 @@ namespace Growthstories.Sync
             return Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
 
-        protected Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
+        protected async Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            return Task.Run(async () =>
-            {
-                var r = await SendAsync(request);
-                var s = await r.Content.ReadAsStringAsync();
-                Logger.Info("[RESPONSEBODY]\n" + s);
-                return Tuple.Create(r, s);
-
-            });
+            var r = await SendAsync(request);
+            var s = await r.Content.ReadAsStringAsync();
+            Logger.Info("[RESPONSEBODY]\n" + s);
+            return Tuple.Create(r, s);
         }
 
 

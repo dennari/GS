@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     }
 
     #region PlantAction
-    public class CreatePlantAction : PlantActionCommand, ICreateCommand
+    public class CreatePlantAction : PlantActionCommand, ICreateMessage
     {
 
         public PlantActionType Type { get; private set; }

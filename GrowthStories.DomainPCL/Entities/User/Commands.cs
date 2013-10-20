@@ -10,7 +10,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region User
-    public class CreateUser : AggregateCommand<User>, ICreateCommand
+    public class CreateUser : AggregateCommand<User>, ICreateMessage
     {
 
         public string Username { get; private set; }

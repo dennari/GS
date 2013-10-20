@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     #region Schedule
 
     [DTOObject(DTOType.createIntervalSchedule)]
-    public class ScheduleCreated : EventBase, ICreateEvent
+    public class ScheduleCreated : EventBase, ICreateMessage
     {
 
         [JsonIgnore]

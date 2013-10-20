@@ -14,7 +14,7 @@ namespace Growthstories.Sync
 
         //void CommitPullChanges(Guid commitId);
 
-        GSCommit[] Commits { get; }
+        Commit[] Commits { get; }
 
         IEnumerable<IEventDTO> Translate(ITranslateEvents translator);
 
@@ -22,16 +22,9 @@ namespace Growthstories.Sync
 
         ICollection<IEvent> UncommittedRemoteEvents { get; }
 
-        void CommitRemoteChanges(Guid commitId);
-
-        /// <summary>
-        /// Commits the changes to durable storage.
-        bool MarkCommitsSynchronized(ISyncPushResponse pushResp = null);
-
         void Add(IEvent e, bool setVersion = false);
 
-        SyncStreamType Type { get; }
-        long SyncStamp { get; }
+
     }
 
     public interface ISyncEventStreamDTO

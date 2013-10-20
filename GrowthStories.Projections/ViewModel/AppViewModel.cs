@@ -40,7 +40,7 @@ namespace Growthstories.UI.ViewModel
         GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
-        Task<SyncResult> Synchronize();
+        //Task<SyncResult> Synchronize();
 
         //IObservable<IUserViewModel> Users();
         //IObservable<IGardenViewModel> Gardens { get; }
@@ -210,7 +210,6 @@ namespace Growthstories.UI.ViewModel
 
             resolver.RegisterLazySingleton(() => new ListUsersViewModel(
                 Kernel.Get<ITransportEvents>(),
-                Kernel.Get<IGSRepository>(),
                 this), typeof(ListUsersViewModel));
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
@@ -609,17 +608,17 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        ISynchronizerService _SyncService;
-        public Task<SyncResult> Synchronize()
-        {
-            if (_SyncService == null)
-                _SyncService = Kernel.Get<ISynchronizerService>();
+        //ISynchronizerService _SyncService;
+        //public Task<SyncResult> Synchronize()
+        //{
+        //    if (_SyncService == null)
+        //        _SyncService = Kernel.Get<ISynchronizerService>();
 
 
 
-            //var syncStreams = ;
-            return _SyncService.Synchronize(Model);
-        }
+        //    //var syncStreams = ;
+        //    return _SyncService.Synchronize(Model);
+        //}
 
         public PageOrientation _Orientation;
         public PageOrientation Orientation

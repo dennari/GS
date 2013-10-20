@@ -347,10 +347,10 @@ namespace Growthstories.UI.Persistence
                 Logger.Verbose("UI Persistence: executing command");
                 T rowsAffected = default(T);
                 var Connection = ConnectionFac.GetConnection();
-                Connection.RunInTransaction(() =>
-                {
-                    rowsAffected = command(Connection, Connection.CreateCommand(""));
-                });
+                //Connection.RunInTransaction(() =>
+                //{
+                rowsAffected = command(Connection, Connection.CreateCommand(""));
+                //});
 
 
                 Logger.Verbose("UI Persistence: executed command, {0} rows affeted", rowsAffected);

@@ -6,6 +6,7 @@ using EventStore.Persistence;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
 using Microsoft.CSharp.RuntimeBinder;
 using ReactiveUI;
 //using Microsoft.CSharp.RuntimeBinder;
@@ -21,82 +22,98 @@ namespace Growthstories.Domain.Services
     public class CommandHandler : IDispatchCommands
     {
 
-        readonly IGSRepository _repository;
-        readonly IAggregateFactory _factory;
-        private readonly IPersistSyncStreams _persistence;
+        readonly IGSRepository Repository;
+        readonly IAggregateFactory Factory;
+        //private readonly IPersistSyncStreams _persistence;
         private static ILog Logger = LogFactory.BuildLogger(typeof(CommandHandler));
         //private readonly IMessageBus _bus;
+        private readonly ISynchronizerService SyncService;
+        private readonly ITransportEvents Transporter;
+        private readonly IRequestFactory RequestFactory;
 
-        public readonly IDictionary<Type, IList<Guid>> OtherHandlers;
-        private readonly IUIPersistence UIPersistence;
+        public IGSApp App { get; set; }
+        //private readonly IUIPersistence UIPersistence;
+        private readonly object gate = new object();
 
         public CommandHandler(
             IGSRepository store,
             IAggregateFactory factory,
-            IPersistSyncStreams persistence
+            ITransportEvents transporter,
+            IRequestFactory requestFactory,
+            ISynchronizerService syncService
             )
             : base()
         {
-            _repository = store;
-            _persistence = persistence;
-            _factory = factory;
+            Repository = store;
+            SyncService = syncService;
+            //_persistence = persistence;
+            Factory = factory;
+            Transporter = transporter;
+            RequestFactory = requestFactory;
 
-            OtherHandlers = new Dictionary<Type, IList<Guid>>();
 
         }
 
 
 
-        protected TEntity Construct<TEntity>(IAggregateCommand c) where TEntity : class, IGSAggregate, new()
+        protected IGSAggregate Construct(IMessage c)
         {
-            Logger.Info(c.ToString());
-            var u = _factory.Build<TEntity>();
-            _repository.PlayById(u, c.AggregateId);
-            return u;
+            ICreateMessage cc = c as ICreateMessage;
+            return cc == null ? Repository.GetById(c.AggregateId) : (IGSAggregate)Factory.Build(cc.AggregateType);
+
         }
 
-        //public void Handle(ICommand e)
 
-
-
-        public IGSAggregate Handle(IAggregateCommand c)
+        public IGSAggregate Handle(IAggregateMessages msgs)
         {
-            IGSAggregate aggregate = null;
-            ICreateCommand cc = c as ICreateCommand;
-            if (cc != null)
-            {
-                aggregate = (IGSAggregate)_factory.Build(cc.AggregateType);
-                _repository.PlayById(aggregate, c.AggregateId);
-            }
-
-            if (aggregate == null)
-            {
-                aggregate = _repository.GetById(c.AggregateId);
-            }
-
-            var handlers = new List<IGSAggregate>() { aggregate };
-
-            IList<Guid> OtherIds = null;
-            if (OtherHandlers.TryGetValue(c.GetType(), out OtherIds))
-                handlers.AddRange(OtherIds.Select(x => _repository.GetById(x)));
-            Logger.Info("Handling command:" + c.ToString());
 
 
-            foreach (var agg in handlers)
-                agg.Handle(c);
+            var aggregate = Construct(msgs.Messages[0]);
 
+            foreach (var msg in msgs.Messages)
+                aggregate.Handle(msg);
 
-            //var changes = aggregate.GetUncommittedEvents();
-            _persistence.RunInTransaction(() =>
-            {
-                foreach (var agg in handlers)
-                    _repository.Save(agg);
-            });
-
-
+            Repository.Save(aggregate);
 
             return aggregate;
 
+        }
+
+
+        protected void Save(IGSAggregate[] gs)
+        {
+            lock (this.gate)
+            {
+                Repository.Save(gs);
+            }
+        }
+
+        public Task<List<IGSAggregate>> Handle(Synchronize c)
+        {
+            if (this.App == null)
+                throw new InvalidOperationException("No knowledge of the GSApp aggregate, which is needed for sync.");
+
+
+            var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(App.State.SyncStreams.ToArray()), RequestFactory.CreatePushRequest());
+
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty)
+                return null;
+
+            return Task.Run(async () =>
+            {
+                var pullResp = await s.Pull();
+                if (pullResp != null && pullResp.StatusCode == GSStatusCode.OK)
+                {
+
+                }
+
+
+                await s.Push();
+
+                return new List<IGSAggregate>();
+            });
+
+            //return this.App;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Growthstories.DomainTests
 
             TestAssignUser();
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
-            await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
 
             await App.Context.AuthorizeUser();

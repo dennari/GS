@@ -153,7 +153,7 @@ namespace Growthstories.Core
 
     }
 
-    public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : ICreateEvent
+    public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : ICreateMessage
     {
 
         private bool applying = false;
