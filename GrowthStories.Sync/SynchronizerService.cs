@@ -59,7 +59,7 @@ namespace Growthstories.Sync
             //if (Transporter.AuthToken == null)
             //    await AuthService.AuthorizeUser();
 
-            ISyncPushRequest pushReq = aPushReq ?? RequestFactory.CreatePushRequest();
+            ISyncPushRequest pushReq = aPushReq;
             ISyncPullRequest pullReq = aPullReq;
 
             return new SyncInstance(pullReq, pushReq);
@@ -257,110 +257,74 @@ namespace Growthstories.Sync
         }
 
 
-        public void HandleRemoteStreams(IGSAggregate[] aggregates)
+        public IGSAggregate HandleRemoteMessages(IAggregateMessages msgs)
         {
 
             if (PullResp == null)
                 throw new InvalidOperationException();
+            if (msgs.Aggregate == null)
+                throw new ArgumentException("Aggregate needs to be set");
+
             //if(PushReq != null && PushRew)
 
             var syncStampCommands = new List<SetSyncStamp>();
 
-            //var aggregates = new List<IGSAggregate>();
-            var zip = from a in aggregates
-                      join s in PullResp.Streams on a.Id equals s.StreamId
-                      select new { Aggregate = a, Stream = s };
 
-            foreach (var x in zip)
+            var duplicates = new HashSet<Guid>();
+            var mergeFlag = false;
+            int rounds = 0;
+            do
             {
-
-                //if (stream.UncommittedRemoteEvents.Count == 0)
-                //    continue;
-                //if (stream.StreamId == UserState.UnregUserId)
-                //    continue;
-
-
-
-                //IGSAggregate aggregate = null;
-                //try
-                //{
-                //    aggregate = Repository.GetById(stream.StreamId);
-                //}
-                //catch (DomainError err)
-                //{
-                //    var first = stream.UncommittedRemoteEvents.First();
-                //    var cFirst = first as ICreateEvent;
-
-                //    if (cFirst == null)
-                //    {
-                //        if (stream.UncommittedRemoteEvents.Count == 1 && IsRelationshipNotification(first))
-                //        {
-                //            //this.HandleRelationshipNotification(first);
-                //            continue;
-                //        }
-                //        else
-                //            throw err;
-                //    }
-
-                //    aggregate = Factory.Build(cFirst.AggregateType);
-                //}
-
-                var duplicates = new HashSet<Guid>();
-                var mergeFlag = false;
-
-                do
+                mergeFlag = false;
+                rounds++;
+                foreach (var e in msgs.Messages)
                 {
-                    mergeFlag = false;
-                    foreach (var e in x.Stream.UncommittedRemoteEvents)
+                    try
                     {
-                        try
-                        {
-                            x.Aggregate.Handle(e);
-                        }
-                        catch (DomainError err2)
-                        {
-
-                            if (err2.Name == "duplicate_event")
-                            {
-                                //Logger.Info(err2.Message);
-                                duplicates.Add(e.MessageId);
-                            }
-                            else if (err2.Name == "version_mismatch")
-                            {
-                                Merge(x.Aggregate, x.Stream, duplicates);
-                                mergeFlag = true;
-                                break;
-                            }
-                            else
-                                throw err2;
-
-                        }
+                        msgs.Aggregate.Handle(e);
                     }
-                } while (mergeFlag);
+                    catch (DomainError err2)
+                    {
 
+                        if (err2.Name == "duplicate_event")
+                        {
+                            //Logger.Info(err2.Message);
+                            duplicates.Add(e.MessageId);
+                        }
+                        else if (err2.Name == "version_mismatch")
+                        {
+                            //Merge(x.Aggregate, x.Stream, duplicates);
+                            mergeFlag = true;
+                            break;
+                        }
+                        else
+                            throw err2;
 
+                    }
+                }
+            } while (mergeFlag && rounds < 2);
 
-
-                //aggregates.Add(aggregate);
-
-
-                //Repository.SaveRemote(aggregate, resp.SyncStamp);
-                //if (aggregate.SyncStreamType != StreamType.NULL)
-                //    syncStampCommands.Add(new SetSyncStamp(aggregate.Id, resp.SyncStamp));
-
-
-            }
-
-
-            //if (syncStampCommands.Count > 0)
-            //{
-            //    foreach (var cmd in syncStampCommands)
-            //        app.Handle(cmd);
-            //    //Repository.Save(app);
-            //}
-            //return aggregates;
-
+            return msgs.Aggregate;
         }
+
+        //aggregates.Add(aggregate);
+
+
+        //Repository.SaveRemote(aggregate, resp.SyncStamp);
+        //if (aggregate.SyncStreamType != StreamType.NULL)
+        //    syncStampCommands.Add(new SetSyncStamp(aggregate.Id, resp.SyncStamp));
+
+
+
+        //if (syncStampCommands.Count > 0)
+        //{
+        //    foreach (var cmd in syncStampCommands)
+        //        app.Handle(cmd);
+        //    //Repository.Save(app);
+        //}
+        //return aggregates;
+
+
 
 
         private bool IsRelationshipNotification(IEvent e)
@@ -376,15 +340,15 @@ namespace Growthstories.Sync
 
         private void Merge(IGSAggregate aggregate, ISyncEventStream remote, ISet<Guid> duplicates)
         {
-            ISyncEventStream local = null;
-            if (PushReq != null && (local = PushReq.Streams.FirstOrDefault(x => x.StreamId == remote.StreamId)) != null)
+            IAggregateMessages local = null;
+            if (PushReq != null && (local = PushReq.Streams.FirstOrDefault(x => x.AggregateId == remote.StreamId)) != null)
             {
 
-                aggregate.Resolve(
-                    local.CommittedEvents.Select(x => (IEvent)x.Body).ToArray(),
-                    remote.UncommittedRemoteEvents.ToArray(),
-                    duplicates
-                 );
+                //aggregate.Resolve(
+                //    local.Messages.ToArray(),
+                //    remote.UncommittedRemoteEvents.ToArray(),
+                //    duplicates
+                // );
 
                 var httpreq = PushReq as HttpPushRequest;
                 if (httpreq != null)

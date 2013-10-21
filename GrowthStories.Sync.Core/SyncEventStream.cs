@@ -28,7 +28,6 @@ namespace Growthstories.Sync
         private readonly IList<IEvent> Events = new List<IEvent>();
 
 
-        private readonly ICommitEvents Persistence;
         private readonly IPersistSyncStreams SyncPersistence;
 
         private static readonly ILog Logger = LogFactory.BuildLogger(typeof(SyncEventStream));
@@ -39,9 +38,8 @@ namespace Growthstories.Sync
 
         public SyncEventStream(
             IGrouping<Guid, GSCommit> commits,
-            ICommitEvents persistence,
             IPersistSyncStreams syncPersistence)
-            : this(commits.Key, persistence, syncPersistence)
+            : this(commits.Key, syncPersistence)
         {
             if (commits == null)
                 throw new ArgumentNullException();
@@ -54,8 +52,8 @@ namespace Growthstories.Sync
 
         }
 
-        public SyncEventStream(IGrouping<Guid, IEvent> events, ICommitEvents persistence, IPersistSyncStreams syncPersistence) :
-            this(events.Key, persistence, syncPersistence)
+        public SyncEventStream(IGrouping<Guid, IEvent> events, IPersistSyncStreams syncPersistence) :
+            this(events.Key, syncPersistence)
         {
 
             //var commits = persistence.GetFrom(this.StreamId, 0, int.MaxValue);
@@ -89,33 +87,30 @@ namespace Growthstories.Sync
 
 
 
-        public SyncEventStream(Guid streamId, ICommitEvents persistence, IPersistSyncStreams syncPersistence)
-            : base(streamId, persistence)
+        public SyncEventStream(Guid streamId, IPersistSyncStreams syncPersistence)
+            : base(streamId, syncPersistence)
         {
 
-            this.Persistence = persistence;
             this.SyncPersistence = syncPersistence;
 
         }
 
 
-        public SyncEventStream(StreamHead streamHead, ICommitEvents persistence, IPersistSyncStreams syncPersistence)
-            : base(streamHead.StreamId, persistence)
+        public SyncEventStream(StreamHead streamHead, IPersistSyncStreams syncPersistence)
+            : base(streamHead.StreamId, syncPersistence)
         {
 
-            this.Persistence = persistence;
             this.SyncPersistence = syncPersistence;
             this._StreamRevision = streamHead.HeadRevision;
 
         }
 
-        public SyncEventStream(Guid streamId, ICommitEvents persistence, int minRevision, int maxRevision, IPersistSyncStreams syncPersistence)
-            : base(streamId, persistence)
+        public SyncEventStream(Guid streamId, int minRevision, int maxRevision, IPersistSyncStreams syncPersistence)
+            : base(streamId, syncPersistence)
         {
             this.SyncPersistence = syncPersistence;
-            this.Persistence = persistence;
 
-            this.Commits = persistence.GetFrom(streamId, minRevision, maxRevision).Cast<GSCommit>().ToArray();
+            this.Commits = syncPersistence.GetFrom(streamId, minRevision, maxRevision).Cast<GSCommit>().ToArray();
             if (minRevision > 0 && this.Commits.Length == 0)
                 throw new StreamNotFoundException();
 
@@ -148,11 +143,10 @@ namespace Growthstories.Sync
 
         }
 
-        public SyncEventStream(Snapshot snapshot, ICommitEvents persistence, int maxRevision, IPersistSyncStreams syncPersistence)
-            : base(snapshot, persistence, maxRevision)
+        public SyncEventStream(Snapshot snapshot, int maxRevision, IPersistSyncStreams syncPersistence)
+            : base(snapshot, syncPersistence, maxRevision)
         {
             this.SyncPersistence = syncPersistence;
-            this.Persistence = persistence;
         }
 
 
@@ -174,18 +168,18 @@ namespace Growthstories.Sync
             this.Add(e, true);
         }
 
-        public IEnumerable<IEventDTO> Translate(ITranslateEvents translator)
-        {
-            return this.CommittedEvents
-                .Select(x =>
-                {
-                    var re = translator.Out((IEvent)x.Body);
-                    if (re != null)
-                        re.AggregateVersion += this.RemoteEvents.Count();
-                    return re;
-                });
+        //public IEnumerable<IEventDTO> Translate(ITranslateEvents translator)
+        //{
+        //    return this.CommittedEvents
+        //        .Select(x =>
+        //        {
+        //            var re = translator.Out((IEvent)x.Body);
+        //            if (re != null)
+        //                re.AggregateVersion += this.RemoteEvents.Count();
+        //            return re;
+        //        });
 
-        }
+        //}
 
         public void Add(IEvent e, bool setVersion = false)
         {

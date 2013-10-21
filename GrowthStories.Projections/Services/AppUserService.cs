@@ -23,10 +23,12 @@ namespace Growthstories.UI.Services
         private readonly ITransportEvents Transporter;
         private readonly IMessageBus Bus;
         private readonly IDispatchCommands Handler;
+        private IRequestFactory RequestFactory;
 
         public AppUserService(
             IMessageBus bus,
             ITransportEvents transporter,
+            IRequestFactory requestFactory,
             IDispatchCommands handler
             )
         {
@@ -34,6 +36,7 @@ namespace Growthstories.UI.Services
             this.Transporter = transporter;
             this.Bus = bus;
             this.Handler = handler;
+            this.RequestFactory = requestFactory;
         }
 
 
@@ -98,17 +101,13 @@ namespace Growthstories.UI.Services
             return Task.Run(async () =>
             {
 
-                //var pushReq = RequestFactory.CreatePushRequest();
+                var pushResp = await Transporter.PushAsync(RequestFactory.CreateUserSyncRequest(AuthUser.Id));
+                if (pushResp.StatusCode != GSStatusCode.OK)
+                    throw new InvalidOperationException("Can't synchronize user");
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
 
-                //var pushResponse = await Transporter.PushAsync(pushReq);
 
-
-                //if (pushResponse.StatusCode != GSStatusCode.OK)
-                //    throw new InvalidOperationException("Can't create user");
-
-                //SyncPersistence.MarkCommitAsSynchronized(UserCreateCommit.First());
 
                 var authResponse = await Transporter.RequestAuthAsync(AuthUser.Username, AuthUser.Password);
                 if (authResponse.StatusCode != GSStatusCode.OK)

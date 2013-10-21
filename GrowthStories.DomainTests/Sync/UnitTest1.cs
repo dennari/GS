@@ -14,6 +14,8 @@ using System.Reactive.Subjects;
 using System.Collections.Generic;
 using Growthstories.Domain.Entities;
 using CommonDomain;
+using EventStore.Persistence;
+using EventStore;
 
 namespace Growthstories.DomainTests.Sync
 {
@@ -128,10 +130,11 @@ namespace Growthstories.DomainTests.Sync
             }
 
             var newRepository = new GSRepository(
-                    Kernel.Get<GSEventStore>(),
+                    Kernel.Get<IStoreEvents>(),
                     Kernel.Get<IDetectConflicts>(),
                     Kernel.Get<IAggregateFactory>(),
-                    Kernel.Get<IUIPersistence>()
+                    Kernel.Get<IUIPersistence>(),
+                    Kernel.Get<IPersistSyncStreams>()
                 );
             foreach (var id in ids)
             {

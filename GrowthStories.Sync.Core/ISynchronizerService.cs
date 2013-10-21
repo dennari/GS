@@ -23,7 +23,7 @@ namespace Growthstories.Sync
     public interface IGSApp : IGSAggregate
     {
         IGSAppState State { get; }
-        bool CanHandle(IMessage msg);
+        //bool CanHandle(IMessage msg);
     }
 
     public interface ISyncInstance
@@ -36,6 +36,7 @@ namespace Growthstories.Sync
         Task<ISyncPullResponse> Pull();
         Task<ISyncPushResponse> Push();
 
+        IGSAggregate HandleRemoteMessages(IAggregateMessages msgs);
 
     }
 

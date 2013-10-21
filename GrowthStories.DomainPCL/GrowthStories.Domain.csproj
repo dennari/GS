@@ -65,9 +65,7 @@
     <Compile Include="Exceptions\CommandValidationException.cs" />
     <Compile Include="IDispatchCommands.cs" />
     <Compile Include="Messaging\Photo.cs" />
-    <Compile Include="Repositories\GSEventStore.cs" />
     <Compile Include="Repositories\GSRepository.cs" />
-    <Compile Include="Repositories\GSEventStream.cs" />
     <Compile Include="Services\MessageBusDispatcher.cs" />
     <Compile Include="Messaging\CommandBase.cs" />
     <Compile Include="Messaging\EventBase.cs" />

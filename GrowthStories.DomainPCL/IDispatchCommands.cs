@@ -16,6 +16,10 @@ namespace Growthstories.Domain
 
 
         IGSAggregate Handle(IMessage c);
+        IGSAggregate Handle(IAggregateMessages msgs);
+        GSApp Handle(Pull c);
+        GSApp Handle(Push c);
+
 
     }
 
@@ -70,15 +74,17 @@ namespace Growthstories.Domain
 
     public static class MBExtensions
     {
-        public static void Handle<T>(this IMessageBus bus, T message)
-        {
-            bus.SendMessage(message);
-        }
+
 
         public static void SendCommand<T>(this IMessageBus bus, T message)
             where T : IAggregateCommand
         {
             bus.SendMessage((IAggregateCommand)message);
+        }
+
+        public static void SendCommands(this IMessageBus bus, IAggregateMessages msgs)
+        {
+            bus.SendMessage(msgs);
         }
     }
 

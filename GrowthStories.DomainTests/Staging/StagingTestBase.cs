@@ -80,7 +80,7 @@ namespace Growthstories.DomainTests
         public ITranslateEvents Translator { get { return Get<ITranslateEvents>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
         public IGSRepository Repository { get { return Get<IGSRepository>(); } }
-        public GSEventStore EventStore { get { return (GSEventStore)Get<IStoreEvents>(); } }
+        public IStoreEvents EventStore { get { return Get<IStoreEvents>(); } }
 
         public IMessageBus Bus { get { return Get<IMessageBus>(); } }
         public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }
@@ -104,23 +104,23 @@ namespace Growthstories.DomainTests
             return i + Guid.NewGuid().ToString().Substring(0, 4);
         }
 
-        public ISyncPushResponse SyncAssertions(SyncResult syncResult, bool hasPush = false)
+        public ISyncPushResponse SyncAssertions(ISyncInstance syncResult, bool hasPush = false)
         {
             // if everything goes smoothly, we should have a single pull and a single push
-            Assert.AreEqual(1, syncResult.Pushes.Count);
-            Assert.AreEqual(1, syncResult.Pulls.Count);
-            Assert.IsNotNull(syncResult.Pulls[0].Item2);
-            Assert.AreEqual(GSStatusCode.OK, syncResult.Pulls[0].Item2.StatusCode);
+            //Assert.AreEqual(1, syncResult.Pushes.Count);
+            //Assert.AreEqual(1, syncResult.Pulls.Count);
+            //A//ssert.IsNotNull(syncResult.Pulls[0].Item2);
+            Assert.AreEqual(GSStatusCode.OK, syncResult.PullResp.StatusCode);
 
-            if (hasPush || syncResult.Pushes[0].Item2 != null)
+            if (hasPush || syncResult.PushResp != null)
             {
-                Assert.IsNotNull(syncResult.Pushes[0].Item2);
-                Assert.AreEqual(GSStatusCode.OK, syncResult.Pushes[0].Item2.StatusCode);
+                Assert.IsNotNull(syncResult.PushResp);
+                Assert.AreEqual(GSStatusCode.OK, syncResult.PushResp.StatusCode);
 
             }
 
 
-            return syncResult.Pushes[0].Item2;
+            return syncResult.PushResp;
         }
 
 

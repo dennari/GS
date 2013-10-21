@@ -165,7 +165,7 @@ namespace Growthstories.Core
 
         }
 
-        protected new void RaiseEvent(IEvent Event)
+        protected void RaiseEvent(IEvent Event)
         {
 
             Validate(Event);

@@ -28,28 +28,28 @@ namespace Growthstories.Domain
             this.PipelineHooks = pipelineHooks;
         }
 
-        public override IEventStream CreateStream(Guid streamId)
-        {
-            //Logger.Info(Resources.CreatingStream, streamId);
-            return new SyncEventStream(streamId, this, Persistence);
-        }
+        //public override IEventStream CreateStream(Guid streamId)
+        //{
+        //    //Logger.Info(Resources.CreatingStream, streamId);
+        //    return new SyncEventStream(streamId, this, Persistence);
+        //}
 
-        public override IEventStream OpenStream(Guid streamId, int minRevision, int maxRevision)
-        {
-            maxRevision = maxRevision <= 0 ? int.MaxValue : maxRevision;
+        //public override IEventStream OpenStream(Guid streamId, int minRevision, int maxRevision)
+        //{
+        //    maxRevision = maxRevision <= 0 ? int.MaxValue : maxRevision;
 
-            //Logger.Debug(Resources.OpeningStreamAtRevision, streamId, minRevision, maxRevision);
-            return new SyncEventStream(streamId, this, minRevision, maxRevision, this.Persistence);
-        }
-        public override IEventStream OpenStream(Snapshot snapshot, int maxRevision)
-        {
-            if (snapshot == null)
-                throw new ArgumentNullException("snapshot");
+        //    //Logger.Debug(Resources.OpeningStreamAtRevision, streamId, minRevision, maxRevision);
+        //    return new SyncEventStream(streamId, this, minRevision, maxRevision, this.Persistence);
+        //}
+        //public override IEventStream OpenStream(Snapshot snapshot, int maxRevision)
+        //{
+        //    if (snapshot == null)
+        //        throw new ArgumentNullException("snapshot");
 
-            //Logger.Debug(Resources.OpeningStreamWithSnapshot, snapshot.StreamId, snapshot.StreamRevision, maxRevision);
-            maxRevision = maxRevision <= 0 ? int.MaxValue : maxRevision;
-            return new SyncEventStream(snapshot, this, maxRevision, this.Persistence);
-        }
+        //    //Logger.Debug(Resources.OpeningStreamWithSnapshot, snapshot.StreamId, snapshot.StreamRevision, maxRevision);
+        //    maxRevision = maxRevision <= 0 ? int.MaxValue : maxRevision;
+        //    return new SyncEventStream(snapshot, this, maxRevision, this.Persistence);
+        //}
 
 
         //public virtual IPersistSyncStreams MoreAdvanced

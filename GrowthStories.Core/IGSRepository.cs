@@ -15,6 +15,7 @@ namespace Growthstories.Core
         void PlayById(IGSAggregate aggregate, Guid id);
         void Save(IGSAggregate aggregate);
         void Save(IGSAggregate[] aggregates);
+        int GetGlobalCommitSequence();
 
     }
 

@@ -20,7 +20,8 @@ namespace Growthstories.DomainTests
         {
             Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
             Bind<IEndpoint>().To<StagingEndpoint>();
-            Bind<IRequestFactory, IResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
+            Bind<IRequestFactory, RequestFactory>().To<RequestFactory>().InSingletonScope();
+            Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
 
         }
 

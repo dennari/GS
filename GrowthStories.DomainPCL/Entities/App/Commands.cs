@@ -148,18 +148,54 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class Synchronize : AggregateCommand<GSApp>
+    public abstract class Synchronize : AggregateCommand<GSApp>
     {
+        public int LastGlobalCommitSequence { get; protected set; }
+        public int GlobalCommitSequence { get; set; }
+        public ISyncInstance Sync { get; protected set; }
 
-        public Synchronize()
+        public Synchronize(ISyncInstance s)
             : base(GSAppState.GSAppId)
         {
-
+            this.Sync = s;
         }
 
         public override string ToString()
         {
             return string.Format(@"Synchronize.");
+        }
+
+    }
+
+    public class Push : Synchronize
+    {
+
+
+
+        public Push(ISyncInstance s)
+            : base(s)
+        {
+            LastGlobalCommitSequence = s.PushReq.GlobalCommitSequence;
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Push.");
+        }
+
+    }
+
+    public class Pull : Synchronize
+    {
+
+
+        public Pull(ISyncInstance s) : base(s) { }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Pull.");
         }
 
     }

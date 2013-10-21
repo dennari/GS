@@ -22,20 +22,16 @@ namespace Growthstories.Domain
 
         private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
         private readonly IDictionary<Guid, IGSAggregate> aggregates = new Dictionary<Guid, IGSAggregate>();
-        private readonly IDictionary<Guid, SyncEventStream> streams = new Dictionary<Guid, SyncEventStream>();
-        private readonly GSEventStore eventStore;
+        private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
+        private readonly IStoreEvents eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
         private readonly IUIPersistence UIPersistence;
         private IPersistSyncStreams Persistence;
 
-        public GSEventStore EventStore
-        {
-            get { return eventStore; }
-        }
 
         public GSRepository(
-            GSEventStore eventStore,
+            IStoreEvents eventStore,
             IDetectConflicts conflictDetector,
             IAggregateFactory factory,
             IUIPersistence uipersistence,
@@ -146,13 +142,13 @@ namespace Growthstories.Domain
         }
         private IEventStream OpenStream(Guid id, int version, Snapshot snapshot)
         {
-            SyncEventStream stream;
+            IEventStream stream;
             if (this.streams.TryGetValue(id, out stream))
                 return stream;
 
             stream = snapshot == null
-                ? (SyncEventStream)this.eventStore.OpenStream(id, 0, version)
-                : (SyncEventStream)this.eventStore.OpenStream(snapshot, version);
+                ? this.eventStore.OpenStream(id, 0, version)
+                : this.eventStore.OpenStream(snapshot, version);
 
             return this.streams[id] = stream;
         }
@@ -166,9 +162,15 @@ namespace Growthstories.Domain
 
             SaveStream(aggregate, stream);
 
+            lock (aggregates)
+            {
+                aggregates[aggregate.Id] = aggregate;
+
+            }
+
         }
 
-        private void SaveStream(IGSAggregate aggregate, SyncEventStream stream)
+        private void SaveStream(IGSAggregate aggregate, IEventStream stream)
         {
             while (true)
             {
@@ -204,7 +206,7 @@ namespace Growthstories.Domain
             }
         }
 
-        private SyncEventStream PrepareStream(IGSAggregate aggregate, Dictionary<string, object> headers = null)
+        private IEventStream PrepareStream(IGSAggregate aggregate, Dictionary<string, object> headers = null)
         {
 
             var stream = GetStreamForAggregate(aggregate);
@@ -224,14 +226,14 @@ namespace Growthstories.Domain
             return stream;
         }
 
-        private SyncEventStream GetStreamForAggregate(IGSAggregate aggregate)
+        private IEventStream GetStreamForAggregate(IGSAggregate aggregate)
         {
-            SyncEventStream stream;
+            IEventStream stream;
             if (!this.streams.TryGetValue(aggregate.Id, out stream))
             {
-                this.streams[aggregate.Id] = stream = (SyncEventStream)this.eventStore.CreateStream(aggregate.Id);
+                this.streams[aggregate.Id] = stream = (IEventStream)this.eventStore.CreateStream(aggregate.Id);
             }
-            stream.Type = aggregate.StreamType;
+            //stream.Type = aggregate.StreamType;
             return stream;
         }
 
@@ -305,7 +307,7 @@ namespace Growthstories.Domain
         //}
 
 
-        void Save(IGSAggregate[] aggregates)
+        public void Save(IGSAggregate[] aggregates)
         {
             Persistence.RunInTransaction(() =>
             {
@@ -315,5 +317,11 @@ namespace Growthstories.Domain
         }
 
 
+
+
+        public int GetGlobalCommitSequence()
+        {
+            return Persistence.GetGlobalCommitSequence();
+        }
     }
 }

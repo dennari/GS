@@ -54,11 +54,44 @@ namespace Growthstories.Sync
         public IEnumerable<IEventDTO> Out(IEnumerable<ISyncEventStream> streams)
         {
 
+            IEventDTO ed = null;
+
             foreach (var stream in streams)
-                foreach (var e in stream.Translate(this))
+                foreach (var e in stream.Events())
                 {
-                    if (e != null)
-                        yield return e;
+                    //try
+                    //{
+                    ed = Out(e);
+                    //}
+                    //catch (Exception) { }
+                    if (ed != null)
+                    {
+                        yield return ed;
+                    }
+                }
+
+
+        }
+
+        public IEnumerable<IEventDTO> Out(IEnumerable<IAggregateMessages> streams)
+        {
+
+            //IEventDTO ed = null;
+
+            foreach (var stream in streams)
+                foreach (var x in stream.Messages)
+                {
+                    //try
+                    //{
+
+                    var e = x as IEvent;
+                    if (e == null)
+                        continue;
+                    var ed = Out(e);
+                    if (ed == null)
+                        continue;
+
+                    yield return ed;
                 }
 
 

@@ -81,7 +81,7 @@ namespace Growthstories.Sync
         {
             var resp = await SendAndGetBodyAsync(new HttpRequestMessage(HttpMethod.Post,
                     Endpoint.PhotoUploadUri));
-            return ((RequestResponseFactory)ResponseFactory).CreatePhotoUploadUriResponse(resp.Item1, resp.Item2);
+            return ((ResponseFactory)ResponseFactory).CreatePhotoUploadUriResponse(resp.Item1, resp.Item2);
         }
 
         public async Task<HttpResponseMessage> Upload(Uri uri, Stream file)

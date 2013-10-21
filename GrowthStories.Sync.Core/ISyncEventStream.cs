@@ -16,7 +16,7 @@ namespace Growthstories.Sync
 
         Commit[] Commits { get; }
 
-        IEnumerable<IEventDTO> Translate(ITranslateEvents translator);
+        //IEnumerable<IEventDTO> Translate(ITranslateEvents translator);
 
         void AddRemote(IEvent e);
 

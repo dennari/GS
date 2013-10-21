@@ -54,6 +54,7 @@ namespace Growthstories.Domain.Entities
 
         public readonly IDictionary<Guid, SyncStreamInfo> SyncStreamDict;
 
+
         public IEnumerable<SyncStreamInfo> SyncStreams
         {
             get
@@ -65,6 +66,8 @@ namespace Growthstories.Domain.Entities
         protected AuthUser _User;
 
         public IAuthUser User { get { return _User; } }
+
+        public int SyncSequence { get; protected set; }
 
         public GSAppState()
             : base()
@@ -107,6 +110,21 @@ namespace Growthstories.Domain.Entities
             {
                 throw DomainError.Named("syncstream_missing", "Tried to set syncstamp for missing syncstream");
             }
+        }
+
+        public void Apply(Pulled @event)
+        {
+            SyncSequence = @event.SyncSequence;
+
+            foreach (var syncStream in SyncStreamDict.Values)
+            {
+                syncStream.SyncStamp = @event.SyncStamp;
+            }
+        }
+
+        public void Apply(Pushed @event)
+        {
+            SyncSequence = @event.SyncSequence;
         }
 
         public void Apply(AppUserAssigned @event)

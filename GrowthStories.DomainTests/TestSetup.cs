@@ -45,7 +45,8 @@ namespace Growthstories.DomainTests
         {
             Bind<IHttpClient, ITransportEvents, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
             Bind<IEndpoint, FakeEndpoint>().To<FakeEndpoint>().InSingletonScope();
-            Bind<IRequestFactory, IResponseFactory, RequestResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
+            Bind<IRequestFactory, RequestFactory>().To<RequestFactory>().InSingletonScope();
+            Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
             Bind<FakeHttpRequestFactory>().To<FakeHttpRequestFactory>().InSingletonScope();
 
 
@@ -164,7 +165,7 @@ namespace Growthstories.DomainTests
 
 
 
-            Bind<IStoreEvents, ICommitEvents, GSEventStore>().To<GSEventStore>().InSingletonScope();
+            Bind<IStoreEvents, ICommitEvents, OptimisticEventStore>().To<OptimisticEventStore>().InSingletonScope();
             Bind<ISerialize>().To<JsonSerializer>();
 
             #endregion

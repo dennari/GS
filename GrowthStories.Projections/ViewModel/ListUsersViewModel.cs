@@ -1,4 +1,5 @@
 ﻿using Growthstories.Domain.Entities;
+using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
@@ -80,10 +81,13 @@ namespace Growthstories.UI.ViewModel
                     return transporter.ListUsersAsync(s).ToObservable();
                 })
                 .Merge()
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Publish()
+                .RefCount();
 
 
             input.Subscribe(_ => ProgressIndicatorIsVisible = true);
+
             results.Subscribe(x =>
             {
                 ProgressIndicatorIsVisible = false;
@@ -102,55 +106,33 @@ namespace Growthstories.UI.ViewModel
 
             UserSelectedCommand.Subscribe(_ => ProgressIndicatorIsVisible = true);
 
-            this.SyncStreams = UserSelectedCommand
-                .RegisterAsyncTask<List<CreateSyncStream>>(y =>
-                    Task.Run(async () =>
+            UserSelectedCommand
+                .OfType<RemoteUser>()
+                .Subscribe(x =>
+                {
+                    var cmds = new AggregateMessages(app.Model.Id);
+                    cmds.AddMessage(new CreateSyncStream(x.AggregateId, Core.StreamType.USER));
+
+                    if (x.Garden != null && x.Garden.Plants != null)
                     {
-                        var x = y as RemoteUser;
-                        if (x == null)
-                            return null;
-                        var cmds = new List<CreateSyncStream>() 
-                            {
-                                new CreateSyncStream(x.AggregateId, Core.StreamType.USER)
-                            };
-                        if (x.Garden != null && x.Garden.Plants != null)
-                        {
-                            foreach (var p in x.Garden.Plants)
-                                cmds.Add(new CreateSyncStream(p.AggregateId, Core.StreamType.PLANT, x.AggregateId));
+                        foreach (var p in x.Garden.Plants)
+                            cmds.AddMessage(new CreateSyncStream(p.AggregateId, Core.StreamType.PLANT, x.AggregateId));
 
-                        }
+                    }
 
-                        foreach (var cmd in cmds)
-                        {
-                            try
-                            {
+                    App.Bus.SendCommands(cmds);
 
-                                app.Model.Handle(cmd);
-                            }
-                            catch (DomainError)
-                            {
-                                // we already have the stream as a syncstream
-                            }
-                        }
-                        if (!app.Model.HasUncommittedEvents)
-                            return null;
-
-                        //Repository.Save(app.Model);
-
-                        //await App.Synchronize();
-                        //App.Router.NavigateBack.Execute(null);
-                        return cmds;
-                    })
-                );
+                });
 
 
+            /*
             this.SyncStreams
                 .Subscribe(x =>
                 {
                     ProgressIndicatorIsVisible = false;
                     App.Router.NavigateBack.Execute(null);
                 });
-
+            */
 
 
         }

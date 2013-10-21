@@ -17,7 +17,11 @@ namespace Growthstories.Sync
     {
         private readonly IJsonFactory jF;
 
-        private ITransportEvents Transporter;
+        [JsonIgnore]
+        public ITranslateEvents Translator { get; set; }
+
+        [JsonIgnore]
+        public ITransportEvents Transporter { get; set; }
 
         protected ICollection<SyncStreamInfo> _Streams;
         [JsonIgnore]
@@ -51,12 +55,7 @@ namespace Growthstories.Sync
             return Transporter.PullAsync(this);
         }
 
-        public void SetTransporter(ITransportEvents transport)
-        {
-            Transporter = transport;
-        }
-
-
+        [JsonIgnore]
         public bool IsEmpty
         {
             get { return Streams.Count > 0; }
@@ -76,7 +75,7 @@ namespace Growthstories.Sync
     {
         public long SyncStamp { get; set; }
 
-        public ICollection<ISyncEventStream> Streams { get; set; }
+        public ICollection<IAggregateMessages> Streams { get; set; }
 
 
     }
@@ -103,29 +102,38 @@ namespace Growthstories.Sync
     public class HttpPushRequest : ISyncPushRequest
     {
         private readonly IJsonFactory jF;
-        private ITransportEvents Transporter;
+
 
 
         [JsonProperty(PropertyName = Language.EVENTS)]
-        public IEnumerable<IEventDTO> Events { get; set; }
+        public IEnumerable<IEventDTO> Events
+        {
+            get
+            {
+                return Translator.Out(Streams);
+            }
+        }
 
         [JsonProperty(PropertyName = Language.CLIENT_ID)]
         public Guid ClientDatabaseId { get; set; }
 
         [JsonIgnore]
-        public ICollection<ISyncEventStream> Streams { get; set; }
+        public ICollection<IAggregateMessages> Streams { get; set; }
 
         [JsonIgnore]
-        private ITranslateEvents translator;
-        public void SetTranslator(ITranslateEvents tr)
-        {
-            translator = tr;
-        }
+        public int GlobalCommitSequence { get; set; }
+
+
+        [JsonIgnore]
+        public ITranslateEvents Translator { get; set; }
+
+        [JsonIgnore]
+        public ITransportEvents Transporter { get; set; }
 
         public void Retranslate()
         {
-            if (translator != null && Streams.Count > 0)
-                this.Events = translator.Out(Streams).ToArray();
+            //if (translator != null && Streams.Count > 0)
+            //    this.Events = translator.Out(Streams).ToArray();
         }
 
         public HttpPushRequest(IJsonFactory jF)
@@ -149,10 +157,8 @@ namespace Growthstories.Sync
             return Transporter.PushAsync(this);
         }
 
-        public void SetTransporter(ITransportEvents transport)
-        {
-            Transporter = transport;
-        }
+
+
     }
 
     public class HttpPushResponse : HttpResponse, ISyncPushResponse

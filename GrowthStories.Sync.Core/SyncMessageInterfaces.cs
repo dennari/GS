@@ -14,9 +14,9 @@ namespace Growthstories.Sync
 {
     public interface IRequestFactory
     {
-        ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams);
-        ISyncPushRequest CreatePushRequest();
-
+        //ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams);
+        ISyncPushRequest CreatePushRequest(int globalSequence);
+        ISyncPushRequest CreateUserSyncRequest(Guid userId);
         ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams);
         //ISyncPullRequest CreatePullRequest();
 
@@ -161,7 +161,7 @@ namespace Growthstories.Sync
     public interface ISyncPullResponse : ISyncResponse
     {
         //IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
-        ICollection<ISyncEventStream> Streams { get; }
+        ICollection<IAggregateMessages> Streams { get; }
         long SyncStamp { get; }
 
 
@@ -171,9 +171,10 @@ namespace Growthstories.Sync
     {
 
         Guid ClientDatabaseId { get; }
+        int GlobalCommitSequence { get; }
         //Guid PushId { get; }
 
-        ICollection<ISyncEventStream> Streams { get; }
+        ICollection<IAggregateMessages> Streams { get; }
         //IEnumerable<IEventDTO> Events { get; }
 
         Task<ISyncPushResponse> GetResponse();
@@ -208,7 +209,7 @@ namespace Growthstories.Sync
     public interface ISyncRequest : ISyncCommunication
     {
         //ICollection<ISyncEventStream> Streams { get; }
-        void SetTransporter(ITransportEvents transport);
+        //void SetTransporter(ITransportEvents transport);
         bool IsEmpty { get; }
 
 

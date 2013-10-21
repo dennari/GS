@@ -20,7 +20,9 @@ namespace Growthstories.Domain.Entities
        ICommandHandler<SetAuthToken>,
        ICommandHandler<CreateSyncStream>,
        ICommandHandler<BecomeFollower>,
-       ICommandHandler<SetSyncStamp>
+       ICommandHandler<SetSyncStamp>,
+       ICommandHandler<Pull>,
+       ICommandHandler<Push>
     {
         public void Handle(CreateGSApp command)
         {
@@ -54,6 +56,14 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new SyncStampSet(command));
         }
+        public void Handle(Pull command)
+        {
+            RaiseEvent(new Pulled(command));
+        }
+        public void Handle(Push command)
+        {
+            RaiseEvent(new Pushed(command));
+        }
 
         IGSAppState IGSApp.State
         {
@@ -64,7 +74,9 @@ namespace Growthstories.Domain.Entities
         }
 
 
-        public bool CanHandle(IMessage cmd)
+
+
+        public static bool CanHandle(IMessage cmd)
         {
             if (cmd is CreatePlant)
                 return true;
@@ -74,5 +86,6 @@ namespace Growthstories.Domain.Entities
                 return true;
             return false;
         }
+
     }
 }

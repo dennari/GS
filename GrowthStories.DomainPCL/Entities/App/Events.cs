@@ -196,6 +196,51 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+
+    public class Pulled : GSAppEvent
+    {
+
+        //public Guid[] Streams { get; private set; }
+        public long SyncStamp { get; private set; }
+        public int SyncSequence { get; private set; }
+
+        protected Pulled() { }
+        public Pulled(Pull cmd)
+        {
+
+            SyncSequence = cmd.GlobalCommitSequence;
+            SyncStamp = cmd.Sync.PullResp.SyncStamp;
+            //Streams = cmd.Sync.PullResp.Streams.Where(x => GSApp.CanHandle(x)).Select(x => x.AggregateId).ToArray();
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Pulled.");
+        }
+
+
+    }
+
+    public class Pushed : GSAppEvent
+    {
+
+        public int SyncSequence { get; private set; }
+
+        protected Pushed() { }
+        public Pushed(Push cmd)
+        {
+
+            SyncSequence = cmd.GlobalCommitSequence;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Pushed.");
+        }
+
+
+    }
+
     public class AuthTokenSet : EventBase
     {
 

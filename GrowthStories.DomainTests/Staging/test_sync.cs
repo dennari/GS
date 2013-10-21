@@ -1,34 +1,36 @@
 ﻿using System;
 using System.Linq;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 using NUnit.Framework;
 using Growthstories.Domain.Messaging;
-using Ninject;
+//using Ninject;
 using Growthstories.Core;
-using CommonDomain.Persistence;
+//using CommonDomain.Persistence;
 using Growthstories.Sync;
-using Ninject.Parameters;
-using SimpleTesting;
-using Newtonsoft.Json;
+//using Ninject.Parameters;
+//using SimpleTesting;
+//using Newtonsoft.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Serialization;
-using System.Net.Http;
+//using Newtonsoft.Json.Serialization;
+//using System.Net.Http;
 using System.Collections.Generic;
 using Growthstories.Domain.Entities;
-using CommonDomain;
-using EventStore;
+//using CommonDomain;
+//using EventStore;
 
-using CommonDomain.Persistence.EventStore;
-using EventStore.Dispatcher;
+//using CommonDomain.Persistence.EventStore;
+//using EventStore.Dispatcher;
 using Growthstories.Domain;
 using EventStore.Logging;
-using Growthstories.UI;
-using System.Text;
+//using Growthstories.UI;
+//using System.Text;
 using Growthstories.UI.ViewModel;
-using System.IO;
-using EventStore.Persistence;
+//using System.IO;
+//using EventStore.Persistence;
 
 
 
@@ -43,7 +45,7 @@ namespace Growthstories.DomainTests
         private IAuthToken RemoteAuth;
 
 
-        public async Task SetupAsync()
+        public void Setup()
         {
 
 
@@ -51,11 +53,11 @@ namespace Growthstories.DomainTests
             Assert.IsNotNull(Ctx);
             Assert.IsNotNullOrEmpty(Ctx.Username);
 
-            await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
+            WaitForTask(HttpClient.SendAsync(HttpClient.CreateClearDBRequest()));
             //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
 
-            await App.Context.AuthorizeUser();
+            WaitForTask(App.Context.AuthorizeUser());
             //Ctx = App.Context.CurrentUser;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
@@ -78,7 +80,7 @@ namespace Growthstories.DomainTests
         public async Task TestSyncUserStream()
         {
 
-            await SetupAsync();
+            Setup();
 
             var originalRemoteEvents = await CreateRemoteData();
 
@@ -104,54 +106,83 @@ namespace Growthstories.DomainTests
 
             var R3 = await App.Synchronize();
             SyncAssertions(R3);
-            Assert.IsNull(R3.Pushes[0].Item2);
+            Assert.IsNull(R3.PushReq);
+
+        }
+
+
+        protected T WaitForTask<T>(Task<T> task, int timeout = 9000)
+        {
+            if (Debugger.IsAttached)
+                task.Wait();
+            else
+                task.Wait(timeout);
+            Assert.IsTrue(task.IsCompleted);
+            return task.Result;
+        }
+
+        protected void WaitForTask(Task task, int timeout = 9000)
+        {
+            if (Debugger.IsAttached)
+                task.Wait();
+            else
+                task.Wait(timeout);
+            Assert.IsTrue(task.IsCompleted);
+        }
+
+        protected T WaitForFirst<T>(IObservable<T> task, int timeout = 9000)
+        {
+
+            //task.Take(1).
+            return WaitForTask(Task.Run(async () =>
+            {
+
+                return await task.Take(1);
+
+            }), timeout);
 
         }
 
         [Test]
-        public async void RealTestAddUserViewModel()
+        public void RealTestAddUserViewModel()
         {
-
-
-
-
-            await TestAddUserViewModel();
-
+            TestAddUserViewModel();
         }
 
 
-        public async Task<List<IEvent>> TestAddUserViewModel()
+        public List<IEvent> TestAddUserViewModel()
         {
-            await SetupAsync();
-            var originalRemoteEvents = await CreateRemoteData();
+            Setup();
+
+
+            var originalRemoteEvents = WaitForTask(CreateRemoteData(), 20000);
 
             var remoteUser = (UserCreated)originalRemoteEvents[0];
 
-            var remotePlant = (PlantCreated)originalRemoteEvents[3];
+            var remotePlant = (PlantCreated)originalRemoteEvents[1];
 
-            var remoteComment = (PlantActionCreated)originalRemoteEvents[5];
+            var remoteComment = (PlantActionCreated)originalRemoteEvents[3];
 
-            var lvm = new ListUsersViewModel(Get<ITransportEvents>(), Get<IGSRepository>(), App);
-            //IUserListResponse R = null;
-            var task = lvm.SearchResults.Take(1).GetAwaiter();
-            //first.Subscribe(x => R = x);
+            var lvm = new ListUsersViewModel(Get<ITransportEvents>(), App);
+
+            IUserListResponse R = null;
+            lvm.SearchResults.Subscribe(x =>
+            {
+                Log.Info("UserListResponse");
+                R = x;
+            });
+
             lvm.SearchCommand.Execute("Lauri");
-            var R = await task;
+            if (R == null)
+                R = lvm.SearchResults.Take(1).Wait();
             Assert.IsNotNull(R);
             Assert.IsTrue(R.Users.Count > 0);
-            var lauri = R.Users[0];
 
-            var task2 = lvm.SyncStreams.Take(1).GetAwaiter();
-
-            lvm.UserSelectedCommand.Execute(lauri);
-
-            var R2 = await task2;
-            Assert.AreEqual(2, R2.Count);
-
+            lvm.UserSelectedCommand.Execute(R.Users[0]);
 
             var fvm = (FriendsViewModel)App.Resolver.GetService(typeof(FriendsViewModel));
 
-            var R3 = await App.Synchronize();
+            var R3 = WaitForTask(App.Synchronize());
             SyncAssertions(R3);
 
             Assert.AreEqual(1, fvm.Friends.Count);
@@ -174,9 +205,9 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(remoteComment.Note, action.State.Note);
 
 
-            var R4 = await App.Synchronize();
+            var R4 = WaitForTask(App.Synchronize());
             SyncAssertions(R4);
-            Assert.IsNull(R4.Pushes[0].Item2);
+            Assert.IsNull(R4.PushReq);
 
             return originalRemoteEvents;
 
@@ -197,7 +228,7 @@ namespace Growthstories.DomainTests
         public async Task TestSyncReadModel()
         {
 
-            var originalRemoteEvents = await TestAddUserViewModel();
+            var originalRemoteEvents = TestAddUserViewModel();
 
             var remoteUser = (UserCreated)originalRemoteEvents[0];
 
@@ -230,7 +261,7 @@ namespace Growthstories.DomainTests
         public async Task TestSyncConflict()
         {
 
-            await SetupAsync();
+            Setup();
 
             var plant = new CreatePlant(Guid.NewGuid(), "Jare", Ctx.GardenId, Ctx.Id);
             Bus.SendCommand(App.SetIds(plant));
@@ -272,15 +303,15 @@ namespace Growthstories.DomainTests
         public async Task TestSyncPlantStream()
         {
 
-            await SetupAsync();
+            Setup();
 
             var originalRemoteEvents = await CreateRemoteData();
 
             var remoteUser = (UserCreated)originalRemoteEvents[0];
 
-            var remotePlant = (PlantCreated)originalRemoteEvents[3];
+            var remotePlant = (PlantCreated)originalRemoteEvents[1];
 
-            var remoteComment = (PlantActionCreated)originalRemoteEvents[5];
+            var remoteComment = (PlantActionCreated)originalRemoteEvents[3];
 
 
             Bus.SendCommand(new CreateSyncStream(remotePlant.AggregateId, StreamType.PLANT, remoteUser.AggregateId));
@@ -301,7 +332,7 @@ namespace Growthstories.DomainTests
 
             var R3 = await App.Synchronize();
             SyncAssertions(R3);
-            Assert.IsNull(R3.Pushes[0].Item2);
+            Assert.IsNull(R3.PushReq);
 
         }
 
@@ -319,7 +350,7 @@ namespace Growthstories.DomainTests
         public async Task<IAggregateCommand> TestFriendship()
         {
 
-            await SetupAsync();
+            Setup();
 
             var originalRemoteEvents = await CreateRemoteData();
 
@@ -359,6 +390,32 @@ namespace Growthstories.DomainTests
 
 
 
+        protected IAggregateMessages[] EventsToStreams(Guid aggregateId, IEvent events)
+        {
+            var msgs = new AggregateMessages(aggregateId);
+            msgs.AddMessage(events);
+            return new[] { msgs };
+        }
+
+        protected IAggregateMessages[] EventsToStreams(Guid aggregateId, IEnumerable<IEvent> events)
+        {
+            var msgs = new AggregateMessages(aggregateId);
+            msgs.AddMessage(events);
+            return new[] { msgs };
+        }
+
+        protected IEnumerable<IAggregateMessages> EventsToStreams(IEnumerable<IEvent> events)
+        {
+
+            foreach (var g in events.GroupBy(x => x.AggregateId))
+            {
+                var msgs = new AggregateMessages(g.Key);
+                msgs.AddMessage(g);
+                yield return msgs;
+            }
+
+        }
+
         protected async Task<List<IEvent>> CreateRemoteData()
         {
             // create remote data
@@ -370,8 +427,9 @@ namespace Growthstories.DomainTests
 
             var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Events = Translator.Out(users),
-                ClientDatabaseId = Guid.NewGuid()
+                Streams = EventsToStreams(remoteUser.AggregateId, remoteUser),
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator
             });
             Assert.AreEqual(GSStatusCode.OK, pushResp.StatusCode);
 
@@ -429,12 +487,12 @@ namespace Growthstories.DomainTests
 
 
             var remoteEvents = new List<IEvent>() { 
-                remoteGarden, 
-                remoteAddGarden, 
-                remotePlant, 
-                remoteAddPlant,
+                remotePlant,
+                remotePlantProperty,
                 remoteComment,
-                remotePlantProperty
+                remoteGarden, 
+                remoteAddGarden,                
+                remoteAddPlant
             };
 
 
@@ -460,8 +518,9 @@ namespace Growthstories.DomainTests
 
             var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Events = Translator.Out(events).ToArray(),
-                ClientDatabaseId = Guid.NewGuid()
+                Streams = EventsToStreams(events).ToArray(),
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator
             });
 
             Assert.AreEqual(GSStatusCode.OK, pushResp2.StatusCode);

@@ -15,43 +15,19 @@ using EventStore;
 namespace Growthstories.Sync
 {
 
-    public class RequestResponseFactory : IRequestFactory, IResponseFactory
+    public class ResponseFactory : IResponseFactory
     {
         private readonly IJsonFactory jFactory;
         private readonly ITranslateEvents Translator;
-        private readonly IPersistSyncStreams SyncPersistence;
-        private static ILog Logger = LogFactory.BuildLogger(typeof(RequestResponseFactory));
-        private readonly ICommitEvents Persistence;
+        private static ILog Logger = LogFactory.BuildLogger(typeof(ResponseFactory));
 
-        public RequestResponseFactory(
-            ITranslateEvents translator,
-            IJsonFactory jFactory,
-            ICommitEvents persistence,
-            IPersistSyncStreams syncPersistence)
+        public ResponseFactory(ITranslateEvents translator, IJsonFactory jFactory)
         {
             this.jFactory = jFactory;
             this.Translator = translator;
-            this.SyncPersistence = syncPersistence;
-            this.Persistence = persistence;
         }
 
 
-        public List<ISyncEventStream> MatchStreams(ISyncPullResponse resp, ISyncRequest req)
-        {
-            List<ISyncEventStream> unmatched = new List<ISyncEventStream>();
-            //foreach (var g in resp.Events)
-            //{
-            //    ISyncEventStream match = req.Streams.FirstOrDefault(x => x.StreamId == g.Key);
-            //    if (match == null)
-            //    {
-            //        match = new SyncEventStream(g.Key, this.Persistence, this.SyncPersistence);
-            //        unmatched.Add(match);
-            //    }
-            //    foreach (var e in g.OrderBy(y => y.AggregateVersion))
-            //        match.AddRemote(e);
-            //}
-            return unmatched;
-        }
 
         protected GSStatusCode HandleHttpResponse(HttpResponseMessage resp)
         {
@@ -60,49 +36,7 @@ namespace Growthstories.Sync
             return GSStatusCode.FAIL;
         }
 
-        public ISyncPushRequest CreatePushRequest()
-        {
 
-            return CreatePushRequest(GetPushStreams());
-        }
-
-        private IEnumerable<ISyncEventStream> GetPushStreams()
-        {
-            foreach (var commits in SyncPersistence.GetUnsynchronizedCommits().GroupBy(x => x.StreamId))
-            {
-                yield return new SyncEventStream(commits, Persistence, SyncPersistence);
-            }
-        }
-
-        public ISyncPushRequest CreatePushRequest(IEnumerable<ISyncEventStream> streams)
-        {
-            var streamsC = streams.ToArray();
-
-            var ee = Translator.Out(streamsC).ToArray();
-            var req = new HttpPushRequest(jFactory)
-            {
-                Events = ee,
-                IsEmpty = ee.Length == 0,
-                Streams = streamsC,
-                //PushId = Guid.NewGuid(),
-                ClientDatabaseId = Guid.NewGuid()
-            };
-            req.SetTranslator(Translator);
-
-            return req;
-        }
-
-
-
-        public ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams)
-        {
-            //var streamsC = streams.ToArray();
-            return new HttpPullRequest(jFactory)
-            {
-                Streams = streams
-            };
-            //return req;
-        }
 
         public ISyncPullResponse CreatePullResponse(HttpResponseMessage resp, string content = null)
         {
@@ -121,7 +55,7 @@ namespace Growthstories.Sync
                         .Select(x => Translator.In(x))
                         .OfType<EventBase>()
                         .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
-                        .Select(x => new SyncEventStream(x, Persistence, SyncPersistence) { SyncStamp = helper.SyncStamp })
+                        .Select(x => new AggregateMessages(x))
                         .ToArray();
                 }
             }
@@ -191,5 +125,108 @@ namespace Growthstories.Sync
         }
 
 
+
+
+
     }
+
+
+
+    public class RequestFactory : IRequestFactory
+    {
+        private readonly IJsonFactory jFactory;
+        private readonly ITranslateEvents Translator;
+        private readonly IPersistSyncStreams SyncPersistence;
+        private static ILog Logger = LogFactory.BuildLogger(typeof(RequestFactory));
+        private readonly ITransportEvents Transporter;
+
+        public RequestFactory(
+            ITranslateEvents translator,
+            ITransportEvents transporter,
+            IJsonFactory jFactory,
+            IPersistSyncStreams syncPersistence)
+        {
+            this.jFactory = jFactory;
+            this.Translator = translator;
+            this.Transporter = transporter;
+            this.SyncPersistence = syncPersistence;
+        }
+
+
+
+        public ISyncPushRequest CreatePushRequest(int globalSequence)
+        {
+
+            return CreatePushRequest(GetPushStreams(globalSequence), globalSequence);
+        }
+
+        private IEnumerable<IAggregateMessages> GetPushStreams(int globalSequence)
+        {
+            foreach (var commits in SyncPersistence.GetUnsynchronizedCommits(globalSequence).GroupBy(x => x.StreamId))
+            {
+                yield return new AggregateMessages(commits);
+            }
+        }
+
+        public ISyncPushRequest CreateUserSyncRequest(Guid userId)
+        {
+            //var streamsC = 
+
+            //var ee = Translator.Out(streamsC).ToArray();
+
+            var commit = SyncPersistence.GetFrom(userId, 0, 1).First();
+
+            var stream = new AggregateMessages(userId);
+            stream.AddMessage(commit.ActualEvents().First());
+
+            var req = new HttpPushRequest(jFactory)
+            {
+                IsEmpty = false,
+                Streams = new[] { stream },
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator,
+                Transporter = Transporter
+            };
+
+            return req;
+        }
+
+
+        public ISyncPushRequest CreatePushRequest(IEnumerable<IAggregateMessages> streams, int globalSequence)
+        {
+            var streamsC = streams.ToArray();
+
+            var req = new HttpPushRequest(jFactory)
+            {
+                GlobalCommitSequence = globalSequence,
+                IsEmpty = false,
+                Streams = streamsC,
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator,
+                Transporter = Transporter
+            };
+
+
+            return req;
+        }
+
+
+
+        public ISyncPullRequest CreatePullRequest(ICollection<SyncStreamInfo> streams)
+        {
+            //var streamsC = streams.ToArray();
+            return new HttpPullRequest(jFactory)
+            {
+                Streams = streams,
+                Translator = Translator,
+                Transporter = Transporter
+            };
+            //return req;
+        }
+
+
+
+    }
+
+
 }

@@ -40,7 +40,7 @@ namespace Growthstories.UI.ViewModel
         GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
-        //Task<SyncResult> Synchronize();
+        Task<ISyncInstance> Synchronize();
 
         //IObservable<IUserViewModel> Users();
         //IObservable<IGardenViewModel> Gardens { get; }
@@ -253,7 +253,10 @@ namespace Growthstories.UI.ViewModel
             {
                 Handler.Handle(x);
             });
-
+            Bus.Listen<IAggregateMessages>().Subscribe(x =>
+            {
+                Handler.Handle(x);
+            });
 
 
             GSApp app = null;
@@ -286,6 +289,51 @@ namespace Growthstories.UI.ViewModel
 
             return app;
         }
+
+
+
+        private ISynchronizerService SyncService;
+        private IRequestFactory RequestFactory;
+
+        public Task<ISyncInstance> Synchronize()
+        {
+            if (SyncService == null)
+                SyncService = Kernel.Get<ISynchronizerService>();
+            if (RequestFactory == null)
+                RequestFactory = Kernel.Get<IRequestFactory>();
+
+
+            var s = SyncService.Synchronize(
+                RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
+                RequestFactory.CreatePushRequest(Model.State.SyncSequence)
+            );
+
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty)
+                return null;
+
+            return _Synchronize(s);
+        }
+
+        protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
+        {
+
+
+            var pullResp = await s.Pull();
+            if (pullResp != null && pullResp.StatusCode == GSStatusCode.OK)
+            {
+                Handler.Handle(new Pull(s));
+            }
+
+            var pushResp = await s.Push();
+            if (pushResp != null && pushResp.StatusCode == GSStatusCode.OK)
+            {
+                Handler.Handle(new Push(s));
+            }
+
+            return s;
+
+        }
+
 
         IUserService _Context = null;
         public IUserService Context
@@ -605,20 +653,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
-
-
-        //ISynchronizerService _SyncService;
-        //public Task<SyncResult> Synchronize()
-        //{
-        //    if (_SyncService == null)
-        //        _SyncService = Kernel.Get<ISynchronizerService>();
-
-
-
-        //    //var syncStreams = ;
-        //    return _SyncService.Synchronize(Model);
-        //}
 
         public PageOrientation _Orientation;
         public PageOrientation Orientation
