@@ -36,10 +36,15 @@ namespace Growthstories.UI.WindowsPhone
         {
             Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
             Bind<IEndpoint>().To<StagingEndpoint>();
-            Bind<IRequestFactory, IResponseFactory>().To<RequestResponseFactory>().InSingletonScope();
+            Bind<IRequestFactory, RequestFactory>().To<RequestFactory>().InSingletonScope();
+            Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
 
         }
 
+        protected override void FileSystemConfiguration()
+        {
+            Bind<IFileOpener>().To<FileOpener>();
+        }
 
         protected override void SQLiteConnectionConfiguration()
         {

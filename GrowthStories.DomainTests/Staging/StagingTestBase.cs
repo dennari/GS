@@ -73,7 +73,6 @@ namespace Growthstories.DomainTests
 
 
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
-        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
 
         public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
@@ -97,7 +96,7 @@ namespace Growthstories.DomainTests
 
 
 
-        protected string randomize(string i)
+        public static string randomize(string i)
         {
             //var b = new StringBuilder(i);
             //b.Append(Guid.NewGuid().ToString().Substring(0, 4));

@@ -10,6 +10,7 @@ using Growthstories.Core;
 using System.Net;
 using EventStore;
 using Growthstories.Domain.Entities;
+using System.IO;
 
 namespace Growthstories.Sync
 {
@@ -23,20 +24,24 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public ITransportEvents Transporter { get; set; }
 
-        protected ICollection<SyncStreamInfo> _Streams;
+        protected ICollection<PullStream> _Streams;
         [JsonIgnore]
-        public ICollection<SyncStreamInfo> Streams
+        public ICollection<PullStream> Streams
         {
             get { return _Streams; }
             set
             {
-                _Streams = value;
-                OutputStreams = value.Select(x => SyncEventStreamDTO.Translate(x)).ToArray();
+                if (value != null)
+                {
+                    _Streams = value;
+                    OutputStreams = value.Select(x => PullStreamDTO.Translate(x)).ToArray();
+                }
+
             }
         }
 
         [JsonProperty(PropertyName = Language.STREAMS, Required = Required.Always)]
-        public ISyncEventStreamDTO[] OutputStreams { get; protected set; }
+        public PullStreamDTO[] OutputStreams { get; protected set; }
 
         public HttpPullRequest(IJsonFactory jF)
         {
@@ -58,8 +63,44 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public bool IsEmpty
         {
-            get { return Streams.Count > 0; }
+            get { return Streams == null || Streams.Count == 0; }
         }
+    }
+
+
+    public sealed class PullStreamDTO
+    {
+
+        private PullStreamDTO()
+        {
+
+        }
+
+        [JsonProperty(PropertyName = Language.STREAM_TYPE, Required = Required.Always)]
+        public string Type { get; private set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_SINCE, Required = Required.Always)]
+        public long SyncStamp { get; private set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
+        public Guid StreamId { get; private set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Include)]
+        public Guid? StreamAncestorId { get; private set; }
+
+
+
+        public static PullStreamDTO Translate(PullStream stream)
+        {
+            var r = new PullStreamDTO();
+            r.SyncStamp = stream.SyncStamp;
+            r.StreamId = stream.StreamId;
+            r.Type = stream.Type == PullStreamType.PLANT ? "PLANT" : "USER";
+            r.StreamAncestorId = stream.AncestorId;
+
+            return r;
+        }
+
     }
 
     public class HelperPullResponse
@@ -75,7 +116,7 @@ namespace Growthstories.Sync
     {
         public long SyncStamp { get; set; }
 
-        public ICollection<IAggregateMessages> Streams { get; set; }
+        public ICollection<IStreamSegment> Streams { get; set; }
 
 
     }
@@ -88,6 +129,113 @@ namespace Growthstories.Sync
         public Uri UploadUri { get; set; }
 
     }
+
+    public class PhotoUploadResponse : HttpResponse, IPhotoUploadResponse
+    {
+
+        public Photo Photo { get; set; }
+
+    }
+
+    public class PhotoUploadRequest : IPhotoUploadRequest
+    {
+        private readonly ITransportEvents Transporter;
+        private readonly IJsonFactory jFactory;
+        private readonly IFileOpener FileOpener;
+
+
+        public PhotoUploadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IFileOpener fileOpener)
+        {
+            // TODO: Complete member initialization
+
+            this.jFactory = jFactory;
+            this.Photo = photo;
+            this.FileOpener = fileOpener;
+            this.Transporter = transporter;
+        }
+
+        public Photo Photo { get; private set; }
+
+        public bool IsEmpty
+        {
+            get { return false; }
+        }
+
+
+        public async Task<IPhotoUploadResponse> GetResponse()
+        {
+
+            var uploadUriResponse = await Transporter.RequestPhotoUploadUri();
+            if (uploadUriResponse.StatusCode != GSStatusCode.OK)
+                throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
+
+            this.UploadUri = uploadUriResponse.UploadUri;
+            this.Stream = await FileOpener.OpenPhoto(Photo);
+
+            return await Transporter.RequestPhotoUpload(this);
+
+
+        }
+
+        public Uri UploadUri { get; private set; }
+
+
+        public Stream Stream { get; private set; }
+
+    }
+
+    public class PhotoDownloadRequest : IPhotoDownloadRequest
+    {
+        private readonly ITransportEvents Transporter;
+        private readonly IJsonFactory jFactory;
+        private readonly IFileOpener FileOpener;
+
+
+        public PhotoDownloadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IFileOpener fileOpener)
+        {
+            // TODO: Complete member initialization
+
+            this.jFactory = jFactory;
+            this.Photo = photo;
+            this.FileOpener = fileOpener;
+            this.Transporter = transporter;
+        }
+
+        public Photo Photo { get; private set; }
+
+        public bool IsEmpty
+        {
+            get { return false; }
+        }
+
+
+        public async Task<IPhotoDownloadResponse> GetResponse()
+        {
+
+
+            this.DownloadUri = new Uri(Photo.RemoteUri);
+            return await Transporter.RequestPhotoDownload(this);
+
+
+        }
+
+        public Uri DownloadUri { get; private set; }
+
+
+
+
+    }
+
+
+    public class PhotoDownloadResponse : HttpResponse, IPhotoDownloadResponse
+    {
+
+        public Photo Photo { get; set; }
+        public Stream Stream { get; set; }
+
+    }
+
+
 
     public class UserListResponse : HttpResponse, IUserListResponse
     {
@@ -118,7 +266,7 @@ namespace Growthstories.Sync
         public Guid ClientDatabaseId { get; set; }
 
         [JsonIgnore]
-        public ICollection<IAggregateMessages> Streams { get; set; }
+        public ICollection<IStreamSegment> Streams { get; set; }
 
         [JsonIgnore]
         public int GlobalCommitSequence { get; set; }
@@ -148,7 +296,11 @@ namespace Growthstories.Sync
 
 
 
-        public bool IsEmpty { get; set; }
+        [JsonIgnore]
+        public bool IsEmpty
+        {
+            get { return Streams == null || Streams.Count == 0; }
+        }
 
 
 
@@ -192,47 +344,6 @@ namespace Growthstories.Sync
 
     }
 
-    public class SyncEventStreamDTO : ISyncEventStreamDTO
-    {
 
-        protected SyncEventStreamDTO()
-        {
-
-        }
-
-        [JsonProperty(PropertyName = Language.STREAM_TYPE, Required = Required.Always)]
-        public string Type { get; protected set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_SINCE, Required = Required.Always)]
-        public long SyncStamp { get; protected set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
-        public Guid StreamId { get; protected set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Include)]
-        public Guid? StreamAncestorId { get; protected set; }
-
-        public static ISyncEventStreamDTO Translate(ISyncEventStream stream)
-        {
-            var r = new SyncEventStreamDTO();
-            //r.SyncStamp = stream.SyncStamp;
-            //r.StreamId = stream.StreamId;
-            //r.Type = stream.Type == SyncStreamType.PLANT ? "PLANT" : "USER";
-
-            return r;
-        }
-
-        public static ISyncEventStreamDTO Translate(SyncStreamInfo stream)
-        {
-            var r = new SyncEventStreamDTO();
-            r.SyncStamp = stream.SyncStamp;
-            r.StreamId = stream.StreamId;
-            r.Type = stream.Type == StreamType.PLANT ? "PLANT" : "USER";
-            r.StreamAncestorId = stream.AncestorId;
-
-            return r;
-        }
-
-    }
 
 }

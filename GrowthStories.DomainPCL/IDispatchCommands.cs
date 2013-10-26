@@ -2,6 +2,7 @@
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,8 @@ namespace Growthstories.Domain
 
 
         IGSAggregate Handle(IMessage c);
-        IGSAggregate Handle(IAggregateMessages msgs);
+        IGSAggregate Handle(IStreamSegment msgs);
+        int AttachAggregates(ISyncPullResponse pullResp);
         GSApp Handle(Pull c);
         GSApp Handle(Push c);
 
@@ -72,7 +74,7 @@ namespace Growthstories.Domain
 
     //}
 
-    public static class MBExtensions
+    public static class Extensions
     {
 
 
@@ -82,10 +84,30 @@ namespace Growthstories.Domain
             bus.SendMessage((IAggregateCommand)message);
         }
 
-        public static void SendCommands(this IMessageBus bus, IAggregateMessages msgs)
+        public static void SendCommands(this IMessageBus bus, IStreamSegment msgs)
         {
             bus.SendMessage(msgs);
         }
+
+        public static void SendCommands(this IMessageBus bus, params IAggregateCommand[] msgs)
+        {
+            bus.SendCommands(msgs.GroupBy(x => x.AggregateId).Select(x => new StreamSegment(x)).Single());
+        }
+
+        public static void MergeByCreated(this IAggregateState st, IMessage incoming, IMessage outgoing, out IMessage incomingNew, out IMessage outgoingNew)
+        {
+            if (incoming.Created >= outgoing.Created)
+            {
+                outgoingNew = new NullEvent(outgoing);
+                incomingNew = incoming;
+            }
+            else
+            {
+                outgoingNew = outgoing;
+                incomingNew = new NullEvent(incoming);
+            }
+        }
+
     }
 
 

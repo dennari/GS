@@ -11,7 +11,7 @@ namespace Growthstories.Domain.Messaging
 
 
     #region GSApp
-    public class CreateGSApp : AggregateCommand<GSApp>, ICreateMessage
+    public sealed class CreateGSApp : AggregateCommand<GSApp>, ICreateMessage
     {
 
 
@@ -30,7 +30,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class AssignAppUser : AggregateCommand<GSApp>
+    public sealed class AssignAppUser : AggregateCommand<GSApp>
     {
         public readonly Guid UserId;
         public readonly string Username;
@@ -43,7 +43,6 @@ namespace Growthstories.Domain.Messaging
 
 
 
-        protected AssignAppUser() { }
         public AssignAppUser(Guid userId, string username, string password, string email)
             : base(GSAppState.GSAppId)
         {
@@ -61,13 +60,13 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    public class SetAuthToken : AggregateCommand<GSApp>
+    public sealed class SetAuthToken : AggregateCommand<GSApp>
     {
 
 
-        public string AccessToken { get; protected set; }
-        public int ExpiresIn { get; protected set; }
-        public string RefreshToken { get; protected set; }
+        public string AccessToken { get; private set; }
+        public int ExpiresIn { get; private set; }
+        public string RefreshToken { get; private set; }
 
 
         public SetAuthToken(string accessToken, string refreshToken, int expiresIn)
@@ -92,23 +91,20 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    public class CreateSyncStream : AggregateCommand<GSApp>
+    public sealed class CreateSyncStream : AggregateCommand<GSApp>
     {
 
         public readonly Guid StreamId;
 
-        public readonly Guid? AncestorId;
-
-        public readonly StreamType StreamType;
+        public readonly PullStreamType SyncStreamType;
 
 
 
-        protected CreateSyncStream() { }
-        public CreateSyncStream(Guid streamId, StreamType type, Guid? ancestorId = null)
+        public CreateSyncStream(Guid streamId, PullStreamType type, Guid? ancestorId = null)
             : base(GSAppState.GSAppId)
         {
             this.StreamId = streamId;
-            this.StreamType = type;
+            this.SyncStreamType = type;
             this.AncestorId = ancestorId;
         }
 
@@ -116,13 +112,13 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Add syncstream {0} of type {1}", StreamId, StreamType);
+            return string.Format(@"Add syncstream {0} of type {1}", StreamId, SyncStreamType);
         }
 
 
     }
 
-    public class SetSyncStamp : AggregateCommand<GSApp>
+    public sealed class SetSyncStamp : AggregateCommand<GSApp>
     {
 
         public readonly Guid StreamId;
@@ -130,7 +126,6 @@ namespace Growthstories.Domain.Messaging
         public readonly long SyncStamp;
 
 
-        protected SetSyncStamp() { }
         public SetSyncStamp(Guid streamId, long syncStamp)
             : base(GSAppState.GSAppId)
         {
@@ -143,6 +138,76 @@ namespace Growthstories.Domain.Messaging
         public override string ToString()
         {
             return string.Format(@"Set syncstamp to {0} for stream {1}", SyncStamp, StreamId);
+        }
+
+
+    }
+
+
+    public sealed class SchedulePhotoUpload : AggregateCommand<GSApp>
+    {
+
+
+        public readonly Photo Photo;
+
+
+        public SchedulePhotoUpload(Photo photo)
+            : base(GSAppState.GSAppId)
+        {
+            this.Photo = photo;
+        }
+
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Schedule new photo upload");
+        }
+
+
+    }
+
+    public sealed class CompletePhotoUpload : AggregateCommand<GSApp>
+    {
+
+
+        public readonly Photo Photo;
+
+
+        public CompletePhotoUpload(Photo photo)
+            : base(GSAppState.GSAppId)
+        {
+            this.Photo = photo;
+        }
+
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Complete photo upload");
+        }
+
+
+    }
+
+    public sealed class CompletePhotoDownload : AggregateCommand<GSApp>
+    {
+
+
+        public readonly Photo Photo;
+
+
+        public CompletePhotoDownload(Photo photo)
+            : base(GSAppState.GSAppId)
+        {
+            this.Photo = photo;
+        }
+
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Complete photo download");
         }
 
 
@@ -167,7 +232,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class Push : Synchronize
+    public sealed class Push : Synchronize
     {
 
 
@@ -186,7 +251,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class Pull : Synchronize
+    public sealed class Pull : Synchronize
     {
 
 

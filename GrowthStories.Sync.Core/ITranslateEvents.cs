@@ -14,8 +14,8 @@ namespace Growthstories.Sync
 
         IEventDTO Out(IEvent @event);
         IEnumerable<IEventDTO> Out(IEnumerable<IEvent> events);
-        IEnumerable<IEventDTO> Out(IEnumerable<ISyncEventStream> streams);
-        IEnumerable<IEventDTO> Out(IEnumerable<IAggregateMessages> streams);
+        //IEnumerable<IEventDTO> Out(IEnumerable<ISyncEventStream> streams);
+        IEnumerable<IEventDTO> Out(IEnumerable<IStreamSegment> streams);
 
 
         IEvent In(IEventDTO dto);

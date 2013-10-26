@@ -51,40 +51,51 @@ namespace Growthstories.Sync
 
         public async Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-            var resp = await SendAndGetBodyAsync(CreatePushRequest(request));
-            return ResponseFactory.CreatePushResponse(resp.Item1, resp.Item2);
+
+            return ResponseFactory.CreatePushResponse(request, await SendAndGetBodyAsync(CreatePushRequest(request)));
 
         }
 
 
         public async Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-            var resp = await SendAndGetBodyAsync(CreatePullRequest(request));
-            return ResponseFactory.CreatePullResponse(resp.Item1, resp.Item2);
+
+            return ResponseFactory.CreatePullResponse(request, await SendAndGetBodyAsync(CreatePullRequest(request)));
         }
 
         public async Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
-            var resp = await SendAndGetBodyAsync(CreateAuthRequest(username, password));
-            return ResponseFactory.CreateAuthResponse(resp.Item1, resp.Item2);
+            return ResponseFactory.CreateAuthResponse(await SendAndGetBodyAsync(CreateAuthRequest(username, password)));
         }
 
 
         public async Task<IUserListResponse> ListUsersAsync(string username)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserListUri(username));
-            var resp = await SendAndGetBodyAsync(request);
-            return ResponseFactory.CreateUserListResponse(resp.Item1, resp.Item2);
+
+            return ResponseFactory.CreateUserListResponse(await SendAndGetBodyAsync(request));
         }
 
         public async Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
         {
-            var resp = await SendAndGetBodyAsync(new HttpRequestMessage(HttpMethod.Post,
-                    Endpoint.PhotoUploadUri));
-            return ((ResponseFactory)ResponseFactory).CreatePhotoUploadUriResponse(resp.Item1, resp.Item2);
+            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoUploadUri);
+            return ResponseFactory.CreatePhotoUploadUriResponse(await SendAndGetBodyAsync(request));
         }
 
-        public async Task<HttpResponseMessage> Upload(Uri uri, Stream file)
+        public async Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest req)
+        {
+
+            return ResponseFactory.CreatePhotoUploadResponse(req, await Upload(req.UploadUri, req.Stream));
+        }
+
+        public async Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest req)
+        {
+
+            return ResponseFactory.CreatePhotoDownloadResponse(req, await Download(req.DownloadUri));
+        }
+
+
+        public Task<Tuple<HttpResponseMessage, string>> Upload(Uri uri, Stream file)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, uri);
             var form = new MultipartFormDataContent();
@@ -93,7 +104,23 @@ namespace Growthstories.Sync
             req.Content = form;
 
 
-            return await SendAsync(req);
+            return SendAndGetBodyAsync(req);
+
+        }
+
+        public async Task<Tuple<HttpResponseMessage, Stream>> Download(Uri uri)
+        {
+            var req = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var r = await SendAsync(req);
+
+            Stream c = null;
+            if (r.IsSuccessStatusCode)
+            {
+                c = await r.Content.ReadAsStreamAsync();
+            }
+
+            return Tuple.Create(r, c);
 
         }
 
@@ -114,6 +141,14 @@ namespace Growthstories.Sync
             return Tuple.Create(r, s);
         }
 
+        protected async Task<Tuple<HttpResponseMessage, string>> SendAndReadIfSuccess(HttpRequestMessage request)
+        {
+            var r = await SendAsync(request);
+            string s = null;
+            if (r.IsSuccessStatusCode)
+                s = await r.Content.ReadAsStringAsync();
+            return Tuple.Create(r, s);
+        }
 
         protected IAuthToken _AuthToken;
         public IAuthToken AuthToken

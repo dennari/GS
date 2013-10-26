@@ -9,6 +9,7 @@ namespace Growthstories.Sync
     public enum DTOType
     {
         NOTYPE,
+        nullEvent,
         user,
         garden,
         createGarden,

@@ -1,0 +1,41 @@
+﻿using Growthstories.Core;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+
+namespace Growthstories.Sync
+{
+    public interface IRequestFactory
+    {
+        ISyncPushRequest CreatePushRequest(int globalSequence);
+        ISyncPushRequest CreateUserSyncRequest(Guid userId);
+        ISyncPullRequest CreatePullRequest(ICollection<PullStream> streams);
+        IPhotoUploadRequest CreatePhotoUploadRequest(Photo x);
+        IPhotoDownloadRequest CreatePhotoDownloadRequest(Photo x);
+    }
+
+
+
+    public interface IResponseFactory
+    {
+
+        ISyncPullResponse CreatePullResponse(ISyncPullRequest req, Tuple<HttpResponseMessage, string> resp);
+        ISyncPushResponse CreatePushResponse(ISyncPushRequest req, Tuple<HttpResponseMessage, string> resp);
+        IPhotoUploadResponse CreatePhotoUploadResponse(IPhotoUploadRequest req, Tuple<HttpResponseMessage, string> resp);
+        IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, Tuple<HttpResponseMessage, Stream> resp);
+
+        IAuthResponse CreateAuthResponse(Tuple<HttpResponseMessage, string> resp);
+        IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp);
+        IPhotoUploadUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp);
+    }
+
+    public interface IFileOpener
+    {
+        Task<Stream> OpenPhoto(Photo photo);
+    }
+
+
+}

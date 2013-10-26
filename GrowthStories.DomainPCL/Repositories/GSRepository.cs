@@ -85,7 +85,7 @@ namespace Growthstories.Domain
             GC.SuppressFinalize(this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing)
                 return;
@@ -188,7 +188,7 @@ namespace Growthstories.Domain
                     stream.ClearChanges();
                     return;
                 }
-                catch (RuntimeBinderException e)
+                catch (RuntimeBinderException)
                 {
                     return;
                 }

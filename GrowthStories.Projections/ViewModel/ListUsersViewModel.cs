@@ -44,7 +44,7 @@ namespace Growthstories.UI.ViewModel
         public ReactiveCommand SearchCommand { get; private set; }
         public ReactiveCommand UserSelectedCommand { get; private set; }
 
-        protected bool _InProgress;
+        private bool _InProgress;
         public bool ProgressIndicatorIsVisible
         {
             get
@@ -110,13 +110,13 @@ namespace Growthstories.UI.ViewModel
                 .OfType<RemoteUser>()
                 .Subscribe(x =>
                 {
-                    var cmds = new AggregateMessages(app.Model.Id);
-                    cmds.AddMessage(new CreateSyncStream(x.AggregateId, Core.StreamType.USER));
+                    var cmds = new StreamSegment(app.Model.Id);
+                    cmds.Add(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
                     if (x.Garden != null && x.Garden.Plants != null)
                     {
                         foreach (var p in x.Garden.Plants)
-                            cmds.AddMessage(new CreateSyncStream(p.AggregateId, Core.StreamType.PLANT, x.AggregateId));
+                            cmds.Add(new CreateSyncStream(p.AggregateId, Core.PullStreamType.PLANT, x.AggregateId));
 
                     }
 

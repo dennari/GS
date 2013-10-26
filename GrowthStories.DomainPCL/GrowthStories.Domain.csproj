@@ -38,8 +38,8 @@
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Entities\App\Commands.cs" />
-    <Compile Include="Entities\App\Events.cs" />
+    <Compile Include="Entities\App\GSAppCommands.cs" />
+    <Compile Include="Entities\App\GSAppEvents.cs" />
     <Compile Include="Entities\App\GSApp.cs" />
     <Compile Include="Entities\App\GSAppState.cs" />
     <Compile Include="Entities\PlantActions\Commands.cs" />
@@ -64,7 +64,6 @@
     <Compile Include="Entities\Plant\PlantState.cs" />
     <Compile Include="Exceptions\CommandValidationException.cs" />
     <Compile Include="IDispatchCommands.cs" />
-    <Compile Include="Messaging\Photo.cs" />
     <Compile Include="Repositories\GSRepository.cs" />
     <Compile Include="Services\MessageBusDispatcher.cs" />
     <Compile Include="Messaging\CommandBase.cs" />

@@ -57,7 +57,6 @@ namespace Growthstories.DomainTests
         public T Get<T>() { return kernel.Get<T>(); }
         public IMessageBus Handler { get { return Get<IMessageBus>(); } }
         public SynchronizerService Synchronizer { get { return Get<SynchronizerService>(); } }
-        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
         public IRepository Repository { get { return Get<IRepository>(); } }
         public IDispatchCommits Dispatcher { get { return Get<IDispatchCommits>(); } }

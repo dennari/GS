@@ -25,8 +25,7 @@ namespace Growthstories.Domain.Entities
     {
         public Plant()
         {
-            this.StreamType = EventStore.SyncStreamType.PLANT;
-            this.SyncStreamType = Core.StreamType.PLANT;
+            this.SyncStreamType = Core.PullStreamType.PLANT;
             this.UIPersistable = true;
         }
 

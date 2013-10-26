@@ -8,7 +8,10 @@ namespace Growthstories.Sync
         IAuthUser CurrentUser { get; }
 
 
+
         Task AuthorizeUser();
+
+        void SetupCurrentUser(IAuthUser user);
     }
 
     public class NullUserService : IUserService
@@ -20,6 +23,12 @@ namespace Growthstories.Sync
         }
 
         public Task AuthorizeUser()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+        public void SetupCurrentUser(IAuthUser user)
         {
             throw new System.NotImplementedException();
         }

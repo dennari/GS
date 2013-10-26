@@ -14,7 +14,7 @@ namespace Growthstories.Domain.Messaging
     #region User
 
     [DTOObject(DTOType.createUser)]
-    public class UserCreated : EventBase, ICreateMessage, IAggregateEvent<UserState>
+    public sealed class UserCreated : EventBase, ICreateMessage, IAggregateEvent<UserState>
     {
         [JsonProperty]
         public string Username { get; private set; }
@@ -31,7 +31,7 @@ namespace Growthstories.Domain.Messaging
             get { return _AggregateType == null ? _AggregateType = typeof(User) : _AggregateType; }
         }
 
-        protected UserCreated() { }
+        private UserCreated() { }
         public UserCreated(Guid id, string username, string password, string email)
             : base(id)
         {
@@ -85,26 +85,91 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-
     [DTOObject(DTOType.setProperty)]
-    public class BecameFollower : EventBase
+    public sealed class UsernameSet : EventBase
+    {
+        [JsonProperty]
+        public string Username { get; private set; }
+
+
+        private UsernameSet() { }
+        public UsernameSet(SetUsername cmd)
+            : base(cmd)
+        {
+            if (cmd.Username == null)
+                throw new ArgumentNullException();
+            this.Username = cmd.Username;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User name set to {0}", Username);
+        }
+
+    }
+
+    public abstract class RelationshipEvent : EventBase
     {
 
         [JsonProperty]
         public Guid Target { get; private set; }
 
+        protected RelationshipEvent() { }
+        public RelationshipEvent(RelationshipCommand cmd)
+            : base(cmd)
+        {
+            this.Target = cmd.Target;
+        }
 
-        protected BecameFollower() { }
-        //public BecameFollower(Guid id, Guid OfUser)
-        //    : base(id)
-        //{
-        //    this.OfUser = OfUser;
-        //}
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+
+            D.EntityType = DTOType.user;
+            D.PropertyValue = new JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
+
+            base.FillDTO(D);
+
+            D.StreamAncestor = null;
+            D.AncestorId = null;
+
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            base.FromDTO(D);
+
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
+
+        }
+    }
+
+
+    [DTOObject(DTOType.setProperty)]
+    public sealed class BecameFollower : RelationshipEvent
+    {
+
+
+        private BecameFollower() { }
 
         public BecameFollower(BecomeFollower cmd)
             : base(cmd)
         {
-            this.Target = cmd.Target;
         }
 
         public override string ToString()
@@ -115,19 +180,8 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.user;
             D.PropertyName = "following";
-            D.PropertyValue = new JObject();
-
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
-            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
-
             base.FillDTO(D);
-
-            D.StreamAncestor = null;
-            D.AncestorId = null;
-
-
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -138,36 +192,19 @@ namespace Growthstories.Domain.Messaging
 
             base.FromDTO(D);
 
-            try
-            {
-                var val = (JObject)D.PropertyValue;
-                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
-            }
-            catch
-            {
-
-            }
-
         }
 
     }
 
     [DTOObject(DTOType.setProperty)]
-    public class CollaborationRequested : EventBase
+    public sealed class CollaborationRequested : RelationshipEvent
     {
 
 
-        [JsonProperty]
-        public Guid Target { get; private set; }
-
-        protected CollaborationRequested() { }
-
-
+        private CollaborationRequested() { }
         public CollaborationRequested(RequestCollaboration cmd)
             : base(cmd)
         {
-            this.Target = cmd.Target;
         }
 
         public override string ToString()
@@ -178,17 +215,8 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.user;
             D.PropertyName = "wannabes";
-            D.PropertyValue = new JObject();
-
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
-            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
-
             base.FillDTO(D);
-
-            D.StreamAncestor = null;
-            D.AncestorId = null;
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -199,37 +227,20 @@ namespace Growthstories.Domain.Messaging
 
             base.FromDTO(D);
 
-            try
-            {
-                var val = (JObject)D.PropertyValue;
-                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
-            }
-            catch
-            {
-
-            }
-
         }
 
     }
 
 
     [DTOObject(DTOType.setProperty)]
-    public class CollaborationDenied : EventBase
+    public sealed class CollaborationDenied : RelationshipEvent
     {
 
 
-        [JsonProperty]
-        public Guid Target { get; private set; }
-
-        protected CollaborationDenied() { }
-
-
+        private CollaborationDenied() { }
         public CollaborationDenied(DenyCollaboration cmd)
             : base(cmd)
         {
-            this.Target = cmd.Target;
         }
 
         public override string ToString()
@@ -240,17 +251,8 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.EntityType = DTOType.user;
             D.PropertyName = "unworthies";
-            D.PropertyValue = new JObject();
-
-            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
-            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
-
             base.FillDTO(D);
-
-            D.StreamAncestor = null;
-            D.AncestorId = null;
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -261,17 +263,6 @@ namespace Growthstories.Domain.Messaging
 
             base.FromDTO(D);
 
-            try
-            {
-                var val = (JObject)D.PropertyValue;
-                this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
-                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
-            }
-            catch
-            {
-
-            }
-
         }
 
     }
@@ -279,14 +270,14 @@ namespace Growthstories.Domain.Messaging
 
 
     [DTOObject(DTOType.setProperty)]
-    public class GardenAdded : EventBase, IAggregateEvent<UserState>
+    public sealed class GardenAdded : EventBase, IAggregateEvent<UserState>
     {
         [JsonProperty]
-        public Guid GardenId { get; protected set; }
+        public Guid GardenId { get; private set; }
 
 
 
-        protected GardenAdded() { }
+        private GardenAdded() { }
 
 
         public GardenAdded(AddGarden cmd)

@@ -16,5 +16,8 @@ namespace Growthstories.Sync
 
 
         Task<IPhotoUploadUriResponse> RequestPhotoUploadUri();
+
+        Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest request);
+        Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest request);
     }
 }

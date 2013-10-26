@@ -28,37 +28,55 @@ namespace Growthstories.Sync
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            return Task.Run(() =>
-            {
+            throw new NotImplementedException();
 
-                return new HttpResponseMessage()
-                {
-                    Content = new StringContent(
-                        "",
-                        Encoding.UTF8,
-                        "application/json"
-                        )
-                };
-            });
         }
 
         public Task<string> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            return Task.Run(() =>
-            {
-                return "";
-            });
+            throw new NotImplementedException();
+
         }
 
         public Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.PushResponse(request));
         }
+
+        private ISyncPushResponse PushResponse(ISyncPushRequest request)
+        {
+            if (PushResponseFactory == null)
+                return new HttpPushResponse()
+                {
+                    StatusCode = GSStatusCode.OK
+                };
+            else
+                return PushResponseFactory(request);
+        }
+
+        private ISyncPullResponse PullResponse(ISyncPullRequest request)
+        {
+            if (PullResponseFactory == null)
+                return new HttpPullResponse()
+                {
+                    StatusCode = GSStatusCode.OK
+                };
+            else
+                return PullResponseFactory(request);
+        }
+
+
+        public Func<ISyncPushRequest, ISyncPushResponse> PushResponseFactory { get; set; }
+
+        public Func<ISyncPullRequest, ISyncPullResponse> PullResponseFactory { get; set; }
+
+
 
 
         public Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.PullResponse(request));
+
         }
 
         public Task<IAuthResponse> RequestAuthAsync(string username, string password)
@@ -89,9 +107,48 @@ namespace Growthstories.Sync
         }
 
 
+        public Func<IPhotoUploadUriResponse> PhotoUploadUriResponseFactory { get; set; }
+
+
         public Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
         {
-            throw new NotImplementedException();
+            if (PhotoUploadUriResponseFactory != null)
+                return Task.FromResult(PhotoUploadUriResponseFactory());
+
+            return Task.FromResult<IPhotoUploadUriResponse>(new PhotoUploadUriResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                UploadUri = new Uri("http://random.com")
+            });
+        }
+
+        public Func<IPhotoUploadRequest, IPhotoUploadResponse> PhotoUploadResponseFactory { get; set; }
+
+
+        public Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest request)
+        {
+            if (PhotoUploadResponseFactory != null)
+                return Task.FromResult(PhotoUploadResponseFactory(request));
+
+            return Task.FromResult<IPhotoUploadResponse>(new PhotoUploadResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Photo = request.Photo
+            });
+        }
+
+        public Func<IPhotoDownloadRequest, IPhotoDownloadResponse> PhotoDownloadResponseFactory { get; set; }
+
+        public Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest request)
+        {
+            if (PhotoDownloadResponseFactory != null)
+                return Task.FromResult(PhotoDownloadResponseFactory(request));
+
+            return Task.FromResult<IPhotoDownloadResponse>(new PhotoDownloadResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Photo = request.Photo
+            });
         }
     }
 }

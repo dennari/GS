@@ -121,6 +121,25 @@ namespace Growthstories.UI.ViewModel
             get { return _Router ?? (_Router = new RoutingState()); }
         }
 
+        protected IDispatchCommands _Handler;
+        protected IDispatchCommands Handler
+        {
+            get { return _Handler ?? (_Handler = Kernel.Get<IDispatchCommands>()); }
+        }
+
+        protected IUIPersistence _UIPersistence;
+        protected IUIPersistence UIPersistence
+        {
+            get { return _UIPersistence ?? (_UIPersistence = Kernel.Get<IUIPersistence>()); }
+        }
+
+
+        IUserService _Context = null;
+        public IUserService Context
+        {
+            get { return _Context ?? (_Context = Kernel.Get<IUserService>()); }
+        }
+
         public Guid GardenId { get; set; }
 
 
@@ -235,14 +254,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        protected IDispatchCommands _Handler;
-        protected IDispatchCommands Handler
-        {
-            get
-            {
-                return _Handler ?? (_Handler = Kernel.Get<IDispatchCommands>());
-            }
-        }
 
         protected GSApp Initialize(IGSRepository repository)
         {
@@ -251,9 +262,19 @@ namespace Growthstories.UI.ViewModel
             // Subscriptions where we need to catch all the happenings
             Bus.Listen<IAggregateCommand>().Subscribe(x =>
             {
-                Handler.Handle(x);
+                if (!x.AncestorId.HasValue)
+                    this.SetIds(x);
+
+                var push = x as Push;
+                if (push != null)
+                    Handler.Handle(push);
+                var pull = x as Pull;
+                if (pull != null)
+                    Handler.Handle(pull);
+                if (push == null && pull == null)
+                    Handler.Handle(x);
             });
-            Bus.Listen<IAggregateMessages>().Subscribe(x =>
+            Bus.Listen<IStreamSegment>().Subscribe(x =>
             {
                 Handler.Handle(x);
             });
@@ -265,7 +286,7 @@ namespace Growthstories.UI.ViewModel
             {
                 app = (GSApp)repository.GetById(GSAppState.GSAppId);
             }
-            catch (DomainError e)
+            catch (DomainError)
             {
 
             }
@@ -282,10 +303,9 @@ namespace Growthstories.UI.ViewModel
                 //app = factory.Build<GSApp>();
 
             }
+            Context.SetupCurrentUser(app.State.User);
 
             this.Model = app;
-
-            ((AppUserService)Context).SetupCurrentUser(this);
 
             return app;
         }
@@ -303,12 +323,14 @@ namespace Growthstories.UI.ViewModel
                 RequestFactory = Kernel.Get<IRequestFactory>();
 
 
-            var s = SyncService.Synchronize(
+            var s = new SyncInstance(
                 RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
-                RequestFactory.CreatePushRequest(Model.State.SyncSequence)
+                RequestFactory.CreatePushRequest(Model.State.SyncSequence),
+                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
+                Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray()
             );
 
-            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty)
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
                 return null;
 
             return _Synchronize(s);
@@ -316,39 +338,59 @@ namespace Growthstories.UI.ViewModel
 
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
+            bool handlePull = false;
+            IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;
 
-
-            var pullResp = await s.Pull();
-            if (pullResp != null && pullResp.StatusCode == GSStatusCode.OK)
+            if (!s.PullReq.IsEmpty)
             {
-                Handler.Handle(new Pull(s));
+                var pullResp = await s.Pull();
+                if (pullResp != null && pullResp.StatusCode == GSStatusCode.OK && pullResp.Streams != null && pullResp.Streams.Count > 0)
+                {
+                    Handler.AttachAggregates(pullResp);
+                    handlePull = true;
+                    if (s.PushReq.IsEmpty)
+                    {
+                        Handler.Handle(new Pull(s));
+                        downloadRequests = Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray();
+                    }
+                }
             }
-
-            var pushResp = await s.Push();
-            if (pushResp != null && pushResp.StatusCode == GSStatusCode.OK)
+            if (!s.PushReq.IsEmpty)
             {
-                Handler.Handle(new Push(s));
-            }
+                if (handlePull)
+                    s.Merge();
 
+                var pushResp = await s.Push();
+                if (pushResp != null && pushResp.StatusCode == GSStatusCode.OK)
+                {
+                    if (handlePull)
+                    {
+                        Handler.Handle(new Pull(s));
+                        downloadRequests = Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray();
+                    }
+                    Handler.Handle(new Push(s));
+                }
+            }
+            if (s.PhotoUploadRequests.Length > 0)
+            {
+                var responses = await s.UploadPhotos();
+                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoUpload(x.Photo)).ToArray();
+                if (successes.Length > 0)
+                    Handler.Handle(new StreamSegment(Model.State.Id, successes));
+            }
+            if (downloadRequests.Length > 0)
+            {
+                var responses = await s.DownloadPhotos(downloadRequests);
+                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoDownload(x.Photo)).ToArray();
+                if (successes.Length > 0)
+                    Handler.Handle(new StreamSegment(Model.State.Id, successes));
+            }
             return s;
 
         }
 
 
-        IUserService _Context = null;
-        public IUserService Context
-        {
-            get
-            {
-                if (_Context == null)
-                {
-                    var s = Kernel.Get<AppUserService>();
-                    _Context = s;
 
-                }
-                return _Context;
-            }
-        }
 
         //protected IGSRepository Repository;
         //protected IObservable<T> GetById<T>(Guid id) where T : IGSAggregate
@@ -455,9 +497,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        protected IUIPersistence _UIPersistence;
-        protected IUIPersistence UIPersistence { get { return _UIPersistence ?? (_UIPersistence = Kernel.Get<IUIPersistence>()); } }
 
 
 

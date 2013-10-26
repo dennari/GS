@@ -19,7 +19,8 @@ namespace Growthstories.UI.Services
     public class AppUserService : IUserService
     {
         //private User u;
-        private IAuthUser AuthUser;
+
+        private readonly ISynchronizerService SyncService;
         private readonly ITransportEvents Transporter;
         private readonly IMessageBus Bus;
         private readonly IDispatchCommands Handler;
@@ -27,6 +28,7 @@ namespace Growthstories.UI.Services
 
         public AppUserService(
             IMessageBus bus,
+            ISynchronizerService syncService,
             ITransportEvents transporter,
             IRequestFactory requestFactory,
             IDispatchCommands handler
@@ -34,41 +36,26 @@ namespace Growthstories.UI.Services
         {
 
             this.Transporter = transporter;
+            this.SyncService = syncService;
             this.Bus = bus;
             this.Handler = handler;
             this.RequestFactory = requestFactory;
         }
 
 
-        public IAuthUser CurrentUser
+        protected IAuthUser _OCurrentUser;
+        protected AuthUser _CurrentUser;
+        public IAuthUser CurrentUser { get { return _OCurrentUser ?? _CurrentUser; } }
+
+
+
+        public void SetupCurrentUser(IAuthUser user)
         {
-            get
-            {
-
-                return AuthUser;
-            }
-
-        }
-
-
-
-        public void SetupCurrentUser(AppViewModel app)
-        {
-            //u = Factory.Build<User>();
-            //Repository.PlayById(u, FakeUserId);
-
-            //if (u.Version == 0)
-            //{
-            //    u.Handle(new CreateUser(FakeUserId, "Fakename", "1234", "in@the.net"));
-            //    Repository.Save(u);
-            //    var commits = SyncPersistence.GetUnsynchronizedCommits().GroupBy(x => x.StreamId).ToArray();
-            //    if (commits.Length != 1 || commits[0].Key != u.Id)
-            //        throw new InvalidOperationException("UserCreated Event needs to be synchronized alone");
-            //    this.UserCreateCommit = commits[0];
-            //}
-
-
-            if (app.Model.Version == 0 || app.Model.State.User == null)
+            if (CurrentUser != null)
+                return;
+            if (user != null)
+                _OCurrentUser = user;
+            else
             {
 
                 var u = new CreateUser(UserState.UnregUserId, "UnregUser", "UnregPassword", "unreg@user.net");
@@ -80,40 +67,54 @@ namespace Growthstories.UI.Services
                     UserGardenId = UserState.UnregUserGardenId,
                     UserVersion = 0
                 });
-                //app.CurrentUserState = U.State;
 
-                //Repository.Save(app);
+                _CurrentUser = new AuthUser()
+                {
+                    Id = u.AggregateId,
+                    GardenId = UserState.UnregUserGardenId,
+                    Username = u.Username,
+                    Password = u.Password,
+                    Email = u.Email
+                };
 
             }
 
-            AuthUser = app.Model.State.User;
-            if (AuthUser == null)
-                throw new InvalidOperationException("Can't set AppUser");
-
-            // try to authorize
-            //Task.Run(async () => await AuthorizeUser());
         }
 
 
         public Task AuthorizeUser()
         {
 
+            if (CurrentUser == null)
+            {
+                throw new InvalidOperationException("CurrentUser has to be set before authorizing.");
+            }
+
             return Task.Run(async () =>
             {
 
-                var pushResp = await Transporter.PushAsync(RequestFactory.CreateUserSyncRequest(AuthUser.Id));
+                var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
+
+
+                var pushResp = await s.Push();
                 if (pushResp.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Can't synchronize user");
+                Bus.SendCommand(new Push(s));
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
 
 
 
-                var authResponse = await Transporter.RequestAuthAsync(AuthUser.Username, AuthUser.Password);
+                var authResponse = await Transporter.RequestAuthAsync(CurrentUser.Username, CurrentUser.Password);
                 if (authResponse.StatusCode != GSStatusCode.OK)
-                    throw new InvalidOperationException(string.Format("Can't authorize user {0}", AuthUser.Username));
+                    throw new InvalidOperationException(string.Format("Can't authorize user {0}", CurrentUser.Username));
+
+                _CurrentUser.AccessToken = authResponse.AuthToken.AccessToken;
+                _CurrentUser.ExpiresIn = authResponse.AuthToken.ExpiresIn;
+                _CurrentUser.RefreshToken = authResponse.AuthToken.RefreshToken;
 
                 Bus.SendCommand(new SetAuthToken(authResponse.AuthToken));
+
                 Transporter.AuthToken = authResponse.AuthToken;
                 //u.State.Apply(new AuthTokenSet(new SetAuthToken(u.Id, authResponse.AuthToken)));
             });

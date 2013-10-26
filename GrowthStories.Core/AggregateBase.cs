@@ -10,7 +10,7 @@ using Microsoft.CSharp.RuntimeBinder;
 
 namespace Growthstories.Core
 {
-    public enum StreamType
+    public enum PullStreamType
     {
         NULL,
         USER,
@@ -21,15 +21,13 @@ namespace Growthstories.Core
     public interface IGSAggregate : IAggregate, IApplyState
     {
         void SetEventFactory(IEventFactory factory);
-        SyncStreamType StreamType { get; }
-        StreamType SyncStreamType { get; }
+        PullStreamType SyncStreamType { get; }
         bool UIPersistable { get; }
         void Handle(IMessage msg);
-
-        //void ApplyRemoteEvent(IEvent Event);
+        IAggregateState State { get; }
+        void ApplyRemoteMessage(IMessage Event);
         bool HasUncommittedEvents { get; }
 
-        void Resolve(IEvent[] local, IEvent[] remote, ISet<Guid> duplicates);
     }
 
     public abstract class AggregateBase<TState, TCreate> : AggregateBase, IGSAggregate
@@ -66,28 +64,8 @@ namespace Growthstories.Core
             }
         }
 
-        public virtual void Resolve(IEvent[] local, IEvent[] remote, ISet<Guid> duplicates)
-        {
-            // these need to be ordered already
-            int c = 0;
-            foreach (var e in remote)
-            {
-                if (duplicates.Contains(e.MessageId))
-                    continue;
-                c++;
-                e.AggregateVersion = this.Version + c;
-            }
-            c = remote.Length - duplicates.Count;
-            foreach (var e in local)
-            {
 
-                e.AggregateVersion += c;
-            }
-        }
-
-
-        public SyncStreamType StreamType { get; protected set; }
-        public StreamType SyncStreamType { get; protected set; }
+        public PullStreamType SyncStreamType { get; protected set; }
         public bool UIPersistable { get; protected set; }
 
         private bool applying = false;
@@ -96,6 +74,7 @@ namespace Growthstories.Core
         private static ILog Logger = LogFactory.BuildLogger(typeof(TState));
 
         private readonly ICollection<IEvent> UncommittedRemoteEvents = new LinkedList<IEvent>();
+
 
 
 
@@ -187,33 +166,26 @@ namespace Growthstories.Core
 
         }
 
-        public void ApplyRemoteEvent(IEvent Event)
+        public void ApplyRemoteMessage(IMessage e)
         {
+            var Event = e as IEvent;
+            if (Event == null)
+                throw new ArgumentException("Only remote EVENTS accepted");
+
             Validate(Event);
 
-            // TODO check here if there's a version mismatch
-
-            //if (((IAggregate)this).GetUncommittedEvents().Count > 0)
-            //    throw new InvalidOperationException("All pending local changes need to be saved before applying remote events.");
-            //if (this.AppliedEventIds.Contains(Event.MessageId))
-            //   return;
-
-            //if (this._eventFactory != null)
-            //    this._eventFactory.Fill(Event, this);
-            //Event.AggregateVersion = this.Version + 1;
-
+            // this is here ON PURPOSE
+            Event.AggregateVersion = this.Version + 1;
 
             var sE = Event as IAggregateEvent<TState>;
             if (sE != null)
             {
                 sE.AggregateState = this.State;
             }
-            Logger.Info("Raised remote event: {0}", Event.ToString());
+
+
+            Logger.Info("Raised REMOTE event: {0}", Event.ToString());
             base.RaiseEvent(Event);
-            //this.AppliedEventIds.Add(Event.MessageId);
-            //this.RegisteredRoutes.Dispatch(Event);
-            //this.Version++;
-            //this.UncommittedRemoteEvents.Add(Event);
         }
 
 
@@ -243,6 +215,19 @@ namespace Growthstories.Core
         {
             return State;
         }
+
+
+
+        IAggregateState IGSAggregate.State
+        {
+            get { return State; }
+        }
+
+
+
+
+
+
 
     }
 }

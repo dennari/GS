@@ -52,11 +52,10 @@ namespace Growthstories.DomainTests
 
         }
 
-        protected virtual void UIConfiguration()
+        protected virtual void FileSystemConfiguration()
         {
-            //Bind<INavigationService, FakeNavigationService>().To<FakeNavigationService>().InSingletonScope();
-            //Bind<GardenViewModel>().ToSelf().InSingletonScope();
-            //Bind<PlantViewModel>().ToSelf().InSingletonScope();
+            Bind<IFileOpener>().To<FileOpener>();
+
         }
 
 
@@ -136,7 +135,7 @@ namespace Growthstories.DomainTests
             EventFactoryConfiguration();
             SQLiteConnectionConfiguration();
             PersistenceConfiguration();
-            UIConfiguration();
+            FileSystemConfiguration();
 
             Bind<ITranslateEvents>().To<SyncTranslator>().InSingletonScope();
 

@@ -41,6 +41,29 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class SetUsername : AggregateCommand<User>
+    {
+
+        public string Username { get; private set; }
+
+
+        public SetUsername(Guid id, string username)
+            : base(id)
+        {
+
+            if (username == null)
+                throw new ArgumentNullException();
+
+            this.Username = username;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set username to", Username);
+        }
+
+    }
 
 
 
@@ -76,15 +99,25 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class BecomeFollower : AggregateCommand<User>
+    public abstract class RelationshipCommand : AggregateCommand<User>
     {
         public Guid Target { get; private set; }
 
-        protected BecomeFollower() { }
-        public BecomeFollower(Guid userId, Guid OfUser)
+        public RelationshipCommand(Guid userId, Guid target)
             : base(userId)
         {
-            this.Target = OfUser;
+            this.Target = target;
+
+        }
+    }
+
+    public class BecomeFollower : RelationshipCommand
+    {
+
+
+        public BecomeFollower(Guid userId, Guid target)
+            : base(userId, target)
+        {
 
         }
 
@@ -95,16 +128,13 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class RequestCollaboration : AggregateCommand<User>
+    public class RequestCollaboration : RelationshipCommand
     {
-        public Guid Target { get; private set; }
 
-        protected RequestCollaboration() { }
         public RequestCollaboration(Guid userId, Guid target)
-            : base(userId)
+            : base(userId, target)
         {
 
-            this.Target = target;
 
         }
 
@@ -115,16 +145,13 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DenyCollaboration : AggregateCommand<User>
+    public class DenyCollaboration : RelationshipCommand
     {
-        public Guid Target { get; private set; }
 
-        protected DenyCollaboration() { }
         public DenyCollaboration(Guid userId, Guid target)
-            : base(userId)
+            : base(userId, target)
         {
 
-            this.Target = target;
 
         }
 

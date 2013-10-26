@@ -36,11 +36,11 @@ using Growthstories.UI.ViewModel;
 
 namespace Growthstories.DomainTests
 {
-    public class SyncTest : StagingTestBase
+    public class StagingSyncTests : StagingTestBase
     {
 
 
-        private ILog Log = new LogToNLog(typeof(SyncTest));
+        private ILog Log = new LogToNLog(typeof(StagingSyncTests));
 
         private IAuthToken RemoteAuth;
 
@@ -91,7 +91,7 @@ namespace Growthstories.DomainTests
             var fetchedUser = listUsersResponse.Users[0];
 
 
-            Bus.SendCommand(new CreateSyncStream(fetchedUser.AggregateId, StreamType.USER));
+            Bus.SendCommand(new CreateSyncStream(fetchedUser.AggregateId, PullStreamType.USER));
 
             var R2 = await App.Synchronize();
             SyncAssertions(R2);
@@ -117,7 +117,7 @@ namespace Growthstories.DomainTests
                 task.Wait();
             else
                 task.Wait(timeout);
-            Assert.IsTrue(task.IsCompleted);
+            Assert.IsTrue(task.IsCompleted, "Task timeout");
             return task.Result;
         }
 
@@ -127,7 +127,7 @@ namespace Growthstories.DomainTests
                 task.Wait();
             else
                 task.Wait(timeout);
-            Assert.IsTrue(task.IsCompleted);
+            Assert.IsTrue(task.IsCompleted, "Task timeout");
         }
 
         protected T WaitForFirst<T>(IObservable<T> task, int timeout = 9000)
@@ -205,9 +205,11 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(remoteComment.Note, action.State.Note);
 
 
+            int CurrentSyncSequence = App.Model.State.SyncSequence;
             var R4 = WaitForTask(App.Synchronize());
             SyncAssertions(R4);
-            Assert.IsNull(R4.PushReq);
+            Assert.IsTrue(R4.PushReq.IsEmpty);
+            Assert.AreEqual(CurrentSyncSequence + 1, App.Model.State.SyncSequence); // 1 for the pull-notification
 
             return originalRemoteEvents;
 
@@ -314,7 +316,7 @@ namespace Growthstories.DomainTests
             var remoteComment = (PlantActionCreated)originalRemoteEvents[3];
 
 
-            Bus.SendCommand(new CreateSyncStream(remotePlant.AggregateId, StreamType.PLANT, remoteUser.AggregateId));
+            Bus.SendCommand(new CreateSyncStream(remotePlant.AggregateId, PullStreamType.PLANT, remoteUser.AggregateId));
 
             var R2 = await App.Synchronize();
             SyncAssertions(R2);
@@ -374,7 +376,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        protected UserCreated CreateUserFromName(string name)
+        public static UserCreated CreateUserFromName(string name)
         {
             return new UserCreated(new CreateUser(
                 Guid.NewGuid(),
@@ -390,27 +392,27 @@ namespace Growthstories.DomainTests
 
 
 
-        protected IAggregateMessages[] EventsToStreams(Guid aggregateId, IEvent events)
+        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEvent events)
         {
-            var msgs = new AggregateMessages(aggregateId);
-            msgs.AddMessage(events);
+            var msgs = new StreamSegment(aggregateId);
+            msgs.Add(events);
             return new[] { msgs };
         }
 
-        protected IAggregateMessages[] EventsToStreams(Guid aggregateId, IEnumerable<IEvent> events)
+        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEnumerable<IEvent> events)
         {
-            var msgs = new AggregateMessages(aggregateId);
-            msgs.AddMessage(events);
+            var msgs = new StreamSegment(aggregateId);
+            msgs.AddRange(events);
             return new[] { msgs };
         }
 
-        protected IEnumerable<IAggregateMessages> EventsToStreams(IEnumerable<IEvent> events)
+        protected IEnumerable<IStreamSegment> EventsToStreams(IEnumerable<IEvent> events)
         {
 
             foreach (var g in events.GroupBy(x => x.AggregateId))
             {
-                var msgs = new AggregateMessages(g.Key);
-                msgs.AddMessage(g);
+                var msgs = new StreamSegment(g.Key);
+                msgs.AddRange(g);
                 yield return msgs;
             }
 

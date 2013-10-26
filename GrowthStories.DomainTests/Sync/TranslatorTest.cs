@@ -29,9 +29,14 @@ namespace Growthstories.DomainTests
             //    kernel.Dispose();
             kernel = new StandardKernel(new TestModule());
             var resolver = new JsonSchemaResolver();
-
             IEventSchema = JsonSchema.Parse(Schema.ievent, resolver);
             CreateEntitySchema = JsonSchema.Parse(Schema.createevent, resolver);
+
+            User = new AuthUser()
+            {
+                Id = Guid.NewGuid()
+            };
+
 
         }
 
@@ -46,30 +51,27 @@ namespace Growthstories.DomainTests
             }
         }
 
-        protected User _User;
         private JsonSchema IEventSchema;
         private JsonSchema CreateEntitySchema;
-        protected IAuthUser User
-        {
-            get
-            {
 
-                return kernel.Get<IUserService>().CurrentUser;
-            }
-        }
+        protected IAuthUser User { get; set; }
+
 
         [Test]
         public void CreateComment()
         {
 
 
-            var C = new PlantActionCreated(new CreatePlantAction(
+            var cmd = new CreatePlantAction(
                 Guid.NewGuid(),
                 User.Id,
                 Guid.NewGuid(),
                 PlantActionType.COMMENTED,
                 "new note")
-            )
+            {
+                AncestorId = User.Id
+            };
+            var C = new PlantActionCreated(cmd)
             {
                 AggregateVersion = 1,
                 MessageId = Guid.NewGuid(),
@@ -89,20 +91,21 @@ namespace Growthstories.DomainTests
         public void CreatePhotograph()
         {
 
-
-            var C = new PlantActionCreated(new CreatePlantAction(
+            var cmd = new CreatePlantAction(
                 Guid.NewGuid(),
                 User.Id,
                 Guid.NewGuid(),
                 PlantActionType.PHOTOGRAPHED,
                 "new note")
+            {
+                Photo = new Photo()
                 {
-                    Photo = new Photo()
-                    {
-                        BlobKey = "klsdkfsldkf"
-                    }
-                }
-            )
+                    BlobKey = "klsdkfsldkf"
+                },
+                AncestorId = User.Id
+            };
+
+            var C = new PlantActionCreated(cmd)
             {
                 AggregateVersion = 1,
                 MessageId = Guid.NewGuid(),
@@ -118,8 +121,7 @@ namespace Growthstories.DomainTests
         public void CreateMeasure()
         {
 
-
-            var C = new PlantActionCreated(new CreatePlantAction(
+            var cmd = new CreatePlantAction(
                 Guid.NewGuid(),
                 User.Id,
                 Guid.NewGuid(),
@@ -127,9 +129,11 @@ namespace Growthstories.DomainTests
                 "new note")
             {
                 Value = 2342.12,
-                MeasurementType = MeasurementType.ILLUMINANCE
-            }
-            )
+                MeasurementType = MeasurementType.ILLUMINANCE,
+                AncestorId = User.Id
+            };
+
+            var C = new PlantActionCreated(cmd)
             {
                 AggregateVersion = 1,
                 MessageId = Guid.NewGuid(),
@@ -147,14 +151,12 @@ namespace Growthstories.DomainTests
         public void CreateSchedule()
         {
 
-
-            var C = new ScheduleCreated(new CreateSchedule(
-                Guid.NewGuid(),
-                234234)
+            var cmd = new CreateSchedule(Guid.NewGuid(), 234234)
             {
+                AncestorId = User.Id
+            };
 
-            }
-            )
+            var C = new ScheduleCreated(cmd)
             {
                 AggregateVersion = 1,
                 MessageId = Guid.NewGuid(),

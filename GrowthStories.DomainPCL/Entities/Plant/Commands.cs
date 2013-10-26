@@ -3,6 +3,7 @@
 using System;
 using Growthstories.Core;
 using System.Collections.Generic;
+using Growthstories.Sync;
 
 
 namespace Growthstories.Domain.Messaging

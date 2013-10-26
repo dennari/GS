@@ -259,11 +259,9 @@ namespace Growthstories.DomainTests
             T.AuthToken = null;
             var R = await T.Upload(uploadUriResponse.UploadUri, file);
 
-            Assert.IsTrue(R.IsSuccessStatusCode);
+            Assert.IsTrue(R.Item1.IsSuccessStatusCode);
 
-            var blobkey = await R.Content.ReadAsStringAsync();
-
-            Log.Info(blobkey);
+            Log.Info(R.Item2);
 
 
         }

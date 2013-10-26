@@ -20,6 +20,7 @@ namespace Growthstories.Domain.Entities
     public class User : AggregateBase<UserState, UserCreated>,
         ICommandHandler<CreateUser>,
         ICommandHandler<BecomeFollower>,
+        ICommandHandler<SetUsername>,
         ICommandHandler<RequestCollaboration>,
         ICommandHandler<DenyCollaboration>,
         ICommandHandler<AddGarden>,
@@ -32,8 +33,7 @@ namespace Growthstories.Domain.Entities
 
         public User()
         {
-            this.StreamType = EventStore.SyncStreamType.USER;
-            this.SyncStreamType = Core.StreamType.USER;
+            this.SyncStreamType = Core.PullStreamType.USER;
         }
 
         public void Handle(AddPlant command)
@@ -61,6 +61,13 @@ namespace Growthstories.Domain.Entities
         {
 
             RaiseEvent(new UserCreated(command));
+
+        }
+
+        public void Handle(SetUsername command)
+        {
+
+            RaiseEvent(new UsernameSet(command));
 
         }
 

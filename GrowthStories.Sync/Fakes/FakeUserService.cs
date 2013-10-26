@@ -82,5 +82,11 @@ namespace Growthstories.Sync
             //});
             return null;
         }
+
+
+        public void SetupCurrentUser(IAuthUser user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -8,32 +8,15 @@ using System.Text;
 
 namespace Growthstories.Sync
 {
-    public interface ISyncEventStream : IEventStream, IEquatable<ISyncEventStream>
-    {
-        //void Rebase(ISyncEventStream remoteStream);
-
-        //void CommitPullChanges(Guid commitId);
-
-        Commit[] Commits { get; }
-
-        //IEnumerable<IEventDTO> Translate(ITranslateEvents translator);
-
-        void AddRemote(IEvent e);
-
-        ICollection<IEvent> UncommittedRemoteEvents { get; }
-
-        void Add(IEvent e, bool setVersion = false);
 
 
-    }
-
-    public interface ISyncEventStreamDTO
-    {
-        string Type { get; }
-        long SyncStamp { get; }
-        Guid StreamId { get; }
-        Guid? StreamAncestorId { get; }
-    }
+    //public interface ISyncEventStreamDTO
+    //{
+    //    string Type { get; }
+    //    long SyncStamp { get; }
+    //    Guid StreamId { get; }
+    //    Guid? StreamAncestorId { get; }
+    //}
 
 
 }

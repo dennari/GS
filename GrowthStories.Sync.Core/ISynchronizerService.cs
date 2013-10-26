@@ -17,12 +17,13 @@ namespace Growthstories.Sync
 
     public interface IGSAppState
     {
-        IEnumerable<SyncStreamInfo> SyncStreams { get; }
+        IEnumerable<PullStream> SyncStreams { get; }
+        IAuthUser User { get; }
     }
 
     public interface IGSApp : IGSAggregate
     {
-        IGSAppState State { get; }
+        //IGSAppState State { get; }
         //bool CanHandle(IMessage msg);
     }
 
@@ -32,32 +33,23 @@ namespace Growthstories.Sync
         ISyncPushRequest PushReq { get; }
         ISyncPullResponse PullResp { get; }
         ISyncPushResponse PushResp { get; }
+        IPhotoUploadRequest[] PhotoUploadRequests { get; }
+        IPhotoDownloadRequest[] PhotoDownloadRequests { get; }
 
         Task<ISyncPullResponse> Pull();
         Task<ISyncPushResponse> Push();
+        Task<IPhotoUploadResponse[]> UploadPhotos();
+        Task<IPhotoDownloadResponse[]> DownloadPhotos(IPhotoDownloadRequest[] downloadRequests = null);
+        int Merge();
+        //IGSAggregate HandleRemoteMessages(IAggregateMessages msgs);
 
-        IGSAggregate HandleRemoteMessages(IAggregateMessages msgs);
 
     }
 
     public interface ISynchronizerService
     {
         ISyncInstance Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq);
-        //Task<bool> CreateUserAsync(Guid userId);
-        //IEnumerable<ISyncEventStream> Pending();
-        //ISyncPullRequest GetPullRequest();
 
-        //ISyncPushRequest GetPushRequest();
-
-        //ITransportEvents Transporter { get; }
-
-        //void MarkSynchronized(ISyncPushRequest pushReq, ISyncPushResponse pushResp = null);
-
-        //IEnumerable<RebasePair> MatchStreams(ISyncPushRequest pushReq, ISyncPullResponse pullResp);
-
-        //void Synchronized(ISyncPushRequest pushReq);
-
-        //Task TryAuth(ISyncPushRequest pushReq);
     }
 
 

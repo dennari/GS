@@ -16,6 +16,8 @@ namespace Growthstories.Core
     public interface IAggregateState : IMemento
     {
         Type AggregateType { get; }
+        void Merge(IMessage incoming, IMessage outgoing, out IMessage incomingNew, out IMessage outgoingNew);
+        bool IsDuplicate(IMessage x);
 
     }
 
@@ -56,6 +58,9 @@ namespace Growthstories.Core
 
         public abstract void Apply(IEvent @event);
 
+
+        public abstract void Merge(IMessage local, IMessage remote, out IMessage localNew, out IMessage remoteNew);
+        public abstract bool IsDuplicate(IMessage x);
 
         //public event PropertyChangedEventHandler PropertyChanged;
 
@@ -151,6 +156,17 @@ namespace Growthstories.Core
 
         }
 
+        public override bool IsDuplicate(IMessage x)
+        {
+            return false;
+        }
+
+        public override void Merge(IMessage local, IMessage remote, out IMessage localNew, out IMessage remoteNew)
+        {
+            // do nothing by default
+            localNew = local;
+            remoteNew = remote;
+        }
     }
 
     public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : ICreateMessage
@@ -194,16 +210,19 @@ namespace Growthstories.Core
             }
             if (this.applying)
                 throw DomainError.Named("nohandler", "Can't find handler for event {0}", @event.GetType().ToString());
-            if (AppliedEventIds.Contains(@event.MessageId))
+            if (IsDuplicate(@event))
                 throw DomainError.Named("duplicate_event", "Event {0} of type {1} has already been applied", @event.MessageId, @event.GetType().ToString());
             if (@event.AggregateVersion != this.Version + 1)
                 throw DomainError.Named("version_mismatch", "Won't apply remote event with nonconsecutive version.");
 
             try
             {
-                this.applying = true;
-                ((dynamic)this).Apply((dynamic)@event);
-                this.applying = false;
+                if (!(@event is INullEvent))
+                {
+                    this.applying = true;
+                    ((dynamic)this).Apply((dynamic)@event);
+                    this.applying = false;
+                }
                 Version++;
                 AppliedEventIds.Add(@event.MessageId);
 
@@ -215,5 +234,16 @@ namespace Growthstories.Core
 
         }
 
+        public override bool IsDuplicate(IMessage x)
+        {
+            return AppliedEventIds.Contains(x.MessageId);
+        }
+
+        public override void Merge(IMessage local, IMessage remote, out IMessage localNew, out IMessage remoteNew)
+        {
+            // do nothing by default
+            localNew = local;
+            remoteNew = remote;
+        }
     }
 }

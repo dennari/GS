@@ -78,8 +78,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ResponseFactory.cs" />
     <Compile Include="Fakes\FakeHttpRequestResponseFactory.cs" />
-    <Compile Include="RequestResponseFactory.cs" />
+    <Compile Include="RequestFactory.cs" />
     <Compile Include="Fakes\FakeUserService.cs" />
     <Compile Include="Fakes\FakeEndpoint.cs" />
     <Compile Include="AuthToken.cs" />

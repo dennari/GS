@@ -15,7 +15,6 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-
         void FillDTO(IEventDTO Dto);
 
         void FromDTO(IEventDTO Dto);
@@ -132,6 +131,35 @@ namespace Growthstories.Domain.Messaging
 
 
     }
+
+    [DTOObject(DTOType.nullEvent)]
+    public sealed class NullEvent : EventBase, INullEvent
+    {
+
+        public NullEvent(Guid aggregateId) : base(aggregateId) { }
+
+        public NullEvent(IMessage msg)
+            : base(msg.AggregateId)
+        {
+            this.Created = msg.Created;
+            this.MessageId = msg.MessageId;
+            var other = msg as EventBase;
+            if (other != null)
+            {
+                this.AggregateVersion = other.AggregateVersion;
+                this.AncestorId = other.AncestorId;
+                this.StreamAncestorId = other.StreamAncestorId;
+                this.StreamEntityId = other.StreamEntityId;
+                this.StreamType = other.StreamType;
+            }
+
+        }
+
+
+    }
+
+
+
 
     public static class DateTimeMixins
     {

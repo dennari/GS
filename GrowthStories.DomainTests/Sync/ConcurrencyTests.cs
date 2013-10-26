@@ -19,7 +19,7 @@ using EventStore;
 
 namespace Growthstories.DomainTests.Sync
 {
-    public class UnitTest1
+    public class ConcurrencyTests
     {
         [Test]
         public void TestRepositoryConcurrency()

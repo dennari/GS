@@ -119,6 +119,12 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public void Apply(UsernameSet @event)
+        {
+
+            this.Username = @event.Username;
+
+        }
 
         public void Apply(CollaborationRequested @event)
         {
@@ -201,7 +207,20 @@ namespace Growthstories.Domain.Entities
 
 
 
+        public override void Merge(IMessage incoming, IMessage outgoing, out IMessage incomingNew, out IMessage outgoingNew)
+        {
+            // do nothing by default
 
+            if (incoming is UsernameSet && outgoing is UsernameSet)
+            {
+                this.MergeByCreated(incoming, outgoing, out incomingNew, out outgoingNew);
+            }
+            else
+            {
+                base.Merge(incoming, outgoing, out incomingNew, out outgoingNew);
+            }
+
+        }
 
 
     }

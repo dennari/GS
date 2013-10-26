@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using System.Reactive;
 using Microsoft.Phone.Tasks;
 using Growthstories.Domain.Entities;
+using Growthstories.Sync;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {

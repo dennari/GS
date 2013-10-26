@@ -174,7 +174,6 @@ namespace Growthstories.UI.ViewModel
         }
 
         private ButtonViewModel _DeletePlantsButton;
-        private IObservable<IPlantViewModel> GetPlantPipe;
 
         public ButtonViewModel DeletePlantsButton
         {

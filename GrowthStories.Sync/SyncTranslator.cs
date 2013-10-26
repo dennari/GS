@@ -51,38 +51,22 @@ namespace Growthstories.Sync
             }
         }
 
-        public IEnumerable<IEventDTO> Out(IEnumerable<ISyncEventStream> streams)
-        {
 
-            IEventDTO ed = null;
-
-            foreach (var stream in streams)
-                foreach (var e in stream.Events())
-                {
-                    //try
-                    //{
-                    ed = Out(e);
-                    //}
-                    //catch (Exception) { }
-                    if (ed != null)
-                    {
-                        yield return ed;
-                    }
-                }
-
-
-        }
-
-        public IEnumerable<IEventDTO> Out(IEnumerable<IAggregateMessages> streams)
+        public IEnumerable<IEventDTO> Out(IEnumerable<IStreamSegment> streams)
         {
 
             //IEventDTO ed = null;
 
             foreach (var stream in streams)
-                foreach (var x in stream.Messages)
+            {
+                int i = 0;
+                int zero = stream.AggregateVersion + stream.TranslateOffset - stream.Count;
+
+                foreach (var x in stream)
                 {
                     //try
                     //{
+                    i++;
 
                     var e = x as IEvent;
                     if (e == null)
@@ -90,10 +74,14 @@ namespace Growthstories.Sync
                     var ed = Out(e);
                     if (ed == null)
                         continue;
+                    ed.AggregateVersion = zero + i;
+                    // TRANSLATE PHASE RENUMBERING IS POSSIBLE
+
+
 
                     yield return ed;
                 }
-
+            }
 
         }
 

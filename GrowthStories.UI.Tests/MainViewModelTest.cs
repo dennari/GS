@@ -213,7 +213,7 @@ namespace Growthstories.UI.Tests
             //CreateUser friend = null;
             //CreateGarden garden = null;
             var createdStreams = new HashSet<Guid>();
-            Bus.Listen<IEvent>().OfType<SyncStreamCreated>().Where(x => x.StreamType == StreamType.USER).Subscribe(x =>
+            Bus.Listen<IEvent>().OfType<SyncStreamCreated>().Where(x => x.SyncStreamType == PullStreamType.USER).Subscribe(x =>
             {
                 if (createdStreams.Contains(x.StreamId))
                     return;
@@ -228,7 +228,7 @@ namespace Growthstories.UI.Tests
             });
 
             int num = 0;
-            Bus.Listen<IEvent>().OfType<SyncStreamCreated>().Where(x => x.StreamType == StreamType.PLANT).Subscribe(x =>
+            Bus.Listen<IEvent>().OfType<SyncStreamCreated>().Where(x => x.SyncStreamType == PullStreamType.PLANT).Subscribe(x =>
             {
 
                 if (createdStreams.Contains(x.StreamId))

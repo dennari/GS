@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
 using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
 
 namespace Growthstories.UI.WindowsPhone
 {

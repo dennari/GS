@@ -5,7 +5,7 @@ using System;
 //using System.Text;
 //using System.Threading.Tasks;
 
-namespace Growthstories.Domain.Messaging
+namespace Growthstories.Sync
 {
     public enum PhotoOrientation
     {

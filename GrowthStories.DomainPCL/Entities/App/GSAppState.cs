@@ -52,10 +52,14 @@ namespace Growthstories.Domain.Entities
 
         public static readonly Guid GSAppId = new Guid("10000000-0000-0000-0000-000000000001");
 
-        public readonly IDictionary<Guid, SyncStreamInfo> SyncStreamDict;
+        public readonly IDictionary<Guid, PullStream> SyncStreamDict = new Dictionary<Guid, PullStream>();
+
+        public readonly IDictionary<string, Photo> PhotoUploads = new Dictionary<string, Photo>();
+
+        public readonly IDictionary<string, Photo> PhotoDownloads = new Dictionary<string, Photo>();
 
 
-        public IEnumerable<SyncStreamInfo> SyncStreams
+        public IEnumerable<PullStream> SyncStreams
         {
             get
             {
@@ -72,7 +76,7 @@ namespace Growthstories.Domain.Entities
         public GSAppState()
             : base()
         {
-            this.SyncStreamDict = new Dictionary<Guid, SyncStreamInfo>();
+
 
         }
 
@@ -96,12 +100,12 @@ namespace Growthstories.Domain.Entities
         {
             if (SyncStreamDict.ContainsKey(@event.StreamId))
                 throw DomainError.Named("duplicate_syncstreams", "Stream already exists");
-            SyncStreamDict[@event.StreamId] = new SyncStreamInfo(@event.StreamId, @event.StreamType, @event.AncestorId);
+            SyncStreamDict[@event.StreamId] = new PullStream(@event.StreamId, @event.SyncStreamType, @event.AncestorId);
         }
 
         public void Apply(SyncStampSet @event)
         {
-            SyncStreamInfo syncStream = null;
+            PullStream syncStream = null;
             if (SyncStreamDict.TryGetValue(@event.StreamId, out syncStream))
             {
                 syncStream.SyncStamp = @event.SyncStamp;
@@ -111,6 +115,27 @@ namespace Growthstories.Domain.Entities
                 throw DomainError.Named("syncstream_missing", "Tried to set syncstamp for missing syncstream");
             }
         }
+
+        public void Apply(PhotoUploadScheduled @event)
+        {
+            PhotoUploads[@event.Photo.LocalFullPath] = @event.Photo;
+        }
+
+        public void Apply(PhotoUploadCompleted @event)
+        {
+            PhotoUploads.Remove(@event.Photo.LocalFullPath);
+        }
+
+        public void Apply(PhotoDownloadScheduled @event)
+        {
+            PhotoDownloads[@event.Photo.RemoteUri] = @event.Photo;
+        }
+
+        public void Apply(PhotoDownloadCompleted @event)
+        {
+            PhotoDownloads.Remove(@event.Photo.RemoteUri);
+        }
+
 
         public void Apply(Pulled @event)
         {
@@ -126,6 +151,8 @@ namespace Growthstories.Domain.Entities
         {
             SyncSequence = @event.SyncSequence;
         }
+
+
 
         public void Apply(AppUserAssigned @event)
         {
