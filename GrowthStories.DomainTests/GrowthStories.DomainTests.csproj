@@ -137,6 +137,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BaseSetup.cs" />
     <Compile Include="FileOpener.cs" />
     <Compile Include="GSLog.cs" />
     <Compile Include="Garden\create_garden.cs" />
@@ -162,7 +163,10 @@
     <Compile Include="Sync\SyncEngineTestsSetup.cs" />
     <Compile Include="Sync\TranslatorTest.cs" />
     <Compile Include="Sync\ConcurrencyTests.cs" />
+    <Compile Include="TestAppViewModel.cs" />
     <Compile Include="TestSetup.cs" />
+    <Compile Include="TestUserService.cs" />
+    <Compile Include="TestUtils.cs" />
     <Compile Include="User\create_user2.cs" />
   </ItemGroup>
   <ItemGroup>

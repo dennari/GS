@@ -43,7 +43,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void FileSystemConfiguration()
         {
-            Bind<IFileOpener>().To<FileOpener>();
+            Bind<IPhotoHandler>().To<WP8PhotoHandler>();
         }
 
         protected override void SQLiteConnectionConfiguration()

@@ -29,12 +29,13 @@ namespace Growthstories.Sync
 
         IAuthResponse CreateAuthResponse(Tuple<HttpResponseMessage, string> resp);
         IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp);
-        IPhotoUploadUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp);
+        //IPhotoUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp);
     }
 
-    public interface IFileOpener
+    public interface IPhotoHandler
     {
-        Task<Stream> OpenPhoto(Photo photo);
+        Task<Stream> ReadPhoto(Photo photo);
+        Task<Stream> WritePhoto(Photo photo);
     }
 
 

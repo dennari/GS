@@ -15,8 +15,10 @@ namespace Growthstories.Sync
 
 
         Uri UserListUri(string username);
+        Uri PhotoDownloadUri(string blobKey);
 
         Uri PhotoUploadUri { get; }
+
     }
 
     public class Endpoint : IEndpoint
@@ -74,6 +76,11 @@ namespace Growthstories.Sync
         public Uri PhotoUploadUri
         {
             get { return new Uri(BaseUri, "/api/photo/uploadurl"); }
+        }
+
+        public Uri PhotoDownloadUri(string blobKey)
+        {
+            return new Uri(BaseUri, string.Format("/api/photo/imageurl?blobKey={0}", blobKey));
         }
     }
 }

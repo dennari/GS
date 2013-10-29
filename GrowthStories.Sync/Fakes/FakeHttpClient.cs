@@ -107,20 +107,38 @@ namespace Growthstories.Sync
         }
 
 
-        public Func<IPhotoUploadUriResponse> PhotoUploadUriResponseFactory { get; set; }
+        public Func<IPhotoUriResponse> PhotoUploadUriResponseFactory { get; set; }
 
 
-        public Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
+        public Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
             if (PhotoUploadUriResponseFactory != null)
                 return Task.FromResult(PhotoUploadUriResponseFactory());
 
-            return Task.FromResult<IPhotoUploadUriResponse>(new PhotoUploadUriResponse()
+            return Task.FromResult<IPhotoUriResponse>(new PhotoUriResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                UploadUri = new Uri("http://random.com")
+                PhotoUri = new Uri("http://random.com")
             });
         }
+
+        public Func<string, IPhotoUriResponse> PhotoDownloadUriResponseFactory { get; set; }
+
+
+        public Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
+        {
+
+            if (PhotoUploadUriResponseFactory != null)
+                return Task.FromResult(PhotoDownloadUriResponseFactory(blobKey));
+
+            return Task.FromResult<IPhotoUriResponse>(new PhotoUriResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                PhotoUri = new Uri("http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg")
+            });
+
+        }
+
 
         public Func<IPhotoUploadRequest, IPhotoUploadResponse> PhotoUploadResponseFactory { get; set; }
 
@@ -137,12 +155,12 @@ namespace Growthstories.Sync
             });
         }
 
-        public Func<IPhotoDownloadRequest, IPhotoDownloadResponse> PhotoDownloadResponseFactory { get; set; }
+        public Func<IPhotoDownloadRequest, Task<IPhotoDownloadResponse>> PhotoDownloadResponseFactory { get; set; }
 
         public Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest request)
         {
             if (PhotoDownloadResponseFactory != null)
-                return Task.FromResult(PhotoDownloadResponseFactory(request));
+                return PhotoDownloadResponseFactory(request);
 
             return Task.FromResult<IPhotoDownloadResponse>(new PhotoDownloadResponse()
             {

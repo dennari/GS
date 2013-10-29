@@ -27,7 +27,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             Bind<IUserService>().To<NullUserService>().InSingletonScope();
             Bind<IUIPersistence>().To<NullUIPersistence>().InSingletonScope();
-            Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
+            //Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
 
         }
 

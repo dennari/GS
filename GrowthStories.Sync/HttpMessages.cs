@@ -122,11 +122,10 @@ namespace Growthstories.Sync
     }
 
 
-    public class PhotoUploadUriResponse : HttpResponse, IPhotoUploadUriResponse
+    public class PhotoUriResponse : HttpResponse, IPhotoUriResponse
     {
 
-        [JsonProperty(PropertyName = "UploadUri", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Uri UploadUri { get; set; }
+        public Uri PhotoUri { get; set; }
 
     }
 
@@ -141,10 +140,10 @@ namespace Growthstories.Sync
     {
         private readonly ITransportEvents Transporter;
         private readonly IJsonFactory jFactory;
-        private readonly IFileOpener FileOpener;
+        private readonly IPhotoHandler FileOpener;
 
 
-        public PhotoUploadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IFileOpener fileOpener)
+        public PhotoUploadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
         {
             // TODO: Complete member initialization
 
@@ -169,8 +168,8 @@ namespace Growthstories.Sync
             if (uploadUriResponse.StatusCode != GSStatusCode.OK)
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
 
-            this.UploadUri = uploadUriResponse.UploadUri;
-            this.Stream = await FileOpener.OpenPhoto(Photo);
+            this.UploadUri = uploadUriResponse.PhotoUri;
+            this.Stream = await FileOpener.ReadPhoto(Photo);
 
             return await Transporter.RequestPhotoUpload(this);
 
@@ -188,16 +187,16 @@ namespace Growthstories.Sync
     {
         private readonly ITransportEvents Transporter;
         private readonly IJsonFactory jFactory;
-        private readonly IFileOpener FileOpener;
+        private readonly IPhotoHandler PhotoHandler;
 
 
-        public PhotoDownloadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IFileOpener fileOpener)
+        public PhotoDownloadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
         {
             // TODO: Complete member initialization
 
             this.jFactory = jFactory;
             this.Photo = photo;
-            this.FileOpener = fileOpener;
+            this.PhotoHandler = fileOpener;
             this.Transporter = transporter;
         }
 
@@ -212,9 +211,34 @@ namespace Growthstories.Sync
         public async Task<IPhotoDownloadResponse> GetResponse()
         {
 
+            if (Photo.RemoteUri == null && Photo.BlobKey == null)
+                throw new InvalidOperationException("Can't download image which doesn't have RemoteUri or BlobKey set.");
 
-            this.DownloadUri = new Uri(Photo.RemoteUri);
-            return await Transporter.RequestPhotoDownload(this);
+            if (Photo.RemoteUri != null)
+                this.DownloadUri = new Uri(Photo.RemoteUri);
+            else
+            {
+                var r = await Transporter.RequestPhotoDownloadUri(Photo.BlobKey);
+                if (r.StatusCode != GSStatusCode.OK)
+                    throw new InvalidOperationException("Unable to retrieve download uri for image");
+                this.DownloadUri = r.PhotoUri;
+
+            }
+
+            var r2 = await Transporter.RequestPhotoDownload(this);
+            if(r2.StatusCode != GSStatusCode.OK)
+                throw new InvalidOperationException("Unable to download image "+this.DownloadUri);
+
+
+
+            using (var writeStream = await PhotoHandler.WritePhoto(Photo))
+            using (var readStream = r2.Stream)
+            {
+                await readStream.CopyToAsync(writeStream);
+            }
+
+
+            return r2;
 
 
         }

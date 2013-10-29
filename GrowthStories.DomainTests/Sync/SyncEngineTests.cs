@@ -1,27 +1,32 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-
-using Growthstories.Sync;
-using Growthstories.Core;
-using Growthstories.Domain;
+﻿using Growthstories.Core;
 using Growthstories.Domain.Entities;
+using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
-using Growthstories.DomainTests.Sync;
+using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
-
-using NUnit.Framework;
 using Ninject;
-using System.Threading.Tasks;
-using System.Diagnostics;
+//using NUnit.Framework;
+#if WINDOWS_PHONE
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Windows.Storage;
 
+#else
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+#endif
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using ReactiveUI;
 
 
 namespace Growthstories.DomainTests
 {
 
 
-
+    [TestClass]
     public class SyncEngineTests
     {
 
@@ -30,14 +35,16 @@ namespace Growthstories.DomainTests
         IGSRepository Repository;
         FakeHttpClient Transporter;
 
-        [SetUp]
+        [TestInitialize]
         public void SetUp()
         {
+
+            RxApp.InUnitTestRunnerOverride = true;
             //if (kernel != null)
             //    kernel.Dispose();
             Kernel = new StandardKernel(new SyncEngineTestsSetup());
 
-            App = new Growthstories.DomainTests.StagingTestBase.TestAppViewModel(Kernel);
+            App = new TestAppViewModel(Kernel);
             Transporter = Kernel.Get<FakeHttpClient>();
             Repository = Kernel.Get<IGSRepository>();
         }
@@ -53,7 +60,7 @@ namespace Growthstories.DomainTests
             }
         }
 
-        [Test]
+        [TestMethod]
         public void TestPushIncludesPublicEvents()
         {
             var u = App.Context.CurrentUser;
@@ -61,7 +68,7 @@ namespace Growthstories.DomainTests
             App.Bus.SendCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
             Assert.IsFalse(R.PushReq.IsEmpty);
 
@@ -69,7 +76,7 @@ namespace Growthstories.DomainTests
 
         }
 
-        [Test]
+        [TestMethod]
         public void TestCreatedUserIsInPullRequest()
         {
             var u = App.Context.CurrentUser;
@@ -77,7 +84,7 @@ namespace Growthstories.DomainTests
             App.Bus.SendCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
             Assert.IsFalse(R.PullReq.IsEmpty);
             Assert.AreEqual(u.Id, R.PullReq.Streams.Single().StreamId);
@@ -91,11 +98,11 @@ namespace Growthstories.DomainTests
             return msgs.GroupBy(x => x.AggregateId).Select(x => new StreamSegment(x)).ToArray();
         }
 
-        [Test]
+        [TestMethod]
         public void TestPullCanCreateStream()
         {
 
-            var remoteUser = StagingSyncTests.CreateUserFromName("Jorma");
+            var remoteUser = TestUtils.CreateUserFromName("Jorma");
 
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
@@ -106,17 +113,17 @@ namespace Growthstories.DomainTests
             App.Bus.SendCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER));
 
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
             var RemoteUser = Repository.GetById(remoteUser.AggregateId);
-            Assert.IsInstanceOf<User>(RemoteUser);
+            Assert.IsInstanceOfType(RemoteUser, typeof(User));
             Assert.AreEqual(1, RemoteUser.Version);
 
         }
 
 
 
-        [Test]
+        [TestMethod]
         public void TestCommutativeConflict()
         {
 
@@ -141,7 +148,7 @@ namespace Growthstories.DomainTests
 
             App.Bus.SendCommand(new BecomeFollower(u.Id, localTarget));
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -151,13 +158,13 @@ namespace Growthstories.DomainTests
 
 
             var User = Repository.GetById(u.Id);
-            Assert.IsInstanceOf<User>(User);
+            Assert.IsInstanceOfType(User, typeof(User));
             Assert.AreEqual(3, User.Version);
 
         }
 
 
-        [Test]
+        [TestMethod]
         public void TestNonCommutativeConflict()
         {
 
@@ -184,11 +191,11 @@ namespace Growthstories.DomainTests
 
             App.Bus.SendCommand(new SetUsername(u.Id, localName));
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
-            Assert.IsInstanceOf<INullEvent>(pushStream.Single());
+            Assert.IsInstanceOfType(pushStream.Single(), typeof(INullEvent));
 
             var translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
             Assert.AreEqual(3, translated.Single().AggregateVersion);
@@ -196,7 +203,7 @@ namespace Growthstories.DomainTests
 
             var pullStream = R.PullResp.Streams.Single();
             Assert.AreEqual(1, pullStream.Count);
-            Assert.IsInstanceOf<UsernameSet>(pullStream.Single());
+            Assert.IsInstanceOfType(pullStream.Single(), typeof(UsernameSet));
 
             var User = (User)Repository.GetById(u.Id);
             Assert.AreEqual(3, User.Version);
@@ -209,7 +216,7 @@ namespace Growthstories.DomainTests
 
 
 
-        [Test]
+        [TestMethod]
         public void TestNonCommutativeConflict2()
         {
 
@@ -236,11 +243,11 @@ namespace Growthstories.DomainTests
 
             App.Bus.SendCommand(new SetUsername(u.Id, localName));
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
-            Assert.IsInstanceOf<UsernameSet>(pushStream.Single());
+            Assert.IsInstanceOfType(pushStream.Single(), typeof(UsernameSet));
 
 
             var translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
@@ -248,7 +255,7 @@ namespace Growthstories.DomainTests
 
             var pullStream = R.PullResp.Streams.Single();
             Assert.AreEqual(1, pullStream.Count);
-            Assert.IsInstanceOf<INullEvent>(pullStream.Single());
+            Assert.IsInstanceOfType(pullStream.Single(), typeof(INullEvent));
 
 
             var User = (User)Repository.GetById(u.Id);
@@ -262,7 +269,7 @@ namespace Growthstories.DomainTests
 
 
 
-        [Test]
+        [TestMethod]
         public void TestNonCommutativeConflictWithMultipleConflicts()
         {
 
@@ -304,11 +311,11 @@ namespace Growthstories.DomainTests
 
             App.Bus.SendCommand(new SetUsername(u.Id, localName));
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
-            Assert.IsInstanceOf<INullEvent>(pushStream.Single());
+            Assert.IsInstanceOfType(pushStream.Single(), typeof(INullEvent));
 
 
             var translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
@@ -329,7 +336,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        [Test]
+        [TestMethod]
         public void TestNonCommutativeConflictWithMultipleConflicts2()
         {
 
@@ -371,11 +378,11 @@ namespace Growthstories.DomainTests
 
             App.Bus.SendCommand(new SetUsername(u.Id, localName));
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
-            Assert.IsInstanceOf<INullEvent>(pushStream.Single());
+            Assert.IsInstanceOfType(pushStream.Single(), typeof(INullEvent));
 
 
             var translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
@@ -397,7 +404,7 @@ namespace Growthstories.DomainTests
 
 
 
-        [Test]
+        [TestMethod]
         public void TestNonCommutativeConflictWithMultipleConflicts3()
         {
 
@@ -444,12 +451,11 @@ namespace Growthstories.DomainTests
                 new SetUsername(u.Id, newerLocalName)
             );
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(3, pushStream.Count);
-            Assert.IsInstanceOf<UsernameSet>(pushStream.Single());
-
+            Assert.IsInstanceOfType(pushStream.Single(), typeof(UsernameSet));
 
             var translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
             Assert.AreEqual(5, translated.Single().AggregateVersion);
@@ -469,7 +475,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        [Test]
+        [TestMethod]
         public void TestPhotoUpload()
         {
 
@@ -503,7 +509,7 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(photo, App.Model.State.PhotoUploads.Values.Single());
 
 
-            var R = WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
             Assert.IsNotNull(R.PhotoUploadRequests);
 
@@ -512,7 +518,7 @@ namespace Growthstories.DomainTests
 
         }
 
-        [Test]
+        [TestMethod]
         public void TestPhotoDownload()
         {
 
@@ -525,9 +531,32 @@ namespace Growthstories.DomainTests
 
             var photo = new Photo()
             {
-                RemoteUri = "http://plantimages.com/image1.jpg"
-
+                BlobKey = "skdjdlgdfg",
+                LocalFullPath = @"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.DomainTests\Data\img_download_test.jpg",
+                LocalUri = "img_download_test.jpg",
+                FileName = "img_download_test.jpg",
+                Width = 500,
+                Height = 500,
+                Size = 500 * 500 * 3
             };
+
+#if WINDOWS_PHONE
+            try
+            {
+                var folderTask = ApplicationData.Current.LocalFolder.CreateFolderAsync(WP8PhotoHandler.IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                var folder = TestUtils.WaitForTask(folderTask.AsTask());
+                TestUtils.WaitForTask(folder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask());
+
+
+            }
+            catch { }
+#else
+            try
+            {
+                File.Delete(photo.LocalFullPath);
+            }
+            catch { }
+#endif
 
 
             App.Bus.SendCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id));
@@ -549,7 +578,20 @@ namespace Growthstories.DomainTests
 
             };
 
-            var R = WaitForTask(App.Synchronize());
+            Transporter.PhotoDownloadUriResponseFactory = (blobKey) => new PhotoUriResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                PhotoUri = new Uri("http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg")
+            };
+
+            Transporter.PhotoDownloadResponseFactory = (req) =>
+            {
+                var client = Kernel.Get<SyncHttpClient>();
+                return client.RequestPhotoDownload(req);
+
+            };
+
+            var R = TestUtils.WaitForTask(App.Synchronize());
 
 
             Assert.AreEqual(0, App.Model.State.PhotoDownloads.Count);
@@ -558,28 +600,36 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(photo, PhotoAction.State.Photo);
 
+
+
+#if WINDOWS_PHONE
+            var folderFound = false;
+            var fileFound = false;
+            try
+            {
+                var folderTask = ApplicationData.Current.LocalFolder.CreateFolderAsync(WP8PhotoHandler.IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                var folder = TestUtils.WaitForTask(folderTask.AsTask());
+                folderFound = true;
+                var file = TestUtils.WaitForTask(folder.CreateFileAsync(photo.FileName, CreationCollisionOption.FailIfExists).AsTask());
+                Assert.Fail("Image didn't exist");
+
+            }
+            catch
+            {
+                fileFound = true;
+
+            }
+            Assert.IsTrue(folderFound);
+            Assert.IsTrue(fileFound);
+#else
+        Assert.IsTrue(File.Exists(photo.LocalFullPath));
+#endif
+
         }
 
 
 
-        protected T WaitForTask<T>(Task<T> task, int timeout = 9000)
-        {
-            if (Debugger.IsAttached)
-                task.Wait();
-            else
-                task.Wait(timeout);
-            Assert.IsTrue(task.IsCompleted, "Task timeout");
-            return task.Result;
-        }
 
-        protected void WaitForTask(Task task, int timeout = 9000)
-        {
-            if (Debugger.IsAttached)
-                task.Wait();
-            else
-                task.Wait(timeout);
-            Assert.IsTrue(task.IsCompleted, "Task timeout");
-        }
 
     }
 }

@@ -116,18 +116,18 @@ namespace Growthstories.Sync
             };
         }
 
-        public IPhotoUploadUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp)
-        {
+        //public IPhotoUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp)
+        //{
 
-            var r = CreateWithStatusCode<PhotoUploadUriResponse>(resp.Item1);
-            if (r.StatusCode == GSStatusCode.OK)
-            {
-                r.UploadUri = new Uri(resp.Item2, UriKind.Absolute);
-            }
-            return r;
+        //    var r = CreateWithStatusCode<PhotoUploadUriResponse>(resp.Item1);
+        //    if (r.StatusCode == GSStatusCode.OK)
+        //    {
+        //        r.PhotoUri = new Uri(resp.Item2, UriKind.Absolute);
+        //    }
+        //    return r;
 
 
-        }
+        //}
 
         public IPhotoUploadResponse CreatePhotoUploadResponse(IPhotoUploadRequest req, Tuple<HttpResponseMessage, string> resp)
         {

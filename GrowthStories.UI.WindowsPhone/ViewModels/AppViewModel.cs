@@ -124,7 +124,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 var client = Kernel.Get<SyncHttpClient>();
                 await client.SendAsync(client.CreateClearDBRequest());
-                await Kernel.Get<ISynchronizerService>().CreateUserAsync(Context.CurrentUser.Id);
+                //await Kernel.Get<ISynchronizerService>().CreateUserAsync(Context.CurrentUser.Id);
 
 
                 await Context.AuthorizeUser();
@@ -175,8 +175,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Events = Translator.Out(new IEvent[] { remoteUser }),
-                ClientDatabaseId = Guid.NewGuid()
+                Streams = EventsToStreams(remoteUser.AggregateId, remoteUser),
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator
             });
 
 
@@ -264,8 +265,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Events = Translator.Out(events).ToArray(),
-                ClientDatabaseId = Guid.NewGuid()
+                Streams = EventsToStreams(events).ToArray(),
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator
             });
 
 
@@ -275,6 +277,32 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
+        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEvent events)
+        {
+            var msgs = new StreamSegment(aggregateId);
+            msgs.Add(events);
+            return new[] { msgs };
+        }
+
+        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEnumerable<IEvent> events)
+        {
+            var msgs = new StreamSegment(aggregateId);
+            msgs.AddRange(events);
+            return new[] { msgs };
+        }
+
+        protected IEnumerable<IStreamSegment> EventsToStreams(IEnumerable<IEvent> events)
+        {
+
+            foreach (var g in events.GroupBy(x => x.AggregateId))
+            {
+                var msgs = new StreamSegment(g.Key);
+                msgs.AddRange(g);
+                yield return msgs;
+            }
+
+        }
+
         public override async Task ClearDB()
         {
             await Task.Run(async () =>
@@ -282,9 +310,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 await base.ClearDB();
                 var db = Kernel.Get<IPersistSyncStreams>();
                 db.Purge();
-                Kernel.Get<IGSRepository>().ClearCaches();
+                //Kernel.Get<IGSRepository>().ClearCaches();
                 Kernel.Get<OptimisticPipelineHook>().Dispose();
-                ((FakeUserService)Kernel.Get<IUserService>()).EnsureCurrenUser();
+                //((FakeUserService)Kernel.Get<IUserService>()).EnsureCurrenUser();
 
             });
         }

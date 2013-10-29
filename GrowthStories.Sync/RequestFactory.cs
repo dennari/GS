@@ -23,12 +23,12 @@ namespace Growthstories.Sync
         private readonly IPersistSyncStreams SyncPersistence;
         private static ILog Logger = LogFactory.BuildLogger(typeof(RequestFactory));
         private readonly ITransportEvents Transporter;
-        private readonly IFileOpener FileOpener;
+        private readonly IPhotoHandler FileOpener;
 
         public RequestFactory(
             ITranslateEvents translator,
             ITransportEvents transporter,
-            IFileOpener fileOpener,
+            IPhotoHandler fileOpener,
             IJsonFactory jFactory,
             IPersistSyncStreams syncPersistence)
         {

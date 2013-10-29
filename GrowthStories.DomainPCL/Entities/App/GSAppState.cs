@@ -128,12 +128,16 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PhotoDownloadScheduled @event)
         {
-            PhotoDownloads[@event.Photo.RemoteUri] = @event.Photo;
+            if (@event.Photo.BlobKey == null)
+                throw DomainError.Named("no_blobkey","To download a photo the BlobKey needs to be set.");
+            PhotoDownloads[@event.Photo.BlobKey] = @event.Photo;
         }
 
         public void Apply(PhotoDownloadCompleted @event)
         {
-            PhotoDownloads.Remove(@event.Photo.RemoteUri);
+            if (@event.Photo.BlobKey == null)
+                throw DomainError.Named("no_blobkey","To download a photo the BlobKey needs to be set.");
+            PhotoDownloads.Remove(@event.Photo.BlobKey);
         }
 
 

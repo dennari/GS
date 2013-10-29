@@ -76,10 +76,36 @@ namespace Growthstories.Sync
             return ResponseFactory.CreateUserListResponse(await SendAndGetBodyAsync(request));
         }
 
-        public async Task<IPhotoUploadUriResponse> RequestPhotoUploadUri()
+        public async Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoUploadUri);
-            return ResponseFactory.CreatePhotoUploadUriResponse(await SendAndGetBodyAsync(request));
+            var response = await SendAndGetBodyAsync(request);
+            var r = new PhotoUriResponse()
+            {
+                StatusCode = GSStatusCode.FAIL
+            };
+            if (response.Item1.IsSuccessStatusCode)
+            {
+                r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
+                r.StatusCode = GSStatusCode.OK;
+            }
+            return r;
+        }
+
+        public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoDownloadUri(blobKey));
+            var response = await SendAndGetBodyAsync(request);
+            var r = new PhotoUriResponse()
+            {
+                StatusCode = GSStatusCode.FAIL
+            };
+            if (response.Item1.IsSuccessStatusCode)
+            {
+                r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
+                r.StatusCode = GSStatusCode.OK;
+            }
+            return r;
         }
 
         public async Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest req)
@@ -110,7 +136,7 @@ namespace Growthstories.Sync
 
         public async Task<Tuple<HttpResponseMessage, Stream>> Download(Uri uri)
         {
-            var req = new HttpRequestMessage(HttpMethod.Post, uri);
+            var req = new HttpRequestMessage(HttpMethod.Get, uri);
 
             var r = await SendAsync(req);
 

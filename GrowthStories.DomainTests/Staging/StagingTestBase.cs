@@ -32,23 +32,7 @@ namespace Growthstories.DomainTests
     public class StagingTestBase
     {
 
-        public class TestAppViewModel : AppViewModel
-        {
 
-
-            public TestAppViewModel(IKernel kernel)
-                : base()
-            {
-                Kernel = kernel;
-                Kernel.Bind<IScreen>().ToConstant(this);
-                Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-                this.Bus = kernel.Get<IMessageBus>();
-                Initialize(kernel.Get<IGSRepository>());
-            }
-
-
-
-        }
 
         protected AppViewModel App;
         protected IKernel Kernel { get; set; }
@@ -96,12 +80,7 @@ namespace Growthstories.DomainTests
 
 
 
-        public static string randomize(string i)
-        {
-            //var b = new StringBuilder(i);
-            //b.Append(Guid.NewGuid().ToString().Substring(0, 4));
-            return i + Guid.NewGuid().ToString().Substring(0, 4);
-        }
+
 
         public ISyncPushResponse SyncAssertions(ISyncInstance syncResult, bool hasPush = false)
         {

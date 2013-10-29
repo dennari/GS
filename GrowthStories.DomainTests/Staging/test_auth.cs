@@ -257,7 +257,7 @@ namespace Growthstories.DomainTests
             var file = File.Open(@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg", FileMode.Open);
 
             T.AuthToken = null;
-            var R = await T.Upload(uploadUriResponse.UploadUri, file);
+            var R = await T.Upload(uploadUriResponse.PhotoUri, file);
 
             Assert.IsTrue(R.Item1.IsSuccessStatusCode);
 

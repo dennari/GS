@@ -15,7 +15,8 @@ namespace Growthstories.Sync
         Task<IUserListResponse> ListUsersAsync(string username);
 
 
-        Task<IPhotoUploadUriResponse> RequestPhotoUploadUri();
+        Task<IPhotoUriResponse> RequestPhotoUploadUri();
+        Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey);
 
         Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest request);
         Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest request);

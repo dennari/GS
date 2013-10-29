@@ -376,47 +376,11 @@ namespace Growthstories.DomainTests
         }
 
 
-        public static UserCreated CreateUserFromName(string name)
-        {
-            return new UserCreated(new CreateUser(
-                Guid.NewGuid(),
-                name,
-                randomize("swordfish"),
-                randomize(name) + "@wonderland.net"))
-            {
-                AggregateVersion = 1,
-                Created = DateTimeOffset.UtcNow,
-                MessageId = Guid.NewGuid()
-            };
-        }
 
 
 
-        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEvent events)
-        {
-            var msgs = new StreamSegment(aggregateId);
-            msgs.Add(events);
-            return new[] { msgs };
-        }
 
-        protected IStreamSegment[] EventsToStreams(Guid aggregateId, IEnumerable<IEvent> events)
-        {
-            var msgs = new StreamSegment(aggregateId);
-            msgs.AddRange(events);
-            return new[] { msgs };
-        }
 
-        protected IEnumerable<IStreamSegment> EventsToStreams(IEnumerable<IEvent> events)
-        {
-
-            foreach (var g in events.GroupBy(x => x.AggregateId))
-            {
-                var msgs = new StreamSegment(g.Key);
-                msgs.AddRange(g);
-                yield return msgs;
-            }
-
-        }
 
         protected async Task<List<IEvent>> CreateRemoteData()
         {
@@ -424,12 +388,12 @@ namespace Growthstories.DomainTests
 
 
 
-            var users = ListOfNames().Select(x => CreateUserFromName(x.Trim())).ToArray();
+            var users = ListOfNames().Select(x => TestUtils.CreateUserFromName(x.Trim())).ToArray();
             var remoteUser = users[0];
 
             var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Streams = EventsToStreams(remoteUser.AggregateId, remoteUser),
+                Streams = TestUtils.EventsToStreams(remoteUser.AggregateId, remoteUser),
                 ClientDatabaseId = Guid.NewGuid(),
                 Translator = Translator
             });
@@ -520,7 +484,7 @@ namespace Growthstories.DomainTests
 
             var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             {
-                Streams = EventsToStreams(events).ToArray(),
+                Streams = TestUtils.EventsToStreams(events).ToArray(),
                 ClientDatabaseId = Guid.NewGuid(),
                 Translator = Translator
             });

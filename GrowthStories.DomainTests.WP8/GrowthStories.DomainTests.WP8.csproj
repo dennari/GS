@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8EB0B387-1811-44B9-8C8A-3A99DA9AADA9}</ProjectGuid>
+    <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GrowthStories.DomainTests.WP8</RootNamespace>
+    <AssemblyName>GrowthStories.DomainTests.WP8</AssemblyName>
+    <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <WPTestProject>true</WPTestProject>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>GrowthStories.DomainTests.WP8_$(Configuration)_$(Platform).xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>GrowthStories.DomainTests.WP8.App</SilverlightAppEntry>
+    <ValidateXaml>false</ValidateXaml>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\x86\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\x86\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\ARM\Debug</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;UNITTEST</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\ARM\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;UNITTEST</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\GrowthStories.DomainTests\BaseSetup.cs">
+      <Link>BaseSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\Sync\SyncEngineTests.cs">
+      <Link>SyncEngineTests.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\TestAppViewModel.cs">
+      <Link>TestAppViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\TestUserService.cs">
+      <Link>TestUserService.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\TestUtils.cs">
+      <Link>TestUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\WP8PhotoHandler.cs">
+      <Link>WP8PhotoHandler.cs</Link>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LocalizedStrings.cs" />
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\AppResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AppResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="TestSetup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Properties\AppManifest.xml" />
+    <None Include="Properties\WMAppManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="MSTestFramework, Version=11.0" />
+    <SDKReference Include="TestPlatform, Version=11.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\AlignmentGrid.png" />
+    <Content Include="Assets\ApplicationIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileMedium.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileSmall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\AppResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+      <Project>{4CA0C3F8-0F50-4F12-A598-32EAA0AB19E6}</Project>
+      <Name>PortableCommonDomain.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence.EventStore\PortableCommonDomain.Persistence.EventStore.csproj">
+      <Project>{A9F56FF4-B69C-400A-801B-13212D7E946A}</Project>
+      <Name>PortableCommonDomain.Persistence.EventStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Persistence\PortableCommonDomain.Persistence.csproj">
+      <Project>{099B2958-0240-4D7E-83A7-F5B2305975B1}</Project>
+      <Name>PortableCommonDomain.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+      <Project>{D721924B-891E-4375-A6A6-EA28E4EDB846}</Project>
+      <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
+      <Project>{F6D5D6FF-DF31-4F3E-8703-D9262BB1D0EC}</Project>
+      <Name>EventStore.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Persistence.SqlitePersistence.WP8\EventStore.Persistence.SqlitePersistence.WP8.csproj">
+      <Project>{612C6FA0-0A24-4B2B-BBE6-7DEA9DE88F6B}</Project>
+      <Name>EventStore.Persistence.SqlitePersistence.WP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Serialization.Json\EventStore.Serialization.Json.csproj">
+      <Project>{FAE746CE-11C7-446A-A98D-DEB238B110AA}</Project>
+      <Name>EventStore.Serialization.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
+      <Project>{789B5308-2D5E-40CC-8755-B0131B9832A9}</Project>
+      <Name>EventStore %28EventStore\EventStore%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
+      <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
+      <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\sqlite-net-wp8-2\Sqlite_2.vcxproj">
+      <Project>{59B35F6C-E062-4F0E-88D8-13F3F82A24F3}</Project>
+      <Name>SqliteWP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
+      <Project>{DFDB229B-9C77-4E89-A602-6CBAEE83315F}</Project>
+      <Name>GrowthStories.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.DomainPCL\GrowthStories.Domain.csproj">
+      <Project>{B3E2CFBD-93FD-4604-8B43-C245947C07ED}</Project>
+      <Name>GrowthStories.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.UI.csproj">
+      <Project>{EF1081C2-D71F-42D5-804A-E34FBF6C6A5A}</Project>
+      <Name>GrowthStories.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
+      <Project>{5475681A-83BE-462D-BDA2-91CB9740C111}</Project>
+      <Name>GrowthStories.Sync.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync\GrowthStories.Sync.csproj">
+      <Project>{487EA8B6-D110-441D-AAED-9FF2315DFD59}</Project>
+      <Name>GrowthStories.Sync</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.UI.Persistence.WP8\GrowthStories.UI.Persistence.WP8.csproj">
+      <Project>{F3ECA552-6646-4C77-A36C-46901F000BD5}</Project>
+      <Name>GrowthStories.UI.Persistence.WP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLiteLibWP8\SQLiteLibWP8.csproj">
+      <Project>{ABC2A119-396A-4300-AB1A-85473355C3B8}</Project>
+      <Name>SQLiteLibWP8</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Ninject.Common">
+      <HintPath>..\packages\Portable.Ninject.3.0.7\lib\sl4-wp71\Ninject.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.WP">
+      <HintPath>..\packages\Portable.Ninject.3.0.7\lib\sl4-wp71\Ninject.WP.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\WP8\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\WP8\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\WP8\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\WP8\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+</Project>

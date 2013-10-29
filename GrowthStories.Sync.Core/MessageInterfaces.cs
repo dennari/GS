@@ -20,9 +20,9 @@ namespace Growthstories.Sync
         List<RemoteUser> Users { get; }
     }
 
-    public interface IPhotoUploadUriResponse : ISyncResponse
+    public interface IPhotoUriResponse : ISyncResponse
     {
-        Uri UploadUri { get; }
+        Uri PhotoUri { get; }
     }
 
     public interface IPhotoUploadRequest : ISyncRequest
