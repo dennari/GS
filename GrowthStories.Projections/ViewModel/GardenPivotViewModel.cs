@@ -83,6 +83,32 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
+        public GardenPivotViewModel(IPlantViewModel selectedPlant, IList<IPlantViewModel> currentPlants, IAuthUser state, IGSAppViewModel app)
+            : this(state, app)
+        {
+            _Plants = new ReactiveList<IPlantViewModel>(currentPlants);
+            App.FuturePlants(this.UserState).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                Plants.Add(x);
+            });
+            SelectedItem = selectedPlant;
+        }
+
+
+        protected IPlantViewModel _SelectedItem;
+        public IPlantViewModel SelectedItem
+        {
+            get
+            {
+                return _SelectedItem;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SelectedItem, value);
+            }
+        }
+
         protected ReactiveList<IPlantViewModel> _Plants;
         public ReactiveList<IPlantViewModel> Plants
         {
@@ -189,6 +215,9 @@ namespace Growthstories.UI.ViewModel
         }
 
         protected IRoutableViewModel _AddPlantViewModel;
+        private IPlantViewModel x;
+        private ReactiveList<IPlantViewModel> Plants1;
+        private IAuthUser state;
         public IRoutableViewModel AddPlantViewModel
         {
             get

@@ -132,7 +132,13 @@ namespace Growthstories.UI.ViewModel
 
 
             this.ShowDetailsCommand = new ReactiveCommand();
-            this.ShowDetailsCommand.Subscribe(x => App.Router.Navigate.Execute(x));
+            this.ShowDetailsCommand
+                .OfType<IPlantViewModel>()
+                .Subscribe(x =>
+                {
+                    var pivot = new GardenPivotViewModel(x, Plants, state, App);
+                    App.Router.Navigate.Execute(pivot);
+                });
 
 
 

@@ -16,6 +16,9 @@
 	mc:Ignorable="d">
 
     <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <vm:PlantPivotViewModelDesign x:Key="PlantPivotViewModelDesign" d:IsDataSource="True" />
+    <vm:PlantPhotoPivotViewModelDesign x:Key="PlantPhotoPivotViewModelDesign" d:IsDataSource="True" />
+    <vm:PlantPhotoViewModel x:Key="PlantPhotoViewModel" d:IsDataSource="True" />
     <vm:GardenPivotViewModelDesign x:Key="GardenPivotViewModelDesign" d:IsDataSource="True" />
     <!--<vm:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />-->
     <!--<vm:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />-->
@@ -133,19 +136,17 @@
     </Style>
 
 
-    <!--<Style TargetType="local:AddPlantActionView">
-
+    <Style TargetType="local:PlantActionView">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="local:AddPlantActionView">
+                <ControlTemplate TargetType="local:PlantActionView">
                     <Grid Background="{TemplateBinding Background}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-
-                        <StackPanel Grid.Row="0" Margin="24,17,24,28">
+                        <StackPanel Grid.Row="0" Margin="24,17,24,28" Visibility="{TemplateBinding HeaderVisibility}">
                             <TextBlock 
 								Text="{Binding PlantTitle}" 
 								Style="{StaticResource GSAppTitleStyle}"/>
@@ -162,17 +163,14 @@
                                 <StackPanel Visibility="{TemplateBinding NoteVisibility}">
                                     <TextBlock 
 										Text="Note" 
-										Style="{StaticResource GSInputLabelStyle}" 
-                                />
+										Style="{StaticResource GSInputLabelStyle}" />
                                     <TextBox 
 										Text="{Binding Note, Mode=TwoWay}" 
-										local:BindingUtility.UpdateSourceOnChange="True" 
 										Style="{StaticResource GSTextBoxStyle}" 
 										Height="130" 
 										AcceptsReturn="True" 
 										TextWrapping="Wrap" 
-										VerticalScrollBarVisibility="Auto"                                         
-                                />
+										VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
@@ -180,7 +178,20 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>-->
+    </Style>
+
+    <Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <ContentPresenter 
+									Content="{TemplateBinding Content}"
+									HorizontalAlignment="Stretch"
+									VerticalAlignment="Stretch"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style TargetType="toolkit:ListPicker" x:Key="GSListPickerStyle">
 
@@ -397,6 +408,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
     <Style TargetType="toolkit:LongListMultiSelector" x:Key="GSGardenPlantsStyle">
         <Setter Property="ItemTemplate">
             <Setter.Value>
@@ -423,43 +435,10 @@
             </Setter.Value>
         </Setter>
         <Setter Property="GridCellSize" Value="173,173"/>
-    </Style>
-    <Style TargetType="phone:LongListSelector" x:Key="GSActionListStyle"/>
+    </Style>    
 
 
-    <DataTemplate x:Key="GardenPivotHeader">
-        <ContentControl Content="{Binding Name}"/>
-    </DataTemplate>
 
-    <Style x:Key="PivotStyle1" TargetType="phone:Pivot">
-        <Setter Property="Margin" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="ItemsPanel">
-            <Setter.Value>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="phone:Pivot">
-                    <Grid HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid Background="{TemplateBinding Background}" Grid.RowSpan="3"/>
-                        <ContentControl ContentTemplate="{TemplateBinding TitleTemplate}" Content="{TemplateBinding Title}" HorizontalAlignment="Left" Margin="24,17,0,-7" Style="{StaticResource PivotTitleStyle}"/>
-                        <Primitives:PivotHeadersControl x:Name="HeadersListElement" Grid.Row="1"/>
-                        <ItemsPresenter x:Name="PivotItemPresenter" Margin="{TemplateBinding Padding}" Grid.Row="2"/>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+
 
 </ResourceDictionary>

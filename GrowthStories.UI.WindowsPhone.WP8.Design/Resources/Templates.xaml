@@ -6,8 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone.Design"
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"     
     mc:Ignorable="d">
@@ -19,20 +18,15 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />
+            <!--<Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />-->
+            <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                 <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
             </StackPanel>
-            <toolkit:ContextMenuService.ContextMenu>
-                <toolkit:ContextMenu>
-                    <toolkit:MenuItem Header="Edit" 
-                                      Command="{Binding DataContext.PlantActionDetailsCommand, ElementName=TimeLine}" 
-                                      CommandParameter="{Binding}"/>
-                </toolkit:ContextMenu>
-            </toolkit:ContextMenuService.ContextMenu>
         </StackPanel>
     </DataTemplate>
+    
 
     <DataTemplate x:Key="MeasurementTemplate">
         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
@@ -41,7 +35,8 @@
                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                 <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
             </StackPanel>
-            <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />
+            <!--<Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0"  />-->
+            <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
             <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                 <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                 <TextBlock Text="{Binding Series}" Style="{StaticResource GSActionListItemNoteStyle}"/>
@@ -66,9 +61,9 @@
 
     <DataTemplate x:Key="PhotographTemplate">
         <StackPanel Orientation="Vertical" Margin="0,0,0,12">
-            <Button Height="220" >
+            <Button Height="220">
                 <Button.Background>
-                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>
+                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoData, Converter={StaticResource PhotoToImageSource}}"/>
                 </Button.Background>
             </Button>
             <StackPanel Orientation="Horizontal" >
@@ -77,7 +72,8 @@
                     <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                     <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
                 </StackPanel>
-                <Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0" />
+                <!--<Image Source="{Binding IconUri, Converter={StaticResource UriToImageSource}}" Width="45" Margin="24,0" />-->
+                <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                     <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>

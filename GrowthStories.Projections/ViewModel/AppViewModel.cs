@@ -656,12 +656,20 @@ namespace Growthstories.UI.ViewModel
             {IconType.CHECK,new Uri("/Assets/Icons/appbar.check.png", UriKind.RelativeOrAbsolute)},
             {IconType.DELETE,new Uri("/Assets/Icons/appbar.delete.png", UriKind.RelativeOrAbsolute)},
             {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)},
+            {IconType.SHARE,new Uri("/Assets/Icons/appbar.social.sharethis.png", UriKind.RelativeOrAbsolute)},
             {IconType.WATER,new Uri("/Assets/Icons/icon_watering_appbar.png", UriKind.RelativeOrAbsolute)},
             {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo_appbar.png", UriKind.RelativeOrAbsolute)},
             {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient_appbar.png", UriKind.RelativeOrAbsolute)},
             {IconType.NOTE,new Uri("/Assets/Icons/icon_comment_appbar.png", UriKind.RelativeOrAbsolute)},
             {IconType.MEASURE,new Uri("/Assets/Icons/icon_length_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.SHARE,new Uri("/Assets/Icons/appbar.social.sharethis.png", UriKind.RelativeOrAbsolute)}
+            {IconType.CHANGESOIL,new Uri("/Assets/Icons/icon_soilchange_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.BLOOMING,new Uri("/Assets/Icons/icon_blooming_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.DECEASED,new Uri("/Assets/Icons/icon_deceased_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.ILLUMINANCE,new Uri("/Assets/Icons/icon_illuminance_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.MISTING,new Uri("/Assets/Icons/icon_misting_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.PH,new Uri("/Assets/Icons/icon_ph_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.POLLINATION,new Uri("/Assets/Icons/icon_pollination_appbar.png", UriKind.RelativeOrAbsolute)},
+            {IconType.SPROUTING,new Uri("/Assets/Icons/icon_sprouting_appbar.png", UriKind.RelativeOrAbsolute)}
 
         };
 
@@ -675,7 +683,15 @@ namespace Growthstories.UI.ViewModel
             {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
             {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient.png", UriKind.RelativeOrAbsolute)},
             {IconType.NOTE,new Uri("/Assets/Icons/icon_comment.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length.png", UriKind.RelativeOrAbsolute)}
+            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length.png", UriKind.RelativeOrAbsolute)},
+            {IconType.CHANGESOIL,new Uri("/Assets/Icons/icon_soilchange.png", UriKind.RelativeOrAbsolute)},
+            {IconType.BLOOMING,new Uri("/Assets/Icons/icon_blooming.png", UriKind.RelativeOrAbsolute)},
+            {IconType.DECEASED,new Uri("/Assets/Icons/icon_deceased.png", UriKind.RelativeOrAbsolute)},
+            {IconType.ILLUMINANCE,new Uri("/Assets/Icons/icon_illuminance.png", UriKind.RelativeOrAbsolute)},
+            {IconType.MISTING,new Uri("/Assets/Icons/icon_misting.png", UriKind.RelativeOrAbsolute)},
+            {IconType.PH,new Uri("/Assets/Icons/icon_ph.png", UriKind.RelativeOrAbsolute)},
+            {IconType.POLLINATION,new Uri("/Assets/Icons/icon_pollination.png", UriKind.RelativeOrAbsolute)},
+            {IconType.SPROUTING,new Uri("/Assets/Icons/icon_sprouting.png", UriKind.RelativeOrAbsolute)},
         };
 
         public IDictionary<IconType, Uri> BigIconUri { get { return _bIconUri; } }
@@ -797,7 +813,15 @@ namespace Growthstories.UI.ViewModel
         MEASURE,
         NOURISH,
         CHANGESOIL,
-        SHARE
+        SHARE,
+        BLOOMING,
+        DECEASED,
+        ILLUMINANCE,
+        LENGTH,
+        MISTING,
+        PH,
+        POLLINATION,
+        SPROUTING
     }
 
     public enum ApplicationBarMode

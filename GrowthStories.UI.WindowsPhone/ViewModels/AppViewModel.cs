@@ -29,7 +29,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        protected Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations;
+        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations;
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
             get
@@ -74,6 +74,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<ClientPlantPhotographViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
             Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ListUsersViewModel>));
+            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<GardenPivotViewModel>));
 
             Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(ITestingViewModel));
 
@@ -99,7 +100,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return base.PlantActionViewModelFactory<T>(state);
         }
 
-      
+
 
 
 

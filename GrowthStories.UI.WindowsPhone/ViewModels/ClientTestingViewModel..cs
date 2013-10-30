@@ -129,41 +129,45 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             var remoteAddGarden = new AddGarden(remoteUser.AggregateId, remoteGarden.EntityId.Value);
             App.Bus.SendCommand(remoteAddGarden);
 
-            var remotePlant = new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteGarden.EntityId.Value, remoteUser.AggregateId);
-            App.Bus.SendCommand(remotePlant);
+            for (var i = 0; i < 5; i++)
+            {
 
-            var remotePlantProperty = new MarkPlantPublic(remotePlant.AggregateId);
-            App.Bus.SendCommand(remotePlantProperty);
+                var remotePlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, remoteGarden.EntityId.Value, remoteUser.AggregateId);
+                App.Bus.SendCommand(remotePlant);
+
+                var remotePlantProperty = new MarkPlantPublic(remotePlant.AggregateId);
+                App.Bus.SendCommand(remotePlantProperty);
 
 
-            var remoteAddPlant = new AddPlant(remoteGarden.EntityId.Value, remotePlant.AggregateId, remoteUser.AggregateId, "RemoteJare");
-            App.Bus.SendCommand(remoteAddPlant);
+                var remoteAddPlant = new AddPlant(remoteGarden.EntityId.Value, remotePlant.AggregateId, remoteUser.AggregateId, "RemoteJare " + i);
+                App.Bus.SendCommand(remoteAddPlant);
 
-            var remoteComment =
+                var remoteComment =
+                        new CreatePlantAction(
+                            Guid.NewGuid(),
+                            remoteUser.AggregateId,
+                            remotePlant.AggregateId,
+                            PlantActionType.COMMENTED,
+                            "Hello remote world " + i);
+
+                App.Bus.SendCommand(remoteComment);
+
+                var remotePhoto =
                     new CreatePlantAction(
                         Guid.NewGuid(),
                         remoteUser.AggregateId,
                         remotePlant.AggregateId,
-                        PlantActionType.COMMENTED,
-                        "Hello remote world");
-
-            App.Bus.SendCommand(remoteComment);
-
-            var remotePhoto =
-                new CreatePlantAction(
-                    Guid.NewGuid(),
-                    remoteUser.AggregateId,
-                    remotePlant.AggregateId,
-                    PlantActionType.PHOTOGRAPHED,
-                    "Hello remote world")
-                {
-                    Photo = new Photo()
+                        PlantActionType.PHOTOGRAPHED,
+                        "Hello remote world " + i)
                     {
-                        RemoteUri = "http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"
-                    }
-                };
+                        Photo = new Photo()
+                        {
+                            RemoteUri = "http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"
+                        }
+                    };
 
-            App.Bus.SendCommand(remotePhoto);
+                App.Bus.SendCommand(remotePhoto);
+            }
 
         }
 

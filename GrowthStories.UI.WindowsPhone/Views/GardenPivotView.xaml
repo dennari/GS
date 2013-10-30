@@ -12,33 +12,27 @@
     xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    d:DataContext="{StaticResource GardenPivotViewModelDesign}"
     mc:Ignorable="d">
-    <UserControl.Resources>
-        <DataTemplate x:Key="ListUsersTemplate">
-            <TextBlock 
-            Text="{Binding UserState.Username}"               
-            FontSize="{StaticResource PhoneFontSizeExtraLarge}"
-            toolkit:TiltEffect.IsTiltEnabled="True"/>
-        </DataTemplate>
-    </UserControl.Resources>
+
     <!--LayoutRoot contains the root grid where all other page content is placed-->
-    <Grid x:Name="LayoutRoot">
+    <phone:Pivot 
+			x:Name="Plants" 
+			ItemsSource="{Binding Plants}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+			Title="{Binding Username}">
 
+        <phone:Pivot.HeaderTemplate>
+            <DataTemplate>
+                <ContentControl Content="{Binding Name}"/>
+            </DataTemplate>
+        </phone:Pivot.HeaderTemplate>
 
-        <phone:Pivot 
-            x:Name="Plants" 
-            ItemsSource="{Binding Plants}" 
-            HeaderTemplate="{StaticResource GardenPivotHeader}" 
-            Title="My Garden" d:DataContext="{StaticResource GardenPivotViewModelDesign}">
+        <phone:Pivot.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Name}" FontFamily="Portable User Interface" FontSize="36"/>
+            </DataTemplate>
+        </phone:Pivot.ItemTemplate>
 
-            <phone:Pivot.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </phone:Pivot.ItemTemplate>
-        </phone:Pivot>
-
-    </Grid>
+    </phone:Pivot>
 
 </UserControl>

@@ -21,7 +21,7 @@
     <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
     <XapFilename>GrowthStories.UI.WindowsPhone.WP8.Design_$(Configuration)_$(Platform).xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
-    <SilverlightAppEntry>GrowthStories.UI.WindowsPhone.WP8.Design.App</SilverlightAppEntry>
+    <SilverlightAppEntry>Growthstories.UI.WindowsPhone.Design.App</SilverlightAppEntry>
     <ValidateXaml>true</ValidateXaml>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
@@ -135,9 +135,27 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="TemplateSelector.cs" />
+    <Compile Include="ViewModels\PlantActions.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
+    <Compile Include="Views\PlantPhotoPivotView.xaml.cs">
+      <DependentUpon>PlantPhotoPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlantMeasurementActionView.xaml.cs">
+      <DependentUpon>PlantMeasurementActionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlantPhotographActionView.xaml.cs">
+      <DependentUpon>PlantPhotographActionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlantActionView.cs" />
+    <Compile Include="Views\PlantPivotView.xaml.cs">
+      <DependentUpon>PlantPivotView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GardenPivotView.xaml.cs">
       <DependentUpon>GardenPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlantView.xaml.cs">
+      <DependentUpon>PlantView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -161,8 +179,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\PlantPhotoPivotView.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantMeasurementActionView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantPhotographActionView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantPivotView.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\GardenPivotView.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantView.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
@@ -174,10 +212,83 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\action_bg.jpg">
+      <Link>Assets\Bg\action_bg.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\garden_all.png">
+      <Link>Assets\Bg\garden_all.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\garden_wvga.png">
+      <Link>Assets\Bg\garden_wvga.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\panorama_logo.png">
+      <Link>Assets\Bg\panorama_logo.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg">
+      <Link>Assets\Bg\plant_bg.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\timeline_all.png">
+      <Link>Assets\Bg\timeline_all.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\timeline_wvga.png">
+      <Link>Assets\Bg\timeline_wvga.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\watering_bg.jpg">
+      <Link>Assets\Bg\watering_bg.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Tiles\GSFlipTileLarge.png">
+      <Link>Assets\Tiles\GSFlipTileLarge.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Tiles\IconImage_03.png">
+      <Link>Assets\Tiles\IconImage_03.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Tiles\SmallIconImage_03.png">
+      <Link>Assets\Tiles\SmallIconImage_03.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Icons\appbar.add.png" />
+    <Content Include="Assets\Icons\appbar.check.png" />
+    <Content Include="Assets\Icons\appbar.delete.png" />
+    <Content Include="Assets\Icons\appbar.list.check.png" />
+    <Content Include="Assets\Icons\appbar.social.sharethis.png" />
+    <Content Include="Assets\Icons\application_icon_179.png" />
+    <Content Include="Assets\Icons\application_icon_33.png" />
+    <Content Include="Assets\Icons\application_icon_69.png" />
+    <Content Include="Assets\Icons\application_icon_99.png" />
+    <Content Include="Assets\Icons\icon_blooming.png" />
+    <Content Include="Assets\Icons\icon_blooming_appbar.png" />
+    <Content Include="Assets\Icons\icon_comment.png" />
+    <Content Include="Assets\Icons\icon_comment_appbar.png" />
+    <Content Include="Assets\Icons\icon_deceased.png" />
+    <Content Include="Assets\Icons\icon_deceased_appbar.png" />
+    <Content Include="Assets\Icons\icon_illuminance.png" />
+    <Content Include="Assets\Icons\icon_illuminance_appbar.png" />
+    <Content Include="Assets\Icons\icon_length.png" />
+    <Content Include="Assets\Icons\icon_length_appbar.png" />
+    <Content Include="Assets\Icons\icon_misting.png" />
+    <Content Include="Assets\Icons\icon_misting_appbar.png" />
+    <Content Include="Assets\Icons\icon_note.png" />
+    <Content Include="Assets\Icons\icon_note_appbar.png" />
+    <Content Include="Assets\Icons\icon_nutrient.png" />
+    <Content Include="Assets\Icons\icon_nutrient_appbar.png" />
+    <Content Include="Assets\Icons\icon_ph.png" />
+    <Content Include="Assets\Icons\icon_photo.png" />
+    <Content Include="Assets\Icons\icon_photo_appbar.png" />
+    <Content Include="Assets\Icons\icon_ph_appbar.png" />
+    <Content Include="Assets\Icons\icon_pollination.png" />
+    <Content Include="Assets\Icons\icon_pollination_appbar.png" />
+    <Content Include="Assets\Icons\icon_soilchange.png" />
+    <Content Include="Assets\Icons\icon_soilchange_appbar.png" />
+    <Content Include="Assets\Icons\icon_sprouting.png" />
+    <Content Include="Assets\Icons\icon_sprouting_appbar.png" />
+    <Content Include="Assets\Icons\icon_watering.png" />
+    <Content Include="Assets\Icons\icon_watering_appbar.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -194,6 +305,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="README_FIRST.txt" />
+    <Content Include="TestData\517e100d782a828894.jpg" />
+    <Content Include="TestData\flowers-from-the-conservatory.jpg" />
     <Content Include="Toolkit.Content\ApplicationBar.Add.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
@@ -229,6 +342,7 @@
       <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

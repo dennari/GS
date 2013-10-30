@@ -13,10 +13,12 @@ namespace Growthstories.UI.ViewModel
     {
         public List<PlantViewModelDesign> Plants { get; set; }
 
+        public string Username { get; set; }
 
         public GardenPivotViewModelDesign()
         {
             this.Plants = new List<PlantViewModelDesign>();
+            this.Username = "Lauriii";
             Plants.Add(this.CreatePlant("Sepi"));
             Plants.Add(this.CreatePlant("Jare"));
             Plants.Add(this.CreatePlant("Kari"));
@@ -28,22 +30,14 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public sealed class PlantViewModelDesign
+    public class PlantViewModelDesign
     {
 
         private readonly PlantStateDesign State;
 
 
-        public List<PlantActionViewModelDesign> Actions
-        {
-            get
-            {
-                return new List<PlantActionViewModelDesign>()
-                {
+        public List<PlantActionViewModelDesign> Actions { get; set; }
 
-                };
-            }
-        }
 
         public PlantViewModelDesign()
             : base()
@@ -53,16 +47,33 @@ namespace Growthstories.UI.ViewModel
                 Name = "Jore",
                 Species = "Aloe Vera"
             };
+
+            this.Actions = new List<PlantActionViewModelDesign>()
+            {
+                new PlantPhotoViewModel(@"/TestData/flowers-from-the-conservatory.jpg"),                
+                new PlantWaterViewModel(),
+                new PlantMeasureViewModel(),
+                new PlantPhotoViewModel(),
+                new PlantFertilizeViewModel(),
+                new PlantCommentViewModel()
+            };
+
+            this.Photo = new Photo()
+            {
+                LocalFullPath = @"/TestData/517e100d782a828894.jpg",
+                LocalUri = @"/TestData/517e100d782a828894.jpg"
+            };
         }
 
         public PlantViewModelDesign(string name, string species)
-            : base()
+            : this()
         {
             this.State = new PlantStateDesign()
             {
                 Name = name,
                 Species = species
             };
+
         }
 
         public Guid Id
@@ -92,11 +103,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public Photo Photo
-        {
-            get { return default(Photo); }
-        }
-
+        public Photo Photo { get; set; }
 
 
         public string PageTitle
@@ -114,16 +121,51 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public sealed class PlantActionViewModelDesign
-    {
-
-    }
 
     public sealed class PlantStateDesign
     {
         public string Name { get; set; }
         public string Species { get; set; }
     }
+
+
+    public class PlantPivotViewModelDesign : PlantViewModelDesign
+    {
+
+        public IPlantActionViewModel SelectedItem { get; set; }
+        public PlantActionType? Filter { get; set; }
+
+
+        protected List<PlantActionViewModelDesign> _FilteredActions;
+        public List<PlantActionViewModelDesign> FilteredActions
+        {
+            get
+            {
+                if (_FilteredActions == null)
+                    _FilteredActions = !Filter.HasValue ? Actions : Actions.Where(x => x.ActionType == Filter.Value).ToList();
+                return _FilteredActions;
+            }
+        }
+
+
+        public PlantPivotViewModelDesign()
+            : base()
+        {
+            //Filter = PlantActionType.PHOTOGRAPHED;
+            //SelectedItem = FilteredActions[0];
+        }
+    }
+
+    public class PlantPhotoPivotViewModelDesign : PlantPivotViewModelDesign
+    {
+        public PlantPhotoPivotViewModelDesign()
+            : base()
+        {
+            Filter = PlantActionType.PHOTOGRAPHED;
+        }
+    }
+
+
 
 
 }

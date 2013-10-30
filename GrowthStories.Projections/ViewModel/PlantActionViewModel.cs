@@ -100,7 +100,7 @@ namespace Growthstories.UI.ViewModel
         string Date { get; }
         string Time { get; }
         string Note { get; }
-
+        PlantActionType ActionType { get; }
         Uri IconUri { get; }
         Guid PlantActionId { get; }
         DateTimeOffset Created { get; }
@@ -143,32 +143,14 @@ namespace Growthstories.UI.ViewModel
 
     public abstract class PlantActionViewModel : CommandViewModel, IPlantActionViewModel
     {
-        //protected PlantState _State;
-        //public PlantState State
-        //{
-        //    get { return _State; }
-        //    protected set
-        //    {
-        //        if (value == null || value == _State)
-        //            return;
-        //        this._State = value;
-
-        //        if (_State.Species != null)
-        //        {
-        //            this.PlantTitle = string.Format("{0} ({1})", _State.Name.ToUpper(), _State.Species.ToUpper());
-        //        }
-        //        else
-        //        {
-        //            this.PlantTitle = _State.Name.ToUpper();
-        //        }
-        //    }
-        //}
 
         public PlantActionState State { get; protected set; }
 
         public string WeekDay { get; protected set; }
         public string Date { get; protected set; }
         public string Time { get; protected set; }
+        public PlantActionType ActionType { get; protected set; }
+
 
 
         public Uri IconUri { get { return this.App.BigIconUri[this._IconType]; } }
@@ -193,7 +175,7 @@ namespace Growthstories.UI.ViewModel
                 this.Time = state.Created.ToString("t");
                 this.PlantActionId = state.Id;
                 this.Created = state.Created;
-
+                this.ActionType = state.Type;
                 this.ListenTo<PlantActionPropertySet>(state.Id).Subscribe(x =>
                 {
                     SetProperty(x);
@@ -231,49 +213,6 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public sealed class AddMeasurementViewModelDesign
-    {
-        public string Title { get { return "measurement"; } }
-        public string PlantTitle { get { return "JARI (ALOE VERA)"; } }
-        public string Note { get { return "Ah a comment"; } }
-
-        public AddMeasurementViewModelDesign()
-        {
-            this.MeasurementTypes = MeasurementTypeViewModelDesign.GetAll(null);
-
-        }
-
-
-        public IList<MeasurementTypeViewModelDesign> MeasurementTypes { get; set; }
-    }
-
-    public sealed class MeasurementTypeViewModelDesign
-    {
-        public string Title { get; set; }
-        private IconType _Icon;
-        public MeasurementType Type { get; set; }
-
-        public MeasurementTypeViewModelDesign(MeasurementType type, string title, IconType icon, IGSAppViewModel app)
-        {
-            this.Type = type;
-            this.Title = title;
-            this._Icon = icon;
-
-
-        }
-
-        public static IList<MeasurementTypeViewModelDesign> GetAll(IGSAppViewModel app)
-        {
-            return new List<MeasurementTypeViewModelDesign>()
-            {
-                new MeasurementTypeViewModelDesign(MeasurementType.ILLUMINANCE,"Illuminance",IconType.MEASURE,app),
-                new MeasurementTypeViewModelDesign(MeasurementType.LENGTH,"Length",IconType.MEASURE,app),
-                new MeasurementTypeViewModelDesign(MeasurementType.PH,"PH",IconType.MEASURE,app),
-                new MeasurementTypeViewModelDesign(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MEASURE,app),
-                new MeasurementTypeViewModelDesign(MeasurementType.WEIGHT,"Weight",IconType.MEASURE,app)
-            };
-        }
-    }
 
     public sealed class MeasurementTypeViewModel : GSViewModelBase
     {

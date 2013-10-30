@@ -17,10 +17,10 @@
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
-    <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <!--<vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
     <vm:GardenPivotViewModelDesign x:Key="GardenPivotViewModelDesign" d:IsDataSource="True" />
     <vm:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
-    <vm:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />
+    <vm:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />-->
 
     <!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
     <Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>

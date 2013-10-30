@@ -10,36 +10,38 @@
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone.Design"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-	d:DataContext="{StaticResource GardenPivotViewModelDesign}"
+    DataContext="{StaticResource GardenPivotViewModelDesign}"
+    d:DataContext="{StaticResource GardenPivotViewModelDesign}"
 	mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" 
-          Background="Transparent">
-
-        <!--<TextBlock 
-            Text="{Binding TestField}" 
-            Grid.Row="0" 
-            FontFamily="Segoe WP Black" 
-            FontSize="24" Foreground="{StaticResource PhoneTextBoxBrush}"/>-->
-        <!--<TextBlock 
-            Text="dfgdfg" 
-            Grid.Row="0" 
-            FontFamily="Segoe WP Black" 
-            FontSize="24" Foreground="{StaticResource PhoneTextBoxBrush}"/>-->
+    <Grid x:Name="LayoutRoot">
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
+        </Grid.Background>
+        
         <phone:Pivot 
 			x:Name="Plants" 
 			ItemsSource="{Binding Plants}"
-			Title="My Garden">
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+			Title="{Binding Username}">
 
             <phone:Pivot.HeaderTemplate>
                 <DataTemplate>
                     <ContentControl Content="{Binding Name}"/>
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
+
             <phone:Pivot.ItemTemplate>
 				<DataTemplate>
-					<TextBlock Text="{Binding Name}" FontFamily="Portable User Interface" FontSize="36"/>
-				</DataTemplate>
+                    <phone:LongListSelector x:Name="TimeLine"            			   
+                        ItemsSource="{Binding Actions}">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <local:ActionTemplateSelector Content="{Binding}" HorizontalContentAlignment="Stretch" />
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                </DataTemplate>
 			</phone:Pivot.ItemTemplate>
             
 		</phone:Pivot>
