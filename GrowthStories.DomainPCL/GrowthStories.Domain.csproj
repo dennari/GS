@@ -37,6 +37,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'QuickTest|AnyCPU'">
     <OutputPath>bin\QuickTest\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Design|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Design\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Entities\App\GSAppCommands.cs" />
     <Compile Include="Entities\App\GSAppEvents.cs" />
@@ -123,10 +132,6 @@
     <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
       <Name>PortableCommonDomain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
-      <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
-      <Name>EventStore.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789b5308-2d5e-40cc-8755-b0131b9832a9}</Project>

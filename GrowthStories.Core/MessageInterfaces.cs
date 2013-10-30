@@ -104,7 +104,7 @@ namespace Growthstories.Core
 
         }
 
-        protected void Add(IEvent e)
+        private void Add(IEvent e)
         {
             if (AggregateVersion != e.AggregateVersion - 1)
                 throw new ArgumentException("Can't add event out of sequence");

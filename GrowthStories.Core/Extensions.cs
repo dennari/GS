@@ -1,5 +1,4 @@
 ﻿using CommonDomain;
-using CommonDomain.Persistence;
 using EventStore;
 using System;
 using System.Collections.Generic;

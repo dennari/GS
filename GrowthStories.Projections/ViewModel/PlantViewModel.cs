@@ -23,7 +23,7 @@ namespace Growthstories.UI.ViewModel
         string Species { get; }
         ReactiveCommand PinCommand { get; }
         ReactiveCommand ScrollCommand { get; }
-        Photo ProfilepictureData { get; }
+        Photo Photo { get; }
         PlantState State { get; }
         ReactiveList<IPlantActionViewModel> Actions { get; }
     }
@@ -32,29 +32,7 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        protected ReactiveList<IPlantActionViewModel> _Actions;
-        public ReactiveList<IPlantActionViewModel> Actions
-        {
-            get
-            {
-                if (_Actions == null)
-                {
-                    _Actions = new ReactiveList<IPlantActionViewModel>();
-                    App.CurrentPlantActions(this.State).Concat(App.FuturePlantActions(this.State)).Subscribe(x =>
-                    {
-                        Actions.Insert(0, x);
-                        ScrollCommand.Execute(x);
-                    });
-                    //App.FuturePlantActions(this.State).Subscribe(x =>
-                    //{
-                    //    Actions.Insert(0, x);
-                    //    ScrollCommand.Execute(x);
-                    //});
 
-                }
-                return _Actions;
-            }
-        }
 
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
@@ -63,6 +41,7 @@ namespace Growthstories.UI.ViewModel
         public ReactiveCommand PinCommand { get; protected set; }
         public ReactiveCommand ScrollCommand { get; protected set; }
         public ReactiveCommand FlickCommand { get; protected set; }
+        public ReactiveCommand PlantActionDetailsCommand { get; protected set; }
 
         public Guid Id { get { return State.Id; } }
         public Guid UserId { get { return State.UserId; } }
@@ -98,6 +77,29 @@ namespace Growthstories.UI.ViewModel
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
             this.FlickCommand = new ReactiveCommand();
+            this.PlantActionDetailsCommand = new ReactiveCommand();
+            this.PlantActionDetailsCommand
+                .OfType<IPlantActionViewModel>()
+                .Subscribe(x =>
+                {
+                    x.AddCommand.Subscribe(_ =>
+                    {
+                        var cmd = new SetPlantActionProperty(x.PlantActionId)
+                        {
+                            Note = x.Note,
+                        };
+                        var m = x as IPlantMeasureViewModel;
+                        if (m != null)
+                        {
+                            cmd.Value = m.Value;
+                        }
+
+                        this.SendCommand(cmd, true);
+                    });
+                    this.Navigate(x);
+                });
+
+
             //this.FlickCommand.Subscribe(x =>
             //{
             //    var xx = x as Tuple<double, double>;
@@ -140,7 +142,7 @@ namespace Growthstories.UI.ViewModel
                 .ToProperty(this, x => x.Name, out this._Name, state.Name);
 
             this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
-                .ToProperty(this, x => x.ProfilepictureData, out this._ProfilepictureData, state.Profilepicture);
+                .ToProperty(this, x => x.Photo, out this._ProfilepictureData, state.Profilepicture);
 
             this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
                .ToProperty(this, x => x.Species, out this._Species, state.Species);
@@ -165,7 +167,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         protected ObservableAsPropertyHelper<Photo> _ProfilepictureData;
-        public Photo ProfilepictureData
+        public Photo Photo
         {
             get
             {
@@ -179,6 +181,30 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _Species.Value;
+            }
+        }
+
+        protected ReactiveList<IPlantActionViewModel> _Actions;
+        public ReactiveList<IPlantActionViewModel> Actions
+        {
+            get
+            {
+                if (_Actions == null)
+                {
+                    _Actions = new ReactiveList<IPlantActionViewModel>();
+                    App.CurrentPlantActions(this.State).Concat(App.FuturePlantActions(this.State)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                    {
+                        Actions.Insert(0, x);
+                        ScrollCommand.Execute(x);
+                    });
+                    //App.FuturePlantActions(this.State).Subscribe(x =>
+                    //{
+                    //    Actions.Insert(0, x);
+                    //    ScrollCommand.Execute(x);
+                    //});
+
+                }
+                return _Actions;
             }
         }
 
@@ -392,40 +418,5 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public class PlantViewModelDesign
-    {
 
-        public PlantState State;
-
-        public PlantActionViewModel Test
-        {
-            get
-            {
-                return this.Actions.First();
-            }
-        }
-
-        public List<PlantActionViewModel> Actions
-        {
-            get
-            {
-                return new List<PlantActionViewModel>()
-                {
-
-                    //new WaterViewModel(new Watered(State.UserId,State.Id,"Watered"),null),
-                    //new FertilizeViewModel(new Fertilized(State.UserId,State.Id,"Fertilized"),null),
-                    //new CommentViewModel(new Commented(State.UserId,State.Id,"Commented"),null),
-                    //new PhotographViewModel(new Photographed(State.UserId, State.Id, "My baby!", new Uri("ms-appx:///TestData/517e100d782a828894.jpg")),null)
-
-
-                };
-            }
-        }
-
-        public PlantViewModelDesign()
-            : base()
-        {
-            this.State = new PlantState(new PlantCreated(Guid.NewGuid(), "Jare", Guid.NewGuid()));
-        }
-    }
 }

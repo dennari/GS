@@ -86,12 +86,12 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private TestingViewModel _TestingVM;
-        public TestingViewModel TestingVM
+        private ITestingViewModel _TestingVM;
+        public ITestingViewModel TestingVM
         {
             get
             {
-                var vm = _TestingVM ?? (_TestingVM = new TestingViewModel(App));
+                var vm = _TestingVM ?? (_TestingVM = App.Resolver.GetService<ITestingViewModel>());
 
                 //vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
                 //vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
@@ -116,15 +116,19 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public class TestingViewModel : GSViewModelBase
+    public interface ITestingViewModel : IGSViewModel
+    {
+    }
+    public class TestingViewModel : GSViewModelBase, ITestingViewModel
     {
         public TestingViewModel(IGSAppViewModel app)
             : base(app)
         {
             this.AddTestDataCommand = new ReactiveCommand();
-            this.AddTestDataCommandAsync = this.AddTestDataCommand.RegisterAsyncTask(async (x) => await this.App.AddTestData());
+            this.AddRemoteDataCommand = new ReactiveCommand();
+            //this.AddTestDataCommandAsync = this.AddTestDataCommand.RegisterAsyncTask(async (x) => await this.App.AddTestData());
             this.ClearDBCommand = new ReactiveCommand();
-            this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
+            //this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
             this.SyncCommand = new ReactiveCommand();
             //this.SyncCommandAsync = this.SyncCommand.RegisterAsyncTask(async (x) => await this.App.Synchronize());
 
@@ -132,6 +136,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         public ReactiveCommand AddTestDataCommand { get; protected set; }
+        public ReactiveCommand AddRemoteDataCommand { get; protected set; }
         public ReactiveCommand ClearDBCommand { get; protected set; }
         public ReactiveCommand SyncCommand { get; protected set; }
         //public ReactiveCommand ClearDBCommandAsync { get; protected set; }
@@ -140,6 +145,9 @@ namespace Growthstories.UI.ViewModel
         public IObservable<System.Reactive.Unit> ClearDBCommandAsync { get; protected set; }
 
         public IObservable<System.Reactive.Unit> AddTestDataCommandAsync { get; protected set; }
+
+        public IObservable<System.Reactive.Unit> AddRemoteDataCommandAsync { get; protected set; }
+
 
         public IObservable<SyncResult> SyncCommandAsync { get; protected set; }
     }

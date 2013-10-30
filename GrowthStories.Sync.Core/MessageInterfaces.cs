@@ -1,4 +1,5 @@
-﻿using CommonDomain;
+﻿
+using CommonDomain;
 using Growthstories.Core;
 using Newtonsoft.Json;
 using System;

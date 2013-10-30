@@ -194,6 +194,11 @@ namespace Growthstories.UI.ViewModel
                 this.PlantActionId = state.Id;
                 this.Created = state.Created;
 
+                this.ListenTo<PlantActionPropertySet>(state.Id).Subscribe(x =>
+                {
+                    SetProperty(x);
+                });
+
             }
 
         }
@@ -234,12 +239,40 @@ namespace Growthstories.UI.ViewModel
 
         public AddMeasurementViewModelDesign()
         {
-            this.MeasurementTypes = MeasurementTypeViewModel.GetAll(null);
+            this.MeasurementTypes = MeasurementTypeViewModelDesign.GetAll(null);
 
         }
 
 
-        public IList<MeasurementTypeViewModel> MeasurementTypes { get; set; }
+        public IList<MeasurementTypeViewModelDesign> MeasurementTypes { get; set; }
+    }
+
+    public sealed class MeasurementTypeViewModelDesign
+    {
+        public string Title { get; set; }
+        private IconType _Icon;
+        public MeasurementType Type { get; set; }
+
+        public MeasurementTypeViewModelDesign(MeasurementType type, string title, IconType icon, IGSAppViewModel app)
+        {
+            this.Type = type;
+            this.Title = title;
+            this._Icon = icon;
+
+
+        }
+
+        public static IList<MeasurementTypeViewModelDesign> GetAll(IGSAppViewModel app)
+        {
+            return new List<MeasurementTypeViewModelDesign>()
+            {
+                new MeasurementTypeViewModelDesign(MeasurementType.ILLUMINANCE,"Illuminance",IconType.MEASURE,app),
+                new MeasurementTypeViewModelDesign(MeasurementType.LENGTH,"Length",IconType.MEASURE,app),
+                new MeasurementTypeViewModelDesign(MeasurementType.PH,"PH",IconType.MEASURE,app),
+                new MeasurementTypeViewModelDesign(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MEASURE,app),
+                new MeasurementTypeViewModelDesign(MeasurementType.WEIGHT,"Weight",IconType.MEASURE,app)
+            };
+        }
     }
 
     public sealed class MeasurementTypeViewModel : GSViewModelBase

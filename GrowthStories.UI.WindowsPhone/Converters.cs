@@ -102,81 +102,6 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
-    /// <summary>
-    /// Each picture is stored as a byte array in the PictureViewModel object.
-    /// When we bind to that property we must convert to an image source that can be used by the Image control.
-    /// </summary>
-    public class PathToImageSourceConverter : IValueConverter
-    {
-
-        public object Convert(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
-        {
-            if (value == null)
-                return null;
-
-            string p = value as string;
-
-
-            BitmapImage img = null;
-            if (p != null)
-            {
-                if (p.StartsWith(@"\"))
-                {
-                    //Stream s = p.OpenLocalPhoto();
-                    //if (s == null)
-                    //    return null;
-
-                    //Uri uri = new Uri(path, path.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-                    //img = new BitmapImage();
-                    //img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-                    //img.SetSource(s);
-                }
-                else
-                {
-                    img = new BitmapImage();
-                    img.UriSource = new Uri(p, p.StartsWith("/") ? UriKind.Relative : UriKind.Absolute);
-
-                }
-
-            }
-
-            Uri u = value as Uri;
-            if (img == null && u != null)
-            {
-                img = new BitmapImage();
-                img.UriSource = u;
-            }
-
-
-            if (img != null)
-            {
-                img.ImageFailed += img_ImageFailed;
-                img.ImageOpened += img_ImageOpened;
-            }
-
-
-            return img;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter,
-            System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        void img_ImageOpened(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if (true) { }
-        }
-
-        void img_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
-        {
-            throw e.ErrorException;
-        }
-
-    }
 
     public class UriToImageSourceConverter : IValueConverter
     {
@@ -215,10 +140,12 @@ namespace Growthstories.UI.WindowsPhone
                 var img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
-                    DecodePixelType = DecodePixelType.Physical,
-                    DecodePixelHeight = (int)x.Height,
-                    DecodePixelWidth = (int)x.Width
+                    DecodePixelType = DecodePixelType.Physical
                 };
+                if (x.Height != default(uint))
+                    img.DecodePixelHeight = (int)x.Height;
+                if (x.Width != default(uint))
+                    img.DecodePixelWidth = (int)x.Width;
                 img.ImageFailed += img_ImageFailed;
                 return img;
             }

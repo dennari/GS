@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using CommonDomain;
-using CommonDomain.Core;
+
 using Growthstories.Core;
 using System.Reflection;
-using EventStore.Logging;
-using EventStore;
+
 using Microsoft.CSharp.RuntimeBinder;
+using CommonDomain;
+using CommonDomain.Core;
+using EventStore.Logging;
 
 namespace Growthstories.Core
 {

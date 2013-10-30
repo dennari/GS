@@ -34,6 +34,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Design|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Design\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
     <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
@@ -98,9 +107,6 @@
     <Compile Include="SyncTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="AdvancedREI.Net.Http.Compression">
-      <HintPath>..\packages\HttpClient.Compression.1.1.0\lib\portable-net4+sl4+wp7+win8\AdvancedREI.Net.Http.Compression.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Threading.Tasks">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\portable-net45+win8+wp8\Microsoft.Threading.Tasks.dll</HintPath>
     </Reference>
@@ -118,9 +124,6 @@
     </Reference>
     <Reference Include="System.Net.Http.Primitives">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.13\lib\portable-net40+sl4+win8+wp71\System.Net.Http.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="Zlib.Portable">
-      <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

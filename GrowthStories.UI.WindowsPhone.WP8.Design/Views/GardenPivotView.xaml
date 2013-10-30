@@ -1,0 +1,50 @@
+﻿<UserControl
+	x:Class="Growthstories.UI.WindowsPhone.Design.GardenPivotView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone.Design"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	d:DataContext="{StaticResource GardenPivotViewModelDesign}"
+	mc:Ignorable="d">
+
+    <Grid x:Name="LayoutRoot" 
+          Background="Transparent">
+
+        <!--<TextBlock 
+            Text="{Binding TestField}" 
+            Grid.Row="0" 
+            FontFamily="Segoe WP Black" 
+            FontSize="24" Foreground="{StaticResource PhoneTextBoxBrush}"/>-->
+        <!--<TextBlock 
+            Text="dfgdfg" 
+            Grid.Row="0" 
+            FontFamily="Segoe WP Black" 
+            FontSize="24" Foreground="{StaticResource PhoneTextBoxBrush}"/>-->
+        <phone:Pivot 
+			x:Name="Plants" 
+			ItemsSource="{Binding Plants}"
+			Title="My Garden">
+
+            <phone:Pivot.HeaderTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding Name}"/>
+                </DataTemplate>
+            </phone:Pivot.HeaderTemplate>
+            <phone:Pivot.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Name}" FontFamily="Portable User Interface" FontSize="36"/>
+				</DataTemplate>
+			</phone:Pivot.ItemTemplate>
+            
+		</phone:Pivot>
+
+
+    </Grid>
+
+</UserControl>

@@ -63,8 +63,8 @@ namespace Growthstories.UI.ViewModel
         AddPlantViewModel AddPlantViewModelFactory(PlantState state);
 
         PageOrientation Orientation { get; }
-        Task AddTestData();
-        Task ClearDB();
+        //Task AddTestData();
+        //Task ClearDB();
 
 
         //IGardenViewModel GardenFactory(Guid guid);
@@ -486,10 +486,8 @@ namespace Growthstories.UI.ViewModel
             if (user != null)
                 id = user.Id;
 
-            var current = af(id)
-                //.OfType<User>()
-                .Select(x => x.ToObservable())
-                .Switch()
+            var current = UIPersistence.GetUsers(id)
+                .ToObservable()
                 .Select(x => new GardenViewModel(x, this));
 
             return current;
@@ -508,10 +506,8 @@ namespace Growthstories.UI.ViewModel
 
             var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            var current = af(PlantActionId, state.Id, null)
-                //.OfType<User>()
-                .Select(x => x.ToObservable())
-                .Switch()
+            var current = UIPersistence.GetActions(PlantActionId, state.Id, null)
+                .ToObservable()
                 .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x));
 
             return current;
@@ -535,14 +531,8 @@ namespace Growthstories.UI.ViewModel
         {
 
 
-            Func<Guid?, Guid?, Guid?, IEnumerable<PlantState>> f = UIPersistence.GetPlants;
-
-            var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-            var current = af(null, null, user.Id)
-                //.OfType<User>()
-                .Select(x => x.ToObservable())
-                .Switch()
+            var current = UIPersistence.GetPlants(null, null, user.Id)
+                .ToObservable()
                 .Select(x => new PlantViewModel(x, this));
 
             return current;

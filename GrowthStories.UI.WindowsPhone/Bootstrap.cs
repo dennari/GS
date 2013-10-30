@@ -23,7 +23,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public StagingEndpoint() : base(new Uri("http://server.lan:9000")) { }
     }
-    public class Bootstrap : TestModule
+    public class Bootstrap : BaseSetup
     {
         public override void Load()
         {
@@ -31,6 +31,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         }
+
 
         protected override void HttpConfiguration()
         {

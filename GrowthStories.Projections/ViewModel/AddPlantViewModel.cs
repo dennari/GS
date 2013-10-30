@@ -72,7 +72,7 @@ namespace Growthstories.UI.ViewModel
                        x => x.Species,
                        x => x.FertilizingSchedule.Id,
                        x => x.WateringSchedule.Id,
-                       x => x.ProfilepictureData,
+                       x => x.Photo,
                        x => x.Tags,
                        this.IsValid
                     );
@@ -83,14 +83,14 @@ namespace Growthstories.UI.ViewModel
                 this.Species = State.Species;
                 this.Tags = new ReactiveList<string>(State.Tags);
                 this.Title = "edit";
-                this.ProfilepictureData = State.Profilepicture;
+                this.Photo = State.Profilepicture;
                 this.ProfilePictureButtonText = "";
 
             }
 
         }
 
-        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo? pic, IList<string> tags)
         {
             int changes = 0;
             if (State.Species != species)
@@ -120,14 +120,14 @@ namespace Growthstories.UI.ViewModel
             return changes > 0;
         }
 
-        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo? pic, IList<string> tags)
         {
             int valid = 0;
             if (!string.IsNullOrWhiteSpace(name))
                 valid++;
             if (!string.IsNullOrWhiteSpace(species))
                 valid++;
-            if (pic != default(Photo))
+            if (pic.HasValue)
                 valid++;
             if (fert != default(Guid))
                 valid++;
@@ -251,16 +251,16 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected Photo _ProfilepictureData;
-        public Photo ProfilepictureData
+        protected Photo? _Photo;
+        public Photo? Photo
         {
             get
             {
-                return _ProfilepictureData;
+                return _Photo;
             }
             set
             {
-                this.RaiseAndSetIfChanged(ref _ProfilepictureData, value);
+                this.RaiseAndSetIfChanged(ref _Photo, value);
             }
         }
 
@@ -286,9 +286,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.SendCommand(new SetWateringSchedule(State.Id, this.WateringSchedule.Id));
                 }
-                if (State.Profilepicture != this.ProfilepictureData)
+                if (this.Photo.HasValue && State.Profilepicture != this.Photo.Value)
                 {
-                    this.SendCommand(new SetProfilepicture(State.Id, this.ProfilepictureData));
+                    this.SendCommand(new SetProfilepicture(State.Id, this.Photo.Value));
                 }
                 if (!State.Tags.SetEquals(this.Tags))
                 {
@@ -302,7 +302,7 @@ namespace Growthstories.UI.ViewModel
                 this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
                 {
                     Species = this.Species,
-                    Profilepicture = this.ProfilepictureData,
+                    Profilepicture = this.Photo.Value,
                     FertilizingScheduleId = this.FertilizingSchedule.Id,
                     WateringScheduleId = this.WateringSchedule.Id,
                     Tags = new HashSet<string>(this.Tags)

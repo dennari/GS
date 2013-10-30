@@ -43,7 +43,7 @@ namespace Growthstories.UI.ViewModel
                 if (_Plants == null)
                 {
                     _Plants = new ReactiveList<IPlantViewModel>();
-                    App.CurrentPlants(this.UserState).Concat(App.FuturePlants(this.UserState)).Subscribe(x =>
+                    App.CurrentPlants(this.UserState).Concat(App.FuturePlants(this.UserState)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                     {
                         Plants.Add(x);
                     });

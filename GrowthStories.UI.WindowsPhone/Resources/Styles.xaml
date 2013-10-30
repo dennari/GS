@@ -13,10 +13,12 @@
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:media="clr-namespace:System.Windows.Media;assembly=System.Windows"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
     <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <vm:GardenPivotViewModelDesign x:Key="GardenPivotViewModelDesign" d:IsDataSource="True" />
     <vm:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
     <vm:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />
 
@@ -27,7 +29,7 @@
     <system:Double x:Key="GSInputLabelFontSize">20</system:Double>
     <system:Double x:Key="GSTextBoxFontSize">22</system:Double>
     <system:Double x:Key="GSListFontSize">28</system:Double>
-	<system:Double x:Key="GSTinyFontSize">18</system:Double>
+    <system:Double x:Key="GSTinyFontSize">18</system:Double>
     <Thickness x:Key="GSPageHeaderMargin">24</Thickness>
     <Thickness x:Key="GSPageContentMargin">24,0</Thickness>
     <Thickness x:Key="GSUndoMargin">-12,-6,-12,0</Thickness>
@@ -37,7 +39,7 @@
     <FontFamily x:Key="GSPageTitleFont">/Resources/Raleway-ExtraLight.ttf#Raleway</FontFamily>
     <FontFamily x:Key="GSAppTitleFont">/Resources/Montserrat-Bold.ttf#Montserrat</FontFamily>
     <FontFamily x:Key="GSTextBoxFont">/Resources/Montserrat-Regular.ttf#Montserrat</FontFamily>
-    
+
     <system:String x:Key="GSInputLabelFontColor">#fff5dae4</system:String>
     <Color x:Key="GSTextBoxFontColor">#ffae2e5f</Color>
     <system:String x:Key="GSTextBoxDisabledFontColor">#a0f5dae4</system:String>
@@ -131,8 +133,8 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
-  
+
+
     <Style TargetType="local:AddPlantActionView">
 
         <Setter Property="Template">
@@ -143,38 +145,38 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-     
-                        
+
+
                         <StackPanel Grid.Row="0" Margin="24,17,24,28">
                             <TextBlock 
-                Text="{Binding PlantTitle}" 
-                Style="{StaticResource GSAppTitleStyle}"/>
+								Text="{Binding PlantTitle}" 
+								Style="{StaticResource GSAppTitleStyle}"/>
                             <TextBlock 
-                Text="{Binding Title}" 
-                Style="{StaticResource GSPageTitleStyle}" />
+								Text="{Binding Title}" 
+								Style="{StaticResource GSPageTitleStyle}" />
                         </StackPanel>
                         <ScrollViewer Grid.Row="1">
-                          <StackPanel x:Name="ContentPanel" Margin="24,0">
-                            <ContentPresenter 
-                                Content="{TemplateBinding Content}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"/>
-                            <StackPanel Visibility="{TemplateBinding NoteVisibility}">
-                                <TextBlock 
-                                    Text="Note" 
-                                    Style="{StaticResource GSInputLabelStyle}" 
+                            <StackPanel x:Name="ContentPanel" Margin="24,0">
+                                <ContentPresenter 
+									Content="{TemplateBinding Content}"
+									HorizontalAlignment="Stretch"
+									VerticalAlignment="Stretch"/>
+                                <StackPanel Visibility="{TemplateBinding NoteVisibility}">
+                                    <TextBlock 
+										Text="Note" 
+										Style="{StaticResource GSInputLabelStyle}" 
                                 />
-                                <TextBox 
-                                    Text="{Binding Note, Mode=TwoWay}" 
-                                    local:BindingUtility.UpdateSourceOnChange="True" 
-                                    Style="{StaticResource GSTextBoxStyle}" 
-                                    Height="130" 
-                                    AcceptsReturn="True" 
-                                    TextWrapping="Wrap" 
-                                    VerticalScrollBarVisibility="Auto"                                         
+                                    <TextBox 
+										Text="{Binding Note, Mode=TwoWay}" 
+										local:BindingUtility.UpdateSourceOnChange="True" 
+										Style="{StaticResource GSTextBoxStyle}" 
+										Height="130" 
+										AcceptsReturn="True" 
+										TextWrapping="Wrap" 
+										VerticalScrollBarVisibility="Auto"                                         
                                 />
-                            </StackPanel>                          
-                           </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
                         </ScrollViewer>
                     </Grid>
                 </ControlTemplate>
@@ -209,73 +211,73 @@
                                 <VisualState x:Name="Highlighted">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="UserControl"
-                                            Storyboard.TargetProperty="Foreground"
-                                            Duration="0">
+											Storyboard.TargetName="UserControl"
+											Storyboard.TargetProperty="Foreground"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource GSTextBoxBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource GSTextBoxBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="Border"
-                                            Storyboard.TargetProperty="Background"
-                                            Duration="0">
+											Storyboard.TargetName="Border"
+											Storyboard.TargetProperty="Background"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource PhoneTextBoxEditBackgroundColor}"
-                                                KeyTime="0"/>
+												Value="{StaticResource PhoneTextBoxEditBackgroundColor}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="Border"
-                                            Storyboard.TargetProperty="BorderBrush"
-                                            Duration="0">
+											Storyboard.TargetName="Border"
+											Storyboard.TargetProperty="BorderBrush"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource GSFocusBorderBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource GSFocusBorderBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="Border"
-                                            Storyboard.TargetProperty="Background"
-                                            Duration="0">
+											Storyboard.TargetName="Border"
+											Storyboard.TargetProperty="Background"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource TransparentBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource TransparentBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="Border"
-                                            Storyboard.TargetProperty="BorderBrush"
-                                            Duration="0">
+											Storyboard.TargetName="Border"
+											Storyboard.TargetProperty="BorderBrush"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource PhoneDisabledBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource PhoneDisabledBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="UserControl"
-                                            Storyboard.TargetProperty="Foreground"
-                                            Duration="0">
+											Storyboard.TargetName="UserControl"
+											Storyboard.TargetProperty="Foreground"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource PhoneDisabledBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource PhoneDisabledBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <ContentControl
-                            Content="{TemplateBinding Header}"
-                            ContentTemplate="{TemplateBinding HeaderTemplate}"
-                            Foreground="{StaticResource PhoneSubtleBrush}"
-                            FontSize="{StaticResource PhoneFontSizeNormal}"
-                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                            Margin="0 0 0 8"/>
+							Content="{TemplateBinding Header}"
+							ContentTemplate="{TemplateBinding HeaderTemplate}"
+							Foreground="{StaticResource PhoneSubtleBrush}"
+							FontSize="{StaticResource PhoneFontSizeNormal}"
+							HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+							Margin="0 0 0 8"/>
                         <Grid>
                             <Border x:Name="Border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}">
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}">
                                 <UserControl x:Name="UserControl" Foreground="{TemplateBinding Foreground}">
                                     <StackPanel>
                                         <TextBlock x:Name="MultipleSelectionModeSummary" Margin="8 8 0 8" />
@@ -295,7 +297,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-   
+
     <Style TargetType="toolkit:ListPickerItem" x:Key="GSListPickerItemStyle">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -310,24 +312,24 @@
                                 <VisualState x:Name="Selected">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames
-                                            Storyboard.TargetName="ContentContainer"
-                                            Storyboard.TargetProperty="Foreground"
-                                            Duration="0">
+											Storyboard.TargetName="ContentContainer"
+											Storyboard.TargetProperty="Foreground"
+											Duration="0">
                                             <DiscreteObjectKeyFrame
-                                                Value="{StaticResource PhoneAccentBrush}"
-                                                KeyTime="0"/>
+												Value="{StaticResource PhoneAccentBrush}"
+												KeyTime="0"/>
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <ContentControl
-                            x:Name="ContentContainer"
-                            Content="{TemplateBinding Content}"
-                            ContentTemplate="{TemplateBinding ContentTemplate}"
-                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                            Margin="{TemplateBinding Padding}"/>
+							x:Name="ContentContainer"
+							Content="{TemplateBinding Content}"
+							ContentTemplate="{TemplateBinding ContentTemplate}"
+							VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+							HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+							Margin="{TemplateBinding Padding}"/>
                         <!--Foreground="{TemplateBinding Foreground}"-->
                     </Grid>
                 </ControlTemplate>
@@ -356,19 +358,17 @@
         <Setter Property="Foreground" Value="WhiteSmoke"/>
         <Setter Property="Margin" Value="{StaticResource GSInputLabelMargin}"/>
     </Style>
-	<Style x:Key="GSActionListWeekDayStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+    <Style x:Key="GSActionListWeekDayStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
         <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
         <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
         <Setter Property="TextAlignment" Value="Right"/>
     </Style>
-	<Style x:Key="GSActionListDateStyle" BasedOn="{StaticResource GSActionListWeekDayStyle}" TargetType="TextBlock">
+    <Style x:Key="GSActionListDateStyle" BasedOn="{StaticResource GSActionListWeekDayStyle}" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
         <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
     </Style>
-	<Style x:Key="GSActionListTimeStyle" BasedOn="{StaticResource GSActionListDateStyle}" TargetType="TextBlock">
-
-    </Style>
+    <Style x:Key="GSActionListTimeStyle" BasedOn="{StaticResource GSActionListDateStyle}" TargetType="TextBlock"/>
     <Style x:Key="GSActionListItemTitleStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
         <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
@@ -411,13 +411,13 @@
                                 <GradientStop Color="#FFD3799C" Offset="1"/>
                             </RadialGradientBrush>
                         </Grid.Background>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Tap">
+                        <command:Interaction.Triggers>
+                            <command:EventTrigger EventName="Tap">
                                 <!--<command:InvokeCommandAction Command="{Binding GardenVM.ShowDetailsCommand, Mode=OneWay, Source={StaticResource Locator}}"
 												CommandParameter="{Binding Mode=OneWay}" />-->
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <Image Width="173" Height="173" Source="{Binding ProfilepicturePath, Converter={StaticResource PathToImageSource}}" Stretch="None"/>
+                            </command:EventTrigger>
+                        </command:Interaction.Triggers>
+                        <Image Width="173" Height="173" Source="{Binding Photo, Converter={StaticResource PhotoToImageSource}}" Stretch="None"/>
                         <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center"/>
 
                     </Grid>
@@ -426,13 +426,45 @@
         </Setter>
         <Setter Property="GridCellSize" Value="173,173"/>
     </Style>
-    <Style TargetType="phone:LongListSelector" x:Key="GSActionListStyle">
-
-    </Style>
+    <Style TargetType="phone:LongListSelector" x:Key="GSActionListStyle"/>
 
     <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
         <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
         <Setter Property="BackgroundColor" Value="White"/>
-    </Style>    
-    
+    </Style>
+    <DataTemplate x:Key="GardenPivotHeader">
+        <ContentControl Content="{Binding Name}"/>
+    </DataTemplate>
+
+    <Style x:Key="PivotStyle1" TargetType="phone:Pivot">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="phone:Pivot">
+                    <Grid HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Background="{TemplateBinding Background}" Grid.RowSpan="3"/>
+                        <ContentControl ContentTemplate="{TemplateBinding TitleTemplate}" Content="{TemplateBinding Title}" HorizontalAlignment="Left" Margin="24,17,0,-7" Style="{StaticResource PivotTitleStyle}"/>
+                        <Primitives:PivotHeadersControl x:Name="HeadersListElement" Grid.Row="1"/>
+                        <ItemsPresenter x:Name="PivotItemPresenter" Margin="{TemplateBinding Padding}" Grid.Row="2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

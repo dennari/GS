@@ -48,9 +48,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());
 
-            this.WhenAnyValue(x => x.ProfilepictureData, x => x)
-                .Where(x => x != default(Photo))
-                .Subscribe(x => Profilepicture.SetSource(x));
+            this.WhenAnyValue(x => x.Photo, x => x)
+                .Where(x => x.HasValue)
+                .Subscribe(x => Profilepicture.SetSource(x.Value));
         }
 
 
@@ -107,7 +107,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     _ViewFSCommand = new ReactiveCommand();
                     _ViewFSCommand.Subscribe(_ =>
                     {
-                        if (this.ProfilepictureData == null)
+                        if (this.Photo == null)
                             return;
                         FSView.Show();
                     });
@@ -182,7 +182,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             if (e.TaskResult == TaskResult.OK && image.CanRead && image.Length > 0)
             {
                 this.ProfilePictureButtonText = "";
-                this.ProfilepictureData = await image.SavePhotoToLocalStorageAsync();
+                this.Photo = await image.SavePhotoToLocalStorageAsync();
             }
         }
 
