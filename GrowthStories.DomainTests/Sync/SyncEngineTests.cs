@@ -32,6 +32,7 @@ namespace Growthstories.DomainTests
 
         IKernel Kernel;
         IGSAppViewModel App;
+        GSAppState AppState;
         IGSRepository Repository;
         FakeHttpClient Transporter;
 
@@ -44,7 +45,9 @@ namespace Growthstories.DomainTests
             //    kernel.Dispose();
             Kernel = new StandardKernel(new SyncEngineTestsSetup());
 
-            App = new TestAppViewModel(Kernel);
+            var app = new TestAppViewModel(Kernel);
+            this.App = app;
+            this.AppState = app.Model.State;
             Transporter = Kernel.Get<FakeHttpClient>();
             Repository = Kernel.Get<IGSRepository>();
         }
@@ -506,14 +509,14 @@ namespace Growthstories.DomainTests
             App.Bus.SendCommand(new SchedulePhotoUpload(photo));
 
 
-            Assert.AreEqual(photo, App.Model.State.PhotoUploads.Values.Single());
+            Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
 
             Assert.IsNotNull(R.PhotoUploadRequests);
 
-            Assert.AreEqual(0, App.Model.State.PhotoUploads.Count);
+            Assert.AreEqual(0, AppState.PhotoUploads.Count);
 
 
         }
@@ -594,7 +597,7 @@ namespace Growthstories.DomainTests
             var R = TestUtils.WaitForTask(App.Synchronize());
 
 
-            Assert.AreEqual(0, App.Model.State.PhotoDownloads.Count);
+            Assert.AreEqual(0, AppState.PhotoDownloads.Count);
 
             var PhotoAction = (PlantAction)Repository.GetById(plantActionId);
 
@@ -622,7 +625,7 @@ namespace Growthstories.DomainTests
             Assert.IsTrue(folderFound);
             Assert.IsTrue(fileFound);
 #else
-        Assert.IsTrue(File.Exists(photo.LocalFullPath));
+            Assert.IsTrue(File.Exists(photo.LocalFullPath));
 #endif
 
         }

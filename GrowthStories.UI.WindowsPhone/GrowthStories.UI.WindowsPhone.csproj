@@ -135,8 +135,14 @@
     </Compile>
     <Compile Include="Converters.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
+    <Compile Include="Views\FriendsPivotView.xaml.cs">
+      <DependentUpon>FriendsPivotView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GardenPivotView.xaml.cs">
       <DependentUpon>GardenPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlantPhotoPivotView.xaml.cs">
+      <DependentUpon>PlantPhotoPivotView.xaml</DependentUpon>
     </Compile>
     <Compile Include="WP8PhotoHandler.cs" />
     <Compile Include="ImagingExtensions.cs" />
@@ -156,27 +162,9 @@
     <Compile Include="Views\AboutView.xaml.cs">
       <DependentUpon>AboutView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\AddPlantActionView.cs" />
+    <Compile Include="Views\PlantActionView.cs" />
     <Compile Include="Views\AddPlantView.xaml.cs">
       <DependentUpon>AddPlantView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AddWaterView.xaml.cs">
-      <DependentUpon>AddWaterView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AddPhotographView.xaml.cs">
-      <DependentUpon>AddPhotographView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AddFertilizerView.xaml.cs">
-      <DependentUpon>AddFertilizerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AddMeasurementView.xaml.cs">
-      <DependentUpon>AddMeasurementView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AddCommentView.xaml.cs">
-      <DependentUpon>AddCommentView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\GardenViewPage.xaml.cs">
-      <DependentUpon>GardenViewPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GardenView.xaml.cs">
       <DependentUpon>GardenView.xaml</DependentUpon>
@@ -193,9 +181,6 @@
     <Compile Include="Views\FertilizerScheduleView.xaml.cs">
       <DependentUpon>FertilizerScheduleView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FriendsGardensView.xaml.cs">
-      <DependentUpon>FriendsGardensView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\GSView.cs" />
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
@@ -203,9 +188,6 @@
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PlantView.xaml.cs">
-      <DependentUpon>PlantView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SelectProfilepictureView.xaml.cs">
       <DependentUpon>SelectProfilepictureView.xaml</DependentUpon>
@@ -242,31 +224,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\AddWaterView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AddPhotographView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AddFertilizerView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AddMeasurementView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AddCommentView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\GardenPivotView.xaml">
+    <Page Include="Views\FriendsPivotView.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\GardenViewPage.xaml">
+    <Page Include="Views\GardenPivotView.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -276,6 +238,10 @@
     </Page>
     <Page Include="Views\ListUsersView.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantPhotoPivotView.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ScheduleView.xaml">
@@ -290,20 +256,12 @@
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\FriendsGardensView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:MarkupCompilePass1</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\PlantView.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SelectProfilepictureView.xaml">
@@ -476,18 +434,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NokiaImagingSDK.0.9.3\lib\wp8\Nokia.Graphics.Imaging.Managed.dll</HintPath>
     </Reference>
-    <Reference Include="ReactiveUI.Blend, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\reactiveui-platforms.5.2.0\lib\WP8\ReactiveUI.Blend.dll</HintPath>
-    </Reference>
-    <Reference Include="ReactiveUI.Mobile, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\reactiveui-mobile.5.2.0\lib\WP8\ReactiveUI.Mobile.dll</HintPath>
-    </Reference>
-    <Reference Include="ReactiveUI.Xaml, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\reactiveui-platforms.5.2.0\lib\WP8\ReactiveUI.Xaml.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http, Version=1.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\sl4-windowsphone71\System.Net.Http.dll</HintPath>
@@ -517,9 +463,21 @@
       <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\WP8\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.Windows.Controls.Chart, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Chart.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Primitives, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Telerik.Windows.Core, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Xamarin.Mobile, Version=0.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\reactiveui-mobile.5.2.0\lib\WP8\Xamarin.Mobile.dll</HintPath>
+      <HintPath>..\..\ReactiveUI\ext\WP80\Xamarin.Mobile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -554,6 +512,18 @@
     <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789B5308-2D5E-40CC-8755-B0131B9832A9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj">
+      <Project>{685E862E-AA12-4D05-AD27-61AB2D71E411}</Project>
+      <Name>ReactiveUI.Blend_WP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj">
+      <Project>{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}</Project>
+      <Name>ReactiveUI.Mobile_WP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Platforms\ReactiveUI.Xaml_WP8.csproj">
+      <Project>{F9459904-F785-4255-866A-A619787CB895}</Project>
+      <Name>ReactiveUI.Xaml_WP8</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
       <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
@@ -595,6 +565,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
+    <Folder Include="Design\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

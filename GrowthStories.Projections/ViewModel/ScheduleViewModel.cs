@@ -17,11 +17,10 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public sealed class IntervalValueViewModel : GSViewModelBase
+    public sealed class IntervalValue
     {
         private readonly IntervalValueType Type;
-        public IntervalValueViewModel(IntervalValueType type, IGSAppViewModel app)
-            : base(app)
+        public IntervalValue(IntervalValueType type)
         {
             this.Type = type;
         }
@@ -30,6 +29,11 @@ namespace Growthstories.UI.ViewModel
         {
             var dValue = double.Parse(sValue);
             return (long)(dValue * this.Unit);
+        }
+
+        public Guid Id
+        {
+            get { return Guid.NewGuid(); }
         }
 
         public string Compute(long lValue)
@@ -56,36 +60,38 @@ namespace Growthstories.UI.ViewModel
             return this.Title;
         }
 
-        public static IList<IntervalValueViewModel> GetAll(IGSAppViewModel app)
+        public static IList<IntervalValue> GetAll()
         {
-            return new List<IntervalValueViewModel>()
+            return new List<IntervalValue>()
             {
-                new IntervalValueViewModel(IntervalValueType.DAY,app),
-                new IntervalValueViewModel(IntervalValueType.HOUR,app)
+                new IntervalValue(IntervalValueType.DAY),
+                new IntervalValue(IntervalValueType.HOUR)
             };
         }
+
+
     }
 
-    public class ScheduleViewModel : PlantActionViewModel
+    public class ScheduleViewModel : CommandViewModel, IScheduleViewModel
     {
-        private ScheduleType scheduleType;
+        public ScheduleType Type { get; private set; }
         private readonly ScheduleState ScheduleState;
 
 
         public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSAppViewModel app)
-            : base(null, app)
+            : base(app)
         {
             // TODO: Complete member initialization
             this.ScheduleState = state;
-            this.scheduleType = scheduleType;
+            this.Type = scheduleType;
             this.Title = scheduleType == ScheduleType.WATERING ? "watering schedule" : "nourishing schedule";
 
             this.SelectValueType = new ReactiveCommand();
             this.SelectValueType
-                 .OfType<IntervalValueViewModel>()
-                 .ToProperty(this, x => x.ValueType, out this._ValueType, new IntervalValueViewModel(IntervalValueType.DAY, app));
+                 .OfType<IntervalValue>()
+                 .ToProperty(this, x => x.ValueType, out this._ValueType, new IntervalValue(IntervalValueType.DAY));
 
-            this.ValueTypes = IntervalValueViewModel.GetAll(app);
+            this.ValueTypes = IntervalValue.GetAll();
 
             double dVal;
 
@@ -104,6 +110,24 @@ namespace Growthstories.UI.ViewModel
             }
 
         }
+
+        public long? Interval
+        {
+            get
+            {
+                if (ScheduleState == null)
+                    return null;
+                return ScheduleState.Interval;
+            }
+        }
+
+        public DateTimeOffset ComputeNext(DateTimeOffset last)
+        {
+            if (Interval == null)
+                throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
+            return last + new TimeSpan((long)(Interval * 10000 * 1000));
+        }
+
 
         protected string format(long interval, Guid id)
         {
@@ -171,13 +195,13 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected ObservableAsPropertyHelper<IntervalValueViewModel> _ValueType;
-        public IntervalValueViewModel ValueType
+        protected ObservableAsPropertyHelper<IntervalValue> _ValueType;
+        public IntervalValue ValueType
         {
             get { return _ValueType.Value; }
         }
 
-        public IList<IntervalValueViewModel> ValueTypes { get; protected set; }
+        public IList<IntervalValue> ValueTypes { get; protected set; }
 
 
     }

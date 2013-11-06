@@ -68,5 +68,11 @@ namespace Growthstories.UI
         {
             throw new NotImplementedException();
         }
+
+
+        IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> IUIPersistence.GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

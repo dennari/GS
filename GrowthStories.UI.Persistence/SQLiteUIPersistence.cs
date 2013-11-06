@@ -164,6 +164,8 @@ namespace Growthstories.UI.Persistence
                 cmd.AddParameter(SQL.UserId, a.UserId);
                 cmd.AddParameter(SQL.PlantId, a.Id);
                 cmd.AddParameter(SQL.GardenId, a.GardenId);
+                cmd.AddParameter(SQL.WateringScheduleId, a.WateringScheduleId);
+                cmd.AddParameter(SQL.FertilizingScheduleId, a.FertilizingScheduleId);
                 cmd.AddParameter(SQL.Created, a.Created.Ticks);
                 cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
                 return cmd.ExecuteNonQuery(SQL.PersistPlant);
@@ -181,6 +183,16 @@ namespace Growthstories.UI.Persistence
                 cmd.AddParameter(SQL.Created, a.Created.Ticks);
                 cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
                 return cmd.ExecuteNonQuery(SQL.PersistUser);
+            });
+        }
+
+        void Persist(ScheduleState a)
+        {
+            this.ExecuteCommand(a.Id, (connection, cmd) =>
+            {
+                cmd.AddParameter(SQL.ScheduleId, a.Id);
+                cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
+                return cmd.ExecuteNonQuery(SQL.PersistSchedule);
             });
         }
 
@@ -210,7 +222,11 @@ namespace Growthstories.UI.Persistence
             Created,
             GardenId,
             PlantId,
-            Payload
+            WateringScheduleId,
+            FertilizingScheduleId,
+            Payload,
+            WateringSchedulePayload,
+            FertilizingSchedulePayload
         }
 
         public enum UserIndex
@@ -249,7 +265,7 @@ namespace Growthstories.UI.Persistence
             });
         }
 
-        public IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
+        public IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
         {
 
             var filters = new Dictionary<string, Guid?>(){
@@ -266,10 +282,19 @@ namespace Growthstories.UI.Persistence
                 foreach (var x in filters)
                     query.AddParameter(@"@" + x.Key, x.Value);
 
-                var queryText = string.Format(@"SELECT * FROM Plants WHERE ({0});",
-                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+                var queryText = string.Format(@"SELECT P.*, SW.Payload, SF.Payload FROM Plants P 
+                    LEFT JOIN Schedules SW ON P.WateringScheduleId = SW.ScheduleId 
+                    LEFT JOIN Schedules SF ON P.FertilizingScheduleId = SF.ScheduleId 
+                    WHERE ({0}) ;", string.Join(" AND ", filters.Select(x => string.Format(@"(P.{0} = @{0})", x.Key))));
 
-                return query.ExecuteQuery<PlantState>(queryText, (stmt) => Deserialize<PlantState>(stmt, (int)PlantIndex.Payload));
+                return query.ExecuteQuery(queryText, (stmt) =>
+                {
+                    var plant = Deserialize<PlantState>(stmt, (int)PlantIndex.Payload);
+                    var wateringSchedule = Deserialize<ScheduleState>(stmt, (int)PlantIndex.WateringSchedulePayload);
+                    var fertilizingSchedule = Deserialize<ScheduleState>(stmt, (int)PlantIndex.FertilizingSchedulePayload);
+
+                    return Tuple.Create(plant, wateringSchedule, fertilizingSchedule);
+                });
             });
         }
 
@@ -308,14 +333,49 @@ namespace Growthstories.UI.Persistence
             });
         }
 
+        //public IEnumerable<ScheduleState> GetSchedules(Guid? ScheduleId = null)
+        //{
+
+        //    var filters = new Dictionary<string, Guid?>(){
+        //            {"C.ScheduleId",ScheduleId}
+        //        }.Where(x => x.Value.HasValue).ToArray();
+
+        //    //if (filters.Length == 0)
+        //    //    throw new InvalidOperationException();
+        //    return this.ExecuteQuery(ScheduleId ?? default(Guid), query =>
+        //    {
 
 
-        protected T Deserialize<T>(Sqlite3Statement stmt, int index)
+        //        var queryText = string.Format(@"SELECT U.*,C.Status FROM Schedules U LEFT JOIN Collaborators C ON (U.UserId = C.UserId)");
+        //        if (filters.Length > 0)
+        //        {
+        //            foreach (var x in filters)
+        //                query.AddParameter(@"@" + x.Key, x.Value);
+        //            queryText += string.Format(" WHERE ({0})",
+        //                string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+        //        }
+        //        queryText += ";";
+
+
+
+        //        return query.ExecuteQuery<ScheduleState>(queryText, (stmt) =>
+        //        {
+        //            var u = Deserialize<ScheduleState>(stmt, (int)ScheduleIndex.Payload);
+        //            //u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)ScheduleIndex.Collaborator) > 0 ? true : false;
+        //            return u;
+        //        });
+        //    });
+        //}
+
+
+
+        protected T Deserialize<T>(Sqlite3Statement stmt, int index) where T : class
         {
 
             var bytes = SQLite3.ColumnByteArray(stmt, index);
             // var debug = Encoding.UTF8.GetString(bytes);
-
+            if (bytes.Length == 0)
+                return null;
             return serializer.Deserialize<T>(bytes);
 
         }

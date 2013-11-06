@@ -75,10 +75,5 @@ namespace Growthstories.UI.Tests
             Assert.AreEqual(wateringPropSet.Note, result2.Note);
         }
 
-        [Test]
-        public void TestSync()
-        {
-
-        }
     }
 }

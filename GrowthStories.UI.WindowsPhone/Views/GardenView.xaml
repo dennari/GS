@@ -9,14 +9,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
-    xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
-    xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	d:DataContext="{StaticResource GardenViewModelDesign}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <DataTemplate x:Key="PlantTileTemplate">
-
-            <Grid Width="Auto" Height="Auto" Margin="0,0,6,6">
+            <Grid Tap="Grid_Tap" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,6,6">
                 <Grid.Background>
                     <RadialGradientBrush>
                         <GradientStop Color="#ffae2e5f" Offset="0"/>
@@ -31,22 +29,23 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Style="{StaticResource GSPlantTileLabelStyle}" HorizontalAlignment="Center" Canvas.ZIndex="1"/>
-                <Image Width="173" Height="173" Source="{Binding ProfilepictureData, Converter={StaticResource PhotoToImageSource}}" VerticalAlignment="Center"/>
-
+                <!--<Image Width="173" Height="173" Source="{Binding ProfilepictureData, Converter={StaticResource PhotoToImageSource}}" VerticalAlignment="Center"/>-->
             </Grid>
         </DataTemplate>
+        
     </UserControl.Resources>
 
     <toolkit:LongListMultiSelector
         x:Name="PlantsSelector"
         ItemsSource="{Binding Plants}"
-        ItemTemplate="{StaticResource PlantTileTemplate}"
-        Style="{StaticResource GSGardenPlantsStyle}"
-        LayoutMode="Grid" 
+        ItemTemplate="{StaticResource PlantTileTemplate}"     
+        LayoutMode="Grid"
+        GridCellSize="173,173"
         IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
-        SelectionChanged="PlantsSelector_SelectionChanged"
+        
         />
 
+        
  
 		
 </UserControl>

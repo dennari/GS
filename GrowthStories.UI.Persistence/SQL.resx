@@ -173,11 +173,15 @@ CREATE TABLE IF NOT EXISTS Plants
        Created INT NOT NULL,
        GardenId guid NOT NULL,
        PlantId guid NOT NULL,
+       WateringScheduleId guid NULL,
+       FertilizingScheduleId guid NULL,
        Payload blob NOT NULL,
        CONSTRAINT PK_Plants PRIMARY KEY (PlantId)
 );
 CREATE INDEX IF NOT EXISTS IX_Plants_UserId ON Plants (UserId);
 CREATE INDEX IF NOT EXISTS IX_Plants_GardenId ON Plants (GardenId);
+CREATE INDEX IF NOT EXISTS IX_Plants_WateringScheduleId ON Plants (WateringScheduleId);
+CREATE INDEX IF NOT EXISTS IX_Plants_FertilizingScheduleId ON Plants (FertilizingScheduleId);
 CREATE INDEX IF NOT EXISTS IX_Plants_Created ON Plants (Created);
 
 CREATE TABLE IF NOT EXISTS Users
@@ -201,7 +205,13 @@ CREATE TABLE IF NOT EXISTS Collaborators
        Status INT NOT NULL,
        CONSTRAINT PK_Collaborators PRIMARY KEY (UserId)
 );
-</value>
+
+CREATE TABLE IF NOT EXISTS Schedules
+(
+       ScheduleId guid NOT NULL,
+       Payload blob NOT NULL,
+       CONSTRAINT PK_Schedules PRIMARY KEY (ScheduleId)
+);</value>
   </data>
   <data name="Payload" xml:space="preserve">
     <value>@Payload</value>
@@ -215,9 +225,9 @@ VALUES(
   </data>
   <data name="PersistPlant" xml:space="preserve">
     <value>INSERT OR REPLACE INTO Plants
-(UserId, Created,GardenId,PlantId, Payload) 
+(UserId, Created,GardenId,PlantId,WateringScheduleId,FertilizingScheduleId,Payload) 
 VALUES(
-@UserId,@Created,@GardenId,@PlantId,@Payload
+@UserId,@Created,@GardenId,@PlantId,@WateringScheduleId,@FertilizingScheduleId,@Payload
 );</value>
   </data>
   <data name="PersistUser" xml:space="preserve">
@@ -250,5 +260,21 @@ VALUES(
   </data>
   <data name="UserRevision" xml:space="preserve">
     <value>@UserRevision</value>
+  </data>
+  <data name="FertilizingScheduleId" xml:space="preserve">
+    <value>@FertilizingScheduleId</value>
+  </data>
+  <data name="PersistSchedule" xml:space="preserve">
+    <value>INSERT OR REPLACE INTO Schedules
+(ScheduleId, Payload) 
+VALUES(
+@ScheduleId,@Payload
+);</value>
+  </data>
+  <data name="ScheduleId" xml:space="preserve">
+    <value>@ScheduleId</value>
+  </data>
+  <data name="WateringScheduleId" xml:space="preserve">
+    <value>@WateringScheduleId</value>
   </data>
 </root>

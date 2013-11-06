@@ -12,12 +12,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public interface IMultipageViewModel : IGSRoutableViewModel
-    {
-        IGSViewModel CurrentPage { get; }
-        ReactiveList<IGSViewModel> Pages { get; }
-        ReactiveCommand PageChangedCommand { get; }
-    }
 
     public abstract class MultipageViewModel : RoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
@@ -39,13 +33,13 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IHasAppBarButtons>()
                 .Select(x => x.WhenAny(y => y.AppBarButtons, y => y.GetValue()).StartWith(x.AppBarButtons))
                 .Switch()
-                .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons, new ReactiveList<ButtonViewModel>());
+                .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons, (IReadOnlyReactiveList<IButtonViewModel>)(new ReactiveList<IButtonViewModel>()));
 
             currentPageChanged
                 .OfType<IHasMenuItems>()
                 .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
                 .Switch()
-                .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems, new ReactiveList<MenuItemViewModel>());
+                .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems, (IReadOnlyReactiveList<IMenuItemViewModel>)(new ReactiveList<IMenuItemViewModel>()));
 
             currentPageChanged
                 .OfType<IControlsAppBar>()
@@ -65,7 +59,7 @@ namespace Growthstories.UI.ViewModel
         public IGSViewModel TryGetPage(object x)
         {
             var y = x as IGSViewModel;
-            if (y != null && this.Pages.Contains(y))
+            if (y != null && this._Pages.Contains(y))
             {
                 return y;
             }
@@ -73,9 +67,9 @@ namespace Growthstories.UI.ViewModel
             try
             {
                 int i = (int)x;
-                if (i < this.Pages.Count)
+                if (i < this._Pages.Count)
                 {
-                    return this.Pages[i];
+                    return this._Pages[i];
                 }
             }
             catch
@@ -87,7 +81,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         private ReactiveCommand _PageChangedCommand;
-        public ReactiveCommand PageChangedCommand
+        public IReactiveCommand PageChangedCommand
         {
             get
             {
@@ -124,22 +118,24 @@ namespace Growthstories.UI.ViewModel
         //    }
         //}
 
-        protected ObservableAsPropertyHelper<ReactiveList<ButtonViewModel>> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IButtonViewModel>> _AppBarButtons;
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get { return _AppBarButtons.Value; }
         }
 
-        protected ObservableAsPropertyHelper<ReactiveList<MenuItemViewModel>> _AppBarMenuItems;
-        public ReactiveList<MenuItemViewModel> AppBarMenuItems
+        protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IMenuItemViewModel>> _AppBarMenuItems;
+        public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
             get { return _AppBarMenuItems.Value; }
         }
 
-        protected ReactiveList<IGSViewModel> _Pages;
-        public ReactiveList<IGSViewModel> Pages
+        protected ReactiveList<IGSViewModel> __Pages;
+        protected ReactiveList<IGSViewModel> _Pages { get { return __Pages ?? (__Pages = new ReactiveList<IGSViewModel>()); } }
+
+        public IReadOnlyReactiveList<IGSViewModel> Pages
         {
-            get { return _Pages ?? (_Pages = new ReactiveList<IGSViewModel>()); }
+            get { return _Pages; }
         }
 
         protected ObservableAsPropertyHelper<ApplicationBarMode> _AppBarMode;

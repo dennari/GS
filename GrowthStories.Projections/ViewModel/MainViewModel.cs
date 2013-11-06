@@ -18,15 +18,10 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public interface IMainViewModel : IGSRoutableViewModel
-    {
-        IGardenViewModel GardenVM { get; }
-        INotificationsViewModel NotificationsVM { get; }
-        FriendsViewModel FriendsVM { get; }
-    }
+
 
     [DataContract]
-    public class MainViewModel : MultipageViewModel, IMainViewModel, IControlsSystemTray, IControlsProgressIndicator
+    public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
 
@@ -39,9 +34,9 @@ namespace Growthstories.UI.ViewModel
                 this.GardenVM = gvm;
 
 
-            this.Pages.Add(this.GardenVM);
-            this.Pages.Add(this.NotificationsVM);
-            this.Pages.Add(this.FriendsVM);
+            this._Pages.Add(this.GardenVM);
+            this._Pages.Add(this.NotificationsVM);
+            this._Pages.Add(this.FriendsVM);
 
             this.CurrentPage = this.GardenVM;
 
@@ -86,12 +81,12 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private ITestingViewModel _TestingVM;
-        public ITestingViewModel TestingVM
+        private TestingViewModel _TestingVM;
+        public TestingViewModel TestingVM
         {
             get
             {
-                var vm = _TestingVM ?? (_TestingVM = App.Resolver.GetService<ITestingViewModel>());
+                var vm = _TestingVM ?? (_TestingVM = App.Resolver.GetService<TestingViewModel>());
 
                 //vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
                 //vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
@@ -116,141 +111,30 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public interface ITestingViewModel : IGSViewModel
-    {
-    }
-    public class TestingViewModel : GSViewModelBase, ITestingViewModel
+
+    public class TestingViewModel : GSViewModelBase
     {
         public TestingViewModel(IGSAppViewModel app)
             : base(app)
         {
-            this.AddTestDataCommand = new ReactiveCommand();
-            this.AddRemoteDataCommand = new ReactiveCommand();
-            //this.AddTestDataCommandAsync = this.AddTestDataCommand.RegisterAsyncTask(async (x) => await this.App.AddTestData());
+            this.CreateLocalDataCommand = new ReactiveCommand();
+            this.CreateRemoteDataCommand = new ReactiveCommand();
             this.ClearDBCommand = new ReactiveCommand();
-            //this.ClearDBCommandAsync = this.ClearDBCommand.RegisterAsyncTask(async (x) => await this.App.ClearDB());
             this.SyncCommand = new ReactiveCommand();
-            //this.SyncCommandAsync = this.SyncCommand.RegisterAsyncTask(async (x) => await this.App.Synchronize());
+
 
 
         }
 
-        public ReactiveCommand AddTestDataCommand { get; protected set; }
-        public ReactiveCommand AddRemoteDataCommand { get; protected set; }
+        public ReactiveCommand CreateLocalDataCommand { get; protected set; }
+        public ReactiveCommand CreateRemoteDataCommand { get; protected set; }
         public ReactiveCommand ClearDBCommand { get; protected set; }
         public ReactiveCommand SyncCommand { get; protected set; }
-        //public ReactiveCommand ClearDBCommandAsync { get; protected set; }
 
 
-        public IObservable<System.Reactive.Unit> ClearDBCommandAsync { get; protected set; }
 
-        public IObservable<System.Reactive.Unit> AddTestDataCommandAsync { get; protected set; }
-
-        public IObservable<System.Reactive.Unit> AddRemoteDataCommandAsync { get; protected set; }
-
-
-        public IObservable<SyncResult> SyncCommandAsync { get; protected set; }
-    }
-
-    public class ButtonViewModel : MenuItemViewModel
-    {
-        public ButtonViewModel(IGSAppViewModel app)
-            : base(app)
-        {
-
-        }
-
-
-        #region IconUri
-        private Uri uri;
-
-        /// <summary>
-        /// Gets or sets the icon URI.
-        /// </summary>
-        /// <value>
-        /// The icon URI.
-        /// </value>
-        public Uri IconUri
-        {
-            get { return this.uri; }
-            set { this.RaiseAndSetIfChanged(ref uri, value); }
-        }
-        #endregion
     }
 
 
-    public class MenuItemViewModel : GSViewModelBase
-    {
-
-        public MenuItemViewModel(IGSAppViewModel app)
-            : base(app)
-        {
-
-        }
-
-        #region Command
-        private System.Windows.Input.ICommand command;
-
-        /// <summary>
-        /// Gets or sets the command.
-        /// </summary>
-        /// <value>
-        /// The command.
-        /// </value>
-        public System.Windows.Input.ICommand Command
-        {
-            get { return this.command; }
-            set { this.RaiseAndSetIfChanged(ref command, value); }
-        }
-        #endregion
-
-        #region CommandParameter
-        private object commandParameter;
-
-        /// <summary>
-        /// Gets or sets the command's parameter.
-        /// </summary>
-        /// <value>
-        /// The command's parameter.
-        /// </value>
-        public object CommandParameter
-        {
-            get { return this.commandParameter; }
-            set { this.RaiseAndSetIfChanged(ref commandParameter, value); }
-        }
-        #endregion
-
-        #region Text
-        private string text;
-
-        /// <summary>
-        /// Gets or sets the text.
-        /// </summary>
-        /// <value>
-        /// The text.
-        /// </value>
-        public string Text
-        {
-            get { return this.text; }
-            set { this.RaiseAndSetIfChanged(ref text, value); }
-        }
-        #endregion
-
-        #region IsEnabled
-        private bool _IsEnabled = true;
-
-        /// <summary>
-        /// Gets or sets the text.
-        /// </summary>
-        /// <value>
-        /// The text.
-        /// </value>
-        public bool IsEnabled
-        {
-            get { return this._IsEnabled; }
-            set { this.RaiseAndSetIfChanged(ref _IsEnabled, value); }
-        }
-        #endregion
-    }
 }
 

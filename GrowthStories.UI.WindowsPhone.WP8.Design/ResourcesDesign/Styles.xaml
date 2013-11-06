@@ -135,7 +135,10 @@
         </Setter>
     </Style>
 
-
+<!-- ############################################### 
+ ############ ACTIONS ##############################
+ ################################################### -->
+    
     <Style TargetType="local:PlantActionView">
         <Setter Property="Template">
             <Setter.Value>
@@ -144,9 +147,10 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Margin="24,17,24,28" Visibility="{TemplateBinding HeaderVisibility}">
+                        <StackPanel Grid.Row="0" Margin="12,17,12,28" Visibility="{TemplateBinding HeaderVisibility}">
                             <TextBlock 
 								Text="{Binding PlantTitle}" 
 								Style="{StaticResource GSAppTitleStyle}"/>
@@ -154,44 +158,123 @@
 								Text="{Binding Title}" 
 								Style="{StaticResource GSPageTitleStyle}" />
                         </StackPanel>
-                        <ScrollViewer Grid.Row="1">
-                            <StackPanel x:Name="ContentPanel" Margin="24,0">
-                                <ContentPresenter 
-									Content="{TemplateBinding Content}"
-									HorizontalAlignment="Stretch"
-									VerticalAlignment="Stretch"/>
-                                <StackPanel Visibility="{TemplateBinding NoteVisibility}">
-                                    <TextBlock 
-										Text="Note" 
-										Style="{StaticResource GSInputLabelStyle}" />
-                                    <TextBox 
-										Text="{Binding Note, Mode=TwoWay}" 
-										Style="{StaticResource GSTextBoxStyle}" 
-										Height="130" 
-										AcceptsReturn="True" 
-										TextWrapping="Wrap" 
-										VerticalScrollBarVisibility="Auto"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
+
+                        <ContentPresenter
+                                    Margin="12,0"
+                                    Grid.Row="1"
+                                    Content="{Binding}" 
+                                    ContentTemplate="{TemplateBinding ContentTemplate}" 
+                                    Visibility="{TemplateBinding ContentVisibility}" 
+                                    HorizontalAlignment="Stretch"/>
+
+                        <!--<ScrollViewer Grid.Row="1">-->
+                    
+                        <StackPanel Visibility="{TemplateBinding NoteVisibility}" VerticalAlignment="Stretch" Margin="12,0" Grid.Row="2">
+                            <TextBlock 
+							    Text="Note" 
+							    Style="{StaticResource GSInputLabelStyle}" />
+                            <TextBox 
+							    Text="{Binding Note, Mode=TwoWay}" 
+							    Style="{StaticResource GSTextBoxStyle}" 
+							    Height="100" 
+							    AcceptsReturn="True" 
+							    TextWrapping="Wrap" 
+							    VerticalScrollBarVisibility="Auto"/>
+                        </StackPanel>
+                      
+                        <!--</ScrollViewer>-->
+                    </Grid>
+                </ControlTemplate> 
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DataTemplate x:Key="DetailMeasureTemplate">
+        <StackPanel>
+            <toolkit:ListPicker 
+                x:Name="MeasurementTypePicker"
+                Header="Type"
+                Style="{StaticResource GSListPickerStyle}"
+                ExpansionMode="ExpansionAllowed"
+                ItemsSource="{Binding Series.Types}"
+                CacheMode="BitmapCache"
+                >
+                <toolkit:ListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}"/>
+                    </DataTemplate>
+                </toolkit:ListPicker.ItemTemplate>
+            </toolkit:ListPicker>
+            <TextBlock Text="Value" Style="{StaticResource GSInputLabelStyle}"/>
+            <TextBox 
+                Text="{Binding Value, Mode=TwoWay}" 
+                Style="{StaticResource GSTextBoxStyle}"
+                InputScope="Number"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="DetailPhotoTemplate">
+        <Grid HorizontalAlignment="Stretch" Height="350">
+            <Grid.Background>
+                <ImageBrush Stretch="Uniform" ImageSource="{Binding Photo}" />
+            </Grid.Background>  
+        </Grid>
+    </DataTemplate>
+
+    <Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.Background>
+                            <ImageBrush Stretch="Uniform" ImageSource="{Binding Photo}" />
+                        </Grid.Background>
+                        <Button Width="100" Height="100" Background="Aqua"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
+    <DataTemplate x:Key="TimelinePhotoTemplate">
+        <Button Height="220" HorizontalAlignment="Stretch">
+            <Button.Background>
+                <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoData, Converter={StaticResource PhotoToImageSource}}"/>-->
+                <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>
+            </Button.Background>
+        </Button>
+    </DataTemplate>
+
+    <Style TargetType="local:PlantActionView" x:Key="PlantTimelineActionStyle">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
-                    <ContentPresenter 
-									Content="{TemplateBinding Content}"
-									HorizontalAlignment="Stretch"
-									VerticalAlignment="Stretch"/>
+                    <StackPanel Orientation="Vertical">
+                        <ContentPresenter 
+                            Content="{Binding}" 
+                            ContentTemplate="{TemplateBinding ContentTemplate}" 
+                            Visibility="{TemplateBinding ContentVisibility}" 
+                            HorizontalAlignment="Stretch"/>
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                                <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                                <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                            </StackPanel>          
+                            <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                                <TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                                <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
-        </Setter>
+        </Setter>       
     </Style>
+
+
+
 
     <Style TargetType="toolkit:ListPicker" x:Key="GSListPickerStyle">
 

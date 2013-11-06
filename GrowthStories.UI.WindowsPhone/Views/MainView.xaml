@@ -65,12 +65,12 @@
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4" Margin="0,0" DataContext="{Binding TestingVM}">
                     <StackPanel Orientation="Vertical">
-                        <Button  Command="{Binding AddTestDataCommand}">
+                        <Button  Command="{Binding CreateLocalDataCommand}">
                             <TextBlock Text="Create local data"
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
                         </Button>
-                        <Button  Command="{Binding AddRemoteDataCommand}">
+                        <Button  Command="{Binding CreateRemoteDataCommand}">
                             <TextBlock Text="Create remote data"
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>

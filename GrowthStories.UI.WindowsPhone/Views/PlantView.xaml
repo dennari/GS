@@ -51,9 +51,6 @@
             			    ItemsSource="{Binding Actions}" 
             			    ItemTemplate="{StaticResource ActionSelectingTemplate}"
             			    Style="{StaticResource GSActionListStyle}"
-                            ManipulationStarted="OnManipulationStarted" 
-                            ManipulationDelta="OnManipulationDelta" 
-                            ManipulationCompleted="OnManipulationCompleted"
                         />
             </Grid>
     </Grid>

@@ -11,10 +11,10 @@
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	d:DataContext="{StaticResource AddMeasurementViewModelDesign}"
     mc:Ignorable="d">
-    <local:AddPlantActionView>
-        <local:AddPlantActionView.Background>
+    <local:PlantActionView>
+        <local:PlantActionView.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:AddPlantActionView.Background>
+        </local:PlantActionView.Background>
         <StackPanel Orientation="Horizontal">
             <TextBox 
                 Text="{Binding Value, Mode=TwoWay}" 
@@ -33,5 +33,5 @@
             </toolkit:ListPicker>
 
         </StackPanel>
-    </local:AddPlantActionView>
+    </local:PlantActionView>
 </UserControl>

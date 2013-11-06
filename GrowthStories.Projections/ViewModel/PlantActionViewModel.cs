@@ -13,14 +13,6 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public interface ICommandViewModel : IGSRoutableViewModel, IHasAppBarButtons
-    {
-        ReactiveCommand AddCommand { get; }
-        IObservable<bool> CanExecute { get; }
-        string TopTitle { get; }
-        string Title { get; }
-
-    }
 
     public abstract class CommandViewModel : RoutableViewModel, ICommandViewModel, IControlsAppBar
     {
@@ -34,13 +26,13 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         { }
 
-        protected ReactiveList<ButtonViewModel> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        protected ReactiveList<IButtonViewModel> _AppBarButtons;
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
                 if (_AppBarButtons == null)
-                    _AppBarButtons = new ReactiveList<ButtonViewModel>()
+                    _AppBarButtons = new ReactiveList<IButtonViewModel>()
                     {
                         new ButtonViewModel(null)
                         {
@@ -53,7 +45,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
         private ReactiveCommand _AddCommand;
-        public ReactiveCommand AddCommand
+        public IReactiveCommand AddCommand
         {
             get
             {
@@ -94,52 +86,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IPlantActionViewModel : ICommandViewModel
-    {
-        string WeekDay { get; }
-        string Date { get; }
-        string Time { get; }
-        string Note { get; }
-        PlantActionType ActionType { get; }
-        Uri IconUri { get; }
-        Guid PlantActionId { get; }
-        DateTimeOffset Created { get; }
 
-        PlantActionState State { get; }
-
-        void SetProperty(PlantActionPropertySet prop);
-    }
-
-    public interface IPlantCommentViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantMeasureViewModel : IPlantActionViewModel
-    {
-
-        MeasurementTypeViewModel Series { get; }
-        double? Value { get; }
-    }
-
-    public interface IPlantWaterViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantFertilizeViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantPhotographViewModel : IPlantActionViewModel
-    {
-
-        Photo PhotoData { get; }
-    }
 
     public abstract class PlantActionViewModel : CommandViewModel, IPlantActionViewModel
     {
@@ -183,6 +130,19 @@ namespace Growthstories.UI.ViewModel
 
             }
 
+        }
+
+        public PlantActionViewModel(DateTimeOffset Created, IGSAppViewModel app)
+            : base(app)
+        {
+
+
+            this.Note = "Just a note";
+            this.WeekDay = Created.ToString("dddd");
+            this.Date = Created.ToString("d");
+            this.Time = Created.ToString("t");
+            this.PlantActionId = Guid.NewGuid();
+            this.Created = Created;
         }
 
         public virtual void SetProperty(PlantActionPropertySet prop)
@@ -379,6 +339,13 @@ namespace Growthstories.UI.ViewModel
             this._IconType = IconType.WATER;
         }
 
+        public PlantWaterViewModel(DateTimeOffset created, IGSAppViewModel app)
+            : base(created, app)
+        {
+
+            this._IconType = IconType.WATER;
+        }
+
         public override void AddCommandSubscription(object p)
         {
             //this.SendCommand(new Water(this.State.EntityId, this.State.PlantId, this.Note), true);
@@ -397,6 +364,14 @@ namespace Growthstories.UI.ViewModel
                 throw new InvalidCastException();
             this._IconType = IconType.FERTILIZE;
         }
+
+        public PlantFertilizeViewModel(DateTimeOffset created, IGSAppViewModel app)
+            : base(created, app)
+        {
+
+            this._IconType = IconType.FERTILIZE;
+        }
+
 
         public override void AddCommandSubscription(object p)
         {

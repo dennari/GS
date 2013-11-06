@@ -7,77 +7,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
+using Growthstories.Domain.Entities;
 
 namespace Growthstories.UI.ViewModel
 {
 
-    public enum PlantActionType
-    {
-        NOTYPE,
-        WATERED,
-        FERTILIZED,
-        PHOTOGRAPHED,
-        MEASURED,
-        COMMENTED
-    }
-
-    public interface IPlantActionViewModel
-    {
-        string WeekDay { get; }
-        string Date { get; }
-        string Time { get; }
-        string Note { get; }
-        PlantActionType ActionType { get; }
-        Uri IconUri { get; }
-        Guid PlantActionId { get; }
-        DateTimeOffset Created { get; }
-
-        string TopTitle { get; }
-        string Title { get; }
-
-        //PlantActionState State { get; }
-
-    }
-
-    public interface IPlantCommentViewModel : IPlantActionViewModel
-    {
 
 
-    }
-
-    public interface IPlantMeasureViewModel : IPlantActionViewModel
-    {
-
-        MeasurementTypeViewModelDesign Series { get; }
-        double? Value { get; }
-    }
-
-    public interface IPlantWaterViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantFertilizeViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantPhotographViewModel : IPlantActionViewModel
-    {
-
-        Photo PhotoData { get; }
-    }
-
-    public class PlantActionViewModelDesign : IPlantActionViewModel
+    public class PlantActionViewModel : DesignViewModelBase, IPlantActionViewModel
     {
         protected IconType _IconType;
 
-        public PlantActionViewModelDesign()
+        public PlantActionViewModel()
+            : this(DateTimeOffset.Now)
         {
 
-            var Created = DateTimeOffset.Now;
+        }
+
+        public PlantActionViewModel(DateTimeOffset Created)
+        {
+
 
             this.Note = "Just a note";
             this.WeekDay = Created.ToString("dddd");
@@ -112,14 +61,22 @@ namespace Growthstories.UI.ViewModel
 
         public DateTimeOffset Created { get; set; }
 
-        public string TopTitle { get; set; }
 
         public string Title { get; set; }
+
+        public string PlantTitle
+        {
+            get { return ""; }
+        }
     }
 
-    public sealed class PlantCommentViewModel : PlantActionViewModelDesign, IPlantCommentViewModel
+    public sealed class PlantCommentViewModel : PlantActionViewModel, IPlantCommentViewModel
     {
         public PlantCommentViewModel()
+            : this(DateTimeOffset.Now)
+        { }
+        public PlantCommentViewModel(DateTimeOffset created)
+            : base(created)
         {
             this.Title = "COMMENTED";
             this._IconType = IconType.NOTE;
@@ -127,26 +84,34 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public sealed class PlantMeasureViewModel : PlantActionViewModelDesign, IPlantMeasureViewModel
+    public sealed class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
         public PlantMeasureViewModel()
+            : this(DateTimeOffset.Now)
+        { }
+        public PlantMeasureViewModel(DateTimeOffset created)
+            : base(created)
         {
             this.Title = "MEASURED";
             this._IconType = IconType.MEASURE;
-            this.Series = new MeasurementTypeViewModelDesign(MeasurementType.LENGTH, "LENGHT", IconType.MEASURE);
+            this.Series = new MeasurementTypeViewModel(MeasurementType.LENGTH, "LENGHT", IconType.MEASURE);
             this.Value = 23.45;
             this.ActionType = PlantActionType.MEASURED;
 
         }
 
-        public MeasurementTypeViewModelDesign Series { get; set; }
+        public MeasurementTypeViewModel Series { get; set; }
         public double? Value { get; set; }
 
     }
 
-    public sealed class PlantWaterViewModel : PlantActionViewModelDesign, IPlantWaterViewModel
+    public sealed class PlantWaterViewModel : PlantActionViewModel, IPlantWaterViewModel
     {
         public PlantWaterViewModel()
+            : this(DateTimeOffset.Now)
+        { }
+        public PlantWaterViewModel(DateTimeOffset created)
+            : base(created)
         {
             this.Title = "WATERED";
             this._IconType = IconType.WATER;
@@ -155,9 +120,13 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public sealed class PlantFertilizeViewModel : PlantActionViewModelDesign, IPlantFertilizeViewModel
+    public sealed class PlantFertilizeViewModel : PlantActionViewModel, IPlantFertilizeViewModel
     {
         public PlantFertilizeViewModel()
+            : this(DateTimeOffset.Now)
+        { }
+        public PlantFertilizeViewModel(DateTimeOffset created)
+            : base(created)
         {
             this.Title = "NOURISHED";
             this._IconType = IconType.NOURISH;
@@ -165,16 +134,17 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public sealed class PlantPhotoViewModel : PlantActionViewModelDesign, IPlantPhotographViewModel
+    public sealed class PlantPhotoViewModel : PlantActionViewModel, IPlantPhotographViewModel
     {
 
         public PlantPhotoViewModel()
-            : this(null)
+            : this(null, DateTimeOffset.Now)
         {
 
         }
 
-        public PlantPhotoViewModel(string photo = null)
+        public PlantPhotoViewModel(string photo, DateTimeOffset created)
+            : base(created)
         {
             this.Title = "PHOTOGRAPHED";
             this._IconType = IconType.PHOTO;
@@ -183,37 +153,37 @@ namespace Growthstories.UI.ViewModel
                 LocalFullPath = photo ?? @"/TestData/517e100d782a828894.jpg",
                 LocalUri = photo ?? @"/TestData/517e100d782a828894.jpg"
             };
-            //this.Photo = new BitmapImage(new Uri(PhotoData.LocalUri, UriKind.Relative));
+            this.Photo = new BitmapImage(new Uri(PhotoData.LocalUri, UriKind.RelativeOrAbsolute));
             this.ActionType = PlantActionType.PHOTOGRAPHED;
 
         }
 
         public Photo PhotoData { get; set; }
 
-        //private BitmapImage _Photo;
-        //public BitmapImage Photo
-        //{
-        //    get
-        //    {
-        //        return _Photo;
-        //    }
-        //    set
-        //    {
-        //        _Photo = value;
-        //    }
-        //}
+        private BitmapImage _Photo;
+        public BitmapImage Photo
+        {
+            get
+            {
+                return _Photo;
+            }
+            set
+            {
+                _Photo = value;
+            }
+        }
 
     }
 
 
 
-    public sealed class MeasurementTypeViewModelDesign
+    public sealed class MeasurementTypeViewModel
     {
         public string Title { get; set; }
         private IconType _Icon;
         public MeasurementType Type { get; set; }
 
-        public MeasurementTypeViewModelDesign(MeasurementType type, string title, IconType icon)
+        public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon)
         {
             this.Type = type;
             this.Title = title;
@@ -229,15 +199,17 @@ namespace Growthstories.UI.ViewModel
 
         public Uri Icon { get { return Utils.BigIcons[this._Icon]; } }
 
-        public static IList<MeasurementTypeViewModelDesign> GetAll()
+        public IList<MeasurementTypeViewModel> Types { get { return GetAll(); } }
+
+        public static IList<MeasurementTypeViewModel> GetAll()
         {
-            return new List<MeasurementTypeViewModelDesign>()
+            return new List<MeasurementTypeViewModel>()
             {
-                new MeasurementTypeViewModelDesign(MeasurementType.ILLUMINANCE,"Illuminance",IconType.ILLUMINANCE),
-                new MeasurementTypeViewModelDesign(MeasurementType.LENGTH,"Length",IconType.MEASURE),
-                new MeasurementTypeViewModelDesign(MeasurementType.PH,"PH",IconType.PH),
-                new MeasurementTypeViewModelDesign(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MISTING),
-                new MeasurementTypeViewModelDesign(MeasurementType.WEIGHT,"Weight",IconType.MEASURE)
+                new MeasurementTypeViewModel(MeasurementType.ILLUMINANCE,"Illuminance",IconType.ILLUMINANCE),
+                new MeasurementTypeViewModel(MeasurementType.LENGTH,"Length",IconType.MEASURE),
+                new MeasurementTypeViewModel(MeasurementType.PH,"PH",IconType.PH),
+                new MeasurementTypeViewModel(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MISTING),
+                new MeasurementTypeViewModel(MeasurementType.WEIGHT,"Weight",IconType.MEASURE)
             };
         }
 
@@ -265,29 +237,5 @@ namespace Growthstories.UI.ViewModel
         };
     }
 
-    public enum IconType
-    {
-        ADD,
-        CHECK,
-        CANCEL,
-        DELETE,
-        CHECK_LIST,
-        WATER,
-        FERTILIZE,
-        PHOTO,
-        NOTE,
-        MEASURE,
-        NOURISH,
-        CHANGESOIL,
-        SHARE,
-        BLOOMING,
-        DECEASED,
-        ILLUMINANCE,
-        LENGTH,
-        MISTING,
-        PH,
-        POLLINATION,
-        SPROUTING
-    }
 
 }

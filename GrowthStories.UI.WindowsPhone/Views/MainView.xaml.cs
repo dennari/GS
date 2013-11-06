@@ -52,7 +52,7 @@ namespace Growthstories.UI.WindowsPhone
             if (item == null || !(item is IGardenViewModel))
                 return;
 
-            ViewModel.FriendsVM.FriendSelected.Execute(item);
+            ViewModel.FriendsVM.FriendTapped.Execute(item);
 
             ((LongListSelector)sender).SelectedItem = null;
         }

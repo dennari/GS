@@ -10,10 +10,7 @@ using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.ViewModel
 {
-    public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
-    {
 
-    }
 
     public class YAxisShitViewModel : RoutableViewModel, IYAxisShitViewModel
     {
@@ -35,13 +32,13 @@ namespace Growthstories.UI.ViewModel
             });
 
         }
-        protected ReactiveList<ButtonViewModel> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        protected ReactiveList<IButtonViewModel> _AppBarButtons;
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
                 if (_AppBarButtons == null)
-                    _AppBarButtons = new ReactiveList<ButtonViewModel>()
+                    _AppBarButtons = new ReactiveList<IButtonViewModel>()
                     {
                         new ButtonViewModel(null)
                         {

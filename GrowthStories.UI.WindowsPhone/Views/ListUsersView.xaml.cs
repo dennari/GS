@@ -8,8 +8,6 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
-using Growthstories.UI.WindowsPhone;
-using Growthstories.UI.WindowsPhone.ViewModels;
 using ReactiveUI;
 using System.Windows.Input;
 using Growthstories.Sync;
@@ -17,7 +15,7 @@ using System.Reactive.Disposables;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class ListUsersView : UserControl, IViewFor<ListUsersViewModel>
+    public partial class ListUsersView : UserControl, IViewFor<SearchUsersViewModel>
     {
 
         public ListUsersView()
@@ -29,9 +27,9 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public ListUsersViewModel ViewModel
+        public SearchUsersViewModel ViewModel
         {
-            get { return (ListUsersViewModel)GetValue(ViewModelProperty); }
+            get { return (SearchUsersViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -46,7 +44,7 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(ListUsersView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (ListUsersViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (SearchUsersViewModel)value; } }
 
 
 

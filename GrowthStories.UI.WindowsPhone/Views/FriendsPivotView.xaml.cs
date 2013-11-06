@@ -7,24 +7,25 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using System.ComponentModel;
 using Growthstories.UI.ViewModel;
-using Growthstories.UI.WindowsPhone;
 using ReactiveUI;
-using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AddWaterView : UserControl, IViewFor<PlantWaterViewModel>
+    public partial class FriendsPivotView : UserControl, IViewFor<FriendsViewModel>
     {
-        public AddWaterView()
+
+
+        public FriendsPivotView()
         {
             InitializeComponent();
 
         }
 
-        public PlantWaterViewModel ViewModel
+        public FriendsViewModel ViewModel
         {
-            get { return (PlantWaterViewModel)GetValue(ViewModelProperty); }
+            get { return (FriendsViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -36,10 +37,11 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(AddWaterView), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(FriendsPivotView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantWaterViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (FriendsViewModel)value; } }
+
 
     }
 }

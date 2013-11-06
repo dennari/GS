@@ -150,9 +150,9 @@ namespace Growthstories.Domain.Messaging
     {
         public Guid ScheduleId { get; set; }
 
-        public SetWateringSchedule() { }
-        public SetWateringSchedule(Guid id, Guid scheduleId)
-            : base(id)
+        //public SetWateringSchedule() { }
+        public SetWateringSchedule(Guid plantId, Guid scheduleId)
+            : base(plantId)
         {
             this.ScheduleId = scheduleId;
         }
@@ -168,7 +168,7 @@ namespace Growthstories.Domain.Messaging
     {
         public Guid ScheduleId { get; set; }
 
-        public SetFertilizingSchedule() { }
+        //public SetFertilizingSchedule() { }
         public SetFertilizingSchedule(Guid plantId, Guid scheduleId)
             : base(plantId)
         {

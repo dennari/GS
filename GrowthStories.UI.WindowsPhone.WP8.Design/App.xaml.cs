@@ -6,9 +6,9 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using Growthstories.UI.WindowsPhone.Design.Resources;
+using Growthstories.UI.WindowsPhone.Resources;
 
-namespace Growthstories.UI.WindowsPhone.Design
+namespace Growthstories.UI.WindowsPhone
 {
     public partial class App : Application
     {

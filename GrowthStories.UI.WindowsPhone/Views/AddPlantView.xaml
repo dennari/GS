@@ -22,10 +22,10 @@
                 />
         </DataTemplate>
     </UserControl.Resources>
-    <local:AddPlantActionView>
-        <local:AddPlantActionView.Background>
+    <local:PlantActionView>
+        <local:PlantActionView.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:AddPlantActionView.Background>
+        </local:PlantActionView.Background>
      <StackPanel>
         <!-- NAME -->
         <TextBlock Text="Name" Style="{StaticResource GSInputLabelStyle}"/>
@@ -155,5 +155,5 @@
 
         </StackPanel>
       </StackPanel>
-    </local:AddPlantActionView>
+    </local:PlantActionView>
 </UserControl>

@@ -15,7 +15,7 @@ namespace Growthstories.Domain.Messaging
     #region Schedule
 
     [DTOObject(DTOType.createIntervalSchedule)]
-    public class ScheduleCreated : EventBase, ICreateMessage
+    public class ScheduleCreated : EventBase, ICreateMessage, IAggregateEvent<ScheduleState>
     {
 
         [JsonIgnore]
@@ -60,6 +60,9 @@ namespace Growthstories.Domain.Messaging
             this.Interval = D.Interval;
             base.FromDTO(D);
         }
+
+
+        public ScheduleState AggregateState { get; set; }
 
     }
 

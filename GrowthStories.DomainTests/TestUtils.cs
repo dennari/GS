@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -49,6 +50,19 @@ namespace Growthstories.DomainTests
             else
                 task.Wait(timeout);
             //Assert.IsTrue(task.IsCompleted, "Task timeout");
+        }
+
+        public static T WaitForFirst<T>(IObservable<T> task, int timeout = 9000)
+        {
+
+            //task.Take(1).
+            return WaitForTask(Task.Run(async () =>
+            {
+
+                return await task.Take(1);
+
+            }), timeout);
+
         }
 
         public static IStreamSegment[] EventsToStreams(Guid aggregateId, IEvent events)

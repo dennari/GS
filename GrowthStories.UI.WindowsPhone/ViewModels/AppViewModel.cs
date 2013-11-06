@@ -62,21 +62,17 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Bus = Kernel.Get<IMessageBus>();
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
-            Resolver.RegisterLazySingleton(() => new GardenViewPage(), typeof(IViewFor<GardenViewModel>));
-            Resolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<PlantViewModel>));
+            //Resolver.RegisterLazySingleton(() => new GardenViewPage(), typeof(IViewFor<GardenViewModel>));
+            //Resolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<PlantViewModel>));
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<ScheduleViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<ClientAddPlantViewModel>));
-            //Resolver.RegisterLazySingleton(() => new EditPlantView(), typeof(IViewFor<ClientEditPlantViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddWaterView(), typeof(IViewFor<PlantWaterViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddCommentView(), typeof(IViewFor<PlantCommentViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddFertilizerView(), typeof(IViewFor<PlantFertilizeViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddMeasurementView(), typeof(IViewFor<PlantMeasureViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddPhotographView(), typeof(IViewFor<ClientPlantPhotographViewModel>));
+            Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
-            Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ListUsersViewModel>));
-            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<GardenPivotViewModel>));
-
-            Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(ITestingViewModel));
+            Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<SearchUsersViewModel>));
+            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<GardenViewModel>));
+            Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<PlantViewModel>));
+            Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<FriendsViewModel>));
+            Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
 
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x => this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x);
 
@@ -87,7 +83,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         }
 
-        public override AddPlantViewModel AddPlantViewModelFactory(PlantState state)
+        public override IAddPlantViewModel AddPlantViewModelFactory(PlantState state)
         {
             return new ClientAddPlantViewModel(state, this);
         }

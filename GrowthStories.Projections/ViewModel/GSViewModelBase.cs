@@ -10,24 +10,9 @@ using System.Reactive.Linq;
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IGSViewModel : IReactiveNotifyPropertyChanged
-    {
-
-    }
-
-    public interface IHasAppBarButtons
-    {
-        ReactiveList<ButtonViewModel> AppBarButtons { get; }
-    }
-
-    public interface IHasMenuItems
-    {
-        ReactiveList<MenuItemViewModel> AppBarMenuItems { get; }
-    }
-
     public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
     {
-        protected readonly IGSAppViewModel App;
+        public IGSAppViewModel App { get; protected set; }
 
         public GSViewModelBase(IGSAppViewModel app)
         {
@@ -58,11 +43,6 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface IGSRoutableViewModel : IRoutableViewModel
-    {
-        string PageTitle { get; }
-    }
-
     public abstract class RoutableViewModel : GSViewModelBase, IGSRoutableViewModel
     {
 
@@ -84,80 +64,107 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public enum SupportedPageOrientation
+    public class ButtonViewModel : MenuItemViewModel, IButtonViewModel
     {
-        // Summary:
-        //     Portrait orientation.
-        Portrait = 1,
-        //
-        // Summary:
-        //     Landscape orientation. Landscape supports both left and right views, but
-        //     there is no way programmatically to specify one or the other.
-        Landscape = 2,
-        //
-        // Summary:
-        //     Landscape or portrait orientation.
-        PortraitOrLandscape = 3,
-    }
+        public ButtonViewModel(IGSAppViewModel app)
+            : base(app)
+        {
 
-    public enum PageOrientation
-    {
-        // Summary:
-        //     No orientation is specified.
-        None = 0,
-        //
-        // Summary:
-        //     Portrait orientation.
-        Portrait = 1,
-        //
-        // Summary:
-        //     Landscape orientation.
-        Landscape = 2,
-        //
-        // Summary:
-        //     Portrait orientation.
-        PortraitUp = 5,
-        //
-        // Summary:
-        //     Portrait orientation. This orientation is never used.
-        PortraitDown = 9,
-        //
-        // Summary:
-        //     Landscape orientation with the top of the page rotated to the left.
-        LandscapeLeft = 18,
-        //
-        // Summary:
-        //     Landscape orientation with the top of the page rotated to the right.
-        LandscapeRight = 34,
-    }
+        }
 
-    public interface IControlsPageOrientation
-    {
-        SupportedPageOrientation SupportedOrientations { get; }
-        //ReactiveCommand PageOrientationChangedCommand { get; }
-    }
 
-    public interface IControlsAppBar
-    {
-        ApplicationBarMode AppBarMode { get; }
-        bool AppBarIsVisible { get; }
-    }
+        #region IconUri
+        private Uri uri;
 
-    public interface IControlsSystemTray
-    {
-        bool SystemTrayIsVisible { get; }
-    }
-
-    public interface IControlsProgressIndicator
-    {
-        bool ProgressIndicatorIsVisible { get; }
+        /// <summary>
+        /// Gets or sets the icon URI.
+        /// </summary>
+        /// <value>
+        /// The icon URI.
+        /// </value>
+        public Uri IconUri
+        {
+            get { return this.uri; }
+            set { this.RaiseAndSetIfChanged(ref uri, value); }
+        }
+        #endregion
     }
 
 
 
-    public static class ViewModelMixins
+
+    public class MenuItemViewModel : GSViewModelBase, IMenuItemViewModel
     {
 
+        public MenuItemViewModel(IGSAppViewModel app)
+            : base(app)
+        {
+
+        }
+
+        #region Command
+        private IReactiveCommand command;
+
+        /// <summary>
+        /// Gets or sets the command.
+        /// </summary>
+        /// <value>
+        /// The command.
+        /// </value>
+        public IReactiveCommand Command
+        {
+            get { return this.command; }
+            set { this.RaiseAndSetIfChanged(ref command, value); }
+        }
+        #endregion
+
+        #region CommandParameter
+        private object commandParameter;
+
+        /// <summary>
+        /// Gets or sets the command's parameter.
+        /// </summary>
+        /// <value>
+        /// The command's parameter.
+        /// </value>
+        public object CommandParameter
+        {
+            get { return this.commandParameter; }
+            set { this.RaiseAndSetIfChanged(ref commandParameter, value); }
+        }
+        #endregion
+
+        #region Text
+        private string text;
+
+        /// <summary>
+        /// Gets or sets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        public string Text
+        {
+            get { return this.text; }
+            set { this.RaiseAndSetIfChanged(ref text, value); }
+        }
+        #endregion
+
+        #region IsEnabled
+        private bool _IsEnabled = true;
+
+        /// <summary>
+        /// Gets or sets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        public bool IsEnabled
+        {
+            get { return this._IsEnabled; }
+            set { this.RaiseAndSetIfChanged(ref _IsEnabled, value); }
+        }
+        #endregion
     }
 
 

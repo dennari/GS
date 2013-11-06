@@ -8,7 +8,7 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 
-namespace Growthstories.UI.WindowsPhone.Design
+namespace Growthstories.UI.WindowsPhone
 {
     public partial class MainPage : PhoneApplicationPage
     {
@@ -16,7 +16,7 @@ namespace Growthstories.UI.WindowsPhone.Design
         public MainPage()
         {
             InitializeComponent();
-
+            var a = this.Test;
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
         }

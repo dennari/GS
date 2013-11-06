@@ -141,6 +141,15 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="..\GrowthStories.DomainTests\BaseSetup.cs">
+      <Link>BaseSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\FileOpener.cs">
+      <Link>FileOpener.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.DomainTests\TestAppViewModel.cs">
+      <Link>TestAppViewModel.cs</Link>
+    </Compile>
     <Compile Include="..\GrowthStories.DomainTests\TestSetup.cs">
       <Link>TestSetup.cs</Link>
     </Compile>

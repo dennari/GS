@@ -1,13 +1,14 @@
-﻿using CommonDomain;
-using EventStore;
+﻿//using CommonDomain;
+//using EventStore;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Runtime.Serialization;
+//using System.Text;
+//using System.Threading.Tasks;
 
 namespace Growthstories.Domain.Entities
 {
@@ -20,6 +21,7 @@ namespace Growthstories.Domain.Entities
 
         //public Guid UserId { get; private set; }
 
+        [JsonProperty]
         public long Interval { get; private set; }
 
         public ScheduleState()

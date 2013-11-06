@@ -35,14 +35,17 @@ namespace Growthstories.Domain
 
 
         IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
-        IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
+        IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
         IEnumerable<UserState> GetUsers(Guid? UserId = null);
+        //IEnumerable<ScheduleState> GetSchedules(Guid PlantId);
+
 
         //IEnumerable<ActionBase> UserActions(Guid UserId);
         //IEnumerable<PlantCreated> UserPlants(Guid UserId);
 
         void Save(IGSAggregate aggregate);
         void SaveCollaborator(Guid collaboratorId, bool status);
+
 
 
     }

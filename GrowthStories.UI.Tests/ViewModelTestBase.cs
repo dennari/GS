@@ -25,22 +25,6 @@ using Growthstories.DomainTests;
 
 namespace Growthstories.UI.Tests
 {
-    public class TestAppViewModel : AppViewModel
-    {
-
-
-        public TestAppViewModel(IKernel kernel)
-            : base()
-        {
-            Kernel = kernel;
-            Kernel.Bind<IScreen>().ToConstant(this);
-            Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-            this.Bus = kernel.Get<IMessageBus>();
-        }
-
-
-
-    }
 
     public class ViewModelTestBase
     {
@@ -64,7 +48,7 @@ namespace Growthstories.UI.Tests
         public T Get<T>() { return Kernel.Get<T>(); }
         public IMessageBus Bus { get { return Get<IMessageBus>(); } }
         public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
-        public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
+        //public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
         public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
         public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }

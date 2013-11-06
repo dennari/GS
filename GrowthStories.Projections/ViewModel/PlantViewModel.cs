@@ -15,18 +15,7 @@ using System.Linq;
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation
-    {
-        Guid Id { get; }
-        Guid UserId { get; }
-        string Name { get; }
-        string Species { get; }
-        ReactiveCommand PinCommand { get; }
-        ReactiveCommand ScrollCommand { get; }
-        Photo Photo { get; }
-        PlantState State { get; }
-        ReactiveList<IPlantActionViewModel> Actions { get; }
-    }
+
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
@@ -36,12 +25,27 @@ namespace Growthstories.UI.ViewModel
 
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
-        public ReactiveCommand ShareCommand { get; protected set; }
-        public ReactiveCommand DeleteCommand { get; protected set; }
-        public ReactiveCommand PinCommand { get; protected set; }
-        public ReactiveCommand ScrollCommand { get; protected set; }
-        public ReactiveCommand FlickCommand { get; protected set; }
-        public ReactiveCommand PlantActionDetailsCommand { get; protected set; }
+        public IReactiveCommand ShareCommand { get; protected set; }
+        public IReactiveCommand DeleteCommand { get; protected set; }
+        public IReactiveCommand PinCommand { get; protected set; }
+        public IReactiveCommand ScrollCommand { get; protected set; }
+        public IReactiveCommand FlickCommand { get; protected set; }
+        public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
+        public IReactiveCommand PlantActionPivotCommand { get; protected set; }
+        public IReactiveCommand ActionTapped { get; protected set; }
+        public IPlantActionViewModel SelectedItem { get; set; }
+        public PlantActionType? Filter { get; set; }
+
+        protected ReactiveList<IPlantActionViewModel> _FilteredActions;
+        public IReadOnlyReactiveList<IPlantActionViewModel> FilteredActions
+        {
+            get
+            {
+                if (_FilteredActions == null)
+                    _FilteredActions = !Filter.HasValue ? (ReactiveList<IPlantActionViewModel>)Actions : new ReactiveList<IPlantActionViewModel>(Actions.Where(x => x.ActionType == Filter.Value));
+                return _FilteredActions;
+            }
+        }
 
         public Guid Id { get { return State.Id; } }
         public Guid UserId { get { return State.UserId; } }
@@ -98,45 +102,40 @@ namespace Growthstories.UI.ViewModel
                     });
                     this.Navigate(x);
                 });
+            this.PlantActionPivotCommand = new ReactiveCommand();
+            this.PlantActionPivotCommand
+                .OfType<IPlantActionViewModel>()
+                .Subscribe(x =>
+                {
+                    x.AddCommand.Subscribe(_ =>
+                    {
+                        var cmd = new SetPlantActionProperty(x.PlantActionId)
+                        {
+                            Note = x.Note,
+                        };
+                        var m = x as IPlantMeasureViewModel;
+                        if (m != null)
+                        {
+                            cmd.Value = m.Value;
+                        }
+
+                        this.SendCommand(cmd, true);
+                    });
+                    this.Navigate(x);
+                });
+            this.ActionTapped = new ReactiveCommand();
+            this.ActionTapped
+                .OfType<IPlantPhotographViewModel>()
+                .Subscribe(x =>
+                {
+                    this.Filter = PlantActionType.PHOTOGRAPHED;
+                    this.SelectedItem = x;
+                    this.Navigate(this);
+
+                });
 
 
-            //this.FlickCommand.Subscribe(x =>
-            //{
-            //    var xx = x as Tuple<double, double>;
-            //    if (garden != null && xx != null && Math.Abs(xx.Item1) > Math.Abs(xx.Item2))
-            //    {
-            //        var myIdx = garden.Plants.IndexOf(this);
-            //        if (myIdx < garden.Plants.Count - 1 && xx.Item1 < 0)
-            //            App.Router.Navigate.Execute(garden.Plants[myIdx + 1]);
-            //        if (myIdx > 0 && xx.Item1 > 0)
-            //            App.Router.Navigate.Execute(garden.Plants[myIdx - 1]);
-
-            //    }
-            //});
             this.ScrollCommand = new ReactiveCommand();
-
-
-            //this.GetActionsCommand = new ReactiveCommand();
-
-            //this.GetActionsPipe = this.GetActionsCommand
-            //    .RegisterAsyncFunction(this.App.Plant, RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-
-
-            // THINK ABOUT NOT HAVING TO DO THE ROUNDTRIP!!!
-
-
-
-            //this.PlantActionStream = ;
-
-            //this.ListenTo<PlantActionPropertySet>()
-            //    .Select(x => Tuple.Create(x, this.Actions.FirstOrDefault(y => y.PlantActionId == x.AggregateId)))
-            //    .Where(x => x.Item2 != null)
-            //    .Subscribe(x =>
-            //    {
-            //        x.Item2.SetProperty(x.Item1);
-            //        ScrollCommand.Execute(x.Item2);
-            //    });
 
             this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                 .ToProperty(this, x => x.Name, out this._Name, state.Name);
@@ -148,6 +147,7 @@ namespace Growthstories.UI.ViewModel
                .ToProperty(this, x => x.Species, out this._Species, state.Species);
 
 
+
             this.App.WhenAny(x => x.Orientation, x => x.GetValue())
                 .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
                 .Where(x => x == true)
@@ -156,6 +156,89 @@ namespace Growthstories.UI.ViewModel
 
 
         }
+
+        public PlantViewModel(PlantState state, IScheduleViewModel wateringSchedule, IScheduleViewModel fertilizingSchedule, IGSAppViewModel app)
+            : this(state, app)
+        {
+            //this.WateringSchedule = wateringSchedule;
+            //this.FertilizingSchedule = fertilizingSchedule;
+
+            this.App.FutureSchedules(state.Id)
+                .Where(x =>
+                {
+                    return x.Type == ScheduleType.WATERING;
+                })
+                .ToProperty(this, x => x.WateringSchedule, out this._WateringSchedule, wateringSchedule);
+
+            this.App.FutureSchedules(state.Id).Where(x => x.Type == ScheduleType.FERTILIZING)
+                .ToProperty(this, x => x.FertilizingSchedule, out this._FertilizingSchedule, fertilizingSchedule);
+
+
+            this.WhenAny(x => x.WateringSchedule, x => x.GetValue()).Subscribe(x =>
+            {
+                var a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.WATERED);
+                if (a != null)
+                    this.NextWatering = new PlantWaterViewModel(x.ComputeNext(a.Created), App);
+            });
+
+            this.WhenAny(x => x.FertilizingSchedule, x => x.GetValue()).Subscribe(x =>
+            {
+                var a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.FERTILIZED);
+                if (a != null)
+                    this.NextNourishing = new PlantFertilizeViewModel(x.ComputeNext(a.Created), App);
+            });
+
+
+
+        }
+
+        protected ObservableAsPropertyHelper<IScheduleViewModel> _WateringSchedule;
+        public IScheduleViewModel WateringSchedule
+        {
+            get
+            {
+                return _WateringSchedule.Value;
+            }
+        }
+
+        protected ObservableAsPropertyHelper<IScheduleViewModel> _FertilizingSchedule;
+        public IScheduleViewModel FertilizingSchedule
+        {
+            get
+            {
+                return _FertilizingSchedule.Value;
+            }
+        }
+
+
+        IPlantWaterViewModel _NextWatering;
+        public IPlantWaterViewModel NextWatering
+        {
+            get
+            {
+                return _NextWatering;
+            }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _NextWatering, value);
+            }
+        }
+
+        IPlantFertilizeViewModel _NextNourishing;
+        public IPlantFertilizeViewModel NextNourishing
+        {
+            get
+            {
+                return _NextNourishing;
+            }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _NextNourishing, value);
+            }
+        }
+
+        public string TodayWeekDay { get; set; }
+        public string TodayDate { get; set; }
 
         protected ObservableAsPropertyHelper<string> _Name;
         public string Name
@@ -184,19 +267,45 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        //private ObservableAsPropertyHelper<IPlantWaterViewModel> _LatestWatering;
+        //public _LatestWatering
+
+        private ObservableAsPropertyHelper<IPlantFertilizeViewModel> LatestFertilizing;
+
+
+
         protected ReactiveList<IPlantActionViewModel> _Actions;
-        public ReactiveList<IPlantActionViewModel> Actions
+        public IReadOnlyReactiveList<IPlantActionViewModel> Actions
         {
             get
             {
                 if (_Actions == null)
                 {
                     _Actions = new ReactiveList<IPlantActionViewModel>();
-                    App.CurrentPlantActions(this.State).Concat(App.FuturePlantActions(this.State)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                    var actionsPipe = App.CurrentPlantActions(this.State)
+                        .Concat(App.FuturePlantActions(this.State));
+
+
+                    actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                     {
-                        Actions.Insert(0, x);
+                        _Actions.Insert(0, x);
                         ScrollCommand.Execute(x);
                     });
+
+                    actionsPipe
+                        .OfType<IPlantWaterViewModel>()
+                        .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(x => ComputeNextWatering(x));
+
+                    actionsPipe
+                        .OfType<IPlantFertilizeViewModel>()
+                        .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(x => ComputeNextFertilizing(x));
+
+
                     //App.FuturePlantActions(this.State).Subscribe(x =>
                     //{
                     //    Actions.Insert(0, x);
@@ -206,6 +315,20 @@ namespace Growthstories.UI.ViewModel
                 }
                 return _Actions;
             }
+        }
+
+        private void ComputeNextFertilizing(IPlantFertilizeViewModel a)
+        {
+            var x = this.WateringSchedule;
+            if (x != null)
+                this.NextWatering = new PlantWaterViewModel(x.ComputeNext(a.Created), App);
+        }
+
+        private void ComputeNextWatering(IPlantWaterViewModel a)
+        {
+            var x = this.FertilizingSchedule;
+            if (x != null)
+                this.NextNourishing = new PlantFertilizeViewModel(x.ComputeNext(a.Created), App);
         }
 
         protected IRoutableViewModel _AddPlantViewModel;
@@ -223,13 +346,13 @@ namespace Growthstories.UI.ViewModel
         }
 
         #region APPBAR
-        protected ReactiveList<ButtonViewModel> _AppBarButtons;
-        public ReactiveList<ButtonViewModel> AppBarButtons
+        protected ReactiveList<IButtonViewModel> _AppBarButtons;
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
                 if (_AppBarButtons == null)
-                    _AppBarButtons = new ReactiveList<ButtonViewModel>()
+                    _AppBarButtons = new ReactiveList<IButtonViewModel>()
                     {
                         new ButtonViewModel(null)
                         {
@@ -314,13 +437,13 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected ReactiveList<MenuItemViewModel> _AppBarMenuItems;
-        public ReactiveList<MenuItemViewModel> AppBarMenuItems
+        protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
+        public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
             get
             {
                 if (_AppBarMenuItems == null)
-                    _AppBarMenuItems = new ReactiveList<MenuItemViewModel>()
+                    _AppBarMenuItems = new ReactiveList<IMenuItemViewModel>()
                     {
                         new MenuItemViewModel(null)
                         {
@@ -415,8 +538,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+
+        public IEnumerable<ISeries> Series
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
-
-
 
 }

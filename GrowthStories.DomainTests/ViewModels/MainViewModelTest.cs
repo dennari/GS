@@ -11,7 +11,7 @@ using Growthstories.Core;
 using System.Reactive.Linq;
 using System.Collections.Generic;
 
-namespace Growthstories.UI.Tests
+namespace Growthstories.DomainTests
 {
 
 
@@ -20,7 +20,10 @@ namespace Growthstories.UI.Tests
 
         public class TestMultiPageViewModel : MultipageViewModel
         {
-
+            public void AddPage(IGSViewModel page)
+            {
+                this._Pages.Add(page);
+            }
             public TestMultiPageViewModel() : base(null) { }
             public override string UrlPathSegment
             {
@@ -37,8 +40,8 @@ namespace Growthstories.UI.Tests
                 get { throw new NotImplementedException(); }
             }
 
-            public IReactiveList<IButtonViewModel> _AppBarButtons;
-            public IReactiveList<IButtonViewModel> AppBarButtons
+            public ReactiveList<IButtonViewModel> _AppBarButtons;
+            public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
             {
                 get
                 {
@@ -46,12 +49,12 @@ namespace Growthstories.UI.Tests
                 }
                 set
                 {
-                    this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+                    this.RaiseAndSetIfChanged(ref _AppBarButtons, (ReactiveList<IButtonViewModel>)value);
                 }
             }
 
-            public IReactiveList<IMenuItemViewModel> _AppBarMenuItems;
-            public IReactiveList<IMenuItemViewModel> AppBarMenuItems
+            public ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
+            public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
             {
                 get
                 {
@@ -59,7 +62,7 @@ namespace Growthstories.UI.Tests
                 }
                 set
                 {
-                    this.RaiseAndSetIfChanged(ref _AppBarMenuItems, value);
+                    this.RaiseAndSetIfChanged(ref _AppBarMenuItems, (ReactiveList<IMenuItemViewModel>)value);
                 }
             }
 
@@ -93,7 +96,7 @@ namespace Growthstories.UI.Tests
                 }
             };
 
-            multi.Pages.Add(vm);
+            multi.AddPage(vm);
             multi.PageChangedCommand.Execute(0);
 
             Assert.AreSame(vm.AppBarButtons, multi.AppBarButtons);
@@ -121,7 +124,7 @@ namespace Growthstories.UI.Tests
                 }
             };
 
-            multi.Pages.Add(vm2);
+            multi.AddPage(vm2);
             multi.PageChangedCommand.Execute(vm2);
 
             Assert.AreSame(vm2.AppBarButtons, multi.AppBarButtons);

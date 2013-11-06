@@ -42,48 +42,105 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Kernel = kernel;
             this.Handler = Kernel.Get<IDispatchCommands>();
 
-            this.AddRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
+            this.CreateRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
+            this.CreateLocalDataCommand.Subscribe(x => this.CreateLocalTestData());
 
         }
 
-        public void AddLocalTestData()
+        public void CreateLocalTestData()
         {
 
 
 
-            App.Bus.SendCommand(new CreatePlant(Guid.NewGuid(), "Jore", App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
+            for (var i = 0; i < 5; i++)
             {
-                Profilepicture = new Photo()
-                {
-                    LocalUri = "/TestData/517e100d782a828894.jpg"
-                }
-            });
+
+                var localPlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id);
+                App.Bus.SendCommand(localPlant);
+
+                var localPlantProperty = new MarkPlantPublic(localPlant.AggregateId);
+                App.Bus.SendCommand(localPlantProperty);
+
+                App.Bus.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, localPlant.AggregateId, App.Context.CurrentUser.Id, "Jare " + i));
 
 
-            App.Bus.SendCommand(new CreatePlant(Guid.NewGuid(), "Jari", App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
-            {
-                Profilepicture = new Photo()
-                {
-                    LocalUri = "/TestData/flowers-from-the-conservatory.jpg"
-                }
-            });
+                var wateringSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600);
+                App.Bus.SendCommand(wateringSchedule);
+                App.Bus.SendCommand(new SetWateringSchedule(localPlant.AggregateId, wateringSchedule.AggregateId));
+
+                var FertilizingSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 50 * 3600);
+                App.Bus.SendCommand(FertilizingSchedule);
+                App.Bus.SendCommand(new SetFertilizingSchedule(localPlant.AggregateId, FertilizingSchedule.AggregateId));
+
+                App.Bus.SendCommand(
+                        new CreatePlantAction(
+                            Guid.NewGuid(),
+                            App.Context.CurrentUser.Id,
+                            localPlant.AggregateId,
+                            PlantActionType.COMMENTED,
+                            "Hello local world " + i));
 
 
+                App.Bus.SendCommand(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.Context.CurrentUser.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.PHOTOGRAPHED,
+                        "Hello local world " + i)
+                    {
+                        Photo = new Photo()
+                        {
+                            RemoteUri = @"http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"
+                        }
+                    });
 
-            //var remoteUser = new CreateUser(Guid.NewGuid(), "RemoUser", "1234", "user@gs.com");
-            //Handler.Handle(SetIds(remoteUser));
+                App.Bus.SendCommand(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.Context.CurrentUser.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.FERTILIZED,
+                        "Hello local world " + i));
 
-            //var remoteGarden = new CreateGarden(Guid.NewGuid(), remoteUser.AggregateId);
-            //Handler.Handle(SetIds(SetIds(remoteGarden, null, remoteUser.AggregateId)));
+                App.Bus.SendCommand(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.Context.CurrentUser.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.WATERED,
+                        "Hello local world " + i));
 
-            //Handler.Handle(SetIds(new AddGarden(remoteUser.AggregateId, remoteGarden.EntityId.Value), null, remoteUser.AggregateId));
+                App.Bus.SendCommand(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.Context.CurrentUser.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.PHOTOGRAPHED,
+                        "Hello local world " + i)
+                    {
+                        Photo = new Photo()
+                        {
+                            RemoteUri = @"http://upload.wikimedia.org/wikipedia/commons/d/d3/Nelumno_nucifera_open_flower_-_botanic_garden_adelaide2.jpg"
+                        }
+                    });
+
+                App.Bus.SendCommand(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.Context.CurrentUser.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.PHOTOGRAPHED,
+                        "Hello local world " + i)
+                    {
+                        Photo = new Photo()
+                        {
+                            RemoteUri = @"http://upload.wikimedia.org/wikipedia/commons/6/66/White_Flower_Closeup.jpg"
+                        }
+                    });
 
 
-            //var remotePlant = SetIds(new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteGarden.EntityId.Value, remoteUser.AggregateId), null, remoteUser.AggregateId);
-            //Handler.Handle(remotePlant);
-
-            //Handler.Handle(SetIds(new MarkPlantPublic(remotePlant.AggregateId), null, remoteUser.AggregateId));
-
+            }
 
 
         }

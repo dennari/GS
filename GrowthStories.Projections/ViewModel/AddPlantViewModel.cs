@@ -14,16 +14,7 @@ using System.Collections.Generic;
 namespace Growthstories.UI.ViewModel
 {
 
-    public interface IAddPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
-    {
 
-    }
-
-    public enum ScheduleType
-    {
-        WATERING,
-        FERTILIZING
-    }
 
     public class AddPlantViewModel : PlantActionViewModel, IAddPlantViewModel
     {
@@ -143,20 +134,20 @@ namespace Growthstories.UI.ViewModel
             return true;
         }
 
-        public ReactiveCommand ChooseProfilePictureCommand { get; protected set; }
+        public IReactiveCommand ChooseProfilePictureCommand { get; protected set; }
 
-        public ReactiveCommand ChooseWateringSchedule { get; protected set; }
+        public IReactiveCommand ChooseWateringSchedule { get; protected set; }
 
-        public ReactiveCommand AddTag { get; protected set; }
-        public ReactiveCommand RemoveTag { get; protected set; }
+        public IReactiveCommand AddTag { get; protected set; }
+        public IReactiveCommand RemoveTag { get; protected set; }
 
 
-        public ReactiveCommand ChooseFertilizingSchedule { get; protected set; }
+        public IReactiveCommand ChooseFertilizingSchedule { get; protected set; }
 
-        public ReactiveList<string> Tags { get; protected set; }
+        public IReactiveList<string> Tags { get; protected set; }
 
-        protected ScheduleViewModel _WateringSchedule;
-        public ScheduleViewModel WateringSchedule
+        protected IScheduleViewModel _WateringSchedule;
+        public IScheduleViewModel WateringSchedule
         {
             get
             {
@@ -169,8 +160,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected ScheduleViewModel _FertilizingSchedule;
-        public ScheduleViewModel FertilizingSchedule
+        protected IScheduleViewModel _FertilizingSchedule;
+        public IScheduleViewModel FertilizingSchedule
         {
             get
             {

@@ -1,5 +1,5 @@
 ﻿<UserControl
-	x:Class="Growthstories.UI.WindowsPhone.Design.PlantPivotView"
+	x:Class="Growthstories.UI.WindowsPhone.FriendsPivotView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -8,39 +8,34 @@
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone.Design"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    DataContext="{StaticResource PlantPivotViewModelDesign}"
-    d:DataContext="{StaticResource PlantPivotViewModelDesign}"
-	mc:Ignorable="d">
+	d:DataContext="{StaticResource FriendsPivotViewModelDesign}"
+    mc:Ignorable="d">
 
     <Grid x:Name="LayoutRoot">
-        <!--<Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
-        </Grid.Background>-->
-        
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
+        </Grid.Background>
+
         <phone:Pivot 
-			x:Name="Actions" 
-			ItemsSource="{Binding FilteredActions}"
-            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-			Title="{Binding Name}">
+			x:Name="Friends" 
+			ItemsSource="{Binding Friends}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
             <phone:Pivot.HeaderTemplate>
                 <DataTemplate>
-                    <!--<ContentControl Content="{Binding Date}"/>-->
+                    <ContentControl Content="{Binding Username}"/>
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
 
             <phone:Pivot.ItemTemplate>
-				<DataTemplate>
-                    <local:PlantActionView 
-                        ViewModel="{Binding}" 
-                        HeaderVisibility="Collapsed"
-                        HorizontalContentAlignment="Stretch" />
+                <DataTemplate>
+                    <local:GardenView ViewModel="{Binding}"/>
                 </DataTemplate>
-			</phone:Pivot.ItemTemplate>
-            
-		</phone:Pivot>
+            </phone:Pivot.ItemTemplate>
+
+        </phone:Pivot>
 
 
     </Grid>

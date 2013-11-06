@@ -1,0 +1,71 @@
+﻿<UserControl
+	x:Class="Growthstories.UI.WindowsPhone.PlantPhotoPivotView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"    
+    xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
+	mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+    d:DataContext="{StaticResource PlantViewModelDesign}"
+    >
+
+    <Grid x:Name="LayoutRoot">
+     
+        <phone:Pivot 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+			x:Name="Actions" 
+			ItemsSource="{Binding Actions, 
+                Converter={StaticResource PlantActionFilter}, 
+                ConverterParameter=Photo}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+			Title="{Binding Name}">          
+
+            <phone:Pivot.Template>
+                <ControlTemplate TargetType="phone:Pivot">
+                    <Grid 
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
+                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                        >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Primitives:PivotHeadersControl 
+                            x:Name="HeadersListElement" 
+                            Grid.Row="1"
+                            Visibility="Visible"
+                            />
+                        <ItemsPresenter
+                            x:Name="PivotItemPresenter" Grid.Row="0"/>
+                    </Grid>
+                </ControlTemplate>
+            </phone:Pivot.Template>
+            <phone:Pivot.HeaderTemplate>
+                <DataTemplate>
+                    <Image 
+					Source="/Assets/Bg/panorama_logo.png" 
+					Stretch="UniformToFill" 
+					Width="480" 
+					Margin="0"/>
+                </DataTemplate>
+            </phone:Pivot.HeaderTemplate>
+            <phone:Pivot.ItemTemplate>
+                <DataTemplate>
+                    <local:PlantActionView                         
+                        ViewModel="{Binding}" 
+                        Style="{StaticResource PlantPhotoActionStyle}" 
+                        Margin="-12,-28,-12,0"/>
+                </DataTemplate>
+            </phone:Pivot.ItemTemplate>
+
+        </phone:Pivot>
+
+
+    </Grid>
+
+</UserControl>

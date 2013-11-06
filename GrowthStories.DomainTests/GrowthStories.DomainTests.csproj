@@ -177,6 +177,9 @@
     <Compile Include="TestUserService.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="User\create_user2.cs" />
+    <Compile Include="ViewModels\MainViewModelTest.cs" />
+    <Compile Include="ViewModels\PlantViewModelTest.cs" />
+    <Compile Include="ViewModels\ViewModelTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
@@ -258,7 +261,6 @@
   <ItemGroup>
     <Folder Include="PlantAction\" />
     <Folder Include="Projections\" />
-    <Folder Include="UI\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sync\Schema.resx">

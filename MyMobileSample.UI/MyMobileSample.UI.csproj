@@ -196,12 +196,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyMobileSample.Model\MyMobileSample.Model.csproj">
-      <Project>{DFBADB72-B5D4-4BE2-8466-BA9FEC25DF66}</Project>
-      <Name>MyMobileSample.Model</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="BindableApplicationBar">
       <HintPath>..\packages\BindableApplicationBar.1.0.0\lib\sl4-windowsphone71\BindableApplicationBar.dll</HintPath>
     </Reference>

@@ -163,7 +163,7 @@ namespace Growthstories.DomainTests
 
             var remoteComment = (PlantActionCreated)originalRemoteEvents[3];
 
-            var lvm = new ListUsersViewModel(Get<ITransportEvents>(), App);
+            var lvm = new SearchUsersViewModel(Get<ITransportEvents>(), App);
 
             IUserListResponse R = null;
             lvm.SearchResults.Subscribe(x =>
@@ -200,9 +200,9 @@ namespace Growthstories.DomainTests
             //var task3 = plant.Actions.ItemsAdded.Take(1).GetAwaiter();
             Assert.AreEqual(1, plant.Actions.Count);
             var action = plant.Actions[0];
-            Assert.AreEqual(remoteComment.AggregateId, action.State.Id);
-            Assert.AreEqual(remoteComment.Type, action.State.Type);
-            Assert.AreEqual(remoteComment.Note, action.State.Note);
+            Assert.AreEqual(remoteComment.AggregateId, action.PlantActionId);
+            Assert.AreEqual(remoteComment.Type, action.ActionType);
+            Assert.AreEqual(remoteComment.Note, action.Note);
 
 
             int CurrentSyncSequence = App.Model.State.SyncSequence;

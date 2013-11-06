@@ -15,6 +15,7 @@ using System.Reactive.Threading.Tasks;
 using Growthstories.Core;
 using EventStore.Logging;
 using CommonDomain;
+using System.Collections;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -30,19 +31,20 @@ namespace Growthstories.UI.ViewModel
     //    }
     //}
 
-    public sealed class ListUsersViewModel : RoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
+    public sealed class SearchUsersViewModel : RoutableViewModel, ISearchUsersViewModel
     {
         private readonly ITransportEvents Transporter;
 
         public readonly IObservable<IUserListResponse> SearchResults;
         public readonly IObservable<List<CreateSyncStream>> SyncStreams;
 
-        private static ILog Logger = LogFactory.BuildLogger(typeof(ListUsersViewModel));
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
 
-        public ReactiveList<RemoteUser> List { get; private set; }
-        public ReactiveCommand SearchCommand { get; private set; }
-        public ReactiveCommand UserSelectedCommand { get; private set; }
+        private ReactiveList<RemoteUser> _List;
+        public IReadOnlyReactiveList<RemoteUser> List { get { return _List; } }
+        public IReactiveCommand SearchCommand { get; private set; }
+        public IReactiveCommand UserSelectedCommand { get; private set; }
 
         private bool _InProgress;
         public bool ProgressIndicatorIsVisible
@@ -58,12 +60,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public ListUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
+        public SearchUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
             : base(app)
         {
 
             Transporter = transporter;
-            List = new ReactiveList<RemoteUser>();
+            _List = new ReactiveList<RemoteUser>();
             SearchCommand = new ReactiveCommand();
             ProgressIndicatorIsVisible = false;
 
@@ -91,11 +93,11 @@ namespace Growthstories.UI.ViewModel
             results.Subscribe(x =>
             {
                 ProgressIndicatorIsVisible = false;
-                List.Clear();
+                _List.Clear();
                 if (x.Users != null && x.Users.Count > 0)
                 {
 
-                    List.AddRange(x.Users);
+                    _List.AddRange(x.Users);
                 }
             });
 
@@ -110,7 +112,7 @@ namespace Growthstories.UI.ViewModel
                 .OfType<RemoteUser>()
                 .Subscribe(x =>
                 {
-                    var cmds = new StreamSegment(app.Model.Id);
+                    var cmds = new StreamSegment(GSAppState.GSAppId);
                     cmds.Add(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
                     if (x.Garden != null && x.Garden.Plants != null)
@@ -163,29 +165,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public sealed class ListUsersViewModelDesign
-    {
 
-        public IList<RemoteUser> List { get; private set; }
-        public bool InProgress { get; private set; }
-        public ListUsersViewModelDesign()
-        {
-            List = new List<RemoteUser>() 
-            {
-                new RemoteUser()
-                {
-                    Username = "Lauri"
-                },
-                new RemoteUser()
-                {
-                    Username = "Jonathan"
-                }
-            };
-
-        }
-
-
-    }
 
 
 

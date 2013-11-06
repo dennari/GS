@@ -8,13 +8,12 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System.ComponentModel;
-using BindableApplicationBar;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class GardenPivotView : UserControl, IViewFor<GardenPivotViewModel>
+    public partial class GardenPivotView : UserControl, IViewFor<GardenViewModel>
     {
 
 
@@ -24,9 +23,9 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public GardenPivotViewModel ViewModel
+        public GardenViewModel ViewModel
         {
-            get { return (GardenPivotViewModel)GetValue(ViewModelProperty); }
+            get { return (GardenViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -41,7 +40,14 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(GardenPivotView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (GardenPivotViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (GardenViewModel)value; } }
+
+        private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var plantActionView = (PlantActionView)sender;
+            var plant = ViewModel.SelectedItem;
+            plant.ActionTapped.Execute(plantActionView.ViewModel);
+        }
 
 
 
