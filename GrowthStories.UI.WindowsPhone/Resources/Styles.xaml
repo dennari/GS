@@ -254,7 +254,7 @@
 							Visibility="{TemplateBinding ContentVisibility}" 
 							HorizontalAlignment="Stretch"/>
 						<StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
-							<StackPanel Orientation="Vertical">
+							<StackPanel Orientation="Vertical" Width="110">
 								<TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
 								<TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
 								<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
@@ -275,15 +275,15 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
-                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" Visibility="{TemplateBinding Visibility}">
-                            <StackPanel Orientation="Vertical">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
+                        <StackPanel Orientation="Vertical" Width="110">
                                 <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
                                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                                 <!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
                             </StackPanel>
                             <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                <TextBlock Text="Next watering" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                                <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}"/>
                             </StackPanel>
                     </StackPanel>
                 </ControlTemplate>
@@ -296,15 +296,15 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
-                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" Visibility="{TemplateBinding Visibility}">
-                        <StackPanel Orientation="Vertical">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
+                        <StackPanel Orientation="Vertical" Width="110">
                             <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
                             <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                             <!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
                         </StackPanel>
                         <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <TextBlock Text="Next nourishment" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                            <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                 </ControlTemplate>
@@ -312,8 +312,28 @@
         </Setter>
     </Style>
 
+    <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,24" Canvas.ZIndex="1">
 
-
+                        <StackPanel Orientation="Vertical" Width="110">
+                            <TextBlock Text="{Binding TodayWeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                            <TextBlock Text="{Binding TodayDate}" Style="{StaticResource GSActionListDateStyle}"/>
+                            <!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
+                        </StackPanel>
+                        <Image Source="{Binding TodayIcon}" Width="45" Margin="24,0"  />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock Text="TODAY" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                            <!--<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>-->
+                        </StackPanel>
+                    
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style TargetType="toolkit:ListPicker" x:Key="GSListPickerStyle">
 

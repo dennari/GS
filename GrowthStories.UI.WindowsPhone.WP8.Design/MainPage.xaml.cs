@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -16,9 +18,36 @@ namespace Growthstories.UI.WindowsPhone
         public MainPage()
         {
             InitializeComponent();
-            var a = this.Test;
-            // Sample code to localize the ApplicationBar
-            //BuildLocalizedApplicationBar();
+
+        }
+
+
+        public static readonly DependencyProperty ViewModelProperty =
+         DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(MainPage), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+
+        public IRoutableViewModel ViewModel
+        {
+            get
+            {
+                return (IRoutableViewModel)GetValue(ViewModelProperty);
+            }
+            set
+            {
+                SetValue(ViewModelProperty, value);
+            }
+        }
+
+        //object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IPlantViewModel)value; } }
+
+        protected override void OnOrientationChanged(OrientationChangedEventArgs e)
+        {
+            base.OnOrientationChanged(e);
+            //var cvm = ViewModel.Router.GetCurrentViewModel() as Growthstories.UI.ViewModel.IControlsPageOrientation;
+            //if (cvm != null)
+            //{
+            // ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
+            //}
+
         }
 
         // Sample code for building a localized ApplicationBar

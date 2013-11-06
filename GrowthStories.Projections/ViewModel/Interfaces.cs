@@ -162,7 +162,6 @@ namespace Growthstories.UI.ViewModel
         string TodayWeekDay { get; }
         string TodayDate { get; }
 
-        IEnumerable<ISeries> Series { get; }
 
     }
 
@@ -173,6 +172,7 @@ namespace Growthstories.UI.ViewModel
         Tuple<double, double> YRange { get; }
         double[] XValues { get; }
         double[] YValues { get; }
+        Tuple<double, double>[] Values { get; }
     }
 
 
@@ -187,6 +187,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
     {
+        IDictionary<MeasurementType, ISeries> Series { get; }
 
     }
 

@@ -134,7 +134,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters.cs" />
+    <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
+    <Compile Include="Views\PlantView.xaml.cs">
+      <DependentUpon>PlantView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FriendsPivotView.xaml.cs">
       <DependentUpon>FriendsPivotView.xaml</DependentUpon>
     </Compile>
@@ -155,7 +159,7 @@
     </Compile>
     <Compile Include="TemplateSelector.cs" />
     <Compile Include="TestUrl.cs" />
-    <Compile Include="ViewExtensions.cs" />
+    <Compile Include="ViewHelpers.cs" />
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\ClientAddPlantViewModel..cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
@@ -222,6 +226,10 @@
     </Page>
     <Page Include="Views\AddPlantView.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\PlantView.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FriendsPivotView.xaml">

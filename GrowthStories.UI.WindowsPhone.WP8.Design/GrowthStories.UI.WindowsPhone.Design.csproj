@@ -138,6 +138,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\ViewHelpers.cs">
+      <Link>ViewHelpers.cs</Link>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\FriendsPivotView.xaml.cs">
       <Link>Views\FriendsPivotView.xaml.cs</Link>
       <DependentUpon>FriendsPivotView.xaml</DependentUpon>
@@ -161,6 +164,10 @@
       <Link>Views\PlantPhotoPivotView.xaml.cs</Link>
       <DependentUpon>PlantPhotoPivotView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml.cs">
+      <Link>Views\PlantView.xaml.cs</Link>
+      <DependentUpon>PlantView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml.cs">
       <Link>Views\YAxisShitView.xaml.cs</Link>
       <DependentUpon>YAxisShitView.xaml</DependentUpon>
@@ -172,6 +179,11 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml">
+      <Link>Views\PlantView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml">
       <Link>Views\YAxisShitView.xaml</Link>
       <Generator>MSBuild:Compile</Generator>
@@ -182,6 +194,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Compile Include="TemplateSelector.cs" />
+    <Compile Include="ViewModels\YAxisShitViewModel.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\PlantActions.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
@@ -375,6 +388,9 @@
     <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="BindableApplicationBar">
+      <HintPath>..\packages\BindableApplicationBar.1.0.0\lib\sl4-windowsphone71\BindableApplicationBar.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Phone.Controls.Toolkit">
       <HintPath>..\packages\WPtoolkit.4.2013.08.16\lib\wp8\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
     </Reference>
@@ -423,6 +439,10 @@
     <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
       <Project>{D721924B-891E-4375-A6A6-EA28E4EDB846}</Project>
       <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
+      <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
+      <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{DFDB229B-9C77-4E89-A602-6CBAEE83315F}</Project>

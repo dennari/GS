@@ -1,57 +1,77 @@
 ﻿<UserControl
-    x:Class="Growthstories.UI.WindowsPhone.PlantView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:ec="clr-namespace:Microsoft.Expression.Interactivity.Core;assembly=Microsoft.Expression.Interactions"
-    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
-    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    d:DataContext="{StaticResource PlantViewModelDesign}"
-    mc:Ignorable="d" VerticalAlignment="Stretch">
+	x:Class="Growthstories.UI.WindowsPhone.PlantView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	d:DataContext="{StaticResource PlantViewModelDesign}"	
+    mc:Ignorable="d">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="ActionSelectingTemplate">
-            <local:ActionTemplateSelector
-                Content="{Binding}"
-                HorizontalContentAlignment="Stretch" />
-        </DataTemplate>
 
-    </UserControl.Resources>
-
-    <!--LayoutRoot is the root grid where all page content is placed-->
-        <Grid x:Name="LayoutRoot">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
-            </Grid.Background>
-
-            <!--TitlePanel contains the name of the application and page title-->
-            <StackPanel Grid.Row="0" Margin="12,17,12,28">
-                <TextBlock Text="GROWTH STORIES" Style="{StaticResource PhoneTextNormalStyle}" x:Name="apptitle"/>
-                <TextBlock 
-                Text="{Binding Name}" 
-                Margin="9,-7,0,0" 
-                Style="{StaticResource PhoneTextTitle1Style}" 
-                />
-      
+    <phone:LongListSelector 
+        x:Name="TimeLine" 
+        ItemsSource="{Binding Actions}" 
+        Grid.Row="1"
+        ListHeader="{Binding}"
+        >                          
+                            
+        <phone:LongListSelector.ListHeaderTemplate>
+            <DataTemplate>
+            <StackPanel>
+                <local:PlantActionView
+                    Visibility="{Binding NextNourishing, Converter={StaticResource NullToVisibility}}"
+                    ViewModel="{Binding NextNourishing}"
+                    Style="{StaticResource PlantNextFertilizingStyle}"/>
+                <local:PlantActionView
+                    Visibility="{Binding NextWatering, Converter={StaticResource NullToVisibility}}"
+                    ViewModel="{Binding NextWatering}"
+                    Style="{StaticResource PlantNextWateringStyle}"/>
+                <Canvas Height="54" Margin="0,0,0,24" >
+                    <Line X1="0" X2="7" Y1="27" Y2="27" 
+                        Canvas.ZIndex="0"
+                        StrokeThickness="3">                     
+                        <Line.Stroke>
+                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                        </Line.Stroke>
+                    </Line>
+                    <Line X1="120" X2="200" Y1="27" Y2="27" 
+                    Canvas.ZIndex="0"
+                    StrokeThickness="3">
+                        <Line.Stroke>
+                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                        </Line.Stroke>
+                    </Line>
+                    <Line X1="265" X2="456" Y1="27" Y2="27" 
+                    Canvas.ZIndex="0"
+                    StrokeThickness="3">
+                        <Line.Stroke>
+                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                        </Line.Stroke>
+                    </Line>
+                        <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
+                 </Canvas>
             </StackPanel>
+        </DataTemplate>
+        </phone:LongListSelector.ListHeaderTemplate>
+        <phone:LongListSelector.ItemTemplate>
+            <DataTemplate>
+                <local:PlantActionView 
+                    ViewModel="{Binding}"
+                    Style="{StaticResource PlantTimelineActionStyle}"
+                    Tap="PlantActionView_Tap"/>
+            </DataTemplate>
+        </phone:LongListSelector.ItemTemplate>
+                        
+                        
+                        
+    </phone:LongListSelector>
+               
 
 
-
-            <!--ContentPanel - place additional content here-->
-            <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-                    <phone:LongListSelector x:Name="TimeLine"
-            			    ItemsSource="{Binding Actions}" 
-            			    ItemTemplate="{StaticResource ActionSelectingTemplate}"
-            			    Style="{StaticResource GSActionListStyle}"
-                        />
-            </Grid>
-    </Grid>
 </UserControl>

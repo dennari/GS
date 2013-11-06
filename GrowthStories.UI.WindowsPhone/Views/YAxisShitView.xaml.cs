@@ -13,20 +13,36 @@ using Growthstories.UI.WindowsPhone;
 using ReactiveUI;
 using Telerik.Windows.Controls;
 using Telerik.Charting;
+using System.Windows.Data;
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Linq;
+using Growthstories.Sync;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class YAxisShitView : UserControl, IViewFor<IPlantViewModel>
+
+
+    public partial class YAxisShitView : UserControl, IViewFor<IYAxisShitViewModel>, IReactsToViewModelChange
     {
         public YAxisShitView()
         {
             InitializeComponent();
-            this.ViewModel = new PlantViewModel();
+            this.SetBinding(ViewModelProperty, new Binding());
+            //var lSeries = (LineSeries)GSChart.Series[0];
+            //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
+            //this.TestText.Text = "Constructor";
+
+            //if (DesignerProperties.IsInDesignTool)
+            //{
+            //this.ViewModel = new YAxisShitViewModel();
+            //this.RenderChart(this.ViewModel.Series);
+            //}
         }
 
-        public IPlantViewModel ViewModel
+        public IYAxisShitViewModel ViewModel
         {
-            get { return (IPlantViewModel)GetValue(ViewModelProperty); }
+            get { return (IYAxisShitViewModel)GetValue(ViewModelProperty); }
             set
             {
                 if (value != null)
@@ -37,53 +53,63 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(YAxisShitView), new PropertyMetadata(null, ViewModelValueChanged));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(YAxisShitView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IPlantViewModel)value; } }
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IYAxisShitViewModel)value; } }
 
-
-        static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        public void ViewModelChanged(object vm)
         {
-            try
+            var pvm = vm as YAxisShitViewModel;
+            if (pvm != null)
             {
-                var view = (YAxisShitView)sender;
-                view.SetDataContext((IPlantViewModel)e.NewValue);
-
+                //pvm.ToggleTelerikSeries.OfType<LineSeries>().ObserveOn(RxApp.MainThreadScheduler).Subscribe(x => Toggle(x));
+                //RenderChart(pvm.TelerikSeries);
             }
-            catch { }
+            //this.RenderChart(pvm.TelerikSeries);
         }
 
-        private void SetDataContext(IPlantViewModel vm)
+        private void Toggle(LineSeries x)
         {
-            this.DataContext = vm;
-            this.RenderChart(vm.Series);
+
+            if (GSChart.Series.Contains(x))
+                GSChart.Series.Remove(x);
+            else
+                GSChart.Series.Add(x);
+
+
         }
 
-        private void RenderChart(IEnumerable<ISeries> dSeries)
+
+        private void RenderChart(IReadOnlyList<LineSeries> dSeries)
         {
             var chart = this.GSChart;
 
+            //var lSeries = (LineSeries)chart.Series[0];
+            //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
+            //this.TestText.Text = "RenderChart";
             foreach (var s in dSeries)
             {
-                var series = new LineSeries()
-                {
-                    Stroke = new SolidColorBrush(Colors.Orange),
-                    StrokeThickness = 2
-                };
+                //var series = new LineSeries()
+                //{
+                //    Stroke = new SolidColorBrush(Colors.Orange),
+                //    StrokeThickness = 4
+                //};
 
-                for (var i = 0; i < s.XValues.Length; i++)
-                    series.DataPoints.Add(new CategoricalDataPoint()
-                    {
-                        Value = s.YValues[i],
-                        Category = s.XValues[i]
-                    });
+                //for (var i = 0; i < s.XValues.Length; i++)
+                //    series.DataPoints.Add(new CategoricalDataPoint()
+                //    {
+                //        Value = s.YValues[i],
+                //        Category = s.XValues[i]
+                //    });
 
-                var yx = chart.VerticalAxis as LinearAxis;
+                //var yx = chart.VerticalAxis as LinearAxis;
                 //yx.Min
-                chart.Series.Add(series);
+                chart.Series.Add(s);
             }
         }
+
+
 
     }
 }

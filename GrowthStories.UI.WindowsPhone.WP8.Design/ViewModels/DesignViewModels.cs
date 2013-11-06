@@ -15,7 +15,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public abstract class DesignViewModelBase : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
+    public abstract class DesignViewModelBase : ReactiveObject, IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
     {
 
         public string PageTitle
@@ -28,41 +28,41 @@ namespace Growthstories.UI.ViewModel
             get { return null; }
         }
 
-        public IObservable<IObservedChange<object, object>> Changing
+        //public IObservable<IObservedChange<object, object>> Changing
+        //{
+        //    get { return null; }
+        //}
+
+        //public IObservable<IObservedChange<object, object>> Changed
+        //{
+        //    get { return null; }
+        //}
+
+        //public IDisposable SuppressChangeNotifications()
+        //{
+        //    return null;
+        //}
+
+        //public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        //public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+        public virtual IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
-            get { return null; }
-        }
-
-        public IObservable<IObservedChange<object, object>> Changed
-        {
-            get { return null; }
-        }
-
-        public IDisposable SuppressChangeNotifications()
-        {
-            return null;
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
-
-        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
-        {
-            get { return new MockReactiveList<IButtonViewModel>() { }; }
+            get { return new ReactiveList<IButtonViewModel>() { }; }
         }
 
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
-            get { return new MockReactiveList<IMenuItemViewModel>() { }; }
+            get { return new ReactiveList<IMenuItemViewModel>() { }; }
         }
 
-        public ApplicationBarMode AppBarMode
+        public virtual ApplicationBarMode AppBarMode
         {
             get { return ApplicationBarMode.DEFAULT; }
         }
 
-        public bool AppBarIsVisible
+        public virtual bool AppBarIsVisible
         {
             get { return true; }
         }
@@ -86,17 +86,24 @@ namespace Growthstories.UI.ViewModel
         {
             get { return "Title"; }
         }
+
+        public string UrlPathSegment
+        {
+            get { return "sdfs"; }
+        }
+
+        public IScreen HostScreen
+        {
+            get { return null; }
+        }
+
+        //event PropertyChangingEventHandler INotifyPropertyChanging.PropertyChanging
+        //{
+        //    add { throw new NotImplementedException(); }
+        //    remove { throw new NotImplementedException(); }
+        //}
     }
 
-    public sealed class Series : ISeries
-    {
-
-        public Tuple<double, double> XRange { get; set; }
-        public Tuple<double, double> YRange { get; set; }
-        public double[] XValues { get; set; }
-        public double[] YValues { get; set; }
-
-    }
 
     public class PlantViewModel : DesignViewModelBase, IPlantViewModel
     {
@@ -108,7 +115,6 @@ namespace Growthstories.UI.ViewModel
 
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; set; }
 
-        public double[] Data { get; set; }
 
 
         public PlantViewModel()
@@ -143,27 +149,7 @@ namespace Growthstories.UI.ViewModel
             TodayWeekDay = now.ToString("dddd");
             TodayDate = now.ToString("d");
 
-            int num = 200;
 
-            var s = new Series()
-            {
-                YValues = new double[num],
-                XValues = new double[num],
-                XRange = Tuple.Create((double)0, 6 * Math.PI),
-                YRange = Tuple.Create((double)0, (double)1)
-            };
-
-            double step = (s.XRange.Item2 - s.XRange.Item1) / num;
-            double x = s.XRange.Item1;
-            //s.XValues[0] = x;
-            for (var i = 0; i < num; i++)
-            {
-                s.YValues[i] = Math.Sin(x);
-                s.XValues[i] = x;
-                x += step;
-            }
-
-            this.Series = new[] { s };
 
         }
 
@@ -236,8 +222,9 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IEnumerable<ISeries> Series { get; set; }
     }
+
+
 
 
     public class ScheduleViewModel : DesignViewModelBase, IScheduleViewModel
@@ -402,4 +389,106 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
+
+
+    public class ButtonViewModel : MenuItemViewModel, IButtonViewModel
+    {
+        public ButtonViewModel()
+        {
+
+        }
+
+
+        #region IconUri
+        private Uri uri;
+
+        /// <summary>
+        /// Gets or sets the icon URI.
+        /// </summary>
+        /// <value>
+        /// The icon URI.
+        /// </value>
+        public Uri IconUri
+        {
+            get { return this.uri; }
+            set { this.uri = value; }
+        }
+        #endregion
+    }
+
+
+
+
+    public class MenuItemViewModel : IMenuItemViewModel
+    {
+
+        public MenuItemViewModel()
+        {
+
+        }
+
+        #region Command
+        private IReactiveCommand command;
+
+        /// <summary>
+        /// Gets or sets the command.
+        /// </summary>
+        /// <value>
+        /// The command.
+        /// </value>
+        public IReactiveCommand Command
+        {
+            get { return this.command; }
+            set { this.command = value; }
+        }
+        #endregion
+
+        #region CommandParameter
+        private object commandParameter;
+
+        /// <summary>
+        /// Gets or sets the command's parameter.
+        /// </summary>
+        /// <value>
+        /// The command's parameter.
+        /// </value>
+        public object CommandParameter
+        {
+            get { return this.commandParameter; }
+            set { this.commandParameter = value; }
+        }
+        #endregion
+
+        #region Text
+        private string text;
+
+        /// <summary>
+        /// Gets or sets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        public string Text
+        {
+            get { return this.text; }
+            set { this.text = value; }
+        }
+        #endregion
+
+        #region IsEnabled
+        private bool _IsEnabled = true;
+
+        /// <summary>
+        /// Gets or sets the text.
+        /// </summary>
+        /// <value>
+        /// The text.
+        /// </value>
+        public bool IsEnabled
+        {
+            get { return this._IsEnabled; }
+            set { this.IsEnabled = value; }
+        }
+        #endregion
+    }
 }

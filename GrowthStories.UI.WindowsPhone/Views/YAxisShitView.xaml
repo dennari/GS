@@ -11,55 +11,93 @@
     xmlns:chart="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Chart"
     xmlns:Charting="clr-namespace:Telerik.Charting;assembly=Telerik.Windows.Controls.Chart"
     x:Class="Growthstories.UI.WindowsPhone.YAxisShitView"
-    d:DataContext="{StaticResource PlantViewModelDesign}"
+    d:DataContext="{StaticResource YAxisShitViewModelDesign}"
     mc:Ignorable="d" Width="800" Height="480">
 
-    
+
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot">
-        <chart:RadCartesianChart Width="750"
-			Height="450"
-			x:Name="GSChart">
-            
-            <!--<chart:RadCartesianChart.Grid>
-                <chart:CartesianChartGrid MajorXLineDashArray="5, 5" MajorYLineDashArray="5, 5" MajorLinesVisibility="XY">
-                    <chart:CartesianChartGrid.MajorYLineStyle>
-                        <Style TargetType="Line">
-                            <Setter Property="Stroke" Value="Gray"/>
-                        </Style>
-                    </chart:CartesianChartGrid.MajorYLineStyle>
-                    <chart:CartesianChartGrid.MajorXLineStyle>
-                        <Style TargetType="Line">
-                            <Setter Property="Stroke" Value="Gray"/>
-                        </Style>
-                    </chart:CartesianChartGrid.MajorXLineStyle>
-                </chart:CartesianChartGrid>
-            </chart:RadCartesianChart.Grid>-->
-            
-            <chart:RadCartesianChart.HorizontalAxis>
-                <chart:CategoricalAxis 
-                    LineStroke="{StaticResource PhoneDisabledBrush}" 
-                    LineThickness="2"
-                    x:Name="XAxis"
-                    MajorTickInterval="20"
-                   
-                    />
-            </chart:RadCartesianChart.HorizontalAxis>
+        <Grid.Background>
+            <RadialGradientBrush Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
+                <GradientStop Color="#FF9E2277" Offset="1"/>
+                <GradientStop Color="#FFE8570E"/>
+            </RadialGradientBrush>
+        </Grid.Background>
+        <StackPanel>
+            <!--<TextBlock x:Name="TestText" 
+                       FontSize="72" 
+                       Foreground="{StaticResource PhoneTextBoxBrush}"
+                       Text="dfgd"/>-->
+            <chart:RadCartesianChart 
+                Width="750"
+			    Height="450"
+			    x:Name="GSChart"      
+                >
 
-            <chart:RadCartesianChart.VerticalAxis>
-                <chart:LinearAxis 
-                    LineStroke="{StaticResource PhoneDisabledBrush}" 
-                    LineThickness="2"
-                    x:Name="YAxis"
-                    />
-            </chart:RadCartesianChart.VerticalAxis>
+                <!--<chart:RadCartesianChart.Grid>
+                    <chart:CartesianChartGrid MajorXLineDashArray="5, 5" MajorYLineDashArray="5, 5" MajorLinesVisibility="XY">
+                        <chart:CartesianChartGrid.MajorYLineStyle>
+                            <Style TargetType="Line">
+                                <Setter Property="Stroke" Value="Gray"/>
+                            </Style>
+                        </chart:CartesianChartGrid.MajorYLineStyle>
+                        <chart:CartesianChartGrid.MajorXLineStyle>
+                            <Style TargetType="Line">
+                                <Setter Property="Stroke" Value="Gray"/>
+                            </Style>
+                        </chart:CartesianChartGrid.MajorXLineStyle>
+                    </chart:CartesianChartGrid>
+                </chart:RadCartesianChart.Grid>-->
 
-            <chart:LineSeries
-                Stroke="Orange"
-                StrokeThickness="4"
-                ItemsSource="{Binding Series[0].YValues}"/>
+                <chart:RadCartesianChart.HorizontalAxis>
+                    <chart:CategoricalAxis 
+                        LineStroke="{StaticResource PhoneDisabledBrush}" 
+                        LineThickness="2"
+                        MajorTickInterval="20"                   
+                        >
+                        <chart:CategoricalAxis.LabelTemplate>
+                            <DataTemplate>
+                                
+                            </DataTemplate>
+                        </chart:CategoricalAxis.LabelTemplate>
+                        <chart:CategoricalAxis.MajorTickTemplate>
+                            <DataTemplate>
 
-        </chart:RadCartesianChart>
+                            </DataTemplate>
+                        </chart:CategoricalAxis.MajorTickTemplate>
+                    </chart:CategoricalAxis>
+                    
+                </chart:RadCartesianChart.HorizontalAxis>
+
+                <chart:RadCartesianChart.VerticalAxis>
+                    <chart:LinearAxis 
+                        LineStroke="{StaticResource PhoneDisabledBrush}" 
+                        LineThickness="2"
+                        >
+                        <chart:LinearAxis.LabelTemplate>
+                            <DataTemplate>
+
+                            </DataTemplate>
+                        </chart:LinearAxis.LabelTemplate>
+                        <chart:LinearAxis.MajorTickTemplate>
+                            <DataTemplate>
+
+                            </DataTemplate>
+                        </chart:LinearAxis.MajorTickTemplate>
+                    </chart:LinearAxis>
+                </chart:RadCartesianChart.VerticalAxis>
+
+                <!--<chart:LineSeries
+                    Stroke="Orange"
+                    StrokeThickness="4"
+                    ItemsSource="{Binding Series[0].YValues}" />
+
+                <chart:LineSeries
+                    Stroke="Magenta"
+                    StrokeThickness="4"
+                    ItemsSource="{Binding Series[0].XValues}"/>-->
+            </chart:RadCartesianChart>
+        </StackPanel>
     </Grid>
 </UserControl>

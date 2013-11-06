@@ -11,26 +11,40 @@ using System.ComponentModel;
 using BindableApplicationBar;
 using ReactiveUI;
 using System.Reactive.Disposables;
-//using Growthstories.UI.WindowsPhone.ViewModels;
+using System.Windows.Data;
 using Growthstories.UI.ViewModel;
-//using Growthstories.UI.ViewModel;
-//using Growthstories.UI.ViewModel;
+using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class MainWindow : PhoneApplicationPage, IViewFor<Growthstories.UI.WindowsPhone.ViewModels.AppViewModel>
+    public partial class MainWindow : PhoneApplicationPage, IViewFor<AppViewModel>, IReactsToViewModelChange
     {
 
 
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = this.ViewModel;
-
-            //this.ViewModel.Router.Navigate.Execute(RxApp.DependencyResolver.GetService<IMainViewModel>())
-
-
+            this.SetBinding(ViewModelProperty, new Binding());
+            this.ViewModel = new AppViewModel();
         }
+
+        public static readonly DependencyProperty ViewModelProperty =
+           DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+
+        public AppViewModel ViewModel
+        {
+            get
+            {
+                return (AppViewModel)GetValue(ViewModelProperty);
+            }
+            set
+            {
+                SetValue(ViewModelProperty, value);
+            }
+        }
+
+        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AppViewModel)value; } }
 
 
         /// <summary>
@@ -95,60 +109,9 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        //protected override void OnNavigatedTo(NavigationEventArgs e)
-        //{
-        //    base.OnNavigatedTo(e);
-        //    if (this.DataContext != null)
-        //    {
-        //        var vm = this.DataContext as MainViewModel;
-        //        if (vm != null)
-        //        {
-        //            vm.OnNavigatedTo();
-        //        }
 
-        //    }
 
-        //}
 
-        ///// <summary>
-        ///// Defers back treatment to active pivot function
-        ///// </summary>
-        ///// <param name="e"></param>
-        //protected override void OnBackKeyPress(CancelEventArgs e)
-        //{
-        //    if (this.DataContext != null)
-        //    {
-        //        var vm = this.DataContext as MainViewModel;
-        //        if (vm != null)
-        //        {
-        //            vm.OnBackKeyPress(e);
-        //        }
 
-        //    }
-        //}
-
-        protected Growthstories.UI.WindowsPhone.ViewModels.AppViewModel _ViewModel;
-        public Growthstories.UI.WindowsPhone.ViewModels.AppViewModel ViewModel
-        {
-            get { return _ViewModel ?? (_ViewModel = new Growthstories.UI.WindowsPhone.ViewModels.AppViewModel()); }
-            set { SetValue(ViewModelProperty, value); }
-        }
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null));
-
-        object IViewFor.ViewModel
-        {
-            get { return ViewModel; }
-            set
-            {
-
-                var vm = (Growthstories.UI.WindowsPhone.ViewModels.AppViewModel)value;
-                if (vm != null)
-                {
-                    this.ViewModel = vm;
-                    this.DataContext = vm;
-                }
-            }
-        }
     }
 }

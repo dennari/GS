@@ -213,6 +213,11 @@ namespace Growthstories.UI.ViewModel
             };
         }
 
+        public static IDictionary<MeasurementType, MeasurementTypeViewModel> GetAllDict()
+        {
+            return GetAll().ToDictionary(x => x.Type);
+        }
+
     }
 
 

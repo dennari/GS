@@ -11,6 +11,7 @@
     mc:Ignorable="d">
 
     <vm:PlantViewModel x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <vm:YAxisShitViewModel x:Key="YAxisShitViewModelDesign" d:IsDataSource="True" />
     <!--<vm:PlantPivotViewModel x:Key="PlantPivotViewModelDesign" d:IsDataSource="True" />-->
     <vm:GardenViewModel x:Key="GardenViewModelDesign" d:IsDataSource="True" />
     <vm:SearchUsersViewModel x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />
