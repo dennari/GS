@@ -45,7 +45,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
             if (state != null)
-                photoStream.StartWith(state.Photo.Value);
+                photoStream.StartWith(state.Photo);
 
             photoStream.Subscribe(x => Photo.SetSource(x));
         }

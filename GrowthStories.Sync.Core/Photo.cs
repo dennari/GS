@@ -23,7 +23,7 @@ namespace Growthstories.Sync
         string Uri { get; }
     }
 
-    public struct Photo : IPhoto
+    public sealed class Photo : IPhoto
     {
 
         [JsonProperty]
@@ -76,13 +76,24 @@ namespace Growthstories.Sync
 
             }
         }
-        public static bool operator ==(Photo size1, Photo size2)
+        public static bool operator ==(Photo a, Photo b)
         {
-            return size1.Equals(size2);
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)a == null) || ((object)b == null))
+            {
+                return false;
+            }
+            return a.Equals(b);
         }
-        public static bool operator !=(Photo size1, Photo size2)
+        public static bool operator !=(Photo a, Photo b)
         {
-            return !size1.Equals(size2);
+            return !(a == b);
         }
 
         public override string ToString()

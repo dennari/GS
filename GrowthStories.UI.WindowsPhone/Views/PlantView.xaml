@@ -24,13 +24,13 @@
         <phone:LongListSelector.ListHeaderTemplate>
             <DataTemplate>
             <StackPanel>
-                <local:PlantActionView
-                    Visibility="{Binding NextNourishing, Converter={StaticResource NullToVisibility}}"
-                    ViewModel="{Binding NextNourishing}"
-                    Style="{StaticResource PlantNextFertilizingStyle}"/>
-                <local:PlantActionView
-                    Visibility="{Binding NextWatering, Converter={StaticResource NullToVisibility}}"
-                    ViewModel="{Binding NextWatering}"
+                <ContentControl 
+                    Visibility="{Binding WateringSchedule, Converter={StaticResource NullToVisibility}}"
+                    DataContext="{Binding WateringScheduler}"
+                    Style="{StaticResource PlantNextFertilizingStyle}"/>                
+                <ContentControl
+                    Visibility="{Binding WateringSchedule, Converter={StaticResource NullToVisibility}}"
+                    DataContext="{Binding WateringScheduler}"
                     Style="{StaticResource PlantNextWateringStyle}"/>
                 <Canvas Height="54" Margin="0,0,0,24" >
                     <Line X1="0" X2="7" Y1="27" Y2="27" 

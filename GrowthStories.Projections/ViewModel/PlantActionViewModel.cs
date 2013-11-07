@@ -411,7 +411,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.PhotoData = state.Photo.Value;
+                this.PhotoData = state.Photo;
             }
         }
 
@@ -425,7 +425,7 @@ namespace Growthstories.UI.ViewModel
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
-            this.PhotoData = prop.Photo.Value;
+            this.PhotoData = prop.Photo;
         }
 
 

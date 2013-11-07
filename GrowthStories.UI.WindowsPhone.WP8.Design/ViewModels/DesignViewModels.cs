@@ -13,7 +13,13 @@ using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.ViewModel
 {
+    public static class Helpers
+    {
 
+        public static Random RandomGen = new Random();
+
+
+    }
 
     public abstract class DesignViewModelBase : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
     {
@@ -127,17 +133,19 @@ namespace Growthstories.UI.ViewModel
                 new PlantMeasureViewModel(DateTimeOffset.Now - new TimeSpan(1,0,0,0)),
                 new PlantPhotoViewModel(null, DateTimeOffset.Now),                
                 new PlantWaterViewModel(DateTimeOffset.Now - new TimeSpan(2,0,0,0)),                
-                new PlantPhotoViewModel(null,DateTimeOffset.Now - new TimeSpan(3,0,0,0)),
+                new PlantPhotoViewModel(@"/TestData/flowers-from-the-conservatory.jpg",DateTimeOffset.Now - new TimeSpan(3,0,0,0)),
                 new PlantFertilizeViewModel(DateTimeOffset.Now - new TimeSpan(4,0,0,0)),
                 new PlantCommentViewModel(DateTimeOffset.Now - new TimeSpan(5,0,0,0))
             };
 
-            this.Photo = new Photo()
-            {
-                LocalFullPath = @"/TestData/517e100d782a828894.jpg",
-                LocalUri = @"/TestData/517e100d782a828894.jpg"
-            };
+            //this.Photo = new Photo()
+            //{
+            //    LocalFullPath = @"/TestData/517e100d782a828894.jpg",
+            //    LocalUri = @"/TestData/517e100d782a828894.jpg"
+            //};
 
+            var photos = this.Actions.OfType<PlantPhotoViewModel>().Select(x => x.PhotoData).ToArray();
+            this.Photo = photos[Helpers.RandomGen.Next(0, photos.Length)];
 
             this.WateringSchedule = new ScheduleViewModel(ScheduleType.WATERING, 24 * 4 * 3600);
             this.FertilizingSchedule = new ScheduleViewModel(ScheduleType.FERTILIZING, 24 * 60 * 3600);
@@ -149,6 +157,10 @@ namespace Growthstories.UI.ViewModel
             TodayWeekDay = now.ToString("dddd");
             TodayDate = now.ToString("d");
 
+
+            var numMissed = Helpers.RandomGen.Next(2);
+            if (numMissed > 0)
+                this.NumMissed = numMissed;
 
 
         }
@@ -163,6 +175,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        public int? NumMissed { get; private set; }
 
         public Guid Id
         {
@@ -286,8 +299,8 @@ namespace Growthstories.UI.ViewModel
             Username = "Jaakko";
             Plants = new MockReactiveList<IPlantViewModel>()
                     {
-                        new PlantViewModel("Jare","Aloe Vera"),
-                        new PlantViewModel("Sepi","Aloe Vera"),
+                        new PlantViewModel("Pelargonia","Aloe Vera"),
+                        new PlantViewModel("Orkkideemus","Aloe Vera"),
                         new PlantViewModel("Tero","Aloe Vera")
 
                     };
@@ -309,6 +322,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+        public SupportedPageOrientation SupportedOrientations
+        {
+            get { return SupportedPageOrientation.PortraitOrLandscape; }
+        }
     }
 
 

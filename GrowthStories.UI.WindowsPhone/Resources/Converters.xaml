@@ -14,7 +14,7 @@
     <local:NullToVisibilityConverter x:Key="NullToVisibility"/>
     <local:PhotoToImageSourceConverter x:Key="PhotoToImageSource"/>
     <local:UriToImageSourceConverter x:Key="UriToImageSource"/>
-
+    <local:PlantToImageSourceConverter x:Key="PlantToImageSource"/>
     <local:AppBarModeConverter x:Key="AppBarModeToString"/>
     <local:PlantActionFilter x:Key="PlantActionFilter"/>
 </ResourceDictionary>

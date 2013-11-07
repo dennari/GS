@@ -15,7 +15,55 @@ using System.Linq;
 namespace Growthstories.UI.ViewModel
 {
 
+    public sealed class PlantScheduler
+    {
+        private IScheduleViewModel Schedule;
 
+        public PlantScheduler(IScheduleViewModel vm)
+        {
+            this.Schedule = vm;
+        }
+
+        public DateTimeOffset ComputeNext(DateTimeOffset last)
+        {
+            var ans = Schedule.ComputeNext(last);
+
+            var now = DateTimeOffset.UtcNow;
+
+            var passedSeconds = (long)(now - last).TotalSeconds;
+
+            var num = (int)(passedSeconds / Schedule.Interval);
+            if (num > 0)
+            {
+                this.Missed = num;
+                if (num == 1)
+                    this.MissedText = string.Format("Last {0} missed.", Schedule.Type == ScheduleType.WATERING ? "watering" : "nourishment");
+                else
+                    this.MissedText = string.Format("Last {0} {1} missed.", num, Schedule.Type == ScheduleType.WATERING ? "waterings" : "nourishments");
+
+            }
+            else
+            {
+                this.Missed = null;
+                this.MissedText = null;
+            }
+
+            this.WeekDay = ans.ToString("dddd");
+            this.Date = ans.ToString("d");
+            this.Time = ans.ToString("t");
+
+            return ans;
+        }
+
+
+        public int? Missed { get; private set; }
+        public string MissedText { get; private set; }
+
+        public string WeekDay { get; private set; }
+        public string Date { get; private set; }
+        public string Time { get; private set; }
+
+    }
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
@@ -73,6 +121,7 @@ namespace Growthstories.UI.ViewModel
             if (state == null)
                 throw new ArgumentNullException("PlantState has to be given in PlantViewModel");
             this.State = state;
+
 
 
 
@@ -140,19 +189,13 @@ namespace Growthstories.UI.ViewModel
             this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                 .ToProperty(this, x => x.Name, out this._Name, state.Name);
 
-            this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
-                .ToProperty(this, x => x.Photo, out this._ProfilepictureData, state.Profilepicture);
-
             this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
                .ToProperty(this, x => x.Species, out this._Species, state.Species);
 
+            this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
+                .Subscribe(x => this.Photo = x);
 
-
-            //this.App.WhenAny(x => x.Orientation, x => x.GetValue())
-            //    .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
-            //    .Where(x => x == true)
-            //    .Subscribe(_ => App.Router.Navigate.Execute(App.YAxisShitViewModelFactory(this)));
-
+            this.Photo = state.Profilepicture;
 
 
         }
@@ -170,24 +213,51 @@ namespace Growthstories.UI.ViewModel
                 })
                 .ToProperty(this, x => x.WateringSchedule, out this._WateringSchedule, wateringSchedule);
 
-            this.App.FutureSchedules(state.Id).Where(x => x.Type == ScheduleType.FERTILIZING)
+            this.App.FutureSchedules(state.Id)
+                .Where(x => x.Type == ScheduleType.FERTILIZING)
                 .ToProperty(this, x => x.FertilizingSchedule, out this._FertilizingSchedule, fertilizingSchedule);
 
 
-            this.WhenAny(x => x.WateringSchedule, x => x.GetValue()).Subscribe(x =>
+            this.WhenAny(x => x.WateringSchedule, x => x.GetValue())
+                .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.WATERED), (schedule, axion) => Tuple.Create(schedule, axion))
+                .DistinctUntilChanged()
+                .Subscribe(x =>
             {
-                var a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.WATERED);
+                if (x.Item1 == null)
+                    return;
+                IPlantActionViewModel a = x.Item2;
+                if (a == null)
+                    a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.WATERED);
                 if (a != null)
-                    this.NextWatering = new PlantWaterViewModel(x.ComputeNext(a.Created), App);
+                {
+                    if (this.WateringScheduler == null)
+                    {
+                        this.WateringScheduler = new PlantScheduler(x.Item1);
+                    }
+                    this.WateringScheduler.ComputeNext(a.Created);
+                }
+
             });
 
-            this.WhenAny(x => x.FertilizingSchedule, x => x.GetValue()).Subscribe(x =>
-            {
-                var a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.FERTILIZED);
-                if (a != null)
-                    this.NextNourishing = new PlantFertilizeViewModel(x.ComputeNext(a.Created), App);
-            });
-
+            this.WhenAny(x => x.FertilizingSchedule, x => x.GetValue())
+                .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.FERTILIZED), (schedule, axion) => Tuple.Create(schedule, axion))
+                .DistinctUntilChanged()
+                .Subscribe(x =>
+                {
+                    if (x.Item1 == null)
+                        return;
+                    IPlantActionViewModel a = x.Item2;
+                    if (a == null)
+                        a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.FERTILIZED);
+                    if (a != null)
+                    {
+                        if (this.FertilizingScheduler == null)
+                        {
+                            this.FertilizingScheduler = new PlantScheduler(x.Item1);
+                        }
+                        this.FertilizingScheduler.ComputeNext(a.Created);
+                    }
+                });
 
 
         }
@@ -210,35 +280,15 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        protected PlantScheduler _WateringScheduler;
+        public PlantScheduler WateringScheduler { get { return _WateringScheduler; } private set { this.RaiseAndSetIfChanged(ref _WateringScheduler, value); } }
 
-        IPlantWaterViewModel _NextWatering;
-        public IPlantWaterViewModel NextWatering
-        {
-            get
-            {
-                return _NextWatering;
-            }
-            private set
-            {
-                this.RaiseAndSetIfChanged(ref _NextWatering, value);
-            }
-        }
+        protected PlantScheduler _FertilizingScheduler;
+        public PlantScheduler FertilizingScheduler { get { return _FertilizingScheduler; } private set { this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value); } }
 
-        IPlantFertilizeViewModel _NextNourishing;
-        public IPlantFertilizeViewModel NextNourishing
-        {
-            get
-            {
-                return _NextNourishing;
-            }
-            private set
-            {
-                this.RaiseAndSetIfChanged(ref _NextNourishing, value);
-            }
-        }
 
-        public string TodayWeekDay { get; set; }
-        public string TodayDate { get; set; }
+        public string TodayWeekDay { get { return DateTimeOffset.Now.ToString("dddd"); } }
+        public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }
 
         protected ObservableAsPropertyHelper<string> _Name;
         public string Name
@@ -249,12 +299,16 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected ObservableAsPropertyHelper<Photo> _ProfilepictureData;
+        protected Photo _Photo;
         public Photo Photo
         {
             get
             {
-                return _ProfilepictureData.Value;
+                return _Photo;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Photo, value);
             }
         }
 
@@ -293,18 +347,28 @@ namespace Growthstories.UI.ViewModel
                         ScrollCommand.Execute(x);
                     });
 
-                    actionsPipe
-                        .OfType<IPlantWaterViewModel>()
-                        .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(x => ComputeNextWatering(x));
+                    //actionsPipe
+                    //    .OfType<IPlantWaterViewModel>()
+                    //    .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
+                    //    .ObserveOn(RxApp.MainThreadScheduler)
+                    //    .Subscribe(x => ComputeNextWatering(x));
 
-                    actionsPipe
-                        .OfType<IPlantFertilizeViewModel>()
-                        .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(x => ComputeNextFertilizing(x));
+                    //actionsPipe
+                    //    .OfType<IPlantFertilizeViewModel>()
+                    //    .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
+                    //    .ObserveOn(RxApp.MainThreadScheduler)
+                    //    .Subscribe(x => ComputeNextFertilizing(x));
 
+
+                    if (this.Photo == null)
+                    {
+                        actionsPipe
+                        .OfType<IPlantPhotographViewModel>()
+                        .Take(1)
+                        .Select(x => x.PhotoData)
+                        .Subscribe(x => App.Bus.SendCommand(new SetProfilepicture(Id, x)));
+
+                    }
 
                     //App.FuturePlantActions(this.State).Subscribe(x =>
                     //{
@@ -317,19 +381,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private void ComputeNextFertilizing(IPlantFertilizeViewModel a)
-        {
-            var x = this.WateringSchedule;
-            if (x != null)
-                this.NextWatering = new PlantWaterViewModel(x.ComputeNext(a.Created), App);
-        }
 
-        private void ComputeNextWatering(IPlantWaterViewModel a)
-        {
-            var x = this.FertilizingSchedule;
-            if (x != null)
-                this.NextNourishing = new PlantFertilizeViewModel(x.ComputeNext(a.Created), App);
-        }
 
         protected IRoutableViewModel _AddPlantViewModel;
         public IRoutableViewModel AddPlantViewModel
@@ -544,6 +596,7 @@ namespace Growthstories.UI.ViewModel
         {
             get { throw new NotImplementedException(); }
         }
+
     }
 
 }

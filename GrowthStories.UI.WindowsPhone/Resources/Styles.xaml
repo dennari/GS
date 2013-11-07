@@ -271,20 +271,25 @@
 		</Setter>
 	</Style>
 
-    <Style TargetType="local:PlantActionView" x:Key="PlantNextWateringStyle">
+    <Style TargetType="ContentControl" x:Key="PlantNextWateringStyle">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
-                        <StackPanel Orientation="Vertical" Width="110">
+                            
+                        <StackPanel Orientation="Vertical" Width="110" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}">
                                 <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
                                 <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                                 <!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
                             </StackPanel>
-                            <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                            </StackPanel>
+                        
+                        <TextBlock Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}, ConverterParameter=negate}"/>
+
+                        <Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
+
+                        <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}"/>
+                        <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}, ConverterParameter=negate}"/>
+
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
@@ -292,7 +297,7 @@
     </Style>
 
 
-    <Style TargetType="local:PlantActionView" x:Key="PlantNextFertilizingStyle">
+    <Style TargetType="ContentControl" x:Key="PlantNextFertilizingStyle">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">

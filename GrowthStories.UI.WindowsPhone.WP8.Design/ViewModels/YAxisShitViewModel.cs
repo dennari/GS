@@ -38,8 +38,8 @@ namespace Growthstories.UI.ViewModel
         protected IDictionary<MeasurementType, ISeries> _Series = new Dictionary<MeasurementType, ISeries>();
         public IDictionary<MeasurementType, ISeries> Series { get { return _Series; } }
 
-        protected IDictionary<MeasurementType, LineSeries> _TelerikSeries = new Dictionary<MeasurementType, LineSeries>();
-        public IDictionary<MeasurementType, LineSeries> TelerikSeries { get { return _TelerikSeries; } }
+        protected IDictionary<MeasurementType, object> _TelerikSeries = new Dictionary<MeasurementType, object>();
+        public IDictionary<MeasurementType, object> TelerikSeries { get { return _TelerikSeries; } }
 
 
         protected MockReactiveCommand _ToggleSeries = new MockReactiveCommand();

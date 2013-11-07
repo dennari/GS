@@ -47,7 +47,7 @@ namespace Growthstories.Domain.Entities
         public double? Value { get; private set; }
 
         [JsonProperty]
-        public Photo? Photo { get; private set; }
+        public Photo Photo { get; private set; }
 
         public PlantActionState()
             : base()

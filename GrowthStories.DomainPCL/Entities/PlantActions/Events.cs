@@ -46,7 +46,7 @@ namespace Growthstories.Domain.Messaging
         public double? Value { get; set; }
 
         [JsonProperty]
-        public Photo? Photo { get; set; }
+        public Photo Photo { get; set; }
 
         protected PlantActionCreated() { }
         //public PlantActionCreated(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
@@ -74,7 +74,7 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentNullException("PlantActionType has to be provided");
             }
-            if (cmd.Type == PlantActionType.PHOTOGRAPHED && !cmd.Photo.HasValue)
+            if (cmd.Type == PlantActionType.PHOTOGRAPHED && cmd.Photo == null)
             {
                 throw new ArgumentNullException("PhotoAction needs photo");
             }
@@ -123,7 +123,7 @@ namespace Growthstories.Domain.Messaging
             if (this.Type == PlantActionType.PHOTOGRAPHED)
             {
                 D.EventType = DTOType.addPhoto;
-                D.BlobKey = this.Photo.Value.BlobKey;
+                D.BlobKey = this.Photo.BlobKey;
             }
 
 
@@ -188,7 +188,7 @@ namespace Growthstories.Domain.Messaging
         public double? Value { get; set; }
 
         [JsonProperty]
-        public Photo? Photo { get; set; }
+        public Photo Photo { get; set; }
 
         protected PlantActionPropertySet() { }
         //public PlantActionPropertySet(Guid id, PlantActionType type)
@@ -206,7 +206,7 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentNullException("PlantActionType has to be provided");
             }
-            if (type == PlantActionType.PHOTOGRAPHED && !cmd.Photo.HasValue)
+            if (type == PlantActionType.PHOTOGRAPHED && cmd.Photo == null)
             {
                 throw new ArgumentNullException("PhotoAction needs photo");
             }

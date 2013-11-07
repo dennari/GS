@@ -204,5 +204,6 @@ namespace Growthstories.UI.ViewModel
         public IList<IntervalValue> ValueTypes { get; protected set; }
 
 
+
     }
 }

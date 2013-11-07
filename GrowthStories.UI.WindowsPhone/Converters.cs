@@ -18,6 +18,26 @@ using System.Windows.Media.Imaging;
 namespace Growthstories.UI.WindowsPhone
 {
 
+    public static class ConverterHelpers
+    {
+        public static BitmapImage ToBitmapImage(this Photo x)
+        {
+            var img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
+              {
+                  CreateOptions = BitmapCreateOptions.DelayCreation,
+                  DecodePixelType = DecodePixelType.Physical
+              };
+            if (x.Height != default(uint))
+                img.DecodePixelHeight = (int)x.Height;
+            if (x.Width != default(uint))
+                img.DecodePixelWidth = (int)x.Width;
+            img.ImageFailed += (s, e) =>
+            {
+                throw e.ErrorException;
+            };
+            return img;
+        }
+    }
 
     public class NullToVisibilityConverter : IValueConverter
     {
@@ -27,15 +47,15 @@ namespace Growthstories.UI.WindowsPhone
         {
 
 
-            return value == null ? Visibility.Collapsed : Visibility.Visible;
+            //return value == null ? Visibility.Collapsed : Visibility.Visible;
             //if (targetType != typeof(Visibility))
             //    throw new InvalidOperationException("Can only convert to Visibility");
 
-            //var v = value as string;
-            //if (parameter == null)
-            //    return string.IsNullOrWhiteSpace(v) ? Visibility.Visible : Visibility.Collapsed;
-            //else
-            //    return string.IsNullOrWhiteSpace(v) ? Visibility.Collapsed : Visibility.Visible;
+
+            if (parameter == null)
+                return value == null ? Visibility.Collapsed : Visibility.Visible;
+            else
+                return value != null ? Visibility.Collapsed : Visibility.Visible;
 
         }
 
@@ -82,17 +102,57 @@ namespace Growthstories.UI.WindowsPhone
             try
             {
                 Photo x = (Photo)value;
-                var img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
+                return x.ToBitmapImage();
+            }
+            catch (InvalidCastException)
+            {
+
+            }
+            catch (ArgumentNullException)
+            {
+
+            }
+
+            return null;
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+
+    }
+
+
+    public class PlantToImageSourceConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+                return null;
+
+            try
+            {
+                IPlantViewModel x = (IPlantViewModel)value;
+                if (x.Photo != null)
+                    return x.Photo.ToBitmapImage();
+
+
+                var defaultPhoto = new Photo()
                 {
-                    CreateOptions = BitmapCreateOptions.DelayCreation,
-                    DecodePixelType = DecodePixelType.Physical
+                    LocalUri = "/Assets/Tiles/IconImage_03.png",
+                    LocalFullPath = "/Assets/Tiles/IconImage_03.png",
+                    Width = 134,
+                    Height = 202
                 };
-                if (x.Height != default(uint))
-                    img.DecodePixelHeight = (int)x.Height;
-                if (x.Width != default(uint))
-                    img.DecodePixelWidth = (int)x.Width;
-                img.ImageFailed += img_ImageFailed;
-                return img;
+
+                return defaultPhoto.ToBitmapImage();
+
             }
             catch (InvalidCastException)
             {
@@ -125,7 +185,6 @@ namespace Growthstories.UI.WindowsPhone
         }
 
     }
-
 
 
 

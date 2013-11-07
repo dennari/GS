@@ -157,9 +157,6 @@ namespace Growthstories.UI.ViewModel
         IScheduleViewModel WateringSchedule { get; }
         IScheduleViewModel FertilizingSchedule { get; }
 
-        IPlantWaterViewModel NextWatering { get; }
-        IPlantFertilizeViewModel NextNourishing { get; }
-
         string TodayWeekDay { get; }
         string TodayDate { get; }
 

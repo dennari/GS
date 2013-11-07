@@ -49,8 +49,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());
 
             this.WhenAnyValue(x => x.Photo, x => x)
-                .Where(x => x.HasValue)
-                .Subscribe(x => Profilepicture.SetSource(x.Value));
+                .Where(x => x != null)
+                .Subscribe(x => Profilepicture.SetSource(x));
         }
 
 

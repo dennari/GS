@@ -81,7 +81,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo? pic, IList<string> tags)
+        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
         {
             int changes = 0;
             if (State.Species != species)
@@ -111,14 +111,14 @@ namespace Growthstories.UI.ViewModel
             return changes > 0;
         }
 
-        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo? pic, IList<string> tags)
+        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
         {
             int valid = 0;
             if (!string.IsNullOrWhiteSpace(name))
                 valid++;
             if (!string.IsNullOrWhiteSpace(species))
                 valid++;
-            if (pic.HasValue)
+            if (pic != null)
                 valid++;
             if (fert != default(Guid))
                 valid++;
@@ -242,8 +242,8 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected Photo? _Photo;
-        public Photo? Photo
+        protected Photo _Photo;
+        public Photo Photo
         {
             get
             {
@@ -277,9 +277,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.SendCommand(new SetWateringSchedule(State.Id, this.WateringSchedule.Id));
                 }
-                if (this.Photo.HasValue && State.Profilepicture != this.Photo.Value)
+                if (this.Photo != null && State.Profilepicture != this.Photo)
                 {
-                    this.SendCommand(new SetProfilepicture(State.Id, this.Photo.Value));
+                    this.SendCommand(new SetProfilepicture(State.Id, this.Photo));
                 }
                 if (!State.Tags.SetEquals(this.Tags))
                 {
@@ -293,7 +293,7 @@ namespace Growthstories.UI.ViewModel
                 this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
                 {
                     Species = this.Species,
-                    Profilepicture = this.Photo.Value,
+                    Profilepicture = this.Photo,
                     FertilizingScheduleId = this.FertilizingSchedule.Id,
                     WateringScheduleId = this.WateringSchedule.Id,
                     Tags = new HashSet<string>(this.Tags)

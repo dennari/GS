@@ -30,7 +30,7 @@ namespace Growthstories.Domain.Messaging
 
         public double? Value { get; set; }
 
-        public Photo? Photo { get; set; }
+        public Photo Photo { get; set; }
 
         //protected CreatePlantAction() { }
         public CreatePlantAction(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
@@ -79,7 +79,7 @@ namespace Growthstories.Domain.Messaging
 
         public double? Value { get; set; }
 
-        public Photo? Photo { get; set; }
+        public Photo Photo { get; set; }
 
 
         //protected SetPlantActionProperty() { }

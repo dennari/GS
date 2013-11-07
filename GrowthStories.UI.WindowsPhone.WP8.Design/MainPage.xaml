@@ -8,14 +8,14 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-    DataContext="{StaticResource YAxisShitViewModelDesign}"
+    DataContext="{StaticResource GardenViewModelDesign}"
 	mc:Ignorable="d"
 	FontFamily="{StaticResource PhoneFontFamilyNormal}"
 	FontSize="{StaticResource PhoneFontSizeNormal}"
 	Foreground="{StaticResource PhoneForegroundBrush}"
-	SupportedOrientations="Landscape" 
-	Orientation="Landscape"
-	shell:SystemTray.IsVisible="False"
+	SupportedOrientations="Portrait" 
+	Orientation="Portrait"
+	shell:SystemTray.IsVisible="True"
 	>
     <phone:PhoneApplicationPage.Resources>
         <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
@@ -25,8 +25,9 @@
     </phone:PhoneApplicationPage.Resources>
 	<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
 	<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
-	<local:YAxisShitView x:Name="Test"/>
-    <bar:Bindable.ApplicationBar>
+	<!--<local:YAxisShitView x:Name="Test"/>-->
+    <local:GardenView/>
+    <!--<bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar
 			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
 			Style="{StaticResource GSAppBarStyle}"
@@ -34,6 +35,6 @@
 			MenuItemsSource="{Binding AppBarMenuItems}"
 			IsVisible="{Binding AppBarIsVisible}"            
 			/>
-    </bar:Bindable.ApplicationBar>
+    </bar:Bindable.ApplicationBar>-->
 
 </phone:PhoneApplicationPage>

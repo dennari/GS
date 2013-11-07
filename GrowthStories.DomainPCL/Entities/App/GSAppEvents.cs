@@ -220,7 +220,7 @@ namespace Growthstories.Domain.Messaging
         private PhotoDownloadScheduled() { }
         public PhotoDownloadScheduled(PlantActionCreated e)
         {
-            this.Photo = e.Photo.Value;
+            this.Photo = e.Photo;
         }
 
 
