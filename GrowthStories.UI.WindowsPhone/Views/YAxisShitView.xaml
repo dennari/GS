@@ -31,7 +31,7 @@
                        Text="dfgd"/>-->
             <chart:RadCartesianChart 
                 Width="750"
-			    Height="450"
+			    Height="480"
 			    x:Name="GSChart"      
                 >
 

@@ -25,7 +25,7 @@ namespace Growthstories.UI.WindowsPhone
         public MainWindow()
         {
             InitializeComponent();
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
             this.ViewModel = new AppViewModel();
         }
 
@@ -40,7 +40,8 @@ namespace Growthstories.UI.WindowsPhone
             }
             set
             {
-                SetValue(ViewModelProperty, value);
+                if (value != null)
+                    SetValue(ViewModelProperty, value);
             }
         }
 
@@ -113,5 +114,10 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
+
+        public void ViewModelChanged(object vm)
+        {
+            // throw new NotImplementedException();
+        }
     }
 }

@@ -148,10 +148,10 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
-                .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
-                .Where(x => x == true)
-                .Subscribe(_ => App.Router.Navigate.Execute(new YAxisShitViewModel(state, app)));
+            //this.App.WhenAny(x => x.Orientation, x => x.GetValue())
+            //    .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
+            //    .Where(x => x == true)
+            //    .Subscribe(_ => App.Router.Navigate.Execute(App.YAxisShitViewModelFactory(this)));
 
 
 

@@ -77,6 +77,7 @@ namespace Growthstories.UI.ViewModel
 
         IScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
         IAddPlantViewModel AddPlantViewModelFactory(PlantState state);
+        IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm);
 
         PageOrientation Orientation { get; }
         //Task AddTestData();
@@ -92,7 +93,7 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems, IControlsPageOrientation
     {
         Guid Id { get; }
         //GardenState State { get; }
@@ -188,6 +189,9 @@ namespace Growthstories.UI.ViewModel
     public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
     {
         IDictionary<MeasurementType, ISeries> Series { get; }
+        IDictionary<MeasurementType, object> TelerikSeries { get; }
+        IReactiveCommand ToggleSeries { get; }
+        IReactiveCommand ToggleTelerikSeries { get; }
 
     }
 

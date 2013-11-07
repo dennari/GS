@@ -33,11 +33,12 @@ namespace Growthstories.UI.WindowsPhone
             //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
             //this.TestText.Text = "Constructor";
 
-            //if (DesignerProperties.IsInDesignTool)
-            //{
-            //this.ViewModel = new YAxisShitViewModel();
-            //this.RenderChart(this.ViewModel.Series);
-            //}
+            if (DesignerProperties.IsInDesignTool)
+            {
+                //var vm = new YAxisShitViewModel();
+                //this.ViewModel = vm;
+                //this.RenderChart(vm.TelerikSeries.Values);
+            }
         }
 
         public IYAxisShitViewModel ViewModel
@@ -60,11 +61,11 @@ namespace Growthstories.UI.WindowsPhone
 
         public void ViewModelChanged(object vm)
         {
-            var pvm = vm as YAxisShitViewModel;
+            var pvm = vm as IYAxisShitViewModel;
             if (pvm != null)
             {
-                //pvm.ToggleTelerikSeries.OfType<LineSeries>().ObserveOn(RxApp.MainThreadScheduler).Subscribe(x => Toggle(x));
-                //RenderChart(pvm.TelerikSeries);
+                pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
+                //RenderChart(pvm.TelerikSeries.Values);
             }
             //this.RenderChart(pvm.TelerikSeries);
         }
@@ -81,7 +82,7 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void RenderChart(IReadOnlyList<LineSeries> dSeries)
+        private void RenderChart(IEnumerable<object> dSeries)
         {
             var chart = this.GSChart;
 
@@ -105,7 +106,9 @@ namespace Growthstories.UI.WindowsPhone
 
                 //var yx = chart.VerticalAxis as LinearAxis;
                 //yx.Min
-                chart.Series.Add(s);
+                var line = s as LineSeries;
+                if (line != null)
+                    chart.Series.Add(line);
             }
         }
 

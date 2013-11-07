@@ -136,6 +136,7 @@
     <Compile Include="Converters.cs" />
     <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
+    <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="Views\PlantView.xaml.cs">
       <DependentUpon>PlantView.xaml</DependentUpon>
     </Compile>

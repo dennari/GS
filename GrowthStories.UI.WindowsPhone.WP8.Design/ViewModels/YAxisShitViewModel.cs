@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Growthstories.Domain.Messaging;
 //using Telerik.Windows.Controls;
 using System.Windows.Media;
+using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -35,16 +36,16 @@ namespace Growthstories.UI.ViewModel
         private PlantViewModel PlantVM;
 
         protected IDictionary<MeasurementType, ISeries> _Series = new Dictionary<MeasurementType, ISeries>();
-        public IDictionary<MeasurementType, ISeries> Series { get; set; }
+        public IDictionary<MeasurementType, ISeries> Series { get { return _Series; } }
 
-        //protected IDictionary<MeasurementType, LineSeries> _TelerikSeries = new Dictionary<MeasurementType, LineSeries>();
-        //public IDictionary<MeasurementType, LineSeries> TelerikSeries { get; set; }
+        protected IDictionary<MeasurementType, LineSeries> _TelerikSeries = new Dictionary<MeasurementType, LineSeries>();
+        public IDictionary<MeasurementType, LineSeries> TelerikSeries { get { return _TelerikSeries; } }
 
 
-        protected ReactiveCommand _ToggleSeries = new ReactiveCommand(Observable.Return(true), false, RxApp.MainThreadScheduler, true);
+        protected MockReactiveCommand _ToggleSeries = new MockReactiveCommand();
         public IReactiveCommand ToggleSeries { get { return _ToggleSeries; } }
 
-        protected ReactiveCommand _ToggleTelerikSeries = new ReactiveCommand(Observable.Return(true), false, RxApp.MainThreadScheduler, true);
+        protected MockReactiveCommand _ToggleTelerikSeries = new MockReactiveCommand();
         public IReactiveCommand ToggleTelerikSeries { get { return _ToggleTelerikSeries; } }
 
         public YAxisShitViewModel()
@@ -88,7 +89,8 @@ namespace Growthstories.UI.ViewModel
                 c++;
 
                 //_TelerikSeries.Add(CreateLineSeries(s, xx, c));
-
+                Series[xx.Type] = s;
+                TelerikSeries[xx.Type] = CreateLineSeries(s, xx.Type);
                 if (c > 3)
                     break;
             }
@@ -119,25 +121,25 @@ namespace Growthstories.UI.ViewModel
             {MeasurementType.PH,Colors.Cyan}
         };
 
-        //private LineSeries CreateLineSeries(ISeries s, MeasurementType xx)
-        //{
-        //    var l = new LineSeries()
-        //    {
-        //        Stroke = new SolidColorBrush(LineColors[xx]),
-        //        StrokeThickness = 3,
-        //        Tag = xx
+        private LineSeries CreateLineSeries(ISeries s, MeasurementType xx)
+        {
+            var l = new LineSeries()
+            {
+                Stroke = new SolidColorBrush(LineColors[xx]),
+                StrokeThickness = 3,
+                Tag = xx
 
-        //    };
+            };
 
-        //    s.Values.Aggregate(0, (acc, v) =>
-        //    {
-        //        l.DataPoints.Add(new Telerik.Charting.CategoricalDataPoint() { Value = v.Item2, Category = v.Item1 });
-        //        return acc + 1;
-        //    });
+            s.Values.Aggregate(0, (acc, v) =>
+            {
+                l.DataPoints.Add(new Telerik.Charting.CategoricalDataPoint() { Value = v.Item2, Category = v.Item1 });
+                return acc + 1;
+            });
 
-        //    return l;
+            return l;
 
-        //}
+        }
 
         //ReactiveList<LineSeries> _TelerikSeries = new ReactiveList<LineSeries>();
         //public IReadOnlyReactiveList<LineSeries> TelerikSeries { get { return _TelerikSeries; } }
@@ -152,7 +154,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return new ReactiveList<IButtonViewModel>()
+                return new MockReactiveList<IButtonViewModel>()
                 {
 
                     new ButtonViewModel()

@@ -15,7 +15,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public abstract class DesignViewModelBase : ReactiveObject, IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
+    public abstract class DesignViewModelBase : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
     {
 
         public string PageTitle
@@ -28,33 +28,33 @@ namespace Growthstories.UI.ViewModel
             get { return null; }
         }
 
-        //public IObservable<IObservedChange<object, object>> Changing
-        //{
-        //    get { return null; }
-        //}
+        public IObservable<IObservedChange<object, object>> Changing
+        {
+            get { return null; }
+        }
 
-        //public IObservable<IObservedChange<object, object>> Changed
-        //{
-        //    get { return null; }
-        //}
+        public IObservable<IObservedChange<object, object>> Changed
+        {
+            get { return null; }
+        }
 
-        //public IDisposable SuppressChangeNotifications()
-        //{
-        //    return null;
-        //}
+        public IDisposable SuppressChangeNotifications()
+        {
+            return null;
+        }
 
-        //public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
 
-        //public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+        public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
 
         public virtual IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
-            get { return new ReactiveList<IButtonViewModel>() { }; }
+            get { return new MockReactiveList<IButtonViewModel>() { }; }
         }
 
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
-            get { return new ReactiveList<IMenuItemViewModel>() { }; }
+            get { return new MockReactiveList<IMenuItemViewModel>() { }; }
         }
 
         public virtual ApplicationBarMode AppBarMode

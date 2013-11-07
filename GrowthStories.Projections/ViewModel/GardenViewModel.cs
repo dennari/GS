@@ -67,6 +67,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ShowDetailsCommand { get; protected set; }
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
+        private IYAxisShitViewModel CurrentChartViewModel;
+
 
         //public PlantProjection PlantProjection { get; private set; }
         // public GardenState State { get; protected set; }
@@ -131,6 +133,30 @@ namespace Growthstories.UI.ViewModel
                 });
 
 
+            //this.App.WhenAny(x => x.Orientation, x => x.GetValue())
+            //    .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
+            //    .Where(x => x == true)
+            //    .DistinctUntilChanged()
+            //    .Subscribe(_ =>
+            //    {
+            //        this.CurrentChartViewModel = App.YAxisShitViewModelFactory(this.SelectedItem);
+            //        App.Router.Navigate.Execute(this.CurrentChartViewModel);
+            //    });
+
+            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
+                .Where(x => (x & PageOrientation.Landscape) == PageOrientation.Landscape && App.Router.GetCurrentViewModel() == this)
+                .Subscribe(_ =>
+                {
+                    this.CurrentChartViewModel = App.YAxisShitViewModelFactory(this.SelectedItem);
+                    App.Router.Navigate.Execute(this.CurrentChartViewModel);
+                });
+
+            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
+                .Where(x => (x & PageOrientation.Portrait) == PageOrientation.Portrait && App.Router.GetCurrentViewModel() == this.CurrentChartViewModel)
+                .Subscribe(_ =>
+                {
+                    App.Router.Navigate.Execute(this);
+                });
 
         }
 
@@ -231,6 +257,11 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        public SupportedPageOrientation SupportedOrientations
+        {
+            get { return SupportedPageOrientation.PortraitOrLandscape; }
+        }
     }
 
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel

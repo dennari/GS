@@ -32,7 +32,8 @@ namespace Growthstories.UI.Services
 
             if (viewModel is IPlantActionViewModel)
                 return attemptToResolveView(viewType.MakeGenericType(typeof(IPlantActionViewModel)), contract);
-
+            if (viewModel is IYAxisShitViewModel)
+                return attemptToResolveView(viewType.MakeGenericType(typeof(IYAxisShitViewModel)), contract);
 
             return attemptToResolveView(viewType.MakeGenericType(viewModel.GetType()), contract);
         }

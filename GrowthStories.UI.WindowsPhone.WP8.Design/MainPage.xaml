@@ -25,7 +25,7 @@
     </phone:PhoneApplicationPage.Resources>
 	<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
 	<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
-	<local:YAxisShitView x:Name="Test" ViewModel="{Binding}" DataContext="{Binding DataContext}"/>
+	<local:YAxisShitView x:Name="Test"/>
     <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar
 			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"

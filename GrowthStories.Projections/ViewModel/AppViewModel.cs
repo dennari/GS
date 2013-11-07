@@ -727,6 +727,13 @@ namespace Growthstories.UI.ViewModel
             throw new NotImplementedException();
         }
 
+
+        public virtual IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)
+        {
+            throw new NotImplementedException();
+
+        }
+
         public virtual Task AddTestData()
         {
 

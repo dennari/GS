@@ -67,14 +67,17 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<ScheduleViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<ClientAddPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
-            Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<YAxisShitViewModel>));
+            Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
             Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<SearchUsersViewModel>));
             Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<GardenViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<PlantViewModel>));
             Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<FriendsViewModel>));
             Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
 
-            this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x => this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x);
+            this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
+            {
+                this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
+            });
 
 
             this._Model = Initialize(Kernel.Get<IGSRepository>());
@@ -86,6 +89,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public override IAddPlantViewModel AddPlantViewModelFactory(PlantState state)
         {
             return new ClientAddPlantViewModel(state, this);
+        }
+
+        public override IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)
+        {
+            return new ClientYAxisShitViewModel(pvm, this);
         }
 
         public override IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null)
