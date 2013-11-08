@@ -25,13 +25,13 @@
             <DataTemplate>
             <StackPanel>
                 <ContentControl 
-                    Visibility="{Binding WateringSchedule, Converter={StaticResource NullToVisibility}}"
-                    DataContext="{Binding WateringScheduler}"
-                    Style="{StaticResource PlantNextFertilizingStyle}"/>                
+                    Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}"
+                    DataContext="{Binding FertilizingScheduler}"
+                    Style="{StaticResource PlantNextAction}"/>                
                 <ContentControl
-                    Visibility="{Binding WateringSchedule, Converter={StaticResource NullToVisibility}}"
+                    Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}"
                     DataContext="{Binding WateringScheduler}"
-                    Style="{StaticResource PlantNextWateringStyle}"/>
+                    Style="{StaticResource PlantNextAction}"/>
                 <Canvas Height="54" Margin="0,0,0,24" >
                     <Line X1="0" X2="7" Y1="27" Y2="27" 
                         Canvas.ZIndex="0"

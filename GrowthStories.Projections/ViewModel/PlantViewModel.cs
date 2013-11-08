@@ -15,55 +15,6 @@ using System.Linq;
 namespace Growthstories.UI.ViewModel
 {
 
-    public sealed class PlantScheduler
-    {
-        private IScheduleViewModel Schedule;
-
-        public PlantScheduler(IScheduleViewModel vm)
-        {
-            this.Schedule = vm;
-        }
-
-        public DateTimeOffset ComputeNext(DateTimeOffset last)
-        {
-            var ans = Schedule.ComputeNext(last);
-
-            var now = DateTimeOffset.UtcNow;
-
-            var passedSeconds = (long)(now - last).TotalSeconds;
-
-            var num = (int)(passedSeconds / Schedule.Interval);
-            if (num > 0)
-            {
-                this.Missed = num;
-                if (num == 1)
-                    this.MissedText = string.Format("Last {0} missed.", Schedule.Type == ScheduleType.WATERING ? "watering" : "nourishment");
-                else
-                    this.MissedText = string.Format("Last {0} {1} missed.", num, Schedule.Type == ScheduleType.WATERING ? "waterings" : "nourishments");
-
-            }
-            else
-            {
-                this.Missed = null;
-                this.MissedText = null;
-            }
-
-            this.WeekDay = ans.ToString("dddd");
-            this.Date = ans.ToString("d");
-            this.Time = ans.ToString("t");
-
-            return ans;
-        }
-
-
-        public int? Missed { get; private set; }
-        public string MissedText { get; private set; }
-
-        public string WeekDay { get; private set; }
-        public string Date { get; private set; }
-        public string Time { get; private set; }
-
-    }
 
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {

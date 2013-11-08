@@ -55,6 +55,8 @@
                         Width="210"
                         Height="210"
                         c4fBinding:FrameworkElementBinding.ClipToBounds="True"
+                        Command="{Binding DataContext.ShowDetailsCommand, ElementName=PlantsSelector}"
+                        CommandParameter="{Binding}"
                         Label="{Binding Name}">
                 <Grid>
                     <Grid.Triggers>
@@ -96,8 +98,8 @@
                     <c4f:TileNotification
                             Padding="18,0"
                             Background="{StaticResource PhoneAccentBrush}"
-                            Content="{Binding WateringScheduler.Num}"
-                            Visibility="{Binding WateringScheduler.Num, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}"
+                            Content="{Binding WateringScheduler.Missed}"
+                            Visibility="{Binding WateringScheduler.Missed, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}"
                         />
 
                 </Grid>

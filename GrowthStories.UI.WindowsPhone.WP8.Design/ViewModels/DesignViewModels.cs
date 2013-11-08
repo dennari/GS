@@ -150,17 +150,33 @@ namespace Growthstories.UI.ViewModel
             this.WateringSchedule = new ScheduleViewModel(ScheduleType.WATERING, 24 * 4 * 3600);
             this.FertilizingSchedule = new ScheduleViewModel(ScheduleType.FERTILIZING, 24 * 60 * 3600);
 
-            this.NextWatering = new PlantWaterViewModel(this.WateringSchedule.ComputeNext(this.Actions.OfType<IPlantWaterViewModel>().First().Created));
-            this.NextNourishing = new PlantFertilizeViewModel(this.FertilizingSchedule.ComputeNext(this.Actions.OfType<IPlantFertilizeViewModel>().First().Created));
+
+
+            this.WateringScheduler = new PlantScheduler(WateringSchedule)
+            {
+                Icon = new Photo()
+                {
+                    LocalFullPath = Utils.BigIcons[IconType.WATER].ToString(),
+                    LocalUri = Utils.BigIcons[IconType.WATER].ToString()
+                }
+            };
+
+            var missedSpan = new TimeSpan(Helpers.RandomGen.Next(2) > 0 ? 12 : 0, 0, 0, 0);
+            this.WateringScheduler.ComputeNext(DateTimeOffset.UtcNow - missedSpan);
+            this.FertilizingScheduler = new PlantScheduler(FertilizingSchedule)
+            {
+                Icon = new Photo()
+                {
+                    LocalFullPath = Utils.BigIcons[IconType.FERTILIZE].ToString(),
+                    LocalUri = Utils.BigIcons[IconType.FERTILIZE].ToString()
+                }
+            };
+            this.FertilizingScheduler.ComputeNext(DateTimeOffset.UtcNow - new TimeSpan(12, 0, 0, 0));
 
             var now = DateTimeOffset.Now;
             TodayWeekDay = now.ToString("dddd");
             TodayDate = now.ToString("d");
 
-
-            var numMissed = Helpers.RandomGen.Next(2);
-            if (numMissed > 0)
-                this.NumMissed = numMissed;
 
 
         }
@@ -234,6 +250,12 @@ namespace Growthstories.UI.ViewModel
         public IPlantActionViewModel SelectedItem { get; set; }
 
 
+
+
+
+        public PlantScheduler WateringScheduler { get; set; }
+
+        public PlantScheduler FertilizingScheduler { get; set; }
 
     }
 
