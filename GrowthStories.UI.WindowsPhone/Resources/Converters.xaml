@@ -17,4 +17,6 @@
     <local:PlantToImageSourceConverter x:Key="PlantToImageSource"/>
     <local:AppBarModeConverter x:Key="AppBarModeToString"/>
     <local:PlantActionFilter x:Key="PlantActionFilter"/>
+    <local:IconTypeToIconConverter x:Key="IconTypeToIcon"/>
+    <local:IconTypeToIconUriConverter x:Key="IconTypeToIconUri"/>
 </ResourceDictionary>

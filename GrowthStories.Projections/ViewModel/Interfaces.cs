@@ -48,15 +48,19 @@ namespace Growthstories.UI.ViewModel
         bool IsInDesignMode { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
+
         IUserService Context { get; }
-        IDictionary<IconType, Uri> IconUri { get; }
-        IDictionary<IconType, Uri> BigIconUri { get; }
+        IAuthUser User { get; }
+        //IDictionary<IconType, Uri> IconUri { get; }
+        //IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
         //GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
+        Task<IAuthUser> Initialize();
         Task<ISyncInstance> Synchronize();
-
+        Task<IGSAggregate> HandleCommand(IAggregateCommand x);
+        Task<IGSAggregate> HandleCommand(MultiCommand x);
         //IObservable<IUserViewModel> Users();
         //IObservable<IGardenViewModel> Gardens { get; }
         //IObservable<IPlantViewModel> Plants { get; }
@@ -98,8 +102,9 @@ namespace Growthstories.UI.ViewModel
         Guid Id { get; }
         //GardenState State { get; }
         IPlantViewModel SelectedItem { get; }
+        IReactiveCommand SelectedItemsChanged { get; }
 
-        IAuthUser UserState { get; }
+        IAuthUser User { get; }
         IReadOnlyReactiveList<IPlantViewModel> Plants { get; }
         string Username { get; }
     }
@@ -119,8 +124,8 @@ namespace Growthstories.UI.ViewModel
 
     public interface IMultipageViewModel : IGSRoutableViewModel
     {
-        IGSViewModel CurrentPage { get; }
-        IReadOnlyReactiveList<IGSViewModel> Pages { get; }
+        IGSViewModel SelectedItem { get; set; }
+        IReadOnlyReactiveList<IGSViewModel> Items { get; }
         IReactiveCommand PageChangedCommand { get; }
     }
 
@@ -212,7 +217,7 @@ namespace Growthstories.UI.ViewModel
 
         public int? Missed { get; private set; }
         public string MissedText { get; private set; }
-        public Photo Icon { get; set; }
+        public IconType IconType { get; set; }
 
         public string WeekDay { get; private set; }
         public string Date { get; private set; }
@@ -258,10 +263,11 @@ namespace Growthstories.UI.ViewModel
         string Time { get; }
         string Note { get; }
         PlantActionType ActionType { get; }
-        Uri IconUri { get; }
+        IconType IconType { get; }
         Guid PlantActionId { get; }
         DateTimeOffset Created { get; }
 
+        IReactiveCommand OpenZoomView { get; }
         //PlantActionState State { get; }
 
         //void SetProperty(PlantActionPropertySet prop);
@@ -323,7 +329,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IButtonViewModel : IMenuItemViewModel
     {
-        Uri IconUri { get; }
+        IconType IconType { get; }
     }
 
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel

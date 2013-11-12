@@ -298,6 +298,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_27_59.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_45_35.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_55_40.sap" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

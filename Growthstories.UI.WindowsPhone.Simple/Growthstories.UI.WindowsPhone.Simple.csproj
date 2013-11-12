@@ -1,0 +1,529 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BC516A73-4EAF-4695-957C-3755ACDA1148}</ProjectGuid>
+    <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Growthstories.UI.WindowsPhone</RootNamespace>
+    <AssemblyName>Growthstories.UI.WindowsPhone.Simple</AssemblyName>
+    <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>Growthstories.UI.WindowsPhone.Simple_$(Configuration)_$(Platform).xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>Growthstories.UI.WindowsPhone.App</SilverlightAppEntry>
+    <ValidateXaml>true</ValidateXaml>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\x86\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\x86\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\ARM\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\ARM\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\GrowthStories.Projections\Mixins.cs">
+      <Link>Mixins.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.Projections\Services\GSViewLocator.cs">
+      <Link>Services\GSViewLocator.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Converters.cs">
+      <Link>Converters.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\LocalizedStrings.cs">
+      <Link>LocalizedStrings.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Resources\AppResources.Designer.cs">
+      <Link>Resources\AppResources.Designer.cs</Link>
+      <DependentUpon>AppResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\ViewHelpers.cs">
+      <Link>ViewHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\ViewModels\ClientYAxisShitViewModel.cs">
+      <Link>ViewModels\ClientYAxisShitViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\FriendsPivotView.xaml.cs">
+      <Link>Views\FriendsPivotView.xaml.cs</Link>
+      <DependentUpon>FriendsPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\GardenPivotView.xaml.cs">
+      <Link>Views\GardenPivotView.xaml.cs</Link>
+      <DependentUpon>GardenPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\GardenView.xaml.cs">
+      <Link>Views\GardenView.xaml.cs</Link>
+      <DependentUpon>GardenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\ListUsersView.xaml.cs">
+      <Link>Views\ListUsersView.xaml.cs</Link>
+      <DependentUpon>ListUsersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantActionView.cs">
+      <Link>Views\PlantActionView.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantPhotoPivotView.xaml.cs">
+      <Link>Views\PlantPhotoPivotView.xaml.cs</Link>
+      <DependentUpon>PlantPhotoPivotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml.cs">
+      <Link>Views\PlantView.xaml.cs</Link>
+      <DependentUpon>PlantView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml.cs">
+      <Link>Views\YAxisShitView.xaml.cs</Link>
+      <DependentUpon>YAxisShitView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers.cs" />
+    <Compile Include="ViewModels\SimpleBootstrap.cs" />
+    <Compile Include="ViewModels\SimpleAppViewModel.cs" />
+    <Compile Include="YAxis.xaml.cs">
+      <DependentUpon>YAxis.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Properties\AppManifest.xml" />
+    <None Include="Properties\WMAppManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\appbar.add.png">
+      <Link>Assets\Icons\appbar.add.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\appbar.check.png">
+      <Link>Assets\Icons\appbar.check.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\appbar.delete.png">
+      <Link>Assets\Icons\appbar.delete.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\appbar.list.check.png">
+      <Link>Assets\Icons\appbar.list.check.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\appbar.social.sharethis.png">
+      <Link>Assets\Icons\appbar.social.sharethis.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\application_icon_179.png">
+      <Link>Assets\Icons\application_icon_179.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\application_icon_33.png">
+      <Link>Assets\Icons\application_icon_33.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\application_icon_69.png">
+      <Link>Assets\Icons\application_icon_69.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\application_icon_99.png">
+      <Link>Assets\Icons\application_icon_99.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_blooming.png">
+      <Link>Assets\Icons\icon_blooming.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_blooming_appbar.png">
+      <Link>Assets\Icons\icon_blooming_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_comment.png">
+      <Link>Assets\Icons\icon_comment.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_comment_appbar.png">
+      <Link>Assets\Icons\icon_comment_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_deceased.png">
+      <Link>Assets\Icons\icon_deceased.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_deceased_appbar.png">
+      <Link>Assets\Icons\icon_deceased_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_illuminance.png">
+      <Link>Assets\Icons\icon_illuminance.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_illuminance_appbar.png">
+      <Link>Assets\Icons\icon_illuminance_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_length.png">
+      <Link>Assets\Icons\icon_length.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_length_appbar.png">
+      <Link>Assets\Icons\icon_length_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_misting.png">
+      <Link>Assets\Icons\icon_misting.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_misting_appbar.png">
+      <Link>Assets\Icons\icon_misting_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_note.png">
+      <Link>Assets\Icons\icon_note.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_note_appbar.png">
+      <Link>Assets\Icons\icon_note_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_nutrient.png">
+      <Link>Assets\Icons\icon_nutrient.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_nutrient_appbar.png">
+      <Link>Assets\Icons\icon_nutrient_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_ph.png">
+      <Link>Assets\Icons\icon_ph.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_photo.png">
+      <Link>Assets\Icons\icon_photo.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_photo_appbar.png">
+      <Link>Assets\Icons\icon_photo_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_ph_appbar.png">
+      <Link>Assets\Icons\icon_ph_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_pollination.png">
+      <Link>Assets\Icons\icon_pollination.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_pollination_appbar.png">
+      <Link>Assets\Icons\icon_pollination_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_soilchange.png">
+      <Link>Assets\Icons\icon_soilchange.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_soilchange_appbar.png">
+      <Link>Assets\Icons\icon_soilchange_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_sprouting.png">
+      <Link>Assets\Icons\icon_sprouting.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_sprouting_appbar.png">
+      <Link>Assets\Icons\icon_sprouting_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_watering.png">
+      <Link>Assets\Icons\icon_watering.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\Assets\Icons\icon_watering_appbar.png">
+      <Link>Assets\Icons\icon_watering_appbar.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\TestData\517e100d782a828894.jpg">
+      <Link>TestData\517e100d782a828894.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone.WP8.Design\TestData\flowers-from-the-conservatory.jpg">
+      <Link>TestData\flowers-from-the-conservatory.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\action_bg.jpg">
+      <Link>Resources\Bg\action_bg.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\garden_all.png">
+      <Link>Resources\Bg\garden_all.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\garden_wvga.png">
+      <Link>Resources\Bg\garden_wvga.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\panorama_logo.png">
+      <Link>Resources\Bg\panorama_logo.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg">
+      <Link>Resources\Bg\plant_bg.jpg</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\timeline_all.png">
+      <Link>Resources\Bg\timeline_all.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\timeline_wvga.png">
+      <Link>Resources\Bg\timeline_wvga.png</Link>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Assets\Bg\watering_bg.jpg">
+      <Link>Resources\Bg\watering_bg.jpg</Link>
+    </Content>
+    <Content Include="Assets\AlignmentGrid.png" />
+    <Content Include="Assets\ApplicationIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileMedium.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\FlipCycleTileSmall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\IconicTileMediumLarge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Tiles\IconicTileSmall.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README_FIRST.txt" />
+    <Content Include="Toolkit.Content\ApplicationBar.Add.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="..\GrowthStories.UI.WindowsPhone\Resources\Converters.xaml">
+      <Link>Resources\Converters.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <ApplicationDefinition Include="..\GrowthStories.UI.WindowsPhone\Resources\Styles.xaml">
+      <Link>Resources\Styles.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\FriendsPivotView.xaml">
+      <Link>Views\FriendsPivotView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\GardenPivotView.xaml">
+      <Link>Views\GardenPivotView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\GardenView.xaml">
+      <Link>Views\GardenView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\ListUsersView.xaml">
+      <Link>Views\ListUsersView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantPhotoPivotView.xaml">
+      <Link>Views\PlantPhotoPivotView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml">
+      <Link>Views\PlantView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml">
+      <Link>Views\YAxisShitView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="YAxis.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\GrowthStories.UI.WindowsPhone\Resources\AppResources.resx">
+      <Link>Resources\AppResources.resx</Link>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain.Core\PortableCommonDomain.Core.csproj">
+      <Project>{4CA0C3F8-0F50-4F12-A598-32EAA0AB19E6}</Project>
+      <Name>PortableCommonDomain.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+      <Project>{D721924B-891E-4375-A6A6-EA28E4EDB846}</Project>
+      <Name>PortableCommonDomain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
+      <Project>{DFDB229B-9C77-4E89-A602-6CBAEE83315F}</Project>
+      <Name>GrowthStories.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.DomainPCL\GrowthStories.Domain.csproj">
+      <Project>{B3E2CFBD-93FD-4604-8B43-C245947C07ED}</Project>
+      <Name>GrowthStories.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Projections\GrowthStories.UI.csproj">
+      <Project>{EF1081C2-D71F-42D5-804A-E34FBF6C6A5A}</Project>
+      <Name>GrowthStories.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync.Core\GrowthStories.Sync.Core.csproj">
+      <Project>{5475681A-83BE-462D-BDA2-91CB9740C111}</Project>
+      <Name>GrowthStories.Sync.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.Sync\GrowthStories.Sync.csproj">
+      <Project>{487EA8B6-D110-441D-AAED-9FF2315DFD59}</Project>
+      <Name>GrowthStories.Sync</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BindableApplicationBar">
+      <HintPath>..\packages\BindableApplicationBar.1.0.0\lib\sl4-windowsphone71\BindableApplicationBar.dll</HintPath>
+    </Reference>
+    <Reference Include="Coding4Fun.Toolkit.Controls">
+      <HintPath>..\packages\Coding4Fun.Toolkit.Controls.2.0.7\lib\windowsphone8\Coding4Fun.Toolkit.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Phone.Controls.Toolkit">
+      <HintPath>..\packages\WPtoolkit.4.2013.08.16\lib\wp8\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\wp8\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\wp8\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Phone">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.16\lib\wp8\Microsoft.Threading.Tasks.Extensions.Phone.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Common">
+      <HintPath>..\packages\Portable.Ninject.3.0.7\lib\sl4-wp71\Ninject.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.WP">
+      <HintPath>..\packages\Portable.Ninject.3.0.7\lib\sl4-wp71\Ninject.WP.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI">
+      <HintPath>..\packages\reactiveui-core.5.2.0\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Blend">
+      <HintPath>..\packages\reactiveui-platforms.5.2.0\lib\WP8\ReactiveUI.Blend.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Mobile">
+      <HintPath>..\packages\reactiveui-mobile.5.2.0\lib\WP8\ReactiveUI.Mobile.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Xaml">
+      <HintPath>..\packages\reactiveui-platforms.5.2.0\lib\WP8\ReactiveUI.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\sl4-windowsphone71\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\sl4-windowsphone71\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.15\lib\sl4-windowsphone71\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\WP8\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\WP8\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\WP8\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\WP8\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading">
+      <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\WP8\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.Windows.Controls.Chart, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Chart.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Primitives, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Telerik.Windows.Core, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Mobile">
+      <HintPath>..\packages\reactiveui-mobile.5.2.0\lib\WP8\Xamarin.Mobile.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.10\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+</Project>

@@ -187,8 +187,8 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(1, fvm.Friends.Count);
             var friend = fvm.Friends[0];
-            Assert.AreEqual(remoteUser.AggregateId, friend.UserState.Id);
-            Assert.AreEqual(remoteUser.Username, friend.UserState.Username);
+            Assert.AreEqual(remoteUser.AggregateId, friend.User.Id);
+            Assert.AreEqual(remoteUser.Username, friend.User.Username);
 
             Assert.AreEqual(1, friend.Plants.Count);
             var plant = friend.Plants[0];
@@ -247,8 +247,8 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(1, fvm.Friends.Count);
             var friend = fvm.Friends[0];
-            Assert.AreEqual(remoteUser.AggregateId, friend.UserState.Id);
-            Assert.AreEqual(remoteUser.Username, friend.UserState.Username);
+            Assert.AreEqual(remoteUser.AggregateId, friend.User.Id);
+            Assert.AreEqual(remoteUser.Username, friend.User.Username);
         }
 
 

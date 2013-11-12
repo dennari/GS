@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reactive.Disposables;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -20,6 +21,13 @@ namespace Growthstories.UI.ViewModel
     public class GardenViewModel : RoutableViewModel, IGardenViewModel
     {
 
+        private void LoadPlants(IAuthUser u)
+        {
+            App.CurrentPlants(u).Concat(App.FuturePlants(u)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                _Plants.Add(x);
+            });
+        }
 
         protected ReactiveList<IPlantViewModel> _Plants;
         public IReadOnlyReactiveList<IPlantViewModel> Plants
@@ -29,12 +37,17 @@ namespace Growthstories.UI.ViewModel
                 if (_Plants == null)
                 {
                     _Plants = new ReactiveList<IPlantViewModel>();
-                    App.CurrentPlants(this.UserState).Concat(App.FuturePlants(this.UserState)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                    if (this.User != null)
                     {
-                        _Plants.Add(x);
-                    });
-                    //_Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(SelectPlantsButton));
-                    //_Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(SelectPlantsButton));
+                        LoadPlants(this.User);
+                    }
+                    else
+                    {
+                        this.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadPlants(x));
+                    }
+
+                    _Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => _AppBarButtons.Add(SelectPlantsButton));
+                    _Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => _AppBarButtons.Remove(SelectPlantsButton));
 
                     //App.FuturePlants(this.UserState)
                     //.Subscribe(x =>
@@ -61,18 +74,43 @@ namespace Growthstories.UI.ViewModel
         protected ReactiveList<IPlantViewModel> _SelectedPlants = new ReactiveList<IPlantViewModel>();
         public IReadOnlyReactiveList<IPlantViewModel> SelectedPlants { get { return _SelectedPlants; } }
         public IPlantViewModel SelectedItem { get; set; }
-        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons { get; protected set; }
 
-        public IReactiveCommand SelectedPlantsChangedCommand { get; protected set; }
+        protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                return _AppBarButtons;
+            }
+        }
+
+        public IReactiveCommand SelectedItemsChanged { get; protected set; }
         public IReactiveCommand ShowDetailsCommand { get; protected set; }
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
         private IYAxisShitViewModel CurrentChartViewModel;
 
 
+        public IReactiveCommand MultiWateringCommand { get; private set; }
+        public IReactiveCommand MultiDeleteCommand { get; private set; }
+
+        public IObservable<bool> IsNotInProgress { get; private set; }
+
         //public PlantProjection PlantProjection { get; private set; }
         // public GardenState State { get; protected set; }
-        public IAuthUser UserState { get; protected set; }
+        protected IAuthUser _User;
+        public IAuthUser User
+        {
+            get
+            {
+
+                return _User;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _User, value);
+            }
+        }
 
         public string PlantTitle { get; protected set; }
 
@@ -87,32 +125,54 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
 
-            if (state == null)
-                throw new ArgumentNullException("UserState must be given.");
+            if (state != null)
+                this.Init(state);
+            else
+            {
+                app.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => this.Init(x));
+            }
 
-            this.UserState = state;
-            this.Username = state.Username;
 
-            //this.State = state.Garden;
-
-            this.PlantTitle = string.Format("{0}'s garden", UserState.Username).ToUpper();
 
             //this.Id = iid;
-            this.AppBarButtons = new ReactiveList<IButtonViewModel>();
-            //this.AppBarButtons.Add(this.AddPlantButton);
+            this._AppBarButtons.Add(this.AddPlantButton);
 
 
 
 
-            //this._SelectedPlants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => AppBarButtons.Add(DeletePlantsButton));
-            //this._SelectedPlants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => AppBarButtons.Remove(DeletePlantsButton));
-
-
-            SelectedPlantsChangedCommand = new ReactiveCommand();
-            SelectedPlantsChangedCommand.Subscribe(p =>
+            this._SelectedPlants.IsEmptyChanged.Subscribe(x =>
             {
-                _SelectedPlants.Clear();
-                _SelectedPlants.AddRange(((IList)p).Cast<IPlantViewModel>());
+                if (x == false)
+                {
+                    AppBarMode = ApplicationBarMode.DEFAULT;
+                    _AppBarButtons.Remove(SelectPlantsButton);
+                    _AppBarButtons.Remove(AddPlantButton);
+                    _AppBarButtons.Add(DeletePlantsButton);
+                    _AppBarButtons.Add(WaterPlantsButton);
+
+                }
+                else
+                {
+                    AppBarMode = ApplicationBarMode.MINIMIZED;
+                    _AppBarButtons.Remove(WaterPlantsButton);
+                    _AppBarButtons.Remove(DeletePlantsButton);
+                    _AppBarButtons.Add(AddPlantButton);
+                    if (_Plants != null && _Plants.Count > 0 && !_AppBarButtons.Contains(SelectPlantsButton))
+                        _AppBarButtons.Add(SelectPlantsButton);
+                }
+            });
+
+
+            SelectedItemsChanged = new ReactiveCommand();
+            SelectedItemsChanged.Subscribe(p =>
+            {
+                var ar = p as Tuple<IList, IList>;
+                if (ar != null)
+                {
+                    _SelectedPlants.AddRange(ar.Item1.Cast<IPlantViewModel>());
+                    foreach (var plant in ar.Item2.Cast<IPlantViewModel>())
+                        _SelectedPlants.Remove(plant);
+                }
             });
 
 
@@ -132,6 +192,26 @@ namespace Growthstories.UI.ViewModel
                     App.Router.Navigate.Execute(this);
                 });
 
+            //IObservable<long> timer = Observable.Interval(TimeSpan.FromSeconds(3));
+
+            this.MultiWateringCommand = new ReactiveCommand();
+            this.MultiWateringCommand.RegisterAsync(x => Observable.Create<bool>(obs =>
+            {
+                var timer = Observable.Timer(TimeSpan.FromSeconds(3));
+                timer.Subscribe(_ => obs.OnNext(true), () => obs.OnCompleted());
+
+                return Disposable.Empty;
+            }));
+            this.MultiDeleteCommand = new ReactiveCommand();
+            this.MultiDeleteCommand.RegisterAsync(x => Observable.Create<bool>(obs =>
+            {
+                var timer = Observable.Timer(TimeSpan.FromSeconds(3));
+                timer.Subscribe(_ => obs.OnNext(true), () => obs.OnCompleted());
+
+                return Disposable.Empty;
+            }));
+
+            this.IsNotInProgress = MultiWateringCommand.CanExecuteObservable.CombineLatest(MultiDeleteCommand.CanExecuteObservable, (b1, b2) => b1 && b2).DistinctUntilChanged();
 
             //this.App.WhenAny(x => x.Orientation, x => x.GetValue())
             //    .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
@@ -160,10 +240,19 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        private void Init(IAuthUser state)
+        {
+            this.User = state;
+            this.Username = state.Username;
+
+            //this.State = state.Garden;
+
+            this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();
+        }
 
 
         private ButtonViewModel _AddPlantButton;
-        public ButtonViewModel AddPlantButton
+        public IButtonViewModel AddPlantButton
         {
             get
             {
@@ -171,7 +260,7 @@ namespace Growthstories.UI.ViewModel
                     _AddPlantButton = new ButtonViewModel(null)
                     {
                         Text = "add",
-                        IconUri = App.IconUri[IconType.ADD],
+                        IconType = IconType.ADD,
                         Command = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(this.AddPlantViewModel))
                     };
                 return _AddPlantButton;
@@ -180,7 +269,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private ButtonViewModel _SelectPlantsButton;
-        public ButtonViewModel SelectPlantsButton
+        public IButtonViewModel SelectPlantsButton
         {
             get
             {
@@ -188,16 +277,15 @@ namespace Growthstories.UI.ViewModel
                     _SelectPlantsButton = new ButtonViewModel(App)
                     {
                         Text = "select",
-                        IconUri = App.IconUri[IconType.CHECK_LIST]
-                        //Command = new ReactiveCommand(() => this.IsPlantSelectionEnabled = true)
+                        IconType = IconType.CHECK_LIST,
+                        Command = Observable.Return(true).ToCommandWithSubscription(x => this.IsPlantSelectionEnabled = !this.IsPlantSelectionEnabled)
                     };
                 return _SelectPlantsButton;
             }
         }
 
         private ButtonViewModel _DeletePlantsButton;
-
-        public ButtonViewModel DeletePlantsButton
+        public IButtonViewModel DeletePlantsButton
         {
             get
             {
@@ -205,10 +293,27 @@ namespace Growthstories.UI.ViewModel
                     _DeletePlantsButton = new ButtonViewModel(App)
                     {
                         Text = "delete",
-                        IconUri = App.IconUri[IconType.DELETE]
-                        //Command = new ReactiveCommand(() => { })
+                        IconType = IconType.DELETE,
+                        Command = this.IsNotInProgress.ToCommandWithSubscription(x => this.MultiDeleteCommand.Execute(null))
                     };
                 return _DeletePlantsButton;
+            }
+        }
+
+        private ButtonViewModel _WaterPlantsButton;
+        public IButtonViewModel WaterPlantsButton
+        {
+            get
+            {
+                if (_WaterPlantsButton == null)
+                    _WaterPlantsButton = new ButtonViewModel(App)
+                    {
+                        Text = "water",
+                        IconType = IconType.WATER,
+                        Command = this.IsNotInProgress.ToCommandWithSubscription(x => this.MultiWateringCommand.Execute(null))
+
+                    };
+                return _WaterPlantsButton;
             }
         }
 
@@ -217,9 +322,11 @@ namespace Growthstories.UI.ViewModel
             get { throw new NotImplementedException(); }
         }
 
+        protected ApplicationBarMode _AppBarMode = ApplicationBarMode.MINIMIZED;
         public ApplicationBarMode AppBarMode
         {
-            get { return ApplicationBarMode.MINIMIZED; }
+            get { return _AppBarMode; }
+            set { this.RaiseAndSetIfChanged(ref _AppBarMode, value); }
         }
 
         public bool AppBarIsVisible
@@ -227,9 +334,12 @@ namespace Growthstories.UI.ViewModel
             get { return true; }
         }
 
+
+        protected bool _IsPlantSelectionEnabled = false;
         public bool IsPlantSelectionEnabled
         {
-            get { return false; }
+            get { return _IsPlantSelectionEnabled; }
+            set { this.RaiseAndSetIfChanged(ref _IsPlantSelectionEnabled, value); }
         }
 
         protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
@@ -274,7 +384,7 @@ namespace Growthstories.UI.ViewModel
             new ButtonViewModel(null)
                     {
                         Text = "add",
-                        IconUri = App.IconUri[IconType.ADD],
+                        IconType = IconType.ADD,
                         Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
                     });
 

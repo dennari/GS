@@ -1,0 +1,68 @@
+﻿<phone:PhoneApplicationPage
+	x:Class="Growthstories.UI.WindowsPhone.YAxis"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+	mc:Ignorable="d"
+	FontFamily="{StaticResource PhoneFontFamilyNormal}"
+	FontSize="{StaticResource PhoneFontSizeNormal}"
+	Foreground="{StaticResource PhoneForegroundBrush}"
+	SupportedOrientations="Portrait" 
+	Orientation="Portrait"
+	shell:SystemTray.IsVisible="false"
+	>
+    <phone:PhoneApplicationPage.Resources>
+        <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
+            <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
+            <Setter Property="BackgroundColor" Value="White"/>
+        </Style>
+    </phone:PhoneApplicationPage.Resources>
+	<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
+	<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
+	<!--<local:YAxisShitView x:Name="Test"/>-->
+   
+    <!--<local:GardenPivotView/>-->
+    <!--<phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+
+        <phone:Panorama.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
+        </phone:Panorama.Background>
+        <phone:Panorama.Title>
+            <Image 
+					Source="/Assets/Bg/panorama_logo.png" 
+					Stretch="UniformToFill" 
+					Width="800" 
+					Margin="0,80,0,0"/>
+        </phone:Panorama.Title>
+
+        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
+            <local:GardenView DataContext="{Binding }"/>
+        </phone:PanoramaItem>
+    </phone:Panorama>-->
+    <bar:Bindable.ApplicationBar>
+        <bar:BindableApplicationBar
+			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
+			Style="{StaticResource GSAppBarStyle}"
+			ButtonsSource="{Binding AppBarButtons}"
+			MenuItemsSource="{Binding AppBarMenuItems}"
+			IsVisible="{Binding AppBarIsVisible}"            
+			>
+            <bar:BindableApplicationBar.ButtonTemplate>
+                <DataTemplate>
+                    <bar:BindableApplicationBarButton
+                        Command="{Binding Command}"
+                        CommandParameter="{Binding CommandParameter}"
+                        IconUri="{Binding IconType, Converter={StaticResource IconTypeToIconUri}}"
+                        IsEnabled="{Binding IsEnabled}"
+                        Text="{Binding Text}" />
+                </DataTemplate>
+            </bar:BindableApplicationBar.ButtonTemplate>
+        </bar:BindableApplicationBar>
+    </bar:Bindable.ApplicationBar>
+
+</phone:PhoneApplicationPage>

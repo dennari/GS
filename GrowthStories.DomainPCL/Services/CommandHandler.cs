@@ -137,6 +137,8 @@ namespace Growthstories.Domain.Services
         {
 
 
+
+
             var aggregate = Construct(msg);
 
             aggregate.Handle(msg);
@@ -154,8 +156,44 @@ namespace Growthstories.Domain.Services
             else
                 Repository.Save(aggregate);
 
+
+            var cmd = msg as IAggregateCommand;
+            if (cmd != null)
+            {
+                IAggregateCommand derived = null;
+                if (this.CreateDerivedCommand(cmd, out derived))
+                {
+                    Handle(derived);
+                }
+            }
+
+
             return aggregate;
 
+        }
+
+        private bool CreateDerivedCommand(IAggregateCommand cmd, out IAggregateCommand derived)
+        {
+
+            derived = null;
+
+            var photo = cmd as CreatePlantAction;
+            if (photo != null && photo.Type == PlantActionType.PHOTOGRAPHED)
+            {
+                try
+                {
+                    var plant = (Plant)Repository.GetById(photo.PlantId);
+                    if (plant.State.Profilepicture == null)
+                    {
+                        derived = new SetProfilepicture(photo.PlantId, photo.Photo);
+                        return true;
+                    }
+                }
+                catch { }
+            }
+
+
+            return false;
         }
 
 

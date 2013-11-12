@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
 using Growthstories.Domain.Entities;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -16,7 +17,6 @@ namespace Growthstories.UI.ViewModel
 
     public class PlantActionViewModel : DesignViewModelBase, IPlantActionViewModel
     {
-        protected IconType _IconType;
 
         public PlantActionViewModel()
             : this(DateTimeOffset.Now)
@@ -34,6 +34,11 @@ namespace Growthstories.UI.ViewModel
             this.Time = Created.ToString("t");
             this.PlantActionId = Guid.NewGuid();
             this.Created = Created;
+
+            _OpenZoomView = new MockReactiveCommand(o =>
+            {
+                this.IsZoomViewOpen = true;
+            });
         }
 
         public string WeekDay { get; set; }
@@ -47,13 +52,19 @@ namespace Growthstories.UI.ViewModel
         public PlantActionType ActionType { get; protected set; }
 
 
-        public Uri IconUri { get { return Utils.BigIcons[this._IconType]; } }
+        public IconType IconType { get; protected set; }
 
-        public BitmapImage Icon
+        protected bool _IsZoomViewOpen = false;
+        public bool IsZoomViewOpen
         {
-            get
+            get { return _IsZoomViewOpen; }
+            set
             {
-                return new BitmapImage(IconUri);
+                if (_IsZoomViewOpen != value)
+                {
+                    _IsZoomViewOpen = value;
+                    RaisePropertyChanged();
+                }
             }
         }
 
@@ -68,6 +79,16 @@ namespace Growthstories.UI.ViewModel
         {
             get { return ""; }
         }
+
+
+        MockReactiveCommand _OpenZoomView;
+        public ReactiveUI.IReactiveCommand OpenZoomView
+        {
+            get
+            {
+                return _OpenZoomView;
+            }
+        }
     }
 
     public sealed class PlantCommentViewModel : PlantActionViewModel, IPlantCommentViewModel
@@ -79,7 +100,7 @@ namespace Growthstories.UI.ViewModel
             : base(created)
         {
             this.Title = "COMMENTED";
-            this._IconType = IconType.NOTE;
+            this.IconType = IconType.NOTE;
             this.ActionType = PlantActionType.COMMENTED;
         }
     }
@@ -93,7 +114,7 @@ namespace Growthstories.UI.ViewModel
             : base(created)
         {
             this.Title = "MEASURED";
-            this._IconType = IconType.MEASURE;
+            this.IconType = IconType.MEASURE;
             this.Series = new MeasurementTypeViewModel(MeasurementType.LENGTH, "LENGHT", IconType.MEASURE);
             this.Value = 23.45;
             this.ActionType = PlantActionType.MEASURED;
@@ -114,7 +135,7 @@ namespace Growthstories.UI.ViewModel
             : base(created)
         {
             this.Title = "WATERED";
-            this._IconType = IconType.WATER;
+            this.IconType = IconType.WATER;
             this.ActionType = PlantActionType.WATERED;
 
         }
@@ -129,7 +150,7 @@ namespace Growthstories.UI.ViewModel
             : base(created)
         {
             this.Title = "NOURISHED";
-            this._IconType = IconType.NOURISH;
+            this.IconType = IconType.NOURISH;
             this.ActionType = PlantActionType.FERTILIZED;
         }
     }
@@ -147,7 +168,7 @@ namespace Growthstories.UI.ViewModel
             : base(created)
         {
             this.Title = "PHOTOGRAPHED";
-            this._IconType = IconType.PHOTO;
+            this.IconType = IconType.PHOTO;
             this.PhotoData = new Photo()
             {
                 LocalFullPath = photo ?? @"/TestData/517e100d782a828894.jpg",
@@ -180,14 +201,14 @@ namespace Growthstories.UI.ViewModel
     public sealed class MeasurementTypeViewModel
     {
         public string Title { get; set; }
-        private IconType _Icon;
+        public IconType IconType { get; set; }
         public MeasurementType Type { get; set; }
 
         public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon)
         {
             this.Type = type;
             this.Title = title;
-            this._Icon = icon;
+            this.IconType = icon;
 
 
         }
@@ -197,7 +218,6 @@ namespace Growthstories.UI.ViewModel
             return Title;
         }
 
-        public Uri Icon { get { return Utils.BigIcons[this._Icon]; } }
 
         public IList<MeasurementTypeViewModel> Types { get { return GetAll(); } }
 
@@ -220,27 +240,6 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-
-    public static class Utils
-    {
-        public static readonly IDictionary<IconType, Uri> BigIcons = new Dictionary<IconType, Uri>()
-        {
-            {IconType.WATER,new Uri("/Assets/Icons/icon_watering.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
-            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient.png", UriKind.RelativeOrAbsolute)},
-            {IconType.NOURISH,new Uri("/Assets/Icons/icon_nutrient.png", UriKind.RelativeOrAbsolute)},
-            {IconType.NOTE,new Uri("/Assets/Icons/icon_comment.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHANGESOIL,new Uri("/Assets/Icons/icon_soilchange.png", UriKind.RelativeOrAbsolute)},
-            {IconType.BLOOMING,new Uri("/Assets/Icons/icon_blooming.png", UriKind.RelativeOrAbsolute)},
-            {IconType.DECEASED,new Uri("/Assets/Icons/icon_deceased.png", UriKind.RelativeOrAbsolute)},
-            {IconType.ILLUMINANCE,new Uri("/Assets/Icons/icon_illuminance.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MISTING,new Uri("/Assets/Icons/icon_misting.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PH,new Uri("/Assets/Icons/icon_ph.png", UriKind.RelativeOrAbsolute)},
-            {IconType.POLLINATION,new Uri("/Assets/Icons/icon_pollination.png", UriKind.RelativeOrAbsolute)},
-            {IconType.SPROUTING,new Uri("/Assets/Icons/icon_sprouting.png", UriKind.RelativeOrAbsolute)},
-        };
-    }
 
 
 }

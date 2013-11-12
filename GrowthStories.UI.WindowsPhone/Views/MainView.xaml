@@ -43,7 +43,7 @@
 			
             <!-- MY GARDEN -->
 			<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
-                <local:GardenView DataContext="{Binding GardenVM}"/>
+                <local:GardenView ViewModel="{Binding GardenVM}"/>
 			</phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
@@ -65,7 +65,9 @@
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4" Margin="0,0" DataContext="{Binding TestingVM}">
                     <StackPanel Orientation="Vertical">
-                        <Button  Command="{Binding CreateLocalDataCommand}">
+                        <Button  Command="{Binding CreateLocalDataCommand}"
+                                 IsEnabled="{Binding CreateLocalDataCommand}"
+                                 >
                             <TextBlock Text="Create local data"
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>

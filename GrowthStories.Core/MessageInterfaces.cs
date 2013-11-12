@@ -33,6 +33,7 @@ namespace Growthstories.Core
         void TrimDuplicates();
     }
 
+
     public sealed class StreamSegment : IStreamSegment
     {
         private readonly SortedDictionary<int, IMessage> Messages = new SortedDictionary<int, IMessage>();
@@ -225,6 +226,143 @@ namespace Growthstories.Core
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.Messages.Values.GetEnumerator();
+        }
+    }
+
+    public sealed class MultiCommand : IStreamSegment
+    {
+
+        private readonly HashSet<IAggregateCommand> Commands = new HashSet<IAggregateCommand>();
+
+        public Guid AggregateId { get; private set; }
+        public ICreateMessage CreateMessage { get; private set; }
+
+        public MultiCommand() { }
+        public MultiCommand(params IAggregateCommand[] cmds)
+        {
+            foreach (var cmd in cmds)
+                this.Add(cmd);
+        }
+
+
+        private IAggregateCommand AssertIsCmd(IMessage x)
+        {
+            var cmd = x as IAggregateCommand;
+            if (cmd == null)
+                throw new InvalidOperationException("multicommand only accepts commands");
+            return cmd;
+        }
+
+        public void Add(IMessage msg)
+        {
+            var cmd = AssertIsCmd(msg);
+
+
+            if (Count == 0)
+            {
+                this.AggregateId = cmd.AggregateId;
+                var c = cmd as ICreateMessage;
+                if (c != null)
+                    CreateMessage = c;
+
+            }
+            else
+            {
+                if (cmd.AggregateId != this.AggregateId)
+                    throw new ArgumentException("all the commands have to belong to the same aggregate");
+            }
+
+            if (!Commands.Add(cmd))
+            {
+                throw new InvalidOperationException("multicommand can't include duplicate commands");
+            }
+
+        }
+
+        public void Clear()
+        {
+            this.Commands.Clear();
+        }
+
+        public bool Contains(IMessage item)
+        {
+            var cmd = AssertIsCmd(item);
+            return Commands.Contains(cmd);
+        }
+
+        public void CopyTo(IMessage[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Count
+        {
+            get { return Commands.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        public bool Remove(IMessage item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<IMessage> GetEnumerator()
+        {
+            return Commands.GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return Commands.GetEnumerator();
+        }
+
+
+        public int AggregateVersion
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public int TranslateOffset
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public IGSAggregate Aggregate
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public void MergeIncoming(IStreamSegment other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MergeOutgoing(IStreamSegment other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TrimDuplicates()
+        {
+            throw new NotImplementedException();
         }
     }
 

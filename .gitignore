@@ -122,6 +122,7 @@ ModelManifest.xml
 GrowthStories.UI.WindowsPhone/Assets/Bg
 GrowthStories.UI.WindowsPhone/Assets/icons_all
 GrowthStories.UI.WindowsPhone/Assets/light
+GrowthStories.UI.WindowsPhone/PerfLogs/
 #!GrowthStories.UI.WindowsPhone/Assets/Tiles/*
 #!GrowthStories.UI.WindowsPhone/Assets/Icons/*
 

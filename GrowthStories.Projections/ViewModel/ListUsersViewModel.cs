@@ -13,7 +13,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
 using Growthstories.Core;
-using EventStore.Logging;
+//using EventStore.Logging;
 using CommonDomain;
 using System.Collections;
 
@@ -38,7 +38,7 @@ namespace Growthstories.UI.ViewModel
         public readonly IObservable<IUserListResponse> SearchResults;
         public readonly IObservable<List<CreateSyncStream>> SyncStreams;
 
-        private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
+        //      private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
 
         private ReactiveList<RemoteUser> _List;
@@ -112,8 +112,7 @@ namespace Growthstories.UI.ViewModel
                 .OfType<RemoteUser>()
                 .Subscribe(x =>
                 {
-                    var cmds = new StreamSegment(GSAppState.GSAppId);
-                    cmds.Add(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
+                    var cmds = new MultiCommand(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
                     if (x.Garden != null && x.Garden.Plants != null)
                     {
@@ -122,7 +121,7 @@ namespace Growthstories.UI.ViewModel
 
                     }
 
-                    App.Bus.SendCommands(cmds);
+                    App.HandleCommand(cmds);
 
                 });
 

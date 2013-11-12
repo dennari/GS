@@ -22,12 +22,10 @@ namespace Growthstories.UI.Services
 
         private readonly ISynchronizerService SyncService;
         private readonly ITransportEvents Transporter;
-        private readonly IMessageBus Bus;
         private readonly IDispatchCommands Handler;
         private IRequestFactory RequestFactory;
 
         public AppUserService(
-            IMessageBus bus,
             ISynchronizerService syncService,
             ITransportEvents transporter,
             IRequestFactory requestFactory,
@@ -37,7 +35,6 @@ namespace Growthstories.UI.Services
 
             this.Transporter = transporter;
             this.SyncService = syncService;
-            this.Bus = bus;
             this.Handler = handler;
             this.RequestFactory = requestFactory;
         }
@@ -99,7 +96,7 @@ namespace Growthstories.UI.Services
                 var pushResp = await s.Push();
                 if (pushResp.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Can't synchronize user");
-                Bus.SendCommand(new Push(s));
+                Handler.Handle(new Push(s));
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
 
@@ -113,7 +110,7 @@ namespace Growthstories.UI.Services
                 _CurrentUser.ExpiresIn = authResponse.AuthToken.ExpiresIn;
                 _CurrentUser.RefreshToken = authResponse.AuthToken.RefreshToken;
 
-                Bus.SendCommand(new SetAuthToken(authResponse.AuthToken));
+                Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
                 Transporter.AuthToken = authResponse.AuthToken;
                 //u.State.Apply(new AuthTokenSet(new SetAuthToken(u.Id, authResponse.AuthToken)));

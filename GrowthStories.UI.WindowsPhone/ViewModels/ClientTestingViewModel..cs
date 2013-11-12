@@ -43,36 +43,55 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Handler = Kernel.Get<IDispatchCommands>();
 
             this.CreateRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
-            this.CreateLocalDataCommand.Subscribe(x => this.CreateLocalTestData());
+            this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData()));
 
         }
 
         public void CreateLocalTestData()
         {
 
-
+            if (App.User == null)
+            {
+                App.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(_ => _CreateLocalTestData());
+            }
+            else
+            {
+                _CreateLocalTestData();
+            }
+        }
+        private void _CreateLocalTestData()
+        {
 
             for (var i = 0; i < 5; i++)
             {
 
-                var localPlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id);
-                App.Bus.SendCommand(localPlant);
+                var localPlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, App.User.GardenId, App.User.Id);
+                Handler.Handle(localPlant);
+
+
+                //var photoPath = i % 2 == 0 ? @"/TestData/flowers-from-the-conservatory.jpg" : @"/TestData/517e100d782a828894.jpg";
+                //App.Bus.SendCommand(new SetProfilepicture(localPlant.AggregateId, new Photo()
+                //    {
+                //        LocalUri = photoPath,
+                //        LocalFullPath = photoPath
+                //    }
+                //));
 
                 var localPlantProperty = new MarkPlantPublic(localPlant.AggregateId);
-                App.Bus.SendCommand(localPlantProperty);
+                Handler.Handle(localPlantProperty);
 
-                App.Bus.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, localPlant.AggregateId, App.Context.CurrentUser.Id, "Jare " + i));
+                Handler.Handle(new AddPlant(App.User.GardenId, localPlant.AggregateId, App.User.Id, "Jare " + i));
 
 
                 var wateringSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600);
-                App.Bus.SendCommand(wateringSchedule);
-                App.Bus.SendCommand(new SetWateringSchedule(localPlant.AggregateId, wateringSchedule.AggregateId));
+                Handler.Handle(wateringSchedule);
+                Handler.Handle(new SetWateringSchedule(localPlant.AggregateId, wateringSchedule.AggregateId));
 
                 var FertilizingSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 50 * 3600);
-                App.Bus.SendCommand(FertilizingSchedule);
-                App.Bus.SendCommand(new SetFertilizingSchedule(localPlant.AggregateId, FertilizingSchedule.AggregateId));
+                Handler.Handle(FertilizingSchedule);
+                Handler.Handle(new SetFertilizingSchedule(localPlant.AggregateId, FertilizingSchedule.AggregateId));
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                         new CreatePlantAction(
                             Guid.NewGuid(),
                             App.Context.CurrentUser.Id,
@@ -81,10 +100,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                             "Hello local world " + i));
 
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                     new CreatePlantAction(
                         Guid.NewGuid(),
-                        App.Context.CurrentUser.Id,
+                        App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.PHOTOGRAPHED,
                         "Hello local world " + i)
@@ -95,26 +114,26 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                         }
                     });
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                     new CreatePlantAction(
                         Guid.NewGuid(),
-                        App.Context.CurrentUser.Id,
+                        App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.FERTILIZED,
                         "Hello local world " + i));
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                     new CreatePlantAction(
                         Guid.NewGuid(),
-                        App.Context.CurrentUser.Id,
+                        App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.WATERED,
                         "Hello local world " + i));
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                     new CreatePlantAction(
                         Guid.NewGuid(),
-                        App.Context.CurrentUser.Id,
+                        App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.PHOTOGRAPHED,
                         "Hello local world " + i)
@@ -125,10 +144,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                         }
                     });
 
-                App.Bus.SendCommand(
+                Handler.Handle(
                     new CreatePlantAction(
                         Guid.NewGuid(),
-                        App.Context.CurrentUser.Id,
+                        App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.PHOTOGRAPHED,
                         "Hello local world " + i)
@@ -170,7 +189,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 name,
                 "swordfish",
                 name + "@wonderland.net");
-            App.Bus.SendCommand(remoteUser);
+            Handler.Handle(remoteUser);
             //var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
             //{
             //    Streams = EventsToStreams(remoteUser.AggregateId, remoteUser),
@@ -180,24 +199,24 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
             var remoteGarden = new CreateGarden(Guid.NewGuid(), remoteUser.AggregateId);
-            App.Bus.SendCommand(remoteGarden);
+            Handler.Handle(remoteGarden);
 
 
             var remoteAddGarden = new AddGarden(remoteUser.AggregateId, remoteGarden.EntityId.Value);
-            App.Bus.SendCommand(remoteAddGarden);
+            Handler.Handle(remoteAddGarden);
 
             for (var i = 0; i < 5; i++)
             {
 
                 var remotePlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, remoteGarden.EntityId.Value, remoteUser.AggregateId);
-                App.Bus.SendCommand(remotePlant);
+                Handler.Handle(remotePlant);
 
                 var remotePlantProperty = new MarkPlantPublic(remotePlant.AggregateId);
-                App.Bus.SendCommand(remotePlantProperty);
+                Handler.Handle(remotePlantProperty);
 
 
                 var remoteAddPlant = new AddPlant(remoteGarden.EntityId.Value, remotePlant.AggregateId, remoteUser.AggregateId, "RemoteJare " + i);
-                App.Bus.SendCommand(remoteAddPlant);
+                Handler.Handle(remoteAddPlant);
 
                 var remoteComment =
                         new CreatePlantAction(
@@ -207,7 +226,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                             PlantActionType.COMMENTED,
                             "Hello remote world " + i);
 
-                App.Bus.SendCommand(remoteComment);
+                Handler.Handle(remoteComment);
 
                 var remotePhoto =
                     new CreatePlantAction(
@@ -223,7 +242,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                         }
                     };
 
-                App.Bus.SendCommand(remotePhoto);
+                Handler.Handle(remotePhoto);
             }
 
         }

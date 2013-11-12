@@ -20,23 +20,73 @@ namespace Growthstories.UI.WindowsPhone
 
     public static class ConverterHelpers
     {
-        public static BitmapImage ToBitmapImage(this Photo x)
+        public static BitmapImage ToBitmapImage(this IPhoto x)
         {
             var img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
               {
-                  CreateOptions = BitmapCreateOptions.DelayCreation,
-                  DecodePixelType = DecodePixelType.Physical
+                  CreateOptions = (BitmapCreateOptions.DelayCreation & BitmapCreateOptions.BackgroundCreation),
+                  DecodePixelType = x.DimensionsType == DimensionsType.LOGICAL ? DecodePixelType.Logical : DecodePixelType.Physical
               };
             if (x.Height != default(uint))
                 img.DecodePixelHeight = (int)x.Height;
-            if (x.Width != default(uint))
-                img.DecodePixelWidth = (int)x.Width;
+            // the width is ignored when using BackGroundCreation
+            //if (x.Width != default(uint)) 
+            //    img.DecodePixelWidth = (int)x.Width;
             img.ImageFailed += (s, e) =>
             {
                 throw e.ErrorException;
             };
             return img;
         }
+
+
+        public const string IconFolder = "/Assets/Icons/";
+
+        public static IDictionary<IconType, string> SmallIcons = new Dictionary<IconType, string>()
+        {
+            {IconType.ADD,IconFolder+"appbar.add.png"},
+            {IconType.CHECK,IconFolder+"appbar.check.png"},
+            {IconType.DELETE,IconFolder+"appbar.delete.png"},
+            {IconType.CHECK_LIST,IconFolder+"appbar.list.check.png"},
+            {IconType.SHARE,IconFolder+"appbar.social.sharethis.png"},
+            {IconType.WATER,IconFolder+"icon_watering_appbar.png"},
+            {IconType.PHOTO,IconFolder+"icon_photo_appbar.png"},
+            {IconType.FERTILIZE,IconFolder+"icon_nutrient_appbar.png"},
+            {IconType.NOURISH,IconFolder+"icon_nutrient_appbar.png"},
+            {IconType.NOTE,IconFolder+"icon_comment_appbar.png"},
+            {IconType.MEASURE,IconFolder+"icon_length_appbar.png"},
+            {IconType.CHANGESOIL,IconFolder+"icon_soilchange_appbar.png"},
+            {IconType.BLOOMING,IconFolder+"icon_blooming_appbar.png"},
+            {IconType.DECEASED,IconFolder+"icon_deceased_appbar.png"},
+            {IconType.ILLUMINANCE,IconFolder+"icon_illuminance_appbar.png"},
+            {IconType.MISTING,IconFolder+"icon_misting_appbar.png"},
+            {IconType.PH,IconFolder+"icon_ph_appbar.png"},
+            {IconType.POLLINATION,IconFolder+"icon_pollination_appbar.png"},
+            {IconType.SPROUTING,IconFolder+"icon_sprouting_appbar.png"}
+
+        };
+
+
+
+
+        public static IDictionary<IconType, string> BigIcons = new Dictionary<IconType, string>()
+        {
+            {IconType.WATER, "/Assets/Icons/icon_watering.png"},
+            {IconType.PHOTO, "/Assets/Icons/icon_photo.png"},
+            {IconType.FERTILIZE,"/Assets/Icons/icon_nutrient.png"},
+            {IconType.NOURISH,"/Assets/Icons/icon_nutrient.png"},
+            {IconType.NOTE,"/Assets/Icons/icon_comment.png"},
+            {IconType.MEASURE,"/Assets/Icons/icon_length.png"},
+            {IconType.CHANGESOIL,"/Assets/Icons/icon_soilchange.png"},
+            {IconType.BLOOMING,"/Assets/Icons/icon_blooming.png"},
+            {IconType.DECEASED,"/Assets/Icons/icon_deceased.png"},
+            {IconType.ILLUMINANCE,"/Assets/Icons/icon_illuminance.png"},
+            {IconType.MISTING,"/Assets/Icons/icon_misting.png"},
+            {IconType.PH,"/Assets/Icons/icon_ph.png"},
+            {IconType.POLLINATION,"/Assets/Icons/icon_pollination.png"},
+            {IconType.SPROUTING,"/Assets/Icons/icon_sprouting.png"}
+        };
+
     }
 
     public class NullToVisibilityConverter : IValueConverter
@@ -99,9 +149,30 @@ namespace Growthstories.UI.WindowsPhone
             if (value == null)
                 return null;
 
+            uint[] d = null;
+            if (parameter != null)
+            {
+                try
+                {
+                    d = ((string)parameter)
+                        .Split('x')
+                        .Select(x => uint.Parse(x))
+                        .ToArray();
+
+                }
+                catch { }
+
+            }
+
             try
             {
                 Photo x = (Photo)value;
+                if (d != null && d.Length == 2)
+                {
+                    x.Width = d[0];
+                    x.Height = d[1];
+                    x.DimensionsType = DimensionsType.LOGICAL;
+                }
                 return x.ToBitmapImage();
             }
             catch (InvalidCastException)
@@ -174,15 +245,96 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        void img_ImageOpened(object sender, System.Windows.RoutedEventArgs e)
+    }
+
+    public class IconTypeToIconConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
         {
-            if (true) { }
+            if (value == null)
+                return null;
+
+            var d = parameter == null ? ConverterHelpers.BigIcons : ConverterHelpers.SmallIcons;
+
+            try
+            {
+                IconType x = (IconType)value;
+
+                var defaultPhoto = new Photo()
+                {
+                    LocalUri = d[x],
+                    LocalFullPath = d[x]
+                };
+
+                return defaultPhoto.ToBitmapImage();
+
+            }
+            catch (InvalidCastException)
+            {
+
+            }
+            catch (ArgumentNullException)
+            {
+
+            }
+            catch (KeyNotFoundException)
+            {
+
+            }
+            return null;
+
+
         }
 
-        void img_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
         {
-            throw e.ErrorException;
+            throw new NotImplementedException();
         }
+
+
+    }
+
+
+    public class IconTypeToIconUriConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+                return null;
+
+            var d = parameter == null ? ConverterHelpers.BigIcons : ConverterHelpers.SmallIcons;
+
+            try
+            {
+                IconType x = (IconType)value;
+
+                return new Uri(d[x], UriKind.RelativeOrAbsolute);
+
+            }
+            catch (InvalidCastException)
+            {
+
+            }
+            catch (ArgumentNullException)
+            {
+
+            }
+            return null;
+
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
 
     }
 

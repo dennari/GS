@@ -257,7 +257,7 @@ namespace Growthstories.Domain
 
         public IGSAggregate GetById(Guid id)
         {
-            IGSAggregate aggregate = null;
+             IGSAggregate aggregate = null;
             if (this.aggregates.TryGetValue(id, out aggregate))
                 return aggregate;
 

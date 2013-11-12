@@ -37,7 +37,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "save",
-                            IconUri = App.IconUri[IconType.CHECK],
+                            IconType = IconType.CHECK,
                             Command = AddCommand
                         }
                     };
@@ -100,9 +100,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public Uri IconUri { get { return this.App.BigIconUri[this._IconType]; } }
+        public IconType IconType { get; protected set; }
 
-        protected IconType _IconType;
 
 
 
@@ -170,6 +169,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+        IReactiveCommand _OpenZoomView = new ReactiveCommand();
+        public IReactiveCommand OpenZoomView
+        {
+            get { return _OpenZoomView; }
+        }
     }
 
 
@@ -177,14 +182,13 @@ namespace Growthstories.UI.ViewModel
     public sealed class MeasurementTypeViewModel : GSViewModelBase
     {
 
-        private IconType _Icon;
 
         public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon, IGSAppViewModel app)
             : base(app)
         {
             this.Type = type;
             this.Title = title;
-            this._Icon = icon;
+            this.IconType = icon;
 
 
         }
@@ -198,7 +202,7 @@ namespace Growthstories.UI.ViewModel
             return Title;
         }
 
-        public Uri Icon { get { return App != null ? App.IconUri[this._Icon] : new Uri("/Assets/Icons/icon_length_appbar.png", UriKind.RelativeOrAbsolute); } }
+        public IconType IconType { get; private set; }
 
         public static IList<MeasurementTypeViewModel> GetAll(IGSAppViewModel app)
         {
@@ -230,7 +234,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null && state.Type != PlantActionType.COMMENTED)
                 throw new InvalidOperationException();
-            this._IconType = IconType.NOTE;
+            this.IconType = IconType.NOTE;
             this.CanExecute = this.WhenAnyValue(x => x.Note, x => !string.IsNullOrWhiteSpace(x));
         }
 
@@ -289,7 +293,7 @@ namespace Growthstories.UI.ViewModel
             if (state != null && state.Type != PlantActionType.MEASURED)
                 throw new InvalidOperationException();
 
-            this._IconType = IconType.MEASURE;
+            this.IconType = IconType.MEASURE;
             this.MeasurementTypes = MeasurementTypeViewModel.GetAll(app);
             this.SeriesSelected = new ReactiveCommand();
             this.SeriesSelected
@@ -336,14 +340,14 @@ namespace Growthstories.UI.ViewModel
             if (state != null && state.Type != PlantActionType.WATERED)
                 throw new InvalidOperationException();
 
-            this._IconType = IconType.WATER;
+            this.IconType = IconType.WATER;
         }
 
         public PlantWaterViewModel(DateTimeOffset created, IGSAppViewModel app)
             : base(created, app)
         {
 
-            this._IconType = IconType.WATER;
+            this.IconType = IconType.WATER;
         }
 
         public override void AddCommandSubscription(object p)
@@ -362,14 +366,14 @@ namespace Growthstories.UI.ViewModel
         {
             if (state != null && state.Type != PlantActionType.FERTILIZED)
                 throw new InvalidCastException();
-            this._IconType = IconType.FERTILIZE;
+            this.IconType = IconType.FERTILIZE;
         }
 
         public PlantFertilizeViewModel(DateTimeOffset created, IGSAppViewModel app)
             : base(created, app)
         {
 
-            this._IconType = IconType.FERTILIZE;
+            this.IconType = IconType.FERTILIZE;
         }
 
 
@@ -384,6 +388,13 @@ namespace Growthstories.UI.ViewModel
     public class PlantPhotographViewModel : PlantActionViewModel, IPlantPhotographViewModel
     {
         public new string Title { get { return "PHOTOGRAPHED"; } }
+
+        bool _IsZoomViewOpen = false;
+        public bool IsZoomViewOpen
+        {
+            get { return _IsZoomViewOpen; }
+            set { this.RaiseAndSetIfChanged(ref _IsZoomViewOpen, value); }
+        }
 
         protected Photo _PhotoData;
         public Photo PhotoData
@@ -406,13 +417,15 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null && state.Type != PlantActionType.PHOTOGRAPHED)
                 throw new InvalidCastException();
-            this._IconType = IconType.PHOTO;
+            this.IconType = IconType.PHOTO;
 
 
             if (state != null)
             {
                 this.PhotoData = state.Photo;
             }
+
+            this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
         }
 
 

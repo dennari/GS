@@ -80,7 +80,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             });
 
 
-            this._Model = Initialize(Kernel.Get<IGSRepository>());
+            Initialize();
 
 
 

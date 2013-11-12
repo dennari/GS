@@ -81,21 +81,21 @@ namespace Growthstories.Domain
     {
 
 
-        public static void SendCommand<T>(this IMessageBus bus, T message)
-            where T : IAggregateCommand
-        {
-            bus.SendMessage((IAggregateCommand)message);
-        }
+        //public static void SendCommand<T>(this IMessageBus bus, T message)
+        //    where T : IAggregateCommand
+        //{
+        //    bus.SendMessage((IAggregateCommand)message);
+        //}
 
-        public static void SendCommands(this IMessageBus bus, IStreamSegment msgs)
-        {
-            bus.SendMessage(msgs);
-        }
+        //public static void SendCommands(this IMessageBus bus, IStreamSegment msgs)
+        //{
+        //    bus.SendMessage(msgs);
+        //}
 
-        public static void SendCommands(this IMessageBus bus, params IAggregateCommand[] msgs)
-        {
-            bus.SendCommands(msgs.GroupBy(x => x.AggregateId).Select(x => new StreamSegment(x)).Single());
-        }
+        //public static void SendCommands(this IMessageBus bus, params IAggregateCommand[] msgs)
+        //{
+        //    bus.SendCommands(msgs.GroupBy(x => x.AggregateId).Select(x => new StreamSegment(x)).Single());
+        //}
 
         public static void MergeByCreated(this IAggregateState st, IMessage incoming, IMessage outgoing, out IMessage incomingNew, out IMessage outgoingNew)
         {

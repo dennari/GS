@@ -21,7 +21,7 @@ namespace Growthstories.UI.ViewModel
 
         protected void SendCommand(IAggregateCommand cmd, bool GoBack = false)
         {
-            App.Bus.SendCommand(cmd);
+            App.HandleCommand(cmd);
             if (GoBack)
                 App.Router.NavigateBack.Execute(null);
         }
@@ -73,8 +73,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        #region IconUri
-        private Uri uri;
 
         /// <summary>
         /// Gets or sets the icon URI.
@@ -82,12 +80,12 @@ namespace Growthstories.UI.ViewModel
         /// <value>
         /// The icon URI.
         /// </value>
-        public Uri IconUri
+        private IconType _IconType;
+        public IconType IconType
         {
-            get { return this.uri; }
-            set { this.RaiseAndSetIfChanged(ref uri, value); }
+            get { return this._IconType; }
+            set { this.RaiseAndSetIfChanged(ref _IconType, value); }
         }
-        #endregion
     }
 
 

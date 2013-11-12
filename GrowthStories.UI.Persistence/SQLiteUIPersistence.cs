@@ -374,7 +374,7 @@ namespace Growthstories.UI.Persistence
 
             var bytes = SQLite3.ColumnByteArray(stmt, index);
             // var debug = Encoding.UTF8.GetString(bytes);
-            if (bytes.Length == 0)
+            if (bytes == null || bytes.Length == 0)
                 return null;
             return serializer.Deserialize<T>(bytes);
 

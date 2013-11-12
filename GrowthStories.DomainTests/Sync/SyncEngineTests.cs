@@ -67,8 +67,8 @@ namespace Growthstories.DomainTests
         public void TestPushIncludesPublicEvents()
         {
             var u = App.Context.CurrentUser;
-            App.Bus.SendCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
-            App.Bus.SendCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
@@ -83,8 +83,8 @@ namespace Growthstories.DomainTests
         public void TestCreatedUserIsInPullRequest()
         {
             var u = App.Context.CurrentUser;
-            App.Bus.SendCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
-            App.Bus.SendCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
@@ -113,7 +113,7 @@ namespace Growthstories.DomainTests
                 Streams = CreateStreams(remoteUser)
             };
 
-            App.Bus.SendCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER));
+            App.HandleCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER));
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
@@ -149,7 +149,7 @@ namespace Growthstories.DomainTests
                 })
             };
 
-            App.Bus.SendCommand(new BecomeFollower(u.Id, localTarget));
+            App.HandleCommand(new BecomeFollower(u.Id, localTarget));
 
             var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
@@ -192,7 +192,7 @@ namespace Growthstories.DomainTests
                 })
             };
 
-            App.Bus.SendCommand(new SetUsername(u.Id, localName));
+            App.HandleCommand(new SetUsername(u.Id, localName));
 
             var R = TestUtils.WaitForTask(App.Synchronize());
 
@@ -244,7 +244,7 @@ namespace Growthstories.DomainTests
                 })
             };
 
-            App.Bus.SendCommand(new SetUsername(u.Id, localName));
+            App.HandleCommand(new SetUsername(u.Id, localName));
 
             var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
@@ -312,7 +312,7 @@ namespace Growthstories.DomainTests
 
             };
 
-            App.Bus.SendCommand(new SetUsername(u.Id, localName));
+            App.HandleCommand(new SetUsername(u.Id, localName));
 
             var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
@@ -379,7 +379,7 @@ namespace Growthstories.DomainTests
 
             };
 
-            App.Bus.SendCommand(new SetUsername(u.Id, localName));
+            App.HandleCommand(new SetUsername(u.Id, localName));
 
             var R = TestUtils.WaitForTask(App.Synchronize());
             //Assert.IsTrue(R.PushReq.IsEmpty);
@@ -448,7 +448,7 @@ namespace Growthstories.DomainTests
 
             };
 
-            App.Bus.SendCommands(
+            App.HandleCommands(
                 new SetUsername(u.Id, localName),
                 new BecomeFollower(u.Id, remoteTarget),
                 new SetUsername(u.Id, newerLocalName)
@@ -500,13 +500,13 @@ namespace Growthstories.DomainTests
             //TestPushIncludesPublicEvents();
 
 
-            App.Bus.SendCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id));
-            App.Bus.SendCommand(new CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "Just a photo")
+            App.HandleCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id));
+            App.HandleCommand(new CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "Just a photo")
                 {
                     Photo = photo
                 }
             );
-            App.Bus.SendCommand(new SchedulePhotoUpload(photo));
+            App.HandleCommand(new SchedulePhotoUpload(photo));
 
 
             Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
@@ -562,7 +562,7 @@ namespace Growthstories.DomainTests
 #endif
 
 
-            App.Bus.SendCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id));
+            App.HandleCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id));
 
 
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()

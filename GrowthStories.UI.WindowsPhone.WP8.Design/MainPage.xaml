@@ -13,9 +13,9 @@
 	FontFamily="{StaticResource PhoneFontFamilyNormal}"
 	FontSize="{StaticResource PhoneFontSizeNormal}"
 	Foreground="{StaticResource PhoneForegroundBrush}"
-	SupportedOrientations="Portrait" 
+	SupportedOrientations="PortraitOrLandscape" 
 	Orientation="Portrait"
-	shell:SystemTray.IsVisible="True"
+	shell:SystemTray.IsVisible="false"
 	>
     <phone:PhoneApplicationPage.Resources>
         <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
@@ -26,15 +26,44 @@
 	<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
 	<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
 	<!--<local:YAxisShitView x:Name="Test"/>-->
-    <local:GardenView/>
-    <!--<bar:Bindable.ApplicationBar>
+   
+    <!--<local:GardenPivotView/>-->
+    <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+
+        <phone:Panorama.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
+        </phone:Panorama.Background>
+        <phone:Panorama.Title>
+            <Image 
+					Source="/Assets/Bg/panorama_logo.png" 
+					Stretch="UniformToFill" 
+					Width="800" 
+					Margin="0,80,0,0"/>
+        </phone:Panorama.Title>
+
+        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
+            <local:GardenView DataContext="{Binding }"/>
+        </phone:PanoramaItem>
+    </phone:Panorama>
+    <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar
 			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
 			Style="{StaticResource GSAppBarStyle}"
 			ButtonsSource="{Binding AppBarButtons}"
 			MenuItemsSource="{Binding AppBarMenuItems}"
 			IsVisible="{Binding AppBarIsVisible}"            
-			/>
-    </bar:Bindable.ApplicationBar>-->
+			>
+            <bar:BindableApplicationBar.ButtonTemplate>
+                <DataTemplate>
+                    <bar:BindableApplicationBarButton
+                        Command="{Binding Command}"
+                        CommandParameter="{Binding CommandParameter}"
+                        IconUri="{Binding IconType, Converter={StaticResource IconTypeToIconUri}}"
+                        IsEnabled="{Binding IsEnabled}"
+                        Text="{Binding Text}" />
+                </DataTemplate>
+            </bar:BindableApplicationBar.ButtonTemplate>
+        </bar:BindableApplicationBar>
+    </bar:Bindable.ApplicationBar>
 
 </phone:PhoneApplicationPage>

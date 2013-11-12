@@ -14,6 +14,8 @@ using System.Reactive.Disposables;
 using System.Windows.Data;
 using Growthstories.UI.ViewModel;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
+using System.Threading.Tasks;
+using Growthstories.Sync;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -21,12 +23,15 @@ namespace Growthstories.UI.WindowsPhone
     public partial class MainWindow : PhoneApplicationPage, IViewFor<AppViewModel>, IReactsToViewModelChange
     {
 
+        private Task<IAuthUser> InitializeTask;
 
         public MainWindow()
         {
             InitializeComponent();
             //this.SetBinding(ViewModelProperty, new Binding());
-            this.ViewModel = new AppViewModel();
+            ViewModel = new AppViewModel();
+            this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
+
         }
 
         public static readonly DependencyProperty ViewModelProperty =
@@ -71,7 +76,7 @@ namespace Growthstories.UI.WindowsPhone
                 }
 
             if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0) // don't do anything if this isn't the initial load
-                this.ViewModel.Router.Navigate.Execute(this.ViewModel.Resolver.GetService<IMainViewModel>());
+                this.ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
 
         }
 

@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using ReactiveUI;
 using System.Windows.Media.Imaging;
 using Growthstories.Domain.Messaging;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -21,8 +23,22 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public abstract class DesignViewModelBase : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel
+    public abstract class DesignViewModelBase : IGSRoutableViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, ICommandViewModel, INotifyPropertyChanged
     {
+
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        {
+
+
+            var handler = this.PropertyChanged;
+            if (handler != null && propertyName != null)
+            {
+                var e = new PropertyChangedEventArgs(propertyName);
+                handler(this, e);
+            }
+
+
+        }
 
         public string PageTitle
         {
@@ -154,22 +170,14 @@ namespace Growthstories.UI.ViewModel
 
             this.WateringScheduler = new PlantScheduler(WateringSchedule)
             {
-                Icon = new Photo()
-                {
-                    LocalFullPath = Utils.BigIcons[IconType.WATER].ToString(),
-                    LocalUri = Utils.BigIcons[IconType.WATER].ToString()
-                }
+                IconType = IconType.WATER
             };
 
             var missedSpan = new TimeSpan(Helpers.RandomGen.Next(2) > 0 ? 12 : 0, 0, 0, 0);
             this.WateringScheduler.ComputeNext(DateTimeOffset.UtcNow - missedSpan);
             this.FertilizingScheduler = new PlantScheduler(FertilizingSchedule)
             {
-                Icon = new Photo()
-                {
-                    LocalFullPath = Utils.BigIcons[IconType.FERTILIZE].ToString(),
-                    LocalUri = Utils.BigIcons[IconType.FERTILIZE].ToString()
-                }
+                IconType = IconType.FERTILIZE
             };
             this.FertilizingScheduler.ComputeNext(DateTimeOffset.UtcNow - new TimeSpan(12, 0, 0, 0));
 
@@ -338,7 +346,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IAuthUser UserState
+        public IAuthUser User
         {
             get { throw new NotImplementedException(); }
         }
@@ -439,21 +447,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        #region IconUri
-        private Uri uri;
-
         /// <summary>
         /// Gets or sets the icon URI.
         /// </summary>
         /// <value>
         /// The icon URI.
         /// </value>
-        public Uri IconUri
-        {
-            get { return this.uri; }
-            set { this.uri = value; }
-        }
-        #endregion
+        public IconType IconType { get; set; }
+
     }
 
 

@@ -10,27 +10,20 @@ using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using System.Windows.Data;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class GardenView : UserControl, IViewFor<IGardenViewModel>
+    public partial class GardenView : UserControl, IViewFor<IGardenViewModel>, IReactsToViewModelChange
     {
 
         object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IGardenViewModel)value; } }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IGardenViewModel), typeof(GardenView), new PropertyMetadata(null, ViewModelValueChanged));
+            DependencyProperty.Register("ViewModel", typeof(IGardenViewModel), typeof(GardenView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
-        static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            try
-            {
-                var view = (GardenView)sender;
-                view.DataContext = (IGardenViewModel)e.NewValue;
 
-            }
-            catch { }
-        }
+
 
         public IGardenViewModel ViewModel
         {
@@ -47,14 +40,26 @@ namespace Growthstories.UI.WindowsPhone
         public GardenView()
         {
             InitializeComponent();
+            //this.SetBinding(ViewModelProperty, new Binding());
         }
 
-        private void Grid_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+
+        private void PlantsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            this.ViewModel.SelectedItemsChanged.Execute(Tuple.Create(e.AddedItems, e.RemovedItems));
         }
 
 
 
+
+        public void ViewModelChanged(object vm)
+        {
+            try
+            {
+                this.ViewModel = (IGardenViewModel)vm;
+
+            }
+            catch { }
+        }
     }
 }

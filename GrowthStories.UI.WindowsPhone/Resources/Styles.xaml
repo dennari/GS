@@ -41,12 +41,15 @@
 	<Color x:Key="GSTextBoxFontColor">#ffae2e5f</Color>
 	<system:String x:Key="GSTextBoxDisabledFontColor">#a0f5dae4</system:String>
 	<Color x:Key="GSAppBarColor">#fffa6800</Color>
+    <Color x:Key="GSAccentColor">#fffa6800</Color>
 
-	<SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSTextBoxFontColor}"/>
+
+    <SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSTextBoxFontColor}"/>
 	<SolidColorBrush x:Key="GSFocusBorderBrush" Color="{StaticResource GSTextBoxFontColor}"/>
+    <SolidColorBrush x:Key="GSAccentBrush" Color="{StaticResource GSAccentColor}"/>
 
 
-	<Style TargetType="TextBox" x:Key="GSTextBoxStyle">
+    <Style TargetType="TextBox" x:Key="GSTextBoxStyle">
 		<Setter Property="FontFamily" Value="{StaticResource GSTextBoxFont}"/>
 		<Setter Property="FontSize" Value="{StaticResource GSTextBoxFontSize}"/>
 		<Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
@@ -227,7 +230,6 @@
 						<Grid.Background>
 							<ImageBrush Stretch="Uniform" ImageSource="{Binding Photo}" />
 						</Grid.Background>
-						<Button Width="100" Height="100" Background="Aqua"/>
 					</Grid>
 				</ControlTemplate>
 			</Setter.Value>
@@ -237,8 +239,8 @@
 	<DataTemplate x:Key="TimelinePhotoTemplate">
 		<Button Height="220" HorizontalAlignment="Stretch">
 			<Button.Background>
-				<!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoData, Converter={StaticResource PhotoToImageSource}}"/>-->
-				<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>
+				<ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoData, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
+				<!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
 			</Button.Background>
 		</Button>
 	</DataTemplate>
@@ -259,7 +261,7 @@
 								<TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
 								<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
 							</StackPanel>
-							<Image Source="{Binding Icon}" Width="45" Margin="24,0"  />
+                            <Image Source="{Binding IconType, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
 							<StackPanel Orientation="Vertical" VerticalAlignment="Top">
 								<TextBlock Text="{Binding Title}" Style="{StaticResource GSActionListItemTitleStyle}"/>
 								<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
@@ -284,7 +286,7 @@
 
                         <TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
 
-                        <Image Source="{Binding Icon, Converter={StaticResource PhotoToImageSource}}" Width="45" Margin="24,0"  />
+                        <Image Source="{Binding IconType, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
 
                         <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>

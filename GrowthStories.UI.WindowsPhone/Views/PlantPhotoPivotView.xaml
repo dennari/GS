@@ -6,13 +6,19 @@
 	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"    
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:slideView="clr-namespace:Telerik.Windows.Controls.SlideView;assembly=Telerik.Windows.Controls.Primitives"             
+    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives"             
+    xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"             
     xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
 	mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
     d:DataContext="{StaticResource PlantViewModelDesign}"
     >
 
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+          >
      
         <phone:Pivot 
             HorizontalAlignment="Stretch"
@@ -56,10 +62,51 @@
             </phone:Pivot.HeaderTemplate>
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <local:PlantActionView                         
-                        ViewModel="{Binding}" 
-                        Style="{StaticResource PlantPhotoActionStyle}" 
-                        Margin="-12,-28,-12,0"/>
+
+                    <Grid   HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+                        <local:PlantActionView                         
+                            ViewModel="{Binding}" 
+                            Style="{StaticResource PlantPhotoActionStyle}" 
+                            Margin="-12,-28,-12,0"
+                            Command="{Binding OpenZoomView}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            />
+                        <telerikPrimitives:RadWindow 
+                            IsFullScreen="True"
+                            x:Name="window"
+                            IsOpen="{Binding IsZoomViewOpen, Mode=TwoWay}"
+                            >
+                            <telerikPrimitives:RadWindow.OpenAnimation>
+                                <telerikCore:RadScaleAnimation StartScaleX="0"
+                                               StartScaleY="0"
+                                               EndScaleX="1"
+                                               EndScaleY="1"/>
+                            </telerikPrimitives:RadWindow.OpenAnimation>
+                            <telerikPrimitives:RadWindow.CloseAnimation>
+                                <telerikCore:RadScaleAnimation StartScaleX="1"
+                                               StartScaleY="1"
+                                               EndScaleX="0"
+                                               EndScaleY="0"/>
+                            </telerikPrimitives:RadWindow.CloseAnimation>
+                            <Grid>
+                                <TextBlock Text="Zoom and pan for a more detailed view"
+                           Foreground="{StaticResource PhoneAccentBrush}"
+                           Margin="0, 12, 0, 0"/>
+                                <slideView:PanAndZoomImage Grid.Row="1"
+                                           ZoomMode="Free"
+                                           x:Name="panZoom"
+                                           MaximumZoom="4"
+                                           Source="{Binding Photo}"/>
+                            </Grid>
+                        </telerikPrimitives:RadWindow>
+                    </Grid>
+
+
+
+
+
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
 

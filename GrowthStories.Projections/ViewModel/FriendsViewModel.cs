@@ -16,6 +16,20 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand FriendTapped { get; protected set; }
 
+
+        void LoadFriends()
+        {
+            App.CurrentGardens()
+                       .Concat(App.FutureGardens())
+                       .Where(x => x.User.Id != App.User.Id)
+                       .DistinctUntilChanged()
+                       .ObserveOn(RxApp.MainThreadScheduler)
+                       .Subscribe(x =>
+                       {
+                           _Friends.Add(x);
+                       });
+        }
+
         protected ReactiveList<IGardenViewModel> _Friends;
         public IReadOnlyReactiveList<IGardenViewModel> Friends
         {
@@ -24,15 +38,14 @@ namespace Growthstories.UI.ViewModel
                 if (_Friends == null)
                 {
                     _Friends = new ReactiveList<IGardenViewModel>();
-                    App.CurrentGardens()
-                        .Concat(App.FutureGardens())
-                        .Where(x => x.UserState.Id != App.Context.CurrentUser.Id)
-                        .DistinctUntilChanged()
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(x =>
-                        {
-                            _Friends.Add(x);
-                        });
+                    if (App.User == null)
+                    {
+                        App.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadFriends());
+                    }
+                    else
+                    {
+                        LoadFriends();
+                    }
 
                 }
                 return _Friends;
@@ -63,7 +76,7 @@ namespace Growthstories.UI.ViewModel
                     new ButtonViewModel(null)
                     {
                         Text = "add",
-                        IconUri = App.IconUri[IconType.ADD],
+                        IconType = IconType.ADD,
                         Command = App.Router.NavigateCommandFor<SearchUsersViewModel>()
                     }            
                 });

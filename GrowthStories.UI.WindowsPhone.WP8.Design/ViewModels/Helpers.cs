@@ -309,6 +309,15 @@ namespace ReactiveUI
     public class MockReactiveCommand : IReactiveCommand
     {
 
+        private readonly Action<object> Aktion;
+
+
+        public MockReactiveCommand() { }
+        public MockReactiveCommand(Action<object> action)
+        {
+            this.Aktion = action;
+        }
+
         public IObservable<T> RegisterAsync<T>(Func<object, IObservable<T>> asyncBlock)
         {
             throw new NotImplementedException();
@@ -338,14 +347,15 @@ namespace ReactiveUI
         public bool CanExecute(object parameter)
         {
             //throw new NotImplementedException();
-            return false;
+            return true;
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void Execute(object parameter)
         {
-            //throw new NotImplementedException();
+            if (Aktion != null)
+                Aktion(parameter);
         }
 
         public void Dispose()

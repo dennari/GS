@@ -159,21 +159,21 @@ namespace Growthstories.UI.ViewModel
 
                     new ButtonViewModel()
                     {
-                        IconUri = Utils.BigIcons[IconType.MEASURE],
+                        IconType = IconType.MEASURE,
                         Command = ToggleSeries,
                         CommandParameter = MeasurementType.LENGTH
                     },
                     
                     new ButtonViewModel()
                     {
-                        IconUri = Utils.BigIcons[IconType.PH],
+                        IconType = IconType.PH,
                         Command = ToggleSeries,
                         CommandParameter = MeasurementType.PH
                     },
                     
                     new ButtonViewModel()
                     {
-                        IconUri = Utils.BigIcons[IconType.ILLUMINANCE],
+                        IconType = IconType.ILLUMINANCE,
                         Command = ToggleSeries,
                         CommandParameter = MeasurementType.ILLUMINANCE
                     },

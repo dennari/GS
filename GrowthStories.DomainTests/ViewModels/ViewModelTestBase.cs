@@ -47,8 +47,8 @@ namespace Growthstories.DomainTests
             App = new TestAppViewModel(Kernel);
 
             var u = App.Context.CurrentUser;
-            App.Bus.SendCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
-            App.Bus.SendCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
+            App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
             //Ctx = Get<IUserService>().CurrentUser;
             Handler = Get<IDispatchCommands>();
         }

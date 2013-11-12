@@ -35,16 +35,6 @@ namespace Growthstories.UI.ViewModel
         public IPlantActionViewModel SelectedItem { get; set; }
         public PlantActionType? Filter { get; set; }
 
-        protected ReactiveList<IPlantActionViewModel> _FilteredActions;
-        public IReadOnlyReactiveList<IPlantActionViewModel> FilteredActions
-        {
-            get
-            {
-                if (_FilteredActions == null)
-                    _FilteredActions = !Filter.HasValue ? (ReactiveList<IPlantActionViewModel>)Actions : new ReactiveList<IPlantActionViewModel>(Actions.Where(x => x.ActionType == Filter.Value));
-                return _FilteredActions;
-            }
-        }
 
         public Guid Id { get { return State.Id; } }
         public Guid UserId { get { return State.UserId; } }
@@ -183,7 +173,10 @@ namespace Growthstories.UI.ViewModel
                 {
                     if (this.WateringScheduler == null)
                     {
-                        this.WateringScheduler = new PlantScheduler(x.Item1);
+                        this.WateringScheduler = new PlantScheduler(x.Item1)
+                        {
+                            IconType = IconType.WATER
+                        };
                     }
                     this.WateringScheduler.ComputeNext(a.Created);
                 }
@@ -204,7 +197,10 @@ namespace Growthstories.UI.ViewModel
                     {
                         if (this.FertilizingScheduler == null)
                         {
-                            this.FertilizingScheduler = new PlantScheduler(x.Item1);
+                            this.FertilizingScheduler = new PlantScheduler(x.Item1)
+                            {
+                                IconType = IconType.FERTILIZE
+                            };
                         }
                         this.FertilizingScheduler.ComputeNext(a.Created);
                     }
@@ -311,15 +307,15 @@ namespace Growthstories.UI.ViewModel
                     //    .Subscribe(x => ComputeNextFertilizing(x));
 
 
-                    if (this.Photo == null)
-                    {
-                        actionsPipe
-                        .OfType<IPlantPhotographViewModel>()
-                        .Take(1)
-                        .Select(x => x.PhotoData)
-                        .Subscribe(x => App.Bus.SendCommand(new SetProfilepicture(Id, x)));
+                    //if (this.Photo == null)
+                    //{
+                    //    actionsPipe
+                    //    .OfType<IPlantPhotographViewModel>()
+                    //    .Take(1)
+                    //    .Select(x => x.PhotoData)
+                    //    .Subscribe(x => App.Bus.SendCommand(new SetProfilepicture(Id, x)));
 
-                    }
+                    //}
 
                     //App.FuturePlantActions(this.State).Subscribe(x =>
                     //{
@@ -360,7 +356,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "water",
-                            IconUri = App.IconUri[IconType.WATER],
+                            IconType = IconType.WATER,
                             Command = Observable.Return(true)
                                 .ToCommandWithSubscription(x => {
                                     var vm = new PlantWaterViewModel(null, App);
@@ -383,7 +379,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "photograph",
-                            IconUri = App.IconUri[IconType.PHOTO],
+                            IconType = IconType.PHOTO,
                             Command = Observable.Return(true)
                                 .ToCommandWithSubscription(x =>  {
                                     var vm = new PlantPhotographViewModel(null, App);
@@ -408,7 +404,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
-                            IconUri = App.IconUri[IconType.NOTE],
+                            IconType = IconType.NOTE,
                             Command = Observable.Return(true)
                                 .ToCommandWithSubscription(x =>  {
                                     var vm = new PlantCommentViewModel(null, App);
@@ -431,7 +427,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "share",
-                            IconUri = App.IconUri[IconType.SHARE],
+                            IconType = IconType.SHARE,
                             Command = ShareCommand
                         },
 

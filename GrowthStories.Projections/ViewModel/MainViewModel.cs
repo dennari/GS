@@ -26,19 +26,16 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public MainViewModel(IGSAppViewModel app, IGardenViewModel gvm = null)
+        public MainViewModel(IGSAppViewModel app)
             : base(app)
         {
-
-            if (gvm != null)
-                this.GardenVM = gvm;
 
 
             this._Pages.Add(this.GardenVM);
             this._Pages.Add(this.NotificationsVM);
             this._Pages.Add(this.FriendsVM);
 
-            this.CurrentPage = this.GardenVM;
+            this.SelectedItem = this.GardenVM;
 
             //app.Gardens
             //    .Where(x => x.UserState.Id == app.Context.CurrentUser.Id)
@@ -55,7 +52,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenVM;
+                return _GardenVM ?? (_GardenVM = App.Resolver.GetService<IGardenViewModel>());
             }
             protected set
             {
@@ -117,13 +114,21 @@ namespace Growthstories.UI.ViewModel
         public TestingViewModel(IGSAppViewModel app)
             : base(app)
         {
-            this.CreateLocalDataCommand = new ReactiveCommand();
+            this.CreateLocalDataCommand = new ReactiveCommand(Observable.Return(true), false);
+            CreateLocalDataCommand.IsExecuting.ToProperty(this, x => x.CreateLocalDataCommandIsExecuting, out _CreateLocalDataCommandIsExecuting, true);
+
             this.CreateRemoteDataCommand = new ReactiveCommand();
             this.ClearDBCommand = new ReactiveCommand();
             this.SyncCommand = new ReactiveCommand();
 
 
 
+        }
+
+        protected ObservableAsPropertyHelper<bool> _CreateLocalDataCommandIsExecuting;
+        public bool CreateLocalDataCommandIsExecuting
+        {
+            get { return _CreateLocalDataCommandIsExecuting.Value; }
         }
 
         public ReactiveCommand CreateLocalDataCommand { get; protected set; }

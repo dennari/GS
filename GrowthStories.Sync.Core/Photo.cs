@@ -13,6 +13,12 @@ namespace Growthstories.Sync
         PORTRAIT
     }
 
+    public enum DimensionsType
+    {
+        PHYSICAL = 0,
+        LOGICAL = 1
+    }
+
     public interface IPhoto : IEquatable<IPhoto>
     {
 
@@ -20,7 +26,9 @@ namespace Growthstories.Sync
         uint Height { get; set; }
         ulong Size { get; set; }
         PhotoOrientation Orientation { get; }
+        DimensionsType DimensionsType { get; }
         string Uri { get; }
+
     }
 
     public sealed class Photo : IPhoto
@@ -30,6 +38,10 @@ namespace Growthstories.Sync
         public uint Width { get; set; }
         [JsonProperty]
         public uint Height { get; set; }
+
+        [JsonProperty]
+        public DimensionsType DimensionsType { get; set; }
+
         [JsonProperty]
         public ulong Size { get; set; }
 

@@ -12,12 +12,13 @@
     xmlns:Charting="clr-namespace:Telerik.Charting;assembly=Telerik.Windows.Controls.Chart"
     x:Class="Growthstories.UI.WindowsPhone.YAxisShitView"
     d:DataContext="{StaticResource YAxisShitViewModelDesign}"
-    mc:Ignorable="d" Width="800" Height="480">
+    d:DesignHeight="480" d:DesignWidth="800"
+    mc:Ignorable="d">
 
 
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.Background>
             <RadialGradientBrush Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
                 <GradientStop Color="#FF9E2277" Offset="1"/>

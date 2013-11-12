@@ -19,6 +19,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
+using System.Reactive.Disposables;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -41,6 +42,9 @@ namespace Growthstories.UI.ViewModel
         public T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null)
             where T : IAggregateCommand
         {
+
+            if (this.Context == null || this.Context.CurrentUser == null)
+                return cmd;
 
             Guid AncestorId = ancestorId ?? this.Context.CurrentUser.Id;
             cmd.StreamAncestorId = AncestorId;
@@ -78,6 +82,12 @@ namespace Growthstories.UI.ViewModel
         protected IDispatchCommands Handler
         {
             get { return _Handler ?? (_Handler = Kernel.Get<IDispatchCommands>()); }
+        }
+
+        protected IGSRepository _Repository;
+        protected IGSRepository Repository
+        {
+            get { return _Repository ?? (_Repository = Kernel.Get<IGSRepository>()); }
         }
 
         protected IUIPersistence _UIPersistence;
@@ -177,7 +187,7 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            resolver.RegisterLazySingleton(() => new MainViewModel(this, new GardenViewModel(this.Context.CurrentUser, this)), typeof(IMainViewModel));
+            resolver.RegisterLazySingleton(() => new GardenViewModel(null, this), typeof(IGardenViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
 
             resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(FriendsViewModel));
@@ -208,62 +218,126 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        protected IAuthUser _User;
+        public IAuthUser User
+        {
+            get
+            {
+
+                return _User;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _User, value);
+            }
+        }
 
 
+        //Task<T> RunTask<T>(Func<T> f)
+        //{
+        //    var t = Task.Run(f);
+        //    //t.ConfigureAwait(false);
+        //    return t;
+        //}
 
-        protected GSApp Initialize(IGSRepository repository)
+        Task<IGSAggregate> CurrentHandleJob;
+        public Task<IGSAggregate> HandleCommand(IAggregateCommand x)
         {
 
 
-            // Subscriptions where we need to catch all the happenings
-            Bus.Listen<IAggregateCommand>().Subscribe(x =>
+
+
+            var prevJob = CurrentHandleJob;
+
+            CurrentHandleJob = Task.Run(async () =>
             {
+                if (prevJob != null && !prevJob.IsCompleted)
+                {
+                    await prevJob;
+                }
                 if (!x.AncestorId.HasValue)
                     this.SetIds(x);
-
                 var push = x as Push;
                 if (push != null)
-                    Handler.Handle(push);
+                    return Handler.Handle(push);
                 var pull = x as Pull;
                 if (pull != null)
-                    Handler.Handle(pull);
-                if (push == null && pull == null)
-                    Handler.Handle(x);
+                    return Handler.Handle(pull);
+                return Handler.Handle(x);
             });
-            Bus.Listen<IStreamSegment>().Subscribe(x =>
+            //CurrentHandleJob.ConfigureAwait(false);
+            return CurrentHandleJob;
+        }
+
+        public Task<IGSAggregate> HandleCommand(MultiCommand x)
+        {
+
+            var prevJob = CurrentHandleJob;
+
+            CurrentHandleJob = Task.Run(async () =>
             {
-                Handler.Handle(x);
+                if (prevJob != null && !prevJob.IsCompleted)
+                {
+                    await prevJob;
+                }
+                return Handler.Handle(x);
             });
 
+            return CurrentHandleJob;
+        }
 
-            GSApp app = null;
-
-            try
+        Task<IGSAggregate> CurrentGetByIdJob; // only for starting
+        public Task<IGSAggregate> GetById(Guid id)
+        {
+            //CurrentGetByIdJob = CurrentGetByIdJob.ContinueWith(prev => RunTask(() => Repository.GetById(id))).Unwrap();
+            //CurrentGetByIdJob.ConfigureAwait(false);
+            var prevJob = CurrentGetByIdJob;
+            CurrentGetByIdJob = Task.Run(async () =>
             {
-                app = (GSApp)repository.GetById(GSAppState.GSAppId);
-            }
-            catch (DomainError)
+                if (prevJob != null && !prevJob.IsCompleted)
+                {
+                    await prevJob;
+                }
+                return Repository.GetById(id);
+            });
+
+            return CurrentGetByIdJob;
+        }
+
+        //public Task<IGSAggregate>
+
+
+        public Task<IAuthUser> Initialize()
+        {
+
+            if (this.Model != null)
+                return null;
+
+            return Task.Run(async () =>
             {
+                GSApp app = null;
 
-            }
+                try
+                {
+                    app = (GSApp)(await GetById(GSAppState.GSAppId));
+                }
+                catch (DomainError)
+                {
 
-            if (app == null)
-            {
-                app = (GSApp)Handler.Handle(new CreateGSApp());
-                //app = Bus.ListenIncludeLatest<IEvent>()
-                //        .OfType<GSAppCreated>()
-                //        .Select(x => (GSApp)repository.GetById(x.AggregateId))
-                //        .Take(1)
-                //        .GetAwaiter()
-                //        .Wait();
-                //app = factory.Build<GSApp>();
+                }
 
-            }
-            Context.SetupCurrentUser(app.State.User);
+                if (app == null)
+                {
+                    app = (GSApp)(await HandleCommand(new CreateGSApp()));
+                    //app = (GSApp)Handler.Handle(new CreateGSApp());
+                }
+                Context.SetupCurrentUser(app.State.User);
 
-            this.Model = app;
-
-            return app;
+                this.Model = app;
+                this.User = Context.CurrentUser;
+                return this.User;
+                //return app;
+            });
         }
 
 
@@ -373,7 +447,7 @@ namespace Growthstories.UI.ViewModel
             }
 
             if (user != null)
-                return _Gardens.Where(x => x.UserState.Id == user.Id);
+                return _Gardens.Where(x => x.User.Id == user.Id);
             return _Gardens;
 
         }
@@ -580,14 +654,31 @@ namespace Growthstories.UI.ViewModel
             get { return _AppBarMode.Value; }
         }
 
-        private void UpdateAppBar(IReadOnlyList<IButtonViewModel> x = null)
+
+        private IDisposable ButtonsAddSubscription = Disposable.Empty;
+        private IDisposable ButtonsRemoveSubscription = Disposable.Empty;
+
+        private void UpdateAppBar(IReadOnlyReactiveList<IButtonViewModel> x = null)
         {
             this._AppBarButtons.RemoveRange(0, this._AppBarButtons.Count);
             if (x != null)
+            {
                 this._AppBarButtons.AddRange(x);
+                ButtonsAddSubscription.Dispose();
+                ButtonsRemoveSubscription.Dispose();
+                ButtonsAddSubscription = x.ItemsAdded.Subscribe(y =>
+                {
+                    this._AppBarButtons.Add(y);
+                });
+                ButtonsRemoveSubscription = x.ItemsRemoved.Subscribe(y =>
+                {
+                    this._AppBarButtons.Remove(y);
+                });
+
+            }
         }
 
-        private void UpdateMenuItems(IReadOnlyList<IMenuItemViewModel> x = null)
+        private void UpdateMenuItems(IReadOnlyReactiveList<IMenuItemViewModel> x = null)
         {
             this._AppBarMenuItems.RemoveRange(0, this._AppBarMenuItems.Count);
             if (x != null)
@@ -609,54 +700,6 @@ namespace Growthstories.UI.ViewModel
         {
             get { return _AppBarMenuItems; }
         }
-
-        IDictionary<IconType, Uri> _IconUri = new Dictionary<IconType, Uri>()
-        {
-            {IconType.ADD,new Uri("/Assets/Icons/appbar.add.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHECK,new Uri("/Assets/Icons/appbar.check.png", UriKind.RelativeOrAbsolute)},
-            {IconType.DELETE,new Uri("/Assets/Icons/appbar.delete.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHECK_LIST,new Uri("/Assets/Icons/appbar.list.check.png", UriKind.RelativeOrAbsolute)},
-            {IconType.SHARE,new Uri("/Assets/Icons/appbar.social.sharethis.png", UriKind.RelativeOrAbsolute)},
-            {IconType.WATER,new Uri("/Assets/Icons/icon_watering_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.NOTE,new Uri("/Assets/Icons/icon_comment_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHANGESOIL,new Uri("/Assets/Icons/icon_soilchange_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.BLOOMING,new Uri("/Assets/Icons/icon_blooming_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.DECEASED,new Uri("/Assets/Icons/icon_deceased_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.ILLUMINANCE,new Uri("/Assets/Icons/icon_illuminance_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MISTING,new Uri("/Assets/Icons/icon_misting_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PH,new Uri("/Assets/Icons/icon_ph_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.POLLINATION,new Uri("/Assets/Icons/icon_pollination_appbar.png", UriKind.RelativeOrAbsolute)},
-            {IconType.SPROUTING,new Uri("/Assets/Icons/icon_sprouting_appbar.png", UriKind.RelativeOrAbsolute)}
-
-        };
-
-        public IDictionary<IconType, Uri> IconUri { get { return _IconUri; } }
-
-
-
-        IDictionary<IconType, Uri> _bIconUri = new Dictionary<IconType, Uri>()
-        {
-            {IconType.WATER,new Uri("/Assets/Icons/icon_watering.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PHOTO,new Uri("/Assets/Icons/icon_photo.png", UriKind.RelativeOrAbsolute)},
-            {IconType.FERTILIZE,new Uri("/Assets/Icons/icon_nutrient.png", UriKind.RelativeOrAbsolute)},
-            {IconType.NOTE,new Uri("/Assets/Icons/icon_comment.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MEASURE,new Uri("/Assets/Icons/icon_length.png", UriKind.RelativeOrAbsolute)},
-            {IconType.CHANGESOIL,new Uri("/Assets/Icons/icon_soilchange.png", UriKind.RelativeOrAbsolute)},
-            {IconType.BLOOMING,new Uri("/Assets/Icons/icon_blooming.png", UriKind.RelativeOrAbsolute)},
-            {IconType.DECEASED,new Uri("/Assets/Icons/icon_deceased.png", UriKind.RelativeOrAbsolute)},
-            {IconType.ILLUMINANCE,new Uri("/Assets/Icons/icon_illuminance.png", UriKind.RelativeOrAbsolute)},
-            {IconType.MISTING,new Uri("/Assets/Icons/icon_misting.png", UriKind.RelativeOrAbsolute)},
-            {IconType.PH,new Uri("/Assets/Icons/icon_ph.png", UriKind.RelativeOrAbsolute)},
-            {IconType.POLLINATION,new Uri("/Assets/Icons/icon_pollination.png", UriKind.RelativeOrAbsolute)},
-            {IconType.SPROUTING,new Uri("/Assets/Icons/icon_sprouting.png", UriKind.RelativeOrAbsolute)},
-        };
-
-        public IDictionary<IconType, Uri> BigIconUri { get { return _bIconUri; } }
-
-
 
 
         public PageOrientation _Orientation;

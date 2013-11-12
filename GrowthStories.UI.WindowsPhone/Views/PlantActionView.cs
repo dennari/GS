@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -39,6 +40,9 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty DisplayModeProperty =
          DependencyProperty.Register("DisplayMode", typeof(DisplayMode), typeof(PlantActionView), new PropertyMetadata(DisplayMode.Timeline, DisplayModeValueChanged));
 
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.Register("Command", typeof(ICommand), typeof(PlantActionView), new PropertyMetadata(null, CommandValueChanged));
+
         static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             try
@@ -60,6 +64,31 @@ namespace Growthstories.UI.WindowsPhone
             }
             catch { }
 
+        }
+
+
+        static void CommandValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                var view = (PlantActionView)sender;
+                //view.SetDataContext(view.ViewModel, (DisplayMode)e.NewValue);
+                if (e.NewValue != null && view.Command != e.NewValue)
+                    view.Command = (ICommand)e.NewValue;
+
+            }
+            catch { }
+
+        }
+
+        public ICommand Command
+        {
+            get { return (ICommand)GetValue(CommandProperty); }
+            set
+            {
+                if (value != null)
+                    SetValue(CommandProperty, value);
+            }
         }
 
         public DisplayMode DisplayMode
@@ -173,7 +202,21 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        protected override void OnTap(GestureEventArgs e)
+        {
+            base.OnTap(e);
 
+        }
+
+        protected override void OnDoubleTap(GestureEventArgs e)
+        {
+            base.OnDoubleTap(e);
+            var cmd = Command;
+            if (cmd != null)
+            {
+                cmd.Execute(null);
+            }
+        }
 
         public PlantActionView()
         {
