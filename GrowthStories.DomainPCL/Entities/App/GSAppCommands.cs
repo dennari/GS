@@ -1,6 +1,7 @@
 ﻿using Growthstories.Domain.Entities;
 //using CommonDomain;
 using System;
+using System.Linq;
 using Growthstories.Core;
 using Growthstories.Sync;
 
@@ -235,12 +236,14 @@ namespace Growthstories.Domain.Messaging
     public sealed class Push : Synchronize
     {
 
+        public int NumEventsPushed { get; private set; }
 
 
         public Push(ISyncInstance s)
             : base(s)
         {
             LastGlobalCommitSequence = s.PushReq.GlobalCommitSequence;
+            this.NumEventsPushed = s.PushReq.Streams.Aggregate(0, (acc, x) => acc + x.Count);
         }
 
 

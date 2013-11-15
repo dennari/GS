@@ -101,6 +101,18 @@ namespace Growthstories.DomainTests
             return syncResult.PushResp;
         }
 
+        public ISyncPushResponse SyncAssertions(IEnumerable<ISyncInstance> syncResults)
+        {
+            // if everything goes smoothly, we should have a single pull and a single push
+            //Assert.AreEqual(1, syncResult.Pushes.Count);
+            //Assert.AreEqual(1, syncResult.Pulls.Count);
+            //A//ssert.IsNotNull(syncResult.Pulls[0].Item2);
+            ISyncPushResponse R = null;
+            foreach (var s in syncResults)
+                R = SyncAssertions(s);
+
+            return R;
+        }
 
 
 

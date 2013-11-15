@@ -146,7 +146,7 @@ namespace Growthstories.DomainTests
         {
             var vm = Create();
             var newName = "Jore";
-            Bus.SendCommand(new SetName(State.Id, newName));
+            App.HandleCommand(new SetName(State.Id, newName));
             Assert.AreEqual(newName, vm.Name);
 
 

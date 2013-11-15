@@ -110,6 +110,14 @@ namespace Growthstories.Sync
         public double Value { get; set; }
 
 
+
+        [JsonProperty(PropertyName = Language.FBUID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+
+        public long FBUid { get; set; }
+
+        [JsonProperty(PropertyName = Language.FBNAME, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string FBName { get; set; }
+
     }
 
 

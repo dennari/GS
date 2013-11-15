@@ -34,6 +34,8 @@ namespace Growthstories.Core
     }
 
 
+
+
     public sealed class StreamSegment : IStreamSegment
     {
         private readonly SortedDictionary<int, IMessage> Messages = new SortedDictionary<int, IMessage>();
@@ -125,13 +127,20 @@ namespace Growthstories.Core
         {
             if (this.Aggregate != null)
             {
-                var l = this.Messages.Where(x => !this.Aggregate.State.IsDuplicate(x.Value)).Select(x => x.Key).ToArray();
-                if (l.Length != this.Messages.Count)
+                var duplicateKeys = this.Messages.Where(x => this.Aggregate.State.IsDuplicate(x.Value)).Select(x => x.Key).ToArray();
+                if (duplicateKeys.Length > 0)
                 {
-                    var numRemoved = l.Aggregate(0, (acc, k) => Messages.Remove(k) ? acc + 1 : acc + 0);
-                    if (numRemoved != l.Length)
-                        throw new InvalidOperationException("Couldn't remove all duplicates.");
+                    if (duplicateKeys.Length == this.Messages.Count)
+                        this.Messages.Clear();
+                    else
+                    {
+                        var numRemoved = duplicateKeys.Aggregate(0, (acc, k) => Messages.Remove(k) ? acc + 1 : acc + 0);
+                        if (numRemoved != duplicateKeys.Length)
+                            throw new InvalidOperationException("Couldn't remove all duplicates.");
+
+                    }
                 }
+
 
             }
 

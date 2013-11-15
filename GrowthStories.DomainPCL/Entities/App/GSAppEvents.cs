@@ -5,6 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using Growthstories.Sync;
+using System.Collections.Generic;
 
 
 namespace Growthstories.Domain.Messaging
@@ -260,7 +261,9 @@ namespace Growthstories.Domain.Messaging
     {
 
         //public Guid[] Streams { get; private set; }
-        public long SyncStamp { get; private set; }
+        [JsonProperty]
+        public IDictionary<Guid, long> SyncStamps { get; private set; }
+        [JsonProperty]
         public int SyncSequence { get; private set; }
 
         private Pulled() { }
@@ -268,7 +271,7 @@ namespace Growthstories.Domain.Messaging
         {
 
             SyncSequence = cmd.GlobalCommitSequence;
-            SyncStamp = cmd.Sync.PullResp.SyncStamp;
+            SyncStamps = cmd.Sync.PullResp.Projections.ToDictionary(x => x.StreamId, x => x.NextSince);
             //Streams = cmd.Sync.PullResp.Streams.Where(x => GSApp.CanHandle(x)).Select(x => x.AggregateId).ToArray();
         }
 
@@ -282,14 +285,18 @@ namespace Growthstories.Domain.Messaging
 
     public sealed class Pushed : GSAppEvent
     {
-
+        [JsonProperty]
         public int SyncSequence { get; private set; }
+        [JsonProperty]
+        public int NumEventsPushed { get; private set; }
+
 
         private Pushed() { }
         public Pushed(Push cmd)
         {
 
             SyncSequence = cmd.GlobalCommitSequence;
+            NumEventsPushed = cmd.NumEventsPushed;
         }
 
         public override string ToString()

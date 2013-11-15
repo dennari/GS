@@ -81,17 +81,44 @@ namespace Growthstories.Sync
 
     public sealed class PullStream
     {
-        public readonly PullStreamType Type;
-        public readonly Guid StreamId;
-        public readonly Guid? AncestorId;
 
-        public long SyncStamp;
+        [JsonProperty(PropertyName = Language.STREAM_TYPE, Required = Required.Always)]
+        public PullStreamType Type { get; private set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_SINCE, Required = Required.Default)]
+        public long Since { get; set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
+        public Guid StreamId { get; private set; }
+
+        [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Guid? AncestorId { get; private set; }
+
+        [JsonIgnore]
+        public IDictionary<Guid, IStreamSegment> Segments { get; set; }
+
+        [JsonProperty(PropertyName = Language.NEXT_SINCE, Required = Required.Default)]
+        public long NextSince { get; set; }
+
+        private PullStream()
+        {
+
+        }
 
         public PullStream(Guid streamId, PullStreamType type, Guid? ancestorId = null)
         {
             this.Type = type;
             this.StreamId = streamId;
             this.AncestorId = ancestorId;
+            //this.Since = since;
+        }
+
+        public PullStream(Guid streamId, PullStreamType type, Dictionary<Guid, IStreamSegment> segments, long nextSince)
+        {
+            this.Type = type;
+            this.StreamId = streamId;
+            this.NextSince = nextSince;
+            this.Segments = segments;
         }
     }
 
@@ -105,8 +132,10 @@ namespace Growthstories.Sync
     public interface ISyncPullResponse : ISyncResponse
     {
         //IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
+        ICollection<PullStream> Projections { get; }
         ICollection<IStreamSegment> Streams { get; }
-        long SyncStamp { get; }
+
+        //long SyncStamp { get; }
 
 
     }

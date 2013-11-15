@@ -103,18 +103,29 @@ namespace Growthstories.Domain.Entities
             SyncStreamDict[@event.StreamId] = new PullStream(@event.StreamId, @event.SyncStreamType, @event.AncestorId);
         }
 
-        public void Apply(SyncStampSet @event)
-        {
-            PullStream syncStream = null;
-            if (SyncStreamDict.TryGetValue(@event.StreamId, out syncStream))
-            {
-                syncStream.SyncStamp = @event.SyncStamp;
-            }
-            else
-            {
-                throw DomainError.Named("syncstream_missing", "Tried to set syncstamp for missing syncstream");
-            }
-        }
+        //public void Apply(SyncStampSet @event)
+        //{
+        //    PullStream syncStream = null;
+        //    if (SyncStreamDict.TryGetValue(@event.StreamId, out syncStream))
+        //    {
+        //        syncStream.NextSince = @event.SyncStamp;
+        //    }
+        //    else
+        //    {
+        //        throw DomainError.Named("syncstream_missing", "Tried to set syncstamp for missing syncstream");
+        //    }
+        //}        //public void Apply(SyncStampSet @event)
+        //{
+        //    PullStream syncStream = null;
+        //    if (SyncStreamDict.TryGetValue(@event.StreamId, out syncStream))
+        //    {
+        //        syncStream.NextSince = @event.SyncStamp;
+        //    }
+        //    else
+        //    {
+        //        throw DomainError.Named("syncstream_missing", "Tried to set syncstamp for missing syncstream");
+        //    }
+        //}
 
         public void Apply(PhotoUploadScheduled @event)
         {
@@ -129,25 +140,29 @@ namespace Growthstories.Domain.Entities
         public void Apply(PhotoDownloadScheduled @event)
         {
             if (@event.Photo.BlobKey == null)
-                throw DomainError.Named("no_blobkey","To download a photo the BlobKey needs to be set.");
+                throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
             PhotoDownloads[@event.Photo.BlobKey] = @event.Photo;
         }
 
         public void Apply(PhotoDownloadCompleted @event)
         {
             if (@event.Photo.BlobKey == null)
-                throw DomainError.Named("no_blobkey","To download a photo the BlobKey needs to be set.");
+                throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
             PhotoDownloads.Remove(@event.Photo.BlobKey);
         }
 
 
         public void Apply(Pulled @event)
         {
-            SyncSequence = @event.SyncSequence;
+            //SyncSequence = @event.SyncSequence;
 
-            foreach (var syncStream in SyncStreamDict.Values)
+            foreach (var kv in @event.SyncStamps)
             {
-                syncStream.SyncStamp = @event.SyncStamp;
+                PullStream syncStream = null;
+                if (SyncStreamDict.TryGetValue(kv.Key, out syncStream))
+                {
+                    syncStream.NextSince = kv.Value;
+                }
             }
         }
 

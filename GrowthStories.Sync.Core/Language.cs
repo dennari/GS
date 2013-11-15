@@ -22,6 +22,7 @@ namespace Growthstories.Sync
         public const string STREAM_TYPE = "streamType";
         public const string STREAM_SINCE = "since";
         public const string USE_SINCE = "useSince";
+        public const string NEXT_SINCE = "nextSince";
 
         public const string STREAMS = "streams";
         public const string EVENT_TYPE = "type";
@@ -35,14 +36,19 @@ namespace Growthstories.Sync
         public const string PARENT_ANCESTOR_ID = "parentAncestorId";
         public const string PLANT_ID = "plantId";
         public const string PLANT_NAME = "name";
+        public const string FBNAME = "fb_name";
+        public const string FBUID = "fb_uid";
         public const string EVENTS = "events";
+        public const string STREAM = "stream";
         public const string COMMANDS = "cmds";
         public const string STATUS_CODE = "statusCode";
+        public const string ERROR_CODE = "errorCode";
         public const string STATUS_DESCRIPTION = "statusDesc";
         public const string TAGS = "tags";
         public const string GARDEN = "garden";
         public const string PLANTS = "plants";
         public const string USERS = "users";
+        public const string LIMIT = "limit";
 
         //public const string PUSH_ID = "pushId";
         public const string CLIENT_ID = "clientDatabaseId";

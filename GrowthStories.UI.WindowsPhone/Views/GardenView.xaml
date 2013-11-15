@@ -19,10 +19,6 @@
     mc:Ignorable="d">
     <UserControl.Resources>
 
-        <ControlTemplate 
-            x:Key="TileNotificationControlTemplate1" 
-            TargetType="c4f:TileNotification"/>
-
         <DataTemplate x:Key="C4fTile">
 
             <c4f:Tile 
@@ -80,7 +76,18 @@
                         />
 
                 </Grid>
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu>
+                        <toolkit:MenuItem Header="Water" 
+                                              Command="{Binding MultiWateringCommand}"
+                                              CommandParameter="{Binding}"/>
+                        <toolkit:MenuItem Header="Delete" 
+                                              Command="{Binding MultiDeleteCommand}"
+                                              CommandParameter="{Binding}"/>
+                    </toolkit:ContextMenu>
+                </toolkit:ContextMenuService.ContextMenu>
             </c4f:Tile>
+
         </DataTemplate>
 
 

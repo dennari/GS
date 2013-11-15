@@ -44,7 +44,7 @@ namespace Growthstories.Sync
         public ISyncPushRequest CreatePushRequest(int globalSequence)
         {
 
-            return CreatePushRequest(GetPushStreams(globalSequence), globalSequence);
+            return CreatePushRequest(new[] { GetPushEvent(globalSequence) }, globalSequence);
         }
 
         public ISyncPushRequest CreatePushRequest(IEnumerable<IStreamSegment> streams, int globalSequence)
@@ -64,22 +64,51 @@ namespace Growthstories.Sync
             return req;
         }
 
-        private IEnumerable<IStreamSegment> GetPushStreams(int globalSequence)
+
+        private IStreamSegment GetPushEvent(int globalSequence)
         {
-            var validOnes = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
+            var nextEvent = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
                 .Where(x => x.StreamId != GSAppState.GSAppId)
                 .SelectMany(x => x.ActualEvents())
                 .OfType<IDomainEvent>()
                 .Where(x => IsTranslatable(x))
-                .ToList()
-                .GroupBy(x => x.AggregateId);
+                .FirstOrDefault();
+            //.GroupBy(x => x.AggregateId);
 
+            if (nextEvent != null)
+            {
+                var stream = new StreamSegment(nextEvent.AggregateId);
+                stream.Add(nextEvent);
+                return stream;
+            }
+            return null;
+            //foreach (var stream in validOnes)
+            //{
 
-            foreach (var stream in validOnes)
+            //    yield return new StreamSegment(stream);
+            //}
+        }
+
+        private IEnumerable<IStreamSegment> GetPushStreams(int globalSequence)
+        {
+            var nextEvent = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
+                .Where(x => x.StreamId != GSAppState.GSAppId)
+                .SelectMany(x => x.ActualEvents())
+                .OfType<IDomainEvent>()
+                .Where(x => IsTranslatable(x))
+                .FirstOrDefault();
+            //.GroupBy(x => x.AggregateId);
+
+            if (nextEvent != null)
             {
 
-                yield return new StreamSegment(stream);
             }
+            return null;
+            //foreach (var stream in validOnes)
+            //{
+
+            //    yield return new StreamSegment(stream);
+            //}
         }
 
         private bool IsTranslatable(IDomainEvent x)

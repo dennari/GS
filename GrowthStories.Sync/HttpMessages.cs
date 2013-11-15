@@ -24,24 +24,9 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public ITransportEvents Transporter { get; set; }
 
-        protected ICollection<PullStream> _Streams;
-        [JsonIgnore]
-        public ICollection<PullStream> Streams
-        {
-            get { return _Streams; }
-            set
-            {
-                if (value != null)
-                {
-                    _Streams = value;
-                    OutputStreams = value.Select(x => PullStreamDTO.Translate(x)).ToArray();
-                }
-
-            }
-        }
-
         [JsonProperty(PropertyName = Language.STREAMS, Required = Required.Always)]
-        public PullStreamDTO[] OutputStreams { get; protected set; }
+        public ICollection<PullStream> Streams { get; set; }
+
 
         public HttpPullRequest(IJsonFactory jF)
         {
@@ -68,53 +53,40 @@ namespace Growthstories.Sync
     }
 
 
+
     public sealed class PullStreamDTO
     {
+        [JsonProperty(PropertyName = Language.STREAM, Required = Required.Always)]
+        public PullStream Stream { get; set; }
 
-        private PullStreamDTO()
-        {
+        [JsonProperty(PropertyName = Language.EVENTS, Required = Required.Always)]
+        public IList<EventDTOUnion> DTOs { get; set; }
 
-        }
+        [JsonProperty(PropertyName = Language.ERROR_CODE, Required = Required.Default)]
+        public string ErrorCode { get; set; }
 
-        [JsonProperty(PropertyName = Language.STREAM_TYPE, Required = Required.Always)]
-        public string Type { get; private set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_SINCE, Required = Required.Always)]
-        public long SyncStamp { get; private set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_ENTITY, Required = Required.Always)]
-        public Guid StreamId { get; private set; }
-
-        [JsonProperty(PropertyName = Language.STREAM_ANCESTOR, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Include)]
-        public Guid? StreamAncestorId { get; private set; }
-
-
-
-        public static PullStreamDTO Translate(PullStream stream)
-        {
-            var r = new PullStreamDTO();
-            r.SyncStamp = stream.SyncStamp;
-            r.StreamId = stream.StreamId;
-            r.Type = stream.Type == PullStreamType.PLANT ? "PLANT" : "USER";
-            r.StreamAncestorId = stream.AncestorId;
-
-            return r;
-        }
+        [JsonProperty(PropertyName = Language.NEXT_SINCE, Required = Required.Default)]
+        public long NextSince { get; set; }
 
     }
 
     public class HelperPullResponse
     {
-        [JsonProperty(PropertyName = Language.EVENTS, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public IList<EventDTOUnion> DTOs { get; set; }
+        [JsonProperty(PropertyName = Language.STREAMS, Required = Required.Always)]
+        public IList<PullStreamDTO> Streams { get; set; }
 
-        [JsonProperty(PropertyName = Language.USE_SINCE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public long SyncStamp { get; set; }
+        [JsonProperty(PropertyName = Language.LIMIT, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int Limit { get; set; }
     }
+
+
 
     public class HttpPullResponse : HttpResponse, ISyncPullResponse
     {
-        public long SyncStamp { get; set; }
+        //public long SyncStamp { get; set; }
+
+
+        public ICollection<PullStream> Projections { get; set; }
 
         public ICollection<IStreamSegment> Streams { get; set; }
 
@@ -226,8 +198,8 @@ namespace Growthstories.Sync
             }
 
             var r2 = await Transporter.RequestPhotoDownload(this);
-            if(r2.StatusCode != GSStatusCode.OK)
-                throw new InvalidOperationException("Unable to download image "+this.DownloadUri);
+            if (r2.StatusCode != GSStatusCode.OK)
+                throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
 
 

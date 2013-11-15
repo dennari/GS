@@ -74,7 +74,7 @@ namespace Growthstories.Sync
                     var ed = Out(e);
                     if (ed == null)
                         continue;
-                    ed.AggregateVersion = zero + i;
+                    ed.AggregateVersion = zero + i - 1; // minus one comes from the fact that the backend starts counting from zero
                     // TRANSLATE PHASE RENUMBERING IS POSSIBLE
 
 

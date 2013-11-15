@@ -58,7 +58,7 @@ namespace Growthstories.UI.ViewModel
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         Task<IAuthUser> Initialize();
-        Task<ISyncInstance> Synchronize();
+        Task<IList<ISyncInstance>> Synchronize();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
         Task<IGSAggregate> HandleCommand(MultiCommand x);
         //IObservable<IUserViewModel> Users();

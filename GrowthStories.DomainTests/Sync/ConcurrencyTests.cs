@@ -79,8 +79,8 @@ namespace Growthstories.DomainTests.Sync
             foreach (var id in ids)
             {
 
-                bus.SendCommand((IAggregateCommand)new CreatePlant(id.id, id.sequence.ToString(), Guid.NewGuid(), Guid.NewGuid()));
-                bus.SendCommand((IAggregateCommand)new SetName(id.id, id.name));
+                //bus.SendCommand((IAggregateCommand)new CreatePlant(id.id, id.sequence.ToString(), Guid.NewGuid(), Guid.NewGuid()));
+                //bus.SendCommand((IAggregateCommand)new SetName(id.id, id.name));
 
 
             }

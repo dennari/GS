@@ -205,7 +205,9 @@ namespace Growthstories.Domain.Services
                     (acc, x) =>
                     {
 
-                        x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
+                        //x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
+                        x.Aggregate = RemoteConstructNoThrow(x.First());
+
                         x.TrimDuplicates();
                         return acc + (x.Aggregate == null ? 0 : 1);
                     }

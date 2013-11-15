@@ -9,6 +9,6 @@ namespace Growthstories.DomainTests
 {
     class StagingEndpoint : Endpoint
     {
-        public StagingEndpoint() : base(new Uri("http://server.lan:9000")) { }
+        public StagingEndpoint() : base(new Uri("http://dennari-macbook.lan:8080")) { }
     }
 }

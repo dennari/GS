@@ -76,7 +76,7 @@ namespace Growthstories.DomainTests
 
         protected override void UserConfiguration()
         {
-            Bind<IUserService>().To<TestUserService>().InSingletonScope();
+            Bind<IUserService>().To<AppUserService>().InSingletonScope();
         }
 
 

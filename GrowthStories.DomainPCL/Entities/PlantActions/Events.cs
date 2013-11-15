@@ -16,7 +16,12 @@ namespace Growthstories.Domain.Messaging
 
     #region PlantAction
 
-    [DTOObject(DTOType.addComment, DTOType.addWatering, DTOType.addPhoto, DTOType.addFertilizing, DTOType.addMeasurement)]
+    [DTOObject(DTOType.addComment,
+        DTOType.addWatering,
+        DTOType.addPhoto,
+        DTOType.addFertilizing,
+        DTOType.addMeasurement,
+        DTOType.addFBComment)]
     public class PlantActionCreated : EventBase, ICreateMessage, IAggregateEvent<PlantActionState>
     {
         [JsonIgnore]
@@ -47,6 +52,18 @@ namespace Growthstories.Domain.Messaging
 
         [JsonProperty]
         public Photo Photo { get; set; }
+
+        #region FBComment
+        [JsonProperty]
+        public long FBUid { get; set; }
+
+        [JsonProperty]
+        public string FBName { get; set; }
+        #endregion
+
+
+
+
 
         protected PlantActionCreated() { }
         //public PlantActionCreated(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
@@ -82,6 +99,12 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentNullException("MeasurementAction needs measurementType and value");
             }
+            if (cmd.Type == PlantActionType.FBCOMMENTED &&
+                (string.IsNullOrWhiteSpace(cmd.FBName) ||
+                cmd.FBUid == default(long)))
+            {
+                throw new ArgumentNullException("FBComment needs all four required properties.");
+            }
 
             this.MeasurementType = cmd.MeasurementType;
             this.Value = cmd.Value;
@@ -90,6 +113,9 @@ namespace Growthstories.Domain.Messaging
             this.PlantId = cmd.PlantId;
             this.Type = cmd.Type;
             this.Note = cmd.Note;
+            this.FBName = cmd.FBName;
+            this.FBUid = cmd.FBUid;
+
             //this.AncestorId = userId;
             //this.ParentId = plantId;
             //this.ParentAncestorId = userId;
@@ -99,7 +125,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created PlantAction {0}", AggregateId);
+            return string.Format(@"Created PlantAction of type {1}", Type);
         }
 
         public override void FillDTO(IEventDTO Dto)
@@ -124,6 +150,12 @@ namespace Growthstories.Domain.Messaging
             {
                 D.EventType = DTOType.addPhoto;
                 D.BlobKey = this.Photo.BlobKey;
+            }
+            if (this.Type == PlantActionType.FBCOMMENTED)
+            {
+                D.EventType = DTOType.addFBComment;
+                D.FBName = this.FBName;
+                D.FBUid = this.FBUid;
             }
 
 
@@ -159,6 +191,12 @@ namespace Growthstories.Domain.Messaging
                     BlobKey = D.BlobKey
                 };
             }
+            if (D.EventType == DTOType.addFBComment)
+            {
+                this.Type = PlantActionType.FBCOMMENTED;
+                this.FBName = D.FBName;
+                this.FBUid = D.FBUid;
+            }
 
             base.FromDTO(D);
             this.UserId = this.AncestorId.Value;
@@ -170,6 +208,8 @@ namespace Growthstories.Domain.Messaging
         public PlantActionState AggregateState { get; set; }
 
     }
+
+
 
     [DTOObject(DTOType.setProperty)]
     public class PlantActionPropertySet : EventBase

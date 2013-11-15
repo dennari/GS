@@ -101,6 +101,8 @@ namespace Growthstories.Sync
         string BlobKey { get; set; }
         MeasurementType MeasurementType { get; set; }
         double Value { get; set; }
+        long FBUid { get; set; }
+        string FBName { get; set; }
     }
 
 

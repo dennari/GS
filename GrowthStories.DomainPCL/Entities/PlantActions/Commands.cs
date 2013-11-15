@@ -32,6 +32,13 @@ namespace Growthstories.Domain.Messaging
 
         public Photo Photo { get; set; }
 
+        #region FBComment
+
+        public long FBUid { get; set; }
+
+        public string FBName { get; set; }
+        #endregion
+
         //protected CreatePlantAction() { }
         public CreatePlantAction(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
             : base(id)

@@ -33,8 +33,8 @@ namespace Growthstories.Domain.Entities
     public class UserState : AggregateState<UserCreated>, IAuthUser
     {
 
-        public static readonly Guid UnregUserId = new Guid("11000000-0000-0000-0000-000000000011");
-        public static readonly Guid UnregUserGardenId = new Guid("11100000-0000-0000-0000-000000000111");
+        public static readonly Guid UnregUserId = Guid.NewGuid();//new Guid("11000000-0000-0000-0000-000000000011");
+        public static readonly Guid UnregUserGardenId = Guid.NewGuid();//new Guid("11100000-0000-0000-0000-000000000111");
 
         [JsonIgnore]
         public readonly HashSet<Guid> Friends = new HashSet<Guid>();

@@ -21,7 +21,8 @@ namespace Growthstories.Domain.Entities
         FERTILIZED,
         PHOTOGRAPHED,
         MEASURED,
-        COMMENTED
+        COMMENTED,
+        FBCOMMENTED
     }
 
 

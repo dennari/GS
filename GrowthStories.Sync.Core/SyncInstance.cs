@@ -82,6 +82,7 @@ namespace Growthstories.Sync
 
             var q = from pull in PullResp.Streams
                     join push in PushReq.Streams on pull.AggregateId equals push.AggregateId
+                    where (pull.Count > 0 && push.Count > 0)
                     select Tuple.Create(push, pull);
 
             var conflicts = q.ToArray();

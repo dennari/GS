@@ -55,10 +55,10 @@ namespace Growthstories.UI.Services
             else
             {
 
-                var u = new CreateUser(UserState.UnregUserId, "UnregUser", "UnregPassword", "unreg@user.net");
+                var u = new CreateUser(UserState.UnregUserId, "unreguser", "unregpassword", string.Format("unreg{0}", DateTime.UtcNow.Ticks));
                 var U = (User)Handler.Handle(u);
-                Handler.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
-                Handler.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
+                //Handler.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
+                //Handler.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
                 Handler.Handle(new AssignAppUser(UserState.UnregUserId, u.Username, u.Password, u.Email)
                 {
                     UserGardenId = UserState.UnregUserGardenId,
@@ -91,18 +91,38 @@ namespace Growthstories.UI.Services
             {
 
                 var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
-
-
-                var pushResp = await s.Push();
+                int counter = 0;
+                ISyncPushResponse pushResp = null;
+                while (counter < 3)
+                {
+                    pushResp = await s.Push();
+                    if (pushResp.StatusCode == GSStatusCode.OK)
+                        break;
+                    await Task.Delay(2000);
+                    //throw new InvalidOperationException("Can't synchronize user");
+                    counter++;
+                }
                 if (pushResp.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Can't synchronize user");
+
                 Handler.Handle(new Push(s));
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
 
 
 
-                var authResponse = await Transporter.RequestAuthAsync(CurrentUser.Username, CurrentUser.Password);
+                IAuthResponse authResponse = null;
+                counter = 0;
+                while (counter < 3)
+                {
+                    authResponse = await Transporter.RequestAuthAsync(CurrentUser.Email, CurrentUser.Password);
+                    if (authResponse.StatusCode == GSStatusCode.OK)
+                        break;
+                    await Task.Delay(2000);
+                    //throw new InvalidOperationException("Can't synchronize user");
+                    counter++;
+                }
+
                 if (authResponse.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException(string.Format("Can't authorize user {0}", CurrentUser.Username));
 

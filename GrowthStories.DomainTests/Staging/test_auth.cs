@@ -43,7 +43,7 @@ namespace Growthstories.DomainTests
         public void TestAssignUser()
         {
 
-            this.Ctx = App.Context.CurrentUser;
+            this.Ctx = TestUtils.WaitForTask(App.Initialize());
             Assert.IsNotNull(Ctx);
             Assert.IsNotNullOrEmpty(Ctx.Username);
 
@@ -96,7 +96,7 @@ namespace Growthstories.DomainTests
 
             var garden = App.SetIds(new CreateGarden(Guid.NewGuid(), Ctx.Id));
 
-            Bus.SendCommand(garden);
+            await App.HandleCommand(garden);
             //var addGarden = App.SetIds(new AddGarden(Ctx.Id, garden.EntityId.Value));
 
             //Bus.SendCommand(addGarden);
@@ -123,10 +123,11 @@ namespace Growthstories.DomainTests
             await TestAuth();
             var wateringSchedule = App.SetIds(new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600));
 
-            Bus.SendCommand(wateringSchedule);
+            await App.HandleCommand(wateringSchedule);
 
 
-            var R = await App.Synchronize();
+            var Rs = await App.Synchronize();
+            var R = Rs[0];
             SyncAssertions(R, true);
 
             return wateringSchedule;
@@ -152,11 +153,11 @@ namespace Growthstories.DomainTests
                 Tags = new HashSet<string>() { "testtag", "testtag2" },
             });
 
-            Bus.SendCommand(plant);
+            await App.HandleCommand(plant);
 
             var addPlant = App.SetIds(new AddPlant(garden.EntityId.Value, plant.AggregateId, Ctx.Id, "Jore"));
 
-            Bus.SendCommand(addPlant);
+            await App.HandleCommand(addPlant);
 
             //var wateringSchedule = App.SetIds(new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600));
 
@@ -166,7 +167,8 @@ namespace Growthstories.DomainTests
 
             //Bus.SendCommand(wateringScheduleSet);
 
-            var R = await App.Synchronize();
+            var Rs = await App.Synchronize();
+            var R = Rs[0];
             SyncAssertions(R, true);
 
             return plant;
@@ -194,10 +196,11 @@ namespace Growthstories.DomainTests
                 PlantActionType.COMMENTED,
                 "new note"));
 
-            Bus.SendCommand(comment);
+            await App.HandleCommand(comment);
 
 
-            var R = await App.Synchronize();
+            var Rs = await App.Synchronize();
+            var R = Rs[0];
             SyncAssertions(R, true);
 
             return comment;
@@ -223,10 +226,11 @@ namespace Growthstories.DomainTests
                     Note = "Updated note"
                 });
 
-            Bus.SendCommand(prop);
+            await App.HandleCommand(prop);
 
 
-            var R = await App.Synchronize();
+            var Rs = await App.Synchronize();
+            var R = Rs[0];
             SyncAssertions(R, true);
 
             return comment;

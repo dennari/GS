@@ -2,6 +2,7 @@
 using EventStore.Logging;
 using Growthstories.Domain.Entities;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -41,10 +42,11 @@ namespace Growthstories.Sync
         private readonly IEndpoint Endpoint;
 
 
-        public SyncHttpClient(IResponseFactory responseFactory, IEndpoint endpoint)
+        public SyncHttpClient(IResponseFactory responseFactory, IEndpoint endpoint, IJsonFactory jFactory)
         {
             this.Endpoint = endpoint;
             this.ResponseFactory = responseFactory;
+            this.Serializer = jFactory;
         }
 
 
@@ -177,6 +179,7 @@ namespace Growthstories.Sync
         }
 
         protected IAuthToken _AuthToken;
+        private IJsonFactory Serializer;
         public IAuthToken AuthToken
         {
             get
@@ -192,18 +195,28 @@ namespace Growthstories.Sync
 
         public HttpRequestMessage CreateAuthRequest(string username, string password)
         {
-            return new HttpRequestMessage()
-            {
-                RequestUri = Endpoint.AuthUri,
-                Method = HttpMethod.Post,
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>()
+            var dict = new Dictionary<string, string>()
                     {
                         {"grant_type","password"},
                         {"client_id","wp"},
                         {"username",username},
                         {"password",password}
-                    }
-                )
+                    };
+            Logger.Info("[REQUESTBODY]\n" + Serializer.Serialize(dict));
+
+
+            var fContent = new FormUrlEncodedContent(dict);
+
+            //var builder = new UriBuilder(Endpoint.AuthUri);
+            //builder.Port = -1;
+            //var qs = string.Join(@"&", dict.Select(x => string.Format("{0}={1}", x.Key, x.Value)).ToArray());
+            //builder.Query = string.IsNullOrWhiteSpace(builder.Query) ? qs : builder.Query + @"&" + qs;
+
+            return new HttpRequestMessage()
+            {
+                RequestUri = Endpoint.AuthUri,
+                Method = HttpMethod.Post,
+                Content = fContent
             };
         }
 

@@ -5,6 +5,7 @@ using Growthstories.Domain;
 using Growthstories.Sync;
 using Growthstories.UI;
 using Growthstories.UI.Persistence;
+using Growthstories.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,12 @@ namespace Growthstories.DomainTests
             Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
 
         }
+
+        protected override void UserConfiguration()
+        {
+            Bind<IUserService>().To<AppUserService>().InSingletonScope();
+        }
+
 
 
         protected override void PersistenceConfiguration()

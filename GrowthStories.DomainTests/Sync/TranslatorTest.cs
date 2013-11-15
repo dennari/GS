@@ -84,6 +84,33 @@ namespace Growthstories.DomainTests
 
         }
 
+        [Test]
+        public void CreateFbComment()
+        {
+
+
+            var cmd = new CreatePlantAction(
+                Guid.NewGuid(),
+                User.Id,
+                Guid.NewGuid(),
+                PlantActionType.COMMENTED,
+                "new note")
+            {
+                AncestorId = User.Id
+            };
+            var C = new PlantActionCreated(cmd)
+            {
+                AggregateVersion = 1,
+                MessageId = Guid.NewGuid(),
+                Created = DateTimeOffset.UtcNow
+            };
+
+
+            PlantActionTests(C, DTOType.addComment);
+
+
+        }
+
 
 
 
@@ -113,7 +140,7 @@ namespace Growthstories.DomainTests
             };
 
             var CC = PlantActionTests(C, DTOType.addPhoto);
-            Assert.AreEqual(C.Photo.Value.BlobKey, CC.Photo.Value.BlobKey);
+            Assert.AreEqual(C.Photo.BlobKey, CC.Photo.BlobKey);
 
         }
 

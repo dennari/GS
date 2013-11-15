@@ -48,16 +48,25 @@ namespace Growthstories.Sync
             if (r.StatusCode == GSStatusCode.OK)
             {
                 var helper = jFactory.Deserialize<HelperPullResponse>(resp.Item2);
-                r.SyncStamp = helper.SyncStamp;
+                //r.SyncStamp = helper.SyncStamp;
 
-                if (helper.DTOs != null && helper.DTOs.Count > 0)
+                if (helper.Streams != null && helper.Streams.Count > 0)
                 {
-                    r.Streams = helper.DTOs
-                        .Select(x => Translator.In(x))
-                        .OfType<EventBase>()
-                        .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
-                        .Select(x => new StreamSegment(x))
+
+                    r.Projections = helper.Streams
+                        .Where(x => x.ErrorCode == "OK")
+                        .Select(x =>
+                        {
+                            x.Stream.Segments = Translator.In(x.DTOs)
+                                .Select(y => (IStreamSegment)(new StreamSegment(y)))
+                                .ToDictionary(y => y.AggregateId);
+
+                            x.Stream.NextSince = x.NextSince;
+                            return x.Stream;
+                        })
                         .ToArray();
+
+                    r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();
                 }
             }
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);

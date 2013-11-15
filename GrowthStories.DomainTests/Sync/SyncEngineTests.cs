@@ -71,8 +71,8 @@ namespace Growthstories.DomainTests
             App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
-
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             Assert.IsFalse(R.PushReq.IsEmpty);
 
             Assert.AreEqual(u.Id, R.PushReq.Streams.Single().Single().AggregateId);
@@ -87,8 +87,8 @@ namespace Growthstories.DomainTests
             App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
-
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             Assert.IsFalse(R.PullReq.IsEmpty);
             Assert.AreEqual(u.Id, R.PullReq.Streams.Single().StreamId);
         }
@@ -101,6 +101,25 @@ namespace Growthstories.DomainTests
             return msgs.GroupBy(x => x.AggregateId).Select(x => new StreamSegment(x)).ToArray();
         }
 
+        public static PullStream[] CreatePullStream(Guid id, PullStreamType type, params IMessage[] msgs)
+        {
+            return new[] {new PullStream(id, type)
+            {
+                Segments = msgs
+                    .GroupBy(x => x.AggregateId)
+                    .Select(x => new StreamSegment(x))
+                    .ToDictionary(x => x.AggregateId, x => (IStreamSegment)x)
+            }};
+        }
+
+        public static PullStream[] CreatePullStream(UserCreated u)
+        {
+            return new[] {new PullStream(u.AggregateId, PullStreamType.USER)
+            {
+                Segments = CreateStreams(u).ToDictionary(x => x.AggregateId)
+            }};
+        }
+
         [TestMethod]
         public void TestPullCanCreateStream()
         {
@@ -110,7 +129,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(remoteUser)
+                Projections = CreatePullStream(remoteUser)
             };
 
             App.HandleCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER));
@@ -141,7 +160,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new BecameFollower(new BecomeFollower(u.Id, remoteTarget))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new BecameFollower(new BecomeFollower(u.Id, remoteTarget))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow,
@@ -151,7 +170,8 @@ namespace Growthstories.DomainTests
 
             App.HandleCommand(new BecomeFollower(u.Id, localTarget));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -165,6 +185,8 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(3, User.Version);
 
         }
+
+
 
 
         [TestMethod]
@@ -184,7 +206,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new UsernameSet(new SetUsername(u.Id, remoteName))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new UsernameSet(new SetUsername(u.Id, remoteName))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow,
@@ -194,7 +216,8 @@ namespace Growthstories.DomainTests
 
             App.HandleCommand(new SetUsername(u.Id, localName));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
 
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -236,7 +259,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new UsernameSet(new SetUsername(u.Id, remoteName))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new UsernameSet(new SetUsername(u.Id, remoteName))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 20),
@@ -246,7 +269,8 @@ namespace Growthstories.DomainTests
 
             App.HandleCommand(new SetUsername(u.Id, localName));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -290,7 +314,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new UsernameSet(new SetUsername(u.Id, remoteName))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new UsernameSet(new SetUsername(u.Id, remoteName))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow,
@@ -314,7 +338,8 @@ namespace Growthstories.DomainTests
 
             App.HandleCommand(new SetUsername(u.Id, localName));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -357,7 +382,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new UsernameSet(new SetUsername(u.Id, remoteName))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new UsernameSet(new SetUsername(u.Id, remoteName))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 20),
@@ -381,7 +406,8 @@ namespace Growthstories.DomainTests
 
             App.HandleCommand(new SetUsername(u.Id, localName));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(1, pushStream.Count);
@@ -426,7 +452,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new UsernameSet(new SetUsername(u.Id, remoteName))
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, new UsernameSet(new SetUsername(u.Id, remoteName))
                 {
                     AggregateVersion = 2,
                     Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 20),
@@ -448,13 +474,14 @@ namespace Growthstories.DomainTests
 
             };
 
-            App.HandleCommands(
+            App.HandleCommand(new MultiCommand(
                 new SetUsername(u.Id, localName),
                 new BecomeFollower(u.Id, remoteTarget),
                 new SetUsername(u.Id, newerLocalName)
-            );
+            ));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
             Assert.AreEqual(3, pushStream.Count);
@@ -512,7 +539,8 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var Rs = TestUtils.WaitForTask(App.Synchronize());
+            var R = Rs[0];
 
             Assert.IsNotNull(R.PhotoUploadRequests);
 
@@ -568,7 +596,7 @@ namespace Growthstories.DomainTests
             Transporter.PullResponseFactory = (r) => new HttpPullResponse()
             {
                 StatusCode = GSStatusCode.OK,
-                Streams = CreateStreams(new PlantActionCreated(new CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "Just a photo")
+                Projections = CreatePullStream(plantId, PullStreamType.PLANT, new PlantActionCreated(new CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "Just a photo")
                 {
                     Photo = photo
                 })
