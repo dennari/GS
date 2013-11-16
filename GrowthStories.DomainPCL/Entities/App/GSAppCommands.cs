@@ -217,7 +217,6 @@ namespace Growthstories.Domain.Messaging
     public abstract class Synchronize : AggregateCommand<GSApp>
     {
         public int LastGlobalCommitSequence { get; protected set; }
-        public int GlobalCommitSequence { get; set; }
         public ISyncInstance Sync { get; protected set; }
 
         public Synchronize(ISyncInstance s)
@@ -236,14 +235,14 @@ namespace Growthstories.Domain.Messaging
     public sealed class Push : Synchronize
     {
 
-        public int NumEventsPushed { get; private set; }
+        public SyncHead SyncHead { get; private set; }
 
 
         public Push(ISyncInstance s)
             : base(s)
         {
-            LastGlobalCommitSequence = s.PushReq.GlobalCommitSequence;
-            this.NumEventsPushed = s.PushReq.Streams.Aggregate(0, (acc, x) => acc + x.Count);
+            SyncHead = s.PushReq.SyncHead;
+            //this.NumEventsPushed = s.PushReq.Streams.Aggregate(0, (acc, x) => acc + x.Count);
         }
 
 

@@ -35,6 +35,7 @@ namespace Growthstories.DomainTests
 
         public static T WaitForTask<T>(Task<T> task, int timeout = 9000)
         {
+            
             if (Debugger.IsAttached)
                 task.Wait();
             else

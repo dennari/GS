@@ -88,7 +88,22 @@ namespace Growthstories.Sync
 
         public ICollection<PullStream> Projections { get; set; }
 
-        public ICollection<IStreamSegment> Streams { get; set; }
+        ICollection<IStreamSegment> _Streams;
+        public ICollection<IStreamSegment> Streams
+        {
+            get
+            {
+                if (_Streams == null && Projections != null)
+                {
+                    _Streams = Projections.SelectMany(x => x.Segments.Values).ToArray();
+                }
+                return _Streams;
+            }
+            set
+            {
+                _Streams = value;
+            }
+        }
 
 
     }
@@ -265,7 +280,9 @@ namespace Growthstories.Sync
         public ICollection<IStreamSegment> Streams { get; set; }
 
         [JsonIgnore]
-        public int GlobalCommitSequence { get; set; }
+        public SyncHead SyncHead { get; set; }
+        [JsonIgnore]
+        public int NumLeftInCommit { get; set; }
 
 
         [JsonIgnore]

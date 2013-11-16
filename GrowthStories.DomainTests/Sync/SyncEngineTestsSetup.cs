@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reactive.Linq;
+using System.Linq;
 using Growthstories.UI.ViewModel;
 //using GalaSoft.MvvmLight.Messaging;
 using ReactiveUI;
@@ -76,7 +77,7 @@ namespace Growthstories.DomainTests
 
         protected override void UserConfiguration()
         {
-            Bind<IUserService>().To<AppUserService>().InSingletonScope();
+            Bind<IUserService>().To<TestUserService>().InSingletonScope();
         }
 
 

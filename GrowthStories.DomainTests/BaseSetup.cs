@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reactive.Linq;
+using System.Linq;
 using Growthstories.UI.ViewModel;
 //using GalaSoft.MvvmLight.Messaging;
 using ReactiveUI;
@@ -54,7 +55,7 @@ namespace Growthstories.DomainTests
         }
 
         protected abstract void FileSystemConfiguration();
-       
+
 
 
         protected virtual void UserConfiguration()
@@ -98,8 +99,8 @@ namespace Growthstories.DomainTests
             //    });
 
             Bind<IPersistSyncStreams, IPersistStreams>()
-            .To<SerializingInMemoryPersistenceEngine>()
-            .InSingletonScope();
+                .To<SerializingInMemoryPersistenceEngine>()
+                .InSingletonScope();
 
 
             Bind<IUIPersistence>().To<SQLiteUIPersistence>()
@@ -143,7 +144,7 @@ namespace Growthstories.DomainTests
             #region EventStore
 
 
-
+            //Bind<IStoreEvents>().To<GSEventStore>();
 
 
 
@@ -162,7 +163,13 @@ namespace Growthstories.DomainTests
 
 
 
-            Bind<IStoreEvents, ICommitEvents, OptimisticEventStore>().To<OptimisticEventStore>().InSingletonScope();
+            //Bind<GSEventStore>().To<GSEventStore>().InSingletonScope();
+            Bind<IStoreEvents, ICommitEvents, GSEventStore>().ToMethod(x =>
+            {
+                var hooks = x.Kernel.GetAll<IPipelineHook>().ToArray();
+                return new GSEventStore(x.Kernel.Get<IPersistStreams>(), hooks);
+
+            }).InSingletonScope();
             Bind<ISerialize>().To<JsonSerializer>();
 
             #endregion

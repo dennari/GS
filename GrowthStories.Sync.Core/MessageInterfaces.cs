@@ -140,11 +140,39 @@ namespace Growthstories.Sync
 
     }
 
+    public sealed class SyncHead
+    {
+        [JsonProperty]
+        public int GlobalCommitSequence { get; private set; }
+        [JsonProperty]
+        public int EventIndex { get; private set; }
+        [JsonProperty]
+        public int NumEvents { get; private set; }
+
+        private SyncHead() { }
+
+        public SyncHead(int globalCommitSequence, int numEvents, int eventIndex = 0)
+        {
+            this.GlobalCommitSequence = globalCommitSequence;
+            this.EventIndex = eventIndex;
+            this.NumEvents = numEvents;
+        }
+
+        public SyncHead(SyncHead other, int eventIndex)
+        {
+            this.GlobalCommitSequence = other.GlobalCommitSequence;
+            this.EventIndex = eventIndex;
+            this.NumEvents = other.NumEvents;
+        }
+
+    }
+
     public interface ISyncPushRequest : ISyncRequest
     {
 
         Guid ClientDatabaseId { get; }
-        int GlobalCommitSequence { get; }
+        SyncHead SyncHead { get; }
+        int NumLeftInCommit { get; }
         //Guid PushId { get; }
 
         ICollection<IStreamSegment> Streams { get; }

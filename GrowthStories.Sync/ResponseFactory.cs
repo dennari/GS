@@ -66,7 +66,7 @@ namespace Growthstories.Sync
                         })
                         .ToArray();
 
-                    r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();
+                    //r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();
                 }
             }
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);

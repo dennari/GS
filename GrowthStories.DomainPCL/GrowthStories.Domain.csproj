@@ -79,7 +79,6 @@
     <Compile Include="Messaging\EventBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AggregateFactory.cs" />
-    <Compile Include="Services\CommandHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Threading.Tasks">

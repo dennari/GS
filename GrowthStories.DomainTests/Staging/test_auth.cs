@@ -126,8 +126,8 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(wateringSchedule);
 
 
-            var Rs = await App.Synchronize();
-            var R = Rs[0];
+            var R = await App.Synchronize();
+            //var R = Rs[0];
             SyncAssertions(R, true);
 
             return wateringSchedule;
@@ -167,8 +167,8 @@ namespace Growthstories.DomainTests
 
             //Bus.SendCommand(wateringScheduleSet);
 
-            var Rs = await App.Synchronize();
-            var R = Rs[0];
+            var R = await App.Synchronize();
+            //var R = Rs[0];
             SyncAssertions(R, true);
 
             return plant;
@@ -199,8 +199,8 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(comment);
 
 
-            var Rs = await App.Synchronize();
-            var R = Rs[0];
+            var R = await App.Synchronize();
+            //var R = Rs[0];
             SyncAssertions(R, true);
 
             return comment;
@@ -229,8 +229,8 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(prop);
 
 
-            var Rs = await App.Synchronize();
-            var R = Rs[0];
+            var R = await App.Synchronize();
+            //var R = Rs[0];
             SyncAssertions(R, true);
 
             return comment;

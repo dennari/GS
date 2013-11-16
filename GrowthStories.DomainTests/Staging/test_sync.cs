@@ -104,8 +104,8 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(originalRemoteEvents[1].EntityId.Value, remoteUserAggregate.State.Garden.Id);
             Assert.AreEqual(originalRemoteEvents[3].AggregateId, remoteUserAggregate.State.Garden.PlantIds[0]);
 
-            var R3s = await App.Synchronize();
-            var R3 = R3s[0];
+            var R3 = await App.Synchronize();
+            //var R3 = R3s[0];
             SyncAssertions(R3);
             Assert.IsNull(R3.PushReq);
 
@@ -206,12 +206,12 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(remoteComment.Note, action.Note);
 
 
-            int CurrentSyncSequence = App.Model.State.SyncSequence;
+            int CurrentSyncSequence = App.Model.State.SyncHead.GlobalCommitSequence;
             var R4 = WaitForTask(App.Synchronize());
             SyncAssertions(R4);
 
             //Assert.IsTrue(R4.PushReq.IsEmpty);
-            Assert.AreEqual(CurrentSyncSequence + 1, App.Model.State.SyncSequence); // 1 for the pull-notification
+            Assert.AreEqual(CurrentSyncSequence + 1, App.Model.State.SyncHead.GlobalCommitSequence); // 1 for the pull-notification
 
             return originalRemoteEvents;
 

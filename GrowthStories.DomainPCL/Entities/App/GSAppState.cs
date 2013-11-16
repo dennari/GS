@@ -71,13 +71,13 @@ namespace Growthstories.Domain.Entities
 
         public IAuthUser User { get { return _User; } }
 
-        public int SyncSequence { get; protected set; }
+        public SyncHead SyncHead { get; protected set; }
 
         public GSAppState()
             : base()
         {
 
-
+            this.SyncHead = new SyncHead(0, 0, 0);
         }
 
         public GSAppState(GSAppCreated e)
@@ -168,7 +168,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(Pushed @event)
         {
-            SyncSequence = @event.SyncSequence;
+            SyncHead = @event.SyncHead;
         }
 
 

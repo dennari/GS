@@ -4,6 +4,7 @@ using CommonDomain.Persistence;
 using EventStore.Logging;
 using EventStore.Persistence;
 using Growthstories.Core;
+using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
@@ -17,7 +18,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Growthstories.Domain.Services
+namespace Growthstories.Sync
 {
     public class CommandHandler : IDispatchCommands
     {
@@ -26,6 +27,7 @@ namespace Growthstories.Domain.Services
         private readonly IAggregateFactory Factory;
         private readonly IUIPersistence UIPersistence;
         private static ILog Logger = LogFactory.BuildLogger(typeof(CommandHandler));
+        private readonly GSEventStore SyncPersistence;
         //private readonly IMessageBus _bus;
 
         private readonly object gate = new object();
@@ -33,13 +35,15 @@ namespace Growthstories.Domain.Services
         public CommandHandler(
             IGSRepository store,
             IAggregateFactory factory,
-            IUIPersistence uipersistence
+            IUIPersistence uipersistence,
+            GSEventStore syncPersistence
             )
             : base()
         {
             Repository = store;
             Factory = factory;
             UIPersistence = uipersistence;
+            this.SyncPersistence = syncPersistence;
         }
 
 
@@ -242,9 +246,15 @@ namespace Growthstories.Domain.Services
                 UISave(UIEvents);
 
             if (aggregates.Length > 0)
+            {
+                SyncPersistence.IsRemoteCommit = true;
                 Save(aggregates);
+                SyncPersistence.IsRemoteCommit = false;
 
-            c.GlobalCommitSequence = Repository.GetGlobalCommitSequence();
+
+            }
+
+            //c.GlobalCommitSequence = Repository.GetGlobalCommitSequence();
 
             // let App handle EVERY incoming message
             remoteStreams
@@ -263,7 +273,8 @@ namespace Growthstories.Domain.Services
 
         public GSApp Handle(Push c)
         {
-            c.GlobalCommitSequence = Repository.GetGlobalCommitSequence();
+
+            //c.GlobalCommitSequence = c.Sync.PushReq.NumLeftInCommit > 0 ? c.Sync.PushReq.GlobalCommitSequence + 1 : Repository.GetGlobalCommitSequence();
             return (GSApp)this.Handle((IMessage)c);
         }
 

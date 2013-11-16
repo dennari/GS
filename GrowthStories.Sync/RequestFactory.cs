@@ -41,19 +41,36 @@ namespace Growthstories.Sync
 
 
 
-        public ISyncPushRequest CreatePushRequest(int globalSequence)
+        public ISyncPushRequest CreatePushRequest(SyncHead currentSyncHead)
         {
 
-            return CreatePushRequest(new[] { GetPushEvent(globalSequence) }, globalSequence);
+
+            var nextEvent = GetNextPushEvent(currentSyncHead);
+
+            ICollection<IStreamSegment> streams = new IStreamSegment[] { };
+            if (nextEvent.Item1 != null)
+                streams = new[] { new StreamSegment(nextEvent.Item1.AggregateId, new[] { nextEvent.Item1 }) };
+
+            var req = new HttpPushRequest(jFactory)
+            {
+                SyncHead = nextEvent.Item2,
+                Streams = streams,
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator,
+                Transporter = Transporter
+            };
+
+
+            return req;
         }
 
-        public ISyncPushRequest CreatePushRequest(IEnumerable<IStreamSegment> streams, int globalSequence)
+        public ISyncPushRequest CreatePushRequest(IEnumerable<IStreamSegment> streams, SyncHead syncHead)
         {
             var streamsC = streams.ToArray();
 
             var req = new HttpPushRequest(jFactory)
             {
-                GlobalCommitSequence = globalSequence,
+                SyncHead = syncHead,
                 Streams = streamsC,
                 ClientDatabaseId = Guid.NewGuid(),
                 Translator = Translator,
@@ -65,50 +82,85 @@ namespace Growthstories.Sync
         }
 
 
-        private IStreamSegment GetPushEvent(int globalSequence)
+        private Tuple<IEvent, SyncHead> GetNextPushEvent(SyncHead currentSyncHead)
         {
-            var nextEvent = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
-                .Where(x => x.StreamId != GSAppState.GSAppId)
-                .SelectMany(x => x.ActualEvents())
-                .OfType<IDomainEvent>()
-                .Where(x => IsTranslatable(x))
-                .FirstOrDefault();
-            //.GroupBy(x => x.AggregateId);
 
-            if (nextEvent != null)
+            if (currentSyncHead == null)
+                throw new ArgumentNullException("currentSyncHead needs to be given");
+            // finds unsynchronized commits (pull commits  are discarded) with sequence GREATER THAN commitNum
+            var nextCommit = SyncPersistence.GetUnsynchronizedCommits(currentSyncHead.GlobalCommitSequence)
+                .Where(x =>
+                {
+                    return x.StreamId != GSAppState.GSAppId;
+                }).FirstOrDefault();
+
+            IEvent nextEvent = null;
+            SyncHead nextSyncHead = currentSyncHead;
+            if (nextCommit != null)
             {
-                var stream = new StreamSegment(nextEvent.AggregateId);
-                stream.Add(nextEvent);
-                return stream;
+                nextEvent = (IEvent)nextCommit.Events[currentSyncHead.EventIndex].Body;
+                nextSyncHead = GetNexSyncHead(currentSyncHead, nextCommit);
             }
-            return null;
-            //foreach (var stream in validOnes)
-            //{
+            return Tuple.Create(nextEvent, nextSyncHead);
 
-            //    yield return new StreamSegment(stream);
-            //}
+
         }
+
+
+        private SyncHead GetNexSyncHead(SyncHead currentSyncHead, GSCommit nextCommit)
+        {
+            if (currentSyncHead.NumEvents <= 1) // this means we are dealing with a fresh commit
+            {
+                if (nextCommit.Events.Count > 1)
+                {
+                    return new SyncHead(
+                        currentSyncHead.GlobalCommitSequence,
+                        nextCommit.Events.Count,
+                        1
+                    );
+
+                }
+                else
+                {
+                    return new SyncHead(nextCommit.GlobalCommitSequence, 0, 0);
+                }
+            }
+            else
+            {
+                if (currentSyncHead.EventIndex < nextCommit.Events.Count - 1)
+                {
+                    return new SyncHead(
+                        currentSyncHead.GlobalCommitSequence,
+                        nextCommit.Events.Count,
+                        currentSyncHead.EventIndex + 1
+                    );
+                }
+                else
+                {
+                    return new SyncHead(nextCommit.GlobalCommitSequence, 0, 0);
+                }
+            }
+        }
+
 
         private IEnumerable<IStreamSegment> GetPushStreams(int globalSequence)
         {
-            var nextEvent = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
-                .Where(x => x.StreamId != GSAppState.GSAppId)
+            var validOnes = SyncPersistence.GetUnsynchronizedCommits(globalSequence)
+                .Where(x =>
+                {
+                    return x.StreamId != GSAppState.GSAppId;
+                })
                 .SelectMany(x => x.ActualEvents())
                 .OfType<IDomainEvent>()
                 .Where(x => IsTranslatable(x))
-                .FirstOrDefault();
-            //.GroupBy(x => x.AggregateId);
+                .GroupBy(x => x.AggregateId);
 
-            if (nextEvent != null)
+
+            foreach (var stream in validOnes)
             {
 
+                yield return new StreamSegment(stream);
             }
-            return null;
-            //foreach (var stream in validOnes)
-            //{
-
-            //    yield return new StreamSegment(stream);
-            //}
         }
 
         private bool IsTranslatable(IDomainEvent x)

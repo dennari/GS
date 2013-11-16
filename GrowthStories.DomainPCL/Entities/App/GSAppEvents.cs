@@ -263,14 +263,12 @@ namespace Growthstories.Domain.Messaging
         //public Guid[] Streams { get; private set; }
         [JsonProperty]
         public IDictionary<Guid, long> SyncStamps { get; private set; }
-        [JsonProperty]
-        public int SyncSequence { get; private set; }
+
 
         private Pulled() { }
         public Pulled(Pull cmd)
         {
 
-            SyncSequence = cmd.GlobalCommitSequence;
             SyncStamps = cmd.Sync.PullResp.Projections.ToDictionary(x => x.StreamId, x => x.NextSince);
             //Streams = cmd.Sync.PullResp.Streams.Where(x => GSApp.CanHandle(x)).Select(x => x.AggregateId).ToArray();
         }
@@ -286,17 +284,15 @@ namespace Growthstories.Domain.Messaging
     public sealed class Pushed : GSAppEvent
     {
         [JsonProperty]
-        public int SyncSequence { get; private set; }
-        [JsonProperty]
-        public int NumEventsPushed { get; private set; }
+        public SyncHead SyncHead { get; private set; }
+
 
 
         private Pushed() { }
         public Pushed(Push cmd)
         {
 
-            SyncSequence = cmd.GlobalCommitSequence;
-            NumEventsPushed = cmd.NumEventsPushed;
+            SyncHead = cmd.SyncHead;
         }
 
         public override string ToString()

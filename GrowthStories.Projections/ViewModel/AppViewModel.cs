@@ -345,41 +345,25 @@ namespace Growthstories.UI.ViewModel
         private ISynchronizerService SyncService;
         private IRequestFactory RequestFactory;
 
-        public async Task<IList<ISyncInstance>> Synchronize()
+        public Task<ISyncInstance> Synchronize()
         {
             if (SyncService == null)
                 SyncService = Kernel.Get<ISynchronizerService>();
             if (RequestFactory == null)
                 RequestFactory = Kernel.Get<IRequestFactory>();
 
-            List<ISyncInstance> R = new List<ISyncInstance>();
-            while (true)
-            {
 
-                var s = new SyncInstance(
-                    RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
-                    RequestFactory.CreatePushRequest(Model.State.SyncSequence),
-                    Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
-                    Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray()
-                );
-                if (R.Count == 0)
-                {
-                    if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
-                        break;
-                }
-                else
-                {
-                    if (s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
-                        break;
-                }
+            var s = new SyncInstance(
+                RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
+                RequestFactory.CreatePushRequest(Model.State.SyncHead),
+                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
+                Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray()
+            );
 
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
+                return null;
 
-                await _Synchronize(s);
-                R.Add(s);
-
-            }
-
-            return R;
+            return _Synchronize(s);
         }
 
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)

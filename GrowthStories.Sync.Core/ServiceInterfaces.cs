@@ -10,7 +10,7 @@ namespace Growthstories.Sync
 {
     public interface IRequestFactory
     {
-        ISyncPushRequest CreatePushRequest(int globalSequence);
+        ISyncPushRequest CreatePushRequest(SyncHead syncHead);
         ISyncPushRequest CreateUserSyncRequest(Guid userId);
         ISyncPullRequest CreatePullRequest(ICollection<PullStream> streams);
         IPhotoUploadRequest CreatePhotoUploadRequest(Photo x);
