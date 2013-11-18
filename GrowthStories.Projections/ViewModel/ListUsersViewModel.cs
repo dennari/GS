@@ -109,9 +109,12 @@ namespace Growthstories.UI.ViewModel
             UserSelectedCommand.Subscribe(_ => ProgressIndicatorIsVisible = true);
 
             UserSelectedCommand
-                .OfType<RemoteUser>()
-                .Subscribe(x =>
+                .RegisterAsyncTask(async (xx) =>
                 {
+
+                    var x = xx as RemoteUser;
+                    if (x == null)
+                        return;
                     var cmds = new MultiCommand(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
                     if (x.Garden != null && x.Garden.Plants != null)
@@ -121,7 +124,9 @@ namespace Growthstories.UI.ViewModel
 
                     }
 
-                    App.HandleCommand(cmds);
+                    await App.HandleCommand(cmds);
+                    ProgressIndicatorIsVisible = false;
+                    App.Router.NavigateBack.Execute(null);
 
                 });
 

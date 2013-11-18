@@ -180,9 +180,12 @@ namespace Growthstories.Sync
             var stream = new StreamSegment(userId);
             stream.Add(commit.ActualEvents().First());
 
+
+
             var req = new HttpPushRequest(jFactory)
             {
                 Streams = new[] { stream },
+                SyncHead = GetNexSyncHead(new SyncHead(0, 0, 0), (GSCommit)commit),
                 ClientDatabaseId = Guid.NewGuid(),
                 Translator = Translator,
                 Transporter = Transporter

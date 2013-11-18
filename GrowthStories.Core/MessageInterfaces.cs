@@ -70,6 +70,12 @@ namespace Growthstories.Core
             this.AddRange(msgs);
         }
 
+        public StreamSegment(Guid aggregateId, params IMessage[] msgs)
+            : this(aggregateId)
+        {
+            this.AddRange(msgs);
+        }
+
         //public AggregateMessages(IGrouping<Guid, GSCommit> commits)
         //    : this(commits.Key)
         //{

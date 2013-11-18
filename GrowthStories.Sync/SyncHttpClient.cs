@@ -163,8 +163,23 @@ namespace Growthstories.Sync
 
         protected async Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            var r = await SendAsync(request);
-            var s = await r.Content.ReadAsStringAsync();
+            HttpResponseMessage r = null;
+            string s = null;
+            try
+            {
+                r = await SendAsync(request);
+                s = await r.Content.ReadAsStringAsync();
+
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+                throw e;
+            }
+
+
+
+
             Logger.Info("[RESPONSEBODY]\n" + s);
             return Tuple.Create(r, s);
         }

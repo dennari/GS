@@ -126,6 +126,9 @@
     <Compile Include="..\GrowthStories.Projections\ViewModel\Interfaces.cs">
       <Link>ViewModels\Interfaces.cs</Link>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Controls\GSListPicker.cs">
+      <Link>Controls\GSListPicker.cs</Link>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Converters.cs">
       <Link>Converters.cs</Link>
     </Compile>
@@ -279,6 +282,50 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Montserrat-Bold.ttf">
+      <Link>Resources\Montserrat-Bold.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Montserrat-Regular.ttf">
+      <Link>Resources\Montserrat-Regular.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Bold.ttf">
+      <Link>Resources\Raleway-Bold.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-ExtraBold.ttf">
+      <Link>Resources\Raleway-ExtraBold.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-ExtraLight.ttf">
+      <Link>Resources\Raleway-ExtraLight.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Heavy.ttf">
+      <Link>Resources\Raleway-Heavy.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Light.ttf">
+      <Link>Resources\Raleway-Light.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Medium.ttf">
+      <Link>Resources\Raleway-Medium.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Regular.ttf">
+      <Link>Resources\Raleway-Regular.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-SemiBold.ttf">
+      <Link>Resources\Raleway-SemiBold.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\GrowthStories.UI.WindowsPhone\Resources\Raleway-Thin.ttf">
+      <Link>Resources\Raleway-Thin.ttf</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">

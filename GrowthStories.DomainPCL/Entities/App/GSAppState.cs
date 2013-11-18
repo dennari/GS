@@ -161,7 +161,7 @@ namespace Growthstories.Domain.Entities
                 PullStream syncStream = null;
                 if (SyncStreamDict.TryGetValue(kv.Key, out syncStream))
                 {
-                    syncStream.NextSince = kv.Value;
+                    syncStream.Since = kv.Value;
                 }
             }
         }

@@ -133,6 +133,7 @@
     <Compile Include="BootstrapDesign.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\GSListPicker.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
@@ -576,7 +577,6 @@
     <Content Include="Assets\Bg\watering_bg.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controls\" />
     <Folder Include="Design\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />

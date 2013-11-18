@@ -44,7 +44,7 @@ namespace Growthstories.DomainTests
             if (Kernel != null)
                 Kernel.Dispose();
             Kernel = new StandardKernel(new StagingModule());
-            App = new TestAppViewModel(Kernel);
+            App = new StagingAppViewModel(Kernel);
             //Ctx = Get<IUserService>().CurrentUser;
 
         }

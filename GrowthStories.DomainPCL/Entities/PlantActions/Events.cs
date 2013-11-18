@@ -125,7 +125,7 @@ namespace Growthstories.Domain.Messaging
 
         public override string ToString()
         {
-            return string.Format(@"Created PlantAction of type {1}", Type);
+            return string.Format(@"Created PlantAction of type {0}", Type);
         }
 
         public override void FillDTO(IEventDTO Dto)

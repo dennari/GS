@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
+using System.Collections.Generic;
 
 
 namespace Growthstories.DomainTests
@@ -101,12 +102,14 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
 
-            Assert.IsNull(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            Assert.IsNull(R);
+
 
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, newName)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(App.Synchronize());
             Assert.IsFalse(R.PushReq.IsEmpty);
             var e1 = (UserCreated)R.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e1.AggregateId);
@@ -130,13 +133,14 @@ namespace Growthstories.DomainTests
             var newName = "Jaakko";
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
-            Assert.IsNull(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            Assert.IsNull(R);
 
             TestUtils.WaitForTask(App.HandleCommand(new MultiCommand(
                 new CreateUser(u.Id, u.Username, u.Password, u.Email),
                 new SetUsername(u.Id, newName))));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(App.Synchronize());
             Assert.IsFalse(R.PushReq.IsEmpty);
             var e1 = (UserCreated)R.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e1.AggregateId);
@@ -248,6 +252,44 @@ namespace Growthstories.DomainTests
             var RemoteUser = Repository.GetById(remoteUser.AggregateId);
             Assert.IsInstanceOfType(RemoteUser, typeof(User));
             Assert.AreEqual(1, RemoteUser.Version);
+
+        }
+
+
+        [TestMethod]
+        public void TestPullRemembersSince()
+        {
+
+            var remoteUser = TestUtils.CreateUserFromName("Jorma");
+            long nextSince = 45;
+            Transporter.PullResponseFactory = (r) =>
+            {
+
+                var streamSegment = new StreamSegment(remoteUser.AggregateId, remoteUser);
+                var projection = new PullStream(
+                    remoteUser.AggregateId,
+                    PullStreamType.USER,
+                    new Dictionary<Guid, IStreamSegment>() { { remoteUser.AggregateId, streamSegment } },
+                    nextSince
+                );
+                return new HttpPullResponse()
+                {
+                    StatusCode = GSStatusCode.OK,
+                    Projections = new[] { projection }
+                };
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER)));
+
+
+            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(App.Synchronize());
+            Assert.IsFalse(R.PullReq.IsEmpty);
+
+            var pullStream = R.PullReq.Streams.Single();
+            Assert.AreEqual(pullStream.Since, nextSince);
+
+
 
         }
 

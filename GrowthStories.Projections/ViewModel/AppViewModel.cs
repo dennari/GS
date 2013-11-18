@@ -345,13 +345,15 @@ namespace Growthstories.UI.ViewModel
         private ISynchronizerService SyncService;
         private IRequestFactory RequestFactory;
 
-        public Task<ISyncInstance> Synchronize()
+        public async Task<ISyncInstance> Synchronize()
         {
             if (SyncService == null)
                 SyncService = Kernel.Get<ISynchronizerService>();
             if (RequestFactory == null)
                 RequestFactory = Kernel.Get<IRequestFactory>();
 
+            if (User.AccessToken == null)
+                await Context.AuthorizeUser();
 
             var s = new SyncInstance(
                 RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
@@ -363,13 +365,17 @@ namespace Growthstories.UI.ViewModel
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
                 return null;
 
-            return _Synchronize(s);
+
+
+            return await _Synchronize(s);
         }
 
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
             bool handlePull = false;
             IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;
+
+
 
             if (!s.PullReq.IsEmpty)
             {

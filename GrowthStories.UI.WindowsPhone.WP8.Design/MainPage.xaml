@@ -8,7 +8,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
-    DataContext="{StaticResource GardenViewModelDesign}"
+	DataContext="{StaticResource PlantViewModelDesign}"
 	mc:Ignorable="d"
 	FontFamily="{StaticResource PhoneFontFamilyNormal}"
 	FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -17,53 +17,79 @@
 	Orientation="Portrait"
 	shell:SystemTray.IsVisible="false"
 	>
-    <phone:PhoneApplicationPage.Resources>
-        <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
-            <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
-            <Setter Property="BackgroundColor" Value="White"/>
-        </Style>
-    </phone:PhoneApplicationPage.Resources>
-	<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
-	<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
-	<!--<local:YAxisShitView x:Name="Test"/>-->
-   
-    <!--<local:GardenPivotView/>-->
-    <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+	<phone:PhoneApplicationPage.Resources>
+		<Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
+			<Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
+			<Setter Property="BackgroundColor" Value="White"/>
+		</Style>
+	</phone:PhoneApplicationPage.Resources>
+	<Grid x:Name="LayoutRoot" Background="Transparent">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<!--<phone:PhoneApplicationPage.ApplicationBar>
+		<shell:ApplicationBar/>
+	</phone:PhoneApplicationPage.ApplicationBar>-->
+		<!--DataContext="{StaticResource PlantPhotoPivotViewModelDesign}"-->
+		<!--<local:PlantPhotoPivotView DataContext="{Binding}"/>-->
+		<!--<local:YAxisShitView x:Name="Test"/>-->
 
-        <phone:Panorama.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
-        </phone:Panorama.Background>
-        <phone:Panorama.Title>
-            <Image 
+		<!--<local:GardenPivotView/>--> 
+
+		<local:PlantActionView 
+			ViewModel="{Binding Actions[0]}"/>
+        
+        <!--<phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+
+		<phone:Panorama.Background>
+			<ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
+		</phone:Panorama.Background>
+		<phone:Panorama.Title>
+			<Image 
 					Source="/Assets/Bg/panorama_logo.png" 
 					Stretch="UniformToFill" 
 					Width="800" 
 					Margin="0,80,0,0"/>
-        </phone:Panorama.Title>
+		</phone:Panorama.Title>
 
-        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
-            <local:GardenView DataContext="{Binding }"/>
-        </phone:PanoramaItem>
-    </phone:Panorama>
-    <bar:Bindable.ApplicationBar>
-        <bar:BindableApplicationBar
+		<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
+			<local:GardenView DataContext="{Binding }"/>
+		</phone:PanoramaItem>
+	</phone:Panorama>-->
+		<Image Source="/Assets/AlignmentGrid.png" 
+			   VerticalAlignment="Top" 
+			   Height="800" Width="480" 
+			   Margin="0,0,0,0" 
+			   Grid.Row="0" 
+			   Grid.RowSpan="2"
+			   Opacity="0.0"
+			   IsHitTestVisible="False" />
+
+	</Grid>
+	<bar:Bindable.ApplicationBar>
+		<bar:BindableApplicationBar
 			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
 			Style="{StaticResource GSAppBarStyle}"
 			ButtonsSource="{Binding AppBarButtons}"
 			MenuItemsSource="{Binding AppBarMenuItems}"
 			IsVisible="{Binding AppBarIsVisible}"            
 			>
-            <bar:BindableApplicationBar.ButtonTemplate>
-                <DataTemplate>
-                    <bar:BindableApplicationBarButton
-                        Command="{Binding Command}"
-                        CommandParameter="{Binding CommandParameter}"
-                        IconUri="{Binding IconType, Converter={StaticResource IconTypeToIconUri}}"
-                        IsEnabled="{Binding IsEnabled}"
-                        Text="{Binding Text}" />
-                </DataTemplate>
-            </bar:BindableApplicationBar.ButtonTemplate>
-        </bar:BindableApplicationBar>
-    </bar:Bindable.ApplicationBar>
+			<bar:BindableApplicationBar.ButtonTemplate>
+				<DataTemplate>
+					<bar:BindableApplicationBarButton
+						Command="{Binding Command}"
+						CommandParameter="{Binding CommandParameter}"
+						IconUri="{Binding IconType, Converter={StaticResource IconTypeToIconUri}}"
+						IsEnabled="{Binding IsEnabled}"
+						Text="{Binding Text}" />
+				</DataTemplate>
+			</bar:BindableApplicationBar.ButtonTemplate>
+		</bar:BindableApplicationBar>
+	</bar:Bindable.ApplicationBar>
+	<!--Uncomment to see an alignment grid to help ensure your controls are
+			aligned on common boundaries.  The image has a top margin of -32px to
+			account for the System Tray. Set this to 0 (or remove the margin altogether)
+			if the System Tray is hidden.
 
+			Before shipping remove this XAML and the image itself.-->
 </phone:PhoneApplicationPage>

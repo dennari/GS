@@ -21,7 +21,7 @@ namespace Growthstories.UI.WindowsPhone
 
     class StagingEndpoint : Endpoint
     {
-        public StagingEndpoint() : base(new Uri("http://server.lan:9000")) { }
+        public StagingEndpoint() : base(new Uri("http://dennari-macbook.lan:8080")) { }
     }
     public class Bootstrap : BaseSetup
     {
@@ -143,7 +143,10 @@ namespace Growthstories.UI.WindowsPhone
 
             try
             {
-                WriteToConsole(Tag(string.Format(message, values)));
+                if (values.Length == 0)
+                    WriteToConsole(Tag(message));
+                else
+                    WriteToConsole(Tag(string.Format(message, values)));
 
             }
             catch (Exception)

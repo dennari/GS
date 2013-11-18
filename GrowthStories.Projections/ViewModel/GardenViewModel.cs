@@ -46,8 +46,8 @@ namespace Growthstories.UI.ViewModel
                         this.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadPlants(x));
                     }
 
-                    _Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => _AppBarButtons.Add(SelectPlantsButton));
-                    _Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => _AppBarButtons.Remove(SelectPlantsButton));
+                    _Plants.IsEmptyChanged.Where(x => x == false).Subscribe(_ => TileModeAppBarButtons.Add(SelectPlantsButton));
+                    _Plants.IsEmptyChanged.Where(x => x == true).Subscribe(_ => TileModeAppBarButtons.Remove(SelectPlantsButton));
 
                     //App.FuturePlants(this.UserState)
                     //.Subscribe(x =>
@@ -75,12 +75,17 @@ namespace Growthstories.UI.ViewModel
         public IReadOnlyReactiveList<IPlantViewModel> SelectedPlants { get { return _SelectedPlants; } }
         public IPlantViewModel SelectedItem { get; set; }
 
-        protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
+        protected ReactiveList<IButtonViewModel> TileModeAppBarButtons = new ReactiveList<IButtonViewModel>();
+        protected IReadOnlyReactiveList<IButtonViewModel> __AppBarButtons;
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
-                return _AppBarButtons;
+                return __AppBarButtons;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref __AppBarButtons, value);
             }
         }
 
@@ -135,8 +140,8 @@ namespace Growthstories.UI.ViewModel
 
 
             //this.Id = iid;
-            this._AppBarButtons.Add(this.AddPlantButton);
-
+            this.TileModeAppBarButtons.Add(this.AddPlantButton);
+            this.AppBarButtons = this.TileModeAppBarButtons;
 
 
 
@@ -145,20 +150,20 @@ namespace Growthstories.UI.ViewModel
                 if (x == false)
                 {
                     AppBarMode = ApplicationBarMode.DEFAULT;
-                    _AppBarButtons.Remove(SelectPlantsButton);
-                    _AppBarButtons.Remove(AddPlantButton);
-                    _AppBarButtons.Add(DeletePlantsButton);
-                    _AppBarButtons.Add(WaterPlantsButton);
+                    TileModeAppBarButtons.Remove(SelectPlantsButton);
+                    TileModeAppBarButtons.Remove(AddPlantButton);
+                    TileModeAppBarButtons.Add(DeletePlantsButton);
+                    TileModeAppBarButtons.Add(WaterPlantsButton);
 
                 }
                 else
                 {
                     AppBarMode = ApplicationBarMode.MINIMIZED;
-                    _AppBarButtons.Remove(WaterPlantsButton);
-                    _AppBarButtons.Remove(DeletePlantsButton);
-                    _AppBarButtons.Add(AddPlantButton);
-                    if (_Plants != null && _Plants.Count > 0 && !_AppBarButtons.Contains(SelectPlantsButton))
-                        _AppBarButtons.Add(SelectPlantsButton);
+                    TileModeAppBarButtons.Remove(WaterPlantsButton);
+                    TileModeAppBarButtons.Remove(DeletePlantsButton);
+                    TileModeAppBarButtons.Add(AddPlantButton);
+                    if (_Plants != null && _Plants.Count > 0 && !TileModeAppBarButtons.Contains(SelectPlantsButton))
+                        TileModeAppBarButtons.Add(SelectPlantsButton);
                 }
             });
 
@@ -238,6 +243,34 @@ namespace Growthstories.UI.ViewModel
                     App.Router.Navigate.Execute(this);
                 });
 
+
+            App.Router.CurrentViewModel.Subscribe(x =>
+            {
+                if (x == this)
+                {
+                    this.IsInPivotMode = true;
+                }
+                else
+                {
+                    this.IsInPivotMode = false;
+                }
+            });
+
+            this.WhenAny(x => x.IsInPivotMode, x => x.GetValue()).Subscribe(x =>
+            {
+                if (x == true && this.SelectedItem != null)
+                    this.AppBarButtons = this.SelectedItem.AppBarButtons;
+                else
+                    this.AppBarButtons = this.TileModeAppBarButtons;
+            });
+
+        }
+
+        protected bool _IsInPivotMode = false;
+        public bool IsInPivotMode
+        {
+            get { return _IsInPivotMode; }
+            set { this.RaiseAndSetIfChanged(ref _IsInPivotMode, value); }
         }
 
         private void Init(IAuthUser state)

@@ -107,6 +107,23 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User name set to {0}", Username);
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.PropertyName = "userName";
+            base.FillDTO(D);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "userName")
+                throw new ArgumentException();
+
+            base.FromDTO(D);
+
+        }
+
     }
 
     public abstract class RelationshipEvent : EventBase

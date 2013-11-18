@@ -44,7 +44,22 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             this.CreateRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
             this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData()));
+            this.PushRemoteUserCommand.RegisterAsyncTask(o => PushRemoteUser());
+            this.SyncCommand.RegisterAsyncTask(_ => SyncAll());
+        }
 
+        private async Task<bool> SyncAll()
+        {
+            int maxRounds = 100;
+            int counter = 0;
+            ISyncInstance R = null;
+            while (counter < maxRounds)
+            {
+                R = await App.Synchronize();
+                if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
+                    return true;
+            }
+            return false;
         }
 
         public void CreateLocalTestData()
@@ -170,7 +185,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 Guid.NewGuid(),
                 name,
                 "swordfish",
-                name + "@wonderland.net"))
+                name + Guid.NewGuid() + "@wonderland.net"))
             {
                 AggregateVersion = 1,
                 Created = DateTimeOffset.UtcNow,
@@ -247,19 +262,119 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         }
 
-        private async Task PushAsAnother(IAuthToken anotherAuth, IEnumerable<IEvent> events)
+        private async Task PushRemoteUser()
+        {
+            // create remote data
+
+
+
+            var name = "Lauri";
+
+            var remoteUser = CreateUserFromName(name);
+
+            var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            {
+                Streams = new[] { new StreamSegment(remoteUser.AggregateId, remoteUser) },
+                ClientDatabaseId = Guid.NewGuid(),
+                Translator = Translator
+            });
+            //Assert.AreEqual(GSStatusCode.OK, pushResp.StatusCode);
+
+            var remoteGarden = new GardenCreated(App.SetIds(new CreateGarden(Guid.NewGuid(), remoteUser.AggregateId), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 2,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+            var remoteAddGarden = new GardenAdded(App.SetIds(new AddGarden(remoteUser.AggregateId, remoteGarden.EntityId.Value), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 3,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+            var remotePlant = new PlantCreated(App.SetIds(new CreatePlant(Guid.NewGuid(), "RemoteJare", remoteGarden.EntityId.Value, remoteUser.AggregateId), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+            var remotePlantProperty = new MarkedPlantPublic(App.SetIds(new MarkPlantPublic(remotePlant.AggregateId), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 2,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+
+            var remoteAddPlant = new PlantAdded(App.SetIds(new AddPlant(remoteGarden.EntityId.Value, remotePlant.AggregateId, remoteUser.AggregateId, "RemoteJare"), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 4,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+            var remoteComment = new PlantActionCreated(
+                App.SetIds(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        remoteUser.AggregateId,
+                        remotePlant.AggregateId,
+                        PlantActionType.COMMENTED,
+                        "Hello remote world"),
+                    null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+
+
+            var remoteEvents = new List<IEvent>() { 
+                remotePlant,
+                remotePlantProperty,
+                remoteComment,
+                remoteGarden, 
+                remoteAddGarden,                
+                remoteAddPlant
+            };
+
+
+
+
+
+            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Email, remoteUser.Password);
+
+            //Assert.AreEqual(authResponse.StatusCode, GSStatusCode.OK);
+            //this.RemoteAuth = authResponse.AuthToken;
+
+            await PushAsAnother(authResponse.AuthToken, remoteEvents);
+
+            //remoteEvents.Insert(0, remoteUser);
+
+            //return remoteEvents;
+        }
+
+        protected async Task PushAsAnother(IAuthToken anotherAuth, IEnumerable<IEvent> events)
         {
             var tmp = HttpClient.AuthToken;
             HttpClient.AuthToken = anotherAuth;
 
-            var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            ISyncPushResponse R = null;
+            foreach (var e in events)
             {
-                Streams = EventsToStreams(events).ToArray(),
-                ClientDatabaseId = Guid.NewGuid(),
-                Translator = Translator
-            });
+                R = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+                {
+                    Streams = new IStreamSegment[] { new StreamSegment(e.AggregateId, e) },
+                    ClientDatabaseId = Guid.NewGuid(),
+                    Translator = Translator
+                });
+                //Assert.AreEqual(GSStatusCode.OK, R.StatusCode);
 
-
+            }
 
             HttpClient.AuthToken = tmp;
 

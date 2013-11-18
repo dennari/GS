@@ -16,7 +16,7 @@
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
-            Text="{Binding UserState.Username}"               
+            Text="{Binding Username}"               
             FontSize="{StaticResource PhoneFontSizeExtraLarge}"
             toolkit:TiltEffect.IsTiltEnabled="True"/>
         </DataTemplate>
@@ -74,6 +74,11 @@
                         </Button>
                         <Button  Command="{Binding CreateRemoteDataCommand}">
                             <TextBlock Text="Create remote data"
+                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
+                        </Button>
+                        <Button  Command="{Binding PushRemoteUserCommand}">
+                            <TextBlock Text="Push remote user"
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
                         </Button>

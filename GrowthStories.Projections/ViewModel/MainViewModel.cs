@@ -118,6 +118,7 @@ namespace Growthstories.UI.ViewModel
             CreateLocalDataCommand.IsExecuting.ToProperty(this, x => x.CreateLocalDataCommandIsExecuting, out _CreateLocalDataCommandIsExecuting, true);
 
             this.CreateRemoteDataCommand = new ReactiveCommand();
+            this.PushRemoteUserCommand = new ReactiveCommand();
             this.ClearDBCommand = new ReactiveCommand();
             this.SyncCommand = new ReactiveCommand();
 
@@ -133,6 +134,7 @@ namespace Growthstories.UI.ViewModel
 
         public ReactiveCommand CreateLocalDataCommand { get; protected set; }
         public ReactiveCommand CreateRemoteDataCommand { get; protected set; }
+        public ReactiveCommand PushRemoteUserCommand { get; protected set; }
         public ReactiveCommand ClearDBCommand { get; protected set; }
         public ReactiveCommand SyncCommand { get; protected set; }
 

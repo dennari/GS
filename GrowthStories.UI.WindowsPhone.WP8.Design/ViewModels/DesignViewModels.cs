@@ -357,6 +357,12 @@ namespace Growthstories.UI.ViewModel
         {
             get { return SupportedPageOrientation.PortraitOrLandscape; }
         }
+
+
+        public IReactiveCommand SelectedItemsChanged
+        {
+            get { return new MockReactiveCommand(); }
+        }
     }
 
 

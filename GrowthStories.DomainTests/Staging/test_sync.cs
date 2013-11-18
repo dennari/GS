@@ -48,15 +48,12 @@ namespace Growthstories.DomainTests
         public void Setup()
         {
 
-
-            this.Ctx = App.Context.CurrentUser;
+            this.Ctx = TestUtils.WaitForTask(App.Initialize());
             Assert.IsNotNull(Ctx);
             Assert.IsNotNullOrEmpty(Ctx.Username);
 
+
             WaitForTask(HttpClient.SendAsync(HttpClient.CreateClearDBRequest()));
-            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
-
-
             WaitForTask(App.Context.AuthorizeUser());
             //Ctx = App.Context.CurrentUser;
 
@@ -101,13 +98,13 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(4, remoteUserAggregate.Version);
             Assert.AreEqual(remoteUser.Username, remoteUserAggregate.State.Username);
             Assert.AreEqual(1, remoteUserAggregate.State.Gardens.Count);
-            Assert.AreEqual(originalRemoteEvents[1].EntityId.Value, remoteUserAggregate.State.Garden.Id);
-            Assert.AreEqual(originalRemoteEvents[3].AggregateId, remoteUserAggregate.State.Garden.PlantIds[0]);
+            Assert.AreEqual(originalRemoteEvents.OfType<GardenCreated>().Single().EntityId.Value, remoteUserAggregate.State.Garden.Id);
+            Assert.AreEqual(originalRemoteEvents.OfType<PlantCreated>().Single().AggregateId, remoteUserAggregate.State.Garden.PlantIds[0]);
 
             var R3 = await App.Synchronize();
             //var R3 = R3s[0];
             SyncAssertions(R3);
-            Assert.IsNull(R3.PushReq);
+            Assert.IsTrue(R3.PushReq.IsEmpty);
 
         }
 
@@ -211,7 +208,7 @@ namespace Growthstories.DomainTests
             SyncAssertions(R4);
 
             //Assert.IsTrue(R4.PushReq.IsEmpty);
-            Assert.AreEqual(CurrentSyncSequence + 1, App.Model.State.SyncHead.GlobalCommitSequence); // 1 for the pull-notification
+            Assert.AreEqual(CurrentSyncSequence, App.Model.State.SyncHead.GlobalCommitSequence);
 
             return originalRemoteEvents;
 
@@ -467,7 +464,7 @@ namespace Growthstories.DomainTests
 
 
 
-            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Username, remoteUser.Password);
+            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Email, remoteUser.Password);
 
             Assert.AreEqual(authResponse.StatusCode, GSStatusCode.OK);
             this.RemoteAuth = authResponse.AuthToken;
@@ -484,14 +481,18 @@ namespace Growthstories.DomainTests
             var tmp = HttpClient.AuthToken;
             HttpClient.AuthToken = anotherAuth;
 
-            var pushResp2 = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            ISyncPushResponse R = null;
+            foreach (var e in events)
             {
-                Streams = TestUtils.EventsToStreams(events).ToArray(),
-                ClientDatabaseId = Guid.NewGuid(),
-                Translator = Translator
-            });
+                R = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+                {
+                    Streams = new IStreamSegment[] { new StreamSegment(e.AggregateId, e) },
+                    ClientDatabaseId = Guid.NewGuid(),
+                    Translator = Translator
+                });
+                Assert.AreEqual(GSStatusCode.OK, R.StatusCode);
 
-            Assert.AreEqual(GSStatusCode.OK, pushResp2.StatusCode);
+            }
 
             HttpClient.AuthToken = tmp;
 

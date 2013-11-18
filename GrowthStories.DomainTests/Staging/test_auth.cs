@@ -171,6 +171,16 @@ namespace Growthstories.DomainTests
             //var R = Rs[0];
             SyncAssertions(R, true);
 
+            var R2 = await App.Synchronize();
+            //var R = Rs[0];
+            SyncAssertions(R2, true);
+
+            var R3 = await App.Synchronize();
+            //var R = Rs[0];
+            Assert.IsTrue(R3.PushReq.IsEmpty);
+
+
+
             return plant;
 
 

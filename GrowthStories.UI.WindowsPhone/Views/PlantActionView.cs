@@ -153,9 +153,12 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (value is IPlantWaterViewModel)
                     bg = GetBg("/Assets/Bg/watering_bg.jpg");
+                else
+                    bg = GetBg("/Assets/Bg/action_bg.jpg");
                 if (value is IPlantPhotographViewModel)
                     contentTemplate = Application.Current.Resources["TimelinePhotoTemplate"] as DataTemplate;
-
+                if (value is IPlantMeasureViewModel)
+                    contentTemplate = Application.Current.Resources["TimelineMeasureTemplate"] as DataTemplate;
 
             }
             else
@@ -164,10 +167,7 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     contentTemplate = Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
                 }
-                if (value is IPlantMeasureViewModel)
-                {
-                    contentTemplate = Application.Current.Resources["DetailMeasureTemplate"] as DataTemplate;
-                }
+
             }
 
             this.DataContext = value;
