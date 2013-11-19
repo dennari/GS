@@ -62,24 +62,45 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Bus = Kernel.Get<IMessageBus>();
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
-            //Resolver.RegisterLazySingleton(() => new GardenViewPage(), typeof(IViewFor<GardenViewModel>));
-            //Resolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<PlantViewModel>));
-            Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<ScheduleViewModel>));
-            Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<ClientAddPlantViewModel>));
+            Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
+            Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<IAddEditPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
-            Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<SearchUsersViewModel>));
-            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<GardenViewModel>));
-            Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<PlantViewModel>));
-            Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<FriendsViewModel>));
+            Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
+            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenViewModel>));
+            Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPlantViewModel>));
+            Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
+
             Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
+            Resolver.RegisterLazySingleton(() => new ClientAddPlantViewModel(null, this), typeof(IAddEditPlantViewModel));
 
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
             {
                 this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
             });
 
+            ViewLocator.ViewModelToViewModelInterfaceFunc = T =>
+            {
+                if (T is IAddEditPlantViewModel)
+                    return typeof(IAddEditPlantViewModel);
+                if (T is IPlantActionViewModel)
+                    return typeof(IPlantActionViewModel);
+                if (T is IYAxisShitViewModel)
+                    return typeof(IYAxisShitViewModel);
+                if (T is IScheduleViewModel)
+                    return typeof(IScheduleViewModel);
+                if (T is ISearchUsersViewModel)
+                    return typeof(ISearchUsersViewModel);
+                if (T is IGardenViewModel)
+                    return typeof(IGardenViewModel);
+                if (T is IPlantViewModel)
+                    return typeof(IPlantViewModel);
+                if (T is IFriendsViewModel)
+                    return typeof(IFriendsViewModel);
 
+                return T.GetType();
+
+            };
             Initialize();
 
 

@@ -78,15 +78,40 @@
                 </Popup>
             </Grid>
         </ControlTemplate>
-        
+        <DataTemplate x:Key="ScheduleTemplate">
+                <Grid Margin="0,0,0,10" Width="340">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock 
+                        Text="Off" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                    <TextBlock 
+                        Text="On" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                    <TextBlock 
+                        Text="{Binding IntervalLabel}" 
+                        Grid.Column="1" 
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                </Grid>
+        </DataTemplate>
+      
+
 
     </UserControl.Resources>
-    <Grid>
+    <Grid VerticalAlignment="Top" Height="800">
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
         </Grid.Background>
-        <ScrollViewer>
-            <Grid  Margin="12,0">            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Height="751" VerticalAlignment="Top" >
+            <Grid  Margin="12,0,12,36">            
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -133,14 +158,25 @@
 
 
                 <local:GSLabel Label="watering schedule">
-                        <local:GSToggleSwitch/>
+                        <local:GSToggleSwitch
+                            IsChecked="{Binding WateringSchedule.IsEnabled, Mode=TwoWay}"
+                            Content="{Binding WateringSchedule}"
+                            ContentTemplate="{StaticResource ScheduleTemplate}"
+                            VerticalContentAlignment="Center"
+                            Margin="0,0,0,-12"
+                            />
+
                         <!--<TextBlock                    
                         Text="{Binding WateringSchedule.Label}"
                         FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                         Foreground="{StaticResource PhoneForegroundBrush}"/>-->
                 </local:GSLabel>
                 <local:GSLabel Label="nourishing schedule">
-                        <local:GSToggleSwitch/>
+                        <local:GSToggleSwitch 
+                            IsChecked="{Binding FertilizingSchedule.IsEnabled, Mode=TwoWay}"
+                            Content="{Binding FertilizingSchedule}"
+                            ContentTemplate="{StaticResource ScheduleTemplate}"
+                            VerticalContentAlignment="Center"/>
                         <!--<TextBlock Text="{Binding FertilizingSchedule.Label}"
                         FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                         Foreground="{StaticResource PhoneForegroundBrush}"/>-->

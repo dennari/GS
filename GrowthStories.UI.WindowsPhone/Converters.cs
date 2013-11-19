@@ -117,6 +117,38 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
+    public class NullToBooleanConverter : IValueConverter
+    {
+
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+
+            //return value == null ? Visibility.Collapsed : Visibility.Visible;
+            //if (targetType != typeof(Visibility))
+            //    throw new InvalidOperationException("Can only convert to Visibility");
+
+
+            if (parameter == null)
+                return value == null ? false : true;
+            else
+                return value != null ? false : true;
+
+        }
+
+        public object ConvertBack(object v, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+
+            throw new NotImplementedException();
+
+
+
+        }
+
+    }
+
 
     public class UriToImageSourceConverter : IValueConverter
     {

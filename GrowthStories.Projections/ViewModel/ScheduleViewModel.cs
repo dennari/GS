@@ -121,6 +121,32 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public string IntervalLabel
+        {
+            get
+            {
+                if (Interval.HasValue)
+                    return string.Format("{0} {1}", this.ValueType.Compute(Interval.Value), this.ValueType);
+                return null;
+            }
+        }
+
+
+        bool _IsEnabled;
+        public bool IsEnabled
+        {
+            get
+            {
+                return _IsEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsEnabled, value);
+            }
+        }
+
+
+
         public DateTimeOffset ComputeNext(DateTimeOffset last)
         {
             if (Interval == null)

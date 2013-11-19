@@ -25,7 +25,7 @@
 	</phone:PhoneApplicationPage.Resources>
 	<Grid x:Name="LayoutRoot" Background="Transparent">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 		<!--<phone:PhoneApplicationPage.ApplicationBar>
 		<shell:ApplicationBar/>
@@ -67,7 +67,7 @@
 			   IsHitTestVisible="False" />
 
 	</Grid>
-	<bar:Bindable.ApplicationBar>
+	<!--<bar:Bindable.ApplicationBar>
 		<bar:BindableApplicationBar
 			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
 			Style="{StaticResource GSAppBarStyle}"
@@ -86,7 +86,7 @@
 				</DataTemplate>
 			</bar:BindableApplicationBar.ButtonTemplate>
 		</bar:BindableApplicationBar>
-	</bar:Bindable.ApplicationBar>
+	</bar:Bindable.ApplicationBar>-->
 	<!--Uncomment to see an alignment grid to help ensure your controls are
 			aligned on common boundaries.  The image has a top margin of -32px to
 			account for the System Tray. Set this to 0 (or remove the margin altogether)

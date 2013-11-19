@@ -15,36 +15,19 @@ using System.Reactive.Disposables;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class ListUsersView : UserControl, IViewFor<SearchUsersViewModel>
+    public class ListUsersViewBase : GSView<ISearchUsersViewModel>
+    {
+
+    }
+
+    public partial class ListUsersView : ListUsersViewBase
     {
 
         public ListUsersView()
         {
             InitializeComponent();
             UserSelector.SelectedItem = null;
-
-            SetBinding(ViewModelProperty, new System.Windows.Data.Binding());
-
-
         }
-
-        public SearchUsersViewModel ViewModel
-        {
-            get { return (SearchUsersViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null && value != ViewModel)
-                {
-                    SetValue(ViewModelProperty, value);
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(ListUsersView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (SearchUsersViewModel)value; } }
 
 
 

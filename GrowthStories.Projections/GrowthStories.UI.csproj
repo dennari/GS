@@ -99,6 +99,7 @@
     <Compile Include="Services\AppUserService.cs" />
     <Compile Include="Services\GSViewLocator.cs" />
     <Compile Include="ViewModel\AppViewModel.cs" />
+    <Compile Include="ViewModel\CommandViewModel.cs" />
     <Compile Include="ViewModel\FriendsViewModel.cs" />
     <Compile Include="ViewModel\Interfaces.cs" />
     <Compile Include="ViewModel\ListUsersViewModel.cs" />

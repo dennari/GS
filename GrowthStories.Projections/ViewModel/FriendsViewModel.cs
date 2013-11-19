@@ -8,11 +8,27 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
+
+
+
     public class FriendsViewModel : RoutableViewModel, IFriendsViewModel
     {
 
         protected IGardenViewModel _SelectedItem;
-        public IGardenViewModel SelectedItem { get { return _SelectedItem; } set { this.RaiseAndSetIfChanged(ref _SelectedItem, value); } }
+        public IGardenViewModel SelectedFriend { get { return _SelectedItem; } set { this.RaiseAndSetIfChanged(ref _SelectedItem, value); } }
+
+        public object SelectedItem
+        {
+            get { return SelectedFriend; }
+            set
+            {
+
+                var v = value as IGardenViewModel;
+                if (v != null)
+                    SelectedFriend = v;
+            }
+        }
+
 
         public IReactiveCommand FriendTapped { get; protected set; }
 
@@ -59,12 +75,16 @@ namespace Growthstories.UI.ViewModel
         {
 
 
-            this.FriendTapped = new ReactiveCommand();
-            this.FriendTapped.OfType<IGardenViewModel>().Subscribe(x =>
-            {
-                this.SelectedItem = x;
-                App.Router.Navigate.Execute(this);
-            });
+            //this.FriendTapped = new ReactiveCommand();
+            //this.FriendTapped.OfType<IGardenViewModel>().Subscribe(x =>
+            //{
+            //    this.SelectedItem = x;
+            //   ;
+            //});
+
+            this.WhenAny(x => x.SelectedFriend, x => x.GetValue())
+                .Where(x => x != null)
+                .Subscribe(_ => App.Router.Navigate.Execute(this));
 
         }
         protected ReactiveList<IButtonViewModel> _AppBarButtons;

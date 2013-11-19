@@ -18,7 +18,7 @@ using System.Windows.Input;
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public class AddPlantViewBase : GSView<ClientAddPlantViewModel>
+    public class AddPlantViewBase : GSView<IAddEditPlantViewModel>
     {
 
     }

@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<local:MainViewBase
     x:Class="Growthstories.UI.WindowsPhone.MainView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -87,7 +87,7 @@
                         x:Name="FriendsSelector"
                         ItemsSource="{Binding Friends}"
                         ItemTemplate="{StaticResource ListUsersTemplate}"
-                        SelectionChanged="FriendsSelector_SelectionChanged"/>
+                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}"/>
                 </Grid>
             </phone:PanoramaItem>
             <!-- TESTING -->
@@ -129,4 +129,4 @@
         </phone:Panorama>
     </Grid>
 
-</UserControl>
+</local:MainViewBase>

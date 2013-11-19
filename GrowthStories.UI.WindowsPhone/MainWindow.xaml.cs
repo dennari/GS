@@ -36,7 +36,7 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             //this.SetBinding(ViewModelProperty, new Binding());
             ViewModel = new AppViewModel();
-            this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
+            //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
 
         }
 

@@ -14,7 +14,12 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class MainView : UserControl, IViewFor<MainViewModel>
+    public class MainViewBase : GSView<MainViewModel>
+    {
+
+    }
+
+    public partial class MainView : MainViewBase
     {
 
 
@@ -24,70 +29,22 @@ namespace Growthstories.UI.WindowsPhone
             //FriendsSelector.SelectedItem = null;
         }
 
-        public MainViewModel ViewModel
-        {
-            get { return (MainViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(MainView), new PropertyMetadata(null));
 
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (MainViewModel)value; } }
-
-
-        private void FriendsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0)
-                return;
-            var item = e.AddedItems[0];
-            if (item == null || !(item is IGardenViewModel))
-                return;
-
-            ViewModel.FriendsVM.FriendTapped.Execute(item);
-
-            ((LongListSelector)sender).SelectedItem = null;
-        }
-
-        //protected override void OnNavigatedTo(NavigationEventArgs e)
+        //private void FriendsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         //{
-        //    base.OnNavigatedTo(e);
-        //    if (this.DataContext != null)
-        //    {
-        //        var vm = this.DataContext as MainViewModel;
-        //        if (vm != null)
-        //        {
-        //            vm.OnNavigatedTo();
-        //        }
+        //    if (e.AddedItems.Count == 0)
+        //        return;
+        //    var item = e.AddedItems[0];
+        //    if (item == null || !(item is IGardenViewModel))
+        //        return;
 
-        //    }
+        //    ViewModel.FriendsVM.FriendTapped.Execute(item);
 
+        //    ((LongListSelector)sender).SelectedItem = null;
         //}
 
-        ///// <summary>
-        ///// Defers back treatment to active pivot function
-        ///// </summary>
-        ///// <param name="e"></param>
-        //protected override void OnBackKeyPress(CancelEventArgs e)
-        //{
-        //    if (this.DataContext != null)
-        //    {
-        //        var vm = this.DataContext as MainViewModel;
-        //        if (vm != null)
-        //        {
-        //            vm.OnBackKeyPress(e);
-        //        }
 
-        //    }
-        //}
 
     }
 }

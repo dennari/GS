@@ -115,12 +115,25 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
+        GSViewLocator _ViewLocator;
+        public GSViewLocator ViewLocator
+        {
+            get
+            {
+                if (_ViewLocator == null)
+                {
+                    _ViewLocator = new GSViewLocator();
+                }
+                return _ViewLocator;
+            }
+        }
+
         public AppViewModel()
         {
 
             var resolver = new ModernDependencyResolver();
             resolver.InitializeResolver();
-            resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(IViewLocator));
+            resolver.RegisterLazySingleton(() => ViewLocator, typeof(IViewLocator));
 
 
             RxApp.DependencyResolver = resolver;

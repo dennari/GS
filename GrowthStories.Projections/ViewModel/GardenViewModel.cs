@@ -294,7 +294,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "add",
                         IconType = IconType.ADD,
-                        Command = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(this.AddPlantViewModel))
+                        Command = App.Router.NavigateCommandFor<IAddEditPlantViewModel>()
                     };
                 return _AddPlantButton;
             }

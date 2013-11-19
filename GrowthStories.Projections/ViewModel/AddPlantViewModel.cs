@@ -16,20 +16,20 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class AddPlantViewModel : PlantActionViewModel, IAddEditPlantViewModel
+    public class AddPlantViewModel : CommandViewModel, IAddEditPlantViewModel
     {
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
 
-        protected new PlantState State;
+        protected readonly PlantState State;
 
         public AddPlantViewModel(PlantState state, IGSAppViewModel app)
-            : base(null, app)
+            : base(app)
         {
             this.State = state;
-            this.Title = "new";
+            this.Title = "new plant";
 
             ChooseProfilePictureCommand = new ReactiveCommand();
             ChooseWateringSchedule = new ReactiveCommand();
@@ -55,6 +55,17 @@ namespace Growthstories.UI.ViewModel
                 .ToProperty(this, x => x.PlantTitle, out this._PlantTitle, null);
 
 
+            this.WateringSchedule
+                .WhenAny(x => x.IsEnabled, x => x.GetValue())
+                .Skip(1)
+                .Merge(
+                    this.FertilizingSchedule
+                        .WhenAny(x => x.IsEnabled, x => x.GetValue())
+                        .Skip(1)
+                )
+                .Where(x => x == true)
+                .Subscribe(x => App.Router.Navigate.Execute(x));
+
 
             //this.CanExecute = this.WhenAnyValue(x => x.Name, x => x.Species, x => x.ProfilepicturePath, IsValid);
 
@@ -73,13 +84,14 @@ namespace Growthstories.UI.ViewModel
                 this.Name = State.Name;
                 this.Species = State.Species;
                 this.Tags = new ReactiveList<string>(State.Tags);
-                this.Title = "edit";
+                this.Title = "edit plant";
                 this.Photo = State.Profilepicture;
                 this.ProfilePictureButtonText = "";
 
             }
 
         }
+
 
         protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
         {
@@ -306,5 +318,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+        public override string UrlPathSegment
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

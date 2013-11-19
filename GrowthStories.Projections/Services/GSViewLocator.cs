@@ -11,6 +11,8 @@ namespace Growthstories.UI.Services
     public class GSViewLocator : IViewLocator
     {
 
+        public Func<object, Type> ViewModelToViewModelInterfaceFunc { get; set; }
+
 
         public GSViewLocator()
         {
@@ -29,13 +31,9 @@ namespace Growthstories.UI.Services
             where T : class
         {
             var viewType = typeof(IViewFor<>);
+            return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), contract);
 
-            if (viewModel is IPlantActionViewModel)
-                return attemptToResolveView(viewType.MakeGenericType(typeof(IPlantActionViewModel)), contract);
-            if (viewModel is IYAxisShitViewModel)
-                return attemptToResolveView(viewType.MakeGenericType(typeof(IYAxisShitViewModel)), contract);
 
-            return attemptToResolveView(viewType.MakeGenericType(viewModel.GetType()), contract);
         }
 
 

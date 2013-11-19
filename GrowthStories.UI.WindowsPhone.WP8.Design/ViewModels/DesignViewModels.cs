@@ -275,10 +275,13 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public ScheduleViewModel(ScheduleType scheduleType, long interval)
+        public ScheduleViewModel(ScheduleType scheduleType, long? interval = null, IntervalValue valueType = null)
         {
             this.Interval = interval;
+            if (this.Interval != null)
+                this.IsEnabled = true;
             this.Type = scheduleType;
+            this.ValueType = valueType ?? new IntervalValue(IntervalValueType.HOUR);
         }
 
 
@@ -290,6 +293,16 @@ namespace Growthstories.UI.ViewModel
 
         public long? Interval { get; set; }
 
+        public string IntervalLabel
+        {
+            get
+            {
+                if (Interval.HasValue)
+                    return string.Format("{0} {1}", this.ValueType.Compute(Interval.Value), this.ValueType);
+                return null;
+            }
+        }
+
 
         public DateTimeOffset ComputeNext(DateTimeOffset last)
         {
@@ -298,10 +311,97 @@ namespace Growthstories.UI.ViewModel
             return last + new TimeSpan((long)(Interval * 10000 * 1000));
         }
 
+        bool _IsEnabled;
+        public bool IsEnabled
+        {
+            get
+            {
+                return _IsEnabled;
+            }
+            set
+            {
+                if (value != _IsEnabled)
+                {
+
+                    _IsEnabled = value;
+                    this.RaisePropertyChanged();
+                }
+            }
+        }
 
         public ScheduleType Type { get; set; }
 
+        protected IntervalValue _ValueType;
+        public IntervalValue ValueType
+        {
+            get { return _ValueType; }
+            set { _ValueType = value; RaisePropertyChanged(); }
+        }
+
+        public IList<IntervalValue> ValueTypes { get; protected set; }
+
         public IReactiveCommand SelectValueType { get { return new MockReactiveCommand(); } }
+    }
+
+    public sealed class IntervalValue
+    {
+        private readonly IntervalValueType Type;
+        public IntervalValue(IntervalValueType type)
+        {
+            this.Type = type;
+        }
+
+        public long Compute(string sValue)
+        {
+            var dValue = double.Parse(sValue);
+            return (long)(dValue * this.Unit);
+        }
+
+        public Guid Id
+        {
+            get { return Guid.NewGuid(); }
+        }
+
+        public string Compute(long lValue)
+        {
+            return (lValue / Unit).ToString("F1");
+        }
+
+        public long Unit
+        {
+            get
+            {
+                return this.Type == IntervalValueType.DAY ? 24 * 3600 : 3600;
+            }
+        }
+
+
+        public string Title
+        {
+            get { return this.Type == IntervalValueType.DAY ? "days" : "hours"; }
+        }
+
+        public override string ToString()
+        {
+            return this.Title;
+        }
+
+        public static IList<IntervalValue> GetAll()
+        {
+            return new List<IntervalValue>()
+            {
+                new IntervalValue(IntervalValueType.DAY),
+                new IntervalValue(IntervalValueType.HOUR)
+            };
+        }
+
+
+    }
+
+    public enum IntervalValueType
+    {
+        HOUR,
+        DAY
     }
 
 

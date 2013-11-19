@@ -25,11 +25,11 @@ namespace Growthstories.UI.ViewModel
         string Title { get; }
     }
 
-    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
+    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect
     {
         IReactiveCommand FriendTapped { get; }
         IReadOnlyReactiveList<IGardenViewModel> Friends { get; }
-        IGardenViewModel SelectedItem { get; }
+        IGardenViewModel SelectedFriend { get; }
     }
 
     //public enum ScheduleType
@@ -240,8 +240,10 @@ namespace Growthstories.UI.ViewModel
 
     public interface IScheduleViewModel : IGSRoutableViewModel
     {
+        bool IsEnabled { get; }
         Guid Id { get; }
         long? Interval { get; }
+        string IntervalLabel { get; }
         ScheduleType Type { get; }
         IReactiveCommand SelectValueType { get; }
         DateTimeOffset ComputeNext(DateTimeOffset last);
@@ -318,6 +320,11 @@ namespace Growthstories.UI.ViewModel
     public interface IHasMenuItems
     {
         IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems { get; }
+    }
+
+    public interface ICanSelect
+    {
+        object SelectedItem { get; set; }
     }
 
     public interface IMenuItemViewModel
