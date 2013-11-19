@@ -151,7 +151,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public ReactiveCommand SelectValueType { get; protected set; }
+        public IReactiveCommand SelectValueType { get; protected set; }
 
 
 

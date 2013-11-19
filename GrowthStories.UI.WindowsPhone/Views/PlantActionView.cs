@@ -19,10 +19,9 @@ namespace Growthstories.UI.WindowsPhone
         Detail = 1
     }
 
-    public class PlantActionView : ContentControl, IViewFor<IPlantActionViewModel>
+    public class PlantActionView : GSContentControl<IPlantActionViewModel>
     {
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IPlantActionViewModel)value; } }
 
 
         public static readonly DependencyProperty NoteVisibilityProperty =
@@ -34,32 +33,22 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty ContentVisibilityProperty =
             DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
 
-        public static readonly DependencyProperty ViewModelProperty =
-          DependencyProperty.Register("ViewModel", typeof(IPlantActionViewModel), typeof(PlantActionView), new PropertyMetadata(null, ViewModelValueChanged));
-
         public static readonly DependencyProperty DisplayModeProperty =
          DependencyProperty.Register("DisplayMode", typeof(DisplayMode), typeof(PlantActionView), new PropertyMetadata(DisplayMode.Timeline, DisplayModeValueChanged));
 
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.Register("Command", typeof(ICommand), typeof(PlantActionView), new PropertyMetadata(null, CommandValueChanged));
 
-        static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            try
-            {
-                var view = (PlantActionView)sender;
-                view.SetDataContext((IPlantActionViewModel)e.NewValue, view.DisplayMode);
 
-            }
-            catch { }
-        }
 
         static void DisplayModeValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             try
             {
                 var view = (PlantActionView)sender;
-                view.SetDataContext(view.ViewModel, (DisplayMode)e.NewValue);
+                var newMode = (DisplayMode)e.NewValue;
+                if (newMode != view.DisplayMode)
+                    view.SetDataContext(view.ViewModel, newMode);
 
             }
             catch { }
@@ -127,17 +116,12 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        public IPlantActionViewModel ViewModel
+        protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
-            get { return (IPlantActionViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                }
-            }
+            base.OnViewModelChanged(vm);
+            this.SetDataContext(vm, DisplayMode);
         }
+
 
         private void SetDataContext(IPlantActionViewModel value, DisplayMode mode)
         {
@@ -220,8 +204,6 @@ namespace Growthstories.UI.WindowsPhone
 
         public PlantActionView()
         {
-
-            //this.Background = GetBg("/Assets/Bg/action_bg.jpg");
 
         }
     }

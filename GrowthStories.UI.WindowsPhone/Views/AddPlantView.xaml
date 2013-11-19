@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<local:AddPlantViewBase
     x:Class="Growthstories.UI.WindowsPhone.AddPlantView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,68 +9,58 @@
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-	mc:Ignorable="d">
+	d:DataContext="{StaticResource EditPlantViewModelDesign}"
+    xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+   
+    mc:Ignorable="d">
     <UserControl.Resources>
         <ItemsPanelTemplate x:Key="TagsPanelTemplate">
             <StackPanel Orientation="Horizontal"/>
         </ItemsPanelTemplate>
         <DataTemplate x:Key="TagsItemTemplate">
-            <TextBlock 
-                Text="{Binding}" 
-                FontSize="{StaticResource PhoneFontSizeSmall}" Margin="0,0,6,6"
-                Tap="TextBlock_Tap"
-                />
+            <c4f:Tile 
+                c4f:TiltEffect.IsTiltEnabled="True"
+                Command="{Binding DataContext.RemoveTag, ElementName=TagBox}"
+                CommandParameter="{Binding}"
+                >
+                <c4f:Tile.Template>
+                    <ControlTemplate>
+                        <Grid Margin="0,0,12,0">
+                            <Rectangle Fill="{StaticResource GSTextBoxBrush}" RadiusX="18" RadiusY="18" />
+                            <ContentControl 
+                                Margin="12,7" 
+                                Content="{Binding}"
+                                Foreground="White"
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                FontFamily="{StaticResource PhoneFontFamilyNormal}" 
+                                FontSize="14" />
+                        </Grid>
+                    </ControlTemplate>
+                </c4f:Tile.Template>
+            </c4f:Tile>
+           
         </DataTemplate>
-    </UserControl.Resources>
-    <local:PlantActionView>
-        <local:PlantActionView.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:PlantActionView.Background>
-     <StackPanel>
-        <!-- NAME -->
-        <TextBlock Text="Name" Style="{StaticResource GSInputLabelStyle}"/>
-        <TextBox Text="{Binding Name, Mode=TwoWay}" local:BindingUtility.UpdateSourceOnChange="True" Style="{StaticResource GSTextBoxStyle}" />
-        <!-- GENUS -->
-        <TextBlock Text="Genus" Style="{StaticResource GSInputLabelStyle}"/>
-        <TextBox Text="{Binding Species, Mode=TwoWay}" local:BindingUtility.UpdateSourceOnChange="True" Style="{StaticResource GSTextBoxStyle}" />
-        <!-- Tags -->
-        <TextBlock Text="Tags" Style="{StaticResource GSInputLabelStyle}"/>
-
-            <ItemsControl
-                  ItemsSource="{Binding Tags}"
-                  ItemTemplate="{StaticResource TagsItemTemplate}"
-                  ItemsPanel="{StaticResource TagsPanelTemplate}"
-             />
-            <toolkit:AutoCompleteBox 
-            VerticalAlignment="Top" 
-            x:Name="TagBox"
-                InputScope="Search"
-                KeyUp="TagBox_KeyUp"
-            ItemsSource="{Binding Tags}" Margin="-12,0">
-
-                <toolkit:AutoCompleteBox.Template>
-                    <ControlTemplate TargetType="toolkit:AutoCompleteBox">
-                        <Grid>
-                            <toolkit:PhoneTextBox
+        <ControlTemplate TargetType="toolkit:AutoCompleteBox" x:Name="TagInputTemplate">
+            
+            <Grid>
+                <Grid.Resources>
+                    <Style x:Key="TagHintStyle" TargetType="ContentControl">
+                        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+                        <Setter Property="Opacity" Value="0.5"/>
+                    </Style>
+                </Grid.Resources>
+                <local:GSTextBox
                             x:Name="Text"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            FontFamily="{TemplateBinding FontFamily}"
-                            FontSize="{TemplateBinding FontSize}"
-                            FontStyle="{TemplateBinding FontStyle}"
-                            FontWeight="{TemplateBinding FontWeight}"
-                            Foreground="{TemplateBinding Foreground}"
-                            InputScope="{TemplateBinding InputScope}"
-                            Opacity="{TemplateBinding Opacity}"
-                            Padding="{TemplateBinding Padding}"
-                            Style="{TemplateBinding TextBoxStyle}"
+                            InputScope="{TemplateBinding InputScope}"                           
+                            HintStyle="{StaticResource TagHintStyle}"
                             Hint="Add" 
                             ActionIcon="/Assets/Icons/appbar.add.png"
                             ActionIconTapped="TagBox_IconTapped"
                             />
-                            <Popup x:Name="Popup">
-                                <ListBox
+                <Popup x:Name="Popup">
+                    <ListBox
                                 x:Name="Selector"
                                 Background="White"
                                 BorderBrush="{StaticResource PhoneTextBoxEditBorderBrush}"
@@ -85,75 +75,146 @@
                                 ItemTemplate="{TemplateBinding ItemTemplate}"
                                 Opacity="{TemplateBinding Opacity}"
                                 Padding="0,8"/>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </toolkit:AutoCompleteBox.Template>
-        </toolkit:AutoCompleteBox>
-          
-        <StackPanel>
-            <TextBlock Text="Watering Schedule"
-                    FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                    Foreground="{StaticResource PhoneSubtleBrush}"/>
-            <TextBlock Text="{Binding WateringSchedule.Label}"
+                </Popup>
+            </Grid>
+        </ControlTemplate>
+        
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
+        </Grid.Background>
+        <ScrollViewer>
+            <Grid  Margin="12,0">            
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="3,17,0,28">
+                <TextBlock
+					    Margin="6,-5,0,0"
+					    Text="{Binding Title}"
+					    Style="{StaticResource GSPageTitleStyle}" />
+            </StackPanel>
+
+
+            <StackPanel Grid.Row="1">
+                <!-- NAME -->
+                <local:GSLabel Label="name">
+                    <local:GSTextBox Text="{Binding Name, Mode=TwoWay}" 
+                            local:BindingUtility.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                   
+                <!-- GENUS -->
+                <local:GSLabel Label="species">
+                    <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
+                                local:BindingUtility.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                
+            
+                <!-- Tags -->
+                <local:GSLabel Label="tags">
+                    <toolkit:AutoCompleteBox 
+                        VerticalAlignment="Top" 
+                        x:Name="TagBox"
+                        InputScope="Search"
+                        KeyUp="TagBox_KeyUp"
+                        Foreground="{StaticResource GSTextBoxBrush}"
+                        ItemsSource="{Binding Tags}"
+                        Template="{StaticResource TagInputTemplate}"/>
+                </local:GSLabel>
+
+                <ItemsControl Margin="12,6,12,18"
+                    ItemsSource="{Binding Tags}"
+                    ItemTemplate="{StaticResource TagsItemTemplate}"
+                    ItemsPanel="{StaticResource TagsPanelTemplate}"/>
+
+
+                <local:GSLabel Label="watering schedule">
+                        <local:GSToggleSwitch/>
+                        <!--<TextBlock                    
+                        Text="{Binding WateringSchedule.Label}"
                         FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                        Foreground="{StaticResource PhoneForegroundBrush}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Tap">
-                        <command:InvokeCommandAction Command="{Binding ChooseWateringSchedule}" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </TextBlock>
-        </StackPanel>
-
-        <StackPanel>
-            <TextBlock Text="Fertilizing Schedule"
-                    FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                    Foreground="{StaticResource PhoneSubtleBrush}"/>
-            <TextBlock Text="{Binding FertilizingSchedule.Label}"
+                        Foreground="{StaticResource PhoneForegroundBrush}"/>-->
+                </local:GSLabel>
+                <local:GSLabel Label="nourishing schedule">
+                        <local:GSToggleSwitch/>
+                        <!--<TextBlock Text="{Binding FertilizingSchedule.Label}"
                         FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                        Foreground="{StaticResource PhoneForegroundBrush}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Tap">
-                        <command:InvokeCommandAction Command="{Binding ChooseFertilizingSchedule}" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </TextBlock>
-        </StackPanel>
-            <!-- PROFILE PICTURE -->
-        <TextBlock Text="Profile picture" Style="{StaticResource GSInputLabelStyle}"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button
-                    Width="173" 
-                    Height="173"                   
-                    Command="{Binding ChooseProfilePictureCommand, Mode=OneWay}"
-                    Content="{Binding ProfilePictureButtonText, Mode=TwoWay}"
-                    >
-                <Button.Background>
-                    <ImageBrush 
-                            Stretch="UniformToFill" 
-                            ImageSource="{Binding Profilepicture}"/>
-                </Button.Background>
-                <toolkit:ContextMenuService.ContextMenu>
-                    <toolkit:ContextMenu                                
-                                Visibility="{Binding Profilepicture, Converter={StaticResource NullToVisibility}}"                                
-                             >
+                        Foreground="{StaticResource PhoneForegroundBrush}"/>-->
+                </local:GSLabel>
 
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="Opened">
-                                <command:InvokeCommandAction Command="{Binding CMOpen}" />
-                            </i:EventTrigger>
-                            <i:EventTrigger EventName="Closed">
-                                <command:InvokeCommandAction Command="{Binding CMClose}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                <!-- PROFILE PICTURE -->
+                 <local:GSLabel Label="photo id">
 
-                        <toolkit:MenuItem Header="View" Command="{Binding ViewFSCommand}"/>
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
-            </Button>
+                    <c4f:Tile 
+                        Width="198"
+                        Height="198"
+                        Margin="0,12,0,0"
+                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
+                        Command="{Binding ChooseProfilePictureCommand}"
+                        c4f:TiltEffect.IsTiltEnabled="True"
+                        Background="Transparent">
 
-        </StackPanel>
-      </StackPanel>
-    </local:PlantActionView>
-</UserControl>
+                            <Grid >
+                                <Grid.Triggers>
+                                    <EventTrigger RoutedEvent="Canvas.Loaded" >
+                                        <BeginStoryboard>
+                                            <Storyboard 
+						    x:Name="trexStoryboard" 
+						    AutoReverse="True" 
+						    RepeatBehavior="Forever">
+                                                <DoubleAnimationUsingKeyFrames 
+							    Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
+							    Storyboard.TargetName="Img">
+                                                    <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                                                    <SplineDoubleKeyFrame KeyTime="0:0:30" Value="-198"/>
+                                                    <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198" />
+                                                </DoubleAnimationUsingKeyFrames>
+                                                <DoubleAnimationUsingKeyFrames 
+							    Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
+							    Storyboard.TargetName="Img">
+                                                    <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                                                    <SplineDoubleKeyFrame KeyTime="0:0:30"/>
+                                                    <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198"/>
+                                                </DoubleAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Grid.Triggers>
+
+                                <Canvas Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}">
+                                    <Image
+                                x:Name="Img"
+                                Width="396" Height="396"
+	        		            Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
+                                Stretch="UniformToFill"
+                                >
+
+                                        <Image.RenderTransform>
+                                            <CompositeTransform/>
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </Canvas>
+                                <TextBlock Text="select" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
+                                />
+                                <Border BorderThickness="3" IsHitTestVisible="False">
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush Color="{StaticResource PhoneBorderColor}"/>
+                                    </Border.BorderBrush>
+                                </Border>
+
+                            </Grid>
+
+                        </c4f:Tile>
+                    </local:GSLabel>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</local:AddPlantViewBase>

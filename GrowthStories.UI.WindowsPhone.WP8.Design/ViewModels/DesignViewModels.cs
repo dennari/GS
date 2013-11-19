@@ -301,6 +301,7 @@ namespace Growthstories.UI.ViewModel
 
         public ScheduleType Type { get; set; }
 
+        public IReactiveCommand SelectValueType { get { return new MockReactiveCommand(); } }
     }
 
 

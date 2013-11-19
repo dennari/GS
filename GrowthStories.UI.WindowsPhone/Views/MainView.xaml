@@ -20,6 +20,35 @@
             FontSize="{StaticResource PhoneFontSizeExtraLarge}"
             toolkit:TiltEffect.IsTiltEnabled="True"/>
         </DataTemplate>
+        <Style x:Key="GSPanoramaItemStyle" TargetType="phone:PanoramaItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="phone:PanoramaItem">
+                        <Grid Background="{TemplateBinding Background}" Margin="12,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <ContentControl x:Name="header" 
+                                            CharacterSpacing="-35" 
+                                            ContentTemplate="{TemplateBinding HeaderTemplate}" 
+                                            Content="{TemplateBinding Header}" 
+                                            FontSize="66" 
+                                            FontFamily="{StaticResource GSPageTitleFont}" 
+                                            HorizontalAlignment="Left" 
+                                            Margin="12,-2,0,38">
+                                <ContentControl.RenderTransform>
+                                    <TranslateTransform x:Name="headerTransform"/>
+                                </ContentControl.RenderTransform>
+                            </ContentControl>
+                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Grid.Row="1" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <!--LayoutRoot contains the root grid where all other page content is placed-->
     <Grid x:Name="LayoutRoot">
@@ -32,19 +61,19 @@
             </i:Interaction.Triggers>
             <phone:Panorama.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
-        	</phone:Panorama.Background>
+            </phone:Panorama.Background>
             <phone:Panorama.Title>
-                 <Image 
+                <Image 
 					Source="/Assets/Bg/panorama_logo.png" 
 					Stretch="UniformToFill" 
 					Width="800" 
-					Margin="0,80,0,0"/>	
+					Margin="0,80,0,0"/>
             </phone:Panorama.Title>
-			
+
             <!-- MY GARDEN -->
-			<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="my garden" x:Name="mygardenItem">
+            <phone:PanoramaItem Header="my garden" x:Name="mygardenItem" Style="{StaticResource GSPanoramaItemStyle}">
                 <local:GardenView ViewModel="{Binding GardenVM}"/>
-			</phone:PanoramaItem>
+            </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
                 <Grid x:Name="ContentPanel2" Margin="0,0">

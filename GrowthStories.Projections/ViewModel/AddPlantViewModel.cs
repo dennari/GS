@@ -16,7 +16,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class AddPlantViewModel : PlantActionViewModel, IAddPlantViewModel
+    public class AddPlantViewModel : PlantActionViewModel, IAddEditPlantViewModel
     {
 
         /// <summary>

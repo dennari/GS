@@ -13,7 +13,13 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class GardenPivotView : UserControl, IViewFor<GardenViewModel>
+
+
+    public class GardenPivotViewBase : GSPage<IGardenViewModel>
+    {
+
+    }
+    public partial class GardenPivotView : GardenPivotViewBase
     {
 
 
@@ -23,24 +29,6 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public GardenViewModel ViewModel
-        {
-            get { return (GardenViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(GardenPivotView), new PropertyMetadata(null));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (GardenViewModel)value; } }
 
         private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {

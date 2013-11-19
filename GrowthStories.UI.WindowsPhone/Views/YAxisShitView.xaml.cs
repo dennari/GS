@@ -22,52 +22,23 @@ using Growthstories.Sync;
 namespace Growthstories.UI.WindowsPhone
 {
 
+    public class YAxisShitViewBase : GSView<IYAxisShitViewModel>
+    {
 
-    public partial class YAxisShitView : UserControl, IViewFor<IYAxisShitViewModel>, IReactsToViewModelChange
+    }
+
+    public partial class YAxisShitView : YAxisShitViewBase
     {
         public YAxisShitView()
         {
             InitializeComponent();
-            this.SetBinding(ViewModelProperty, new Binding());
-            //var lSeries = (LineSeries)GSChart.Series[0];
-            //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
-            //this.TestText.Text = "Constructor";
-
-            if (DesignerProperties.IsInDesignTool)
-            {
-                //var vm = new YAxisShitViewModel();
-                //this.ViewModel = vm;
-                //this.RenderChart(vm.TelerikSeries.Values);
-            }
         }
 
-        public IYAxisShitViewModel ViewModel
+        protected override void OnViewModelChanged(IYAxisShitViewModel pvm)
         {
-            get { return (IYAxisShitViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                }
-            }
-        }
 
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(YAxisShitView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+            pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
 
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IYAxisShitViewModel)value; } }
-
-        public void ViewModelChanged(object vm)
-        {
-            var pvm = vm as IYAxisShitViewModel;
-            if (pvm != null)
-            {
-                pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
-                //RenderChart(pvm.TelerikSeries.Values);
-            }
-            //this.RenderChart(pvm.TelerikSeries);
         }
 
         private void Toggle(LineSeries x)

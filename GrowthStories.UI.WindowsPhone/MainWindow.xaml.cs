@@ -20,7 +20,13 @@ using Growthstories.Sync;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class MainWindow : PhoneApplicationPage, IViewFor<AppViewModel>, IReactsToViewModelChange
+
+    public class MainWindowBase : GSPage<AppViewModel>
+    {
+
+    }
+
+    public partial class MainWindow : MainWindowBase
     {
 
         private Task<IAuthUser> InitializeTask;
@@ -34,23 +40,23 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+        //public static readonly DependencyProperty ViewModelProperty =
+        //   DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
-        public AppViewModel ViewModel
-        {
-            get
-            {
-                return (AppViewModel)GetValue(ViewModelProperty);
-            }
-            set
-            {
-                if (value != null)
-                    SetValue(ViewModelProperty, value);
-            }
-        }
+        //public AppViewModel ViewModel
+        //{
+        //    get
+        //    {
+        //        return (AppViewModel)GetValue(ViewModelProperty);
+        //    }
+        //    set
+        //    {
+        //        if (value != null && value != ViewModel)
+        //            SetValue(ViewModelProperty, value);
+        //    }
+        //}
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AppViewModel)value; } }
+        //object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AppViewModel)value; } }
 
 
         /// <summary>
@@ -112,17 +118,6 @@ namespace Growthstories.UI.WindowsPhone
             ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
             //}
 
-        }
-
-
-
-
-
-
-
-        public void ViewModelChanged(object vm)
-        {
-            // throw new NotImplementedException();
         }
     }
 }

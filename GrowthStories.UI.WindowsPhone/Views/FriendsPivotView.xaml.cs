@@ -13,34 +13,19 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class FriendsPivotView : UserControl, IViewFor<FriendsViewModel>
+    public class FriendsPivotViewBase : GSView<FriendsViewModel>
+    {
+
+    }
+
+    public partial class FriendsPivotView : FriendsPivotViewBase
     {
 
 
         public FriendsPivotView()
         {
             InitializeComponent();
-
         }
-
-        public FriendsViewModel ViewModel
-        {
-            get { return (FriendsViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(FriendsPivotView), new PropertyMetadata(null));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (FriendsViewModel)value; } }
 
 
     }

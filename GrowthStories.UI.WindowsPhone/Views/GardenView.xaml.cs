@@ -14,33 +14,19 @@ using System.Windows.Data;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class GardenView : UserControl, IViewFor<IGardenViewModel>, IReactsToViewModelChange
+    public class GardenViewBase : GSView<IGardenViewModel>
     {
 
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IGardenViewModel)value; } }
+    }
 
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IGardenViewModel), typeof(GardenView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
-
-
+    public partial class GardenView : GardenViewBase
+    {
 
 
-        public IGardenViewModel ViewModel
-        {
-            get { return (IGardenViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                }
-            }
-        }
 
         public GardenView()
         {
             InitializeComponent();
-            //this.SetBinding(ViewModelProperty, new Binding());
         }
 
 
@@ -50,16 +36,5 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-
-
-        public void ViewModelChanged(object vm)
-        {
-            try
-            {
-                this.ViewModel = (IGardenViewModel)vm;
-
-            }
-            catch { }
-        }
     }
 }

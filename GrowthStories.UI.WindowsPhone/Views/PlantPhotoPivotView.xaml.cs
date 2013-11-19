@@ -13,37 +13,17 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class PlantPhotoPivotView : UserControl, IViewFor<PlantViewModel>
+
+    public class PlantPhotoPivotViewBase : GSView<IPlantViewModel>
     {
 
-
-
-
-        public PlantViewModel ViewModel
-        {
-            get { return (PlantViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(PlantPhotoPivotView), new PropertyMetadata(null));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantViewModel)value; } }
-
-
+    }
+    public partial class PlantPhotoPivotView : PlantPhotoPivotViewBase
+    {
 
         public PlantPhotoPivotView()
         {
             InitializeComponent();
-
         }
 
     }

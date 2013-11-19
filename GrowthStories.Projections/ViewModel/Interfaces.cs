@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
-    public interface IAddPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
+    public interface IAddEditPlantViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
     {
         IReactiveCommand ChooseProfilePictureCommand { get; }
         IReactiveCommand ChooseWateringSchedule { get; }
@@ -22,7 +22,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveList<string> Tags { get; }
         IScheduleViewModel WateringSchedule { get; }
         IScheduleViewModel FertilizingSchedule { get; }
-
+        string Title { get; }
     }
 
     public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar
@@ -80,7 +80,7 @@ namespace Growthstories.UI.ViewModel
         IObservable<IScheduleViewModel> FutureSchedules(Guid plantId);
 
         IScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
-        IAddPlantViewModel AddPlantViewModelFactory(PlantState state);
+        IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state);
         IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm);
 
         PageOrientation Orientation { get; }
@@ -243,6 +243,7 @@ namespace Growthstories.UI.ViewModel
         Guid Id { get; }
         long? Interval { get; }
         ScheduleType Type { get; }
+        IReactiveCommand SelectValueType { get; }
         DateTimeOffset ComputeNext(DateTimeOffset last);
 
     }

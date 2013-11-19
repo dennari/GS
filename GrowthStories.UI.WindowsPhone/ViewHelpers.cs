@@ -11,11 +11,7 @@ using System.Windows;
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public interface IReactsToViewModelChange
-    {
-        void ViewModelChanged(object vm);
 
-    }
 
     public static class ViewHelpers
     {
@@ -27,14 +23,15 @@ namespace Growthstories.UI.WindowsPhone
             {
                 var view = (FrameworkElement)sender;
                 var vm = e.NewValue;
-                if (view.DataContext == vm)
-                    return;
-                view.DataContext = vm;
+                
+                if (view.DataContext != vm)
+                    view.DataContext = vm;
+
+                var viewF = view as IViewFor;
+                if (viewF != null && viewF.ViewModel != vm)
+                    viewF.ViewModel = vm;
 
 
-                var viewI = view as IReactsToViewModelChange;
-                if (viewI != null)
-                    viewI.ViewModelChanged(vm);
             }
             catch { }
         }

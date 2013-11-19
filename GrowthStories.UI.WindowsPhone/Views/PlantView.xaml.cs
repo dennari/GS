@@ -13,33 +13,20 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class PlantView : UserControl, IViewFor<PlantViewModel>
+    public class PlantViewBase : GSView<IPlantViewModel>
+    {
+
+    }
+
+    public partial class PlantView : PlantViewBase
     {
 
 
         public PlantView()
         {
             InitializeComponent();
-            SetBinding(ViewModelProperty, new System.Windows.Data.Binding());
         }
 
-        public PlantViewModel ViewModel
-        {
-            get { return (PlantViewModel)GetValue(ViewModelProperty); }
-            set
-            {
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(PlantView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
-
-
-        object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (PlantViewModel)value; } }
 
         private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {

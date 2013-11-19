@@ -418,7 +418,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "add",
                         IconType = IconType.ADD,
-                        Command = this.HostScreen.Router.NavigateCommandFor<IAddPlantViewModel>()
+                        Command = this.HostScreen.Router.NavigateCommandFor<IAddEditPlantViewModel>()
                     });
 
         }

@@ -771,7 +771,7 @@ namespace Growthstories.UI.ViewModel
             get { throw new NotImplementedException(); }
         }
 
-        public virtual IAddPlantViewModel AddPlantViewModelFactory(PlantState state)
+        public virtual IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state)
         {
             throw new NotImplementedException();
         }

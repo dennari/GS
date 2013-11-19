@@ -23,6 +23,7 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             UserSelector.SelectedItem = null;
 
+            SetBinding(ViewModelProperty, new System.Windows.Data.Binding());
 
 
         }
@@ -32,16 +33,15 @@ namespace Growthstories.UI.WindowsPhone
             get { return (SearchUsersViewModel)GetValue(ViewModelProperty); }
             set
             {
-                if (value != null)
+                if (value != null && value != ViewModel)
                 {
                     SetValue(ViewModelProperty, value);
-                    this.DataContext = value;
                 }
             }
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(ListUsersView), new PropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(ListUsersView), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
 
         object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (SearchUsersViewModel)value; } }

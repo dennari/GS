@@ -126,6 +126,9 @@
     <Compile Include="..\GrowthStories.Projections\ViewModel\Interfaces.cs">
       <Link>ViewModels\Interfaces.cs</Link>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\BindingUtility.cs">
+      <Link>BindingUtility.cs</Link>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Controls\GSListPicker.cs">
       <Link>Controls\GSListPicker.cs</Link>
     </Compile>
@@ -144,6 +147,10 @@
     <Compile Include="..\GrowthStories.UI.WindowsPhone\ViewHelpers.cs">
       <Link>ViewHelpers.cs</Link>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\AddPlantView.xaml.cs">
+      <Link>Views\AddPlantView.xaml.cs</Link>
+      <DependentUpon>AddPlantView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\FriendsPivotView.xaml.cs">
       <Link>Views\FriendsPivotView.xaml.cs</Link>
       <DependentUpon>FriendsPivotView.xaml</DependentUpon>
@@ -155,6 +162,9 @@
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\GardenView.xaml.cs">
       <Link>Views\GardenView.xaml.cs</Link>
       <DependentUpon>GardenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\GSView.cs">
+      <Link>Views\GSView.cs</Link>
     </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\ListUsersView.xaml.cs">
       <Link>Views\ListUsersView.xaml.cs</Link>
@@ -182,6 +192,11 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\AddPlantView.xaml">
+      <Link>Views\AddPlantView.xaml</Link>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml">
       <Link>Views\PlantView.xaml</Link>
       <Generator>MSBuild:MarkupCompilePass1</Generator>
@@ -197,6 +212,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Compile Include="TemplateSelector.cs" />
+    <Compile Include="ViewModels\AddPlantViewModel.cs" />
+    <Compile Include="ViewModels\ClientAddPlantViewModel.cs" />
     <Compile Include="ViewModels\YAxisShitViewModel.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\PlantActions.cs" />

@@ -33,6 +33,63 @@ namespace Growthstories.UI.WindowsPhone
         }
     }
 
+    public class GSToggleSwitch : ToggleSwitch
+    {
+        public GSToggleSwitch()
+            : base()
+        {
+            //DefaultStyleKey = typeof(ListPicker);
+            //SetBinding(TemplateProperty,)
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            //Get the mouse over animation in the control template
+            //var FocusedState = GetTemplateChild("Highlighted") as VisualState;
+
+            //if (FocusedState == null)
+            //    return;
+
+            //var animation = FocusedState.Storyboard.Children[2] as ObjectAnimationUsingKeyFrames;
+            //if (animation != null)
+            //    animation.KeyFrames[0].Value = Application.Current.Resources["GSAccentBrush"];
+            //Storyboard.SetTarget(borderBrushAnimation,)
+        }
+    }
+
+    public class GSLabel : ContentControl
+    {
+        public static readonly DependencyProperty LabelProperty = DependencyProperty.Register("Label", typeof(string), typeof(GSLabel), new PropertyMetadata(
+            new PropertyChangedCallback(OnLabelPropertyChanged)
+        ));
+
+        /// <summary>
+        /// Gets or sets the Hint
+        /// </summary>
+        public string Label
+        {
+            get { return base.GetValue(LabelProperty) as string; }
+            set
+            {
+                if (value != Label)
+                    SetValue(LabelProperty, value);
+            }
+        }
+
+        private static void OnLabelPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            //GSLabel label = sender as GSLabel;
+            //string value = args.NewValue as string;
+
+            //if (label != null && label.Label != value)
+            //{
+            //    label.Label = value;
+            //}
+        }
+    }
+
     public class GSTextBox : PhoneTextBox
     {
         public GSTextBox()
