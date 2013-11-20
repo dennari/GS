@@ -37,13 +37,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     }
 
 
-    public class ClientAddPlantViewModel : AddPlantViewModel
+    public class ClientAddEditPlantViewModel : AddEditPlantViewModel
     {
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddPlantViewModel(PlantState state, IGSAppViewModel app)
-            : base(state, app)
+        public ClientAddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
+            : base(app, current)
         {
 
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());

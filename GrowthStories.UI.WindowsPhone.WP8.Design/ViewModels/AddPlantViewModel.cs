@@ -28,7 +28,7 @@ namespace Growthstories.UI.ViewModel
         {
 
             WateringSchedule = new ScheduleViewModel(ScheduleType.WATERING);
-            FertilizingSchedule = new ScheduleViewModel(ScheduleType.FERTILIZING, 24 * 50 * 3600, new IntervalValue(IntervalValueType.DAY));
+            FertilizingSchedule = new ScheduleViewModel(ScheduleType.FERTILIZING, 24 * 50 * 3600);
         }
 
 

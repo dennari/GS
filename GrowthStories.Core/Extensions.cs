@@ -34,5 +34,20 @@ namespace Growthstories.Core
             foreach (var e in commit.Events)
                 yield return (IEvent)e.Body;
         }
+
+        public const double MillisecondsInWeek = 7 * 24 * 3600 * 1000;
+        public const double MillisecondsInDay = 24 * 3600 * 1000;
+
+        public static int TotalWeeks(this TimeSpan t)
+        {
+            return (int)(t.TotalMilliseconds / MillisecondsInWeek);
+        }
+
+        public static int DaysAfterWeeks(this TimeSpan t)
+        {
+            var ms = t.TotalMilliseconds;
+            var w = t.TotalWeeks();
+            return (int)((ms - w * MillisecondsInWeek) / MillisecondsInDay);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Growthstories.Domain.Entities;
 using Growthstories.Sync;
+using Growthstories.Core;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -265,83 +266,222 @@ namespace Growthstories.UI.ViewModel
 
         public PlantScheduler FertilizingScheduler { get; set; }
 
+
+
+        public IReactiveList<string> Tags
+        {
+            get { return new MockReactiveList<string>(); }
+        }
     }
-
-
 
 
     public class ScheduleViewModel : DesignViewModelBase, IScheduleViewModel
     {
+        public ScheduleType Type { get; private set; }
 
 
 
-        public ScheduleViewModel(ScheduleType scheduleType, long? interval = null, IntervalValue valueType = null)
+        public ScheduleViewModel(ScheduleType scheduleType, long? interval = null)
         {
-            this.Interval = interval;
-            if (this.Interval != null)
-                this.IsEnabled = true;
             this.Type = scheduleType;
-            this.ValueType = valueType ?? new IntervalValue(IntervalValueType.HOUR);
+
+
+            if (interval != null && interval.HasValue)
+            {
+                this.Interval = TimeSpan.FromSeconds(interval.Value);
+                this.IsEnabled = true;
+            }
+
+
+
         }
 
-
-
-        public Guid Id
+        public ScheduleViewModel()
+            : this(ScheduleType.WATERING, 24 * 50 * 3600)
         {
-            get { return Guid.NewGuid(); }
+
+
+
         }
 
-        public long? Interval { get; set; }
+        protected TimeSpan? _Interval;
+        public TimeSpan? Interval
+        {
+            get
+            {
+                return _Interval;
+            }
+            set
+            {
+                if (value != _Interval && value.HasValue)
+                {
+                    _Interval = value;
+                    this.RaisePropertyChanged();
+                    this.RaisePropertyChanged("IntervalLabel");
+                }
+
+            }
+        }
+
+        public IconType OKIcon
+        {
+            get
+            {
+                return IconType.CHECK;
+            }
+        }
+
+        public IconType CancelIcon
+        {
+            get
+            {
+                return IconType.CANCEL;
+            }
+        }
 
         public string IntervalLabel
         {
             get
             {
                 if (Interval.HasValue)
-                    return string.Format("{0} {1}", this.ValueType.Compute(Interval.Value), this.ValueType);
-                return null;
+                {
+                    var t = Interval.Value;
+                    //int w = t.TotalWeeks(), h = t.
+
+                    if (t.TotalWeeks() > 0)
+                        return string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
+                    if (t.Days > 0)
+                        return string.Format("{0:%d} days, {0:%h} hours", t);
+                    return string.Format("{0:%h} hours", t);
+
+                }
+                return "Not set";
             }
         }
+
+
+
+        public string ScheduleTypeLabel
+        {
+            get
+            {
+                return string.Format("{0}", this.Type == ScheduleType.WATERING ? "watering schedule" : "fertilizing schedule");
+            }
+        }
+
+
+        public bool IsEnabled { get; set; }
+
+
 
 
         public DateTimeOffset ComputeNext(DateTimeOffset last)
         {
             if (Interval == null)
                 throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
-            return last + new TimeSpan((long)(Interval * 10000 * 1000));
+            return last + Interval.Value;
         }
 
-        bool _IsEnabled;
-        public bool IsEnabled
+
+
+        public Guid? Id { get; set; }
+
+
+        protected string _Label;
+        public string Label
         {
             get
             {
-                return _IsEnabled;
+                return _Label;
+            }
+        }
+
+        protected Tuple<IPlantViewModel, IScheduleViewModel> _CopySchedule;
+        public Tuple<IPlantViewModel, IScheduleViewModel> CopySchedule
+        {
+            get
+            {
+                return _CopySchedule;
             }
             set
             {
-                if (value != _IsEnabled)
+                if (value != null && value != _CopySchedule)
                 {
+                    _CopySchedule = value;
+                    this.RaisePropertyChanged();
+                    this.Interval = value.Item2.Interval;
+                }
+            }
+        }
 
-                    _IsEnabled = value;
+        //protected Tuple<IPlantViewModel, IScheduleViewModel> _CopySchedule;
+        public object SelectedCopySchedule
+        {
+            get
+            {
+                return _CopySchedule;
+            }
+            set
+            {
+                var v = value as Tuple<IPlantViewModel, IScheduleViewModel>;
+                if (v != null)
+                    CopySchedule = v;
+            }
+        }
+
+
+        protected IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> _OtherSchedules;
+        public IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules
+        {
+            get
+            {
+                return _OtherSchedules;
+            }
+            set
+            {
+                if (value != null && value != _OtherSchedules)
+                {
+                    _OtherSchedules = value;
+                    this.RaisePropertyChanged();
+                    if (value.Count() > 0)
+                        HasOtherSchedules = true;
+                    else
+                        HasOtherSchedules = false;
+                }
+            }
+        }
+
+        protected bool _HasOtherSchedules;
+        public bool HasOtherSchedules
+        {
+            get
+            {
+                return _HasOtherSchedules;
+            }
+            set
+            {
+                if (value != _HasOtherSchedules)
+                {
+                    _HasOtherSchedules = value;
                     this.RaisePropertyChanged();
                 }
             }
         }
 
-        public ScheduleType Type { get; set; }
 
-        protected IntervalValue _ValueType;
-        public IntervalValue ValueType
+
+
+        public Task<Schedule> Create()
         {
-            get { return _ValueType; }
-            set { _ValueType = value; RaisePropertyChanged(); }
+            return null;
+
         }
 
-        public IList<IntervalValue> ValueTypes { get; protected set; }
 
-        public IReactiveCommand SelectValueType { get { return new MockReactiveCommand(); } }
+
     }
+
+
 
     public sealed class IntervalValue
     {
@@ -538,9 +678,22 @@ namespace Growthstories.UI.ViewModel
             };
         }
 
-        public IGardenViewModel SelectedItem
+
+        public IGardenViewModel SelectedFriend
         {
             get { return Friends[0]; }
+        }
+
+        public object SelectedItem
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 

@@ -69,7 +69,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         }
 
-        public override IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state)
+        public override IAddEditPlantViewModel EditPlantViewModelFactory(PlantState state)
         {
             //return new ClientAddPlantViewModel(state, this);
             return null;

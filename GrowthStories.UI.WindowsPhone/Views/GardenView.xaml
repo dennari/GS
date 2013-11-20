@@ -81,9 +81,13 @@
                         <toolkit:MenuItem Header="Water" 
                                               Command="{Binding MultiWateringCommand}"
                                               CommandParameter="{Binding}"/>
+                        <toolkit:MenuItem Header="Edit" 
+                                              Command="{Binding EditCommand}"
+                                              CommandParameter="{Binding}"/>
                         <toolkit:MenuItem Header="Delete" 
                                               Command="{Binding MultiDeleteCommand}"
                                               CommandParameter="{Binding}"/>
+
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
             </c4f:Tile>

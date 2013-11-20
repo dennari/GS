@@ -22,9 +22,9 @@ namespace Growthstories.Domain.Entities
         [JsonProperty]
         public Guid GardenId { get; private set; }
         [JsonProperty]
-        public Guid WateringScheduleId { get; private set; }
+        public Guid? WateringScheduleId { get; private set; }
         [JsonProperty]
-        public Guid FertilizingScheduleId { get; private set; }
+        public Guid? FertilizingScheduleId { get; private set; }
         [JsonProperty]
         public HashSet<string> Tags { get; private set; }
         [JsonProperty]
@@ -64,13 +64,8 @@ namespace Growthstories.Domain.Entities
             //}
 
             this.Name = @event.Name;
-            this.Species = @event.Species;
             this.UserId = @event.UserId;
             this.GardenId = @event.GardenId;
-            this.Profilepicture = @event.Profilepicture;
-            this.WateringScheduleId = @event.WateringScheduleId;
-            this.FertilizingScheduleId = @event.FertilizingScheduleId;
-            this.Tags = @event.Tags;
 
 
         }

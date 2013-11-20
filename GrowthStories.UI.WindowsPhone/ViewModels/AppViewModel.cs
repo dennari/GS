@@ -72,8 +72,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
 
             Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
-            Resolver.RegisterLazySingleton(() => new ClientAddPlantViewModel(null, this), typeof(IAddEditPlantViewModel));
-
+            Resolver.Register(() => new ClientAddEditPlantViewModel(this), typeof(IAddEditPlantViewModel));
+            //Resolver.Re
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
             {
                 this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
@@ -107,9 +107,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         }
 
-        public override IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state)
+        public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
-            return new ClientAddPlantViewModel(state, this);
+            return new ClientAddEditPlantViewModel(this, pvm);
         }
 
         public override IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)

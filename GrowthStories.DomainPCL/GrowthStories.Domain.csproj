@@ -67,8 +67,8 @@
     <Compile Include="Entities\User\Garden\Events.cs" />
     <Compile Include="Entities\User\Garden\Garden.cs" />
     <Compile Include="Entities\User\Garden\GardenState.cs" />
-    <Compile Include="Entities\Plant\Commands.cs" />
-    <Compile Include="Entities\Plant\Events.cs" />
+    <Compile Include="Entities\Plant\PlantCommands.cs" />
+    <Compile Include="Entities\Plant\PlantEvents.cs" />
     <Compile Include="Entities\Plant\Plant.cs" />
     <Compile Include="Entities\Plant\PlantState.cs" />
     <Compile Include="Exceptions\CommandValidationException.cs" />

@@ -8,7 +8,9 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using System.Reactive;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace Growthstories.UI.ViewModel
@@ -16,28 +18,59 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class AddPlantViewModel : CommandViewModel, IAddEditPlantViewModel
+    public class AddEditPlantViewModel : CommandViewModel, IAddEditPlantViewModel
     {
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
 
-        protected readonly PlantState State;
+        protected readonly IPlantViewModel Current;
+        protected readonly HashSet<string> TagSet;
 
-        public AddPlantViewModel(PlantState state, IGSAppViewModel app)
+        public AddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
             : base(app)
         {
-            this.State = state;
-            this.Title = "new plant";
+
+
+            if (current != null)
+            {
+                //var state = current.State;
+                this.Name = current.Name;
+                this.Species = current.Species;
+                this.TagSet = new HashSet<string>(current.Tags ?? new ReactiveList<string>());
+                this.Tags = current.Tags ?? new ReactiveList<string>();
+                this.Title = "edit plant";
+                this.Photo = current.Photo;
+                this.ProfilePictureButtonText = "";
+                this.Current = current;
+                this.WateringSchedule = current.WateringSchedule;
+                this.FertilizingSchedule = current.FertilizingSchedule;
+            }
+            else
+            {
+                this.Title = "new plant";
+                this.TagSet = new HashSet<string>();
+                this.Tags = new ReactiveList<string>();
+                this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
+                this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
+            }
+
+            var garden = app.Resolver.GetService<IGardenViewModel>();
+            this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
+                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.WateringSchedule))
+            );
+            this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
+             garden.Plants.Where(x => x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
+           );
+
 
             ChooseProfilePictureCommand = new ReactiveCommand();
-            ChooseWateringSchedule = new ReactiveCommand();
-            ChooseWateringSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.WateringSchedule));
-            ChooseFertilizingSchedule = new ReactiveCommand();
-            ChooseFertilizingSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.FertilizingSchedule));
+            //ChooseWateringSchedule = new ReactiveCommand();
+            //ChooseWateringSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.WateringSchedule));
+            //ChooseFertilizingSchedule = new ReactiveCommand();
+            //ChooseFertilizingSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.FertilizingSchedule));
 
-            Tags = new ReactiveList<string>();
             AddTag = new ReactiveCommand();
             AddTag.OfType<string>().Subscribe(x =>
             {
@@ -51,20 +84,20 @@ namespace Growthstories.UI.ViewModel
                 this.Tags.Remove(x);
             });
 
-            this.WhenAny(x => x.Name, x => x.Species, (name, species) => this.FormatPlantTitle(name.GetValue(), species.GetValue()))
-                .ToProperty(this, x => x.PlantTitle, out this._PlantTitle, null);
+            //this.WhenAny(x => x.Name, x => x.Species, (name, species) => this.FormatPlantTitle(name.GetValue(), species.GetValue()))
+            //    .ToProperty(this, x => x.PlantTitle, out this._PlantTitle, null);
 
 
             this.WateringSchedule
-                .WhenAny(x => x.IsEnabled, x => x.GetValue())
+                .WhenAny(x => x.IsEnabled, x => Tuple.Create(this.WateringSchedule, x.GetValue()))
                 .Skip(1)
                 .Merge(
                     this.FertilizingSchedule
-                        .WhenAny(x => x.IsEnabled, x => x.GetValue())
+                        .WhenAny(x => x.IsEnabled, x => Tuple.Create(this.FertilizingSchedule, x.GetValue()))
                         .Skip(1)
                 )
-                .Where(x => x == true)
-                .Subscribe(x => App.Router.Navigate.Execute(x));
+                .Where(x => x.Item2 == true)
+                .Subscribe(x => App.Router.Navigate.Execute(x.Item1));
 
 
             //this.CanExecute = this.WhenAnyValue(x => x.Name, x => x.Species, x => x.ProfilepicturePath, IsValid);
@@ -72,75 +105,67 @@ namespace Growthstories.UI.ViewModel
             this.CanExecute = this.WhenAnyValue(
                        x => x.Name,
                        x => x.Species,
-                       x => x.FertilizingSchedule.Id,
-                       x => x.WateringSchedule.Id,
+                       x => x.FertilizingSchedule,
+                       x => x.WateringSchedule,
                        x => x.Photo,
                        x => x.Tags,
                        this.IsValid
                     );
 
-            if (State != null)
-            {
-                this.Name = State.Name;
-                this.Species = State.Species;
-                this.Tags = new ReactiveList<string>(State.Tags);
-                this.Title = "edit plant";
-                this.Photo = State.Profilepicture;
-                this.ProfilePictureButtonText = "";
 
-            }
+            this.AddCommand.RegisterAsyncTask((_) => this.AddTask());
 
         }
 
 
-        protected bool AnyChange(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        protected bool AnyChange(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
         {
             int changes = 0;
-            if (State.Species != species)
+            if (Current.Species != species)
             {
                 changes++;
             }
-            if (State.Name != name)
+            if (Current.Name != name)
             {
                 changes++;
             }
-            if (State.FertilizingScheduleId != fert)
+            if (Current.FertilizingSchedule.Id != fert.Id)
             {
                 changes++;
             }
-            if (State.WateringScheduleId != water)
+            if (Current.WateringSchedule.Id != water.Id)
             {
                 changes++;
             }
-            if (State.Profilepicture != pic)
+            if (Current.Photo != pic)
             {
                 changes++;
             }
-            if (!State.Tags.SetEquals(tags))
+            if (!TagSet.SetEquals(tags))
             {
                 changes++;
             }
             return changes > 0;
         }
 
-        protected bool IsValid(string name, string species, Guid fert, Guid water, Photo pic, IList<string> tags)
+        protected bool IsValid(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
         {
             int valid = 0;
             if (!string.IsNullOrWhiteSpace(name))
                 valid++;
             if (!string.IsNullOrWhiteSpace(species))
                 valid++;
-            if (pic != null)
-                valid++;
-            if (fert != default(Guid))
-                valid++;
-            if (water != default(Guid))
-                valid++;
+            //if (pic != null)
+            //   valid++;
+            //if (fert != default(Guid))
+            //    valid++;
+            //if (water != default(Guid))
+            //   valid++;
 
-            if (valid < 5)
+            if (valid < 2)
                 return false;
 
-            if (State != null)
+            if (Current != null)
                 return AnyChange(name, species, fert, water, pic, tags);
 
             return true;
@@ -163,11 +188,11 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                if (_WateringSchedule == null)
-                {
-                    _WateringSchedule = App.ScheduleViewModelFactory(this.State, ScheduleType.WATERING);
-                }
                 return _WateringSchedule;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _WateringSchedule, value);
             }
         }
 
@@ -177,11 +202,12 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                if (_FertilizingSchedule == null)
-                {
-                    _FertilizingSchedule = App.ScheduleViewModelFactory(this.State, ScheduleType.FERTILIZING);
-                }
+
                 return _FertilizingSchedule;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _FertilizingSchedule, value);
             }
         }
 
@@ -267,54 +293,59 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
         public override void AddCommandSubscription(object p)
+        { }
+
+        public async Task AddTask()
         {
             //IEntityCommand cmd = null;
-            if (this.State != null)
+
+
+
+
+            var plantId = Current == null ? Guid.NewGuid() : Current.Id;
+            IPlantViewModel current = Current == null ? new PlantViewModel(null, null) : Current;
+
+            if (this.Current == null)
             {
-                if (State.Species != this.Species)
-                {
-                    this.SendCommand(new SetSpecies(State.Id, this.Species));
-                }
-                if (State.Name != this.Name)
-                {
-                    this.SendCommand(new SetName(State.Id, this.Name));
-                }
-                if (State.FertilizingScheduleId != this.FertilizingSchedule.Id)
-                {
-                    this.SendCommand(new SetFertilizingSchedule(State.Id, this.FertilizingSchedule.Id));
-                }
-                if (State.WateringScheduleId != this.WateringSchedule.Id)
-                {
-                    this.SendCommand(new SetWateringSchedule(State.Id, this.WateringSchedule.Id));
-                }
-                if (this.Photo != null && State.Profilepicture != this.Photo)
-                {
-                    this.SendCommand(new SetProfilepicture(State.Id, this.Photo));
-                }
-                if (!State.Tags.SetEquals(this.Tags))
-                {
-                    this.SendCommand(new SetTags(State.Id, new HashSet<string>(this.Tags)));
-                }
-                this.App.Router.NavigateBack.Execute(null);
+
+                await App.HandleCommand(new CreatePlant(plantId, this.Name, App.User.GardenId, App.User.Id));
+                await App.HandleCommand(new AddPlant(App.User.GardenId, plantId, App.User.Id, this.Name));
             }
-            else
+            else if (current.Name != this.Name)
             {
-                var plantId = Guid.NewGuid();
-                this.SendCommand(new CreatePlant(plantId, this.Name, App.Context.CurrentUser.GardenId, App.Context.CurrentUser.Id)
-                {
-                    Species = this.Species,
-                    Profilepicture = this.Photo,
-                    FertilizingScheduleId = this.FertilizingSchedule.Id,
-                    WateringScheduleId = this.WateringSchedule.Id,
-                    Tags = new HashSet<string>(this.Tags)
-                }, false);
-
-                this.SendCommand(new AddPlant(App.Context.CurrentUser.GardenId, plantId, App.Context.CurrentUser.Id, this.Name), true);
-
-
+                await App.HandleCommand(new SetName(plantId, this.Name));
             }
+
+            if (current.Species != this.Species)
+            {
+                await App.HandleCommand(new SetSpecies(plantId, this.Species));
+            }
+
+            if (current.FertilizingSchedule.Id != this.FertilizingSchedule.Id)
+            {
+                var r = await this.FertilizingSchedule.Create();
+                if (r != null || this.FertilizingSchedule.Id == null)
+                    await App.HandleCommand(new SetFertilizingSchedule(plantId, this.FertilizingSchedule.Id));
+            }
+            if (current.WateringSchedule.Id != this.WateringSchedule.Id)
+            {
+                var r = await this.WateringSchedule.Create();
+                if (r != null || this.WateringSchedule.Id == null)
+                    await App.HandleCommand(new SetWateringSchedule(plantId, this.WateringSchedule.Id));
+            }
+            if (this.Photo != null && current.Photo != this.Photo)
+            {
+
+                await App.HandleCommand(new SetProfilepicture(plantId, this.Photo));
+            }
+            //this.Ta
+            if (!this.TagSet.SetEquals(this.Tags))
+            {
+                await App.HandleCommand(new SetTags(plantId, new HashSet<string>(this.Tags)));
+            }
+            this.App.Router.NavigateBack.Execute(null);
+
         }
 
 

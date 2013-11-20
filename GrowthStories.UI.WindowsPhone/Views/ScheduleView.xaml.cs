@@ -13,6 +13,7 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using System.Reactive.Disposables;
+using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -27,14 +28,11 @@ namespace Growthstories.UI.WindowsPhone
         public ScheduleView()
         {
             InitializeComponent();
+            RadTimeSpanPicker p = this.TimeSpanPicker;
+            p.PopupDefaultValue = TimeSpan.FromDays(2);
+            p.MaxValue = TimeSpan.FromDays(365);
+            p.MinValue = TimeSpan.FromHours(1);
 
-        }
-
-
-        private void ValueTypePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-                this.ViewModel.SelectValueType.Execute(e.AddedItems[0]);
         }
     }
 

@@ -44,6 +44,9 @@ namespace Growthstories.UI.ViewModel
                 return _AppBarButtons;
             }
         }
+
+
+
         private ReactiveCommand _AddCommand;
         public IReactiveCommand AddCommand
         {

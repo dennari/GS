@@ -761,18 +761,6 @@ namespace Growthstories.UI.ViewModel
             get { return this; }
         }
 
-        public IScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType)
-        {
-            ScheduleState state = null;
-            if (plantState != null)
-            {
-                Guid id = scheduleType == ScheduleType.FERTILIZING ? plantState.FertilizingScheduleId : plantState.WateringScheduleId;
-                //if (id != default(Guid))
-                //    state = ((Schedule)Kernel.Get<IGSRepository>().GetById(id)).State;
-            }
-            return new ScheduleViewModel(state, scheduleType, this);
-        }
-
 
         public string PageTitle
         {
@@ -784,9 +772,10 @@ namespace Growthstories.UI.ViewModel
             get { throw new NotImplementedException(); }
         }
 
-        public virtual IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state)
+        public virtual IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
             throw new NotImplementedException();
+
         }
 
 

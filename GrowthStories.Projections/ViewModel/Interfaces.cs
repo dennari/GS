@@ -79,8 +79,8 @@ namespace Growthstories.UI.ViewModel
 
         IObservable<IScheduleViewModel> FutureSchedules(Guid plantId);
 
-        IScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
-        IAddEditPlantViewModel AddPlantViewModelFactory(PlantState state);
+        //IScheduleViewModel ScheduleViewModelFactory(PlantState plantState, ScheduleType scheduleType);
+        IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm);
         IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm);
 
         PageOrientation Orientation { get; }
@@ -155,6 +155,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand ActionTapped { get; }
+        IReactiveList<string> Tags { get; }
         Photo Photo { get; }
         //PlantState State { get; }
         IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; }
@@ -185,13 +186,17 @@ namespace Growthstories.UI.ViewModel
 
         public DateTimeOffset ComputeNext(DateTimeOffset last)
         {
+
+            if (!Schedule.Interval.HasValue)
+                return DateTimeOffset.MinValue;
+
             var ans = Schedule.ComputeNext(last);
 
             var now = DateTimeOffset.UtcNow;
 
             var passedSeconds = (long)(now - last).TotalSeconds;
 
-            var num = (int)(passedSeconds / Schedule.Interval);
+            var num = (int)(passedSeconds / Schedule.Interval.Value.TotalSeconds);
             if (num > 0)
             {
                 this.Missed = num;
@@ -241,12 +246,18 @@ namespace Growthstories.UI.ViewModel
     public interface IScheduleViewModel : IGSRoutableViewModel
     {
         bool IsEnabled { get; }
-        Guid Id { get; }
-        long? Interval { get; }
+        Guid? Id { get; }
+        TimeSpan? Interval { get; }
+        IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }
+        //string Value { get; }
+        //object SelectedValueType { get; set; }
+        //IntervalValue ValueType { get; }
         string IntervalLabel { get; }
+        string ScheduleTypeLabel { get; }
+        //string IntervalLabel { get; }
         ScheduleType Type { get; }
-        IReactiveCommand SelectValueType { get; }
         DateTimeOffset ComputeNext(DateTimeOffset last);
+        Task<Schedule> Create();
 
     }
 

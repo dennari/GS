@@ -6,6 +6,8 @@ using System.Text;
 using ReactiveUI;
 using System.Reactive.Linq;
 using Growthstories.Domain.Entities;
+using Growthstories.Core;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -86,38 +88,78 @@ namespace Growthstories.UI.ViewModel
             this.Type = scheduleType;
             this.Title = scheduleType == ScheduleType.WATERING ? "watering schedule" : "nourishing schedule";
 
-            this.SelectValueType = new ReactiveCommand();
-            this.SelectValueType
-                 .OfType<IntervalValue>()
-                 .ToProperty(this, x => x.ValueType, out this._ValueType, new IntervalValue(IntervalValueType.DAY));
+            //this.SelectValueType = new ReactiveCommand();
+            //this.SelectValueType
+            //     .OfType<IntervalValue>()
+            //     .ToProperty(this, x => x.ValueType, out this._ValueType, new IntervalValue(IntervalValueType.DAY));
 
-            this.ValueTypes = IntervalValue.GetAll();
+            //this.ValueTypes = IntervalValue.GetAll();
 
-            double dVal;
+            //double dVal;
 
-            this.WhenAny(x => x.Id, x => x.Value, (id, val) => Tuple.Create(id.GetValue(), val.GetValue()))
-                .Where(x => x.Item1 != default(Guid) && double.TryParse(x.Item2, out dVal))
-                .Select(x => this.format(this.ValueType.Compute(x.Item2), x.Item1))
-                .ToProperty(this, x => x.Label, out this._Label, state != null ? this.format(state.Interval, state.Id) : "Select");
+            //this.WhenAny(x => x.Id, x => x.Value, (id, val) => Tuple.Create(id.GetValue(), val.GetValue()))
+            //    .Where(x => x.Item1 != default(Guid) && double.TryParse(x.Item2, out dVal))
+            //    .Select(x => this.format(this.ValueType.Compute(x.Item2), x.Item1))
+            //    .ToProperty(this, x => x.Label, out this._Label, state != null ? this.format(state.Interval, state.Id) : "");
 
-            this.CanExecute = this.WhenAny(x => x.Value, x => x.GetValue())
-               .Select(x => !string.IsNullOrWhiteSpace(x) && double.TryParse(x, out dVal) && (state == null || this.ValueType.Compute(x) != state.Interval));
+
+
+            this.CanExecute = this.WhenAny(x => x.Interval, x => x.GetValue()).Select(x => x != null);
+            //.Select(x => !string.IsNullOrWhiteSpace(x) && double.TryParse(x, out dVal) && (state == null || this.ValueType.Compute(x) != state.Interval));
+            this.WhenAny(x => x.OtherSchedules, x => x.GetValue()).Subscribe(x =>
+            {
+                if (x == null)
+                {
+                    this.HasOtherSchedules = false;
+                    return;
+                }
+                this.HasOtherSchedules = x.Count() > 0 ? true : false;
+
+            });
+            this.WhenAny(x => x.SelectedCopySchedule, x => x.GetValue()).Where(x => x != null).OfType<Tuple<IPlantViewModel, IScheduleViewModel>>().Subscribe(x =>
+            {
+                this.Interval = x.Item2.Interval;
+            });
+
+            TimeSpan? originalInterval = null;
+
+            this.WhenAny(x => x.Interval, x => x.GetValue()).Subscribe(x =>
+            {
+                if (x != null && x != originalInterval)
+                    this.Id = Guid.NewGuid();
+                this.raisePropertyChanged("IntervalLabel");
+            });
+
+            this.WhenAny(x => x.IsEnabled, x => x.GetValue()).Subscribe(x =>
+            {
+                if (!x && ScheduleState != null)
+                    this.Id = null;
+
+            });
+
+            //this.WhenAny(x => x.OtherSchedules, x => x.GetValue()).Where(x => x != null).Select(x => x.)
 
             if (ScheduleState != null)
             {
-                this.Value = this.ValueType.Compute(ScheduleState.Interval);
+                //this.Value = this.ValueType.Compute(ScheduleState.Interval);
+
+                this.Interval = TimeSpan.FromSeconds(ScheduleState.Interval);
+                originalInterval = TimeSpan.FromSeconds(ScheduleState.Interval);
                 this.Id = ScheduleState.Id;
             }
 
         }
 
-        public long? Interval
+        protected TimeSpan? _Interval;
+        public TimeSpan? Interval
         {
             get
             {
-                if (ScheduleState == null)
-                    return null;
-                return ScheduleState.Interval;
+                return _Interval;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Interval, value);
             }
         }
 
@@ -126,8 +168,42 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (Interval.HasValue)
-                    return string.Format("{0} {1}", this.ValueType.Compute(Interval.Value), this.ValueType);
-                return null;
+                {
+                    var t = Interval.Value;
+                    //int w = t.TotalWeeks(), h = t.
+
+                    if (t.TotalWeeks() > 0)
+                        return string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
+                    if (t.Days > 0)
+                        return string.Format("{0:%d} days, {0:%h} hours", t);
+                    return string.Format("{0:%h} hours", t);
+
+                }
+                return "Not set";
+            }
+        }
+
+        public IconType OKIcon
+        {
+            get
+            {
+                return IconType.CHECK;
+            }
+        }
+
+        public IconType CancelIcon
+        {
+            get
+            {
+                return IconType.CANCEL;
+            }
+        }
+
+        public string ScheduleTypeLabel
+        {
+            get
+            {
+                return string.Format("{0}", this.Type == ScheduleType.WATERING ? "watering schedule" : "fertilizing schedule");
             }
         }
 
@@ -151,83 +227,77 @@ namespace Growthstories.UI.ViewModel
         {
             if (Interval == null)
                 throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
-            return last + new TimeSpan((long)(Interval * 10000 * 1000));
+            return last + Interval.Value;
         }
 
 
-        protected string format(long interval, Guid id)
-        {
-            return string.Format("{0} {2} / {1}", this.ValueType.Compute(interval), id, this.ValueType);
-        }
+        //protected string format(long interval, Guid id)
+        //{
+        //    return string.Format("{0} {2}", this.ValueType.Compute(interval), id, this.ValueType);
+        //}
 
-        protected Guid _Id;
-        public Guid Id
+        protected Guid? _Id;
+        public Guid? Id
         {
             get { return _Id; }
             protected set { this.RaiseAndSetIfChanged(ref _Id, value); }
         }
 
-        protected ObservableAsPropertyHelper<string> _Label;
-        public string Label
+
+
+
+        public IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }
+
+        protected object _SelectedCopySchedule;
+        public object SelectedCopySchedule
         {
             get
             {
-                return _Label.Value;
+                return _SelectedCopySchedule;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SelectedCopySchedule, value);
             }
         }
 
-
-        public IReactiveCommand SelectValueType { get; protected set; }
-
+        protected bool _HasOtherSchedules;
+        public bool HasOtherSchedules
+        {
+            get
+            {
+                return _HasOtherSchedules;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _HasOtherSchedules, value);
+            }
+        }
 
 
 
         public override void AddCommandSubscription(object p)
         {
 
-            long val = this.ValueType.Compute(this.Value);
-            if (this.ScheduleState != null && val == this.ScheduleState.Interval)
-            {
-                this.App.Router.NavigateBack.Execute(null);
-                return;
-            }
-
-
-            this.Id = Guid.NewGuid();
-
-
-            try
-            {
-
-                var cmd = new CreateSchedule(Id, val);
-                this.SendCommand(cmd, false);
-                this.App.Router.NavigateBack.Execute(null);
-            }
-            catch
-            {
-
-            }
-
-
+            this.App.Router.NavigateBack.Execute(null);
 
         }
 
-
-        protected string _Value;
-        public string Value
+        public Task<Schedule> Create()
         {
-            get { return _Value; }
-            set { this.RaiseAndSetIfChanged(ref _Value, value); }
+            //long val = this.ValueType.Compute(this.Value);
+            if (!Interval.HasValue || !Id.HasValue)
+                return null;
+            if (this.ScheduleState != null && Interval.Value == TimeSpan.FromSeconds(this.ScheduleState.Interval) && IsEnabled)
+            {
+
+                return null;
+            }
+
+
+            return Task.Run(async () => (Schedule)(await this.App.HandleCommand(new CreateSchedule(Id.Value, (long)Interval.Value.TotalSeconds))));
+
         }
-
-
-        protected ObservableAsPropertyHelper<IntervalValue> _ValueType;
-        public IntervalValue ValueType
-        {
-            get { return _ValueType.Value; }
-        }
-
-        public IList<IntervalValue> ValueTypes { get; protected set; }
 
 
 

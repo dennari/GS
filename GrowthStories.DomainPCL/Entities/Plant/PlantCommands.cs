@@ -20,17 +20,6 @@ namespace Growthstories.Domain.Messaging
     {
 
         public string Name { get; private set; }
-
-        public string Species { get; set; }
-
-        public Photo Profilepicture { get; set; }
-
-        public Guid WateringScheduleId { get; set; }
-
-        public Guid FertilizingScheduleId { get; set; }
-
-        public HashSet<string> Tags { get; set; }
-
         public Guid GardenId { get; private set; }
         public Guid UserId { get; private set; }
 
@@ -148,10 +137,10 @@ namespace Growthstories.Domain.Messaging
 
     public class SetWateringSchedule : PlantCommand
     {
-        public Guid ScheduleId { get; set; }
+        public Guid? ScheduleId { get; set; }
 
         //public SetWateringSchedule() { }
-        public SetWateringSchedule(Guid plantId, Guid scheduleId)
+        public SetWateringSchedule(Guid plantId, Guid? scheduleId)
             : base(plantId)
         {
             this.ScheduleId = scheduleId;
@@ -166,10 +155,10 @@ namespace Growthstories.Domain.Messaging
 
     public class SetFertilizingSchedule : PlantCommand
     {
-        public Guid ScheduleId { get; set; }
+        public Guid? ScheduleId { get; set; }
 
         //public SetFertilizingSchedule() { }
-        public SetFertilizingSchedule(Guid plantId, Guid scheduleId)
+        public SetFertilizingSchedule(Guid plantId, Guid? scheduleId)
             : base(plantId)
         {
             this.ScheduleId = scheduleId;

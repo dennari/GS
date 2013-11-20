@@ -30,6 +30,8 @@ namespace Growthstories.UI.WindowsPhone
             base.Load();
 
 
+
+
         }
 
 

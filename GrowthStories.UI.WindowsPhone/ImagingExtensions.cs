@@ -81,7 +81,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             //string savedPath = null;
 
-            var photo = default(Photo);
+            var photo = new Photo();
             if (image != null && image.Length > 0)
             {
 

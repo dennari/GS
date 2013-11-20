@@ -19,5 +19,6 @@
     <vm:GardenViewModel x:Key="GardenViewModelDesign" d:IsDataSource="True" />
     <vm:SearchUsersViewModel x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />
     <vm:FriendsViewModel x:Key="FriendsPivotViewModelDesign" d:IsDataSource="True" />
+    <vm:ScheduleViewModel x:Key="ScheduleViewModelDesign" d:IsDataSource="True" />
     
 </ResourceDictionary>

@@ -47,6 +47,7 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.ADD,IconFolder+"appbar.add.png"},
             {IconType.CHECK,IconFolder+"appbar.check.png"},
             {IconType.DELETE,IconFolder+"appbar.delete.png"},
+            {IconType.CANCEL,IconFolder+"ApplicationBar.Cancel.png"},
             {IconType.CHECK_LIST,IconFolder+"appbar.list.check.png"},
             {IconType.SHARE,IconFolder+"appbar.social.sharethis.png"},
             {IconType.WATER,IconFolder+"icon_watering_appbar.png"},
@@ -278,6 +279,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
     }
+
 
     public class IconTypeToIconConverter : IValueConverter
     {

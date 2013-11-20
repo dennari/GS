@@ -391,15 +391,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected IRoutableViewModel _AddPlantViewModel;
-        public IRoutableViewModel AddPlantViewModel
-        {
-            get
-            {
-                return _AddPlantViewModel ?? (_AddPlantViewModel = App.AddPlantViewModelFactory(null));
-            }
-        }
-
 
         public SupportedPageOrientation SupportedOrientations
         {

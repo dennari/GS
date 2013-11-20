@@ -21,11 +21,6 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public string Name { get; private set; }
 
-        [JsonProperty]
-        public string Species { get; private set; }
-
-        [JsonProperty]
-        public Photo Profilepicture { get; private set; }
 
         [JsonProperty]
         public Guid UserId { get; private set; }
@@ -33,14 +28,6 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Guid GardenId { get; private set; }
 
-        [JsonProperty]
-        public Guid FertilizingScheduleId { get; private set; }
-
-        [JsonProperty]
-        public Guid WateringScheduleId { get; private set; }
-
-        [JsonProperty]
-        public HashSet<string> Tags { get; private set; }
 
         [JsonIgnore]
         private Type _AggregateType;
@@ -86,11 +73,6 @@ namespace Growthstories.Domain.Messaging
             this.Name = cmd.Name;
             this.UserId = cmd.UserId;
             this.GardenId = cmd.GardenId;
-            this.Profilepicture = cmd.Profilepicture;
-            this.Species = cmd.Species;
-            this.WateringScheduleId = cmd.WateringScheduleId;
-            this.FertilizingScheduleId = cmd.FertilizingScheduleId;
-            this.Tags = cmd.Tags;
 
 
         }
@@ -114,9 +96,6 @@ namespace Growthstories.Domain.Messaging
             this.Name = D.Name;
             this.UserId = this.AncestorId ?? default(Guid);
         }
-
-
-
 
         public PlantState AggregateState { get; set; }
 
@@ -237,7 +216,7 @@ namespace Growthstories.Domain.Messaging
     {
 
         [JsonProperty]
-        public Guid ScheduleId { get; protected set; }
+        public Guid? ScheduleId { get; protected set; }
 
         [JsonProperty]
         public ScheduleType Type { get; protected set; }

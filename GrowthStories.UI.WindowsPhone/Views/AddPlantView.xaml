@@ -45,16 +45,9 @@
         <ControlTemplate TargetType="toolkit:AutoCompleteBox" x:Name="TagInputTemplate">
             
             <Grid>
-                <Grid.Resources>
-                    <Style x:Key="TagHintStyle" TargetType="ContentControl">
-                        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
-                        <Setter Property="Opacity" Value="0.5"/>
-                    </Style>
-                </Grid.Resources>
                 <local:GSTextBox
                             x:Name="Text"
                             InputScope="{TemplateBinding InputScope}"                           
-                            HintStyle="{StaticResource TagHintStyle}"
                             Hint="Add" 
                             ActionIcon="/Assets/Icons/appbar.add.png"
                             ActionIconTapped="TagBox_IconTapped"

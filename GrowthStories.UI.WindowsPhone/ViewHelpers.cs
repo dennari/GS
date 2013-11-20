@@ -17,13 +17,14 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
+
         public static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             try
             {
                 var view = (FrameworkElement)sender;
                 var vm = e.NewValue;
-                
+
                 if (view.DataContext != vm)
                     view.DataContext = vm;
 

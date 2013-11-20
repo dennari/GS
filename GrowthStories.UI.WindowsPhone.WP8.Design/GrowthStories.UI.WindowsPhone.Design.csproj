@@ -181,6 +181,10 @@
       <Link>Views\PlantView.xaml.cs</Link>
       <DependentUpon>PlantView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\ScheduleView.xaml.cs">
+      <Link>Views\ScheduleView.xaml.cs</Link>
+      <DependentUpon>ScheduleView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml.cs">
       <Link>Views\YAxisShitView.xaml.cs</Link>
       <DependentUpon>YAxisShitView.xaml</DependentUpon>
@@ -200,6 +204,11 @@
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml">
       <Link>Views\PlantView.xaml</Link>
       <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\ScheduleView.xaml">
+      <Link>Views\ScheduleView.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\YAxisShitView.xaml">
@@ -395,6 +404,11 @@
     <Content Include="Assets\Icons\appbar.delete.png" />
     <Content Include="Assets\Icons\appbar.list.check.png" />
     <Content Include="Assets\Icons\appbar.social.sharethis.png" />
+    <Content Include="Assets\Icons\ApplicationBar.Add.png" />
+    <Content Include="Assets\Icons\ApplicationBar.Cancel.png" />
+    <Content Include="Assets\Icons\ApplicationBar.Check.png" />
+    <Content Include="Assets\Icons\ApplicationBar.Delete.png" />
+    <Content Include="Assets\Icons\ApplicationBar.Select.png" />
     <Content Include="Assets\Icons\application_icon_179.png" />
     <Content Include="Assets\Icons\application_icon_33.png" />
     <Content Include="Assets\Icons\application_icon_69.png" />
@@ -487,6 +501,10 @@
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Telerik.Windows.Controls.Chart, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Chart.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Input, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Telerik\RadControls for Windows Phone 8 Q3 2013\Binaries\WindowsPhone\Telerik.Windows.Controls.Input.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Telerik.Windows.Controls.Primitives, Version=2013.3.1016.3040, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">

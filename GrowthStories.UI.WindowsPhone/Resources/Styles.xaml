@@ -304,10 +304,16 @@
 	/////// CONTROLS /////////////
 	//////////////////////////////-->
 
-	<Style TargetType="local:GSTextBox">
-		<Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+    <Style x:Key="GSHintStyle" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+        <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    <Style TargetType="local:GSTextBox">
+        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+        <Setter Property="HintStyle" Value="{StaticResource GSHintStyle}"/>
 	</Style>
-	<Style TargetType="local:GSChatTextBox">
+
+    <Style TargetType="local:GSChatTextBox">
 		<Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
 	</Style>
 	<Style TargetType="local:GSListPicker">
@@ -342,4 +348,87 @@
         <Setter Property="SwitchForeground" Value="{StaticResource GSAccentBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Top"/>
     </Style>
+
+    <Style TargetType="local:GSViewGrid">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:GSViewGrid">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Height="751" VerticalAlignment="Top" >
+                            <Grid  Margin="12,0,12,36">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                    <TextBlock
+					                    Margin="6,-5,0,0"
+					                    Text="{TemplateBinding TopTitle}"
+					                    Style="{StaticResource GSAppTitleStyle}" />
+                                    <TextBlock
+					                    Margin="6,-5,0,0"
+					                    Text="{TemplateBinding Title}"
+					                    Style="{StaticResource GSPageTitleStyle}" />
+                                </StackPanel>
+
+                                <ContentPresenter 
+                                    Grid.Row="1"
+                                    c4f:TiltEffect.IsTiltEnabled="True"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>       
+                             
+                            </Grid>
+                        </ScrollViewer>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:GSViewGrid" x:Key="NoScroll">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:GSViewGrid">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid  Margin="12,0,12,36" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                <TextBlock
+					            Margin="6,-5,0,0"
+					            Text="{TemplateBinding TopTitle}"
+					            Style="{StaticResource GSAppTitleStyle}" />
+                                <TextBlock
+					            Margin="6,-5,0,0"
+					            Text="{TemplateBinding Title}"
+					            Style="{StaticResource GSPageTitleStyle}" />
+                            </StackPanel>
+
+                            <ContentPresenter 
+                                Grid.Row="1"
+                                c4f:TiltEffect.IsTiltEnabled="True"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
