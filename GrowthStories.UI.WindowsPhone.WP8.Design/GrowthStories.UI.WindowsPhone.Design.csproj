@@ -170,6 +170,10 @@
       <Link>Views\ListUsersView.xaml.cs</Link>
       <DependentUpon>ListUsersView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantActionListView.xaml.cs">
+      <Link>Views\PlantActionListView.xaml.cs</Link>
+      <DependentUpon>PlantActionListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\Views\PlantActionView.cs">
       <Link>Views\PlantActionView.cs</Link>
     </Compile>
@@ -199,6 +203,11 @@
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\AddPlantView.xaml">
       <Link>Views\AddPlantView.xaml</Link>
       <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantActionListView.xaml">
+      <Link>Views\PlantActionListView.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="..\GrowthStories.UI.WindowsPhone\Views\PlantView.xaml">

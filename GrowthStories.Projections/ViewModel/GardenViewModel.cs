@@ -93,7 +93,6 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ShowDetailsCommand { get; protected set; }
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
-        private IYAxisShitViewModel CurrentChartViewModel;
 
 
         public IReactiveCommand MultiWateringCommand { get; private set; }
@@ -134,7 +133,12 @@ namespace Growthstories.UI.ViewModel
                 this.Init(state);
             else
             {
-                app.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => this.Init(x));
+
+                app.WhenAny(x => x.User, x => x.GetValue())
+                    .StartWith(app.User)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(x => this.Init(x));
             }
 
 
@@ -194,7 +198,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     //var pivot = new GardenPivotViewModel(x, Plants, state, App);
                     this.SelectedItem = x;
-                    App.Router.Navigate.Execute(this);
+                    App.Router.Navigate.Execute(this.PivotVM);
                 });
 
             //IObservable<long> timer = Observable.Interval(TimeSpan.FromSeconds(3));
@@ -218,66 +222,31 @@ namespace Growthstories.UI.ViewModel
 
             this.IsNotInProgress = MultiWateringCommand.CanExecuteObservable.CombineLatest(MultiDeleteCommand.CanExecuteObservable, (b1, b2) => b1 && b2).DistinctUntilChanged();
 
-            //this.App.WhenAny(x => x.Orientation, x => x.GetValue())
-            //    .CombineLatest(this.App.Router.CurrentViewModel.Where(x => x == this), (x, cvm) => ((x & PageOrientation.Landscape) == PageOrientation.Landscape))
-            //    .Where(x => x == true)
-            //    .DistinctUntilChanged()
-            //    .Subscribe(_ =>
-            //    {
-            //        this.CurrentChartViewModel = App.YAxisShitViewModelFactory(this.SelectedItem);
-            //        App.Router.Navigate.Execute(this.CurrentChartViewModel);
-            //    });
-
-            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
-                .Where(x => (x & PageOrientation.Landscape) == PageOrientation.Landscape && App.Router.GetCurrentViewModel() == this)
-                .Subscribe(_ =>
-                {
-                    this.CurrentChartViewModel = App.YAxisShitViewModelFactory(this.SelectedItem);
-                    App.Router.Navigate.Execute(this.CurrentChartViewModel);
-                });
-
-            this.App.WhenAny(x => x.Orientation, x => x.GetValue())
-                .Where(x => (x & PageOrientation.Portrait) == PageOrientation.Portrait && App.Router.GetCurrentViewModel() == this.CurrentChartViewModel)
-                .Subscribe(_ =>
-                {
-                    App.Router.Navigate.Execute(this);
-                });
 
 
-            App.Router.CurrentViewModel.Subscribe(x =>
-            {
-                if (x == this)
-                {
-                    this.IsInPivotMode = true;
-                }
-                else
-                {
-                    this.IsInPivotMode = false;
-                }
-            });
-
-            this.WhenAny(x => x.IsInPivotMode, x => x.GetValue()).Subscribe(x =>
-            {
-                if (x == true && this.SelectedItem != null)
-                    this.AppBarButtons = this.SelectedItem.AppBarButtons;
-                else
-                    this.AppBarButtons = this.TileModeAppBarButtons;
-            });
 
         }
 
-        protected bool _IsInPivotMode = false;
-        public bool IsInPivotMode
+        protected IGardenPivotViewModel _PivotVM;
+        public IGardenPivotViewModel PivotVM
         {
-            get { return _IsInPivotMode; }
-            set { this.RaiseAndSetIfChanged(ref _IsInPivotMode, value); }
+            get
+            {
+                if (_PivotVM == null)
+                {
+                    _PivotVM = new GardenPivotViewModel(this);
+                }
+                return _PivotVM;
+
+            }
         }
+
 
         private void Init(IAuthUser state)
         {
             this.User = state;
             this.Username = state.Username;
-
+            this.Id = state.GardenId;
             //this.State = state.Garden;
 
             this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();
@@ -394,7 +363,7 @@ namespace Growthstories.UI.ViewModel
 
         public SupportedPageOrientation SupportedOrientations
         {
-            get { return SupportedPageOrientation.PortraitOrLandscape; }
+            get { return SupportedPageOrientation.Portrait; }
         }
     }
 

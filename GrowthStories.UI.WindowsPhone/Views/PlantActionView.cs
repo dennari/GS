@@ -1,4 +1,5 @@
-﻿using Growthstories.UI.ViewModel;
+﻿using Growthstories.Domain.Entities;
+using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -13,15 +14,10 @@ using System.Windows.Media.Imaging;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public enum DisplayMode
-    {
-        Timeline = 0,
-        Detail = 1
-    }
+
 
     public class PlantActionView : GSContentControl<IPlantActionViewModel>
     {
-
 
 
         public static readonly DependencyProperty NoteVisibilityProperty =
@@ -30,30 +26,12 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty HeaderVisibilityProperty =
             DependencyProperty.Register("HeaderVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Visible));
 
-        public static readonly DependencyProperty ContentVisibilityProperty =
-            DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
-
-        public static readonly DependencyProperty DisplayModeProperty =
-         DependencyProperty.Register("DisplayMode", typeof(DisplayMode), typeof(PlantActionView), new PropertyMetadata(DisplayMode.Timeline, DisplayModeValueChanged));
 
         public static readonly DependencyProperty CommandProperty =
-            DependencyProperty.Register("Command", typeof(ICommand), typeof(PlantActionView), new PropertyMetadata(null, CommandValueChanged));
+           DependencyProperty.Register("Command", typeof(ICommand), typeof(PlantActionView), new PropertyMetadata(null, CommandValueChanged));
 
-
-
-        static void DisplayModeValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            try
-            {
-                var view = (PlantActionView)sender;
-                var newMode = (DisplayMode)e.NewValue;
-                if (newMode != view.DisplayMode)
-                    view.SetDataContext(view.ViewModel, newMode);
-
-            }
-            catch { }
-
-        }
+        public static readonly DependencyProperty ContentVisibilityProperty =
+           DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
 
 
         static void CommandValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -75,26 +53,19 @@ namespace Growthstories.UI.WindowsPhone
             get { return (ICommand)GetValue(CommandProperty); }
             set
             {
-                if (value != null)
+                if (value != null && value != Command)
                     SetValue(CommandProperty, value);
             }
         }
 
-        public DisplayMode DisplayMode
-        {
-            get { return (DisplayMode)GetValue(DisplayModeProperty); }
-            set
-            {
-                SetValue(DisplayModeProperty, value);
-            }
-        }
 
         public Visibility NoteVisibility
         {
             get { return (Visibility)GetValue(NoteVisibilityProperty); }
             set
             {
-                SetValue(NoteVisibilityProperty, value);
+                if (value != NoteVisibility)
+                    SetValue(NoteVisibilityProperty, value);
             }
         }
 
@@ -103,7 +74,9 @@ namespace Growthstories.UI.WindowsPhone
             get { return (Visibility)GetValue(ContentVisibilityProperty); }
             set
             {
-                SetValue(ContentVisibilityProperty, value);
+
+                if (value != ContentVisibility)
+                    SetValue(ContentVisibilityProperty, value);
             }
         }
 
@@ -112,63 +85,53 @@ namespace Growthstories.UI.WindowsPhone
             get { return (Visibility)GetValue(HeaderVisibilityProperty); }
             set
             {
-                SetValue(HeaderVisibilityProperty, value);
+                if (value != HeaderVisibility)
+                    SetValue(HeaderVisibilityProperty, value);
             }
         }
 
         protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
-            base.OnViewModelChanged(vm);
-            this.SetDataContext(vm, DisplayMode);
-        }
 
-
-        private void SetDataContext(IPlantActionViewModel value, DisplayMode mode)
-        {
-
-            if (value == null)
+            if (vm == null)
                 return;
 
-
             DataTemplate contentTemplate = null;
-            Brush bg = null;
-
-            if (mode == DisplayMode.Timeline)
+            Brush bg = GetBg("/Assets/Bg/action_bg.jpg");
+            base.OnViewModelChanged(vm);
+            if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
             {
-                if (value is IPlantWaterViewModel)
-                    bg = GetBg("/Assets/Bg/watering_bg.jpg");
-                else
-                    bg = GetBg("/Assets/Bg/action_bg.jpg");
-                if (value is IPlantPhotographViewModel)
-                    contentTemplate = Application.Current.Resources["TimelinePhotoTemplate"] as DataTemplate;
-                if (value is IPlantMeasureViewModel)
-                    contentTemplate = Application.Current.Resources["TimelineMeasureTemplate"] as DataTemplate;
+                contentTemplate = Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
+            }
+            if (vm.ActionType == PlantActionType.MEASURED)
+            {
+                contentTemplate = Application.Current.Resources["DetailMeasureTemplate"] as DataTemplate;
+            }
+            if (vm.ActionType == PlantActionType.WATERED)
+            {
+                bg = GetBg("/Assets/Bg/watering_bg.jpg");
 
+            }
+            this.Content = vm;
+            this.DataContext = vm;
+            if (contentTemplate != null)
+            {
+                if (contentTemplate != this.ContentTemplate)
+                    this.ContentTemplate = contentTemplate;
+                this.ContentVisibility = System.Windows.Visibility.Visible;
             }
             else
             {
-                if (value is IPlantPhotographViewModel)
-                {
-                    contentTemplate = Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
-                }
-
+                this.ContentVisibility = System.Windows.Visibility.Collapsed;
             }
 
-            this.DataContext = value;
 
-            if (contentTemplate != null)
-            {
-                this.ContentVisibility = System.Windows.Visibility.Visible;
-                this.ContentTemplate = contentTemplate;
-            }
-            if (bg != null)
-            {
-                this.Background = bg;
-            }
+            this.Background = bg;
 
         }
 
-        private ImageBrush GetBg(string path)
+
+        protected ImageBrush GetBg(string path)
         {
             return new ImageBrush()
             {
@@ -206,5 +169,69 @@ namespace Growthstories.UI.WindowsPhone
         {
 
         }
+
+
+        protected override void OnContentChanged(object oldContent, object newContent)
+        {
+            base.OnContentChanged(oldContent, newContent);
+
+
+
+        }
     }
+
+
+    public class TimelineActionView : GSContentControl<ITimelineActionViewModel>
+    {
+        public TimelineActionView()
+        {
+
+        }
+
+        protected override void OnViewModelChanged(ITimelineActionViewModel vm)
+        {
+            if (vm == null)
+                return;
+            DataTemplate contentTemplate = null;
+
+
+
+            if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
+                contentTemplate = Application.Current.Resources["TimelinePhotoTemplate"] as DataTemplate;
+            else if (vm.ActionType == PlantActionType.MEASURED)
+                contentTemplate = Application.Current.Resources["TimelineMeasureTemplate"] as DataTemplate;
+
+
+            if (contentTemplate != null)
+            {
+                if (contentTemplate != this.ContentTemplate)
+                    this.ContentTemplate = contentTemplate;
+                this.ContentVisibility = System.Windows.Visibility.Visible;
+
+            }
+            else
+            {
+                this.ContentVisibility = System.Windows.Visibility.Collapsed;
+            }
+
+
+        }
+
+        public static readonly DependencyProperty ContentVisibilityProperty =
+         DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
+
+        public Visibility ContentVisibility
+        {
+            get { return (Visibility)GetValue(ContentVisibilityProperty); }
+            set
+            {
+
+                if (value != ContentVisibility)
+                    SetValue(ContentVisibilityProperty, value);
+            }
+        }
+
+
+    }
+
 }

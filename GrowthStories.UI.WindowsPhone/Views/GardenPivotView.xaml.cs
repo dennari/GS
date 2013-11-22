@@ -15,7 +15,7 @@ namespace Growthstories.UI.WindowsPhone
 {
 
 
-    public class GardenPivotViewBase : GSPage<IGardenViewModel>
+    public class GardenPivotViewBase : GSPage<IGardenPivotViewModel>
     {
 
     }
@@ -30,12 +30,12 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            var plantActionView = (PlantActionView)sender;
-            var plant = ViewModel.SelectedItem;
-            plant.ActionTapped.Execute(plantActionView.ViewModel);
-        }
+        //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    var plantActionView = (PlantActionView)sender;
+        //    var plant = ViewModel.SelectedItem;
+        //    plant.ActionTapped.Execute(plantActionView.ViewModel);
+        //}
 
 
 

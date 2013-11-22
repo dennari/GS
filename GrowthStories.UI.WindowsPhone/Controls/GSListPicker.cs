@@ -16,7 +16,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             DefaultStyleKey = typeof(GSViewGrid);
             VerticalContentAlignment = System.Windows.VerticalAlignment.Top;
-            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left;
+            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch;
             //SetBinding(TemplateProperty,)
         }
 

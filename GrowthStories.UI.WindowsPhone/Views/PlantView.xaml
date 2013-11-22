@@ -13,7 +13,7 @@
 
     <phone:LongListSelector 
         x:Name="TimeLine" 
-        ItemsSource="{Binding Actions}" 
+        ItemsSource="{Binding TimelineActions}" 
         Grid.Row="1"
         ListHeader="{Binding}"
         >                          
@@ -21,15 +21,19 @@
         <phone:LongListSelector.ListHeaderTemplate>
             <DataTemplate>
             <StackPanel>
-                <ContentControl 
+                    <Grid  Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">
+                        <ContentControl 
                     Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}"
                     DataContext="{Binding FertilizingScheduler}"
                     Style="{StaticResource PlantNextAction}"/>                
-                <ContentControl
+                </Grid>
+                    <Grid  Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
+                        <ContentControl
                     Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}"
                     DataContext="{Binding WateringScheduler}"
                     Style="{StaticResource PlantNextAction}"/>
-                <Canvas Height="54" Margin="0,0,0,24" >
+                    </Grid>
+                    <Canvas Height="54" Margin="0,0,0,24" >
                     <Line X1="0" X2="7" Y1="27" Y2="27" 
                         Canvas.ZIndex="0"
                         StrokeThickness="3">                     
@@ -58,10 +62,7 @@
         </phone:LongListSelector.ListHeaderTemplate>
         <phone:LongListSelector.ItemTemplate>
             <DataTemplate>
-                <local:PlantActionView 
-                    ViewModel="{Binding}"
-                    Style="{StaticResource PlantTimelineActionStyle}"
-                    Tap="PlantActionView_Tap"/>
+                <local:TimelineActionView  ViewModel="{Binding}"/>
             </DataTemplate>
         </phone:LongListSelector.ItemTemplate>
                         

@@ -23,12 +23,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        protected BitmapImage _Photo;
-        public BitmapImage Photo
+        protected BitmapImage _PhotoSource;
+        public BitmapImage PhotoSource
         {
             get
             {
-                return _Photo ?? (_Photo = new BitmapImage()
+                return _PhotoSource ?? (_PhotoSource = new BitmapImage()
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
                     DecodePixelType = DecodePixelType.Physical
@@ -36,18 +36,18 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-        public ClientPlantPhotographViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
+        public ClientPlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)
+            : base(app, state)
         {
 
-            var photoStream = this.WhenAnyValue(x => x.PhotoData, x => x)
+            var photoStream = this.WhenAnyValue(x => x.Photo, x => x)
                 .Where(x => x != default(Photo));
 
 
             if (state != null)
                 photoStream.StartWith(state.Photo);
 
-            photoStream.Subscribe(x => Photo.SetSource(x));
+            photoStream.Subscribe(x => PhotoSource.SetSource(x));
         }
 
 
@@ -97,7 +97,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             var image = e.ChosenPhoto;
             if (e.TaskResult == TaskResult.OK && image.CanRead && image.Length > 0)
             {
-                PhotoData = await image.SavePhotoToLocalStorageAsync();
+                Photo = await image.SavePhotoToLocalStorageAsync();
             }
         }
 

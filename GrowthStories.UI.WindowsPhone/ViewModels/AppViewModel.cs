@@ -65,9 +65,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<IAddEditPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
+            //Resolver.RegisterLazySingleton(() => new TimelineActionView(), typeof(IViewFor<ITimelineActionViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
             Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
-            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenViewModel>));
+            Resolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
+            Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
 
@@ -83,6 +85,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 if (T is IAddEditPlantViewModel)
                     return typeof(IAddEditPlantViewModel);
+                //if (T is ITimelineActionViewModel)
+                //    return typeof(ITimelineActionViewModel);
                 if (T is IPlantActionViewModel)
                     return typeof(IPlantActionViewModel);
                 if (T is IYAxisShitViewModel)
@@ -91,13 +95,16 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     return typeof(IScheduleViewModel);
                 if (T is ISearchUsersViewModel)
                     return typeof(ISearchUsersViewModel);
+                if (T is IGardenPivotViewModel)
+                    return typeof(IGardenPivotViewModel);
                 if (T is IGardenViewModel)
                     return typeof(IGardenViewModel);
                 if (T is IPlantViewModel)
                     return typeof(IPlantViewModel);
                 if (T is IFriendsViewModel)
                     return typeof(IFriendsViewModel);
-
+                if (T is IPlantActionListViewModel)
+                    return typeof(IPlantActionListViewModel);
                 return T.GetType();
 
             };
@@ -117,12 +124,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             return new ClientYAxisShitViewModel(pvm, this);
         }
 
-        public override IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null)
+        public override IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null)
         {
-            if ((state != null && state.Type == PlantActionType.PHOTOGRAPHED) || typeof(T) == typeof(IPlantPhotographViewModel))
-                return new ClientPlantPhotographViewModel(state, this);
+            if (type == PlantActionType.PHOTOGRAPHED)
+                return new ClientPlantPhotographViewModel(this, state);
             else
-                return base.PlantActionViewModelFactory<T>(state);
+                return base.PlantActionViewModelFactory(type, state);
         }
 
 

@@ -61,8 +61,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, null);
-            this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, null);
+            this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
+            this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
             this.ShareCommand = new ReactiveCommand();
             this.DeleteCommand = new ReactiveCommand();
@@ -134,7 +134,10 @@ namespace Growthstories.UI.ViewModel
                 this.State = state;
                 this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                     .StartWith(state.Name)
-                    .Subscribe(x => this.Name = x);
+                    .Subscribe(x =>
+                    {
+                        this.Name = x;
+                    });
 
                 this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
                     .StartWith(state.Species)
@@ -169,7 +172,7 @@ namespace Growthstories.UI.ViewModel
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
-                    if (x.Item1 == null)
+                    if (x.Item1 == null || !x.Item1.Interval.HasValue)
                         return;
                     IPlantActionViewModel a = x.Item2;
                     if (a == null)
@@ -180,7 +183,7 @@ namespace Growthstories.UI.ViewModel
                         {
                             this.WateringScheduler = new PlantScheduler(x.Item1)
                             {
-                                IconType = IconType.WATER
+                                Icon = IconType.WATER
                             };
                         }
                         this.WateringScheduler.ComputeNext(a.Created);
@@ -194,7 +197,7 @@ namespace Growthstories.UI.ViewModel
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
-                    if (x.Item1 == null)
+                    if (x.Item1 == null || !x.Item1.Interval.HasValue)
                         return;
                     IPlantActionViewModel a = x.Item2;
                     if (a == null)
@@ -203,9 +206,10 @@ namespace Growthstories.UI.ViewModel
                     {
                         if (this.FertilizingScheduler == null)
                         {
+
                             this.FertilizingScheduler = new PlantScheduler(x.Item1)
                             {
-                                IconType = IconType.FERTILIZE
+                                Icon = IconType.FERTILIZE
                             };
                         }
                         this.FertilizingScheduler.ComputeNext(a.Created);
@@ -221,9 +225,25 @@ namespace Growthstories.UI.ViewModel
             //this.FertilizingSchedule = fertilizingSchedule;
 
             if (wateringSchedule != null)
+            {
+
                 this.WateringSchedule = wateringSchedule;
+
+
+                //this.WateringScheduler = new PlantScheduler(wateringSchedule)
+                //{
+                //    IconType = IconType.WATER
+                //};
+            }
             if (fertilizingSchedule != null)
+            {
+                //using (this.SuppressChangeNotifications())
+                //{
                 this.FertilizingSchedule = fertilizingSchedule;
+                //}
+
+                //this.FertilizingScheduler = new PlantScheduler(fertilizingSchedule);
+            }
 
 
 
@@ -263,10 +283,24 @@ namespace Growthstories.UI.ViewModel
         }
 
         protected PlantScheduler _WateringScheduler;
-        public PlantScheduler WateringScheduler { get { return _WateringScheduler; } private set { this.RaiseAndSetIfChanged(ref _WateringScheduler, value); } }
+        public PlantScheduler WateringScheduler
+        {
+            get
+            {
+                return _WateringScheduler;
+            }
+            private set { this.RaiseAndSetIfChanged(ref _WateringScheduler, value); }
+        }
 
         protected PlantScheduler _FertilizingScheduler;
-        public PlantScheduler FertilizingScheduler { get { return _FertilizingScheduler; } private set { this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value); } }
+        public PlantScheduler FertilizingScheduler
+        {
+            get
+            {
+                return _FertilizingScheduler;
+            }
+            private set { this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value); }
+        }
 
 
         public string TodayWeekDay { get { return DateTimeOffset.Now.ToString("dddd"); } }
@@ -295,9 +329,68 @@ namespace Growthstories.UI.ViewModel
         //private ObservableAsPropertyHelper<IPlantWaterViewModel> _LatestWatering;
         //public _LatestWatering
 
-        private ObservableAsPropertyHelper<IPlantFertilizeViewModel> LatestFertilizing;
+        //private ObservableAsPropertyHelper<IPlantActionViewModel> LatestFertilizing;
+
+        private void PlantActionNavigateBackSubscription(IReactiveCommand cmd)
+        {
+            cmd.Take(1).Subscribe(_ =>
+            {
+                var lastI = App.Router.NavigationStack.Count - 1;
+                IRoutableViewModel vm = null;
+                try
+                {
+                    vm = App.Router.NavigationStack[lastI - 1];
+                    if (vm is IPlantActionListViewModel)
+                    {
+                        vm = App.Router.NavigationStack[lastI - 2];
+                    }
+                }
+                catch
+                {
+
+                }
+                if (vm != null)
+                    this.Navigate(vm);
+            });
+        }
+
+        public IReactiveCommand AddActionCommand(PlantActionType type)
+        {
+            var vm = App.PlantActionViewModelFactory(type);
+            vm.PlantId = this.Id;
+            vm.UserId = App.User.Id;
+            PlantActionNavigateBackSubscription(vm.AddCommand);
+
+            return Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(vm));
+        }
 
 
+        public IReactiveCommand EditActionCommand(IPlantActionViewModel vm)
+        {
+
+            PlantActionNavigateBackSubscription(vm.AddCommand);
+            return Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(vm));
+
+        }
+
+
+        protected IReactiveDerivedList<ITimelineActionViewModel> _TimelineActions;
+        public IReadOnlyReactiveList<ITimelineActionViewModel> TimelineActions
+        {
+            get
+            {
+                if (_TimelineActions == null)
+                {
+                    _TimelineActions = this.Actions.CreateDerivedCollection(x =>
+                    {
+                        var vm = new TimelineActionViewModel(x);
+                        vm.EditCommand = this.EditActionCommand(x);
+                        return (ITimelineActionViewModel)vm;
+                    });
+                }
+                return _TimelineActions;
+            }
+        }
 
         protected ReactiveList<IPlantActionViewModel> _Actions;
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions
@@ -307,6 +400,7 @@ namespace Growthstories.UI.ViewModel
                 if (_Actions == null)
                 {
                     _Actions = new ReactiveList<IPlantActionViewModel>();
+
                     if (this.State != null)
                     {
                         var actionsPipe = App.CurrentPlantActions(this.State)
@@ -316,6 +410,7 @@ namespace Growthstories.UI.ViewModel
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
                             _Actions.Insert(0, x);
+                            //x.EditCommand = this.AddActionCommand(x.ActionType, x.State);
                             ScrollCommand.Execute(x);
                         });
                     }
@@ -374,72 +469,19 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "water",
                             IconType = IconType.WATER,
-                            Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x => {
-                                    var vm = new PlantWaterViewModel(null, App);
-                                    vm.AddCommand.Subscribe(_ =>
-                                    {
-                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                                        this.SendCommand(
-                                            new CreatePlantAction(
-                                                Guid.NewGuid(),
-                                                this.UserId,
-                                                this.Id,
-                                                PlantActionType.WATERED,
-                                                vm.Note
-                                            ),
-                                        true);
-                                    });
-                                    this.Navigate(vm);
-                                })
+                            Command = AddActionCommand(PlantActionType.WATERED)
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "photograph",
                             IconType = IconType.PHOTO,
-                            Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x =>  {
-                                    var vm = new PlantPhotographViewModel(null, App);
-                                    vm.AddCommand.Subscribe(_ =>
-                                    {
-                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                                        this.SendCommand(
-                                            new CreatePlantAction(
-                                                Guid.NewGuid(),
-                                                this.UserId,
-                                                this.Id,
-                                                PlantActionType.PHOTOGRAPHED,
-                                                vm.Note
-                                            ) {
-                                                Photo = vm.PhotoData
-                                            },
-                                        true);
-                                    });
-                                    this.Navigate(vm);
-                                })
+                            Command = AddActionCommand(PlantActionType.PHOTOGRAPHED)
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
                             IconType = IconType.NOTE,
-                            Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x =>  {
-                                    var vm = new PlantCommentViewModel(null, App);
-                                    vm.AddCommand.Subscribe(_ =>
-                                    {
-                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                                        this.SendCommand(
-                                            new CreatePlantAction(
-                                                Guid.NewGuid(),
-                                                this.UserId,
-                                                this.Id,
-                                                PlantActionType.COMMENTED,
-                                                vm.Note
-                                            ),
-                                        true);
-                                    });
-                                    this.Navigate(vm);
-                                })
+                            Command = AddActionCommand(PlantActionType.COMMENTED)
                         },
                         new ButtonViewModel(null)
                         {
@@ -453,6 +495,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private IPlantActionListViewModel _PlantActionList;
+        protected IPlantActionListViewModel PlantActionList
+        {
+            get
+            {
+                if (_PlantActionList == null)
+                {
+                    _PlantActionList = new PlantActionListViewModel(this, App);
+                }
+                return _PlantActionList;
+            }
+        }
+
         protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
@@ -463,55 +518,14 @@ namespace Growthstories.UI.ViewModel
                     {
                         new MenuItemViewModel(null)
                         {
-                            Text = "measure",
-                            Command = Observable.Return(true)
-                               .ToCommandWithSubscription(x =>  {
-                                    var vm = new PlantMeasureViewModel(null, App);
-                                    vm.AddCommand.Subscribe(_ =>
-                                    {
-                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                                        this.SendCommand(
-                                            new CreatePlantAction(
-                                                Guid.NewGuid(),
-                                                this.UserId,
-                                                this.Id,
-                                                PlantActionType.MEASURED,
-                                                vm.Note
-                                     ) {
-                                        MeasurementType = vm.Series.Type,
-                                        Value = vm.Value.Value
-                                    },
-                                        true);
-                                    });
-                                    this.Navigate(vm);
-                                })
-                        },
-                        new MenuItemViewModel(null)
-                        {
-                            Text = "nourish",
-                            Command = Observable.Return(true)
-                                .ToCommandWithSubscription(x =>  {
-                                    var vm = new PlantFertilizeViewModel(null, App);
-                                    vm.AddCommand.Subscribe(_ =>
-                                    {
-                                        //this.SendCommand(new Water(this.UserId, this.Id, _AddWaterViewModel.Note), true);
-                                        this.SendCommand(
-                                            new CreatePlantAction(
-                                                Guid.NewGuid(),
-                                                this.UserId,
-                                                this.Id,
-                                                PlantActionType.FERTILIZED,
-                                                vm.Note
-                                            ),
-                                        true);
-                                    });
-                                    this.Navigate(vm);
-                                })
-                        },
+                            Text = "pick action",
+                            Command = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList))
+   
+                        },                
                         new MenuItemViewModel(null)
                         {
                             Text = "edit",
-                            Command = this.EditCommand,
+                            Command = EditCommand,
                         },
                          new MenuItemViewModel(null)
                         {

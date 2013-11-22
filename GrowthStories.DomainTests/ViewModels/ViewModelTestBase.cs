@@ -46,11 +46,20 @@ namespace Growthstories.DomainTests
             Kernel = new StandardKernel(new SyncEngineTestsSetup());
             App = new TestAppViewModel(Kernel);
 
-            var u = App.Context.CurrentUser;
-            App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email));
-            App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
-            //Ctx = Get<IUserService>().CurrentUser;
+            var u = App.User;
+            Assert.IsNotNull(u);
+            Assert.IsNotNull(u.Username);
+            Assert.IsNull(App.Model.State.User);
             Handler = Get<IDispatchCommands>();
+            Handler.Handle(new CreateUser(u.Id, u.Username, u.Password, u.Email));
+            Handler.Handle(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
+            Handler.Handle(new CreateGarden(u.GardenId, u.Id));
+
+
+            //Ctx = Get<IUserService>().CurrentUser;
+            Assert.IsNotNull(App.Model.State.User);
+
+
         }
 
 

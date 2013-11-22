@@ -19,15 +19,15 @@ namespace Growthstories.UI.WindowsPhone
         public MainPage()
         {
             InitializeComponent();
-            var scheduleType = ScheduleType.WATERING;
-            var vm = new ScheduleViewModel(scheduleType, 24 * 23 * 3600);
-            vm.OtherSchedules = new MockReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>() 
-                {
-                    new Tuple<IPlantViewModel, IScheduleViewModel>(new PlantViewModel("AnotherPlant","Orvokki"), new ScheduleViewModel(scheduleType, 24*3*3600)),
-                    new Tuple<IPlantViewModel, IScheduleViewModel>(new PlantViewModel("Jaakko","Ruusu"), new ScheduleViewModel(scheduleType, 24*180*3600)),
+            //var scheduleType = ScheduleType.WATERING;
+            //var vm = new ScheduleViewModel(scheduleType, 24 * 23 * 3600);
+            //vm.OtherSchedules = new MockReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>() 
+            //    {
+            //        new Tuple<IPlantViewModel, IScheduleViewModel>(new PlantViewModel("AnotherPlant","Orvokki"), new ScheduleViewModel(scheduleType, 24*3*3600)),
+            //        new Tuple<IPlantViewModel, IScheduleViewModel>(new PlantViewModel("Jaakko","Ruusu"), new ScheduleViewModel(scheduleType, 24*180*3600)),
 
-                };
-            this.ScheduleView.ViewModel = vm;
+            //    };
+            //this.ScheduleView.ViewModel = vm;
             //this.ScheduleView.DataContext = vm;
         }
 

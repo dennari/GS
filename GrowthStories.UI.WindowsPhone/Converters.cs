@@ -63,7 +63,7 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.MISTING,IconFolder+"icon_misting_appbar.png"},
             {IconType.PH,IconFolder+"icon_ph_appbar.png"},
             {IconType.POLLINATION,IconFolder+"icon_pollination_appbar.png"},
-            {IconType.SPROUTING,IconFolder+"icon_sprouting_appbar.png"}
+            {IconType.SPROUTING,IconFolder+"icon_sprouting_appbar.png"}           
 
         };
 
@@ -85,7 +85,9 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.MISTING,"/Assets/Icons/icon_misting.png"},
             {IconType.PH,"/Assets/Icons/icon_ph.png"},
             {IconType.POLLINATION,"/Assets/Icons/icon_pollination.png"},
-            {IconType.SPROUTING,"/Assets/Icons/icon_sprouting.png"}
+            {IconType.SPROUTING,"/Assets/Icons/icon_sprouting.png"},
+            {IconType.HARVESTING,IconFolder+"icon_harvesting.png"},
+            {IconType.PRUNING,IconFolder+"icon_pruning.png"}
         };
 
     }

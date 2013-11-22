@@ -28,12 +28,12 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            var plantActionView = (PlantActionView)sender;
-            //var plant = ViewModel.SelectedItem;
-            ViewModel.ActionTapped.Execute(plantActionView.ViewModel);
-        }
+        //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    var plantActionView = (PlantActionView)sender;
+        //    //var plant = ViewModel.SelectedItem;
+        //    ViewModel.ActionTapped.Execute(plantActionView.ViewModel);
+        //}
 
     }
 }

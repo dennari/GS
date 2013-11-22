@@ -52,6 +52,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+
         public string Title
         {
             get { return this.Type == IntervalValueType.DAY ? "days" : "hours"; }
@@ -123,10 +125,23 @@ namespace Growthstories.UI.ViewModel
 
             TimeSpan? originalInterval = null;
 
+
             this.WhenAny(x => x.Interval, x => x.GetValue()).Subscribe(x =>
             {
-                if (x != null && x != originalInterval)
-                    this.Id = Guid.NewGuid();
+                if (x != null)
+                {
+                    if (originalInterval == null)
+                    {
+                        HasChanged = true;
+                        this.Id = Guid.NewGuid();
+                    }
+                    else
+                    {
+                        HasChanged = originalInterval == x ? false : true;
+
+                    }
+                }
+
                 this.raisePropertyChanged("IntervalLabel");
             });
 
@@ -162,6 +177,20 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _Interval, value);
             }
         }
+
+        protected bool _HasChanged;
+        public bool HasChanged
+        {
+            get
+            {
+                return _HasChanged;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _HasChanged, value);
+            }
+        }
+
 
         public string IntervalLabel
         {
@@ -245,8 +274,19 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        protected IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> _OtherSchedules;
+        public IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules
+        {
 
-        public IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }
+            get
+            {
+                return _OtherSchedules;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _OtherSchedules, value);
+            }
+        }
 
         protected object _SelectedCopySchedule;
         public object SelectedCopySchedule

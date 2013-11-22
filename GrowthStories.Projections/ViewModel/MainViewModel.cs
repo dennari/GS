@@ -35,7 +35,7 @@ namespace Growthstories.UI.ViewModel
             this._Pages.Add(this.NotificationsVM);
             this._Pages.Add(this.FriendsVM);
 
-            this.SelectedItem = this.GardenVM;
+            this.SelectedPage = this.GardenVM;
 
             //app.Gardens
             //    .Where(x => x.UserState.Id == app.Context.CurrentUser.Id)

@@ -52,13 +52,21 @@ namespace Growthstories.UI.ViewModel
                 this.Title = "new plant";
                 this.TagSet = new HashSet<string>();
                 this.Tags = new ReactiveList<string>();
-                this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
-                this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
             }
+            if (this.WateringSchedule == null)
+                this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
+            if (this.FertilizingSchedule == null)
+                this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
+
+
+
 
             var garden = app.Resolver.GetService<IGardenViewModel>();
             this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.WateringSchedule))
+                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue).Select(x =>
+                {
+                    return Tuple.Create(x, x.WateringSchedule);
+                })
             );
             this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
              garden.Plants.Where(x => x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
@@ -129,11 +137,11 @@ namespace Growthstories.UI.ViewModel
             {
                 changes++;
             }
-            if (Current.FertilizingSchedule.Id != fert.Id)
+            if (fert.HasChanged)
             {
                 changes++;
             }
-            if (Current.WateringSchedule.Id != water.Id)
+            if (water.HasChanged)
             {
                 changes++;
             }
@@ -296,7 +304,7 @@ namespace Growthstories.UI.ViewModel
         public override void AddCommandSubscription(object p)
         { }
 
-        public async Task AddTask()
+        public async Task<Guid> AddTask()
         {
             //IEntityCommand cmd = null;
 
@@ -305,6 +313,7 @@ namespace Growthstories.UI.ViewModel
 
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
             IPlantViewModel current = Current == null ? new PlantViewModel(null, null) : Current;
+            IPlantViewModel R = Current == null ? null : Current;
 
             if (this.Current == null)
             {
@@ -322,13 +331,13 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SetSpecies(plantId, this.Species));
             }
 
-            if (current.FertilizingSchedule.Id != this.FertilizingSchedule.Id)
+            if (this.FertilizingSchedule.HasChanged)
             {
                 var r = await this.FertilizingSchedule.Create();
                 if (r != null || this.FertilizingSchedule.Id == null)
                     await App.HandleCommand(new SetFertilizingSchedule(plantId, this.FertilizingSchedule.Id));
             }
-            if (current.WateringSchedule.Id != this.WateringSchedule.Id)
+            if (this.WateringSchedule.HasChanged)
             {
                 var r = await this.WateringSchedule.Create();
                 if (r != null || this.WateringSchedule.Id == null)
@@ -344,8 +353,9 @@ namespace Growthstories.UI.ViewModel
             {
                 await App.HandleCommand(new SetTags(plantId, new HashSet<string>(this.Tags)));
             }
-            this.App.Router.NavigateBack.Execute(null);
-
+            if (this.App.Router.NavigationStack.Count > 1)
+                this.App.Router.NavigateBack.Execute(null);
+            return plantId;
         }
 
 

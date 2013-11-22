@@ -200,7 +200,10 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            resolver.RegisterLazySingleton(() => new GardenViewModel(null, this), typeof(IGardenViewModel));
+            resolver.RegisterLazySingleton(() =>
+            {
+                return new GardenViewModel(null, this);
+            }, typeof(IGardenViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
 
             resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(FriendsViewModel));
@@ -486,6 +489,7 @@ namespace Growthstories.UI.ViewModel
 
             var current = UIPersistence.GetUsers(id)
                 .ToObservable()
+                .Where(x => x.Id != this.User.Id)
                 .Select(x => new GardenViewModel(x, this));
 
             return current;
@@ -506,7 +510,7 @@ namespace Growthstories.UI.ViewModel
 
             var current = UIPersistence.GetActions(PlantActionId, state.Id, null)
                 .ToObservable()
-                .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x));
+                .Select(x => PlantActionViewModelFactory(x.Type, x));
 
             return current;
 
@@ -521,7 +525,7 @@ namespace Growthstories.UI.ViewModel
             return Bus.Listen<IEvent>()
                     .OfType<PlantActionCreated>()
                     .Where(x => x.PlantId == state.Id)
-                    .Select(x => PlantActionViewModelFactory<IPlantActionViewModel>(x.AggregateState));
+                    .Select(x => PlantActionViewModelFactory(x.AggregateState.Type, x.AggregateState));
         }
 
 
@@ -606,36 +610,19 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public virtual IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel
+        public virtual IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null)
         {
 
-            if (state != null)
+            if (type == PlantActionType.MEASURED)
+                return new PlantMeasureViewModel(this, state);
+            else if (type == PlantActionType.PHOTOGRAPHED)
+                return new PlantPhotographViewModel(this, state);
+            else
             {
-                if (state.Type == PlantActionType.COMMENTED)
-                    return new PlantCommentViewModel(state, this);
-                if (state.Type == PlantActionType.FERTILIZED)
-                    return new PlantFertilizeViewModel(state, this);
-                if (state.Type == PlantActionType.WATERED)
-                    return new PlantWaterViewModel(state, this);
-                if (state.Type == PlantActionType.MEASURED)
-                    return new PlantMeasureViewModel(state, this);
-                if (state.Type == PlantActionType.PHOTOGRAPHED)
-                    return new PlantPhotographViewModel(state, this);
+                return new PlantActionViewModel(type, this, state);
             }
 
-            var t = typeof(T);
-            if (t == typeof(IPlantCommentViewModel))
-                return new PlantCommentViewModel(state, this);
-            if (t == typeof(IPlantFertilizeViewModel))
-                return new PlantFertilizeViewModel(state, this);
-            if (t == typeof(IPlantWaterViewModel))
-                return new PlantWaterViewModel(state, this);
-            if (t == typeof(IPlantMeasureViewModel))
-                return new PlantMeasureViewModel(state, this);
-            if (t == typeof(IPlantPhotographViewModel))
-                return new PlantPhotographViewModel(state, this);
 
-            return null;
         }
 
 

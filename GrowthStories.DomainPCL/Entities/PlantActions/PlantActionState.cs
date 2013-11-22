@@ -22,7 +22,15 @@ namespace Growthstories.Domain.Entities
         PHOTOGRAPHED,
         MEASURED,
         COMMENTED,
-        FBCOMMENTED
+        FBCOMMENTED,
+        MISTED,
+        BLOOMED,
+        SPROUTED,
+        PRUNED,
+        DECEASED,
+        POLLINATED,
+        TRANSFERRED,
+        HARVESTED
     }
 
 

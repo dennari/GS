@@ -41,11 +41,12 @@
       </PrimaryToken>
     </Tokens>
     <ScreenResolutions>
+      <ScreenResolution Name="ID_RESOLUTION_WVGA" />
       <ScreenResolution Name="ID_RESOLUTION_WXGA" />
       <ScreenResolution Name="ID_RESOLUTION_HD720P" />
     </ScreenResolutions>
     <FunctionalCapabilities>
-      <FunctionalCapability Name="ID_FUNCCAP_EXTEND_MEM"/>
+      <FunctionalCapability Name="ID_FUNCCAP_EXTEND_MEM" />
     </FunctionalCapabilities>
   </App>
 </Deployment>

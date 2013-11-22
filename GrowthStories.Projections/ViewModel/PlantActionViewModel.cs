@@ -13,31 +13,78 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    public abstract class PlantActionViewModel : CommandViewModel, IPlantActionViewModel
+    public class PlantActionViewModel : CommandViewModel, IPlantActionViewModel
     {
 
         public PlantActionState State { get; protected set; }
-
+        public string Label { get; protected set; }
         public string WeekDay { get; protected set; }
         public string Date { get; protected set; }
         public string Time { get; protected set; }
         public PlantActionType ActionType { get; protected set; }
 
 
+        public IconType Icon { get; protected set; }
 
-        public IconType IconType { get; protected set; }
 
+        public static readonly Dictionary<PlantActionType, IconType> ActionTypeToIcon = new Dictionary<PlantActionType, IconType>()
+        {
+            {PlantActionType.WATERED, IconType.WATER},
+            {PlantActionType.TRANSFERRED, IconType.CHANGESOIL},
+            {PlantActionType.SPROUTED, IconType.SPROUTING},
+            {PlantActionType.PRUNED, IconType.PRUNING},
+            {PlantActionType.POLLINATED, IconType.POLLINATION},
+            {PlantActionType.PHOTOGRAPHED,IconType.PHOTO},
+            {PlantActionType.MISTED, IconType.MISTING},
+            {PlantActionType.MEASURED,IconType.MEASURE},
+            {PlantActionType.HARVESTED,IconType.HARVESTING},
+            {PlantActionType.FERTILIZED,IconType.FERTILIZE},
+            {PlantActionType.FBCOMMENTED,IconType.NOTE},
+            {PlantActionType.DECEASED,IconType.DECEASED},
+            {PlantActionType.COMMENTED,IconType.NOTE},
+            {PlantActionType.BLOOMED,IconType.BLOOMING}
+        };
+
+        public static readonly PlantActionType[] ActionTypes = ActionTypeToIcon.Keys.ToArray();
+        public static readonly PlantActionType[] NonGenericActionTypes = new PlantActionType[] { PlantActionType.MEASURED, PlantActionType.PHOTOGRAPHED };
+
+        public static readonly Dictionary<PlantActionType, string> ActionTypeToLabel = new Dictionary<PlantActionType, string>()
+        {
+            {PlantActionType.WATERED, "water"},
+            {PlantActionType.TRANSFERRED, "transfer"},
+            {PlantActionType.SPROUTED, "sprouting"},
+            {PlantActionType.PRUNED, "prune"},
+            {PlantActionType.POLLINATED, "pollinate"},
+            {PlantActionType.PHOTOGRAPHED,"photograph"},
+            {PlantActionType.MISTED, "mist"},
+            {PlantActionType.MEASURED,"measure"},
+            {PlantActionType.HARVESTED,"harvest"},
+            {PlantActionType.FERTILIZED,"fertilize"},
+            {PlantActionType.FBCOMMENTED,"comment"},
+            {PlantActionType.DECEASED,"declare deceased"},
+            {PlantActionType.COMMENTED,"comment"},
+            {PlantActionType.BLOOMED,"blooming"}
+        };
 
 
 
         public Guid PlantActionId { get; protected set; }
+        public Guid PlantId { get; set; }
+        public Guid UserId { get; set; }
+
+
         public DateTimeOffset Created { get; protected set; }
 
-        public PlantActionViewModel(PlantActionState state, IGSAppViewModel app)
+        public int Updates { get; set; }
+
+        public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
         {
-
+            this.ActionType = type;
+            this.Icon = ActionTypeToIcon[type];
+            this.Label = ActionTypeToLabel[type];
             this.State = state;
+
             if (state != null)
             {
                 this.Note = state.Note;
@@ -46,28 +93,56 @@ namespace Growthstories.UI.ViewModel
                 this.Time = state.Created.ToString("t");
                 this.PlantActionId = state.Id;
                 this.Created = state.Created;
-                this.ActionType = state.Type;
                 this.ListenTo<PlantActionPropertySet>(state.Id).Subscribe(x =>
                 {
                     SetProperty(x);
+                });
+
+                var updatePipe = this.AddCommand.RegisterAsyncTask(_ =>
+                {
+
+                    return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
+                    {
+                        Note = this.Note,
+                        Photo = this.Photo,
+                        Value = this.Value,
+                        MeasurementType = this.MeasurementType
+                    });
+
+                });
+
+
+                updatePipe.Subscribe(x => Updates++);
+
+            }
+            else
+            {
+
+                this.AddCommand.RegisterAsyncTask(_ =>
+                {
+
+
+                    return App.HandleCommand(new CreatePlantAction(
+                                   Guid.NewGuid(),
+                                   this.UserId,
+                                   this.PlantId,
+                                   this.ActionType,
+                                   this.Note
+                               )
+                    {
+                        Photo = this.Photo,
+                        MeasurementType = this.MeasurementType,
+                        Value = this.Value
+                    });
+
+
                 });
 
             }
 
         }
 
-        public PlantActionViewModel(DateTimeOffset Created, IGSAppViewModel app)
-            : base(app)
-        {
 
-
-            this.Note = "Just a note";
-            this.WeekDay = Created.ToString("dddd");
-            this.Date = Created.ToString("d");
-            this.Time = Created.ToString("t");
-            this.PlantActionId = Guid.NewGuid();
-            this.Created = Created;
-        }
 
         public virtual void SetProperty(PlantActionPropertySet prop)
         {
@@ -90,7 +165,44 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        protected MeasurementType _MeasurementType;
+        public MeasurementType MeasurementType
+        {
+            get
+            {
+                return _MeasurementType;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _MeasurementType, value);
+            }
+        }
 
+        protected double? _Value;
+        public double? Value
+        {
+            get
+            {
+                return _Value;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Value, value);
+            }
+        }
+
+        protected Photo _Photo;
+        public Photo Photo
+        {
+            get
+            {
+                return _Photo;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Photo, value);
+            }
+        }
 
 
 
@@ -100,8 +212,57 @@ namespace Growthstories.UI.ViewModel
         {
             get { return _OpenZoomView; }
         }
+
+        public override void AddCommandSubscription(object p)
+        {
+            base.AddCommandSubscription(p);
+        }
+
+
+
     }
 
+
+    public class TimelineActionViewModel : GSViewModelBase, ITimelineActionViewModel
+    {
+        private readonly IPlantActionViewModel Vm;
+
+
+        public TimelineActionViewModel(IPlantActionViewModel vm)
+            : base(vm.App)
+        {
+            this.Vm = vm;
+        }
+
+
+        public string WeekDay { get { return Vm.WeekDay; } }
+
+        public string Date { get { return Vm.Date; } }
+
+        public string Time { get { return Vm.Time; } }
+
+        public string Note { get { return Vm.Note; } }
+
+        public string Label { get { return Vm.Label; } }
+
+        public PlantActionType ActionType { get { return Vm.ActionType; } }
+
+        public IconType Icon { get { return Vm.Icon; } }
+
+        public Guid PlantActionId { get { return Vm.PlantActionId; } }
+
+        public DateTimeOffset Created { get { return Vm.Created; } }
+
+        public MeasurementType MeasurementType { get { return Vm.MeasurementType; } }
+
+        public double? Value { get { return Vm.Value; } }
+
+        public IReactiveCommand EditCommand { get; set; }
+
+        public Photo Photo { get { return Vm.Photo; } }
+
+        public PlantActionState State { get { return Vm.State; } }
+    }
 
 
     public sealed class MeasurementTypeViewModel : GSViewModelBase
@@ -146,36 +307,10 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
-    public class PlantCommentViewModel : PlantActionViewModel, IPlantCommentViewModel
-    {
-
-
-        public new string Title { get { return "COMMENTED"; } }
-
-        public PlantCommentViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
-        {
-
-            if (state != null && state.Type != PlantActionType.COMMENTED)
-                throw new InvalidOperationException();
-            this.IconType = IconType.NOTE;
-            this.CanExecute = this.WhenAnyValue(x => x.Note, x => !string.IsNullOrWhiteSpace(x));
-        }
-
-
-        public override void AddCommandSubscription(object p)
-        {
-            //this.SendCommand(new Comment(this.State.EntityId, this.State.PlantId, this.Note), true);
-        }
-
-    }
-
     public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
 
 
-        public new string Title { get { return "measure"; } }
 
         public IList<MeasurementTypeViewModel> MeasurementTypes { get; protected set; }
 
@@ -195,15 +330,7 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref _SValue, value); }
         }
 
-        protected double? _Value;
-        public double? Value
-        {
-            get { return _Value; }
-            set { this.RaiseAndSetIfChanged(ref _Value, value); }
-        }
 
-        //public string Series { get { return ((Measured)this.State).Series.ToString("G"); } }
-        //public string Value { get { return ((Measured)this.State).Value.ToString("F1"); } }
 
         public override void AddCommandSubscription(object p)
         {
@@ -212,13 +339,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public PlantMeasureViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
+        public PlantMeasureViewModel(IGSAppViewModel app, PlantActionState state = null)
+            : base(PlantActionType.MEASURED, app, state)
         {
             if (state != null && state.Type != PlantActionType.MEASURED)
                 throw new InvalidOperationException();
 
-            this.IconType = IconType.MEASURE;
             this.MeasurementTypes = MeasurementTypeViewModel.GetAll(app);
             this.SeriesSelected = new ReactiveCommand();
             this.SeriesSelected
@@ -226,7 +352,7 @@ namespace Growthstories.UI.ViewModel
                 .ToProperty(this, x => x.Series, out _Series, state != null ? MeasurementTypes.FirstOrDefault(x => x.Type == state.MeasurementType) : MeasurementTypes[0]);
 
 
-
+            this.WhenAny(x => x.Series, x => x.GetValue()).Subscribe(x => this.MeasurementType = x.Type);
 
 
             double dValue = 0;
@@ -238,6 +364,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
+                this.MeasurementType = state.MeasurementType;
                 this.SValue = state.Value.Value.ToString("F1");
                 this.Value = state.Value;
             }
@@ -253,66 +380,12 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public class PlantWaterViewModel : PlantActionViewModel, IPlantWaterViewModel
-    {
-
-        public new string Title { get { return "WATERED"; } }
 
 
-        public PlantWaterViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
-        {
-            if (state != null && state.Type != PlantActionType.WATERED)
-                throw new InvalidOperationException();
-
-            this.IconType = IconType.WATER;
-        }
-
-        public PlantWaterViewModel(DateTimeOffset created, IGSAppViewModel app)
-            : base(created, app)
-        {
-
-            this.IconType = IconType.WATER;
-        }
-
-        public override void AddCommandSubscription(object p)
-        {
-            //this.SendCommand(new Water(this.State.EntityId, this.State.PlantId, this.Note), true);
-        }
-    }
-
-    public class PlantFertilizeViewModel : PlantActionViewModel, IPlantFertilizeViewModel
-    {
-
-        public new string Title { get { return "NOURISHED"; } }
-
-        public PlantFertilizeViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
-        {
-            if (state != null && state.Type != PlantActionType.FERTILIZED)
-                throw new InvalidCastException();
-            this.IconType = IconType.FERTILIZE;
-        }
-
-        public PlantFertilizeViewModel(DateTimeOffset created, IGSAppViewModel app)
-            : base(created, app)
-        {
-
-            this.IconType = IconType.FERTILIZE;
-        }
-
-
-        public override void AddCommandSubscription(object p)
-        {
-            //this.SendCommand(new Fertilize(this.State.EntityId, this.State.PlantId, this.Note), true);
-        }
-
-    }
 
 
     public class PlantPhotographViewModel : PlantActionViewModel, IPlantPhotographViewModel
     {
-        public new string Title { get { return "PHOTOGRAPHED"; } }
 
         bool _IsZoomViewOpen = false;
         public bool IsZoomViewOpen
@@ -321,33 +394,19 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref _IsZoomViewOpen, value); }
         }
 
-        protected Photo _PhotoData;
-        public Photo PhotoData
-        {
-            get
-            {
-                return _PhotoData;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _PhotoData, value);
-            }
-        }
 
-
-
-        public PlantPhotographViewModel(PlantActionState state, IGSAppViewModel app)
-            : base(state, app)
+        public PlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)
+            : base(PlantActionType.PHOTOGRAPHED, app, state)
         {
 
             if (state != null && state.Type != PlantActionType.PHOTOGRAPHED)
                 throw new InvalidCastException();
-            this.IconType = IconType.PHOTO;
+            this.Icon = IconType.PHOTO;
 
 
             if (state != null)
             {
-                this.PhotoData = state.Photo;
+                this.Photo = state.Photo;
             }
 
             this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
@@ -363,7 +422,7 @@ namespace Growthstories.UI.ViewModel
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
-            this.PhotoData = prop.Photo;
+            this.Photo = prop.Photo;
         }
 
 

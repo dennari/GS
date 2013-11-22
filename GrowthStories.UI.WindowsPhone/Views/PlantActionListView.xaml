@@ -1,0 +1,60 @@
+﻿<local:PlantActionListViewBase    
+    x:Class="Growthstories.UI.WindowsPhone.PlantActionListView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"    
+    d:DataContext="{StaticResource PlantActionListViewModelDesign}"
+    d:DesignWidth="480" d:DesignHeight="800"
+    mc:Ignorable="d">
+    <local:PlantActionListViewBase.Resources>
+          </local:PlantActionListViewBase.Resources>
+
+
+
+
+
+    <local:GSViewGrid Title="pick action">
+        <local:GSViewGrid.Background>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/action_bg.jpg"/>
+        </local:GSViewGrid.Background>
+        <Grid>
+            <local:GSLongListSelector ItemsSource="{Binding PlantActions}">
+
+                <local:GSLongListSelector.ItemTemplate>
+                    <DataTemplate>
+                       <Button 
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource GSButtonStyle}"
+                        HorizontalContentAlignment="Left"
+                        Command="{Binding Command}" Margin="6,0,0,12">
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Image 
+                                    Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" 
+                                    Width="35"
+                                    Grid.Column="0" />
+                                <TextBlock Text="{Binding Title}"
+                                       Margin="24,0,0,0"
+                                       Grid.Column="1"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"/>
+                            </Grid>
+
+                        </Button>
+                    </DataTemplate>
+                 </local:GSLongListSelector.ItemTemplate>
+            </local:GSLongListSelector>
+        </Grid>
+    </local:GSViewGrid>
+
+</local:PlantActionListViewBase>

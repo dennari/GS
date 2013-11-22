@@ -52,7 +52,7 @@ namespace Growthstories.UI.ViewModel
         public PlantActionType ActionType { get; protected set; }
 
 
-        public IconType IconType { get; protected set; }
+        public IconType Icon { get; protected set; }
 
         protected bool _IsZoomViewOpen = false;
         public bool IsZoomViewOpen
@@ -89,21 +89,21 @@ namespace Growthstories.UI.ViewModel
                 return _OpenZoomView;
             }
         }
+
+
+        public MeasurementType MeasurementType { get; set; }
+
+
+        public double? Value { get; set; }
+
+        public Photo Photo { get; set; }
+
+
+        public string Label { get; set; }
+
     }
 
-    public sealed class PlantCommentViewModel : PlantActionViewModel, IPlantCommentViewModel
-    {
-        public PlantCommentViewModel()
-            : this(DateTimeOffset.Now)
-        { }
-        public PlantCommentViewModel(DateTimeOffset created)
-            : base(created)
-        {
-            this.Title = "COMMENTED";
-            this.IconType = IconType.NOTE;
-            this.ActionType = PlantActionType.COMMENTED;
-        }
-    }
+
 
     public sealed class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
@@ -113,47 +113,16 @@ namespace Growthstories.UI.ViewModel
         public PlantMeasureViewModel(DateTimeOffset created)
             : base(created)
         {
-            this.Title = "MEASURED";
-            this.IconType = IconType.MEASURE;
             this.Series = new MeasurementTypeViewModel(MeasurementType.LENGTH, "LENGHT", IconType.MEASURE);
+            this.MeasurementType = MeasurementType.LENGTH;
             this.Value = 23.45;
-            this.ActionType = PlantActionType.MEASURED;
 
         }
 
         public MeasurementTypeViewModel Series { get; set; }
-        public double? Value { get; set; }
-
     }
 
-    public sealed class PlantWaterViewModel : PlantActionViewModel, IPlantWaterViewModel
-    {
-        public PlantWaterViewModel()
-            : this(DateTimeOffset.Now)
-        { }
-        public PlantWaterViewModel(DateTimeOffset created)
-            : base(created)
-        {
-            this.Title = "WATERED";
-            this.IconType = IconType.WATER;
-            this.ActionType = PlantActionType.WATERED;
 
-        }
-    }
-
-    public sealed class PlantFertilizeViewModel : PlantActionViewModel, IPlantFertilizeViewModel
-    {
-        public PlantFertilizeViewModel()
-            : this(DateTimeOffset.Now)
-        { }
-        public PlantFertilizeViewModel(DateTimeOffset created)
-            : base(created)
-        {
-            this.Title = "NOURISHED";
-            this.IconType = IconType.NOURISH;
-            this.ActionType = PlantActionType.FERTILIZED;
-        }
-    }
 
     public sealed class PlantPhotoViewModel : PlantActionViewModel, IPlantPhotographViewModel
     {
@@ -167,30 +136,26 @@ namespace Growthstories.UI.ViewModel
         public PlantPhotoViewModel(string photo, DateTimeOffset created)
             : base(created)
         {
-            this.Title = "PHOTOGRAPHED";
-            this.IconType = IconType.PHOTO;
-            this.PhotoData = new Photo()
+            this.Photo = new Photo()
             {
                 LocalFullPath = photo ?? @"/TestData/517e100d782a828894.jpg",
                 LocalUri = photo ?? @"/TestData/517e100d782a828894.jpg"
             };
-            this.Photo = new BitmapImage(new Uri(PhotoData.LocalUri, UriKind.RelativeOrAbsolute));
-            this.ActionType = PlantActionType.PHOTOGRAPHED;
+            this.PhotoSource = new BitmapImage(new Uri(Photo.LocalUri, UriKind.RelativeOrAbsolute));
 
         }
 
-        public Photo PhotoData { get; set; }
 
-        private BitmapImage _Photo;
-        public BitmapImage Photo
+        private BitmapImage _PhotoSource;
+        public BitmapImage PhotoSource
         {
             get
             {
-                return _Photo;
+                return _PhotoSource;
             }
             set
             {
-                _Photo = value;
+                _PhotoSource = value;
             }
         }
 

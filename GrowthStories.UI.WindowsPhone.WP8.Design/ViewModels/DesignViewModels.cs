@@ -161,7 +161,7 @@ namespace Growthstories.UI.ViewModel
             //    LocalUri = @"/TestData/517e100d782a828894.jpg"
             //};
 
-            var photos = this.Actions.OfType<PlantPhotoViewModel>().Select(x => x.PhotoData).ToArray();
+            var photos = this.Actions.OfType<PlantPhotoViewModel>().Select(x => x.Photo).ToArray();
             this.Photo = photos[Helpers.RandomGen.Next(0, photos.Length)];
 
             this.WateringSchedule = new ScheduleViewModel(ScheduleType.WATERING, 24 * 4 * 3600);
@@ -171,14 +171,14 @@ namespace Growthstories.UI.ViewModel
 
             this.WateringScheduler = new PlantScheduler(WateringSchedule)
             {
-                IconType = IconType.WATER
+                Icon = IconType.WATER
             };
 
             var missedSpan = new TimeSpan(Helpers.RandomGen.Next(2) > 0 ? 12 : 0, 0, 0, 0);
             this.WateringScheduler.ComputeNext(DateTimeOffset.UtcNow - missedSpan);
             this.FertilizingScheduler = new PlantScheduler(FertilizingSchedule)
             {
-                IconType = IconType.FERTILIZE
+                Icon = IconType.FERTILIZE
             };
             this.FertilizingScheduler.ComputeNext(DateTimeOffset.UtcNow - new TimeSpan(12, 0, 0, 0));
 
@@ -271,6 +271,12 @@ namespace Growthstories.UI.ViewModel
         public IReactiveList<string> Tags
         {
             get { return new MockReactiveList<string>(); }
+        }
+
+
+        public IReactiveCommand AddActionCommand(PlantActionType type)
+        {
+            return new MockReactiveCommand();
         }
     }
 
@@ -632,6 +638,74 @@ namespace Growthstories.UI.ViewModel
         {
             get { return true; }
         }
+    }
+
+
+    public sealed class PlantActionItem
+    {
+        public IconType Icon { get; set; }
+        public string Title { get; set; }
+        public IReactiveCommand Command { get; set; }
+
+    }
+
+    public sealed class PlantActionListViewModel : DesignViewModelBase, IPlantActionListViewModel
+    {
+
+
+
+        public IReadOnlyReactiveList<PlantActionItem> _PlantActions;
+        public IReadOnlyReactiveList<PlantActionItem> PlantActions
+        {
+            get
+            {
+                return _PlantActions;
+            }
+            private set { _PlantActions = value; }
+        }
+
+        public List<string> Test
+        {
+            get
+            {
+                return new List<string>() { "testline", "another testlin" };
+            }
+        }
+
+        public PlantActionListViewModel()
+        {
+
+            this.PlantActions = new MockReactiveList<PlantActionItem>() 
+            {
+                new PlantActionItem() {
+                    Icon = IconType.WATER,
+                    Title = "water",
+                    Command = new MockReactiveCommand()
+                },
+                new PlantActionItem() {
+                    Icon = IconType.FERTILIZE,
+                    Title = "nourish",
+                    Command = new MockReactiveCommand()
+                },
+                new PlantActionItem() {
+                    Icon = IconType.PHOTO,
+                    Title = "photo",
+                    Command = new MockReactiveCommand()
+                },
+                new PlantActionItem() {
+                    Icon = IconType.MEASURE,
+                    Title = "measure",
+                    Command = new MockReactiveCommand()
+                },
+                new PlantActionItem() {
+                    Icon = IconType.MISTING,
+                    Title = "mist",
+                    Command = new MockReactiveCommand()
+                }             
+            };
+        }
+
+
     }
 
 

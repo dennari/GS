@@ -67,7 +67,7 @@ namespace Growthstories.UI.ViewModel
         //IObservable<IPlantActionViewModel> PlantActions(Guid guid);
 
 
-        //IPlantActionViewModel PlantActionViewModelFactory<T>(PlantActionState state = null) where T : IPlantActionViewModel;
+        IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
         IObservable<IPlantActionViewModel> CurrentPlantActions(PlantState state, Guid? PlantActionId = null);
         IObservable<IPlantActionViewModel> FuturePlantActions(PlantState state, Guid? PlantActionId = null);
 
@@ -100,21 +100,25 @@ namespace Growthstories.UI.ViewModel
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems, IControlsPageOrientation
     {
         Guid Id { get; }
-        //GardenState State { get; }
-        IPlantViewModel SelectedItem { get; }
         IReactiveCommand SelectedItemsChanged { get; }
-
         IAuthUser User { get; }
         IReadOnlyReactiveList<IPlantViewModel> Plants { get; }
         string Username { get; }
     }
+
+    public interface IGardenPivotViewModel : IGardenViewModel
+    {
+        IPlantViewModel SelectedPlant { get; }
+
+    }
+
 
     public interface INotificationsViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
     {
 
     }
 
-    public interface ISearchUsersViewModel : IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
+    public interface ISearchUsersViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         IReadOnlyReactiveList<RemoteUser> List { get; }
         IReactiveCommand SearchCommand { get; }
@@ -122,9 +126,16 @@ namespace Growthstories.UI.ViewModel
     }
 
 
+    public interface IPlantActionListViewModel : IGSRoutableViewModel, IControlsAppBar
+    {
+
+    }
+
+
     public interface IMultipageViewModel : IGSRoutableViewModel
     {
-        IGSViewModel SelectedItem { get; set; }
+        IGSViewModel SelectedPage { get; set; }
+        object SelectedItem { get; set; } // for compability
         IReadOnlyReactiveList<IGSViewModel> Items { get; }
         IReactiveCommand PageChangedCommand { get; }
     }
@@ -155,6 +166,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand ActionTapped { get; }
+        IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }
         Photo Photo { get; }
         //PlantState State { get; }
@@ -222,7 +234,7 @@ namespace Growthstories.UI.ViewModel
 
         public int? Missed { get; private set; }
         public string MissedText { get; private set; }
-        public IconType IconType { get; set; }
+        public IconType Icon { get; set; }
 
         public string WeekDay { get; private set; }
         public string Date { get; private set; }
@@ -247,8 +259,9 @@ namespace Growthstories.UI.ViewModel
     {
         bool IsEnabled { get; }
         Guid? Id { get; }
-        TimeSpan? Interval { get; }
+        TimeSpan? Interval { get; set; }
         IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }
+        bool HasChanged { get; }
         //string Value { get; }
         //object SelectedValueType { get; set; }
         //IntervalValue ValueType { get; }
@@ -270,43 +283,46 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface IPlantActionViewModel : ICommandViewModel
+
+    public interface IPlantActionBaseViewModel : IGSViewModel
     {
+
         string WeekDay { get; }
         string Date { get; }
         string Time { get; }
         string Note { get; }
+        string Label { get; }
         PlantActionType ActionType { get; }
-        IconType IconType { get; }
+        IconType Icon { get; }
         Guid PlantActionId { get; }
         DateTimeOffset Created { get; }
+        MeasurementType MeasurementType { get; }
+        double? Value { get; }
+        Photo Photo { get; }
 
-        IReactiveCommand OpenZoomView { get; }
-        //PlantActionState State { get; }
+        PlantActionState State { get; }
 
         //void SetProperty(PlantActionPropertySet prop);
     }
 
-    public interface IPlantCommentViewModel : IPlantActionViewModel
-    {
 
+
+    public interface IPlantActionViewModel : IPlantActionBaseViewModel, ICommandViewModel
+    {
+        IReactiveCommand OpenZoomView { get; }
+        Guid PlantId { get; set; }
+        Guid UserId { get; set; }
 
     }
+
+    public interface ITimelineActionViewModel : IPlantActionBaseViewModel
+    {
+        IReactiveCommand EditCommand { get; set; }
+
+    }
+
 
     public interface IPlantMeasureViewModel : IPlantActionViewModel
-    {
-
-        MeasurementTypeViewModel Series { get; }
-        double? Value { get; }
-    }
-
-    public interface IPlantWaterViewModel : IPlantActionViewModel
-    {
-
-
-    }
-
-    public interface IPlantFertilizeViewModel : IPlantActionViewModel
     {
 
 
@@ -315,8 +331,8 @@ namespace Growthstories.UI.ViewModel
     public interface IPlantPhotographViewModel : IPlantActionViewModel
     {
 
-        Photo PhotoData { get; }
     }
+
 
     public interface IGSViewModel : IReactiveNotifyPropertyChanged
     {
@@ -353,7 +369,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel
     {
-        string PageTitle { get; }
+        //string PageTitle { get; }
     }
 
 
@@ -457,7 +473,9 @@ namespace Growthstories.UI.ViewModel
         MISTING,
         PH,
         POLLINATION,
-        SPROUTING
+        SPROUTING,
+        PRUNING,
+        HARVESTING
     }
 
     public enum ApplicationBarMode

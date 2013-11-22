@@ -146,26 +146,13 @@ namespace Growthstories.DomainTests
 
             var garden = await TestCreateGarden();
 
-            var plant = App.SetIds(new CreatePlant(Guid.NewGuid(), "Jore", garden.EntityId.Value, Ctx.Id)
-            {
-                Profilepicture = new Photo(),
-                Species = "Aloe Vera",
-                Tags = new HashSet<string>() { "testtag", "testtag2" },
-            });
+            var plant = App.SetIds(new CreatePlant(Guid.NewGuid(), "Jore", garden.EntityId.Value, Ctx.Id));
 
             await App.HandleCommand(plant);
 
             var addPlant = App.SetIds(new AddPlant(garden.EntityId.Value, plant.AggregateId, Ctx.Id, "Jore"));
 
             await App.HandleCommand(addPlant);
-
-            //var wateringSchedule = App.SetIds(new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600));
-
-            //Bus.SendCommand(wateringSchedule);
-
-            //var wateringScheduleSet = new SetWateringSchedule(plant.AggregateId, wateringSchedule.AggregateId);
-
-            //Bus.SendCommand(wateringScheduleSet);
 
             var R = await App.Synchronize();
             //var R = Rs[0];

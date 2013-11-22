@@ -20,10 +20,10 @@ namespace Growthstories.UI.ViewModel
         {
             this.PageChangedCommand
                 .Select(x => TryGetPage(x))
-                .Subscribe(x => this.SelectedItem = x);
+                .Subscribe(x => this.SelectedPage = x);
 
 
-            var currentPageChanged = this.WhenAny(x => x.SelectedItem, x => x.GetValue());
+            var currentPageChanged = this.WhenAny(x => x.SelectedPage, x => x.GetValue());
 
 
             //this.ObservableForProperty(x => x.CurrentPage.)
@@ -95,13 +95,30 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected IGSViewModel _SelectedItem;
-        public IGSViewModel SelectedItem
+        protected IGSViewModel _SelectedPage;
+        public IGSViewModel SelectedPage
         {
-            get { return _SelectedItem; }
+            get { return _SelectedPage; }
             set
             {
-                this.RaiseAndSetIfChanged(ref _SelectedItem, value);
+                this.RaiseAndSetIfChanged(ref _SelectedPage, value);
+            }
+        }
+
+
+        public object SelectedItem
+        {
+            get { return _SelectedPage; }
+            set
+            {
+                if (value != null)
+                {
+                    var v = value as IGSViewModel;
+                    if (v != null)
+                    {
+                        SelectedPage = v;
+                    }
+                }
             }
         }
 

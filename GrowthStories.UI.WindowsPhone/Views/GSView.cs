@@ -15,7 +15,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSView()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
         }
 
         public T ViewModel
@@ -64,7 +64,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSContentControl()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
         }
 
         public T ViewModel
