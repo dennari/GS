@@ -96,8 +96,9 @@
             </phone:PanoramaItem>
             <!-- TESTING -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
-                <Grid x:Name="ContentPanel4" Margin="0,0" DataContext="{Binding TestingVM}">
-                    <StackPanel Orientation="Vertical">
+                <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
+                    <ScrollViewer>
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,50">
                         <Button  Command="{Binding CreateLocalDataCommand}"
                                  IsEnabled="{Binding CreateLocalDataCommand}"
                                  >
@@ -125,7 +126,13 @@
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
                         </Button>
+                        <Button  Command="{Binding RegisterCommand}">
+                            <TextBlock Text="Register"
+                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
+                        </Button>
                     </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </phone:PanoramaItem>
 

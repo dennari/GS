@@ -17,6 +17,8 @@ namespace Growthstories.Domain.Entities
     public sealed class AuthUser : IAuthUser
     {
 
+        public const string UnregEmailPrefix = "GSUnregUserEmail_";
+
         public string Username { get; set; }
 
 
@@ -44,6 +46,12 @@ namespace Growthstories.Domain.Entities
 
         public bool IsCollaborator { get; set; }
 
+
+
+        public bool IsRegistered()
+        {
+            return Email != null && !Email.StartsWith(AuthUser.UnregEmailPrefix);
+        }
     }
 
 

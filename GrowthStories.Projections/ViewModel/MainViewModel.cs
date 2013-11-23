@@ -121,7 +121,9 @@ namespace Growthstories.UI.ViewModel
             this.PushRemoteUserCommand = new ReactiveCommand();
             this.ClearDBCommand = new ReactiveCommand();
             this.SyncCommand = new ReactiveCommand();
+            this.RegisterCommand = new ReactiveCommand();
 
+            this.RegisterCommand.Subscribe(_ => this.Navigate(new SignInRegisterViewModel(App)));
 
 
         }
@@ -137,6 +139,7 @@ namespace Growthstories.UI.ViewModel
         public ReactiveCommand PushRemoteUserCommand { get; protected set; }
         public ReactiveCommand ClearDBCommand { get; protected set; }
         public ReactiveCommand SyncCommand { get; protected set; }
+        public ReactiveCommand RegisterCommand { get; protected set; }
 
 
 

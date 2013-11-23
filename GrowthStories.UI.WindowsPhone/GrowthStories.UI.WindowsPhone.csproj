@@ -138,6 +138,7 @@
     <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
+    <Compile Include="Views\SignInRegisterView.cs" />
     <Compile Include="Views\PlantActionListView.xaml.cs">
       <DependentUpon>PlantActionListView.xaml</DependentUpon>
     </Compile>

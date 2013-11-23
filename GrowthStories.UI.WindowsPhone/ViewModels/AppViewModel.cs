@@ -63,6 +63,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
+            Resolver.RegisterLazySingleton(() => new SignInRegisterView(), typeof(IViewFor<ISignInRegisterViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<IAddEditPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
             //Resolver.RegisterLazySingleton(() => new TimelineActionView(), typeof(IViewFor<ITimelineActionViewModel>));
@@ -87,6 +88,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     return typeof(IAddEditPlantViewModel);
                 //if (T is ITimelineActionViewModel)
                 //    return typeof(ITimelineActionViewModel);
+                if (T is ISignInRegisterViewModel)
+                    return typeof(ISignInRegisterViewModel);
                 if (T is IPlantActionViewModel)
                     return typeof(IPlantActionViewModel);
                 if (T is IYAxisShitViewModel)

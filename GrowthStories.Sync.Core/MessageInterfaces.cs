@@ -76,6 +76,7 @@ namespace Growthstories.Sync
         string Email { get; }
         Guid GardenId { get; }
         bool IsCollaborator { get; }
+        bool IsRegistered();
     }
 
 

@@ -54,21 +54,25 @@ namespace Growthstories.UI.Services
                 _OCurrentUser = user;
             else
             {
+                var userId = Guid.NewGuid();
+                var gardenId = Guid.NewGuid();
 
-                var u = new CreateUser(UserState.UnregUserId, "UnregUser", "unregpassword", string.Format("unreg{0}@tussu.org", DateTime.UtcNow.Ticks));
+                var u = new CreateUser(userId, "UnregUser", "unregpassword", string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
                 var U = (User)Handler.Handle(u);
-                Handler.Handle(new CreateGarden(UserState.UnregUserGardenId, UserState.UnregUserId));
-                Handler.Handle(new AddGarden(UserState.UnregUserId, UserState.UnregUserGardenId));
-                Handler.Handle(new AssignAppUser(UserState.UnregUserId, u.Username, u.Password, u.Email)
+
+                Handler.Handle(new CreateGarden(gardenId, userId));
+                Handler.Handle(new AddGarden(userId, gardenId));
+
+                Handler.Handle(new AssignAppUser(userId, u.Username, u.Password, u.Email)
                 {
-                    UserGardenId = UserState.UnregUserGardenId,
+                    UserGardenId = gardenId,
                     UserVersion = 0
                 });
 
                 _CurrentUser = new AuthUser()
                 {
-                    Id = u.AggregateId,
-                    GardenId = UserState.UnregUserGardenId,
+                    Id = userId,
+                    GardenId = gardenId,
                     Username = u.Username,
                     Password = u.Password,
                     Email = u.Email

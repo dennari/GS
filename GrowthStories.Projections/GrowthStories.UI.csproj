@@ -100,6 +100,7 @@
     <Compile Include="Services\GSViewLocator.cs" />
     <Compile Include="ViewModel\AppViewModel.cs" />
     <Compile Include="ViewModel\CommandViewModel.cs" />
+    <Compile Include="ViewModel\SignInRegisterViewModel.cs" />
     <Compile Include="ViewModel\PlantActionListViewModel.cs" />
     <Compile Include="ViewModel\GardenPivotViewModel.cs" />
     <Compile Include="ViewModel\FriendsViewModel.cs" />

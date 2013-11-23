@@ -31,6 +31,8 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
+
+
         //private void FriendsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         //{
         //    if (e.AddedItems.Count == 0)

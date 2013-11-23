@@ -274,6 +274,12 @@ namespace Growthstories.UI.ViewModel
 
     }
 
+    public interface ISignInRegisterViewModel : IGSRoutableViewModel
+    {
+        bool IsRegistered { get; }
+    }
+
+
     public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
     {
         IDictionary<MeasurementType, ISeries> Series { get; }

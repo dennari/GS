@@ -102,6 +102,11 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public bool IsRegistered()
+        {
+            return Email != null && !Email.StartsWith(AuthUser.UnregEmailPrefix);
+        }
+
         protected Guid _GardenId;
         public Guid GardenId
         {
