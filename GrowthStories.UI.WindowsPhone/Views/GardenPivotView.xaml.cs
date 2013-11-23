@@ -15,7 +15,7 @@ namespace Growthstories.UI.WindowsPhone
 {
 
 
-    public class GardenPivotViewBase : GSPage<IGardenPivotViewModel>
+    public class GardenPivotViewBase : GSView<IGardenPivotViewModel>
     {
 
     }
@@ -27,6 +27,11 @@ namespace Growthstories.UI.WindowsPhone
         {
             InitializeComponent();
 
+        }
+
+        protected override void OnViewModelChanged(IGardenPivotViewModel vm)
+        {
+            base.OnViewModelChanged(vm);
         }
 
 

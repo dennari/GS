@@ -22,4 +22,5 @@
     <local:PlantActionFilter x:Key="PlantActionFilter"/>
     <local:IconTypeToIconConverter x:Key="IconTypeToIcon"/>
     <local:IconTypeToIconUriConverter x:Key="IconTypeToIconUri"/>
+    <local:CaseConverter x:Key="ToUpperOrLowerCase"/>
 </ResourceDictionary>

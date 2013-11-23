@@ -106,7 +106,7 @@ namespace Growthstories.UI.ViewModel
         string Username { get; }
     }
 
-    public interface IGardenPivotViewModel : IGardenViewModel
+    public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel
     {
         IPlantViewModel SelectedPlant { get; }
 
@@ -165,7 +165,7 @@ namespace Growthstories.UI.ViewModel
         string Species { get; }
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ScrollCommand { get; }
-        IReactiveCommand ActionTapped { get; }
+        //IReactiveCommand ActionTapped { get; }
         IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }
         Photo Photo { get; }
@@ -257,7 +257,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IScheduleViewModel : IGSRoutableViewModel
     {
-        bool IsEnabled { get; }
+        bool IsEnabled { get; set; }
         Guid? Id { get; }
         TimeSpan? Interval { get; set; }
         IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }
@@ -312,14 +312,15 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand OpenZoomView { get; }
         Guid PlantId { get; set; }
         Guid UserId { get; set; }
-
-    }
-
-    public interface ITimelineActionViewModel : IPlantActionBaseViewModel
-    {
         IReactiveCommand EditCommand { get; set; }
 
+
     }
+
+    //public interface ITimelineActionViewModel : IPlantActionBaseViewModel
+    //{
+
+    //}
 
 
     public interface IPlantMeasureViewModel : IPlantActionViewModel
@@ -330,7 +331,8 @@ namespace Growthstories.UI.ViewModel
 
     public interface IPlantPhotographViewModel : IPlantActionViewModel
     {
-
+        //IReactiveCommand EditPhotoCommand { get; set; }
+        IReactiveCommand PhotoTimelineTap { get; }
     }
 
 

@@ -52,7 +52,7 @@ namespace Growthstories.UI.ViewModel
             var c = 0;
             var yStep = 0.5;
             var validTypes = new[] { MeasurementType.LENGTH, MeasurementType.PH, MeasurementType.ILLUMINANCE };
-            foreach (var xx in MeasurementTypeViewModel.GetAll(app).Where(x => validTypes.Contains(x.Type)))
+            foreach (var xx in MeasurementTypeHelper.Options.Values.Where(x => validTypes.Contains(x.Type)))
             {
 
 

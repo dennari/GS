@@ -28,9 +28,9 @@ namespace Growthstories.UI.WindowsPhone
                 if (view.DataContext != vm)
                     view.DataContext = vm;
 
-                var viewF = view as IViewFor;
-                if (viewF != null && viewF.ViewModel != vm)
-                    viewF.ViewModel = vm;
+                var viewF = view as IReportViewModelChange;
+                if (viewF != null)
+                    viewF.ViewModelChangeReport(vm);
 
 
             }

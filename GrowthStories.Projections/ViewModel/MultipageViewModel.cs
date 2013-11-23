@@ -56,6 +56,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
         public IGSViewModel TryGetPage(object x)
         {
             var y = x as IGSViewModel;

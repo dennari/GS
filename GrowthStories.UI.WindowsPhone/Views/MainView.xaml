@@ -71,8 +71,12 @@
             </phone:Panorama.Title>
 
             <!-- MY GARDEN -->
-            <phone:PanoramaItem Header="my garden" x:Name="mygardenItem" Style="{StaticResource GSPanoramaItemStyle}">
-                <local:GardenView ViewModel="{Binding GardenVM}"/>
+            <phone:PanoramaItem 
+                Header="my garden" 
+                x:Name="mygardenItem"
+                DataContext="{Binding GardenVM}"
+                Style="{StaticResource GSPanoramaItemStyle}">
+                <local:GardenView/>
             </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">

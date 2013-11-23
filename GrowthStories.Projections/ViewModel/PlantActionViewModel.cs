@@ -22,7 +22,7 @@ namespace Growthstories.UI.ViewModel
         public string Date { get; protected set; }
         public string Time { get; protected set; }
         public PlantActionType ActionType { get; protected set; }
-
+        public IReactiveCommand EditCommand { get; set; }
 
         public IconType Icon { get; protected set; }
 
@@ -223,60 +223,57 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public class TimelineActionViewModel : GSViewModelBase, ITimelineActionViewModel
+    //public class TimelineActionViewModel : GSViewModelBase, ITimelineActionViewModel
+    //{
+    //    private readonly IPlantActionViewModel Vm;
+
+
+    //    public TimelineActionViewModel(IPlantActionViewModel vm)
+    //        : base(vm.App)
+    //    {
+    //        this.Vm = vm;
+    //    }
+
+
+    //    public string WeekDay { get { return Vm.WeekDay; } }
+
+    //    public string Date { get { return Vm.Date; } }
+
+    //    public string Time { get { return Vm.Time; } }
+
+    //    public string Note { get { return Vm.Note; } }
+
+    //    public string Label { get { return Vm.Label; } }
+
+    //    public PlantActionType ActionType { get { return Vm.ActionType; } }
+
+    //    public IconType Icon { get { return Vm.Icon; } }
+
+    //    public Guid PlantActionId { get { return Vm.PlantActionId; } }
+
+    //    public DateTimeOffset Created { get { return Vm.Created; } }
+
+    //    public MeasurementType MeasurementType { get { return Vm.MeasurementType; } }
+
+    //    public double? Value { get { return Vm.Value; } }
+
+    //    public IReactiveCommand EditCommand { get; set; }
+
+    //    public Photo Photo { get { return Vm.Photo; } }
+
+    //    public PlantActionState State { get { return Vm.State; } }
+    //}
+
+
+    public sealed class MeasurementTypeHelper
     {
-        private readonly IPlantActionViewModel Vm;
 
 
-        public TimelineActionViewModel(IPlantActionViewModel vm)
-            : base(vm.App)
-        {
-            this.Vm = vm;
-        }
-
-
-        public string WeekDay { get { return Vm.WeekDay; } }
-
-        public string Date { get { return Vm.Date; } }
-
-        public string Time { get { return Vm.Time; } }
-
-        public string Note { get { return Vm.Note; } }
-
-        public string Label { get { return Vm.Label; } }
-
-        public PlantActionType ActionType { get { return Vm.ActionType; } }
-
-        public IconType Icon { get { return Vm.Icon; } }
-
-        public Guid PlantActionId { get { return Vm.PlantActionId; } }
-
-        public DateTimeOffset Created { get { return Vm.Created; } }
-
-        public MeasurementType MeasurementType { get { return Vm.MeasurementType; } }
-
-        public double? Value { get { return Vm.Value; } }
-
-        public IReactiveCommand EditCommand { get; set; }
-
-        public Photo Photo { get { return Vm.Photo; } }
-
-        public PlantActionState State { get { return Vm.State; } }
-    }
-
-
-    public sealed class MeasurementTypeViewModel : GSViewModelBase
-    {
-
-
-        public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon, IGSAppViewModel app)
-            : base(app)
+        public MeasurementTypeHelper(MeasurementType type, string title, IconType icon)
         {
             this.Type = type;
             this.Title = title;
             this.IconType = icon;
-
-
         }
 
         public MeasurementType Type { get; set; }
@@ -290,17 +287,13 @@ namespace Growthstories.UI.ViewModel
 
         public IconType IconType { get; private set; }
 
-        public static IList<MeasurementTypeViewModel> GetAll(IGSAppViewModel app)
-        {
-            return new List<MeasurementTypeViewModel>()
-            {
-                new MeasurementTypeViewModel(MeasurementType.ILLUMINANCE,"Illuminance",IconType.MEASURE,app),
-                new MeasurementTypeViewModel(MeasurementType.LENGTH,"Length",IconType.MEASURE,app),
-                new MeasurementTypeViewModel(MeasurementType.PH,"PH",IconType.MEASURE,app),
-                new MeasurementTypeViewModel(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MEASURE,app),
-                new MeasurementTypeViewModel(MeasurementType.WEIGHT,"Weight",IconType.MEASURE,app)
-            };
-        }
+
+        public static Dictionary<MeasurementType, MeasurementTypeHelper> Options = new Dictionary<MeasurementType, MeasurementTypeHelper>() {
+            {MeasurementType.LENGTH,new MeasurementTypeHelper(MeasurementType.LENGTH,"Height",IconType.LENGTH)},
+            {MeasurementType.AIR_HUMIDITY,new MeasurementTypeHelper(MeasurementType.AIR_HUMIDITY,"Air humidity",IconType.LENGTH)},
+            {MeasurementType.PH,new MeasurementTypeHelper(MeasurementType.PH,"Illuminance",IconType.PH)},
+            {MeasurementType.CO2,new MeasurementTypeHelper(MeasurementType.CO2,"CO2",IconType.LENGTH)},
+        };
 
     }
 
@@ -310,18 +303,39 @@ namespace Growthstories.UI.ViewModel
     public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
 
-
-
-        public IList<MeasurementTypeViewModel> MeasurementTypes { get; protected set; }
-
-
-        protected ObservableAsPropertyHelper<MeasurementTypeViewModel> _Series;
-        public MeasurementTypeViewModel Series
+        public IList<MeasurementTypeHelper> _Options;
+        public IList<MeasurementTypeHelper> Options
         {
-            get { return _Series.Value; }
+            get { return _Options ?? (_Options = MeasurementTypeHelper.Options.Values.ToArray()); }
         }
 
-        public ReactiveCommand SeriesSelected { get; protected set; }
+        //public Dictionary<MeasurementType, MeasurementTypeHelper> Options
+        //{
+        //    get {return PlantMeasureViewModel}
+        //}
+        //public IList<MeasurementTypeHelper> MeasurementTypes { get; protected set; }
+
+
+        protected MeasurementTypeHelper _SelectedMeasurementType;
+        public MeasurementTypeHelper SelectedMeasurementType
+        {
+            get { return _SelectedMeasurementType; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedMeasurementType, value); }
+        }
+
+        public object SelectedItem
+        {
+            get
+            {
+                return SelectedMeasurementType;
+            }
+            set
+            {
+                var v = value as MeasurementTypeHelper;
+                if (v != null)
+                    this.SelectedMeasurementType = v;
+            }
+        }
 
         protected string _SValue;
         public string SValue
@@ -329,6 +343,7 @@ namespace Growthstories.UI.ViewModel
             get { return _SValue; }
             set { this.RaiseAndSetIfChanged(ref _SValue, value); }
         }
+
 
 
 
@@ -345,14 +360,14 @@ namespace Growthstories.UI.ViewModel
             if (state != null && state.Type != PlantActionType.MEASURED)
                 throw new InvalidOperationException();
 
-            this.MeasurementTypes = MeasurementTypeViewModel.GetAll(app);
-            this.SeriesSelected = new ReactiveCommand();
-            this.SeriesSelected
-                .OfType<MeasurementTypeViewModel>()
-                .ToProperty(this, x => x.Series, out _Series, state != null ? MeasurementTypes.FirstOrDefault(x => x.Type == state.MeasurementType) : MeasurementTypes[0]);
+            //this.MeasurementTypes = MeasurementTypeHelper.GetAll(app);
+            //this.SeriesSelected = new ReactiveCommand();
+            //this.SeriesSelected
+            //    .OfType<MeasurementTypeHelper>()
+            //    .ToProperty(this, x => x.Series, out _Series, state != null ? MeasurementTypes.FirstOrDefault(x => x.Type == state.MeasurementType) : MeasurementTypes[0]);
 
 
-            this.WhenAny(x => x.Series, x => x.GetValue()).Subscribe(x => this.MeasurementType = x.Type);
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Where(x => x != null).Subscribe(x => this.MeasurementType = x.Type);
 
 
             double dValue = 0;
@@ -360,13 +375,17 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => double.TryParse(x, out dValue))
                 .Subscribe(x => this.Value = dValue);
 
-            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.HasValue);
+            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => x.HasValue && y != MeasurementType.NOTYPE);
 
             if (state != null)
             {
-                this.MeasurementType = state.MeasurementType;
+                this.SelectedMeasurementType = MeasurementTypeHelper.Options[state.MeasurementType];
                 this.SValue = state.Value.Value.ToString("F1");
                 this.Value = state.Value;
+            }
+            else
+            {
+                this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
             }
         }
 
@@ -410,6 +429,8 @@ namespace Growthstories.UI.ViewModel
             }
 
             this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
+
+            this.PhotoTimelineTap = new ReactiveCommand();
         }
 
 
@@ -425,6 +446,9 @@ namespace Growthstories.UI.ViewModel
             this.Photo = prop.Photo;
         }
 
+
+
+        public IReactiveCommand PhotoTimelineTap { get; protected set; }
 
     }
 

@@ -19,15 +19,15 @@ namespace Growthstories.UI.ViewModel
     {
 
         public PlantActionViewModel()
-            : this(DateTimeOffset.Now)
+            : this(PlantActionType.WATERED, DateTimeOffset.Now)
         {
 
         }
 
-        public PlantActionViewModel(DateTimeOffset Created)
+        public PlantActionViewModel(PlantActionType type, DateTimeOffset Created)
         {
 
-
+            this.ActionType = type;
             this.Note = "Just a note";
             this.WeekDay = Created.ToString("dddd");
             this.Date = Created.ToString("d");
@@ -39,6 +39,11 @@ namespace Growthstories.UI.ViewModel
             {
                 this.IsZoomViewOpen = true;
             });
+
+            this.Icon = ActionTypeToIcon[type];
+            this.Label = ActionTypeToLabel[type];
+
+
         }
 
         public string WeekDay { get; set; }
@@ -47,7 +52,19 @@ namespace Growthstories.UI.ViewModel
 
         public string Time { get; set; }
 
-        public string Note { get; set; }
+        protected string _Note;
+        public string Note
+        {
+            get { return _Note; }
+            set
+            {
+                if (_Note != value)
+                {
+                    _Note = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         public PlantActionType ActionType { get; protected set; }
 
@@ -94,116 +111,225 @@ namespace Growthstories.UI.ViewModel
         public MeasurementType MeasurementType { get; set; }
 
 
-        public double? Value { get; set; }
+        public double? _Value;
+        public double? Value
+        {
+            get
+            {
+                return _Value;
+            }
+            set
+            {
+                _Value = value;
+            }
+        }
 
         public Photo Photo { get; set; }
 
 
         public string Label { get; set; }
 
+
+
+        public Guid PlantId { get; set; }
+
+
+        public Guid UserId { get; set; }
+
+
+        public IReactiveCommand EditCommand { get; set; }
+
+
+
+        public PlantActionState State { get; set; }
+
+        public static readonly Dictionary<PlantActionType, IconType> ActionTypeToIcon = new Dictionary<PlantActionType, IconType>()
+        {
+            {PlantActionType.WATERED, IconType.WATER},
+            {PlantActionType.TRANSFERRED, IconType.CHANGESOIL},
+            {PlantActionType.SPROUTED, IconType.SPROUTING},
+            {PlantActionType.PRUNED, IconType.PRUNING},
+            {PlantActionType.POLLINATED, IconType.POLLINATION},
+            {PlantActionType.PHOTOGRAPHED,IconType.PHOTO},
+            {PlantActionType.MISTED, IconType.MISTING},
+            {PlantActionType.MEASURED,IconType.MEASURE},
+            {PlantActionType.HARVESTED,IconType.HARVESTING},
+            {PlantActionType.FERTILIZED,IconType.FERTILIZE},
+            {PlantActionType.FBCOMMENTED,IconType.NOTE},
+            {PlantActionType.DECEASED,IconType.DECEASED},
+            {PlantActionType.COMMENTED,IconType.NOTE},
+            {PlantActionType.BLOOMED,IconType.BLOOMING}
+        };
+
+        public static readonly PlantActionType[] ActionTypes = ActionTypeToIcon.Keys.ToArray();
+        public static readonly PlantActionType[] NonGenericActionTypes = new PlantActionType[] { PlantActionType.MEASURED, PlantActionType.PHOTOGRAPHED };
+
+        public static readonly Dictionary<PlantActionType, string> ActionTypeToLabel = new Dictionary<PlantActionType, string>()
+        {
+            {PlantActionType.WATERED, "water"},
+            {PlantActionType.TRANSFERRED, "transfer"},
+            {PlantActionType.SPROUTED, "sprouting"},
+            {PlantActionType.PRUNED, "prune"},
+            {PlantActionType.POLLINATED, "pollinate"},
+            {PlantActionType.PHOTOGRAPHED,"photograph"},
+            {PlantActionType.MISTED, "mist"},
+            {PlantActionType.MEASURED,"measure"},
+            {PlantActionType.HARVESTED,"harvest"},
+            {PlantActionType.FERTILIZED,"fertilize"},
+            {PlantActionType.FBCOMMENTED,"comment"},
+            {PlantActionType.DECEASED,"declare deceased"},
+            {PlantActionType.COMMENTED,"comment"},
+            {PlantActionType.BLOOMED,"blooming"}
+        };
+
+
     }
 
 
 
-    public sealed class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
-    {
-        public PlantMeasureViewModel()
-            : this(DateTimeOffset.Now)
-        { }
-        public PlantMeasureViewModel(DateTimeOffset created)
-            : base(created)
-        {
-            this.Series = new MeasurementTypeViewModel(MeasurementType.LENGTH, "LENGHT", IconType.MEASURE);
-            this.MeasurementType = MeasurementType.LENGTH;
-            this.Value = 23.45;
-
-        }
-
-        public MeasurementTypeViewModel Series { get; set; }
-    }
-
-
-
-    public sealed class PlantPhotoViewModel : PlantActionViewModel, IPlantPhotographViewModel
+    public sealed class MeasurementTypeHelper
     {
 
-        public PlantPhotoViewModel()
-            : this(null, DateTimeOffset.Now)
-        {
 
-        }
-
-        public PlantPhotoViewModel(string photo, DateTimeOffset created)
-            : base(created)
-        {
-            this.Photo = new Photo()
-            {
-                LocalFullPath = photo ?? @"/TestData/517e100d782a828894.jpg",
-                LocalUri = photo ?? @"/TestData/517e100d782a828894.jpg"
-            };
-            this.PhotoSource = new BitmapImage(new Uri(Photo.LocalUri, UriKind.RelativeOrAbsolute));
-
-        }
-
-
-        private BitmapImage _PhotoSource;
-        public BitmapImage PhotoSource
-        {
-            get
-            {
-                return _PhotoSource;
-            }
-            set
-            {
-                _PhotoSource = value;
-            }
-        }
-
-    }
-
-
-
-    public sealed class MeasurementTypeViewModel
-    {
-        public string Title { get; set; }
-        public IconType IconType { get; set; }
-        public MeasurementType Type { get; set; }
-
-        public MeasurementTypeViewModel(MeasurementType type, string title, IconType icon)
+        public MeasurementTypeHelper(MeasurementType type, string title, IconType icon)
         {
             this.Type = type;
             this.Title = title;
             this.IconType = icon;
-
-
         }
+
+        public MeasurementType Type { get; set; }
+
+        public string Title { get; set; }
 
         public override string ToString()
         {
             return Title;
         }
 
+        public IconType IconType { get; private set; }
 
-        public IList<MeasurementTypeViewModel> Types { get { return GetAll(); } }
 
-        public static IList<MeasurementTypeViewModel> GetAll()
-        {
-            return new List<MeasurementTypeViewModel>()
-            {
-                new MeasurementTypeViewModel(MeasurementType.ILLUMINANCE,"Illuminance",IconType.ILLUMINANCE),
-                new MeasurementTypeViewModel(MeasurementType.LENGTH,"Length",IconType.MEASURE),
-                new MeasurementTypeViewModel(MeasurementType.PH,"PH",IconType.PH),
-                new MeasurementTypeViewModel(MeasurementType.SOIL_HUMIDITY,"Soil Humidity",IconType.MISTING),
-                new MeasurementTypeViewModel(MeasurementType.WEIGHT,"Weight",IconType.MEASURE)
-            };
-        }
-
-        public static IDictionary<MeasurementType, MeasurementTypeViewModel> GetAllDict()
-        {
-            return GetAll().ToDictionary(x => x.Type);
-        }
+        public static Dictionary<MeasurementType, MeasurementTypeHelper> Options = new Dictionary<MeasurementType, MeasurementTypeHelper>() {
+            {MeasurementType.LENGTH,new MeasurementTypeHelper(MeasurementType.LENGTH,"Height",IconType.LENGTH)},
+            {MeasurementType.AIR_HUMIDITY,new MeasurementTypeHelper(MeasurementType.AIR_HUMIDITY,"Air humidity",IconType.LENGTH)},
+            {MeasurementType.PH,new MeasurementTypeHelper(MeasurementType.PH,"Illuminance",IconType.PH)},
+            {MeasurementType.CO2,new MeasurementTypeHelper(MeasurementType.CO2,"CO2",IconType.LENGTH)},
+        };
 
     }
+
+
+
+
+    public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
+    {
+
+
+        public Dictionary<MeasurementType, MeasurementTypeHelper> Options
+        {
+            get { return MeasurementTypeHelper.Options; }
+        }
+
+        //public Dictionary<MeasurementType, MeasurementTypeHelper> Options
+        //{
+        //    get {return PlantMeasureViewModel}
+        //}
+        //public IList<MeasurementTypeHelper> MeasurementTypes { get; protected set; }
+
+
+        protected MeasurementTypeHelper _SelectedMeasurementType;
+        public MeasurementTypeHelper SelectedMeasurementType
+        {
+            get { return _SelectedMeasurementType; }
+            set { this._SelectedMeasurementType = value; this.RaisePropertyChanged(); }
+        }
+
+        public object SelectedItem
+        {
+            get
+            {
+                return SelectedMeasurementType;
+            }
+            set
+            {
+                var v = value as MeasurementTypeHelper;
+                if (v != null)
+                    this.SelectedMeasurementType = v;
+            }
+        }
+
+        protected string _SValue;
+        public string SValue
+        {
+            get { return _SValue; }
+            set { this._SValue = value; this.RaisePropertyChanged(); }
+        }
+
+        public PlantMeasureViewModel()
+        {
+
+            //this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.MeasurementType = x.Type);
+
+
+            //double dValue = 0;
+            //this.WhenAnyValue(x => x.SValue, x => x)
+            //    .Where(x => double.TryParse(x, out dValue))
+            //    .Subscribe(x => this.Value = dValue);
+
+            //this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.HasValue);
+
+            //if (state != null)
+            //{
+            //    this.SelectedMeasurementType = Options[state.MeasurementType];
+            //    this.SValue = state.Value.Value.ToString("F1");
+            //    this.Value = state.Value;
+            //}
+        }
+
+        //public override void SetProperty(PlantActionPropertySet prop)
+        //{
+        //    base.SetProperty(prop);
+        //    this.Value = prop.Value;
+        //    this.SValue = prop.Value.Value.ToString("F1");
+
+        //}
+
+    }
+
+
+
+
+    public class PlantPhotographViewModel : PlantActionViewModel, IPlantPhotographViewModel
+    {
+
+        public PlantPhotographViewModel()
+            : this(@"/TestData/517e100d782a828894.jpg", DateTimeOffset.Now)
+        {
+
+        }
+
+        public PlantPhotographViewModel(string photo, DateTimeOffset created)
+            : base(PlantActionType.PHOTOGRAPHED, created)
+        {
+            if (photo != null)
+            {
+                this.Photo = new Photo()
+                {
+                    LocalFullPath = photo,
+                    LocalUri = photo
+                };
+            }
+
+
+
+        }
+
+
+
+
+    }
+
 
 
 

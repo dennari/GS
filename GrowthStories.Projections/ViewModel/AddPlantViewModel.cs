@@ -45,7 +45,15 @@ namespace Growthstories.UI.ViewModel
                 this.ProfilePictureButtonText = "";
                 this.Current = current;
                 this.WateringSchedule = current.WateringSchedule;
+                if (current.WateringSchedule.Interval.HasValue && current.WateringSchedule.Interval.Value.TotalSeconds > 0)
+                    this.WateringSchedule.IsEnabled = true;
+                else
+                    this.WateringSchedule.IsEnabled = false;
                 this.FertilizingSchedule = current.FertilizingSchedule;
+                if (current.FertilizingSchedule.Interval.HasValue && current.FertilizingSchedule.Interval.Value.TotalSeconds > 0)
+                    this.FertilizingSchedule.IsEnabled = true;
+                else
+                    this.FertilizingSchedule.IsEnabled = false;
             }
             else
             {
@@ -63,7 +71,7 @@ namespace Growthstories.UI.ViewModel
 
             var garden = app.Resolver.GetService<IGardenViewModel>();
             this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue).Select(x =>
+                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x =>
                 {
                     return Tuple.Create(x, x.WateringSchedule);
                 })
@@ -113,8 +121,8 @@ namespace Growthstories.UI.ViewModel
             this.CanExecute = this.WhenAnyValue(
                        x => x.Name,
                        x => x.Species,
-                       x => x.FertilizingSchedule,
-                       x => x.WateringSchedule,
+                       x => x.FertilizingSchedule.Interval,
+                       x => x.WateringSchedule.Interval,
                        x => x.Photo,
                        x => x.Tags,
                        this.IsValid
@@ -125,8 +133,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
-        protected bool AnyChange(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
+        protected bool AnyChange(string name, string species, TimeSpan? fert, TimeSpan? water, Photo pic, IList<string> tags)
         {
             int changes = 0;
             if (Current.Species != species)
@@ -137,11 +144,11 @@ namespace Growthstories.UI.ViewModel
             {
                 changes++;
             }
-            if (fert.HasChanged)
+            if (this.FertilizingSchedule.HasChanged)
             {
                 changes++;
             }
-            if (water.HasChanged)
+            if (this.WateringSchedule.HasChanged)
             {
                 changes++;
             }
@@ -156,7 +163,7 @@ namespace Growthstories.UI.ViewModel
             return changes > 0;
         }
 
-        protected bool IsValid(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
+        protected bool IsValid(string name, string species, TimeSpan? fert, TimeSpan? water, Photo pic, IList<string> tags)
         {
             int valid = 0;
             if (!string.IsNullOrWhiteSpace(name))
@@ -178,6 +185,59 @@ namespace Growthstories.UI.ViewModel
 
             return true;
         }
+
+        //protected bool AnyChange(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
+        //{
+        //    int changes = 0;
+        //    if (Current.Species != species)
+        //    {
+        //        changes++;
+        //    }
+        //    if (Current.Name != name)
+        //    {
+        //        changes++;
+        //    }
+        //    if (fert.HasChanged)
+        //    {
+        //        changes++;
+        //    }
+        //    if (water.HasChanged)
+        //    {
+        //        changes++;
+        //    }
+        //    if (Current.Photo != pic)
+        //    {
+        //        changes++;
+        //    }
+        //    if (!TagSet.SetEquals(tags))
+        //    {
+        //        changes++;
+        //    }
+        //    return changes > 0;
+        //}
+
+        //protected bool IsValid(string name, string species, IScheduleViewModel fert, IScheduleViewModel water, Photo pic, IList<string> tags)
+        //{
+        //    int valid = 0;
+        //    if (!string.IsNullOrWhiteSpace(name))
+        //        valid++;
+        //    if (!string.IsNullOrWhiteSpace(species))
+        //        valid++;
+        //    //if (pic != null)
+        //    //   valid++;
+        //    //if (fert != default(Guid))
+        //    //    valid++;
+        //    //if (water != default(Guid))
+        //    //   valid++;
+
+        //    if (valid < 2)
+        //        return false;
+
+        //    if (Current != null)
+        //        return AnyChange(name, species, fert, water, pic, tags);
+
+        //    return true;
+        //}
 
         public IReactiveCommand ChooseProfilePictureCommand { get; protected set; }
 

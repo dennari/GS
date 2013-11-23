@@ -10,6 +10,8 @@ using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using Growthstories.Domain.Messaging;
+using Growthstories.Domain.Entities;
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -29,23 +31,24 @@ namespace Growthstories.UI.WindowsPhone
             //    };
             //this.ScheduleView.ViewModel = vm;
             //this.ScheduleView.DataContext = vm;
+
         }
 
 
-        public static readonly DependencyProperty ViewModelProperty =
-         DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(MainPage), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+        //public static readonly DependencyProperty ViewModelProperty =
+        // DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(MainPage), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
-        public IRoutableViewModel ViewModel
-        {
-            get
-            {
-                return (IRoutableViewModel)GetValue(ViewModelProperty);
-            }
-            set
-            {
-                SetValue(ViewModelProperty, value);
-            }
-        }
+        //public IRoutableViewModel ViewModel
+        //{
+        //    get
+        //    {
+        //        return (IRoutableViewModel)GetValue(ViewModelProperty);
+        //    }
+        //    set
+        //    {
+        //        SetValue(ViewModelProperty, value);
+        //    }
+        //}
 
         //object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (IPlantViewModel)value; } }
 
@@ -58,6 +61,21 @@ namespace Growthstories.UI.WindowsPhone
             // ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
             //}
 
+        }
+
+        public static List<IPlantActionViewModel> VMs = new List<IPlantActionViewModel>() {
+            new PlantActionViewModel(),
+            new PlantMeasureViewModel(),
+            new ClientPlantPhotographViewModel(null,DateTimeOffset.Now),
+            new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now)
+        };
+
+        private int clicks;
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.PlantAction.ViewModel = VMs[clicks % 4];
+            clicks++;
         }
 
         // Sample code for building a localized ApplicationBar

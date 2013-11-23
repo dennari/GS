@@ -148,11 +148,15 @@ namespace Growthstories.UI.ViewModel
             this.Actions = new MockReactiveList<IPlantActionViewModel>()
             {
                 new PlantMeasureViewModel(DateTimeOffset.Now - new TimeSpan(1,0,0,0)),
-                new PlantPhotoViewModel(null, DateTimeOffset.Now),                
-                new PlantWaterViewModel(DateTimeOffset.Now - new TimeSpan(2,0,0,0)),                
-                new PlantPhotoViewModel(@"/TestData/flowers-from-the-conservatory.jpg",DateTimeOffset.Now - new TimeSpan(3,0,0,0)),
-                new PlantFertilizeViewModel(DateTimeOffset.Now - new TimeSpan(4,0,0,0)),
-                new PlantCommentViewModel(DateTimeOffset.Now - new TimeSpan(5,0,0,0))
+                new PlantPhotographViewModel(@"/TestData/517e100d782a828894.jpg", DateTimeOffset.Now),                
+                new PlantActionViewModel(PlantActionType.WATERED, DateTimeOffset.Now - new TimeSpan(2,0,0,0)),                
+                new PlantPhotographViewModel(@"/TestData/flowers-from-the-conservatory.jpg",DateTimeOffset.Now - new TimeSpan(3,0,0,0)),
+                new PlantActionViewModel(PlantActionType.FERTILIZED, DateTimeOffset.Now - new TimeSpan(4,0,0,0)),
+                new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now - new TimeSpan(5,0,0,0)),
+                new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now - new TimeSpan(5,0,0,0)),
+                new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now - new TimeSpan(5,0,0,0)),
+                new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now - new TimeSpan(5,0,0,0)),
+                new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now - new TimeSpan(5,0,0,0))
             };
 
             //this.Photo = new Photo()
@@ -161,7 +165,7 @@ namespace Growthstories.UI.ViewModel
             //    LocalUri = @"/TestData/517e100d782a828894.jpg"
             //};
 
-            var photos = this.Actions.OfType<PlantPhotoViewModel>().Select(x => x.Photo).ToArray();
+            var photos = this.Actions.OfType<PlantPhotographViewModel>().Select(x => x.Photo).ToArray();
             this.Photo = photos[Helpers.RandomGen.Next(0, photos.Length)];
 
             this.WateringSchedule = new ScheduleViewModel(ScheduleType.WATERING, 24 * 4 * 3600);
@@ -230,8 +234,8 @@ namespace Growthstories.UI.ViewModel
 
         public IScheduleViewModel WateringSchedule { get; set; }
         public IScheduleViewModel FertilizingSchedule { get; set; }
-        public IPlantWaterViewModel NextWatering { get; set; }
-        public IPlantFertilizeViewModel NextNourishing { get; set; }
+        //public IPlantWaterViewModel NextWatering { get; set; }
+        //public IPlantFertilizeViewModel NextNourishing { get; set; }
 
         public Photo Photo { get; set; }
 
@@ -485,6 +489,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+
+        public bool HasChanged
+        {
+            get { return false; }
+        }
     }
 
 
@@ -552,11 +562,27 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public sealed class GardenViewModel : DesignViewModelBase, IGardenViewModel
+    public sealed class GardenViewModel : DesignViewModelBase, IGardenViewModel, IGardenPivotViewModel
     {
 
         public bool IsPlantSelectionEnabled { get { return false; } }
-        public IPlantViewModel SelectedItem { get; set; }
+        public IPlantViewModel SelectedPlant { get; set; }
+        public object SelectedItem
+        {
+            get
+            {
+                return SelectedPlant;
+            }
+            set
+            {
+                var v = value as IPlantViewModel;
+                if (v != null)
+                {
+                    this.SelectedPlant = v;
+                    this.RaisePropertyChanged();
+                }
+            }
+        }
 
 
         public Guid Id { get; set; }
@@ -610,7 +636,10 @@ namespace Growthstories.UI.ViewModel
         {
             get { return new MockReactiveCommand(); }
         }
+
+
     }
+
 
 
 

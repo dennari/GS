@@ -11,45 +11,60 @@ using System.Windows.Data;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public class GSView<T> : UserControl, IViewFor<T> where T : class
+
+    public interface IReportViewModelChange
+    {
+        void ViewModelChangeReport(object vm);
+    }
+
+    public class GSView<T> : UserControl, IReportViewModelChange, IViewFor<T> where T : class
     {
         public GSView()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding());
         }
 
         public T ViewModel
         {
-            get { return (T)GetValue(ViewModelProperty); }
+            get { return GetValue(ViewModelProperty) as T; }
             set
             {
-                if (value != null && value != ViewModel)
+                if (value != null)
                 {
                     SetValue(ViewModelProperty, value);
-                    OnViewModelChanged(value);
+                    //OnViewModelChanged(value);
                 }
             }
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(GSView<T>), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(UserControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
 
         object IViewFor.ViewModel
         {
             get
             {
+                //return this.GetViewModel();
                 return this.ViewModel;
             }
             set
             {
-                if (value != null && value != ViewModel)
-                {
-                    var vm = value as T;
-                    if (vm != null)
-                        this.ViewModel = vm;
-                }
+
+                this.ViewModel = value as T;
             }
+        }
+
+        public void ViewModelChangeReport(object vm)
+        {
+            if (vm == null)
+                return;
+            var v = vm as T;
+            if (v == null)
+                return;
+            if (vm != this.ViewModel)
+                this.ViewModel = v;
+            this.OnViewModelChanged(v);
         }
 
         protected virtual void OnViewModelChanged(T vm)
@@ -60,44 +75,51 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
-    public class GSContentControl<T> : ContentControl, IViewFor<T> where T : class
+
+
+
+
+    public class GSContentControl<T> : ContentControl, IReportViewModelChange, IViewFor<T> where T : class
     {
         public GSContentControl()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding());
+            //this.WhenAny()
         }
+
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(T), typeof(ContentControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
         public T ViewModel
         {
-            get { return (T)GetValue(ViewModelProperty); }
+            get
+            {
+                return GetValue(ViewModelProperty) as T;
+            }
             set
             {
-                if (value != null && value != ViewModel)
+
+                if (value != null)
                 {
                     SetValue(ViewModelProperty, value);
-                    OnViewModelChanged(value);
+                    //OnViewModelChanged(value);
                 }
             }
         }
 
-        public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(GSContentControl<T>), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
 
         object IViewFor.ViewModel
         {
             get
             {
+                //return this.GetViewModel();
                 return this.ViewModel;
             }
             set
             {
-                if (value != null && value != ViewModel)
-                {
-                    var vm = value as T;
-                    if (vm != null)
-                        this.ViewModel = vm;
-                }
+
+                this.ViewModel = value as T;
             }
         }
 
@@ -107,9 +129,21 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        public void ViewModelChangeReport(object vm)
+        {
+            if (vm == null)
+                return;
+            var v = vm as T;
+            if (v == null)
+                return;
+            if (vm != this.ViewModel)
+                this.ViewModel = v;
+            this.OnViewModelChanged(v);
+        }
+
     }
 
-    public class GSPage<T> : PhoneApplicationPage, IViewFor<T> where T : class
+    public class GSPage<T> : PhoneApplicationPage, IReportViewModelChange, IViewFor<T> where T : class
     {
         public GSPage()
         {
@@ -124,29 +158,28 @@ namespace Growthstories.UI.WindowsPhone
                 if (value != null && value != ViewModel)
                 {
                     SetValue(ViewModelProperty, value);
-                    OnViewModelChanged(value);
+                    // OnViewModelChanged(value);
                 }
             }
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(GSPage<T>), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(Page), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+
+
 
 
         object IViewFor.ViewModel
         {
             get
             {
+                //return this.GetViewModel();
                 return this.ViewModel;
             }
             set
             {
-                if (value != null && value != ViewModel)
-                {
-                    var vm = value as T;
-                    if (vm != null)
-                        this.ViewModel = vm;
-                }
+
+                this.ViewModel = value as T;
             }
         }
 
@@ -154,6 +187,18 @@ namespace Growthstories.UI.WindowsPhone
         {
 
 
+        }
+
+        public void ViewModelChangeReport(object vm)
+        {
+            if (vm == null)
+                return;
+            var v = vm as T;
+            if (v == null)
+                return;
+            if (vm != this.ViewModel)
+                this.ViewModel = v;
+            this.OnViewModelChanged(v);
         }
 
     }

@@ -75,8 +75,8 @@ namespace Growthstories.UI.WindowsPhone
             set
             {
 
-                if (value != ContentVisibility)
-                    SetValue(ContentVisibilityProperty, value);
+                //if (value != ContentVisibility)
+                SetValue(ContentVisibilityProperty, value);
             }
         }
 
@@ -98,7 +98,7 @@ namespace Growthstories.UI.WindowsPhone
 
             DataTemplate contentTemplate = null;
             Brush bg = GetBg("/Assets/Bg/action_bg.jpg");
-            base.OnViewModelChanged(vm);
+            //base.OnViewModelChanged(vm);
             if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
             {
                 contentTemplate = Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
@@ -112,8 +112,7 @@ namespace Growthstories.UI.WindowsPhone
                 bg = GetBg("/Assets/Bg/watering_bg.jpg");
 
             }
-            this.Content = vm;
-            this.DataContext = vm;
+
             if (contentTemplate != null)
             {
                 if (contentTemplate != this.ContentTemplate)
@@ -125,7 +124,7 @@ namespace Growthstories.UI.WindowsPhone
                 this.ContentVisibility = System.Windows.Visibility.Collapsed;
             }
 
-
+            //this.DataContext = vm;
             this.Background = bg;
 
         }
@@ -171,24 +170,18 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-            base.OnContentChanged(oldContent, newContent);
 
-
-
-        }
     }
 
 
-    public class TimelineActionView : GSContentControl<ITimelineActionViewModel>
+    public class TimelineActionView : PlantActionView
     {
         public TimelineActionView()
         {
 
         }
 
-        protected override void OnViewModelChanged(ITimelineActionViewModel vm)
+        protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
             if (vm == null)
                 return;
@@ -217,19 +210,19 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public static readonly DependencyProperty ContentVisibilityProperty =
-         DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
+        //public static readonly DependencyProperty ContentVisibilityProperty =
+        // DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(TimelineActionView), new PropertyMetadata(Visibility.Collapsed));
 
-        public Visibility ContentVisibility
-        {
-            get { return (Visibility)GetValue(ContentVisibilityProperty); }
-            set
-            {
+        //public Visibility ContentVisibility
+        //{
+        //    get { return (Visibility)GetValue(ContentVisibilityProperty); }
+        //    set
+        //    {
 
-                if (value != ContentVisibility)
-                    SetValue(ContentVisibilityProperty, value);
-            }
-        }
+        //        if (value != ContentVisibility)
+        //            SetValue(ContentVisibilityProperty, value);
+        //    }
+        //}
 
 
     }

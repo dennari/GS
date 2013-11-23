@@ -229,26 +229,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Compile Include="TemplateSelector.cs" />
     <Compile Include="ViewModels\AddPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientAddPlantViewModel.cs" />
+    <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
     <Compile Include="ViewModels\YAxisShitViewModel.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\PlantActions.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
-    <Compile Include="ViewsDesign\PlantPhotoPivotView.xaml.cs">
-      <DependentUpon>PlantPhotoPivotView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewsDesign\PlantActionView.cs" />
-    <Compile Include="ViewsDesign\PlantPivotView.xaml.cs">
-      <DependentUpon>PlantPivotView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewsDesign\GardenPivotView.xaml.cs">
-      <DependentUpon>GardenPivotView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewsDesign\PlantView.xaml.cs">
-      <DependentUpon>PlantView.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -298,22 +285,6 @@
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
       <ContainsDesignTimeResources>true</ContainsDesignTimeResources>
-    </Page>
-    <Page Include="ViewsDesign\PlantPhotoPivotView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ViewsDesign\PlantPivotView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ViewsDesign\GardenPivotView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ViewsDesign\PlantView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

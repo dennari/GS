@@ -126,6 +126,7 @@ namespace Growthstories.Sync
         AIR_HUMIDITY,
         LENGTH,
         WEIGHT,
-        ILLUMINANCE
+        ILLUMINANCE,
+        CO2
     }
 }

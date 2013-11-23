@@ -34,7 +34,7 @@ namespace Growthstories.UI.WindowsPhone
             //    img.DecodePixelWidth = (int)x.Width;
             img.ImageFailed += (s, e) =>
             {
-                throw e.ErrorException;
+                //throw e.ErrorException;
             };
             return img;
         }
@@ -431,6 +431,30 @@ namespace Growthstories.UI.WindowsPhone
 
 
             return v.Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED);
+
+        }
+
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CaseConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            if (value == null)
+                return null;
+
+            var v = value as string;
+            if (v == null)
+                return null;
+
+            return parameter == null ? v.ToUpperInvariant() : v.ToLowerInvariant();
 
         }
 

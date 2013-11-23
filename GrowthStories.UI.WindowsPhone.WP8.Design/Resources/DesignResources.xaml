@@ -15,11 +15,15 @@
     <vmc:ClientAddPlantViewModel x:Key="AddPlantViewModelDesign" d:IsDataSource="True" />
     <vmc:ClientEditPlantViewModel x:Key="EditPlantViewModelDesign" d:IsDataSource="True" />
     <vm:YAxisShitViewModel x:Key="YAxisShitViewModelDesign" d:IsDataSource="True" />
-    <!--<vm:PlantPivotViewModel x:Key="PlantPivotViewModelDesign" d:IsDataSource="True" />-->
+
+
     <vm:GardenViewModel x:Key="GardenViewModelDesign" d:IsDataSource="True" />
     <vm:SearchUsersViewModel x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />
     <vm:FriendsViewModel x:Key="FriendsPivotViewModelDesign" d:IsDataSource="True" />
     <vm:ScheduleViewModel x:Key="ScheduleViewModelDesign" d:IsDataSource="True" />
     <vm:PlantActionListViewModel x:Key="PlantActionListViewModelDesign" d:IsDataSource="True" />
-    
+    <vm:PlantActionViewModel x:Key="PlantWaterViewModelDesign" d:IsDataSource="True" />
+    <vm:PlantMeasureViewModel x:Key="PlantMeasureViewModelDesign" d:IsDataSource="True" />
+    <vmc:ClientPlantPhotographViewModel x:Key="PlantPhotoViewModelDesign" d:IsDataSource="True" />
+
 </ResourceDictionary>

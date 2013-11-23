@@ -73,7 +73,7 @@ namespace Growthstories.UI.ViewModel
 
         protected ReactiveList<IPlantViewModel> _SelectedPlants = new ReactiveList<IPlantViewModel>();
         public IReadOnlyReactiveList<IPlantViewModel> SelectedPlants { get { return _SelectedPlants; } }
-        public IPlantViewModel SelectedItem { get; set; }
+        //public IPlantViewModel SelectedItem { get; set; }
 
         protected ReactiveList<IButtonViewModel> TileModeAppBarButtons = new ReactiveList<IButtonViewModel>();
         protected IReadOnlyReactiveList<IButtonViewModel> __AppBarButtons;
@@ -197,7 +197,8 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x =>
                 {
                     //var pivot = new GardenPivotViewModel(x, Plants, state, App);
-                    this.SelectedItem = x;
+                    //this.SelectedItem = x;
+                    this.PivotVM.SelectedItem = x;
                     App.Router.Navigate.Execute(this.PivotVM);
                 });
 

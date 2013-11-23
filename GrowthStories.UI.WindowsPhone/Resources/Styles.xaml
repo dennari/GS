@@ -78,22 +78,23 @@
 								Text="{Binding PlantTitle}" 
 								Style="{StaticResource GSAppTitleStyle}"/>-->
 							<TextBlock
-								Margin="6,-5,0,0"
-								Text="{Binding Label}" 
+								Margin="6,-5,12,0"
+								Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" 
 								Style="{StaticResource GSPageTitleStyle}" />
 						</StackPanel>
 
 						<ContentPresenter
 									Margin="12,0,12,6"
 									Grid.Row="1"
-									Content="{TemplateBinding Content}" 
+                                    DataContext="{TemplateBinding ViewModel}"
+									Content="{TemplateBinding ViewModel}" 
 									ContentTemplate="{TemplateBinding ContentTemplate}" 
 									Visibility="{TemplateBinding ContentVisibility}" 
 									HorizontalAlignment="Stretch"/>
 
 						
 
-						<local:GSTextBox
+						<local:GSChatTextBox
 							Grid.Row="2"
 							Margin="24,0"
 							Hint="Note"
@@ -114,13 +115,15 @@
 	<DataTemplate x:Key="DetailMeasureTemplate">
 		<StackPanel>
 			<local:GSTextBox Hint="Value" 
-							 Text="{Binding Value, Mode=TwoWay}" 
-							 InputScope="Number" Margin="0"/>
+							 Text="{Binding SValue, Mode=TwoWay}" 
+							 c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                             InputScope="Number" Margin="0"/>
 
 			<local:GSListPicker 
 				x:Name="MeasurementTypePicker"			
 				ExpansionMode="ExpansionAllowed"
-				ItemsSource="{Binding Series.Types}"
+				ItemsSource="{Binding Options}"
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 				CacheMode="BitmapCache" Margin="12,0"
 				>
 				<local:GSListPicker.ItemTemplate>
@@ -136,18 +139,26 @@
 	</DataTemplate>
 
 	<DataTemplate x:Key="DetailPhotoTemplate">
-		<Grid HorizontalAlignment="Stretch" Height="350">
-			<Grid.Background>
-				<ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
-			</Grid.Background>
-		</Grid>
+        <Grid HorizontalAlignment="Stretch" Height="350" Margin="12,0">
+            <Grid.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
+            </Grid.Background>
+            <Button 
+                Style="{StaticResource GSButtonStyle}"
+                BorderThickness="3"
+                Command="{Binding PhotoChooserCommand}"                
+                >
+                <TextBlock Text="select or snap a photo" Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+            </Button>
+
+        </Grid>
 	</DataTemplate>
 
 	<Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="local:PlantActionView">
-					<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0">
 						<Grid.Background>
 							<ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
 						</Grid.Background>
@@ -158,7 +169,7 @@
 	</Style>
 
 	<DataTemplate x:Key="TimelinePhotoTemplate">
-		<Button Height="220" HorizontalAlignment="Stretch">
+		<Button Height="220" HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,0" Command="{Binding PhotoTimelineTap}">
 			<Button.Background>
 				<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
 				<!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
@@ -172,7 +183,8 @@
 				<ControlTemplate TargetType="local:TimelineActionView">
 					<StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 						<ContentPresenter 
-							Content="{Binding}" 
+							DataContext="{TemplateBinding ViewModel}"
+                            Content="{TemplateBinding ViewModel}" 
 							ContentTemplate="{TemplateBinding ContentTemplate}" 
 							Visibility="{TemplateBinding ContentVisibility}" 
 							HorizontalAlignment="Stretch"/>
@@ -184,8 +196,10 @@
 							</StackPanel>
 							<Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
 							<StackPanel Orientation="Vertical" VerticalAlignment="Top">
-								<TextBlock Text="{Binding Label}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-								<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                                <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                                <TextBlock Text="{Binding SelectedMeasurementType.Title}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}}"/>
+                                <TextBlock Text="{Binding Value}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}}"/>
+                                <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
 							</StackPanel>
 						</StackPanel>
                         <toolkit:ContextMenuService.ContextMenu>
@@ -239,8 +253,11 @@
 							<TextBlock Text="{Binding TodayDate}" Style="{StaticResource GSActionListDateStyle}"/>
 							<!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
 						</StackPanel>
-						<Image Source="{Binding TodayIcon}" Width="45" Margin="24,0"  />
-						<StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <Grid Margin="24,0" Width="45" Height="45">
+                            <Ellipse x:Name="ButtonBackground" Stroke="Transparent" Fill="White"  Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
 							<TextBlock Text="TODAY" Style="{StaticResource GSActionListItemTitleStyle}"/>
 							<!--<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>-->
 						</StackPanel>

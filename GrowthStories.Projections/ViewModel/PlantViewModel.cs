@@ -29,10 +29,10 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
-        public IReactiveCommand FlickCommand { get; protected set; }
-        public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
-        public IReactiveCommand PlantActionPivotCommand { get; protected set; }
-        public IReactiveCommand ActionTapped { get; protected set; }
+        //public IReactiveCommand FlickCommand { get; protected set; }
+        //public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
+        //public IReactiveCommand PlantActionPivotCommand { get; protected set; }
+        //public IReactiveCommand ActionTapped { get; protected set; }
         public IPlantActionViewModel SelectedItem { get; set; }
         public PlantActionType? Filter { get; set; }
 
@@ -70,59 +70,59 @@ namespace Growthstories.UI.ViewModel
                                 .ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
-            this.FlickCommand = new ReactiveCommand();
-            this.PlantActionDetailsCommand = new ReactiveCommand();
-            this.PlantActionDetailsCommand
-                .OfType<IPlantActionViewModel>()
-                .Subscribe(x =>
-                {
-                    x.AddCommand.Subscribe(_ =>
-                    {
-                        var cmd = new SetPlantActionProperty(x.PlantActionId)
-                        {
-                            Note = x.Note,
-                        };
-                        var m = x as IPlantMeasureViewModel;
-                        if (m != null)
-                        {
-                            cmd.Value = m.Value;
-                        }
+            //this.FlickCommand = new ReactiveCommand();
+            //this.PlantActionDetailsCommand = new ReactiveCommand();
+            //this.PlantActionDetailsCommand
+            //    .OfType<IPlantActionViewModel>()
+            //    .Subscribe(x =>
+            //    {
+            //        x.AddCommand.Subscribe(_ =>
+            //        {
+            //            var cmd = new SetPlantActionProperty(x.PlantActionId)
+            //            {
+            //                Note = x.Note,
+            //            };
+            //            var m = x as IPlantMeasureViewModel;
+            //            if (m != null)
+            //            {
+            //                cmd.Value = m.Value;
+            //            }
 
-                        this.SendCommand(cmd, true);
-                    });
-                    this.Navigate(x);
-                });
-            this.PlantActionPivotCommand = new ReactiveCommand();
-            this.PlantActionPivotCommand
-                .OfType<IPlantActionViewModel>()
-                .Subscribe(x =>
-                {
-                    x.AddCommand.Subscribe(_ =>
-                    {
-                        var cmd = new SetPlantActionProperty(x.PlantActionId)
-                        {
-                            Note = x.Note,
-                        };
-                        var m = x as IPlantMeasureViewModel;
-                        if (m != null)
-                        {
-                            cmd.Value = m.Value;
-                        }
+            //            this.SendCommand(cmd, true);
+            //        });
+            //        this.Navigate(x);
+            //    });
+            //this.PlantActionPivotCommand = new ReactiveCommand();
+            //this.PlantActionPivotCommand
+            //    .OfType<IPlantActionViewModel>()
+            //    .Subscribe(x =>
+            //    {
+            //        x.AddCommand.Subscribe(_ =>
+            //        {
+            //            var cmd = new SetPlantActionProperty(x.PlantActionId)
+            //            {
+            //                Note = x.Note,
+            //            };
+            //            var m = x as IPlantMeasureViewModel;
+            //            if (m != null)
+            //            {
+            //                cmd.Value = m.Value;
+            //            }
 
-                        this.SendCommand(cmd, true);
-                    });
-                    this.Navigate(x);
-                });
-            this.ActionTapped = new ReactiveCommand();
-            this.ActionTapped
-                .OfType<IPlantPhotographViewModel>()
-                .Subscribe(x =>
-                {
-                    this.Filter = PlantActionType.PHOTOGRAPHED;
-                    this.SelectedItem = x;
-                    this.Navigate(this);
+            //            this.SendCommand(cmd, true);
+            //        });
+            //        this.Navigate(x);
+            //    });
+            //this.ActionTapped = new ReactiveCommand();
+            //this.ActionTapped
+            //    .OfType<IPlantPhotographViewModel>()
+            //    .Subscribe(x =>
+            //    {
+            //        this.Filter = PlantActionType.PHOTOGRAPHED;
+            //        this.SelectedItem = x;
+            //        this.Navigate(this);
 
-                });
+            //    });
 
 
             this.ScrollCommand = new ReactiveCommand();
@@ -337,20 +337,18 @@ namespace Growthstories.UI.ViewModel
             {
                 var lastI = App.Router.NavigationStack.Count - 1;
                 IRoutableViewModel vm = null;
+                var steps = 1;
                 try
                 {
-                    vm = App.Router.NavigationStack[lastI - 1];
-                    if (vm is IPlantActionListViewModel)
-                    {
-                        vm = App.Router.NavigationStack[lastI - 2];
-                    }
+                    if (App.Router.NavigationStack[lastI - 1] is IPlantActionListViewModel)
+                        steps = 2;
                 }
                 catch
                 {
 
                 }
-                if (vm != null)
-                    this.Navigate(vm);
+                for (var i = 0; i < steps; i++)
+                    App.Router.NavigateBack.Execute(null);
             });
         }
 
@@ -374,23 +372,23 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected IReactiveDerivedList<ITimelineActionViewModel> _TimelineActions;
-        public IReadOnlyReactiveList<ITimelineActionViewModel> TimelineActions
-        {
-            get
-            {
-                if (_TimelineActions == null)
-                {
-                    _TimelineActions = this.Actions.CreateDerivedCollection(x =>
-                    {
-                        var vm = new TimelineActionViewModel(x);
-                        vm.EditCommand = this.EditActionCommand(x);
-                        return (ITimelineActionViewModel)vm;
-                    });
-                }
-                return _TimelineActions;
-            }
-        }
+        //protected IReactiveDerivedList<ITimelineActionViewModel> _TimelineActions;
+        //public IReadOnlyReactiveList<ITimelineActionViewModel> TimelineActions
+        //{
+        //    get
+        //    {
+        //        if (_TimelineActions == null)
+        //        {
+        //            _TimelineActions = this.Actions.CreateDerivedCollection(x =>
+        //            {
+        //                var vm = new TimelineActionViewModel(x);
+        //                vm.EditCommand = this.EditActionCommand(x);
+        //                return (ITimelineActionViewModel)vm;
+        //            });
+        //        }
+        //        return _TimelineActions;
+        //    }
+        //}
 
         protected ReactiveList<IPlantActionViewModel> _Actions;
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions
@@ -410,7 +408,21 @@ namespace Growthstories.UI.ViewModel
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
                             _Actions.Insert(0, x);
-                            //x.EditCommand = this.AddActionCommand(x.ActionType, x.State);
+                            x.EditCommand = this.EditActionCommand(x);
+
+                            var photo = x as IPlantPhotographViewModel;
+                            if (photo != null)
+                            {
+                                photo.PhotoTimelineTap
+                                    .Subscribe(_ =>
+                                    {
+                                        this.Filter = PlantActionType.PHOTOGRAPHED;
+                                        this.SelectedItem = photo;
+                                        this.Navigate(this);
+
+                                    });
+                            }
+
                             ScrollCommand.Execute(x);
                         });
                     }

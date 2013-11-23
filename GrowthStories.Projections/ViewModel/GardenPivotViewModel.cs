@@ -24,6 +24,8 @@ namespace Growthstories.UI.ViewModel
         protected IPlantViewModel _SelectedPlant;
         public IPlantViewModel SelectedPlant { get { return _SelectedPlant; } set { this.RaiseAndSetIfChanged(ref _SelectedPlant, value); } }
 
+
+
         private IYAxisShitViewModel CurrentChartViewModel;
 
         private readonly IGardenViewModel Vm;

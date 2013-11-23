@@ -7,31 +7,32 @@
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
-	d:DataContext="{StaticResource PlantViewModelDesign}"	
+	d:DataContext="{StaticResource PlantViewModelDesign}"
+    d:DesignHeight="800"
     mc:Ignorable="d">
 
 
-    <phone:LongListSelector 
+    <local:GSLongListSelector
         x:Name="TimeLine" 
-        ItemsSource="{Binding TimelineActions}" 
+        ItemsSource="{Binding Actions}" 
         Grid.Row="1"
         ListHeader="{Binding}"
+        VerticalAlignment="Stretch"
+        Margin="0,0,0,36"
         >                          
                             
         <phone:LongListSelector.ListHeaderTemplate>
             <DataTemplate>
             <StackPanel>
-                    <Grid  Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">
-                        <ContentControl 
-                    Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}"
-                    DataContext="{Binding FertilizingScheduler}"
-                    Style="{StaticResource PlantNextAction}"/>                
-                </Grid>
-                    <Grid  Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
-                        <ContentControl
-                    Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}"
-                    DataContext="{Binding WateringScheduler}"
-                    Style="{StaticResource PlantNextAction}"/>
+                    <Grid Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">   
+                        <ContentControl                            
+                                DataContext="{Binding FertilizingScheduler}"
+                                Style="{StaticResource PlantNextAction}"/>
+                    </Grid>
+                    <Grid Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
+                        <ContentControl                           
+                            DataContext="{Binding WateringScheduler}"
+                            Style="{StaticResource PlantNextAction}"/>
                     </Grid>
                     <Canvas Height="54" Margin="0,0,0,24" >
                     <Line X1="0" X2="7" Y1="27" Y2="27" 
@@ -62,13 +63,13 @@
         </phone:LongListSelector.ListHeaderTemplate>
         <phone:LongListSelector.ItemTemplate>
             <DataTemplate>
-                <local:TimelineActionView  ViewModel="{Binding}"/>
+                <local:TimelineActionView ViewModel="{Binding}"/>
             </DataTemplate>
         </phone:LongListSelector.ItemTemplate>
-                        
-                        
-                        
-    </phone:LongListSelector>
+
+
+
+    </local:GSLongListSelector>
                
 
 
