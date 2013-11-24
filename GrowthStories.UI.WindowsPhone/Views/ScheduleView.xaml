@@ -20,14 +20,14 @@
             <Setter Property="BorderThickness" Value="3"/>
             <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMedium}"/>
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PhoneForegroundBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PickerBox:PickerBoxToggleButton">
                         <Grid Background="Transparent">
-                            <Border x:Name="EnabledBackground"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="{StaticResource PhoneTouchTargetOverhang}">
+                            <Border x:Name="EnabledBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="{StaticResource PhoneTouchTargetOverhang}">
                                 <ContentControl
                                     x:Name="EnabledContent" 
                                     ContentTemplate="{TemplateBinding ContentTemplate}" 
@@ -37,7 +37,7 @@
                                     Margin="{TemplateBinding Padding}" 
                                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
-                            <Border x:Name="DisabledBackground" BorderBrush="{StaticResource PhoneDisabledBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" IsHitTestVisible="False" Margin="{StaticResource PhoneTouchTargetOverhang}" Visibility="Collapsed">
+                            <Border x:Name="DisabledBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsHitTestVisible="False" Margin="{StaticResource PhoneTouchTargetOverhang}" Visibility="Collapsed">
                                 <ContentControl x:Name="DisabledContent" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{StaticResource PhoneDisabledBrush}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
                             
@@ -52,19 +52,18 @@
 
     <local:GSViewGrid 
 		Title="{Binding ScheduleTypeLabel}" 
-		Style="{StaticResource NoScroll}"
-        
-        >
+		Style="{StaticResource NoScroll}">
         <local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
         </local:GSViewGrid.Background>
+        
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <local:GSLabel Label="current interval" Margin="0,0,0,20">
-                
+
                 <telerikInput:RadTimeSpanPicker 
 				    Value="{Binding Interval, Mode=TwoWay}"
 				    SelectorFormat="wdh"
@@ -74,9 +73,11 @@
 				    x:Name="TimeSpanPicker"                
                     PickerButtonStyle="{StaticResource PickerBoxToggleButtonStyle1}"
                     />
+                    
             </local:GSLabel>
 
             <local:GSLabel 
+                Margin="0,0,0,20"
                 Label="copy existing"                 
                 Grid.Row="1" 
                 Visibility="{Binding HasOtherSchedules, Converter={StaticResource BooleanToVisibility}}">
@@ -86,10 +87,16 @@
                     >
                     <local:GSLongListSelector.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel>
-                                <TextBlock Text="{Binding Item1.Name}"/>
-                                <TextBlock Text="{Binding Item2.IntervalLabel}"/>
-                            </StackPanel>
+                            <Grid Margin="0, 20, 0, 0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Foreground="White" FontWeight="Bold" Text="{Binding Item1.Name, Converter={StaticResource ToUpperOrLowerCase}}" Grid.Column="0"  />
+                                <TextBlock Style="{StaticResource GSTextBlockStyle}" HorizontalAlignment="Right" Foreground="White" Text="{Binding Item2.IntervalLabel}" Grid.Column="1" />
+                            </Grid>  
+                       
                         </DataTemplate>
                     </local:GSLongListSelector.ItemTemplate>
                 </local:GSLongListSelector>
@@ -128,5 +135,7 @@
                 -->
 
         </Grid>
+
+
     </local:GSViewGrid>
 </local:ScheduleViewBase>
