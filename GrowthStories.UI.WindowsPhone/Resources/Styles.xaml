@@ -142,10 +142,9 @@
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 				CacheMode="BitmapCache" Margin="12,0"
 				>
-
-				<local:GSListPicker.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding TitleWithUnit}"
+                <local:GSListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding TitleWithUnit}" 
 								   Style="{StaticResource GSTextBoxOnTextBlockStyle}"
 								   />
 
@@ -209,7 +208,10 @@
     </Style>
 
     <DataTemplate x:Key="TimelinePhotoTemplate">
-        <Button Height="220" HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
+        <Button Height="220" 
+            BorderBrush="WhiteSmoke"
+            BorderThickness="3"    
+            HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
             <Button.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
                 <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
