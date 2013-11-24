@@ -142,9 +142,10 @@
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 				CacheMode="BitmapCache" Margin="12,0"
 				>
-                <local:GSListPicker.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title}" 
+
+				<local:GSListPicker.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding TitleWithUnit}"
 								   Style="{StaticResource GSTextBoxOnTextBlockStyle}"
 								   />
 

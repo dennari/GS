@@ -150,6 +150,7 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 _Value = value;
+                this.RaisePropertyChanged();
             }
         }
 

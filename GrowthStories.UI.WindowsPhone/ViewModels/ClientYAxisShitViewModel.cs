@@ -23,65 +23,75 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-        //protected IDictionary<MeasurementType, LineSeries> _TelerikSeries = new Dictionary<MeasurementType, LineSeries>();
-        //public IDictionary<MeasurementType, LineSeries> TelerikSeries { get { return _TelerikSeries; } }
-
-
-        //protected ReactiveCommand _ToggleTelerikSeries = new ReactiveCommand();
-        //public IReactiveCommand ToggleTelerikSeries { get { return _ToggleTelerikSeries; } }
-
-
 
         public ClientYAxisShitViewModel(IPlantViewModel plantVM, IGSAppViewModel app)
             : base(plantVM, app)
         {
 
 
-
-
-            ToggleSeries.OfType<MeasurementType>().ObserveOn(RxApp.MainThreadScheduler).Subscribe(m =>
+            this.CategoryBinding = new GenericDataPointBinding<IPlantMeasureViewModel, DateTime>()
             {
-                //var current = TelerikSeries.FirstOrDefault(y => (MeasurementType)y.Tag == (MeasurementType)m);
-                //if (current != null)
-                lock (_TelerikSeries)
-                {
-                    if (Series.ContainsKey(m) && !TelerikSeries.ContainsKey(m))
-                        TelerikSeries[m] = CreateLineSeries(Series[m], m);
-                }
-                ToggleTelerikSeries.Execute(TelerikSeries[m]);
-
-
-            });
-
-
-        }
-
-        public static Dictionary<MeasurementType, Color> LineColors = new Dictionary<MeasurementType, Color>()
-        {
-            {MeasurementType.LENGTH,Colors.Blue},
-            {MeasurementType.ILLUMINANCE,Colors.Brown},
-            {MeasurementType.PH,Colors.Cyan}
-        };
-
-        private LineSeries CreateLineSeries(ISeries s, MeasurementType xx)
-        {
-            var l = new LineSeries()
+                ValueSelector = x => new DateTime(x.Created.Ticks, DateTimeKind.Utc)
+            };
+            this.ValueBinding = new GenericDataPointBinding<IPlantMeasureViewModel, Double>()
             {
-                Stroke = new SolidColorBrush(LineColors[xx]),
-                StrokeThickness = 3,
-                Tag = xx
-
+                ValueSelector = x => x.Value.Value
             };
 
-            s.Values.Aggregate(0, (acc, v) =>
-            {
-                l.DataPoints.Add(new Telerik.Charting.CategoricalDataPoint() { Value = v.Item2, Category = v.Item1 });
-                return acc + 1;
-            });
 
-            return l;
 
         }
+
+        protected override void SetSeries(MeasurementType type, IReadOnlyReactiveList<IPlantMeasureViewModel> series)
+        {
+            base.SetSeries(type, series);
+            this.LineBrush = new SolidColorBrush(MeasurementTypeHelper.Options[type].SeriesColor.ToColor());
+        }
+
+        private Brush _LineBrush;
+        public Brush LineBrush
+        {
+            get
+            {
+                return _LineBrush;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _LineBrush, value);
+            }
+        }
+
+        private GenericDataPointBinding<IPlantMeasureViewModel, DateTime> _CategoryBinding;
+        public GenericDataPointBinding<IPlantMeasureViewModel, DateTime> CategoryBinding
+        {
+            get
+            {
+                return _CategoryBinding;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _CategoryBinding, value);
+            }
+        }
+
+        private GenericDataPointBinding<IPlantMeasureViewModel, double> _ValueBinding;
+        public GenericDataPointBinding<IPlantMeasureViewModel, double> ValueBinding
+        {
+            get
+            {
+                return _ValueBinding;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ValueBinding, value);
+            }
+        }
+
+
+
+
+
+
 
 
     }

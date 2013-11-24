@@ -31,7 +31,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return string.Format("{0} {1}", SeriesTitle, Unit);
+                return string.Format("{0} [{1}]", SeriesTitle, Unit);
             }
         }
 

@@ -64,7 +64,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public class ButtonViewModel : MenuItemViewModel, IButtonViewModel
+    public sealed class ButtonViewModel : MenuItemViewModel, IButtonViewModel
     {
         public ButtonViewModel(IGSAppViewModel app)
             : base(app)
@@ -72,6 +72,10 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        public ButtonViewModel()
+        {
+
+        }
 
 
         /// <summary>
@@ -91,11 +95,15 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class MenuItemViewModel : GSViewModelBase, IMenuItemViewModel
+    public class MenuItemViewModel : ReactiveObject, IMenuItemViewModel
     {
 
         public MenuItemViewModel(IGSAppViewModel app)
-            : base(app)
+        {
+
+        }
+
+        public MenuItemViewModel()
         {
 
         }

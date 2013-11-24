@@ -93,7 +93,6 @@
   <ItemGroup>
     <Compile Include="IUIPersistence.cs" />
     <Compile Include="Mixins.cs" />
-    <Compile Include="PlantViewModelFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IHandles.cs" />
     <Compile Include="Services\AppUserService.cs" />

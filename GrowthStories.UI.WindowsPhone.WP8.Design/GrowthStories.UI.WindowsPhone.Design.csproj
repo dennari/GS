@@ -238,7 +238,6 @@
     <Compile Include="ViewModels\AddPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientAddPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
-    <Compile Include="ViewModels\Color.cs" />
     <Compile Include="ViewModels\YAxisShitViewModel.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\PlantActions.cs" />

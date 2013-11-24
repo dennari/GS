@@ -26,8 +26,7 @@
 	</phone:PhoneApplicationPage.Resources>
 	<Grid x:Name="LayoutRoot" Background="Transparent">
 		<Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>       
         </Grid.RowDefinitions>
         
         <!--<local:PlantActionView/>-->
@@ -80,7 +79,7 @@
 			   Grid.Row="0" 
 			   Grid.RowSpan="2"
 			   Opacity="0.0"
-			   IsHitTestVisible="False" />
+			   IsHitTestVisible="False" Visibility="Collapsed" />
 
 	</Grid>
 	<bar:Bindable.ApplicationBar>

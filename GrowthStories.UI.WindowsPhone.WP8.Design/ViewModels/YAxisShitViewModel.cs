@@ -36,18 +36,25 @@ namespace Growthstories.UI.ViewModel
     {
         private PlantViewModel PlantVM;
 
-        protected IDictionary<MeasurementType, ISeries> _Series = new Dictionary<MeasurementType, ISeries>();
-        public IDictionary<MeasurementType, ISeries> Series { get { return _Series; } }
+        public double Minimum { get; set; }
+        public double Maximum { get; set; }
+        public double YAxisStep { get; set; }
+        public int YAxisLabelStep { get; set; }
+        //public double YAxisStep { get; set; }
+        public int XAxisLabelStep { get; set; }
+        public string LineColor { get; set; }
+        public IReactiveList<IPlantMeasureViewModel> Series { get; set; }
 
-        protected IDictionary<MeasurementType, object> _TelerikSeries = new Dictionary<MeasurementType, object>();
-        public IDictionary<MeasurementType, object> TelerikSeries { get { return _TelerikSeries; } }
+        public string SeriesTitle { get; set; }
+
+
+        public Brush LineBrush { get; set; }
+        public GenericDataPointBinding<IPlantMeasureViewModel, DateTime> CategoryBinding { get; set; }
+        public GenericDataPointBinding<IPlantMeasureViewModel, double> ValueBinding { get; set; }
 
 
         protected MockReactiveCommand _ToggleSeries = new MockReactiveCommand();
         public IReactiveCommand ToggleSeries { get { return _ToggleSeries; } }
-
-        protected MockReactiveCommand _ToggleTelerikSeries = new MockReactiveCommand();
-        public IReactiveCommand ToggleTelerikSeries { get { return _ToggleTelerikSeries; } }
 
         public YAxisShitViewModel()
             : this(new PlantViewModel())
@@ -59,12 +66,25 @@ namespace Growthstories.UI.ViewModel
         {
             this.PlantVM = plantVM;
 
+            this.CategoryBinding = new GenericDataPointBinding<IPlantMeasureViewModel, DateTime>()
+            {
+                ValueSelector = x => new DateTime(x.Created.Ticks, DateTimeKind.Utc)
+            };
+            this.ValueBinding = new GenericDataPointBinding<IPlantMeasureViewModel, Double>()
+            {
+                ValueSelector = x => x.Value.Value
+            };
+            this.Minimum = double.MinValue;
+            this.Maximum = double.MaxValue;
 
-            int num = 200;
-            int c = 0;
-            var yStep = 0.5;
+
+            int num = 150;
+            int numXlabels = 12;
+            var series = new IPlantMeasureViewModel[num];
+            //int c = 0;
+            //var yStep = 0.5;
             //var validTypes = new[] { MeasurementType.LENGTH, MeasurementType.PH, MeasurementType.ILLUMINANCE };
-            foreach (var xx in MeasurementTypeHelper.Options.Values)
+            foreach (var xx in MeasurementTypeHelper.Options.Values.Take(1))
             {
 
 
@@ -79,25 +99,38 @@ namespace Growthstories.UI.ViewModel
 
                 double step = (s.XRange.Item2 - s.XRange.Item1) / num;
                 double x = s.XRange.Item1;
+                var beginning = DateTime.Now - TimeSpan.FromDays(num * 5);
                 //s.XValues[0] = x;
                 for (var i = 0; i < num; i++)
                 {
-                    s.YValues[i] = Math.Sin(x) + c * yStep;
-                    s.XValues[i] = x;
-                    s.Values[i] = Tuple.Create(s.XValues[i], s.YValues[i]);
+                    //s.YValues[i] = Math.Sin(x);// + c * yStep;
+                    //s.XValues[i] = x;
+                    //s.Values[i] = Tuple.Create(s.XValues[i], s.YValues[i]);
+                    series[i] = new PlantMeasureViewModel(beginning + TimeSpan.FromDays(i * 5 + 1))
+                    {
+                        Value = Math.Sin(x)
+                    };
                     x += step;
                 }
-                c++;
+                TimeSpan timeRange = series[series.Length - 1].Created - beginning;
+
+                this.XAxisLabelStep = (int)Math.Ceiling((double)num / numXlabels);
+                //this.XAxisLabelStep = 10;
+                this.LineBrush = new SolidColorBrush(xx.SeriesColor.ToColor());
+                this.SeriesTitle = xx.TitleWithUnit;
+                //c++;
 
                 //_TelerikSeries.Add(CreateLineSeries(s, xx, c));
-                Series[xx.Type] = s;
-                TelerikSeries[xx.Type] = CreateLineSeries(s, xx);
-                if (c > 3)
-                    break;
+                //Series[xx.Type] = s;
+                //TelerikSeries[xx.Type] = CreateLineSeries(s, xx);
+                //if (c > 3)
+                //    break;
             }
 
+            this.Series = new MockReactiveList<IPlantMeasureViewModel>(series);
+
             this._AppBarButtons = new MockReactiveList<IButtonViewModel>();
-            c = 0;
+            int c = 0;
             foreach (var m in MeasurementTypeHelper.Options)
             {
                 _AppBarButtons.Add(new ButtonViewModel()
@@ -111,44 +144,28 @@ namespace Growthstories.UI.ViewModel
                     break;
             }
 
-            //ToggleSeries.OfType<MeasurementType>().ObserveOn(RxApp.MainThreadScheduler).Subscribe(m =>
-            //{
-            //    //var current = TelerikSeries.FirstOrDefault(y => (MeasurementType)y.Tag == (MeasurementType)m);
-            //    //if (current != null)
-            //    lock (_TelerikSeries)
-            //    {
-            //        if (Series.ContainsKey(m) && !TelerikSeries.ContainsKey(m))
-            //            TelerikSeries[m] = CreateLineSeries(Series[m], m);
-            //    }
-            //    ToggleTelerikSeries.Execute(TelerikSeries[m]);
-
-
-            //});
-            //var a = new RadCartesianChart();
-            //var b = new PresenterCollection<LineSeries>();
-            //b.Add(new LineSeries);
 
         }
 
 
-        private LineSeries CreateLineSeries(ISeries s, MeasurementTypeHelper xx)
-        {
-            var l = new LineSeries()
-            {
-                Stroke = new SolidColorBrush(xx.SeriesColor.ToColor()),
-                StrokeThickness = 4,
-                Tag = xx.Type
-            };
+        //private LineSeries CreateLineSeries(ISeries s, MeasurementTypeHelper xx)
+        //{
+        //    var l = new LineSeries()
+        //    {
+        //        Stroke = new SolidColorBrush(xx.SeriesColor.ToColor()),
+        //        StrokeThickness = 4,
+        //        Tag = xx.Type
+        //    };
 
-            s.Values.Aggregate(0, (acc, v) =>
-            {
-                l.DataPoints.Add(new Telerik.Charting.CategoricalDataPoint() { Value = v.Item2, Category = v.Item1 });
-                return acc + 1;
-            });
+        //    s.Values.Aggregate(0, (acc, v) =>
+        //    {
+        //        l.DataPoints.Add(new Telerik.Charting.CategoricalDataPoint() { Value = v.Item2, Category = v.Item1 });
+        //        return acc + 1;
+        //    });
 
-            return l;
+        //    return l;
 
-        }
+        //}
 
         //ReactiveList<LineSeries> _TelerikSeries = new ReactiveList<LineSeries>();
         //public IReadOnlyReactiveList<LineSeries> TelerikSeries { get { return _TelerikSeries; } }

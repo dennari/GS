@@ -298,10 +298,17 @@ namespace Growthstories.UI.ViewModel
 
     public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
     {
-        IDictionary<MeasurementType, ISeries> Series { get; }
-        IDictionary<MeasurementType, object> TelerikSeries { get; }
+        //sIDictionary<MeasurementType, ISeries> Series { get; }
+        //IDictionary<MeasurementType, object> TelerikSeries { get; }
         IReactiveCommand ToggleSeries { get; }
-        IReactiveCommand ToggleTelerikSeries { get; }
+        //IReactiveCommand ToggleTelerikSeries { get; }
+        double Minimum { get; set; }
+        double Maximum { get; set; }
+        double YAxisStep { get; set; }
+        int YAxisLabelStep { get; set; }
+        int XAxisLabelStep { get; set; }
+        string LineColor { get; set; }
+        IReadOnlyReactiveList<IPlantMeasureViewModel> Series { get; set; }
 
     }
 

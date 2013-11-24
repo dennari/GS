@@ -344,6 +344,12 @@ namespace Growthstories.UI.ViewModel
             {
                 this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
             }
+
+
+
+
+
+
         }
 
         protected override void TimelineLinesSetup()

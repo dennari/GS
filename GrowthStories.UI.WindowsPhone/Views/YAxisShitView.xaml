@@ -14,26 +14,177 @@
     d:DataContext="{StaticResource YAxisShitViewModelDesign}"
     d:DesignHeight="480" d:DesignWidth="800"
     mc:Ignorable="d">
+    
+    <local:YAxisShitViewBase.Resources>
+        <SolidColorBrush x:Key="GrayedBrush" Color="{StaticResource PhoneSubtleColor}"/>
+        <Style x:Key="textBlockStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="textBlockStyleGray" TargetType="TextBlock" BasedOn="{StaticResource textBlockStyle}">
+            <Setter Property="Foreground" Value="{StaticResource GrayedBrush}"/>
+        </Style>
+        <Style x:Key="baseAxisStyle" TargetType="chart:Axis">
+            <Setter Property="MajorTickStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="Transparent"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="LineStroke" Value="{StaticResource GrayedBrush}"/>
+            <Setter Property="LabelStyle" Value="{StaticResource textBlockStyle}"/>
+        </Style>
 
+        <Style TargetType="Rectangle" x:Key="transparentTick">
+            <Setter Property="Fill" Value="Transparent"/>
+        </Style>
+
+        <Style TargetType="Rectangle" x:Key="visibleTick">
+            <Setter Property="Fill" Value="{StaticResource PhoneForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="linearAxisStyle" TargetType="chart:LinearAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <Setter Property="LabelStyle">
+                <Setter.Value>
+                    <Style TargetType="TextBlock"  BasedOn="{StaticResource textBlockStyle}">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Margin" Value="0,2,10,3"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="linearAxisStyleNoLine" TargetType="chart:LinearAxis" BasedOn="{StaticResource linearAxisStyle}">
+            <Setter Property="LineStroke" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="linearAxisStyleWithTicks" TargetType="chart:LinearAxis" BasedOn="{StaticResource linearAxisStyle}">
+            <Setter Property="LabelStyle">
+                <Setter.Value>
+                    <Style TargetType="TextBlock"  BasedOn="{StaticResource textBlockStyle}">
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Margin" Value="0,2,10,3"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="MajorTickStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="{StaticResource GrayedBrush}"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="dateAxisStyle" TargetType="chart:DateTimeCategoricalAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <!--<Setter Property="LabelStyle">
+                <Setter.Value>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource textBlockStyle}">
+                        <Setter Property="Width" Value="45"/>
+                        <Setter Property="TextWrapping" Value="Wrap"/>
+                        <Setter Property="TextAlignment" Value="Center"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>-->
+        </Style>
+
+        <Style x:Key="timeLineAxisStyle" TargetType="chart:DateTimeContinuousAxis" BasedOn="{StaticResource baseAxisStyle}">
+        </Style>
+
+        <Style x:Key="dateTimeCategoricalAxisStyle" TargetType="chart:DateTimeCategoricalAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <Setter Property="MajorTickStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="{StaticResource GrayedBrush}"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="polarAxisStyle" TargetType="chart:PolarAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <Setter Property="MajorTickStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="{StaticResource GrayedBrush}"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="radialAxisStyle" TargetType="chart:NumericRadialAxis" BasedOn="{StaticResource baseAxisStyle}">
+        </Style>
+
+        <Style x:Key="categoriacalRadialAxisStyle" TargetType="chart:CategoricalRadialAxis" BasedOn="{StaticResource baseAxisStyle}">
+        </Style>
+
+        <Style x:Key="timeLineAxisStyleWithTicks" TargetType="chart:DateTimeContinuousAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <Setter Property="MajorTickStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="{StaticResource GrayedBrush}"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="gridStyleDashed" TargetType="chart:CartesianChartGrid">
+            <Setter Property="MajorYLineDashArray" Value="2,4"/>
+        </Style>
+
+        <Style x:Key="gridStyleDashedAll" TargetType="chart:CartesianChartGrid">
+            <Setter Property="MajorXLineDashArray" Value="2,4"/>
+            <Setter Property="MajorYLineDashArray" Value="2,4"/>
+        </Style>
+
+
+        <DataTemplate x:Key="LegendItemTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse 
+                     Fill="{Binding Path=Fill}"
+                     Stroke="{Binding Path=Strokel}"
+                     StrokeThickness="2"
+                     Width="12"
+                     Height="12"
+                     Margin="0, 2, 7, 0"/>
+                <TextBlock Text="{Binding Path=Text}"/>
+            </StackPanel>
+        </DataTemplate>
+
+    </local:YAxisShitViewBase.Resources>
 
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.Background>
-            <RadialGradientBrush Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
+            <RadialGradientBrush 
+                Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
                 <GradientStop Color="#FF9E2277" Offset="1"/>
                 <GradientStop Color="#FFE8570E"/>
+                <!--<GradientStop Color="#FFA2578B" Offset="1"/>
+                <GradientStop Color="#FFE87D48"/>-->
             </RadialGradientBrush>
         </Grid.Background>
-        <StackPanel>
-            <!--<TextBlock x:Name="TestText" 
-                       FontSize="72" 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="{Binding SeriesTitle}" 
+                       FontSize="30" 
                        Foreground="{StaticResource PhoneTextBoxBrush}"
-                       Text="dfgd"/>-->
-            <chart:RadCartesianChart 
-                Width="750"
-			    Height="480"
-			    x:Name="GSChart"      
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   />
+           
+        <!--<Border Grid.Row="1" BorderThickness="3" BorderBrush="White"></Border>-->
+            
+        <chart:RadCartesianChart                 
+			    x:Name="GSChart"
+                Grid.Row="1"
+                Height="370"
+                Margin="12,0"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Stretch"     
                 >
 
                 <!--<chart:RadCartesianChart.Grid>
@@ -52,27 +203,21 @@
                 </chart:RadCartesianChart.Grid>-->
 
                 <chart:RadCartesianChart.HorizontalAxis>
-                    <chart:CategoricalAxis 
-                        LineStroke="{StaticResource PhoneDisabledBrush}" 
-                        LineThickness="2"
-                        MajorTickInterval="20"                   
-                        >
-                        <chart:CategoricalAxis.LabelTemplate>
-                            <DataTemplate>
-                                
-                            </DataTemplate>
-                        </chart:CategoricalAxis.LabelTemplate>
-                        <chart:CategoricalAxis.MajorTickTemplate>
-                            <DataTemplate>
+                    <chart:DateTimeCategoricalAxis 
+                        Style="{StaticResource dateAxisStyle}" 
+                        DateTimeComponent="Hour" 
+                        LabelFormat="d"
+                        LabelFitMode="Rotate"
+                        GapLength="0.5"                        
+                        LabelInterval="{Binding XAxisLabelStep}"
+                        
+                        />
 
-                            </DataTemplate>
-                        </chart:CategoricalAxis.MajorTickTemplate>
-                    </chart:CategoricalAxis>
                     
                 </chart:RadCartesianChart.HorizontalAxis>
 
                 <chart:RadCartesianChart.VerticalAxis>
-                    <chart:LinearAxis 
+                    <!--<chart:LinearAxis 
                         LineStroke="{StaticResource PhoneDisabledBrush}" 
                         LineThickness="2"
                         >
@@ -86,19 +231,39 @@
 
                             </DataTemplate>
                         </chart:LinearAxis.MajorTickTemplate>
-                    </chart:LinearAxis>
-                </chart:RadCartesianChart.VerticalAxis>
+                    </chart:LinearAxis>-->
+                    <!--<chart:LinearAxis 
+                        Minimum="{Binding Minimum}" 
+                        Maximum="{Binding Maximum}" 
+                        MajorStep="{Binding YAxisStep}"
+                        
+                        Style="{StaticResource linearAxisStyle}" 
+                        />-->
+                    <chart:LinearAxis 
+                        Style="{StaticResource linearAxisStyle}" 
+                        
+                        />
 
-                <!--<chart:LineSeries
-                    Stroke="Orange"
-                    StrokeThickness="4"
-                    ItemsSource="{Binding Series[0].YValues}" />
+                </chart:RadCartesianChart.VerticalAxis>
+                <chart:RadCartesianChart.Grid>
+                    <chart:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y">
+                        <chart:CartesianChartGrid.YStripeBrushes>
+                            <SolidColorBrush Color="{StaticResource PhoneInactiveColor}"/>
+                            <SolidColorBrush Color="Transparent"/>
+                        </chart:CartesianChartGrid.YStripeBrushes>
+                    </chart:CartesianChartGrid>
+                </chart:RadCartesianChart.Grid>
+
 
                 <chart:LineSeries
-                    Stroke="Magenta"
-                    StrokeThickness="4"
-                    ItemsSource="{Binding Series[0].XValues}"/>-->
+                    Stroke="White"
+                    StrokeThickness="7"
+                    ValueBinding="{Binding ValueBinding}"
+                    CategoryBinding="{Binding CategoryBinding}"
+                    ItemsSource="{Binding Series}" 
+                    CombineMode="None"/>
+                
             </chart:RadCartesianChart>
-        </StackPanel>
-    </Grid>
+        </Grid>
+
 </local:YAxisShitViewBase>

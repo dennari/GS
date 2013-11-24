@@ -37,14 +37,21 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IYAxisShitViewModel pvm)
         {
 
-            pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
+            // pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
 
             //foreach (var s in pvm.TelerikSeries)
             //{
             //    this.
             //}
 
-            this.RenderChart(pvm.TelerikSeries.Values);
+            //this.RenderChart();
+            //this.GSChart.Series.Add(pvm.TelerikSeries.Values.First() as LineSeries);
+
+            var xAxis = this.GSChart.HorizontalAxis as DateTimeCategoricalAxis;
+            //var yAxis = this.GSChart.VerticalAxis as LinearAxis;
+
+
+
         }
 
         private void Toggle(LineSeries x)

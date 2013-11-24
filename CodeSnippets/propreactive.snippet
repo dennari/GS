@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>propreactive</Title>
+			<Shortcut>propreactive</Shortcut>
+			<Description>Code snippet for property and backing field with reactive setter</Description>
+			<Author>Microsoft Corporation</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<ToolTip>Property type</ToolTip>
+					<Default>string</Default>
+				</Literal>
+				<Literal>
+					<ID>field</ID>
+					<ToolTip>The variable backing this property</ToolTip>
+					<Default>MyVar</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[private $type$ _$field$;
+	public $type$ $field$
+	{
+		get 
+		{ 
+			return _$field$;
+		}
+		set 
+		{ 
+			this.RaiseAndSetIfChanged(ref _$field$, value);
+		}
+	}
+	$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
