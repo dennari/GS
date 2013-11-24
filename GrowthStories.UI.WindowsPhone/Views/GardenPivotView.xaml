@@ -24,11 +24,13 @@
 			x:Name="Plants" 
 			ItemsSource="{Binding Plants}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-			Title="{Binding Username}">
+			Title="{Binding Username}"
+            Foreground="White">
 
             <phone:Pivot.HeaderTemplate>
                 <DataTemplate>
-                    <ContentControl Content="{Binding Name}"/>
+                    <ContentControl 
+                        Content="{Binding Name}"/>
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
 

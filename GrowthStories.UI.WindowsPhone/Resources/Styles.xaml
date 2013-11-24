@@ -14,131 +14,170 @@
 	xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls" 
 	xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls" 
     xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
+    xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
 	mc:Ignorable="d">
 
-	<local:LocalizedStrings x:Key="LocalizedStrings" />
-   
-	<!--<design:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
+    <local:LocalizedStrings x:Key="LocalizedStrings" />
+
+    <!--<design:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
 	<design:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />-->
 
-	<!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
-	<Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>
-	<system:Double x:Key="GSAppTitleFontSize">24</system:Double>
-	<system:Double x:Key="GSPageTitleFontSize">67</system:Double>
-	<system:Double x:Key="GSInputLabelFontSize">25</system:Double>
-	<system:Double x:Key="GSTextBoxFontSize">24</system:Double>
-	<system:Double x:Key="GSListFontSize">28</system:Double>
-	<system:Double x:Key="GSTinyFontSize">18</system:Double>
-	<Thickness x:Key="GSPageHeaderMargin">24</Thickness>
-	<Thickness x:Key="GSPageContentMargin">24,0</Thickness>
-	<Thickness x:Key="GSUndoMargin">-12,-6,-12,0</Thickness>
-	<Thickness x:Key="GSInputLabelMargin">0,12,0,3</Thickness>
-	<Thickness x:Key="GSZeroMargin">0,0</Thickness>
+    <!--<local:ViewModelLocator x:Key="Locator" d:IsDataSource="True" />-->
+    <Thickness x:Key="GSPhoneTouchTargetOverhang">0</Thickness>
+    <system:Double x:Key="GSAppTitleFontSize">24</system:Double>
+    <system:Double x:Key="GSPageTitleFontSize">67</system:Double>
+    <system:Double x:Key="GSInputLabelFontSize">25</system:Double>
+    <system:Double x:Key="GSTextBoxFontSize">24</system:Double>
+    <system:Double x:Key="GSListFontSize">28</system:Double>
+    <system:Double x:Key="GSTinyFontSize">18</system:Double>
+    <Thickness x:Key="GSPageHeaderMargin">24</Thickness>
+    <Thickness x:Key="GSPageContentMargin">24,0</Thickness>
+    <Thickness x:Key="GSUndoMargin">-12,-6,-12,0</Thickness>
+    <Thickness x:Key="GSInputLabelMargin">0,12,0,3</Thickness>
+    <Thickness x:Key="GSZeroMargin">0,0</Thickness>
 
     <FontFamily x:Key="GSPageTitleFont">/Resources/Raleway-ExtraLight.ttf#Raleway</FontFamily>
     <FontFamily x:Key="GSInputLabelFont">/Resources/Raleway-Light.ttf#Raleway</FontFamily>
-	<FontFamily x:Key="GSAppTitleFont">/Resources/Montserrat-Bold.ttf#Montserrat</FontFamily>
-	<FontFamily x:Key="GSTextBoxFont">/Resources/Montserrat-Regular.ttf#Montserrat</FontFamily>
-   
-			   
+    <FontFamily x:Key="GSAppTitleFont">/Resources/Montserrat-Bold.ttf#Montserrat</FontFamily>
+    <FontFamily x:Key="GSTextBoxFont">/Resources/Montserrat-Regular.ttf#Montserrat</FontFamily>
 
-	<system:String x:Key="GSInputLabelFontColor">#fff5dae4</system:String>
-	<Color x:Key="GSInputColor">#ffae2e5f</Color>
-	<system:String x:Key="GSTextBoxDisabledFontColor">#a0f5dae4</system:String>
-	<Color x:Key="GSAppBarColor">#fffa6800</Color>
+    <system:String x:Key="GSInputLabelFontColor">#fff5dae4</system:String>
+    <Color x:Key="GSInputColor">#ffae2e5f</Color>
+    <system:String x:Key="GSTextBoxDisabledFontColor">#a0f5dae4</system:String>
+    <Color x:Key="GSAppBarColor">#fffa6800</Color>
     <Color x:Key="GSAccentColor">#fffa6800</Color>
     <Color x:Key="GSBackgroundColor">#a0f5dae4</Color>
+    <Color x:Key="GSForegroundColor">#ffffffff</Color>
 
 
-	<SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSInputColor}"/>
-	<SolidColorBrush x:Key="GSFocusBorderBrush" Color="{StaticResource GSInputColor}"/>
+    <SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSInputColor}"/>
+    <SolidColorBrush x:Key="GSFocusBorderBrush" Color="{StaticResource GSInputColor}"/>
     <SolidColorBrush x:Key="GSAccentBrush" Color="{StaticResource GSAccentColor}"/>
     <SolidColorBrush x:Key="GSBackgroundBrush" Color="{StaticResource GSBackgroundColor}"/>
-	<SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}"/>
-	
+    <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}"/>
 
 
-	<!-- ############################################### 
+
+    <!-- ############################################### 
  ############ ACTIONS ##############################
  ################################################### -->
 
-	<Style TargetType="local:PlantActionView">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:PlantActionView">
-					<Grid Background="{TemplateBinding Background}">
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="*"/>
-						</Grid.RowDefinitions>
+    <Style TargetType="local:PlantActionView">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-						<StackPanel Grid.Row="0" Margin="12,17,12,28" Visibility="{TemplateBinding HeaderVisibility}">
-							<!--<TextBlock 
+                        <StackPanel Grid.Row="0" Margin="12,17,12,28" Visibility="{TemplateBinding HeaderVisibility}">
+                            <TextBlock 
 								Text="{Binding PlantTitle}" 
-								Style="{StaticResource GSAppTitleStyle}"/>-->
-							<TextBlock
+								Style="{StaticResource GSAppTitleStyle}"/>
+                            <TextBlock
 								Margin="6,-5,12,0"
-								Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" 
+								Text="{Binding Label}" 
 								Style="{StaticResource GSPageTitleStyle}" />
-						</StackPanel>
+                        </StackPanel>
 
-						<ContentPresenter
-									Margin="12,0,12,6"
-									Grid.Row="1"
+                        <ScrollViewer Grid.Row="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Margin="12,25,12,10" Grid.Row="0">
+                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
+                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
+                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
+                                </StackPanel>
+
+                                <ContentPresenter
+								    Margin="12,0,12,6"
+								    Grid.Row="1"
                                     DataContext="{TemplateBinding DataContext}"
-									Content="{TemplateBinding DataContext}" 
-									ContentTemplate="{TemplateBinding ContentTemplate}" 
-									Visibility="{TemplateBinding ContentVisibility}" 
-									HorizontalAlignment="Stretch"/>
+								    Content="{TemplateBinding DataContext}" 
+								    ContentTemplate="{TemplateBinding ContentTemplate}" 
+								    Visibility="{TemplateBinding ContentVisibility}" 
+								    HorizontalAlignment="Stretch">
+                                </ContentPresenter>
 
-						
+                                <local:GSChatTextBox
+                                    Grid.Row="2"
+							        Margin="24,0,24,100"
+                                    Padding="12,12,12,100"                                   
+							        Hint="Enter comment / note"
+							        MinHeight="100"
+                                    c4fBinding:TextBinding.UpdateSourceOnChange="True"
+							        VerticalAlignment="Top"						
+							        Text="{Binding Note, Mode=TwoWay}" 		
+							        Visibility="{TemplateBinding NoteVisibility}" />
 
-						<local:GSChatTextBox
-							Grid.Row="2"
-							Margin="24,0"
-							Hint="Note"
-							MinHeight="100"
-                            c4fBinding:TextBinding.UpdateSourceOnChange="True"
-							VerticalAlignment="Top"						
-							Text="{Binding Note, Mode=TwoWay}" 		
-							Visibility="{TemplateBinding NoteVisibility}" />
-			
+                                <TextBlock Text="" Foreground="Transparent" Grid.Row="3" />
 
-				
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+                            </Grid>
 
-	<DataTemplate x:Key="DetailMeasureTemplate">
-		<StackPanel>
-			<local:GSTextBox Hint="Value" 
-							 Text="{Binding SValue, Mode=TwoWay}" 
-							 c4fBinding:TextBinding.UpdateSourceOnChange="True"
-                             InputScope="Number" Margin="0"/>
+                        </ScrollViewer>
 
-			<local:GSListPicker 
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DataTemplate x:Key="DetailMeasureTemplate">
+
+        <StackPanel>
+
+            <local:GSListPicker 
 				x:Name="MeasurementTypePicker"			
 				ExpansionMode="ExpansionAllowed"
 				ItemsSource="{Binding Options}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 				CacheMode="BitmapCache" Margin="12,0"
 				>
-				<local:GSListPicker.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding Title}" 
+                <local:GSListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" 
 								   Style="{StaticResource GSTextBoxOnTextBlockStyle}"
 								   />
-					</DataTemplate>
-				</local:GSListPicker.ItemTemplate>
-			</local:GSListPicker>
 
-		</StackPanel>
-	</DataTemplate>
+                    </DataTemplate>
+                </local:GSListPicker.ItemTemplate>
+            </local:GSListPicker>
 
-	<DataTemplate x:Key="DetailPhotoTemplate">
+            <local:GSTextBox 
+                Hint="Value" 
+				Text="{Binding SValue, Mode=TwoWay}" 
+				c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                InputScope="Number" 
+                Margin="0"
+                FontSize="90"
+                Padding="20,0,20,0"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Right"
+                BorderThickness="4"
+                FontWeight="ExtraBold"
+                />
+
+            <!--
+            BorderBrush="WhiteSmoke"
+                Foreground="WhiteSmoke"
+                Background="Transparent"
+                SelectionBackground="Transparent"
+                SelectionForeground="White"
+            -->
+
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="DetailPhotoTemplate">
         <Grid HorizontalAlignment="Stretch" Height="350" Margin="12,0">
             <Grid.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
@@ -152,239 +191,303 @@
             </Button>
 
         </Grid>
-	</DataTemplate>
+    </DataTemplate>
 
-	<Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:PlantActionView">
-					<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0">
-						<Grid.Background>
-							<ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
-						</Grid.Background>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+    <Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0">
+                        <Grid.Background>
+                            <ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
+                        </Grid.Background>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-	<DataTemplate x:Key="TimelinePhotoTemplate">
-		<Button Height="220" HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,0" Command="{Binding PhotoTimelineTap}">
-			<Button.Background>
-				<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
-				<!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
-			</Button.Background>
-		</Button>
-	</DataTemplate>
+    <DataTemplate x:Key="TimelinePhotoTemplate">
+        <Button Height="220" HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
+            <Button.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
+                <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
+            </Button.Background>
+        </Button>
+    </DataTemplate>
 
-	<Style TargetType="local:TimelineActionView">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:TimelineActionView">
-					<StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
-						<ContentPresenter 
+    <Style TargetType="local:TimelineActionView">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:TimelineActionView">
+                    <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
+                        <ContentPresenter 
 							DataContext="{TemplateBinding DataContext}"
                             Content="{TemplateBinding DataContext}" 
 							ContentTemplate="{TemplateBinding ContentTemplate}" 
 							Visibility="{TemplateBinding ContentVisibility}" 
 							HorizontalAlignment="Stretch"/>
-						<StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
-							<StackPanel Orientation="Vertical" Width="110">
-								<TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-								<TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
-								<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
-							</StackPanel>
-							<Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-							<StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
+                            <StackPanel Orientation="Vertical" Width="110">
+                                <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                                <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                                <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                            </StackPanel>
+                            <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                                 <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
                                 <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
                                 <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-							</StackPanel>
-						</StackPanel>
+                            </StackPanel>
+                        </StackPanel>
                         <toolkit:ContextMenuService.ContextMenu>
                             <toolkit:ContextMenu>
                                 <toolkit:MenuItem Header="Edit" 
                                               Command="{Binding EditCommand}"
-                                              CommandParameter="{Binding}"/>                      
+                                              CommandParameter="{Binding}"/>
 
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
-                    </StackPanel>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style TargetType="ContentControl" x:Key="PlantNextAction">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="ContentControl">
-					<StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
-
-						<StackPanel Orientation="Vertical" Width="110" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}">
-								<TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-								<TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
-						 </StackPanel>
-
-						<TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
-
-						<Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-
-						<TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
-						<TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
-
-					</StackPanel>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-
-
-	<Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:PlantActionView">
-					<StackPanel Orientation="Horizontal" Margin="0,0,0,24" Canvas.ZIndex="1">
-
-						<StackPanel Orientation="Vertical" Width="110">
-							<TextBlock Text="{Binding TodayWeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-							<TextBlock Text="{Binding TodayDate}" Style="{StaticResource GSActionListDateStyle}"/>
-							<!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
-						</StackPanel>
-                        <Grid Margin="24,0" Width="45" Height="45">
-                            <Ellipse x:Name="ButtonBackground" Stroke="Transparent" Fill="White"  Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-							<TextBlock Text="TODAY" Style="{StaticResource GSActionListItemTitleStyle}"/>
-							<!--<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>-->
-						</StackPanel>
-					
-					</StackPanel>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-
-	<Style x:Key="GSTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
-		<Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
-		<!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
-	</Style>
-	
-	<Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
-		<Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
-		<!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
-	</Style>
-	<Style x:Key="GSAppTitleStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource GSAppTitleFont}"/>
-		<Setter Property="FontSize" Value="{StaticResource GSAppTitleFontSize}"/>
-		<Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-	</Style>
-	<Style x:Key="GSPageTitleStyle" BasedOn="{StaticResource PhoneTextTitle1Style}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource GSPageTitleFont}"/>
-		<Setter Property="FontSize" Value="{StaticResource GSPageTitleFontSize}"/>
-		<Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-	</Style>
-	<Style x:Key="GSInputLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource GSInputLabelFont}"/>
-		<Setter Property="FontSize" Value="{StaticResource GSInputLabelFontSize}"/>
-		<Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
-	</Style>
-	<Style x:Key="GSPlantTileLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource GSTextBoxFont}"/>
-		<Setter Property="FontSize" Value="{StaticResource GSInputLabelFontSize}"/>
-		<Setter Property="Foreground" Value="WhiteSmoke"/>
-		<Setter Property="Margin" Value="{StaticResource GSInputLabelMargin}"/>
-	</Style>
-	<Style x:Key="GSActionListWeekDayStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
-		<Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-		<Setter Property="TextAlignment" Value="Right"/>
-	</Style>
-	<Style x:Key="GSActionListDateStyle" BasedOn="{StaticResource GSActionListWeekDayStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
-	</Style>
-	<Style x:Key="GSActionListTimeStyle" BasedOn="{StaticResource GSActionListDateStyle}" TargetType="TextBlock"/>
-	<Style x:Key="GSActionListItemTitleStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
-		<Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-		<Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
-	</Style>
-	<Style x:Key="GSActionListItemNoteStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
-		<Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
-		<Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-	</Style>
-
-
-<!-- ////////////////////////////
-	/////// CONTROLS /////////////
-	//////////////////////////////-->
-
-    <Style x:Key="GSHintStyle" TargetType="ContentControl">
-        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
-        <Setter Property="Opacity" Value="0.5"/>
-    </Style>
-    <Style TargetType="local:GSTextBox">
-        <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
-        <Setter Property="HintStyle" Value="{StaticResource GSHintStyle}"/>
-	</Style>
-
-    <Style TargetType="local:GSChatTextBox">
-		<Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
-	</Style>
-	<Style TargetType="local:GSListPicker">
-		<Setter Property="Background" Value="White"/>
-		<Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
-		<Setter Property="BorderBrush" Value="{StaticResource GSTextBoxBrush}"/>
-		<Setter Property="BorderThickness" Value="{StaticResource PhoneBorderThickness}"/>
-		<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
-		<Setter Property="HorizontalContentAlignment" Value="Left"/>
-		<Setter Property="Margin" Value="{StaticResource PhoneTouchTargetOverhang}"/>
-	</Style>
-    <Style TargetType="local:GSLabel">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:GSLabel">
-                    <StackPanel Margin="{TemplateBinding Margin}" Visibility="{TemplateBinding Visibility}">
-                        <TextBlock Style="{StaticResource GSInputLabelStyle}" Text="{TemplateBinding Label}" Margin="12,0,12,-9"/>
-                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="local:GSToggleSwitch">
-        <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
-        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
-        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeLarge}"/>
-        <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-        <Setter Property="IsTabStop" Value="False"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="SwitchForeground" Value="{StaticResource GSAccentBrush}"/>
-        <Setter Property="VerticalContentAlignment" Value="Top"/>
-    </Style>
-
-    <Style TargetType="local:GSViewGrid">
+    <Style TargetType="ContentControl" x:Key="PlantNextAction">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="local:GSViewGrid">
-                    <Grid Background="{TemplateBinding Background}" HorizontalAlignment="Stretch">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                            <Grid  Margin="12,0,12,36" HorizontalAlignment="Stretch">
+                <ControlTemplate TargetType="ContentControl">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
+
+                        <StackPanel Orientation="Vertical" Width="110" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}">
+                            <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                            <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                        </StackPanel>
+
+                        <TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
+
+                        <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
+
+                        <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
+
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+
+    <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:PlantActionView">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,24" Canvas.ZIndex="1">
+
+                        <StackPanel Orientation="Vertical" Width="110">
+                            <TextBlock Text="{Binding TodayWeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                            <TextBlock Text="{Binding TodayDate}" Style="{StaticResource GSActionListDateStyle}"/>
+                            <!--<TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>-->
+                        </StackPanel>
+                        <Grid Margin="24,0" Width="45" Height="45">
+                            <Ellipse x:Name="ButtonBackground" Stroke="Transparent" Fill="White"  Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock Text="TODAY" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                            <!--<TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}"/>-->
+                        </StackPanel>
+
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+
+    <Style x:Key="GSRadTimePickerStyle" BasedOn="{StaticResource PickerBoxToggleButtonStyle1}" TargetType="telerikInput:RadTimeSpanPicker">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="White"/>
+    </Style>
+    -->
+
+        <Style x:Key="GSTextNormalStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="GSTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
+            <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
+            <!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
+        </Style>
+
+        <Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
+            <!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
+        </Style>
+        <Style x:Key="GSAppTitleStyle" BasedOn="{StaticResource GSTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource GSAppTitleFont}"/>
+            <Setter Property="FontSize" Value="{StaticResource GSAppTitleFontSize}"/>
+            <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+        </Style>
+
+        <Style x:Key="GSPageTitleStyle" BasedOn="{StaticResource PhoneTextTitle1Style}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource GSPageTitleFont}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="{StaticResource GSPageTitleFontSize}"/>
+            <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+        </Style>
+
+        <Style x:Key="GSInputLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource GSInputLabelFont}"/>
+            <Setter Property="FontSize" Value="{StaticResource GSInputLabelFontSize}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
+        </Style>
+        <Style x:Key="GSPlantTileLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource GSTextBoxFont}"/>
+            <Setter Property="FontSize" Value="{StaticResource GSInputLabelFontSize}"/>
+            <Setter Property="Foreground" Value="WhiteSmoke"/>
+            <Setter Property="Margin" Value="{StaticResource GSInputLabelMargin}"/>
+        </Style>
+        <Style x:Key="GSActionListWeekDayStyle" BasedOn="{StaticResource GSTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+            <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="GSActionListDateStyle" BasedOn="{StaticResource GSActionListWeekDayStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+        </Style>
+        <Style x:Key="GSActionListTimeStyle" BasedOn="{StaticResource GSActionListDateStyle}" TargetType="TextBlock"/>
+        <Style x:Key="GSActionListItemTitleStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+            <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
+        </Style>
+        <Style x:Key="GSActionListItemNoteStyle" BasedOn="{StaticResource GSTextNormalStyle}" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
+            <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
+        </Style>
+
+
+        <!-- ////////////////////////////
+	/////// CONTROLS /////////////
+	//////////////////////////////-->
+
+        <Style x:Key="GSHintStyle" TargetType="ContentControl">
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <Style TargetType="local:GSTextBox">
+            <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="HintStyle" Value="{StaticResource GSHintStyle}"/>
+            <Setter Property="SelectionForeground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="SelectionBackground" Value="WhiteSmoke" />
+        </Style>
+
+        <Style TargetType="local:GSChatTextBox">
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="Padding" Value="16,16,16,16" />
+    </Style>
+
+        <Style TargetType="local:GSListPicker">
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="BorderThickness" Value="{StaticResource PhoneBorderThickness}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="{StaticResource PhoneTouchTargetOverhang}"/>
+        </Style>
+
+        <Style TargetType="local:GSLabel">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:GSLabel">
+                        <StackPanel Margin="{TemplateBinding Margin}" Visibility="{TemplateBinding Visibility}">
+                            <TextBlock Style="{StaticResource GSInputLabelStyle}" Text="{TemplateBinding Label}" Margin="12,0,12,-9"/>
+                            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="local:GSToggleSwitch">
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeLarge}"/>
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="SwitchForeground" Value="{StaticResource GSAccentBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+        </Style>
+
+        <Style TargetType="local:GSViewGrid">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:GSViewGrid">
+                        <Grid Background="{TemplateBinding Background}" HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                <Grid  Margin="12,0,12,36" HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                        <TextBlock
+					                    Margin="6,-5,0,0"
+					                    Text="{TemplateBinding TopTitle}"
+					                    Style="{StaticResource GSAppTitleStyle}" />
+                                        <TextBlock
+					                    Margin="6,-5,0,0"
+					                    Text="{TemplateBinding Title}"
+					                    Style="{StaticResource GSPageTitleStyle}" />
+                                    </StackPanel>
+
+                                    <ContentPresenter 
+                                    Grid.Row="1"
+                                    c4f:TiltEffect.IsTiltEnabled="True"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="local:GSViewGrid" x:Key="NoScroll">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:GSViewGrid">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid  Margin="12,0,12,36" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
@@ -392,57 +495,16 @@
 
                                 <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
                                     <TextBlock
-					                    Margin="6,-5,0,0"
-					                    Text="{TemplateBinding TopTitle}"
-					                    Style="{StaticResource GSAppTitleStyle}" />
-                                    <TextBlock
-					                    Margin="6,-5,0,0"
-					                    Text="{TemplateBinding Title}"
-					                    Style="{StaticResource GSPageTitleStyle}" />
-                                </StackPanel>
-
-                                <ContentPresenter 
-                                    Grid.Row="1"
-                                    c4f:TiltEffect.IsTiltEnabled="True"
-                                    Content="{TemplateBinding Content}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>       
-                             
-                            </Grid>
-                        </ScrollViewer>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style TargetType="local:GSViewGrid" x:Key="NoScroll">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:GSViewGrid">
-                    <Grid Background="{TemplateBinding Background}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid  Margin="12,0,12,36" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
-                                <TextBlock
 					            Margin="6,-5,0,0"
 					            Text="{TemplateBinding TopTitle}"
 					            Style="{StaticResource GSAppTitleStyle}" />
-                                <TextBlock
+                                    <TextBlock
 					            Margin="6,-5,0,0"
 					            Text="{TemplateBinding Title}"
 					            Style="{StaticResource GSPageTitleStyle}" />
-                            </StackPanel>
+                                </StackPanel>
 
-                            <ContentPresenter 
+                                <ContentPresenter 
                                 Grid.Row="1"
                                 c4f:TiltEffect.IsTiltEnabled="True"
                                 DataContext="{Binding}"
@@ -451,32 +513,32 @@
                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-    <Style x:Key="GSButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="{StaticResource PhoneForegroundBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilySemiLight}"/>
-        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Grid Background="Transparent">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal"/>
-                                <VisualState x:Name="MouseOver"/>
-                                <VisualState x:Name="Pressed">
-                                    <!--<Storyboard>
+        <Style x:Key="GSButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GSForegroundColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSForegroundColor}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilySemiLight}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver"/>
+                                    <VisualState x:Name="Pressed">
+                                        <!--<Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentContainer">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneButtonBasePressedForegroundBrush}"/>
                                         </ObjectAnimationUsingKeyFrames>
@@ -484,29 +546,29 @@
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneAccentBrush}"/>
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>-->
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentContainer">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneDisabledBrush}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="ButtonBackground">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneDisabledBrush}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="ButtonBackground">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <Border x:Name="ButtonBackground" 
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentContainer">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneDisabledBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="ButtonBackground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneDisabledBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="ButtonBackground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Border x:Name="ButtonBackground" 
                                     BorderBrush="{TemplateBinding BorderBrush}" 
                                     BorderThickness="{TemplateBinding BorderThickness}" 
                                     Background="{TemplateBinding Background}" 
                                     CornerRadius="0" 
                                     Margin="{TemplateBinding Margin}">
-                            <ContentControl 
+                                <ContentControl 
                                     x:Name="ContentContainer" 
                                     ContentTemplate="{TemplateBinding ContentTemplate}" 
                                     Content="{TemplateBinding Content}" 
@@ -514,52 +576,52 @@
                                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                     Padding="{TemplateBinding Padding}" 
                                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
 
-    <Style TargetType="local:SignInRegisterView">
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="VerticalContentAlignment" Value="Top"/>
-        <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeNormal}"/>
-        <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-        <Setter Property="Background" Value="{StaticResource PhoneChromeBrush}"/>
-        <Setter Property="Margin" Value="0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:SignInRegisterView">
-                    <Grid 
+        <Style TargetType="local:SignInRegisterView">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
+            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeNormal}"/>
+            <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
+            <Setter Property="Background" Value="{StaticResource PhoneChromeBrush}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:SignInRegisterView">
+                        <Grid 
                         Background="{TemplateBinding Background}"
                         HorizontalAlignment="Stretch"                        
                         >
-                        <Grid 
+                            <Grid 
                             Width="480"
                             Height="800"
                             HorizontalAlignment="Left">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel 
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel 
                                 Grid.ColumnSpan="2" 
                                 Margin="0,0,0,18">
-                                <TextBlock 
+                                    <TextBlock 
                                     x:Name="TitleTextBlock"
                                     Text="{Binding Title}" 
                                     Foreground="{TemplateBinding Foreground}"
                                     Margin="24,16,24,24"
                                     FontFamily="{StaticResource PhoneFontFamilySemiBold}"/>
-                                <!--<TextBlock 
+                                    <!--<TextBlock 
                                     x:Name="CaptionTextBlock"
                                     Text="{TemplateBinding Caption}"
                                     Foreground="{TemplateBinding Foreground}"
@@ -579,9 +641,9 @@
                                     FontFamily="{StaticResource PhoneFontFamilySemiLight}"                                                                        
                                     TextWrapping="Wrap"
                                     HorizontalAlignment="Left"/>-->
-                                <ContentPresenter Margin="24,0" DataContext="{Binding}"/>
-                            </StackPanel>
-                            <Button 
+                                    <ContentPresenter Margin="24,0" DataContext="{Binding}"/>
+                                </StackPanel>
+                                <Button 
                                 x:Name="LeftButton"  
                                 Grid.Row="1" Grid.Column="0"
                                 Command="{Binding OKCommand}"
@@ -589,9 +651,9 @@
                                 Foreground="{TemplateBinding Foreground}"
                                 Margin="12,0,0,12"   
                                 c4f:TiltEffect.IsTiltEnabled="True">
-                                <TextBlock Text="{Binding LeftButtonContent}"/>
-                            </Button>
-                            <!--<Button 
+                                    <TextBlock Text="{Binding LeftButtonContent}"/>
+                                </Button>
+                                <!--<Button 
                                 x:Name="RightButton"
                                 Grid.Row="1" Grid.Column="1"
                                 Content="{TemplateBinding RightButtonContent}"
@@ -600,40 +662,40 @@
                                 Margin="0,0,12,12"
                                 Visibility="Collapsed"                             
                                 c4f:TiltEffect.IsTiltEnabled="True"/>-->
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-    <DataTemplate x:Key="RegisterTemplate">
-        <StackPanel>
-            <TextBox Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>
-            <local:GSLabel Label="Username">
-                <local:GSTextBox Text="{Binding Username, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-            </local:GSLabel>
-            <local:GSLabel Label="Email">
-                <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-            </local:GSLabel>
-            <local:GSLabel Label="Password">
-                <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-            </local:GSLabel>
-            <local:GSLabel Label="Password confirmation">
-                <local:GSTextBox Text="{Binding PasswordConfirmation, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-            </local:GSLabel>
-        </StackPanel>
-    </DataTemplate>
+        <DataTemplate x:Key="RegisterTemplate">
+            <StackPanel>
+                <TextBox Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>
+                <local:GSLabel Label="Username">
+                    <local:GSTextBox Text="{Binding Username, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Email">
+                    <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Password">
+                    <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
+                </local:GSLabel>
+                <local:GSLabel Label="Password confirmation">
+                    <local:GSTextBox Text="{Binding PasswordConfirmation, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
+                </local:GSLabel>
+            </StackPanel>
+        </DataTemplate>
 
-    <DataTemplate x:Key="SignInTemplate">
-        <StackPanel>
-            <local:GSLabel Label="Email">
-                <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-            </local:GSLabel>
-            <local:GSLabel Label="Password">
-                <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-            </local:GSLabel>
-        </StackPanel>
-    </DataTemplate>
+        <DataTemplate x:Key="SignInTemplate">
+            <StackPanel>
+                <local:GSLabel Label="Email">
+                    <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Password">
+                    <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
+                </local:GSLabel>
+            </StackPanel>
+        </DataTemplate>
 
 </ResourceDictionary>
