@@ -47,7 +47,16 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             if (state != null)
                 photoStream.StartWith(state.Photo);
 
-            photoStream.Subscribe(x => PhotoSource.SetSource(x));
+            photoStream.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                PhotoSource.SetSource(x);
+            });
+
+            PhotoChooserCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                Chooser.Show();
+            });
+
         }
 
 
@@ -70,23 +79,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     _Chooser = t;
                 }
                 return _Chooser;
-            }
-        }
-
-        protected ReactiveCommand _PhotoChooserCommand;
-        public ReactiveCommand PhotoChooserCommand
-        {
-            get
-            {
-                if (_PhotoChooserCommand == null)
-                {
-                    _PhotoChooserCommand = new ReactiveCommand();
-                    _PhotoChooserCommand.Subscribe(_ =>
-                    {
-                        Chooser.Show();
-                    });
-                }
-                return _PhotoChooserCommand;
             }
         }
 

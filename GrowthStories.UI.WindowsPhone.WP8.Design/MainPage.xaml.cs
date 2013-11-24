@@ -63,20 +63,20 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        public static List<IPlantActionViewModel> VMs = new List<IPlantActionViewModel>() {
-            new PlantActionViewModel(),
-            new PlantMeasureViewModel(),
-            new ClientPlantPhotographViewModel(null,DateTimeOffset.Now),
-            new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now)
-        };
+        //public static List<IPlantActionViewModel> VMs = new List<IPlantActionViewModel>() {
+        //    new PlantActionViewModel(),
+        //    new PlantMeasureViewModel(),
+        //    new ClientPlantPhotographViewModel(null,DateTimeOffset.Now),
+        //    new PlantActionViewModel(PlantActionType.COMMENTED,DateTimeOffset.Now)
+        //};
 
-        private int clicks;
+        //private int clicks;
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            this.PlantAction.ViewModel = VMs[clicks % 4];
-            clicks++;
-        }
+        //private void Button_Click(object sender, RoutedEventArgs e)
+        //{
+        //    this.PlantAction.ViewModel = VMs[clicks % 4];
+        //    clicks++;
+        //}
 
         // Sample code for building a localized ApplicationBar
         //private void BuildLocalizedApplicationBar()

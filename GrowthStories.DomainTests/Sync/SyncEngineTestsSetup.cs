@@ -85,6 +85,20 @@ namespace Growthstories.DomainTests
 
     }
 
+    public class SignInTestsSetup : SyncEngineTestsSetup
+    {
+
+
+        protected override void UserConfiguration()
+        {
+            Bind<IUserService>().To<AppUserService>().InSingletonScope();
+        }
+
+
+
+
+    }
+
 
 
 

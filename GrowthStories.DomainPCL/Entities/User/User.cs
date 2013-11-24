@@ -21,6 +21,8 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<CreateUser>,
         ICommandHandler<BecomeFollower>,
         ICommandHandler<SetUsername>,
+        ICommandHandler<SetEmail>,
+        ICommandHandler<SetPassword>,
         ICommandHandler<RequestCollaboration>,
         ICommandHandler<DenyCollaboration>,
         ICommandHandler<AddGarden>,
@@ -71,6 +73,18 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public void Handle(SetPassword command)
+        {
+
+            RaiseEvent(new PasswordSet(command));
+
+        }
+        public void Handle(SetEmail command)
+        {
+
+            RaiseEvent(new EmailSet(command));
+
+        }
 
         public void Handle(BecomeFollower command)
         {

@@ -42,6 +42,7 @@ namespace Growthstories.UI.ViewModel
 
             this.Icon = ActionTypeToIcon[type];
             this.Label = ActionTypeToLabel[type];
+            this.TimelineFirstLine = this.Note;
 
 
         }
@@ -61,6 +62,34 @@ namespace Growthstories.UI.ViewModel
                 if (_Note != value)
                 {
                     _Note = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        protected string _TimelineSecondLine;
+        public string TimelineSecondLine
+        {
+            get { return _TimelineSecondLine; }
+            set
+            {
+                if (_TimelineSecondLine != value)
+                {
+                    _TimelineSecondLine = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        protected string _TimelineFirstLine;
+        public string TimelineFirstLine
+        {
+            get { return _TimelineFirstLine; }
+            set
+            {
+                if (_TimelineFirstLine != value)
+                {
+                    _TimelineFirstLine = value;
                     RaisePropertyChanged();
                 }
             }
@@ -226,11 +255,11 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        public Dictionary<MeasurementType, MeasurementTypeHelper> Options
+        public IList<MeasurementTypeHelper> _Options;
+        public IList<MeasurementTypeHelper> Options
         {
-            get { return MeasurementTypeHelper.Options; }
+            get { return _Options ?? (_Options = MeasurementTypeHelper.Options.Values.ToArray()); }
         }
-
         //public Dictionary<MeasurementType, MeasurementTypeHelper> Options
         //{
         //    get {return PlantMeasureViewModel}
@@ -266,7 +295,21 @@ namespace Growthstories.UI.ViewModel
             set { this._SValue = value; this.RaisePropertyChanged(); }
         }
 
+        public PlantMeasureViewModel(DateTimeOffset created)
+            : base(PlantActionType.MEASURED, created)
+        {
+            this.SelectedItem = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
+
+            this.Note = "Measurement note";
+            this.SValue = "34234";
+            this.Value = 23423;
+
+            this.TimelineFirstLine = this.SelectedMeasurementType.Title;
+            this.TimelineSecondLine = this.Value.Value.ToString("F1");
+        }
+
         public PlantMeasureViewModel()
+            : this(DateTimeOffset.Now)
         {
 
             //this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.MeasurementType = x.Type);
@@ -285,6 +328,7 @@ namespace Growthstories.UI.ViewModel
             //    this.SValue = state.Value.Value.ToString("F1");
             //    this.Value = state.Value;
             //}
+
         }
 
         //public override void SetProperty(PlantActionPropertySet prop)
@@ -328,6 +372,11 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+        public IReactiveCommand PhotoTimelineTap
+        {
+            get { return new MockReactiveCommand(); }
+        }
     }
 
 

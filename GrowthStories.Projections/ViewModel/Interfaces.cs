@@ -42,13 +42,19 @@ namespace Growthstories.UI.ViewModel
     {
 
     }
-
+    public enum RegisterRespone
+    {
+        alreadyRegistered,
+        emailInUse,
+        success,
+        tryagain
+    }
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
-
+        Task LogOut();
         IUserService Context { get; }
         IAuthUser User { get; }
         //IDictionary<IconType, Uri> IconUri { get; }
@@ -58,6 +64,7 @@ namespace Growthstories.UI.ViewModel
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         Task<IAuthUser> Initialize();
+        Task<RegisterRespone> Register(string username, string email, string password);
         Task<ISyncInstance> Synchronize();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
         Task<IGSAggregate> HandleCommand(MultiCommand x);
@@ -68,8 +75,8 @@ namespace Growthstories.UI.ViewModel
 
 
         IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
-        IObservable<IPlantActionViewModel> CurrentPlantActions(PlantState state, Guid? PlantActionId = null);
-        IObservable<IPlantActionViewModel> FuturePlantActions(PlantState state, Guid? PlantActionId = null);
+        IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null);
+        IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null);
 
         IObservable<IPlantViewModel> CurrentPlants(IAuthUser user);
         IObservable<IPlantViewModel> FuturePlants(IAuthUser user);
@@ -274,9 +281,18 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface ISignInRegisterViewModel : IGSRoutableViewModel
+    public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         bool IsRegistered { get; }
+        IObservable<RegisterRespone> Response { get; }
+        IReactiveCommand OKCommand { get; }
+        string Username { get; set; }
+        string Password { get; set; }
+        string PasswordConfirmation { get; set; }
+        string Email { get; set; }
+        string Message { get; }
+        //string Username { get; set; }
+
     }
 
 
@@ -319,6 +335,8 @@ namespace Growthstories.UI.ViewModel
         Guid PlantId { get; set; }
         Guid UserId { get; set; }
         IReactiveCommand EditCommand { get; set; }
+        string TimelineFirstLine { get; }
+        string TimelineSecondLine { get; }
 
 
     }
@@ -339,6 +357,7 @@ namespace Growthstories.UI.ViewModel
     {
         //IReactiveCommand EditPhotoCommand { get; set; }
         IReactiveCommand PhotoTimelineTap { get; }
+        IReactiveCommand PhotoChooserCommand { get; }
     }
 
 

@@ -60,6 +60,25 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public sealed class LogOutAppUser : AggregateCommand<GSApp>
+    {
+        public readonly Guid UserId;
+
+        public LogOutAppUser(Guid userId)
+            : base(GSAppState.GSAppId)
+        {
+            this.UserId = userId;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Logout user {0}", UserId);
+        }
+
+    }
+
+
 
     public sealed class SetAuthToken : AggregateCommand<GSApp>
     {

@@ -68,16 +68,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void PersistenceConfiguration()
         {
-            Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope().OnActivation((ctx, eng) =>
-                {
-                    eng.ReInitialize();
-                });
-            Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope().OnActivation((ctx, eng) =>
-            {
-                eng.ReInitialize();
-            });
-
-
+            Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope();
+            Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope();
         }
 
         protected override void LogConfiguration()

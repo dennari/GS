@@ -22,20 +22,21 @@ namespace Growthstories.DomainTests
             : base()
         {
             Kernel = kernel;
-            Kernel.Bind<IScreen>().ToConstant(this);
-            Kernel.Bind<IRoutingState>().ToConstant(this.Router);
+            //Kernel.Bind<IScreen>().ToConstant(this);
+            //Kernel.Bind<IRoutingState>().ToConstant(this.Router);
             this.Bus = kernel.Get<IMessageBus>();
-            //Initialize();
 
-            this.Model = (GSApp)Kernel.Get<IDispatchCommands>().Handle(new CreateGSApp());
-            this.User = Context.CurrentUser;
+            TestUtils.WaitForTask(this.Initialize());
+
+            //this.Model = (GSApp)Kernel.Get<IDispatchCommands>().Handle(new CreateGSApp());
+            //this.User = Context.CurrentUser;
         }
 
-        public new Task<IAuthUser> Initialize()
-        {
+        //public new Task<IAuthUser> Initialize()
+        //{
 
-            return null;
-        }
+        //    return null;
+        //}
 
     }
 

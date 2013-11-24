@@ -194,6 +194,14 @@ namespace Growthstories.Domain.Entities
             };
         }
 
+        public void Apply(AppUserLoggedOut @event)
+        {
+            if (this.User != null && this.User.Id == @event.UserId)
+            {
+                this._User = null;
+            }
+        }
+
         public void Apply(AuthTokenSet @event)
         {
             this._User.AccessToken = @event.AccessToken;
@@ -201,6 +209,26 @@ namespace Growthstories.Domain.Entities
             this._User.RefreshToken = @event.RefreshToken;
         }
 
+        public void Apply(UsernameSet @event)
+        {
+
+            this._User.Username = @event.Username;
+
+        }
+
+        public void Apply(PasswordSet @event)
+        {
+
+            this._User.Password = @event.Password;
+
+        }
+
+        public void Apply(EmailSet @event)
+        {
+
+            this._User.Email = @event.Email;
+
+        }
 
 
     }

@@ -64,9 +64,9 @@ namespace Growthstories.Sync
 
     public interface IAuthToken
     {
-        string AccessToken { get; }
-        int ExpiresIn { get; }
-        string RefreshToken { get; }
+        string AccessToken { get; set; }
+        int ExpiresIn { get; set; }
+        string RefreshToken { get; set; }
     }
 
     public interface IAuthUser : IAuthToken, IMemento

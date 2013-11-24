@@ -27,6 +27,13 @@ namespace Growthstories.Sync
         //bool CanHandle(IMessage msg);
     }
 
+    public enum AllSyncResult
+    {
+        AllSynced,
+        SomeLeft,
+        Error
+    }
+
     public interface ISyncInstance
     {
         ISyncPullRequest PullReq { get; }

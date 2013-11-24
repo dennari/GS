@@ -26,7 +26,7 @@ namespace Growthstories.Domain.Entities
         [JsonProperty]
         public Guid? FertilizingScheduleId { get; private set; }
         [JsonProperty]
-        public HashSet<string> Tags { get; private set; }
+        public IList<string> Tags { get; private set; }
         [JsonProperty]
         public string Name { get; private set; }
         [JsonProperty]
@@ -39,7 +39,7 @@ namespace Growthstories.Domain.Entities
 
         public PlantState()
         {
-            this.Tags = new HashSet<string>();
+            this.Tags = new List<string>();
             this.Public = false;
         }
 
@@ -97,7 +97,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(TagsSet @event)
         {
-            this.Tags = @event.Tags;
+            this.Tags = @event.Tags.ToList();
         }
         public void Apply(NameSet @event)
         {

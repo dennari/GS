@@ -1,4 +1,6 @@
 ﻿using CommonDomain;
+using Growthstories.Core;
+using System;
 using System.Threading.Tasks;
 
 namespace Growthstories.Sync
@@ -7,7 +9,7 @@ namespace Growthstories.Sync
     {
         IAuthUser CurrentUser { get; }
 
-
+        Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands();
 
         Task AuthorizeUser();
 
@@ -31,6 +33,18 @@ namespace Growthstories.Sync
         public void SetupCurrentUser(IAuthUser user)
         {
             throw new System.NotImplementedException();
+        }
+
+
+        public IAuthUser SetupNewUser()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+        public Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands()
+        {
+            throw new NotImplementedException();
         }
     }
 

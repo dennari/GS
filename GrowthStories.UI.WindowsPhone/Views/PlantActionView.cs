@@ -4,6 +4,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -166,7 +167,17 @@ namespace Growthstories.UI.WindowsPhone
 
         public PlantActionView()
         {
+            this.WhenNavigatedTo(ViewModel, () =>
+            {
+                if (this.ViewModel.ActionType == PlantActionType.PHOTOGRAPHED)
+                {
+                    var vm = this.ViewModel as IPlantPhotographViewModel;
+                    if (vm != null && vm.PlantActionId == default(Guid))
+                        vm.PhotoChooserCommand.Execute(null);
+                }
 
+                return Disposable.Empty;
+            });
         }
 
 

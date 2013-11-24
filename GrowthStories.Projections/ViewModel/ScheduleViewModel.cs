@@ -123,10 +123,10 @@ namespace Growthstories.UI.ViewModel
                 this.Interval = x.Item2.Interval;
             });
 
-            TimeSpan? originalInterval = null;
+            TimeSpan? originalInterval = ScheduleState != null ? TimeSpan.FromSeconds(ScheduleState.Interval) : (TimeSpan?)null;
 
 
-            this.WhenAny(x => x.Interval, x => x.GetValue()).Subscribe(x =>
+            this.WhenAnyValue(x => x.Interval).Subscribe(x =>
             {
                 if (x != null)
                 {
@@ -140,17 +140,22 @@ namespace Growthstories.UI.ViewModel
                         HasChanged = originalInterval == x ? false : true;
 
                     }
+                    this.IsEnabled = true;
+                }
+                else
+                {
+                    this.IsEnabled = false;
                 }
 
                 this.raisePropertyChanged("IntervalLabel");
             });
 
-            this.WhenAny(x => x.IsEnabled, x => x.GetValue()).Subscribe(x =>
-            {
-                if (!x && ScheduleState != null)
-                    this.Id = null;
+            //this.WhenAny(x => x.IsEnabled, x => x.GetValue()).Subscribe(x =>
+            //{
+            //    if (!x && ScheduleState != null)
+            //        this.Id = null;
 
-            });
+            //});
 
             //this.WhenAny(x => x.OtherSchedules, x => x.GetValue()).Where(x => x != null).Select(x => x.)
 
@@ -159,7 +164,6 @@ namespace Growthstories.UI.ViewModel
                 //this.Value = this.ValueType.Compute(ScheduleState.Interval);
 
                 this.Interval = TimeSpan.FromSeconds(ScheduleState.Interval);
-                originalInterval = TimeSpan.FromSeconds(ScheduleState.Interval);
                 this.Id = ScheduleState.Id;
             }
 

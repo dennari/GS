@@ -31,7 +31,7 @@ namespace Growthstories.Domain
 
         void Purge();
 
-
+        void Initialize();
 
 
         IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);

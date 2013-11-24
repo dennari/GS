@@ -147,7 +147,7 @@ namespace Growthstories.UI.ViewModel
                     .StartWith(state.Profilepicture)
                     .Subscribe(x => this.Photo = x);
 
-                this.ListenTo<TagsSet>(this.State.Id).Select(x => x.Tags)
+                this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
                     .StartWith(state.Tags)
                     .Subscribe(x => this.Tags = new ReactiveList<string>(x));
 
@@ -352,11 +352,18 @@ namespace Growthstories.UI.ViewModel
             });
         }
 
-        public IReactiveCommand AddActionCommand(PlantActionType type)
+
+        private IPlantActionViewModel CreateEmptyActionVM(PlantActionType type)
         {
             var vm = App.PlantActionViewModelFactory(type);
             vm.PlantId = this.Id;
             vm.UserId = App.User.Id;
+            return vm;
+        }
+
+        public IReactiveCommand AddActionCommand(PlantActionType type)
+        {
+            var vm = CreateEmptyActionVM(type);
             PlantActionNavigateBackSubscription(vm.AddCommand);
 
             return Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(vm));
@@ -401,8 +408,8 @@ namespace Growthstories.UI.ViewModel
 
                     if (this.State != null)
                     {
-                        var actionsPipe = App.CurrentPlantActions(this.State)
-                            .Concat(App.FuturePlantActions(this.State));
+                        var actionsPipe = App.CurrentPlantActions(this.State.Id)
+                            .Concat(App.FuturePlantActions(this.State.Id));
 
 
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
@@ -481,7 +488,10 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "water",
                             IconType = IconType.WATER,
-                            Command = AddActionCommand(PlantActionType.WATERED)
+                            Command = Observable.Return(true).ToCommandWithSubscription( _ => {
+                                var vm = CreateEmptyActionVM(PlantActionType.WATERED);
+                                vm.AddCommand.Execute(null);
+                            })
                         },
                         new ButtonViewModel(null)
                         {

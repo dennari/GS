@@ -110,21 +110,112 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            D.PropertyName = "userName";
+            D.EntityType = DTOType.user;
+            D.PropertyName = "username";
+            D.PropertyValue = this.Username;
             base.FillDTO(D);
         }
 
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            if (D.EntityType != DTOType.user || D.PropertyName != "userName")
+            if (D.EntityType != DTOType.user || D.PropertyName != "username")
                 throw new ArgumentException();
-
+            this.Username = (string)D.PropertyValue;
             base.FromDTO(D);
 
         }
 
     }
+
+    [DTOObject(DTOType.setProperty)]
+    public sealed class EmailSet : EventBase
+    {
+        [JsonProperty]
+        public string Email { get; private set; }
+
+
+        private EmailSet() { }
+        public EmailSet(SetEmail cmd)
+            : base(cmd)
+        {
+            if (cmd.Email == null)
+                throw new ArgumentNullException();
+            this.Email = cmd.Email;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Email set to {0}", Email);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.user;
+            D.PropertyName = "email";
+            D.PropertyValue = this.Email;
+            base.FillDTO(D);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "email")
+                throw new ArgumentException();
+            this.Email = (string)D.PropertyValue;
+            base.FromDTO(D);
+
+        }
+
+    }
+
+
+    [DTOObject(DTOType.setProperty)]
+    public sealed class PasswordSet : EventBase
+    {
+        [JsonProperty]
+        public string Password { get; private set; }
+
+
+        private PasswordSet() { }
+        public PasswordSet(SetPassword cmd)
+            : base(cmd)
+        {
+            if (cmd.Password == null)
+                throw new ArgumentNullException();
+            this.Password = cmd.Password;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Password set to {0}", Password);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.user;
+            D.PropertyName = "password";
+            D.PropertyValue = this.Password;
+            base.FillDTO(D);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "password")
+                throw new ArgumentException();
+            this.Password = (string)D.PropertyValue;
+            base.FromDTO(D);
+
+        }
+
+    }
+
+
 
     public abstract class RelationshipEvent : EventBase
     {

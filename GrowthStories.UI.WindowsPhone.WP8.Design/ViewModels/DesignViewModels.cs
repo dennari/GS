@@ -638,6 +638,13 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+        public IGSViewModel SelectedPage { get; set; }
+
+
+        public IReadOnlyReactiveList<IGSViewModel> Items { get; set; }
+
+        public IReactiveCommand PageChangedCommand { get; set; }
     }
 
 

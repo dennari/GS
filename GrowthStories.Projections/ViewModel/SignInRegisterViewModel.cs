@@ -15,11 +15,13 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel, IControlsAppBar
+    public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel
     {
 
 
         public IReactiveCommand OKCommand { get; protected set; }
+        public IObservable<RegisterRespone> Response { get; protected set; }
+
 
         public SignInRegisterViewModel(IGSAppViewModel app)
             : base(app)
@@ -28,18 +30,44 @@ namespace Growthstories.UI.ViewModel
 
             var canExecute = this.WhenAnyValue(
                     x => x.Email,
+                    x => x.Username,
                     x => x.Password,
                     x => x.PasswordConfirmation,
-                    (e, p, pc) =>
+                    (e, u, p, pc) =>
                     {
 
-                        return this.EmailCheck(e) && this.PasswordCheck(p, pc);
+                        this.Message = null;
+                        return this.EmailCheck(e) && this.UsernameCheck(u) && this.PasswordCheck(p, pc);
 
                     }
                 );
             canExecute.Subscribe(x => this.CanExecute = x);
 
             this.OKCommand = new ReactiveCommand(canExecute);
+            this.OKCommand.Subscribe(x =>
+            {
+                this.Message = null;
+                this.ProgressIndicatorIsVisible = true;
+            });
+            this.OKCommand.ThrownExceptions.Subscribe(x =>
+            {
+                throw x;
+            });
+            this.Response = this.OKCommand.RegisterAsyncTask(_ => App.Register(this.Username, this.Email, this.Password));
+            this.Response.Subscribe(x =>
+            {
+                this.ProgressIndicatorIsVisible = false;
+                if (x == RegisterRespone.emailInUse)
+                {
+                    this.Message = "The specified email-address is already registered";
+                }
+                else
+                {
+                    App.Router.NavigateBack.Execute(null);
+                }
+
+            });
+
 
             this.IsRegistered = app.User.IsRegistered();
 
@@ -54,6 +82,11 @@ namespace Growthstories.UI.ViewModel
         bool EmailCheck(string email)
         {
             return email != null && email.Length > 4;
+        }
+
+        bool UsernameCheck(string username)
+        {
+            return username != null && username.Length > 2;
         }
 
         bool PasswordCheck(string p, string pc)
@@ -87,6 +120,20 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        protected string _Username;
+        public string Username
+        {
+            get
+            {
+                return _Username;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Username, value);
+            }
+        }
+
         protected string _Email;
         public string Email
         {
@@ -97,6 +144,19 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _Email, value);
+            }
+        }
+
+        protected string _Message;
+        public string Message
+        {
+            get
+            {
+                return _Message;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Message, value);
             }
         }
 
@@ -168,6 +228,18 @@ namespace Growthstories.UI.ViewModel
         }
 
         public bool AppBarIsVisible
+        {
+            get { return false; }
+        }
+
+        protected bool _ProgressIndicatorIsVisible;
+        public bool ProgressIndicatorIsVisible
+        {
+            get { return _ProgressIndicatorIsVisible; }
+            set { this.RaiseAndSetIfChanged(ref _ProgressIndicatorIsVisible, value); }
+        }
+
+        public bool SystemTrayIsVisible
         {
             get { return false; }
         }

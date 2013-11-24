@@ -15,8 +15,12 @@ namespace Growthstories.Domain.Entities
     public class GSApp : AggregateBase<GSAppState, GSAppCreated>, IGSApp,
        ICommandHandler<CreateGSApp>,
        ICommandHandler<CreateUser>,
+       ICommandHandler<SetUsername>,
+       ICommandHandler<SetEmail>,
+       ICommandHandler<SetPassword>,
        ICommandHandler<CreatePlant>,
        ICommandHandler<AssignAppUser>,
+       ICommandHandler<LogOutAppUser>,
        ICommandHandler<SetAuthToken>,
        ICommandHandler<CreateSyncStream>,
        ICommandHandler<BecomeFollower>,
@@ -38,6 +42,31 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new SyncStreamCreated(command));
         }
+        public void Handle(SetUsername command)
+        {
+            if (command.AggregateId == this.State.User.Id)
+            {
+                var copy = new SetUsername(this.Id, command.Username);
+                RaiseEvent(new UsernameSet(copy));
+            }
+        }
+        public void Handle(SetEmail command)
+        {
+            if (command.AggregateId == this.State.User.Id)
+            {
+                var copy = new SetEmail(this.Id, command.Email);
+                RaiseEvent(new EmailSet(copy));
+            }
+        }
+        public void Handle(SetPassword command)
+        {
+            if (command.AggregateId == this.State.User.Id)
+            {
+
+                var copy = new SetPassword(this.Id, command.Password);
+                RaiseEvent(new PasswordSet(copy));
+            }
+        }
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -49,6 +78,10 @@ namespace Growthstories.Domain.Entities
         public void Handle(AssignAppUser command)
         {
             RaiseEvent(new AppUserAssigned(command));
+        }
+        public void Handle(LogOutAppUser command)
+        {
+            RaiseEvent(new AppUserLoggedOut(command));
         }
         public void Handle(SetAuthToken command)
         {
@@ -96,6 +129,12 @@ namespace Growthstories.Domain.Entities
                 if (cmd is CreatePlant)
                     return true;
                 if (cmd is CreateUser)
+                    return true;
+                if (cmd is SetUsername)
+                    return true;
+                if (cmd is SetEmail)
+                    return true;
+                if (cmd is SetPassword)
                     return true;
                 if (cmd is BecomeFollower)
                     return true;

@@ -40,48 +40,47 @@ namespace Growthstories.UI.Services
         }
 
 
-        protected IAuthUser _OCurrentUser;
-        protected AuthUser _CurrentUser;
-        public IAuthUser CurrentUser { get { return _OCurrentUser ?? _CurrentUser; } }
+        //protected IAuthUser _OCurrentUser;
+        protected IAuthUser _CurrentUser;
+        public IAuthUser CurrentUser { get { return _CurrentUser; } private set { _CurrentUser = value; } }
 
 
 
         public void SetupCurrentUser(IAuthUser user)
         {
-            if (CurrentUser != null)
-                return;
-            if (user != null)
-                _OCurrentUser = user;
-            else
-            {
-                var userId = Guid.NewGuid();
-                var gardenId = Guid.NewGuid();
-
-                var u = new CreateUser(userId, "UnregUser", "unregpassword", string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
-                var U = (User)Handler.Handle(u);
-
-                Handler.Handle(new CreateGarden(gardenId, userId));
-                Handler.Handle(new AddGarden(userId, gardenId));
-
-                Handler.Handle(new AssignAppUser(userId, u.Username, u.Password, u.Email)
-                {
-                    UserGardenId = gardenId,
-                    UserVersion = 0
-                });
-
-                _CurrentUser = new AuthUser()
-                {
-                    Id = userId,
-                    GardenId = gardenId,
-                    Username = u.Username,
-                    Password = u.Password,
-                    Email = u.Email
-                };
-
-            }
-
+            _CurrentUser = user;
         }
 
+
+        public Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands()
+        {
+            var userId = Guid.NewGuid();
+            var gardenId = Guid.NewGuid();
+
+            var commands = new IAggregateCommand[4];
+
+            var u = new CreateUser(userId, "UnregUser", "unregpassword", string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
+            commands[0] = u;
+            commands[1] = new CreateGarden(gardenId, userId);
+            commands[2] = new AddGarden(userId, gardenId);
+            commands[3] = new AssignAppUser(userId, u.Username, u.Password, u.Email)
+            {
+                UserGardenId = gardenId,
+                UserVersion = 0
+            };
+
+            IAuthUser authUser = new AuthUser()
+            {
+                Id = userId,
+                GardenId = gardenId,
+                Username = u.Username,
+                Password = u.Password,
+                Email = u.Email
+            };
+
+            return Tuple.Create(authUser, commands);
+
+        }
 
         public Task AuthorizeUser()
         {

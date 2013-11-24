@@ -50,20 +50,20 @@ namespace Growthstories.UI.ViewModel
 
         public static readonly Dictionary<PlantActionType, string> ActionTypeToLabel = new Dictionary<PlantActionType, string>()
         {
-            {PlantActionType.WATERED, "water"},
-            {PlantActionType.TRANSFERRED, "transfer"},
-            {PlantActionType.SPROUTED, "sprouting"},
-            {PlantActionType.PRUNED, "prune"},
-            {PlantActionType.POLLINATED, "pollinate"},
-            {PlantActionType.PHOTOGRAPHED,"photograph"},
-            {PlantActionType.MISTED, "mist"},
-            {PlantActionType.MEASURED,"measure"},
-            {PlantActionType.HARVESTED,"harvest"},
-            {PlantActionType.FERTILIZED,"fertilize"},
-            {PlantActionType.FBCOMMENTED,"comment"},
+            {PlantActionType.WATERED, "watered"},
+            {PlantActionType.TRANSFERRED, "transferred"},
+            {PlantActionType.SPROUTED, "sprouting!"},
+            {PlantActionType.PRUNED, "pruned"},
+            {PlantActionType.POLLINATED, "pollinated"},
+            {PlantActionType.PHOTOGRAPHED,"photographed"},
+            {PlantActionType.MISTED, "misted"},
+            {PlantActionType.MEASURED,"measured"},
+            {PlantActionType.HARVESTED,"harvested"},
+            {PlantActionType.FERTILIZED,"nourished"},
+            {PlantActionType.FBCOMMENTED,"commented"},
             {PlantActionType.DECEASED,"declare deceased"},
-            {PlantActionType.COMMENTED,"comment"},
-            {PlantActionType.BLOOMED,"blooming"}
+            {PlantActionType.COMMENTED,"commented"},
+            {PlantActionType.BLOOMED,"blooming!"}
         };
 
 
@@ -88,6 +88,7 @@ namespace Growthstories.UI.ViewModel
             if (state != null)
             {
                 this.Note = state.Note;
+                this.TimelineFirstLine = state.Note;
                 this.WeekDay = state.Created.ToString("dddd");
                 this.Date = state.Created.ToString("d");
                 this.Time = state.Created.ToString("t");
@@ -140,9 +141,15 @@ namespace Growthstories.UI.ViewModel
 
             }
 
+            TimelineLinesSetup();
+
         }
 
+        protected virtual void TimelineLinesSetup()
+        {
+            this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
 
+        }
 
         public virtual void SetProperty(PlantActionPropertySet prop)
         {
@@ -162,6 +169,32 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _Note, value);
+            }
+        }
+
+        protected string _TimelineFirstLine;
+        public string TimelineFirstLine
+        {
+            get
+            {
+                return _TimelineFirstLine;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _TimelineFirstLine, value);
+            }
+        }
+
+        protected string _TimelineSecondLine;
+        public string TimelineSecondLine
+        {
+            get
+            {
+                return _TimelineSecondLine;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _TimelineSecondLine, value);
             }
         }
 
@@ -222,47 +255,6 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-
-    //public class TimelineActionViewModel : GSViewModelBase, ITimelineActionViewModel
-    //{
-    //    private readonly IPlantActionViewModel Vm;
-
-
-    //    public TimelineActionViewModel(IPlantActionViewModel vm)
-    //        : base(vm.App)
-    //    {
-    //        this.Vm = vm;
-    //    }
-
-
-    //    public string WeekDay { get { return Vm.WeekDay; } }
-
-    //    public string Date { get { return Vm.Date; } }
-
-    //    public string Time { get { return Vm.Time; } }
-
-    //    public string Note { get { return Vm.Note; } }
-
-    //    public string Label { get { return Vm.Label; } }
-
-    //    public PlantActionType ActionType { get { return Vm.ActionType; } }
-
-    //    public IconType Icon { get { return Vm.Icon; } }
-
-    //    public Guid PlantActionId { get { return Vm.PlantActionId; } }
-
-    //    public DateTimeOffset Created { get { return Vm.Created; } }
-
-    //    public MeasurementType MeasurementType { get { return Vm.MeasurementType; } }
-
-    //    public double? Value { get { return Vm.Value; } }
-
-    //    public IReactiveCommand EditCommand { get; set; }
-
-    //    public Photo Photo { get { return Vm.Photo; } }
-
-    //    public PlantActionState State { get { return Vm.State; } }
-    //}
 
 
     public sealed class MeasurementTypeHelper
@@ -379,14 +371,22 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.SelectedMeasurementType = MeasurementTypeHelper.Options[state.MeasurementType];
+                this.SelectedItem = MeasurementTypeHelper.Options[state.MeasurementType];
                 this.SValue = state.Value.Value.ToString("F1");
                 this.Value = state.Value;
             }
             else
             {
-                this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
+                this.SelectedItem = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
             }
+        }
+
+        protected override void TimelineLinesSetup()
+        {
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.TimelineFirstLine = x == null ? null : x.Title);
+            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => this.TimelineSecondLine = x.Value.ToString("F1"));
+
+
         }
 
         public override void SetProperty(PlantActionPropertySet prop)
@@ -431,6 +431,7 @@ namespace Growthstories.UI.ViewModel
             this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
 
             this.PhotoTimelineTap = new ReactiveCommand();
+            this.PhotoChooserCommand = new ReactiveCommand();
         }
 
 
@@ -449,6 +450,7 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand PhotoTimelineTap { get; protected set; }
+        public IReactiveCommand PhotoChooserCommand { get; protected set; }
 
     }
 

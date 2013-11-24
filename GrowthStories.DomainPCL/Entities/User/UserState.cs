@@ -77,11 +77,11 @@ namespace Growthstories.Domain.Entities
         public string Email { get; private set; }
 
         [JsonIgnore]
-        public string AccessToken { get; private set; }
+        public string AccessToken { get; set; }
         [JsonIgnore]
-        public int ExpiresIn { get; private set; }
+        public int ExpiresIn { get; set; }
         [JsonIgnore]
-        public string RefreshToken { get; private set; }
+        public string RefreshToken { get; set; }
 
         [JsonProperty]
         public bool IsCollaborator { get; set; }
@@ -128,6 +128,20 @@ namespace Growthstories.Domain.Entities
         {
 
             this.Username = @event.Username;
+
+        }
+
+        public void Apply(PasswordSet @event)
+        {
+
+            this.Password = @event.Password;
+
+        }
+
+        public void Apply(EmailSet @event)
+        {
+
+            this.Email = @event.Email;
 
         }
 

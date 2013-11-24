@@ -26,6 +26,7 @@ using Growthstories.UI;
 using System.Text;
 using ReactiveUI;
 using Growthstories.UI.ViewModel;
+using EventStore.Persistence;
 
 namespace Growthstories.DomainTests
 {
@@ -68,13 +69,19 @@ namespace Growthstories.DomainTests
         public T Get<T>() { return Kernel.Get<T>(); }
         public IGSRepository Repository { get { return Get<IGSRepository>(); } }
         public IMessageBus Bus { get { return App.Bus; } }
-        public IAuthUser U { get { return App.Context.CurrentUser; } }
+        public IAuthUser U { get { return App.User; } }
         public IDispatchCommands Handler { get; set; }
 
         protected IUIPersistence _UIPersistence;
         protected IUIPersistence UIPersistence
         {
             get { return _UIPersistence ?? (_UIPersistence = Get<IUIPersistence>()); }
+        }
+
+        protected IPersistSyncStreams _Persistence;
+        protected IPersistSyncStreams Persistence
+        {
+            get { return _Persistence ?? (_Persistence = Get<IPersistSyncStreams>()); }
         }
 
 

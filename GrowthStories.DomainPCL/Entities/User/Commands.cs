@@ -65,6 +65,54 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class SetEmail : AggregateCommand<User>
+    {
+
+        public string Email { get; private set; }
+
+
+        public SetEmail(Guid id, string Email)
+            : base(id)
+        {
+
+            if (Email == null)
+                throw new ArgumentNullException();
+
+            this.Email = Email;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set Email to", Email);
+        }
+
+    }
+
+    public class SetPassword : AggregateCommand<User>
+    {
+
+        public string Password { get; private set; }
+
+
+        public SetPassword(Guid id, string Password)
+            : base(id)
+        {
+
+            if (Password == null)
+                throw new ArgumentNullException();
+
+            this.Password = Password;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set Password to", Password);
+        }
+
+    }
+
 
 
 

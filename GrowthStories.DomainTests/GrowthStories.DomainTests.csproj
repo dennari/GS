@@ -178,6 +178,7 @@
     <Compile Include="TestUtils.cs" />
     <Compile Include="User\create_user2.cs" />
     <Compile Include="ViewModels\AddEditPlantViewModelTest.cs" />
+    <Compile Include="ViewModels\SignInEditViewModelTest.cs" />
     <Compile Include="ViewModels\MainViewModelTest.cs" />
     <Compile Include="ViewModels\PlantViewModelTest.cs" />
     <Compile Include="ViewModels\ViewModelTestBase.cs" />

@@ -88,5 +88,11 @@ namespace Growthstories.Sync
         {
             throw new NotImplementedException();
         }
+
+
+        public Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

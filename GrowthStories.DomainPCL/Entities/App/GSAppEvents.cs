@@ -100,6 +100,42 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+    public sealed class AppUserLoggedOut : GSAppEvent
+    {
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+
+        [JsonProperty]
+        public Guid UserGardenId { get; private set; }
+
+        [JsonProperty]
+        public int UserVersion { get; private set; }
+
+        [JsonProperty]
+        public string Username { get; private set; }
+
+        [JsonProperty]
+        public string Password { get; private set; }
+
+        [JsonProperty]
+        public string Email { get; private set; }
+
+        private AppUserLoggedOut() { }
+        public AppUserLoggedOut(LogOutAppUser cmd)
+            : base(cmd)
+        {
+            this.UserId = cmd.UserId;
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Logged out user {0}.", UserId);
+        }
+
+    }
+
+
     public sealed class SyncStreamCreated : GSAppEvent
     {
         [JsonProperty]

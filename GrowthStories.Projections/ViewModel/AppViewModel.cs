@@ -20,6 +20,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
 using System.Reactive.Disposables;
+using EventStore.Persistence;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -267,6 +268,16 @@ namespace Growthstories.UI.ViewModel
 
             CurrentHandleJob = Task.Run(async () =>
             {
+
+                if (this.InitializeJob == null)
+                {
+                    await Initialize();
+                }
+                else if (!this.InitializeJob.IsCompleted)
+                {
+                    await this.InitializeJob;
+                }
+
                 if (prevJob != null && !prevJob.IsCompleted)
                 {
                     await prevJob;
@@ -288,10 +299,21 @@ namespace Growthstories.UI.ViewModel
         public Task<IGSAggregate> HandleCommand(MultiCommand x)
         {
 
+
             var prevJob = CurrentHandleJob;
 
             CurrentHandleJob = Task.Run(async () =>
             {
+
+                if (this.InitializeJob == null)
+                {
+                    await Initialize();
+                }
+                else if (!this.InitializeJob.IsCompleted)
+                {
+                    await this.InitializeJob;
+                }
+
                 if (prevJob != null && !prevJob.IsCompleted)
                 {
                     await prevJob;
@@ -310,6 +332,16 @@ namespace Growthstories.UI.ViewModel
             var prevJob = CurrentGetByIdJob;
             CurrentGetByIdJob = Task.Run(async () =>
             {
+
+                if (this.InitializeJob == null)
+                {
+                    await Initialize();
+                }
+                else if (!this.InitializeJob.IsCompleted)
+                {
+                    await this.InitializeJob;
+                }
+
                 if (prevJob != null && !prevJob.IsCompleted)
                 {
                     await prevJob;
@@ -322,20 +354,27 @@ namespace Growthstories.UI.ViewModel
 
         //public Task<IGSAggregate>
 
-
+        protected Task<IAuthUser> InitializeJob;
         public Task<IAuthUser> Initialize()
         {
 
             if (this.Model != null)
-                return null;
+                return Task.FromResult(this.User);
 
-            return Task.Run(async () =>
+            this.InitializeJob = Task.Run(() =>
             {
                 GSApp app = null;
 
+                var persistence = Kernel.Get<IPersistSyncStreams>();
+                persistence.Initialize();
+
+                var uiPersistence = Kernel.Get<IUIPersistence>();
+                uiPersistence.Initialize();
+
+
                 try
                 {
-                    app = (GSApp)(await GetById(GSAppState.GSAppId));
+                    app = (GSApp)(Repository.GetById(GSAppState.GSAppId));
                 }
                 catch (DomainError)
                 {
@@ -344,29 +383,160 @@ namespace Growthstories.UI.ViewModel
 
                 if (app == null)
                 {
-                    app = (GSApp)(await HandleCommand(new CreateGSApp()));
-                    //app = (GSApp)Handler.Handle(new CreateGSApp());
+                    //app = (GSApp)(await HandleCommand(new CreateGSApp()));
+                    app = (GSApp)Handler.Handle(new CreateGSApp());
                 }
-                Context.SetupCurrentUser(app.State.User);
+
+                IAuthUser user = null;
+
+                if (app.State.User == null)
+                {
+                    var u = Context.GetNewUserCommands();
+
+                    if (u.Item2 == null || u.Item2.Length == 0)
+                    {
+                        user = u.Item1;
+                    }
+                    else
+                    {
+                        var first = u.Item2[0] as CreateUser;
+                        if (first == null)
+                            throw new InvalidOperationException("Can't create new user");
+                        user = ((User)Handler.Handle(first)).State;
+                        var counter = 0;
+                        foreach (var cmd in u.Item2)
+                        {
+                            counter++;
+                            if (counter == 1)
+                                continue;
+                            Handler.Handle(cmd);
+                        }
+                    }
+
+
+                }
+                else
+                {
+                    user = app.State.User;
+                }
+
+
+
+                Context.SetupCurrentUser(user);
 
                 this.Model = app;
-                this.User = Context.CurrentUser;
-                return this.User;
+                this.User = user;
+                return user;
                 //return app;
             });
+            return InitializeJob;
+        }
+
+
+        public Task LogOut()
+        {
+
+            if (this.User != null)
+            {
+                return Task.Run(async () =>
+                {
+                    await HandleCommand(new LogOutAppUser(User.Id));
+                    this.User = null;
+                });
+
+            }
+
+            return null;
+
         }
 
 
 
+        public async Task<RegisterRespone> Register(string username, string email, string password)
+        {
+
+            IAuthUser user = this.User;
+
+            if (user == null)
+            {
+
+                var u = this.Context.GetNewUserCommands();
+
+                foreach (var cmd in u.Item2)
+                {
+                    await this.HandleCommand(cmd);
+                }
+
+                user = u.Item1;
+
+            }
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Can't create new user");
+            }
+
+            if (user.IsRegistered())
+                return RegisterRespone.alreadyRegistered;
+
+
+            if (User.AccessToken == null)
+                await Context.AuthorizeUser();
+
+            await this.HandleCommand(new MultiCommand(
+                new SetEmail(user.Id, email),
+                new SetUsername(user.Id, username),
+                new SetPassword(user.Id, password)
+            ));
+
+            var R = await this.SyncAll();
+            if (R.Item1 == AllSyncResult.AllSynced)
+                return RegisterRespone.success;
+            else if (R.Item1 == AllSyncResult.SomeLeft)
+                return RegisterRespone.tryagain;
+            else if (R.Item1 == AllSyncResult.Error)
+                return RegisterRespone.emailInUse;
+
+            //for (var i = 0; i < 3; i++)
+            //{
+
+            //    var empty = new PullStream[] { };
+            //    var s = new SyncInstance(
+            //       RequestFactory.CreatePullRequest(empty),
+            //       RequestFactory.CreatePushRequest(Model.State.SyncHead)
+            //    );
+
+            //    await _Synchronize(s);
+
+            //    if (s.PullResp == null || s.PullResp.StatusCode != GSStatusCode.OK)
+            //        return RegisterRespone.emailInUse;
+            //}
+
+
+            return RegisterRespone.success;
+
+
+
+        }
+
+
         private ISynchronizerService SyncService;
-        private IRequestFactory RequestFactory;
+
+        private IRequestFactory _RequestFactory;
+        private IRequestFactory RequestFactory
+        {
+            get
+            {
+                return _RequestFactory ?? (_RequestFactory = Kernel.Get<IRequestFactory>());
+            }
+        }
 
         public async Task<ISyncInstance> Synchronize()
         {
-            if (SyncService == null)
-                SyncService = Kernel.Get<ISynchronizerService>();
-            if (RequestFactory == null)
-                RequestFactory = Kernel.Get<IRequestFactory>();
+            //if (SyncService == null)
+            //    SyncService = Kernel.Get<ISynchronizerService>();
+
+
 
             if (User.AccessToken == null)
                 await Context.AuthorizeUser();
@@ -500,7 +670,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IObservable<IPlantActionViewModel> CurrentPlantActions(PlantState state, Guid? PlantActionId = null)
+        public IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null)
         {
 
 
@@ -508,7 +678,7 @@ namespace Growthstories.UI.ViewModel
 
             //var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            var current = UIPersistence.GetActions(PlantActionId, state.Id, null)
+            var current = UIPersistence.GetActions(PlantActionId, plantId, null)
                 .ToObservable()
                 .Select(x => PlantActionViewModelFactory(x.Type, x));
 
@@ -519,12 +689,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IObservable<IPlantActionViewModel> FuturePlantActions(PlantState state, Guid? PlantActionId = null)
+        public IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null)
         {
 
             return Bus.Listen<IEvent>()
                     .OfType<PlantActionCreated>()
-                    .Where(x => x.PlantId == state.Id)
+                    .Where(x => x.PlantId == plantId)
                     .Select(x => PlantActionViewModelFactory(x.AggregateState.Type, x.AggregateState));
         }
 

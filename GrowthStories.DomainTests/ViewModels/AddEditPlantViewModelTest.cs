@@ -11,6 +11,9 @@ using System.Threading;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Growthstories.UI.Persistence;
+using EventStore.Persistence.SqlPersistence;
 
 
 namespace Growthstories.DomainTests
@@ -327,6 +330,253 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(id, newId);
             Assert.AreEqual(newInterval, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
 
+
+
+        }
+
+        [Test]
+        public void TestEditFertilizingSchedule2()
+        {
+
+            var garden = App.Resolver.GetService<IGardenViewModel>();
+            Assert.AreEqual(U.GardenId, garden.Id);
+            Assert.AreEqual(0, garden.Plants.Count);
+
+            string name = "Sepi";
+            string species = "Aloe";
+            int interval = 23;
+            int newInterval = 24;
+            int newInterval2 = 25;
+
+
+            AddEditPlantViewModel vm = new AddEditPlantViewModel(App);
+
+            vm.Name = name;
+            vm.Species = species;
+            //vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(interval);
+            //var wSID = vm.FertilizingSchedule.Id.Value;
+
+            Guid id = TestUtils.WaitForTask(vm.AddTask());
+
+            Assert.AreEqual(1, garden.Plants.Count());
+            var pvm = garden.Plants[0];
+            Assert.AreEqual(name, pvm.Name);
+            Assert.AreEqual(species, pvm.Species);
+            Assert.IsFalse(pvm.FertilizingSchedule.Interval.HasValue);
+            Assert.IsFalse(pvm.WateringSchedule.Interval.HasValue);
+
+
+
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+
+
+            Guid newId = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId);
+            Assert.AreEqual(newInterval, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+
+
+            Guid newId2 = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId2);
+            Assert.AreEqual(newInterval2, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
+
+
+
+
+        }
+
+        [Test]
+        public void TestEditWateringSchedule2()
+        {
+
+            var garden = App.Resolver.GetService<IGardenViewModel>();
+            Assert.AreEqual(U.GardenId, garden.Id);
+            Assert.AreEqual(0, garden.Plants.Count);
+
+            string name = "Sepi";
+            string species = "Aloe";
+            int interval = 23;
+            int newInterval = 24;
+            int newInterval2 = 25;
+
+
+            AddEditPlantViewModel vm = new AddEditPlantViewModel(App);
+
+            vm.Name = name;
+            vm.Species = species;
+            //vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(interval);
+            //var wSID = vm.FertilizingSchedule.Id.Value;
+
+            Guid id = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(1, garden.Plants.Count());
+            var pvm = garden.Plants[0];
+            Assert.AreEqual(name, pvm.Name);
+            Assert.AreEqual(species, pvm.Species);
+            Assert.IsFalse(pvm.WateringSchedule.Interval.HasValue);
+            Assert.IsFalse(pvm.FertilizingSchedule.Interval.HasValue);
+
+
+
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+
+
+            Guid newId = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId);
+            Assert.AreEqual(newInterval, (int)pvm.WateringSchedule.Interval.Value.TotalSeconds);
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+
+
+            Guid newId2 = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId2);
+            Assert.AreEqual(newInterval2, (int)pvm.WateringSchedule.Interval.Value.TotalSeconds);
+
+
+
+
+        }
+
+
+        [Test]
+        public void TestEditBoth()
+        {
+            RealTestEditBoth();
+        }
+
+        public IPlantViewModel RealTestEditBoth()
+        {
+
+            var garden = App.Resolver.GetService<IGardenViewModel>();
+            Assert.AreEqual(U.GardenId, garden.Id);
+            Assert.AreEqual(0, garden.Plants.Count);
+
+            string name = "Sepi";
+            string species = "Aloe";
+            int interval = 23;
+            int newInterval = 24;
+            int newInterval2 = 25;
+
+
+            AddEditPlantViewModel vm = new AddEditPlantViewModel(App);
+
+            vm.Name = name;
+            vm.Species = species;
+            //vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(interval);
+            //var wSID = vm.FertilizingSchedule.Id.Value;
+
+            Guid id = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(1, garden.Plants.Count());
+            var pvm = garden.Plants[0];
+            Assert.AreEqual(name, pvm.Name);
+            Assert.AreEqual(species, pvm.Species);
+            Assert.IsFalse(pvm.WateringSchedule.Interval.HasValue);
+            Assert.IsFalse(pvm.FertilizingSchedule.Interval.HasValue);
+
+
+
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval);
+            vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+
+
+            Guid newId = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId);
+            Assert.AreEqual(newInterval, (int)pvm.WateringSchedule.Interval.Value.TotalSeconds);
+            Assert.AreEqual(newInterval, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
+
+            vm = new AddEditPlantViewModel(App, pvm);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+
+            vm.FertilizingSchedule.IsEnabled = false;
+            vm.WateringSchedule.IsEnabled = false;
+
+            vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
+            vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
+            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+
+
+            Guid newId2 = TestUtils.WaitForTask(vm.AddTask());
+            Assert.AreEqual(id, newId2);
+            Assert.AreEqual(newInterval2, (int)pvm.WateringSchedule.Interval.Value.TotalSeconds);
+            Assert.AreEqual(newInterval2, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
+
+
+            return pvm;
+
+        }
+
+
+        [Test]
+        public void TestPlantIsStored()
+        {
+            var pvm = RealTestEditBoth();
+            var vm = new AddEditPlantViewModel(App, pvm);
+
+
+            vm.Tags.Add("sickoplant");
+            vm.Tags.Add("sickoplant2");
+            Guid newId = TestUtils.WaitForTask(vm.AddTask());
+            var wateringCmd = new CreatePlantAction(Guid.NewGuid(), App.User.Id, pvm.Id, PlantActionType.WATERED, "yeah");
+            TestUtils.WaitForTask(App.HandleCommand(wateringCmd));
+
+
+
+            ((SQLiteUIPersistence)UIPersistence).Initialize();
+            ((SQLitePersistenceEngine)Persistence).Initialize();
+
+
+            var restartedApp = new TestAppViewModel(Kernel);
+
+            var firstPlant = restartedApp.CurrentPlants(restartedApp.User).Take(1);
+
+            var newPvm = TestUtils.WaitForTask(Task.Run(async () => await firstPlant));
+
+            Assert.AreEqual(pvm.Name, newPvm.Name);
+            Assert.AreEqual(pvm.Species, newPvm.Species);
+            Assert.AreEqual(pvm.Species, newPvm.Species);
+            Assert.AreEqual(pvm.WateringSchedule.Interval, newPvm.WateringSchedule.Interval);
+            Assert.AreEqual(pvm.FertilizingSchedule.Interval, newPvm.FertilizingSchedule.Interval);
+
+            var tags = new HashSet<string>(pvm.Tags);
+            Assert.IsTrue(tags.SetEquals(newPvm.Tags));
+
+
+            var firstAction = restartedApp.CurrentPlantActions(pvm.Id).Take(1);
+
+            var watering = TestUtils.WaitForTask(Task.Run(async () => await firstAction));
+
+            Assert.AreEqual(wateringCmd.Note, watering.Note);
+            Assert.AreEqual(wateringCmd.Type, watering.ActionType);
 
 
         }

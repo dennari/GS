@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,9 +34,10 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand FriendTapped { get; protected set; }
 
 
+        private IDisposable loadSubscription = Disposable.Empty;
         void LoadFriends()
         {
-            App.CurrentGardens()
+            this.loadSubscription = App.CurrentGardens()
                        .Concat(App.FutureGardens())
                        .Where(x => x.User.Id != App.User.Id)
                        .DistinctUntilChanged()
@@ -54,14 +56,24 @@ namespace Growthstories.UI.ViewModel
                 if (_Friends == null)
                 {
                     _Friends = new ReactiveList<IGardenViewModel>();
-                    if (App.User == null)
+                    App.WhenAnyValue(x => x.User).Subscribe(x =>
                     {
-                        App.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadFriends());
-                    }
-                    else
-                    {
-                        LoadFriends();
-                    }
+
+                        if (x == null)
+                        {
+                            this.loadSubscription.Dispose();
+                            if (_Friends != null)
+                            {
+                                _Friends.Clear();
+                            }
+                        }
+                        else
+                        {
+                            this.LoadFriends();
+                        }
+
+                    });
+
 
                 }
                 return _Friends;

@@ -134,11 +134,20 @@ namespace Growthstories.UI.ViewModel
             else
             {
 
-                app.WhenAny(x => x.User, x => x.GetValue())
+                app.WhenAnyValue(x => x.User)
                     .StartWith(app.User)
-                    .Where(x => x != null)
-                    .Take(1)
-                    .Subscribe(x => this.Init(x));
+                    .Subscribe(x =>
+                    {
+                        if (x == null)
+                        {
+                            if (this.User != null)
+                                this.UnInit();
+                        }
+                        else
+                        {
+                            this.Init(x);
+                        }
+                    });
             }
 
 
@@ -251,6 +260,21 @@ namespace Growthstories.UI.ViewModel
             //this.State = state.Garden;
 
             this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();
+        }
+
+        private void UnInit()
+        {
+            this.User = null;
+            this.Username = null;
+            this.Id = default(Guid);
+            if (_Plants != null)
+            {
+                _Plants.Clear();
+            }
+
+            //this.State = state.Garden;
+
+            this.PlantTitle = null;
         }
 
 

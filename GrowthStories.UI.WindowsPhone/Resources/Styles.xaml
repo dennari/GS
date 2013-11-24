@@ -86,8 +86,8 @@
 						<ContentPresenter
 									Margin="12,0,12,6"
 									Grid.Row="1"
-                                    DataContext="{TemplateBinding ViewModel}"
-									Content="{TemplateBinding ViewModel}" 
+                                    DataContext="{TemplateBinding DataContext}"
+									Content="{TemplateBinding DataContext}" 
 									ContentTemplate="{TemplateBinding ContentTemplate}" 
 									Visibility="{TemplateBinding ContentVisibility}" 
 									HorizontalAlignment="Stretch"/>
@@ -183,8 +183,8 @@
 				<ControlTemplate TargetType="local:TimelineActionView">
 					<StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 						<ContentPresenter 
-							DataContext="{TemplateBinding ViewModel}"
-                            Content="{TemplateBinding ViewModel}" 
+							DataContext="{TemplateBinding DataContext}"
+                            Content="{TemplateBinding DataContext}" 
 							ContentTemplate="{TemplateBinding ContentTemplate}" 
 							Visibility="{TemplateBinding ContentVisibility}" 
 							HorizontalAlignment="Stretch"/>
@@ -197,9 +197,8 @@
 							<Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
 							<StackPanel Orientation="Vertical" VerticalAlignment="Top">
                                 <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                                <TextBlock Text="{Binding SelectedMeasurementType.Title}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}}"/>
-                                <TextBlock Text="{Binding Value}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}}"/>
-                                <TextBlock Text="{Binding Note}" Style="{StaticResource GSActionListItemNoteStyle}" Visibility="{Binding Value, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+                                <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                                <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
 							</StackPanel>
 						</StackPanel>
                         <toolkit:ContextMenuService.ContextMenu>
@@ -610,6 +609,10 @@
 
     <DataTemplate x:Key="RegisterTemplate">
         <StackPanel>
+            <TextBox Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>
+            <local:GSLabel Label="Username">
+                <local:GSTextBox Text="{Binding Username, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+            </local:GSLabel>
             <local:GSLabel Label="Email">
                 <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
             </local:GSLabel>

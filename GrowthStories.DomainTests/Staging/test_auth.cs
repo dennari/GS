@@ -64,6 +64,7 @@ namespace Growthstories.DomainTests
 
 
             TestAssignUser();
+            Assert.IsFalse(App.User.IsRegistered());
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
             //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
@@ -74,11 +75,105 @@ namespace Growthstories.DomainTests
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);
             Assert.Greater(Ctx.ExpiresIn, 0);
+
             //Assert.IsNull(auth.ExpiresIn);
             //SyncAssertions(R);
 
 
         }
+
+
+        [Test]
+        public async void RealTestRegImmediate()
+        {
+
+            await TestRegImmediate();
+
+
+        }
+
+        public async Task TestRegImmediate()
+        {
+
+
+            TestAssignUser();
+
+            Assert.IsFalse(App.User.IsRegistered());
+
+            await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
+            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+
+            var regName = "dennari";
+            var regEmail = "dennari@ymail.com";
+            var regPassword = "kulli";
+
+            var R = await App.Register(regName, regEmail, regPassword);
+            //Ctx = App.Context.CurrentUser;
+            Assert.AreEqual(RegisterRespone.success, R);
+
+            Assert.IsNotNullOrEmpty(App.User.AccessToken);
+            Assert.IsNotNullOrEmpty(App.User.RefreshToken);
+            Assert.Greater(App.User.ExpiresIn, 0);
+
+            Assert.AreEqual(regName, App.User.Username);
+            Assert.AreEqual(regEmail, App.User.Email);
+            Assert.AreEqual(regPassword, App.User.Password);
+            Assert.IsTrue(App.User.IsRegistered());
+
+            //Assert.IsNull(auth.ExpiresIn);
+            //SyncAssertions(R);
+
+
+        }
+
+        [Test]
+        public async void RealTestRegAfterRestart()
+        {
+
+            await TestRegAfterRestart();
+
+
+        }
+
+        public async Task TestRegAfterRestart()
+        {
+
+            TestAssignUser();
+            Assert.IsFalse(App.User.IsRegistered());
+            var plantId = Guid.NewGuid();
+            var plant = await App.HandleCommand(new CreatePlant(plantId, "Jore", App.User.GardenId, App.User.Id));
+
+            await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
+            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+
+
+            var restartedApp = new StagingAppViewModel(Kernel);
+            await restartedApp.Initialize();
+            Assert.IsFalse(restartedApp.User.IsRegistered());
+
+            var regName = "dennari";
+            var regEmail = "dennari@ymail.com";
+            var regPassword = "kulli";
+
+            var R = await restartedApp.Register(regName, regEmail, regPassword);
+            //Ctx = restartedApp.Context.CurrentUser;
+            Assert.AreEqual(RegisterRespone.success, R);
+
+            Assert.IsNotNullOrEmpty(restartedApp.User.AccessToken);
+            Assert.IsNotNullOrEmpty(restartedApp.User.RefreshToken);
+            Assert.Greater(restartedApp.User.ExpiresIn, 0);
+
+            Assert.AreEqual(regName, restartedApp.User.Username);
+            Assert.AreEqual(regEmail, restartedApp.User.Email);
+            Assert.AreEqual(regPassword, restartedApp.User.Password);
+            Assert.IsTrue(restartedApp.User.IsRegistered());
+
+            //Assert.IsNull(auth.ExpiresIn);
+            //SyncAssertions(R);
+
+
+        }
+
 
         [Test]
         public async void RealTestCreateGarden()
