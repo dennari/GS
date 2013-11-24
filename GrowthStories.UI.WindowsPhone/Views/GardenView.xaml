@@ -21,15 +21,16 @@
 
         <DataTemplate x:Key="C4fTile">
 
+            <StackPanel>
+                   
             <c4f:Tile 
                         HorizontalAlignment="Left"
                         Margin="0, 0"
-                        Width="198"
-                        Height="198"
+                        Width="190"
+                        Height="190"
                         c4fBinding:FrameworkElementBinding.ClipToBounds="True"
                         Command="{Binding DataContext.ShowDetailsCommand, ElementName=PlantsSelector}"
-                        CommandParameter="{Binding}"
-                        Label="{Binding Name}">
+                        CommandParameter="{Binding}">
                 <Grid>
                     <Grid.Triggers>
                         <EventTrigger RoutedEvent="Canvas.Loaded" >
@@ -75,7 +76,13 @@
                             Visibility="{Binding WateringScheduler.Missed, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" 
                         />
 
-                </Grid>
+                        <Border BorderThickness="3" IsHitTestVisible="False">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="WhiteSmoke"/>
+                            </Border.BorderBrush>
+                        </Border>
+                    </Grid>
+                
                 <toolkit:ContextMenuService.ContextMenu>
                     <toolkit:ContextMenu>
                         <toolkit:MenuItem Header="Water" 
@@ -91,6 +98,27 @@
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
             </c4f:Tile>
+
+            <TextBlock 
+               Style="{StaticResource GSTextBlockStyle}"
+               Text="{Binding Name, Converter={StaticResource ToUpperOrLowerCase}}" HorizontalAlignment="Left"
+               VerticalAlignment="Top" Margin="0,8,0,0"
+               FontWeight="Bold"              
+                FontSize="18"
+                Foreground="WhiteSmoke"
+            />
+
+             <TextBlock 
+               Style="{StaticResource GSTextBlockStyle}"
+               Text="{Binding Species}" HorizontalAlignment="Left"
+               VerticalAlignment="Top" Margin="0,-2,0,0"
+               FontWeight="Normal"              
+               FontSize="18"
+               Foreground="WhiteSmoke"
+            />
+
+
+            </StackPanel>
 
         </DataTemplate>
 
@@ -201,14 +229,12 @@
         ItemContainerStyle="{StaticResource TileSelectionStyle2}"
         IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
         SelectionChanged="PlantsSelector_SelectionChanged"
-		LayoutMode="Grid"
-		GridCellSize="198,198"
-		Margin="0,0,0,0"
+		GridCellSize="198,288"
+        LayoutMode="Grid"
+        Margin="0,0,0,0"
         BorderBrush="{StaticResource GSAccentBrush}"
         
         />
-
-
 
 
 </local:GardenViewBase>
