@@ -13,6 +13,7 @@ using Growthstories.Domain.Messaging;
 //using Telerik.Windows.Controls;
 using System.Windows.Media;
 using Telerik.Windows.Controls;
+using System.Text.RegularExpressions;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -60,10 +61,10 @@ namespace Growthstories.UI.ViewModel
 
 
             int num = 200;
-            var c = 0;
+            int c = 0;
             var yStep = 0.5;
-            var validTypes = new[] { MeasurementType.LENGTH, MeasurementType.PH, MeasurementType.ILLUMINANCE };
-            foreach (var xx in MeasurementTypeHelper.Options.Values.Where(x => validTypes.Contains(x.Type)))
+            //var validTypes = new[] { MeasurementType.LENGTH, MeasurementType.PH, MeasurementType.ILLUMINANCE };
+            foreach (var xx in MeasurementTypeHelper.Options.Values)
             {
 
 
@@ -90,7 +91,22 @@ namespace Growthstories.UI.ViewModel
 
                 //_TelerikSeries.Add(CreateLineSeries(s, xx, c));
                 Series[xx.Type] = s;
-                TelerikSeries[xx.Type] = CreateLineSeries(s, xx.Type);
+                TelerikSeries[xx.Type] = CreateLineSeries(s, xx);
+                if (c > 3)
+                    break;
+            }
+
+            this._AppBarButtons = new MockReactiveList<IButtonViewModel>();
+            c = 0;
+            foreach (var m in MeasurementTypeHelper.Options)
+            {
+                _AppBarButtons.Add(new ButtonViewModel()
+                {
+                    IconType = m.Value.Icon,
+                    Command = ToggleSeries,
+                    CommandParameter = m.Key
+                });
+                c++;
                 if (c > 3)
                     break;
             }
@@ -114,21 +130,14 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        public static Dictionary<MeasurementType, Color> LineColors = new Dictionary<MeasurementType, Color>()
-        {
-            {MeasurementType.LENGTH,Colors.Blue},
-            {MeasurementType.ILLUMINANCE,Colors.Brown},
-            {MeasurementType.PH,Colors.Cyan}
-        };
 
-        private LineSeries CreateLineSeries(ISeries s, MeasurementType xx)
+        private LineSeries CreateLineSeries(ISeries s, MeasurementTypeHelper xx)
         {
             var l = new LineSeries()
             {
-                Stroke = new SolidColorBrush(LineColors[xx]),
-                StrokeThickness = 3,
-                Tag = xx
-
+                Stroke = new SolidColorBrush(xx.SeriesColor.ToColor()),
+                StrokeThickness = 4,
+                Tag = xx.Type
             };
 
             s.Values.Aggregate(0, (acc, v) =>
@@ -150,37 +159,43 @@ namespace Growthstories.UI.ViewModel
             get { return SupportedPageOrientation.Landscape; }
         }
 
-        public override IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
-        {
-            get
-            {
-                return new MockReactiveList<IButtonViewModel>()
-                {
 
-                    new ButtonViewModel()
-                    {
-                        IconType = IconType.MEASURE,
-                        Command = ToggleSeries,
-                        CommandParameter = MeasurementType.LENGTH
-                    },
-                    
-                    new ButtonViewModel()
-                    {
-                        IconType = IconType.PH,
-                        Command = ToggleSeries,
-                        CommandParameter = MeasurementType.PH
-                    },
-                    
-                    new ButtonViewModel()
-                    {
-                        IconType = IconType.ILLUMINANCE,
-                        Command = ToggleSeries,
-                        CommandParameter = MeasurementType.ILLUMINANCE
-                    },
+        private MockReactiveList<IButtonViewModel> _AppBarButtons;
+        public override IReadOnlyReactiveList<IButtonViewModel> AppBarButtons { get { return _AppBarButtons; } }
+        //{
+        //    get
+        //    {
+        //        return new MockReactiveList<IButtonViewModel>()
+        //        {
 
-                };
-            }
-        }
+        //            new ButtonViewModel()
+        //            {
+        //                IconType = IconType.MEASURE,
+        //                Command = ToggleSeries,
+        //                CommandParameter = MeasurementType.LENGTH
+        //            },
+
+        //            new ButtonViewModel()
+        //            {
+        //                IconType = IconType.PH,
+        //                Command = ToggleSeries,
+        //                CommandParameter = MeasurementType.PH
+        //            },
+
+        //            new ButtonViewModel()
+        //            {
+        //                IconType = IconType.ILLUMINANCE,
+        //                Command = ToggleSeries,
+        //                CommandParameter = MeasurementType.ILLUMINANCE
+        //            },
+
+        //        };
+        //    }
+        //}
+
+
+
+
 
         public override ApplicationBarMode AppBarMode
         {
@@ -197,3 +212,75 @@ namespace Growthstories.UI.ViewModel
 
 
 }
+
+
+
+public static class ColorMixins
+{
+    private static Regex _hexColorMatchRegex = new Regex("^#?(?<a>[a-z0-9][a-z0-9])?(?<r>[a-z0-9][a-z0-9])(?<g>[a-z0-9][a-z0-9])(?<b>[a-z0-9][a-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    public static Color GetColorFromHex(string hexColorString)
+    {
+        if (hexColorString == null)
+            throw new NullReferenceException("Hex string can't be null.");
+
+        // Regex match the string
+        var match = _hexColorMatchRegex.Match(hexColorString);
+
+        if (!match.Success)
+            throw new InvalidCastException(string.Format("Can't convert string \"{0}\" to argb or rgb color. Needs to be 6 (rgb) or 8 (argb) hex characters long. It can optionally start with a #.", hexColorString));
+
+        // a value is optional
+        byte a = 255, r = 0, b = 0, g = 0;
+        if (match.Groups["a"].Success)
+            a = System.Convert.ToByte(match.Groups["a"].Value, 16);
+        // r,b,g values are not optional
+        r = System.Convert.ToByte(match.Groups["r"].Value, 16);
+        b = System.Convert.ToByte(match.Groups["b"].Value, 16);
+        g = System.Convert.ToByte(match.Groups["g"].Value, 16);
+        return Color.FromArgb(a, r, b, g);
+    }
+
+    public static Color ToColor(this string This)
+    {
+        return GetColorFromHex(This);
+    }
+}
+
+
+//"SOIL_HUMIDITY"=
+//{
+//  timelineTitle= "soil humidity",
+//  seriesTitle= "Soil humidity",
+//  seriesColor= "#26a8ba",
+//  unit= "%",
+//  decimals= 2
+//},
+
+///*
+//"AIR_HUMIDITY"=
+//{
+//  timelineTitle= "air humidity",
+//  seriesTitle= "Air humidity",
+//  seriesColor= "#9bb5d3",
+//  unit= "%",
+//  decimals= 1
+//},
+//*/
+
+//"PH"=
+//{
+//  timelineTitle= "pH",
+//  seriesTitle= "pH (acidity)",
+//  seriesColor= "#ec9150",
+//  unit= "",
+//  decimals= 1
+//},
+
+//"CO2"=
+//{
+//  timelineTitle= "CO2",
+//  seriesTitle= "CO2",
+//  seriesColor= "#ec9150",
+//  unit= "ppm",
+//  decimals= 0
+//}

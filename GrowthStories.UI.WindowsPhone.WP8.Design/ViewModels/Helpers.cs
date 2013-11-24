@@ -341,7 +341,8 @@ namespace ReactiveUI
 
         public IDisposable Subscribe(IObserver<object> observer)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Disposable.Empty;
         }
 
         public bool CanExecute(object parameter)

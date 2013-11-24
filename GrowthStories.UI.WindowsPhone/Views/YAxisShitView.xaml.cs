@@ -39,6 +39,12 @@ namespace Growthstories.UI.WindowsPhone
 
             pvm.ToggleTelerikSeries.OfType<LineSeries>().Subscribe(x => Toggle(x));
 
+            //foreach (var s in pvm.TelerikSeries)
+            //{
+            //    this.
+            //}
+
+            this.RenderChart(pvm.TelerikSeries.Values);
         }
 
         private void Toggle(LineSeries x)

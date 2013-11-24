@@ -216,37 +216,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public sealed class MeasurementTypeHelper
-    {
 
-
-        public MeasurementTypeHelper(MeasurementType type, string title, IconType icon)
-        {
-            this.Type = type;
-            this.Title = title;
-            this.IconType = icon;
-        }
-
-        public MeasurementType Type { get; set; }
-
-        public string Title { get; set; }
-
-        public override string ToString()
-        {
-            return Title;
-        }
-
-        public IconType IconType { get; private set; }
-
-
-        public static Dictionary<MeasurementType, MeasurementTypeHelper> Options = new Dictionary<MeasurementType, MeasurementTypeHelper>() {
-            {MeasurementType.LENGTH,new MeasurementTypeHelper(MeasurementType.LENGTH,"Height",IconType.LENGTH)},
-            {MeasurementType.AIR_HUMIDITY,new MeasurementTypeHelper(MeasurementType.AIR_HUMIDITY,"Air humidity",IconType.LENGTH)},
-            {MeasurementType.PH,new MeasurementTypeHelper(MeasurementType.PH,"Illuminance",IconType.PH)},
-            {MeasurementType.CO2,new MeasurementTypeHelper(MeasurementType.CO2,"CO2",IconType.LENGTH)},
-        };
-
-    }
 
 
 
@@ -298,14 +268,14 @@ namespace Growthstories.UI.ViewModel
         public PlantMeasureViewModel(DateTimeOffset created)
             : base(PlantActionType.MEASURED, created)
         {
-            this.SelectedItem = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
+            this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
 
             this.Note = "Measurement note";
             this.SValue = "34234";
             this.Value = 23423;
 
-            this.TimelineFirstLine = this.SelectedMeasurementType.Title;
-            this.TimelineSecondLine = this.Value.Value.ToString("F1");
+            this.TimelineFirstLine = SelectedMeasurementType.TimelineTitle;
+            this.TimelineSecondLine = SelectedMeasurementType.FormatValue(this.Value.Value, true);
         }
 
         public PlantMeasureViewModel()
@@ -374,6 +344,12 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand PhotoTimelineTap
+        {
+            get { return new MockReactiveCommand(); }
+        }
+
+
+        public IReactiveCommand PhotoChooserCommand
         {
             get { return new MockReactiveCommand(); }
         }

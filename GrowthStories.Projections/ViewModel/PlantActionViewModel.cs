@@ -257,41 +257,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public sealed class MeasurementTypeHelper
-    {
-
-
-        public MeasurementTypeHelper(MeasurementType type, string title, IconType icon)
-        {
-            this.Type = type;
-            this.Title = title;
-            this.IconType = icon;
-        }
-
-        public MeasurementType Type { get; set; }
-
-        public string Title { get; set; }
-
-        public override string ToString()
-        {
-            return Title;
-        }
-
-        public IconType IconType { get; private set; }
-
-
-        public static Dictionary<MeasurementType, MeasurementTypeHelper> Options = new Dictionary<MeasurementType, MeasurementTypeHelper>() {
-            {MeasurementType.LENGTH,new MeasurementTypeHelper(MeasurementType.LENGTH,"Height",IconType.LENGTH)},
-            {MeasurementType.AIR_HUMIDITY,new MeasurementTypeHelper(MeasurementType.AIR_HUMIDITY,"Air humidity",IconType.LENGTH)},
-            {MeasurementType.PH,new MeasurementTypeHelper(MeasurementType.PH,"Illuminance",IconType.PH)},
-            {MeasurementType.CO2,new MeasurementTypeHelper(MeasurementType.CO2,"CO2",IconType.LENGTH)},
-        };
-
-    }
-
-
-
-
     public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
 
@@ -371,22 +336,20 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.SelectedItem = MeasurementTypeHelper.Options[state.MeasurementType];
-                this.SValue = state.Value.Value.ToString("F1");
+                this.SelectedMeasurementType = MeasurementTypeHelper.Options[state.MeasurementType];
+                this.SValue = this.SelectedMeasurementType.FormatValue(state.Value.Value);
                 this.Value = state.Value;
             }
             else
             {
-                this.SelectedItem = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
+                this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
             }
         }
 
         protected override void TimelineLinesSetup()
         {
-            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.TimelineFirstLine = x == null ? null : x.Title);
-            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => this.TimelineSecondLine = x.Value.ToString("F1"));
-
-
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.TimelineFirstLine = x == null ? null : x.TimelineTitle);
+            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true));
         }
 
         public override void SetProperty(PlantActionPropertySet prop)

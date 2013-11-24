@@ -126,6 +126,9 @@
     <Compile Include="..\GrowthStories.Projections\ViewModel\Interfaces.cs">
       <Link>ViewModels\Interfaces.cs</Link>
     </Compile>
+    <Compile Include="..\GrowthStories.Projections\ViewModel\MeasurementTypeHelper.cs">
+      <Link>ViewModels\MeasurementTypeHelper.cs</Link>
+    </Compile>
     <Compile Include="..\GrowthStories.UI.WindowsPhone\BindingUtility.cs">
       <Link>BindingUtility.cs</Link>
     </Compile>
@@ -235,6 +238,7 @@
     <Compile Include="ViewModels\AddPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientAddPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
+    <Compile Include="ViewModels\Color.cs" />
     <Compile Include="ViewModels\YAxisShitViewModel.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\PlantActions.cs" />
