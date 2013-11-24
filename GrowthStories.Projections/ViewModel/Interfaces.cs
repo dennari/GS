@@ -509,7 +509,10 @@ namespace Growthstories.UI.ViewModel
         POLLINATION,
         SPROUTING,
         PRUNING,
-        HARVESTING
+        HARVESTING,
+        CO2,
+        AIRHUMIDITY,
+        PH2
     }
 
     public enum ApplicationBarMode

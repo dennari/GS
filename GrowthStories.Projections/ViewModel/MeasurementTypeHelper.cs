@@ -31,7 +31,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return string.Format("{0} [{1}]", SeriesTitle, Unit);
+                return string.IsNullOrWhiteSpace(Unit) ? SeriesTitle : string.Format("{0} [{1}]", SeriesTitle, Unit);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Growthstories.UI.ViewModel
             {MeasurementType.AIR_HUMIDITY,new MeasurementTypeHelper() {
                 Type = MeasurementType.AIR_HUMIDITY,
                 TimelineTitle= "air humidity",
-                Icon = IconType.MEASURE,
+                Icon = IconType.AIRHUMIDITY,
                 SeriesTitle= "Air humidity",
                 SeriesColor= "#26a8ba",
                 Unit= "%",
@@ -68,7 +68,7 @@ namespace Growthstories.UI.ViewModel
             {MeasurementType.PH,new MeasurementTypeHelper() {
                 Type = MeasurementType.PH,
                 TimelineTitle= "pH",
-                Icon = IconType.MEASURE,
+                Icon = IconType.PH2,
                 SeriesTitle= "pH (acidity)",
                 SeriesColor= "#ec9150",
                 Unit= "",
@@ -77,7 +77,7 @@ namespace Growthstories.UI.ViewModel
             {MeasurementType.CO2,new MeasurementTypeHelper() {
                 Type = MeasurementType.CO2,
                 TimelineTitle= "CO2",
-                Icon = IconType.MEASURE,
+                Icon = IconType.CO2,
                 SeriesTitle= "CO2",
                 SeriesColor= "#ec9150",
                 Unit= "ppm",

@@ -63,7 +63,10 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.MISTING,IconFolder+"icon_misting_appbar.png"},
             {IconType.PH,IconFolder+"icon_ph_appbar.png"},
             {IconType.POLLINATION,IconFolder+"icon_pollination_appbar.png"},
-            {IconType.SPROUTING,IconFolder+"icon_sprouting_appbar.png"}           
+            {IconType.SPROUTING,IconFolder+"icon_sprouting_appbar.png"},
+            {IconType.PH2,IconFolder+"icon_ph2_appbar.png"},
+            {IconType.CO2,IconFolder+"icon_co2_appbar.png"},
+            {IconType.AIRHUMIDITY,IconFolder+"icon_air_humidity_appbar.png"},
 
         };
 

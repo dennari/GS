@@ -95,7 +95,7 @@ namespace Growthstories.UI.ViewModel
             var m = MeasurementTypeHelper.Options[type];
             this.Series = series;
             this.LineColor = m.SeriesColor;
-            this.SeriesTitle = m.SeriesTitle;
+            this.SeriesTitle = m.TitleWithUnit;
 
             this.XAxisLabelStep = (int)Math.Ceiling((double)series.Count / NumLabels);
             //var range = Series.Last().Created - Series.First().Created;

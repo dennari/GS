@@ -181,7 +181,7 @@
         <chart:RadCartesianChart                 
 			    x:Name="GSChart"
                 Grid.Row="1"
-                Height="370"
+                Height="400"
                 Margin="12,0"
                 VerticalAlignment="Top"
                 HorizontalAlignment="Stretch"     

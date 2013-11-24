@@ -274,8 +274,12 @@
     <Content Include="Assets\Icons\ApplicationBar.Check.png" />
     <Content Include="Assets\Icons\ApplicationBar.Delete.png" />
     <Content Include="Assets\Icons\ApplicationBar.Select.png" />
+    <Content Include="Assets\Icons\icon_air_humidity_appbar.png" />
+    <Content Include="Assets\Icons\icon_co2_appbar.png" />
     <Content Include="Assets\Icons\icon_harvesting.png" />
+    <Content Include="Assets\Icons\icon_ph2_appbar.png" />
     <Content Include="Assets\Icons\icon_pruning.png" />
+    <Content Include="Assets\Icons\icon_soil_humidity_appbar.png" />
     <Content Include="BugSense\BugSense - SDK License Agreement.txt" />
     <Content Include="README_FIRST.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Add.png" />
