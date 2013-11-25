@@ -234,6 +234,10 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public TimeSpan? Interval
+        {
+            get { return this.Schedule.Interval; }
+        }
 
         public DateTimeOffset ComputeNext()
         {
