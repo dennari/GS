@@ -40,8 +40,8 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            //var allActions = PlantVM.Actions;
-            var allActions = CreateFakeData();
+            var allActions = PlantVM.Actions;
+            //var allActions = CreateFakeData();
 
             foreach (var x in MeasurementTypeHelper.Options)
             {

@@ -162,6 +162,13 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
+        public virtual void SetupAddCommand()
+        {
+
+        }
+
+
         protected virtual void TimelineLinesSetup()
         {
             this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
@@ -313,6 +320,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        
+        public override IReactiveCommand AddCommand
+        {
+            get
+            {
+                return base.AddCommand;
+            }
+        }
 
 
         public override void AddCommandSubscription(object p)
@@ -321,6 +336,20 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        
+        public override IObservable<bool> CanExecute
+        {
+            get
+            {
+                return this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
+                    .Select(x =>
+                    {
+                        return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
+                    })
+                    .StartWith(false);
+            }
+
+        }
 
         public PlantMeasureViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.MEASURED, app, state)
@@ -343,7 +372,9 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => double.TryParse(x, out dValue))
                 .Subscribe(x => this.Value = dValue);
 
-            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => x.HasValue && y != MeasurementType.NOTYPE);
+           
+
+            //this.CanExecute = 
 
             if (state != null)
             {
