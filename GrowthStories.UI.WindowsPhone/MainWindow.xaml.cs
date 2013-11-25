@@ -29,7 +29,7 @@ namespace Growthstories.UI.WindowsPhone
     public partial class MainWindow : MainWindowBase
     {
 
-        private Task<IAuthUser> InitializeTask;
+        //private Task<IAuthUser> InitializeTask;
 
         public MainWindow()
         {
@@ -100,6 +100,11 @@ namespace Growthstories.UI.WindowsPhone
             //                        MessageBoxButton.OKCancel) != MessageBoxResult.OK)
             //{
             base.OnBackKeyPress(e);
+            ViewModel.BackKeyPressedCommand.Execute(e);
+            if (e.Cancel == true)
+            {
+                return;
+            }
             if (!ViewModel.Router.NavigateBack.CanExecute(null)) return;
 
             e.Cancel = true;

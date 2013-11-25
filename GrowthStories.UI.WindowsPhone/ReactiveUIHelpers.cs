@@ -20,7 +20,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             var disp = Disposable.Empty;
             var inner = This.WhenAny(x => x.ViewModel, x => x.Value)
-                .Where(x => x != null && x.HostScreen.Router.GetCurrentViewModel() == x)
+                .Where(x => x != null && x.HostScreen != null && x.HostScreen.Router != null && x.HostScreen.Router.GetCurrentViewModel() == x)
                 .Subscribe(x =>
                 {
                     if (disp != null) disp.Dispose();

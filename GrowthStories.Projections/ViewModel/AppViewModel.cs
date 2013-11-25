@@ -201,6 +201,18 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
+            this.Router.CurrentViewModel
+                //.OfType<IControlsPageOrientation>()
+                .Select(x =>
+                {
+                    var xx = x as IControlsBackButton;
+                    if (xx != null)
+                        return xx.WhenAnyValue(y => y.CanGoBack);
+                    return Observable.Return(true);
+                })
+                .Switch()
+                .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
+
             resolver.RegisterLazySingleton(() =>
             {
                 return new GardenViewModel(null, this);
@@ -248,6 +260,26 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _User, value);
             }
         }
+
+        private ObservableAsPropertyHelper<bool> _CanGoBack;
+        public bool CanGoBack
+        {
+            get
+            {
+                return _CanGoBack.Value;
+            }
+        }
+
+        private IReactiveCommand _BackKeyPressedCommand;
+        public IReactiveCommand BackKeyPressedCommand
+        {
+            get
+            {
+                return _BackKeyPressedCommand ?? (_BackKeyPressedCommand = new ReactiveCommand());
+            }
+
+        }
+
 
 
         //Task<T> RunTask<T>(Func<T> f)

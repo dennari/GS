@@ -22,7 +22,7 @@ namespace Growthstories.UI.ViewModel
         public string Date { get; protected set; }
         public string Time { get; protected set; }
         public PlantActionType ActionType { get; protected set; }
-        public IReactiveCommand EditCommand { get; set; }
+        public IReactiveCommand EditCommand { get; protected set; }
 
         public IconType Icon { get; protected set; }
 
@@ -84,6 +84,10 @@ namespace Growthstories.UI.ViewModel
             this.Icon = ActionTypeToIcon[type];
             this.Label = ActionTypeToLabel[type];
             this.State = state;
+            //AddCommand.Subscribe(x =>
+            //{
+            //    App.Router.NavigateBack.Execute(null);
+            //});
 
             if (state != null)
             {
@@ -110,16 +114,22 @@ namespace Growthstories.UI.ViewModel
                         MeasurementType = this.MeasurementType
                     });
 
+
+
                 });
 
 
-                updatePipe.Subscribe(x => Updates++);
+
 
             }
             else
             {
+                var now = DateTimeOffset.Now;
+                this.WeekDay = now.ToString("dddd");
+                this.Date = now.ToString("d");
+                this.Time = now.ToString("t");
 
-                this.AddCommand.RegisterAsyncTask(_ =>
+                var addPipe = this.AddCommand.RegisterAsyncTask(_ =>
                 {
 
 
@@ -139,9 +149,16 @@ namespace Growthstories.UI.ViewModel
 
                 });
 
+
+
             }
 
             TimelineLinesSetup();
+
+            this.EditCommand = new ReactiveCommand();
+            this.EditCommand.Subscribe(_ => this.Navigate(this));
+            //this.EditCommand.Subscribe
+
 
         }
 
@@ -265,12 +282,6 @@ namespace Growthstories.UI.ViewModel
         {
             get { return _Options ?? (_Options = MeasurementTypeHelper.Options.Values.ToArray()); }
         }
-
-        //public Dictionary<MeasurementType, MeasurementTypeHelper> Options
-        //{
-        //    get {return PlantMeasureViewModel}
-        //}
-        //public IList<MeasurementTypeHelper> MeasurementTypes { get; protected set; }
 
 
         protected MeasurementTypeHelper _SelectedMeasurementType;

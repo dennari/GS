@@ -44,7 +44,9 @@
                             HorizontalAlignment="Left"
                             Style="{StaticResource GSButtonStyle}"
                             HorizontalContentAlignment="Left"
-                            Command="{Binding Command}" Margin="6,0,0,12">
+                            Command="{Binding Command}" 
+                            CommandParameter="{Binding CommandParameter}" 
+                            Margin="6,0,0,12">
 
                                     <Grid Height="52" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
@@ -53,10 +55,10 @@
                                         </Grid.ColumnDefinitions>
                                        
                                         <Image 
-                                        Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" 
+                                        Source="{Binding IconType, Converter={StaticResource IconTypeToIcon}}" 
                                         Width="40"
                                         Grid.Column="0" />
-                                        <TextBlock Text="{Binding Title}"
+                                        <TextBlock Text="{Binding Text}"
                                            FontSize="27"
                                            FontWeight="Bold"
                                            Margin="24,0,0,0"

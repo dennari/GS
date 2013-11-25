@@ -31,7 +31,7 @@ namespace Growthstories.UI.Services
             where T : class
         {
             var viewType = typeof(IViewFor<>);
-            return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), contract);
+            return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
 
 
         }

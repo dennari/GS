@@ -16,10 +16,9 @@ namespace Growthstories.UI.ViewModel
 {
 
 
+
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
-
-
 
 
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
@@ -43,6 +42,9 @@ namespace Growthstories.UI.ViewModel
 
         public PlantState State { get; protected set; }
         //public IGardenViewModel Garden { get; protected set; }
+
+
+
 
 
 
@@ -339,31 +341,18 @@ namespace Growthstories.UI.ViewModel
         public string Species { get { return _Species; } private set { this.RaiseAndSetIfChanged(ref _Species, value); } }
 
 
-        //private ObservableAsPropertyHelper<IPlantWaterViewModel> _LatestWatering;
-        //public _LatestWatering
 
-        //private ObservableAsPropertyHelper<IPlantActionViewModel> LatestFertilizing;
-
-        private void PlantActionNavigateBackSubscription(IReactiveCommand cmd)
+        private IYAxisShitViewModel _Chart;
+        public IYAxisShitViewModel Chart
         {
-            cmd.Take(1).Subscribe(_ =>
+            get
             {
-                var lastI = App.Router.NavigationStack.Count - 1;
-                IRoutableViewModel vm = null;
-                var steps = 1;
-                try
-                {
-                    if (App.Router.NavigationStack[lastI - 1] is IPlantActionListViewModel)
-                        steps = 2;
-                }
-                catch
-                {
+                return _Chart ?? (_Chart = App.YAxisShitViewModelFactory(this));
+            }
 
-                }
-                for (var i = 0; i < steps; i++)
-                    App.Router.NavigateBack.Execute(null);
-            });
         }
+
+
 
 
         private IPlantActionViewModel CreateEmptyActionVM(PlantActionType type)
@@ -374,41 +363,44 @@ namespace Growthstories.UI.ViewModel
             return vm;
         }
 
-        public IReactiveCommand AddActionCommand(PlantActionType type)
+        public IReactiveCommand _NavigateToEmptyActionCommand;
+        public IReactiveCommand NavigateToEmptyActionCommand
         {
-            var vm = CreateEmptyActionVM(type);
-            PlantActionNavigateBackSubscription(vm.AddCommand);
 
-            return Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(vm));
+            get
+            {
+                if (_NavigateToEmptyActionCommand == null)
+                {
+                    _NavigateToEmptyActionCommand = new ReactiveCommand();
+                    _NavigateToEmptyActionCommand.OfType<PlantActionType>().Subscribe(x =>
+                    {
+                        var vm = CreateEmptyActionVM(x);
+                        vm.AddCommand.Take(1).Subscribe(_ => App.Router.NavigateBack.Execute(null));
+                        this.Navigate(vm);
+                    });
+                }
+                return _NavigateToEmptyActionCommand;
+            }
+
+        }
+
+        public IReactiveCommand _PlantActionEdited;
+        public IReactiveCommand PlantActionEdited
+        {
+
+            get
+            {
+                if (_PlantActionEdited == null)
+                {
+                    _PlantActionEdited = new ReactiveCommand();
+                    _PlantActionEdited.OfType<IPlantActionViewModel>().Subscribe(x => App.Router.NavigateBack.Execute(null));
+                }
+                return _PlantActionEdited;
+            }
+
         }
 
 
-        public IReactiveCommand EditActionCommand(IPlantActionViewModel vm)
-        {
-
-            PlantActionNavigateBackSubscription(vm.AddCommand);
-            return Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(vm));
-
-        }
-
-
-        //protected IReactiveDerivedList<ITimelineActionViewModel> _TimelineActions;
-        //public IReadOnlyReactiveList<ITimelineActionViewModel> TimelineActions
-        //{
-        //    get
-        //    {
-        //        if (_TimelineActions == null)
-        //        {
-        //            _TimelineActions = this.Actions.CreateDerivedCollection(x =>
-        //            {
-        //                var vm = new TimelineActionViewModel(x);
-        //                vm.EditCommand = this.EditActionCommand(x);
-        //                return (ITimelineActionViewModel)vm;
-        //            });
-        //        }
-        //        return _TimelineActions;
-        //    }
-        //}
 
         protected ReactiveList<IPlantActionViewModel> _Actions;
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions
@@ -428,7 +420,8 @@ namespace Growthstories.UI.ViewModel
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
                             _Actions.Insert(0, x);
-                            x.EditCommand = this.EditActionCommand(x);
+
+                            x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
 
                             var photo = x as IPlantPhotographViewModel;
                             if (photo != null)
@@ -503,6 +496,8 @@ namespace Growthstories.UI.ViewModel
                             IconType = IconType.WATER,
                             Command = Observable.Return(true).ToCommandWithSubscription( _ => {
                                 var vm = CreateEmptyActionVM(PlantActionType.WATERED);
+                                //vm.AddCommand.Subscribe(x => App.Router.Na)
+                                
                                 vm.AddCommand.Execute(null);
                             })
                         },
@@ -510,13 +505,14 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "photograph",
                             IconType = IconType.PHOTO,
-                            Command = AddActionCommand(PlantActionType.PHOTOGRAPHED)
+                            Command = NavigateToEmptyActionCommand,
+                            CommandParameter = PlantActionType.PHOTOGRAPHED
                         },
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
-                            IconType = IconType.NOTE,
-                            Command = AddActionCommand(PlantActionType.COMMENTED)
+                            Command = NavigateToEmptyActionCommand,
+                            CommandParameter = PlantActionType.COMMENTED
                         },
                         new ButtonViewModel(null)
                         {
@@ -530,18 +526,18 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private IPlantActionListViewModel _PlantActionList;
-        protected IPlantActionListViewModel PlantActionList
+
+
+        private IReactiveCommand _ShowActionList;
+        public IReactiveCommand ShowActionList
         {
             get
             {
-                if (_PlantActionList == null)
-                {
-                    _PlantActionList = new PlantActionListViewModel(this, App);
-                }
-                return _PlantActionList;
+                return _ShowActionList ?? (_ShowActionList = new ReactiveCommand());
             }
+
         }
+
 
         protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
@@ -554,8 +550,7 @@ namespace Growthstories.UI.ViewModel
                         new MenuItemViewModel(null)
                         {
                             Text = "pick action",
-                            Command = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList))
-   
+                            Command = this.ShowActionList   
                         },                
                         new MenuItemViewModel(null)
                         {
@@ -581,33 +576,13 @@ namespace Growthstories.UI.ViewModel
         public ApplicationBarMode AppBarMode { get { return ApplicationBarMode.DEFAULT; } }
         public bool AppBarIsVisible { get { return true; } }
 
-
-
-
-
-
         #endregion
-
-
-
-
-
-
-
-
 
         public SupportedPageOrientation SupportedOrientations
         {
             get { return SupportedPageOrientation.PortraitOrLandscape; }
         }
 
-
-
-
-        public IEnumerable<ISeries> Series
-        {
-            get { throw new NotImplementedException(); }
-        }
 
     }
 
