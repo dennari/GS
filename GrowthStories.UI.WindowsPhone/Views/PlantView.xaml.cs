@@ -82,16 +82,19 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+
         private void CreateOrUpdateTile()
         {
-
             FlipTileData TileData = new FlipTileData()
             {
                 Title = ViewModel.Name,
                 BackTitle = ViewModel.Name,
                 BackContent = "GROWTH STORIES",
-                WideBackContent = "GROWTH STORIES",
+                //WideBackContent = "GROWTH STORIES",
                 Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
+                //BackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute),
+                //BackBackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute)
+                
                 //SmallBackgroundImage = [small Tile size URI],
                 //BackgroundImage = [front of medium Tile size URI],
                 //BackBackgroundImage = [back of medium Tile size URI],

@@ -63,10 +63,11 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <local:GSLabel Label="current interval" Margin="-12,0,-12,20">
+            <local:GSLabel Label="current interval" Margin="0,0,0,20">
 
                 <telerikInput:RadTimeSpanPicker 
-				    Value="{Binding Interval, Mode=TwoWay}"
+                    Margin="-12,0,-12,0"
+                    Value="{Binding Interval, Mode=TwoWay}"
 				    SelectorFormat="wdh"
                     OkButtonIconUri="{Binding OKIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
                     CancelButtonIconUri="{Binding CancelIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
@@ -88,7 +89,7 @@
                     >
                     <local:GSLongListSelector.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="-12, 20, 12, 0">
+                            <Grid Margin="-12, 20, -12, 0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="240" />
                                     <ColumnDefinition Width="*" />
