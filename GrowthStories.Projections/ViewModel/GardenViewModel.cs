@@ -216,26 +216,34 @@ namespace Growthstories.UI.ViewModel
             //IObservable<long> timer = Observable.Interval(TimeSpan.FromSeconds(3));
 
             this.MultiWateringCommand = new ReactiveCommand();
-            this.MultiWateringCommand.RegisterAsync(x => Observable.Create<bool>(obs =>
-            {
-                var timer = Observable.Timer(TimeSpan.FromSeconds(3));
-                timer.Subscribe(_ => obs.OnNext(true), () => obs.OnCompleted());
 
-                return Disposable.Empty;
-            }));
+
+
+            this.MultiWateringCommand.Subscribe((_) =>
+            {
+                if (this._SelectedPlants.Count == 0)
+                    return;
+                foreach (var x in _SelectedPlants)
+                    x.WateringCommand.Execute(null);
+            });
             this.MultiDeleteCommand = new ReactiveCommand();
-            this.MultiDeleteCommand.RegisterAsync(x => Observable.Create<bool>(obs =>
+            this.MultiDeleteCommand.Subscribe((_) =>
             {
-                var timer = Observable.Timer(TimeSpan.FromSeconds(3));
-                timer.Subscribe(_ => obs.OnNext(true), () => obs.OnCompleted());
-
-                return Disposable.Empty;
-            }));
+                if (this._SelectedPlants.Count == 0)
+                    return;
+                foreach (var x in _SelectedPlants)
+                    x.DeleteCommand.Execute(null);
+            });
 
             this.IsNotInProgress = MultiWateringCommand.CanExecuteObservable.CombineLatest(MultiDeleteCommand.CanExecuteObservable, (b1, b2) => b1 && b2).DistinctUntilChanged();
 
+            //     x => Observable.Create<bool>(obs =>
+            //{
+            //    var timer = Observable.Timer(TimeSpan.FromSeconds(3));
+            //    timer.Subscribe(_ => obs.OnNext(true), () => obs.OnCompleted());
 
-
+            //    return Disposable.Empty;
+            // })
 
         }
 
@@ -436,53 +444,7 @@ namespace Growthstories.UI.ViewModel
         }
     }
 
-    public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
-    {
-        public NotificationsViewModel(IGSAppViewModel app)
-            : base(app)
-        {
 
-            this._AppBarButtons.Add(
-            new ButtonViewModel(null)
-                    {
-                        Text = "add",
-                        IconType = IconType.ADD,
-                        Command = this.HostScreen.Router.NavigateCommandFor<IAddEditPlantViewModel>()
-                    });
-
-        }
-        protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
-        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
-        {
-            get { return _AppBarButtons; }
-        }
-
-        public override string UrlPathSegment
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public ApplicationBarMode AppBarMode
-        {
-            get { return ApplicationBarMode.MINIMIZED; }
-        }
-
-
-        private bool _AppBarIsVisible = true;
-        public bool AppBarIsVisible
-        {
-            get
-            {
-                return _AppBarIsVisible;
-            }
-            protected set
-            {
-                this.RaiseAndSetIfChanged(ref _AppBarIsVisible, value);
-            }
-        }
-
-
-    }
 
 
 }

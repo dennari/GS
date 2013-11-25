@@ -22,6 +22,24 @@
             FontSize="{StaticResource PhoneFontSizeExtraLarge}"
             toolkit:TiltEffect.IsTiltEnabled="True"/>
         </DataTemplate>
+
+        <DataTemplate x:Key="NotificationTemplate">
+            <StackPanel>
+            <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="White"
+                Text="{Binding Name}"               
+                FontSize="{StaticResource PhoneFontSizeExtraLarge}"
+                toolkit:TiltEffect.IsTiltEnabled="True"/>
+            <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="White"
+                Text="{Binding Number}"               
+                FontSize="{StaticResource PhoneFontSizeLarge}"
+                toolkit:TiltEffect.IsTiltEnabled="True"/>
+            </StackPanel>
+        </DataTemplate>
+
         <Style x:Key="GSPanoramaItemStyle" TargetType="phone:PanoramaItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
@@ -52,6 +70,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        
     </UserControl.Resources>
     <!--LayoutRoot contains the root grid where all other page content is placed-->
     <Grid x:Name="LayoutRoot">
@@ -83,14 +103,17 @@
             </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
-                <Grid x:Name="ContentPanel2" Margin="0,0">
+                <Grid x:Name="ContentPanel2" Margin="0,0" DataContext="{Binding NotificationsVM}">
                     <TextBlock 
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
                         Text="There are no notifications to display at this time." 
                         FontWeight="Bold"
                         Margin="8,0,0,24"
                         Width="400" />
-                    <phone:LongListSelector/>
+                    <phone:LongListSelector 
+                        ItemsSource="{Binding Notifications}"
+                        ItemTemplate="{StaticResource NotificationTemplate}"
+                        />
                 </Grid>
             </phone:PanoramaItem>
             <!-- FRIENDS -->

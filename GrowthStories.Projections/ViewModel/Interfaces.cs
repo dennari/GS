@@ -7,6 +7,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,6 +59,7 @@ namespace Growthstories.UI.ViewModel
         Task LogOut();
         IUserService Context { get; }
         IAuthUser User { get; }
+        IEndpoint Endpoint { get; }
         //IDictionary<IconType, Uri> IconUri { get; }
         //IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
@@ -176,6 +178,8 @@ namespace Growthstories.UI.ViewModel
         string Species { get; }
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ScrollCommand { get; }
+        IReactiveCommand WateringCommand { get; }
+        IReactiveCommand DeleteCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
         //IReactiveCommand ActionTapped { get; }
@@ -211,21 +215,44 @@ namespace Growthstories.UI.ViewModel
         public PlantScheduler(IScheduleViewModel vm)
         {
             this.Schedule = vm;
+
+            this.WhenAnyValue(x => x.LastActionTime)
+                .Where(x => x.HasValue)
+                .Subscribe(x => this.ComputeNext());
         }
 
-        public DateTimeOffset ComputeNext(DateTimeOffset last)
+        private DateTimeOffset? _LastActionTime;
+        public DateTimeOffset? LastActionTime
+        {
+            get
+            {
+                return _LastActionTime;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _LastActionTime, value);
+            }
+        }
+
+
+        public DateTimeOffset ComputeNext()
         {
 
             if (!Schedule.Interval.HasValue)
                 return DateTimeOffset.MinValue;
+            if (!LastActionTime.HasValue)
+                return DateTimeOffset.MinValue;
+
+            var last = LastActionTime.Value;
 
             var ans = Schedule.ComputeNext(last);
 
             var now = DateTimeOffset.UtcNow;
 
-            var passedSeconds = (long)(now - last).TotalSeconds;
+            var passedSeconds = (long)(now - ans).TotalSeconds;
 
-            var num = (int)(passedSeconds / Schedule.Interval.Value.TotalSeconds);
+            var num = (double)passedSeconds / Schedule.Interval.Value.TotalSeconds;
+
             this.Missed = num;
             if (num > 0)
             {
@@ -247,8 +274,11 @@ namespace Growthstories.UI.ViewModel
             return ans;
         }
 
-        private int _Missed;
-        public int Missed
+
+        // ratio of the time-intervals of how long has passed and how much can pass (the schedule interval)
+        // is negative if next scheduled action is in the future
+        private double _Missed;
+        public double Missed
         {
             get
             {

@@ -93,6 +93,12 @@ namespace Growthstories.UI.ViewModel
             get { return _Router ?? (_Router = new RoutingState()); }
         }
 
+        IEndpoint _Endpoint;
+        public IEndpoint Endpoint
+        {
+            get { return _Endpoint ?? (_Endpoint = Kernel.Get<IEndpoint>()); }
+        }
+
         protected IDispatchCommands _Handler;
         protected IDispatchCommands Handler
         {

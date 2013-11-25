@@ -24,6 +24,7 @@ namespace Growthstories.UI.ViewModel
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
         public IReactiveCommand ShareCommand { get; protected set; }
+        public IReactiveCommand WateringCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
@@ -94,6 +95,18 @@ namespace Growthstories.UI.ViewModel
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
             this.ShareCommand = new ReactiveCommand();
+
+
+
+
+            this.WateringCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+            {
+                var vm = CreateEmptyActionVM(PlantActionType.WATERED);
+                vm.AddCommand.Execute(null);
+            });
+
+
+
             this.DeleteCommand = new ReactiveCommand();
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
@@ -103,6 +116,7 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
+
 
                 this.State = state;
                 this.Id = state.Id;
@@ -162,7 +176,7 @@ namespace Growthstories.UI.ViewModel
                                 Icon = IconType.WATER
                             };
                         }
-                        this.WateringScheduler.ComputeNext(a.Created);
+                        this.WateringScheduler.LastActionTime = a.Created;
                     }
 
                 });
@@ -188,12 +202,12 @@ namespace Growthstories.UI.ViewModel
                                 Icon = IconType.FERTILIZE
                             };
                         }
-                        this.FertilizingScheduler.ComputeNext(a.Created);
+                        this.FertilizingScheduler.LastActionTime = a.Created;
                     }
                 });
 
             this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
-                .Subscribe(x => this.MissedCount = x);
+                .Subscribe(x => this.MissedCount = (int?)x);
 
             this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
             {
@@ -201,6 +215,8 @@ namespace Growthstories.UI.ViewModel
             });
 
         }
+
+
 
 
         protected bool _OwnPlant;
@@ -498,18 +514,27 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_AppBarButtons == null)
-                    _AppBarButtons = new ReactiveList<IButtonViewModel>()
+                    _AppBarButtons = App.User.Id == this.UserId ? GetOwnerButtons() : GetFollowerButtons();
+                return _AppBarButtons;
+            }
+        }
+
+
+
+        private ReactiveList<IButtonViewModel> GetFollowerButtons()
+        {
+            return new ReactiveList<IButtonViewModel>();
+        }
+
+        private ReactiveList<IButtonViewModel> GetOwnerButtons()
+        {
+            return new ReactiveList<IButtonViewModel>()
                     {
                         new ButtonViewModel(null)
                         {
                             Text = "water",
                             IconType = IconType.WATER,
-                            Command = Observable.Return(true).ToCommandWithSubscription( _ => {
-                                var vm = CreateEmptyActionVM(PlantActionType.WATERED);
-                                //vm.AddCommand.Subscribe(x => App.Router.Na)
-                                
-                                vm.AddCommand.Execute(null);
-                            })
+                            Command = this.WateringCommand,
                         },
                         new ButtonViewModel(null)
                         {
@@ -533,8 +558,6 @@ namespace Growthstories.UI.ViewModel
                         },
 
                     };
-                return _AppBarButtons;
-            }
         }
 
 
@@ -589,7 +612,10 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 if (_AppBarMenuItems == null)
-                    _AppBarMenuItems = __AppBarMenuItems;
+                {
+                    if (this.UserId == App.User.Id)
+                        _AppBarMenuItems = __AppBarMenuItems;
+                }
                 return _AppBarMenuItems;
             }
             protected set
@@ -599,7 +625,13 @@ namespace Growthstories.UI.ViewModel
         }
 
         public ApplicationBarMode AppBarMode { get { return ApplicationBarMode.DEFAULT; } }
-        public bool AppBarIsVisible { get { return true; } }
+        public bool AppBarIsVisible
+        {
+            get
+            {
+                return UserId == App.User.Id;
+            }
+        }
 
         #endregion
 
