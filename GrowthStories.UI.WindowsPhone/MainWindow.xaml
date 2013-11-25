@@ -35,6 +35,7 @@
 		    TransitionPart="OutIn"
 	       />
 
+        <!--
         <Image Source="/Assets/AlignmentGrid.png" 
 			       VerticalAlignment="Top" 
 			       Height="800" Width="480" 
@@ -42,6 +43,7 @@
 			       Grid.Row="0" 
 			       Opacity="0.7"
 			       IsHitTestVisible="False"  />
+        -->
     </Grid>
     
     <bar:Bindable.ApplicationBar>
