@@ -153,8 +153,6 @@ namespace Growthstories.UI.ViewModel
 
 
             //this.Id = iid;
-            this.TileModeAppBarButtons.Add(this.AddPlantButton);
-            this.AppBarButtons = this.TileModeAppBarButtons;
 
 
 
@@ -252,14 +250,29 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private void Init(IAuthUser state)
+        private void Init(IAuthUser user)
         {
-            this.User = state;
-            this.Username = state.Username;
-            this.Id = state.GardenId;
+            this.User = user;
+            this.Username = user.Username;
+            this.Id = user.GardenId;
             //this.State = state.Garden;
 
             this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();
+
+            if (user.Id == App.User.Id)
+            {
+                this.TileModeAppBarButtons.Add(this.AddPlantButton);
+                this.TileModeAppBarButtons.Add(this.SettingsButton);
+                this.AppBarButtons = this.TileModeAppBarButtons;
+                this.AppBarIsVisible = true;
+            }
+            else
+            {
+                this.AppBarIsVisible = false;
+            }
+
+
+
         }
 
         private void UnInit()
@@ -273,7 +286,9 @@ namespace Growthstories.UI.ViewModel
             }
 
             //this.State = state.Garden;
-
+            this.TileModeAppBarButtons.Clear();
+            this.TileModeAppBarButtons.Add(this.AddPlantButton);
+            this.AppBarButtons = this.TileModeAppBarButtons;
             this.PlantTitle = null;
         }
 
@@ -344,6 +359,23 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private ButtonViewModel _SettingsButton;
+        public IButtonViewModel SettingsButton
+        {
+            get
+            {
+                if (_SettingsButton == null)
+                    _SettingsButton = new ButtonViewModel(App)
+                    {
+                        Text = "Settings",
+                        IconType = IconType.SETTINGS,
+                        Command = App.Router.NavigateCommandFor<ISettingsViewModel>()
+
+                    };
+                return _SettingsButton;
+            }
+        }
+
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
@@ -356,9 +388,17 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref _AppBarMode, value); }
         }
 
+        private bool _AppBarIsVisible = false;
         public bool AppBarIsVisible
         {
-            get { return true; }
+            get
+            {
+                return _AppBarIsVisible;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarIsVisible, value);
+            }
         }
 
 
@@ -423,10 +463,21 @@ namespace Growthstories.UI.ViewModel
             get { return ApplicationBarMode.MINIMIZED; }
         }
 
+
+        private bool _AppBarIsVisible = true;
         public bool AppBarIsVisible
         {
-            get { return true; }
+            get
+            {
+                return _AppBarIsVisible;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarIsVisible, value);
+            }
         }
+
+
     }
 
 

@@ -12,69 +12,7 @@ using System.Threading.Tasks;
 namespace Growthstories.UI.ViewModel
 {
 
-    public enum IntervalValueType
-    {
-        HOUR,
-        DAY
-    }
 
-
-    public sealed class IntervalValue
-    {
-        private readonly IntervalValueType Type;
-        public IntervalValue(IntervalValueType type)
-        {
-            this.Type = type;
-        }
-
-        public long Compute(string sValue)
-        {
-            var dValue = double.Parse(sValue);
-            return (long)(dValue * this.Unit);
-        }
-
-        public Guid Id
-        {
-            get { return Guid.NewGuid(); }
-        }
-
-        public string Compute(long lValue)
-        {
-            return (lValue / Unit).ToString("F1");
-        }
-
-        public long Unit
-        {
-            get
-            {
-                return this.Type == IntervalValueType.DAY ? 24 * 3600 : 3600;
-            }
-        }
-
-
-
-
-        public string Title
-        {
-            get { return this.Type == IntervalValueType.DAY ? "days" : "hours"; }
-        }
-
-        public override string ToString()
-        {
-            return this.Title;
-        }
-
-        public static IList<IntervalValue> GetAll()
-        {
-            return new List<IntervalValue>()
-            {
-                new IntervalValue(IntervalValueType.DAY),
-                new IntervalValue(IntervalValueType.HOUR)
-            };
-        }
-
-
-    }
 
     public class ScheduleViewModel : CommandViewModel, IScheduleViewModel
     {

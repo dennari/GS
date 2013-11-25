@@ -1,0 +1,82 @@
+﻿<local:SettingsViewBase
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    x:Class="Growthstories.UI.WindowsPhone.SettingsView"    
+    mc:Ignorable="d">
+
+    <local:SettingsViewBase.Resources>
+        <DataTemplate x:Key="SwitchTemplate">
+            <Grid Margin="0,0,0,10" Width="340">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock 
+                        Text="Off" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                <TextBlock 
+                        Text="On" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+               
+            </Grid>
+        </DataTemplate>
+    </local:SettingsViewBase.Resources>
+
+
+
+
+    <local:GSViewGrid 
+		Title="settings" 
+		Style="{StaticResource NoScroll}">
+        <local:GSViewGrid.Background>
+            <RadialGradientBrush 
+                Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
+                <GradientStop Color="#FF9E2277" Offset="1"/>
+                <GradientStop Color="#FFE8570E"/>
+                <!--<GradientStop Color="#FFA2578B" Offset="1"/>
+                <GradientStop Color="#FFE87D48"/>-->
+            </RadialGradientBrush>
+         </local:GSViewGrid.Background>
+
+        <StackPanel>
+
+
+
+            <local:GSLabel Label="Allow location services">
+                <local:GSToggleSwitch
+                            IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
+                            Content="{Binding LocationServices}"
+                            ContentTemplate="{StaticResource SwitchTemplate}"
+                            VerticalContentAlignment="Center"
+                            Margin="0,0,0,-12"
+                            />
+            </local:GSLabel>
+            <local:GSLabel Label="Share new plants by default">
+                <local:GSToggleSwitch 
+                            IsChecked="{Binding SharedByDefault.IsEnabled, Mode=TwoWay}"                                                    
+                            Content="{Binding SharedByDefault}"
+                            ContentTemplate="{StaticResource SwitchTemplate}"
+                            VerticalContentAlignment="Center"/>
+            </local:GSLabel>
+            
+            <Button 
+                Style="{StaticResource GSButtonStyle}" 
+                HorizontalContentAlignment="Left"
+                Command="{Binding NavigateToAbout}"
+                Margin="6,0"
+                >
+                <TextBlock Text="about"/>
+            </Button>
+
+        </StackPanel>
+
+
+    </local:GSViewGrid>
+</local:SettingsViewBase>

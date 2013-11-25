@@ -67,6 +67,7 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.PH2,IconFolder+"icon_ph2_appbar.png"},
             {IconType.CO2,IconFolder+"icon_co2_appbar.png"},
             {IconType.AIRHUMIDITY,IconFolder+"icon_air_humidity_appbar.png"},
+            {IconType.SETTINGS,IconFolder+"appbar.settings.png"},
 
         };
 
