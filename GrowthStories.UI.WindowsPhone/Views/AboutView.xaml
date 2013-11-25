@@ -9,9 +9,12 @@
     x:Class="Growthstories.UI.WindowsPhone.AboutView"    
     mc:Ignorable="d">
 
-    <local:GSViewGrid 
+    
+    <local:GSViewGrid
+        TopTitle="GROWTH STORIES"
 		Title="about" 
 		Style="{StaticResource NoScroll}">
+        
         <local:GSViewGrid.Background>
             <RadialGradientBrush 
                 Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
@@ -21,8 +24,6 @@
                 <GradientStop Color="#FFE87D48"/>-->
             </RadialGradientBrush>
         </local:GSViewGrid.Background>
-
-       
 
             <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
             <Grid.RowDefinitions>
@@ -61,7 +62,6 @@
                Foreground="White" />
         </Grid>
 
-
-
     </local:GSViewGrid>
+
 </local:AboutViewBase>
