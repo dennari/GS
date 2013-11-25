@@ -24,6 +24,34 @@ namespace Growthstories.UI.ViewModel
         public NotificationType Type { get; set; }
         public double Number { get; set; }
         public DateTimeOffset Date { get; set; }
+
+
+        public string NotificationText
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case NotificationType.WATERING_SCHEDULE:
+                        return Name + " should be watered";
+
+                    case NotificationType.FERTILIZING_SCHEDULE:
+                        return Name + " should be nourished";
+                }
+                return "";
+            }
+        }
+
+
+        public bool ShouldShow
+        {
+            get
+            {
+                return true;
+                //return Number > 0.2;
+            }
+        }
+
     }
 
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
