@@ -7,7 +7,6 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
-	xmlns:design="clr-namespace:Growthstories.UI.ViewModel.Design"
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:media="clr-namespace:System.Windows.Media;assembly=System.Windows"
@@ -20,8 +19,6 @@
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
-    <design:PlantViewModel x:Key="PlantViewModelDesign" d:IsDataSource="True" />
-    <design:GardenViewModel x:Key="GardenViewModelDesign" d:IsDataSource="True" />
 
     <!--<design:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
 	<design:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />-->
@@ -145,10 +142,9 @@
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 				CacheMode="BitmapCache" Margin="12,0"
 				>
-
-				<local:GSListPicker.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding TitleWithUnit}"
+                <local:GSListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding TitleWithUnit}" 
 								   Style="{StaticResource GSTextBoxOnTextBlockStyle}"
 								   />
 
@@ -212,7 +208,10 @@
     </Style>
 
     <DataTemplate x:Key="TimelinePhotoTemplate">
-        <Button Height="220" HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
+        <Button Height="220" 
+            BorderBrush="WhiteSmoke"
+            BorderThickness="3"    
+            HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
             <Button.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
                 <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
@@ -246,7 +245,10 @@
                         </StackPanel>
                         <toolkit:ContextMenuService.ContextMenu>
                             <toolkit:ContextMenu>
-                                <toolkit:MenuItem Header="Edit" Command="{Binding EditCommand}"/>                                        
+                                <toolkit:MenuItem Header="Edit" 
+                                              Command="{Binding EditCommand}"
+                                              CommandParameter="{Binding}"/>
+
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
                     </StackPanel>
