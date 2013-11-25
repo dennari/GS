@@ -13,7 +13,7 @@ namespace Growthstories.Sync
         Uri AuthUri { get; }
         Uri ClearDBUri { get; }
 
-
+        Uri ShareUri(Guid userId, Guid plantId);
         Uri UserListUri(string username);
         Uri PhotoDownloadUri(string blobKey);
 
@@ -81,6 +81,11 @@ namespace Growthstories.Sync
         public Uri PhotoDownloadUri(string blobKey)
         {
             return new Uri(BaseUri, string.Format("/api/photo/imageurl?blobKey={0}", blobKey));
+        }
+
+        public Uri ShareUri(Guid userId, Guid plantId)
+        {
+            return new Uri(BaseUri, string.Format("/plant/{0}/{1}", userId, plantId));
         }
     }
 }

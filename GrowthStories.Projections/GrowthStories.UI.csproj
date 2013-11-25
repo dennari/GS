@@ -99,6 +99,7 @@
     <Compile Include="Services\GSViewLocator.cs" />
     <Compile Include="ViewModel\AppViewModel.cs" />
     <Compile Include="ViewModel\CommandViewModel.cs" />
+    <Compile Include="ViewModel\NotificationsViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\MeasurementTypeHelper.cs" />
     <Compile Include="ViewModel\SignInRegisterViewModel.cs" />
