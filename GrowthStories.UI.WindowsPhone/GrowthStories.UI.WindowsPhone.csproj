@@ -138,9 +138,7 @@
     <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
-    <Compile Include="ViewModels\DesignViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
-    <Compile Include="ViewModels\DesignViewModel2.cs" />
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>

@@ -28,6 +28,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
+
+
         //public IReactiveCommand FlickCommand { get; protected set; }
         //public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
         //public IReactiveCommand PlantActionPivotCommand { get; protected set; }
@@ -36,8 +38,33 @@ namespace Growthstories.UI.ViewModel
         public PlantActionType? Filter { get; set; }
 
 
-        public Guid Id { get { return State.Id; } }
-        public Guid UserId { get { return State.UserId; } }
+        private Guid _Id;
+        public Guid Id
+        {
+            get
+            {
+                return _Id;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _Id, value);
+            }
+        }
+
+
+        private Guid _UserId;
+        public Guid UserId
+        {
+            get
+            {
+                return _UserId;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UserId, value);
+            }
+        }
+
 
 
         public PlantState State { get; protected set; }
@@ -78,6 +105,9 @@ namespace Growthstories.UI.ViewModel
             {
 
                 this.State = state;
+                this.Id = state.Id;
+                this.UserId = state.UserId;
+
                 this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                     .StartWith(state.Name)
                     .Subscribe(x =>
@@ -161,6 +191,14 @@ namespace Growthstories.UI.ViewModel
                         this.FertilizingScheduler.ComputeNext(a.Created);
                     }
                 });
+
+            this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
+                .Subscribe(x => this.MissedCount = x);
+
+            this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
+            {
+                AppBarMenuItems = __AppBarMenuItems;
+            });
 
         }
 
@@ -280,6 +318,34 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _Photo, value);
             }
         }
+
+        private int? _MissedCount;
+        public int? MissedCount
+        {
+            get
+            {
+                return _MissedCount;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _MissedCount, value);
+            }
+        }
+
+        private bool _HasTile;
+        public bool HasTile
+        {
+            get
+            {
+                return _HasTile;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _HasTile, value);
+            }
+        }
+
+
 
         protected string _Species;
         public string Species { get { return _Species; } private set { this.RaiseAndSetIfChanged(ref _Species, value); } }
@@ -422,7 +488,7 @@ namespace Growthstories.UI.ViewModel
 
         public override string UrlPathSegment
         {
-            get { throw new NotImplementedException(); }
+            get { return string.Format("type=plant&id={0}", this.Id); }
         }
 
         #region APPBAR
@@ -484,13 +550,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems;
-        public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
+
+        private ReactiveList<IMenuItemViewModel> __AppBarMenuItems
         {
             get
             {
-                if (_AppBarMenuItems == null)
-                    _AppBarMenuItems = new ReactiveList<IMenuItemViewModel>()
+                return new ReactiveList<IMenuItemViewModel>()
                     {
                         new MenuItemViewModel(null)
                         {
@@ -509,12 +574,27 @@ namespace Growthstories.UI.ViewModel
                         },
                         new MenuItemViewModel(null)
                         {
-                            Text = "pin",
-                            Command = PinCommand,
-                            CommandParameter = this.State
+                            Text = HasTile ? "unpin" : "pin",
+                            Command = PinCommand           
                         }
                     };
+            }
+        }
+
+
+
+        protected IReadOnlyReactiveList<IMenuItemViewModel> _AppBarMenuItems;
+        public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
+        {
+            get
+            {
+                if (_AppBarMenuItems == null)
+                    _AppBarMenuItems = __AppBarMenuItems;
                 return _AppBarMenuItems;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarMenuItems, value);
             }
         }
 

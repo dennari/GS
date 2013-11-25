@@ -31,6 +31,20 @@ namespace Growthstories.UI.ViewModel
     public class AppViewModel : ReactiveObject, IGSAppViewModel
     {
 
+        private string _UrlPath;
+        public string UrlPath
+        {
+            get
+            {
+                return _UrlPath;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UrlPath, value);
+            }
+        }
+
+
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
         public SupportedPageOrientation SupportedOrientations
         {
@@ -735,11 +749,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public IObservable<IPlantViewModel> CurrentPlants(IAuthUser user)
+        public IObservable<IPlantViewModel> CurrentPlants(IAuthUser user, Guid? plantId = null)
         {
 
 
-            var current = UIPersistence.GetPlants(null, null, user.Id)
+            var current = UIPersistence.GetPlants(plantId, null, user.Id)
                 .ToObservable()
                 .Select(x =>
                 {

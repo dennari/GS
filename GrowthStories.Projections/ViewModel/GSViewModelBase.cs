@@ -49,6 +49,14 @@ namespace Growthstories.UI.ViewModel
         public virtual string PageTitle { get; protected set; }
         public abstract string UrlPathSegment { get; }
 
+        public string UrlPath
+        {
+            get
+            {
+                return string.Format("/MainWindow.xaml?{0}", this.UrlPathSegment);
+            }
+        }
+
         public IScreen HostScreen { get { return App; } }
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.

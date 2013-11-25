@@ -11,6 +11,7 @@ using System.ComponentModel;
 using BindableApplicationBar;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows.Data;
 using Growthstories.UI.ViewModel;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
@@ -86,11 +87,58 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        private IDisposable PlantNavigationSubscription = Disposable.Empty;
         protected void NavigateWithDeepLink(IDictionary<string, string> qs)
         {
 
-            var id = Guid.Parse(qs["plant"]);
-            //this.ViewModel.Router.Navigate.Execute(this.ViewModel.PlantFactory(id));
+            var id = Guid.Parse(qs["id"]);
+            IAuthUser user = ViewModel.User;
+            if (user == null)
+            {
+                ViewModel.Initialize().Wait();
+                user = ViewModel.User;
+            }
+            var garden = new GardenViewModel(user, ViewModel);
+            var pivot = new GardenPivotViewModel(garden);
+
+            //var x = garden.Plants.BeforeItemsAdded.Where(y => y.Id == id).Take(1).ObserveOn(RxApp.MainThreadScheduler).Wait();
+            //pivot.SelectedItem = x;
+            this.ViewModel.Router.Navigate.Execute(pivot);
+
+            PlantNavigationSubscription.Dispose();
+            PlantNavigationSubscription = garden.Plants.ItemsAdded.Where(x => x.Id == id).Take(1).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                if (x.Id == id)
+                {
+                    pivot.SelectedItem = x;
+
+                }
+            });
+
+
+            //var user = ViewModel.Initialize().Wait()
+            //var garden = new GardenPivotViewModel(this.ViewModel.Resolver.GetService<IGardenViewModel>());
+            //var plantTask = Task.Run(async () => await garden.Plants.ItemsAdded
+            //        .Where(x => x.Id == id)
+            //        .Take(1));
+            //var plant = plantTask.Wait();
+            //garden.SelectedItem = plant;
+            //Task.Run(async () =>
+            //{
+
+            //    var user = await 
+            //    var garden = new GardenPivotViewModel(this.ViewModel.Resolver.GetService<IGardenViewModel>());
+
+            //    ViewModel.CurrentPlants(user).Subscribe(
+
+            //     );
+
+            //    //.Subscribe();
+
+
+            //    this.ViewModel.Router.Navigate.Execute(garden);
+
+            //}).Wait();
 
         }
 
