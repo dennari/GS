@@ -12,8 +12,11 @@
     mc:Ignorable="d">
 
 
-    <StackPanel VerticalAlignment="Stretch">
-
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
         <StackPanel Visibility="{Binding Actions.Count, Converter={StaticResource ZeroToVisibility}}">
             
             <TextBlock 
@@ -97,7 +100,7 @@
 
         </local:GSLongListSelector>
 
-    </StackPanel>
+    </Grid>
     
     
                

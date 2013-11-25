@@ -31,8 +31,8 @@
 
 
 
-
     <local:GSViewGrid 
+        TopTitle="GROWTH STORIES"
 		Title="settings" 
 		Style="{StaticResource NoScroll}">
         <local:GSViewGrid.Background>
@@ -46,16 +46,13 @@
          </local:GSViewGrid.Background>
 
         <StackPanel>
-
-
-
             <local:GSLabel Label="Allow location services">
                 <local:GSToggleSwitch
                             IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
                             Content="{Binding LocationServices}"
                             ContentTemplate="{StaticResource SwitchTemplate}"
                             VerticalContentAlignment="Center"
-                            Margin="0,0,0,-12"
+                            Margin="-12,0,-12,-12"
                             />
             </local:GSLabel>
             <local:GSLabel Label="Share new plants by default">
@@ -63,18 +60,20 @@
                             IsChecked="{Binding SharedByDefault.IsEnabled, Mode=TwoWay}"                                                    
                             Content="{Binding SharedByDefault}"
                             ContentTemplate="{StaticResource SwitchTemplate}"
-                            VerticalContentAlignment="Center"/>
+                            VerticalContentAlignment="Center"
+                            Margin="-12,0,-12,-12"
+                            />
             </local:GSLabel>
             
             <Button 
                 Style="{StaticResource GSButtonStyle}" 
                 HorizontalContentAlignment="Left"
                 Command="{Binding NavigateToAbout}"
-                Margin="6,0"
+                Padding="0,0,0,0"
+                Margin="-6,0,0,0"
                 >
-                <TextBlock Text="about"/>
+                <TextBlock Text="about" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
             </Button>
-
         </StackPanel>
 
 

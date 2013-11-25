@@ -22,7 +22,7 @@
         HorizontalContentAlignment="Stretch"
         >
         <reactive:ViewModelViewHost.DefaultContent>
-            <Grid x:Name="LayoutRoot">
+            <Grid x:Name="LayoutRoot" Margin="0,0,0,0">
                 <Grid.Background>
                     <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
                 </Grid.Background>
@@ -33,13 +33,31 @@
 			    ItemsSource="{Binding Plants}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 			    Title="{Binding Username}"
-                Foreground="White">
+                Foreground="White"
+                FontFamily="{StaticResource GSPageTitleFont}"
+                    >
 
+                    <phone:Pivot.TitleTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                                Style="{StaticResource GSAppTitleStyle}"
+                                Text="GROWTH STORIES" 
+                                Margin="0,4,0,8" />
+
+                            <!--
+                                Text="{Binding Username, Converter={StaticResource ToUpperOrLowerCase}}"  />
+                                -->
+                        </DataTemplate>
+                        
+                    </phone:Pivot.TitleTemplate>
+                    
                     <phone:Pivot.HeaderTemplate>
                         <DataTemplate>
-                            <ContentControl 
-                            Content="{Binding Name}"/>
-                        </DataTemplate>
+                            <TextBlock 
+                               Style="{StaticResource GSPageTitleStyle}"
+                               Text="{Binding Name}"  />
+                       </DataTemplate>
+
                     </phone:Pivot.HeaderTemplate>
 
                     <phone:Pivot.ItemTemplate>

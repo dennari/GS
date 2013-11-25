@@ -27,14 +27,18 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="TitlePanel" Margin="12,17,0,0" Grid.Row="0">
+        <StackPanel x:Name="TitlePanel" Margin="25,20,25,20" Grid.Row="0">
+            <TextBlock
+                Margin="0,0,0,-5"
+                Text="GROWTH STORIES"
+                Style="{StaticResource GSAppTitleStyle}" />
             <TextBlock        
-                Margin="8,0,0,24"
+                Margin="-4,0,0,0"
                 Text="pick action"
                 Style="{StaticResource GSPageTitleStyle}" />
         </StackPanel>
         
-        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="12,17,0,0" Height="Auto" Grid.Row="1">
+        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="12,0,0,0" Height="Auto" Grid.Row="1">
                 
                     <local:GSLongListSelector ItemsSource="{Binding PlantActions}">
                         <local:GSLongListSelector.ItemTemplate>
@@ -74,7 +78,7 @@
 
             </ScrollViewer>
 
-        <!--          
+       <!--           
        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
         -->
 

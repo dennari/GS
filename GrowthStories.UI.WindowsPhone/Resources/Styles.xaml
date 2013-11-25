@@ -67,51 +67,42 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
-                    <Grid Background="{TemplateBinding Background}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    
+                    <local:GSViewGrid
+                        TopTitle="GROWTH STORIES"
+                        Title="{Binding Label}"
+                        Background="{TemplateBinding Background}"
+                        >
+                       
 
-                        <StackPanel Grid.Row="0" Margin="12,17,12,28" Visibility="{TemplateBinding HeaderVisibility}">
-                            <TextBlock 
-								Text="{Binding PlantTitle}" 
-								Style="{StaticResource GSAppTitleStyle}"/>
-                            <TextBlock
-								Margin="6,-5,12,0"
-								Text="{Binding Label}" 
-								Style="{StaticResource GSPageTitleStyle}" />
-                        </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                        <ScrollViewer Grid.Row="1">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                            <StackPanel Margin="-12,25,-12,16" Grid.Row="0">
+                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
+                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
+                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
+                            </StackPanel>
 
-                                <StackPanel Margin="12,25,12,10" Grid.Row="0">
-                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
-                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
-                                    <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
-                                </StackPanel>
-
-                                <ContentPresenter
-								    Margin="12,0,12,6"
+                            <ContentPresenter
+								    Margin="0,0,0,0"
 								    Grid.Row="1"
                                     DataContext="{TemplateBinding DataContext}"
 								    Content="{TemplateBinding DataContext}" 
 								    ContentTemplate="{TemplateBinding ContentTemplate}" 
 								    Visibility="{TemplateBinding ContentVisibility}" 
 								    HorizontalAlignment="Stretch">
-                                </ContentPresenter>
+                            </ContentPresenter>
 
-                                <local:GSChatTextBox
+                            <local:GSChatTextBox
                                     Grid.Row="2"
-							        Margin="24,0,24,100"
-                                    Padding="12,12,12,100"                                   
+							        Margin="0,0,0,100"
+                                    Padding="8,8,8,100"                                   
 							        Hint="Enter comment / note"
 							        MinHeight="100"
                                     c4fBinding:TextBinding.UpdateSourceOnChange="True"
@@ -119,13 +110,13 @@
 							        Text="{Binding Note, Mode=TwoWay}" 		
 							        Visibility="{TemplateBinding NoteVisibility}" />
 
-                                <TextBlock Text="" Foreground="Transparent" Grid.Row="3" />
+                            <TextBlock Text="" Foreground="Transparent" Grid.Row="3" />
 
-                            </Grid>
+                        </Grid>
 
-                        </ScrollViewer>
-
-                    </Grid>
+                    </local:GSViewGrid>
+                    
+                 
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -135,38 +126,42 @@
 
         <StackPanel>
 
-            <local:GSListPicker 
+            <local:GSLabel Label="dimension">
+                <local:GSListPicker 
 				x:Name="MeasurementTypePicker"			
 				ExpansionMode="ExpansionAllowed"
 				ItemsSource="{Binding Options}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-				CacheMode="BitmapCache" Margin="12,0"
+				BorderBrush="{StaticResource GSBackgroundBrush}"
+                CacheMode="BitmapCache" Margin="0,12,0,12"
 				>
-                <local:GSListPicker.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding TitleWithUnit}" 
-								   Style="{StaticResource GSTextBoxOnTextBlockStyle}"
-								   />
+                    <local:GSListPicker.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TitleWithUnit}" 
+								   Style="{StaticResource GSTextBoxOnTextBlockStyle}" />
+                        </DataTemplate>
+                    </local:GSListPicker.ItemTemplate>
+                </local:GSListPicker>
+            </local:GSLabel>
 
-                    </DataTemplate>
-                </local:GSListPicker.ItemTemplate>
-            </local:GSListPicker>
-
-            <local:GSTextBox 
-                Hint="Value" 
+            <local:GSLabel Label="value">
+                <local:GSTextBox 
+                Hint=" " 
 				Text="{Binding SValue, Mode=TwoWay}" 
 				c4fBinding:TextBinding.UpdateSourceOnChange="True"
                 InputScope="Number" 
-                Margin="0"
+                Margin="-12,0,-12,12"
                 FontSize="90"
                 Padding="20,0,20,0"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Right"
-                BorderThickness="4"
-                FontWeight="ExtraBold"
+                BorderThickness="4"               
                 />
+            </local:GSLabel>
 
-            <!--
+            <local:GSLabel Label="note" />
+
+                <!--
             BorderBrush="WhiteSmoke"
                 Foreground="WhiteSmoke"
                 Background="Transparent"
@@ -401,14 +396,16 @@
             <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
             <Setter Property="HintStyle" Value="{StaticResource GSHintStyle}"/>
+            <!--
             <Setter Property="SelectionForeground" Value="{StaticResource GSTextBoxBrush}"/>
             <Setter Property="SelectionBackground" Value="WhiteSmoke" />
+            -->
         </Style>
 
         <Style TargetType="local:GSChatTextBox">
-            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
-            <Setter Property="Padding" Value="16,16,16,16" />
+            <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}"/>
+            <Setter Property="Padding" Value="8,8,8,8" />
     </Style>
 
         <Style TargetType="local:GSListPicker">
@@ -426,7 +423,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="local:GSLabel">
                         <StackPanel Margin="{TemplateBinding Margin}" Visibility="{TemplateBinding Visibility}">
-                            <TextBlock Style="{StaticResource GSInputLabelStyle}" Text="{TemplateBinding Label}" Margin="12,0,12,-9"/>
+                            <TextBlock Style="{StaticResource GSInputLabelStyle}" Text="{TemplateBinding Label}" Margin="0,0,0,-9"/>
                             <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
                         </StackPanel>
                     </ControlTemplate>
@@ -453,20 +450,21 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                                <Grid  Margin="12,0,12,36" HorizontalAlignment="Stretch">
+
+                        <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                <Grid Margin="25,20,25,26" HorizontalAlignment="Stretch">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                    <StackPanel Grid.Row="0" Margin="0,0,0,25" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
                                         <TextBlock
-					                    Margin="6,-5,0,0"
+					                    Margin="0,0,0,-5"
 					                    Text="{TemplateBinding TopTitle}"
 					                    Style="{StaticResource GSAppTitleStyle}" />
                                         <TextBlock
-					                    Margin="6,-5,0,0"
+					                    Margin="0,0,0,0"
 					                    Text="{TemplateBinding Title}"
 					                    Style="{StaticResource GSPageTitleStyle}" />
                                     </StackPanel>
@@ -481,12 +479,14 @@
 
                                 </Grid>
                             </ScrollViewer>
-                        </Grid>
+
+                    </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
+        
         <Style TargetType="local:GSViewGrid" x:Key="NoScroll">
             <Setter Property="Template">
                 <Setter.Value>
@@ -495,24 +495,25 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Grid  Margin="12,0,12,36" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <Grid Margin="25,20,25,25" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                <StackPanel Grid.Row="0" Margin="3,17,0,28" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                <StackPanel Grid.Row="0" Margin="0,0,0,25" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
                                     <TextBlock
-					            Margin="6,-5,0,0"
+					            Margin="0,0,0,-5"
 					            Text="{TemplateBinding TopTitle}"
 					            Style="{StaticResource GSAppTitleStyle}" />
                                     <TextBlock
-					            Margin="6,-5,0,0"
+					            Margin="0,0,0,0"
 					            Text="{TemplateBinding Title}"
 					            Style="{StaticResource GSPageTitleStyle}" />
                                 </StackPanel>
 
                                 <ContentPresenter 
+                                Margin="0,0,0,0"
                                 Grid.Row="1"
                                 c4f:TiltEffect.IsTiltEnabled="True"
                                 DataContext="{Binding}"
@@ -522,15 +523,16 @@
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 
                             </Grid>
-
-                        <!--
+                        
                         <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
-                        -->
+                        
+
                     </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+        
 
         <Style x:Key="GSButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>

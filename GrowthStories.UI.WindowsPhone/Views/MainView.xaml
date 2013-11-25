@@ -69,8 +69,8 @@
                 <Image 
 					Source="/Assets/Bg/panorama_logo.png" 
 					Stretch="UniformToFill" 
-					Width="800" 
-					Margin="12,80,0,0"/>
+					Width="750" 
+					Margin="12,60,0,0"/>
             </phone:Panorama.Title>
 
             <!-- MY GARDEN -->
@@ -98,7 +98,13 @@
                 <!--
                 <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
                     -->
-                <StackPanel DataContext="{Binding FriendsVM}">
+
+                <Grid DataContext="{Binding FriendsVM}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                
+                    <StackPanel>
                     <TextBlock 
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
                         Text="You are not following anyone yet." 
@@ -116,6 +122,8 @@
                         FontSize="24"
                         Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
+                    </StackPanel>
+
 
                     <phone:LongListSelector
                         Margin="-2,0,0,0"
@@ -126,10 +134,8 @@
                         Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
                         />
 
-                </StackPanel>
-                <!--    
-            </Grid>
-                -->
+                </Grid>
+               
             </phone:PanoramaItem>
             <!-- TESTING -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
@@ -174,6 +180,9 @@
             </phone:PanoramaItem>
 
         </phone:Panorama>
+
+
+        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
 
         <!--
         <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />

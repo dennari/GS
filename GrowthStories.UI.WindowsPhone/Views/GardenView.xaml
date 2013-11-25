@@ -222,9 +222,14 @@
 
     </UserControl.Resources>
 
-    <StackPanel VerticalAlignment="Stretch">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>          
         
-        <TextBlock 
+        <StackPanel>
+            <TextBlock 
             Style="{StaticResource GSPlaceholderTextBlockStyle}"
             Text="You don't have any plants yet." 
             FontWeight="Bold"
@@ -233,7 +238,7 @@
             Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
             />
 
-        <TextBlock 
+            <TextBlock 
             Style="{StaticResource GSPlaceholderTextBlockStyle}"
             Text="Add your first plant by using the application bar at the bottom." 
             VerticalAlignment="Top" Grid.Row="1" Margin="6,0,0,0"
@@ -241,7 +246,8 @@
             FontSize="24"
             Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
         />
-
+        </StackPanel>
+        
         <toolkit:LongListMultiSelector
 		    x:Name="PlantsSelector"
 		    ItemsSource="{Binding Plants}"
@@ -256,9 +262,8 @@
             Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
         />
 
-    </StackPanel>
-    
+    </Grid>
 
-
+  
 
 </local:GardenViewBase>
