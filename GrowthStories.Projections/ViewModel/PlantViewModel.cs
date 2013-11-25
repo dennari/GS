@@ -68,66 +68,10 @@ namespace Growthstories.UI.ViewModel
 
             this.ShareCommand = new ReactiveCommand();
             this.DeleteCommand = new ReactiveCommand();
-            this.EditCommand = Observable.Return(true)
-                                .ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
+            this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
-            //this.FlickCommand = new ReactiveCommand();
-            //this.PlantActionDetailsCommand = new ReactiveCommand();
-            //this.PlantActionDetailsCommand
-            //    .OfType<IPlantActionViewModel>()
-            //    .Subscribe(x =>
-            //    {
-            //        x.AddCommand.Subscribe(_ =>
-            //        {
-            //            var cmd = new SetPlantActionProperty(x.PlantActionId)
-            //            {
-            //                Note = x.Note,
-            //            };
-            //            var m = x as IPlantMeasureViewModel;
-            //            if (m != null)
-            //            {
-            //                cmd.Value = m.Value;
-            //            }
 
-            //            this.SendCommand(cmd, true);
-            //        });
-            //        this.Navigate(x);
-            //    });
-            //this.PlantActionPivotCommand = new ReactiveCommand();
-            //this.PlantActionPivotCommand
-            //    .OfType<IPlantActionViewModel>()
-            //    .Subscribe(x =>
-            //    {
-            //        x.AddCommand.Subscribe(_ =>
-            //        {
-            //            var cmd = new SetPlantActionProperty(x.PlantActionId)
-            //            {
-            //                Note = x.Note,
-            //            };
-            //            var m = x as IPlantMeasureViewModel;
-            //            if (m != null)
-            //            {
-            //                cmd.Value = m.Value;
-            //            }
-
-            //            this.SendCommand(cmd, true);
-            //        });
-            //        this.Navigate(x);
-            //    });
-            //this.ActionTapped = new ReactiveCommand();
-            //this.ActionTapped
-            //    .OfType<IPlantPhotographViewModel>()
-            //    .Subscribe(x =>
-            //    {
-            //        this.Filter = PlantActionType.PHOTOGRAPHED;
-            //        this.SelectedItem = x;
-            //        this.Navigate(this);
-
-            //    });
-
-
-            this.ScrollCommand = new ReactiveCommand();
 
 
             if (state != null)
@@ -236,8 +180,8 @@ namespace Growthstories.UI.ViewModel
         {
             //this.WateringSchedule = wateringSchedule;
             //this.FertilizingSchedule = fertilizingSchedule;
-
-            _OwnPlant = app.User.Id == state.UserId;
+            if (state != null)
+                _OwnPlant = app.User.Id == state.UserId;
 
             if (wateringSchedule != null)
             {
@@ -262,7 +206,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        
+
 
         protected IScheduleViewModel _WateringSchedule;
         public IScheduleViewModel WateringSchedule
@@ -511,6 +455,7 @@ namespace Growthstories.UI.ViewModel
                         new ButtonViewModel(null)
                         {
                             Text = "comment",
+                            IconType = IconType.NOTE,
                             Command = NavigateToEmptyActionCommand,
                             CommandParameter = PlantActionType.COMMENTED
                         },

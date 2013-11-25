@@ -25,7 +25,9 @@
             </RadialGradientBrush>
         </local:GSViewGrid.Background>
 
+
             <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
