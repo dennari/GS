@@ -12,6 +12,12 @@
 
     <!--<local:ActionToStringConverter x:Key="ActionToString"/>
     <local:ActionToDateStringConverter x:Key="ActionToDateString"/>-->
+    <local:EmptyListToVisibilityConverter x:Key="EmptyListToVisibility"/>
+
+    <local:ZeroToVisibilityConverter x:Key="ZeroToVisibility"/>
+    <local:NonZeroToVisibilityConverter x:Key="NonZeroToVisibility"/>
+
+
     <local:NullToVisibilityConverter x:Key="NullToVisibility"/>
     <c4f:BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
     <local:NullToBooleanConverter x:Key="NullToBoolean"/>

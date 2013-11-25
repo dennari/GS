@@ -95,6 +95,109 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
+
+    /*
+   * Returns Visibility.Visible if value is nonzero
+   */
+    public class NonZeroToVisibilityConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return Visibility.Visible;
+            }
+
+            int i = (int)value;
+
+            if (i == 0)
+            {
+                return Visibility.Collapsed;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
+
+
+    /*
+     * Returns Visibility.Visible if value is zero
+     */
+    public class ZeroToVisibilityConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return Visibility.Visible;
+            }
+
+            int i = (int)value;
+
+            if (i == 0)
+            {
+                return Visibility.Visible;
+            }
+            else
+            {
+                return Visibility.Collapsed;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
+
+    /*
+     * Returns Visibility.Collapsed if list is empty
+     */
+    public class EmptyListToVisibilityConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return Visibility.Collapsed;
+            }
+            
+            IEnumerable<Object> list = (IEnumerable<Object>)value;
+
+            if (list.Count() == 0) {
+                return Visibility.Collapsed;            
+            } else {
+                return Visibility.Visible;
+            }
+            
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
     public class NullToVisibilityConverter : IValueConverter
     {
 

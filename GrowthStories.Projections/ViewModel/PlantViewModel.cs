@@ -218,11 +218,24 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
+        protected bool _OwnPlant;
+        public bool OwnPlant
+        {
+            get
+            {
+                return _OwnPlant;
+            }
+        }
+
+
         public PlantViewModel(PlantState state, IScheduleViewModel wateringSchedule, IScheduleViewModel fertilizingSchedule, IGSAppViewModel app)
             : this(state, app)
         {
             //this.WateringSchedule = wateringSchedule;
             //this.FertilizingSchedule = fertilizingSchedule;
+
+            _OwnPlant = app.User.Id == state.UserId;
 
             if (wateringSchedule != null)
             {
@@ -245,9 +258,9 @@ namespace Growthstories.UI.ViewModel
                 //this.FertilizingScheduler = new PlantScheduler(fertilizingSchedule);
             }
 
-
-
         }
+
+        
 
         protected IScheduleViewModel _WateringSchedule;
         public IScheduleViewModel WateringSchedule

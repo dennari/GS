@@ -12,64 +12,94 @@
     mc:Ignorable="d">
 
 
-    <local:GSLongListSelector
-        x:Name="TimeLine" 
-        ItemsSource="{Binding Actions}" 
-        Grid.Row="1"
-        ListHeader="{Binding}"
-        VerticalAlignment="Stretch"
-        Margin="0,0,0,36"
-        >                          
-                            
-        <phone:LongListSelector.ListHeaderTemplate>
-            <DataTemplate>
-            <StackPanel>
-                    <Grid Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">   
-                        <ContentControl                            
+    <StackPanel VerticalAlignment="Stretch">
+
+        <StackPanel Visibility="{Binding Actions.Count, Converter={StaticResource ZeroToVisibility}}">
+            
+            <TextBlock 
+            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+            Text="This plant has no actions yet." 
+            HorizontalAlignment="Left"
+            Margin="12,24,0,24"
+            Width="400"
+            FontWeight="Bold"
+            />
+
+            <TextBlock 
+            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+            HorizontalAlignment="Left"
+            Text="Add actions for this plant by using the application bar at the bottom." 
+            Margin="12,0,0,0"
+            Width="400"
+            Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}"
+           />
+
+        </StackPanel>
+        
+
+        <local:GSLongListSelector
+            x:Name="TimeLine" 
+            ItemsSource="{Binding Actions}" 
+            Grid.Row="1"
+            ListHeader="{Binding}"
+            VerticalAlignment="Stretch"
+            Margin="0,0,0,36"
+            Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}"
+        >
+
+            <phone:LongListSelector.ListHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <Grid Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">
+                            <ContentControl                            
                                 DataContext="{Binding FertilizingScheduler}"
                                 Style="{StaticResource PlantNextAction}"/>
-                    </Grid>
-                    <Grid Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
-                        <ContentControl                           
+                        </Grid>
+                        <Grid Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
+                            <ContentControl                           
                             DataContext="{Binding WateringScheduler}"
                             Style="{StaticResource PlantNextAction}"/>
-                    </Grid>
-                    <Canvas Height="54" Margin="0,0,0,24" >
-                    <Line X1="0" X2="7" Y1="27" Y2="27" 
+                        </Grid>
+                        <Canvas Height="54" Margin="0,0,0,24" >
+                            <Line X1="0" X2="7" Y1="27" Y2="27" 
                         Canvas.ZIndex="0"
-                        StrokeThickness="3">                     
-                        <Line.Stroke>
-                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                        </Line.Stroke>
-                    </Line>
-                    <Line X1="120" X2="200" Y1="27" Y2="27" 
+                        StrokeThickness="3">
+                                <Line.Stroke>
+                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                                </Line.Stroke>
+                            </Line>
+                            <Line X1="120" X2="200" Y1="27" Y2="27" 
                     Canvas.ZIndex="0"
                     StrokeThickness="3">
-                        <Line.Stroke>
-                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                        </Line.Stroke>
-                    </Line>
-                    <Line X1="265" X2="456" Y1="27" Y2="27" 
+                                <Line.Stroke>
+                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                                </Line.Stroke>
+                            </Line>
+                            <Line X1="265" X2="456" Y1="27" Y2="27" 
                     Canvas.ZIndex="0"
                     StrokeThickness="3">
-                        <Line.Stroke>
-                            <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                        </Line.Stroke>
-                    </Line>
-                        <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
-                 </Canvas>
-            </StackPanel>
-        </DataTemplate>
-        </phone:LongListSelector.ListHeaderTemplate>
-        <phone:LongListSelector.ItemTemplate>
-            <DataTemplate>
-                <local:TimelineActionView ViewModel="{Binding}"/>
-            </DataTemplate>
-        </phone:LongListSelector.ItemTemplate>
+                                <Line.Stroke>
+                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
+                                </Line.Stroke>
+                            </Line>
+                            <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
+                        </Canvas>
+                    </StackPanel>
+                </DataTemplate>
+            </phone:LongListSelector.ListHeaderTemplate>
+            <phone:LongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <local:TimelineActionView ViewModel="{Binding}"/>
+                </DataTemplate>
+            </phone:LongListSelector.ItemTemplate>
 
 
 
-    </local:GSLongListSelector>
+        </local:GSLongListSelector>
+
+    </StackPanel>
+    
+    
                
 
 

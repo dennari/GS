@@ -16,7 +16,8 @@
     xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
     xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
     xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
-	mc:Ignorable="d">
+	xmlns:PickerBox="clr-namespace:Telerik.Windows.Controls.PickerBox;assembly=Telerik.Windows.Controls.Primitives"
+    mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
 
@@ -309,18 +310,12 @@
         </Setter>
     </Style>
 
-    <!--
-
-    <Style x:Key="GSRadTimePickerStyle" BasedOn="{StaticResource PickerBoxToggleButtonStyle1}" TargetType="telerikInput:RadTimeSpanPicker">
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="White"/>
-    </Style>
-    -->
-
+    
         <Style x:Key="GSTextNormalStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
+   
         <Style x:Key="GSTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
             <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
@@ -328,7 +323,18 @@
             <!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
         </Style>
 
-        <Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
+    <Style x:Key="GSPlaceholderTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource GSTextBlockStyle}">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+
+    </Style>
+
+    
+ 
+
+    <Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
             <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
@@ -517,7 +523,11 @@
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 
                             </Grid>
-                        </Grid>
+
+                        <!--
+                        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
+                        -->
+                    </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>

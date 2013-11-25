@@ -16,6 +16,8 @@
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
+            Style="{StaticResource GSTextBlockStyle}"
+            Foreground="White"
             Text="{Binding Username}"               
             FontSize="{StaticResource PhoneFontSizeExtraLarge}"
             toolkit:TiltEffect.IsTiltEnabled="True"/>
@@ -39,7 +41,7 @@
                                             FontSize="66" 
                                             FontFamily="{StaticResource GSPageTitleFont}" 
                                             HorizontalAlignment="Left" 
-                                            Margin="12,-2,0,38">
+                                            Margin="10,-2,0,38">
                                 <ContentControl.RenderTransform>
                                     <TranslateTransform x:Name="headerTransform"/>
                                 </ContentControl.RenderTransform>
@@ -68,7 +70,7 @@
 					Source="/Assets/Bg/panorama_logo.png" 
 					Stretch="UniformToFill" 
 					Width="800" 
-					Margin="0,80,0,0"/>
+					Margin="12,80,0,0"/>
             </phone:Panorama.Title>
 
             <!-- MY GARDEN -->
@@ -82,18 +84,52 @@
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
                 <Grid x:Name="ContentPanel2" Margin="0,0">
+                    <TextBlock 
+                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                        Text="There are no notifications to display at this time." 
+                        FontWeight="Bold"
+                        Margin="8,0,0,24"
+                        Width="400" />
                     <phone:LongListSelector/>
                 </Grid>
             </phone:PanoramaItem>
             <!-- FRIENDS -->
-            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="friends" x:Name="friendsItem">
+            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="following" x:Name="friendsItem">
+                <!--
                 <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
+                    -->
+                <StackPanel DataContext="{Binding FriendsVM}">
+                    <TextBlock 
+                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                        Text="You are not following anyone yet." 
+                        FontWeight="Bold"
+                        Margin="6,0,0,24"
+                        Width="400"
+                        Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+
+                    <TextBlock 
+                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                        Text="Add people to follow by using the application bar at the bottom." 
+                        VerticalAlignment="Top" Grid.Row="1" Margin="6,0,0,0"
+                        Width="400"
+                        FontSize="24"
+                        Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+
                     <phone:LongListSelector
+                        Margin="-2,0,0,0"
                         x:Name="FriendsSelector"
                         ItemsSource="{Binding Friends}"
                         ItemTemplate="{StaticResource ListUsersTemplate}"
-                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}"/>
-                </Grid>
+                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
+                        Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
+                        />
+
+                </StackPanel>
+                <!--    
+            </Grid>
+                -->
             </phone:PanoramaItem>
             <!-- TESTING -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
@@ -137,8 +173,11 @@
                 </Grid>
             </phone:PanoramaItem>
 
-
         </phone:Panorama>
+
+        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
+
+
     </Grid>
 
 </local:MainViewBase>

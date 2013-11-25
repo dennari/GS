@@ -222,19 +222,43 @@
 
     </UserControl.Resources>
 
-    <toolkit:LongListMultiSelector
-		x:Name="PlantsSelector"
-		ItemsSource="{Binding Plants}"
-		ItemTemplate="{StaticResource C4fTile}"
-        ItemContainerStyle="{StaticResource TileSelectionStyle2}"
-        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
-        SelectionChanged="PlantsSelector_SelectionChanged"
-		GridCellSize="198,272"
-        LayoutMode="Grid"
-        Margin="0,0,0,0"
-        BorderBrush="{StaticResource GSAccentBrush}"
+    <StackPanel VerticalAlignment="Stretch">
         
+        <TextBlock 
+            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+            Text="You don't have any plants yet." 
+            FontWeight="Bold"
+            Margin="6,0,0,24"
+            Width="400"
+            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+            />
+
+        <TextBlock 
+            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+            Text="Add your first plant by using the application bar at the bottom." 
+            VerticalAlignment="Top" Grid.Row="1" Margin="6,0,0,0"
+            Width="400"
+            FontSize="24"
+            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
         />
+
+        <toolkit:LongListMultiSelector
+		    x:Name="PlantsSelector"
+		    ItemsSource="{Binding Plants}"
+		    ItemTemplate="{StaticResource C4fTile}"
+            ItemContainerStyle="{StaticResource TileSelectionStyle2}"
+            IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
+            SelectionChanged="PlantsSelector_SelectionChanged"
+		    GridCellSize="198,272"
+            LayoutMode="Grid"
+            Margin="10,0,0,0"
+            BorderBrush="{StaticResource GSAccentBrush}"
+            Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
+        />
+
+    </StackPanel>
+    
+
 
 
 </local:GardenViewBase>
