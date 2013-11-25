@@ -59,7 +59,6 @@
     <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}"/>
 
 
-
     <!-- ############################################### 
  ############ ACTIONS ##############################
  ################################################### -->

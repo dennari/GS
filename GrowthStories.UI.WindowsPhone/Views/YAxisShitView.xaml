@@ -16,9 +16,11 @@
     mc:Ignorable="d">
     
     <local:YAxisShitViewBase.Resources>
-        <SolidColorBrush x:Key="GrayedBrush" Color="{StaticResource PhoneSubtleColor}"/>
-        <Style x:Key="textBlockStyle" TargetType="TextBlock">
+        <SolidColorBrush x:Key="GrayedBrush" Color="WhiteSmoke" />
+        
+        <Style x:Key="textBlockStyle" TargetType="TextBlock" >
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="WhiteSmoke" />
         </Style>
         <Style x:Key="textBlockStyleGray" TargetType="TextBlock" BasedOn="{StaticResource textBlockStyle}">
             <Setter Property="Foreground" Value="{StaticResource GrayedBrush}"/>
@@ -40,7 +42,7 @@
         </Style>
 
         <Style TargetType="Rectangle" x:Key="visibleTick">
-            <Setter Property="Fill" Value="{StaticResource PhoneForegroundBrush}"/>
+            <Setter Property="Fill" Value="WhiteSmoke"/>
         </Style>
 
         <Style x:Key="linearAxisStyle" TargetType="chart:LinearAxis" BasedOn="{StaticResource baseAxisStyle}">
@@ -170,10 +172,12 @@
         </Grid.RowDefinitions>
 
         <TextBlock Text="{Binding SeriesTitle}" 
-                       FontSize="30" 
-                       Foreground="{StaticResource PhoneTextBoxBrush}"
+                       FontSize="30"
+                       FontWeight="Bold"
+                       Foreground="WhiteSmoke"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
+                   FontFamily="{StaticResource GSAppTitleFont}"
                    />
            
         <!--<Border Grid.Row="1" BorderThickness="3" BorderBrush="White"></Border>-->
@@ -246,9 +250,9 @@
 
                 </chart:RadCartesianChart.VerticalAxis>
                 <chart:RadCartesianChart.Grid>
-                    <chart:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y">
+                    <chart:CartesianChartGrid MajorLinesVisibility="None" StripLinesVisibility="Y">
                         <chart:CartesianChartGrid.YStripeBrushes>
-                            <SolidColorBrush Color="{StaticResource PhoneInactiveColor}"/>
+                            <SolidColorBrush Color="#30FFFFFF"/>
                             <SolidColorBrush Color="Transparent"/>
                         </chart:CartesianChartGrid.YStripeBrushes>
                     </chart:CartesianChartGrid>
@@ -256,7 +260,7 @@
 
 
                 <chart:LineSeries
-                    Stroke="White"
+                    Stroke="#BBFFFFFF"
                     StrokeThickness="7"
                     ValueBinding="{Binding ValueBinding}"
                     CategoryBinding="{Binding CategoryBinding}"
