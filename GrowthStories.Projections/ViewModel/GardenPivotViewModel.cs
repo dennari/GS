@@ -148,10 +148,19 @@ namespace Growthstories.UI.ViewModel
             get { return Vm.Username; }
         }
 
-        public SupportedPageOrientation SupportedOrientations
-        {
-            get { return SupportedPageOrientation.PortraitOrLandscape; }
-        }
+        //public SupportedPageOrientation SupportedOrientations
+        //{
+        //    get { return SupportedPageOrientation.PortraitOrLandscape; }
+        //}
+
+        //protected override SupportedPageOrientation DefaultSupportedOrientation
+        //{
+        //    get
+        //    {
+        //        return SupportedPageOrientation.Portrait;
+        //    }
+        //}
+
 
         public override string UrlPathSegment
         {

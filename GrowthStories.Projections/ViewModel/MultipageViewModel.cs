@@ -13,7 +13,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public abstract class MultipageViewModel : RoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
+    public abstract class MultipageViewModel : RoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation
     {
         public MultipageViewModel(IGSAppViewModel app)
             : base(app)
@@ -53,9 +53,26 @@ namespace Growthstories.UI.ViewModel
                  .Switch()
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarVisibility, true);
 
+            currentPageChanged
+                .Select(x =>
+                {
+                    var xx = x as IControlsPageOrientation;
+                    if (xx != null)
+                        return xx.WhenAnyValue(y => y.SupportedOrientations);
+                    return Observable.Return(DefaultSupportedOrientation);
+                })
+                .Switch()
+                .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, DefaultSupportedOrientation);
 
         }
 
+        protected virtual SupportedPageOrientation DefaultSupportedOrientation
+        {
+            get
+            {
+                return SupportedPageOrientation.Portrait;
+            }
+        }
 
         public IGSViewModel TryGetPage(object x)
         {
@@ -142,6 +159,13 @@ namespace Growthstories.UI.ViewModel
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get { return _AppBarButtons.Value; }
+        }
+
+        protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
+        public SupportedPageOrientation SupportedOrientations
+        {
+
+            get { return _SupportedOrientations.Value; }
         }
 
         protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IMenuItemViewModel>> _AppBarMenuItems;
