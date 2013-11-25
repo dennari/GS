@@ -79,7 +79,7 @@ namespace Growthstories.UI.ViewModel
         IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null);
         IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null);
 
-        IObservable<IPlantViewModel> CurrentPlants(IAuthUser user);
+        IObservable<IPlantViewModel> CurrentPlants(IAuthUser user, Guid? plantId = null);
         IObservable<IPlantViewModel> FuturePlants(IAuthUser user);
 
         IObservable<IGardenViewModel> CurrentGardens(IAuthUser user = null);
@@ -182,6 +182,8 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }
         Photo Photo { get; }
+        int? MissedCount { get; }
+        bool HasTile { get; set; }
         //PlantState State { get; }
         IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; }
         IPlantActionViewModel SelectedItem { get; }
@@ -202,7 +204,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public sealed class PlantScheduler
+    public sealed class PlantScheduler : ReactiveObject
     {
         private IScheduleViewModel Schedule;
 
@@ -224,9 +226,9 @@ namespace Growthstories.UI.ViewModel
             var passedSeconds = (long)(now - last).TotalSeconds;
 
             var num = (int)(passedSeconds / Schedule.Interval.Value.TotalSeconds);
+            this.Missed = num;
             if (num > 0)
             {
-                this.Missed = num;
                 if (num == 1)
                     this.MissedText = string.Format("Last {0} missed.", Schedule.Type == ScheduleType.WATERING ? "watering" : "nourishment");
                 else
@@ -235,7 +237,6 @@ namespace Growthstories.UI.ViewModel
             }
             else
             {
-                this.Missed = null;
                 this.MissedText = null;
             }
 
@@ -246,14 +247,83 @@ namespace Growthstories.UI.ViewModel
             return ans;
         }
 
+        private int _Missed;
+        public int Missed
+        {
+            get
+            {
+                return _Missed;
+            }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _Missed, value);
+            }
+        }
 
-        public int? Missed { get; private set; }
-        public string MissedText { get; private set; }
-        public IconType Icon { get; set; }
+        private string _MissedText;
+        public string MissedText
+        {
+            get
+            {
+                return _MissedText;
+            }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _MissedText, value);
+            }
+        }
 
-        public string WeekDay { get; private set; }
-        public string Date { get; private set; }
-        public string Time { get; private set; }
+        private IconType _Icon;
+        public IconType Icon
+        {
+            get
+            {
+                return _Icon;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Icon, value);
+            }
+        }
+
+        private string _WeekDay;
+        public string WeekDay
+        {
+            get
+            {
+                return _WeekDay;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _WeekDay, value);
+            }
+        }
+
+        private string _Date;
+        public string Date
+        {
+            get
+            {
+                return _Date;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Date, value);
+            }
+        }
+
+        private string _Time;
+        public string Time
+        {
+            get
+            {
+                return _Time;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Time, value);
+            }
+        }
 
     }
 
@@ -416,7 +486,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel
     {
-        //string PageTitle { get; }
+        string UrlPath { get; }
     }
 
 

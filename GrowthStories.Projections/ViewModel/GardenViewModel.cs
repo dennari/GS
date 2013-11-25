@@ -21,6 +21,10 @@ namespace Growthstories.UI.ViewModel
     public class GardenViewModel : RoutableViewModel, IGardenViewModel
     {
 
+
+
+
+
         private void LoadPlants(IAuthUser u)
         {
             App.CurrentPlants(u).Concat(App.FuturePlants(u)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
