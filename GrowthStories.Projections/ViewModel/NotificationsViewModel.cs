@@ -23,6 +23,7 @@ namespace Growthstories.UI.ViewModel
         public Guid Id { get; set; }
         public NotificationType Type { get; set; }
         public double Number { get; set; }
+        public TimeSpan Interval { get; set; }
         public DateTimeOffset Date { get; set; }
 
 
@@ -88,7 +89,8 @@ namespace Growthstories.UI.ViewModel
                         Name = x.Item1.Item1.Name,
                         Id = x.Item1.Item1.Id,
                         Type = NotificationType.WATERING_SCHEDULE,
-                        Number = x.Item1.Item2.Missed
+                        Number = x.Item1.Item2.Missed,
+                        Interval = x.Item1.Item2.Interval.Value
                     };
 
                     UpdateList(notification);
