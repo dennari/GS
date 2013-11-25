@@ -173,7 +173,7 @@
     </DataTemplate>
 
     <DataTemplate x:Key="DetailPhotoTemplate">
-        <Grid HorizontalAlignment="Stretch" Height="350" Margin="12,0">
+        <Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
             <Grid.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
             </Grid.Background>

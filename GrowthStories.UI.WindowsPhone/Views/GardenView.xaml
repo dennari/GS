@@ -23,7 +23,7 @@
 
             <StackPanel>
                    
-            <c4f:Tile 
+                <c4f:Tile 
                         HorizontalAlignment="Left"
                         Margin="0, 0"
                         Width="190"
@@ -99,6 +99,7 @@
                 </toolkit:ContextMenuService.ContextMenu>
             </c4f:Tile>
 
+                
             <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
                Text="{Binding Name, Converter={StaticResource ToUpperOrLowerCase}}" HorizontalAlignment="Left"
@@ -200,7 +201,7 @@
     								VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
 									/>
                                 <Rectangle x:Name="SelectionRectangle" Visibility="Collapsed"
-                                           Stroke="{StaticResource GSAccentBrush}" StrokeThickness="2"/>
+                                           Stroke="{StaticResource GSAccentBrush}" StrokeThickness="2" MaxHeight="200"  VerticalAlignment="Top" />
                                 <Polyline x:Name="SelectionTriangle" Visibility="Collapsed"
 									HorizontalAlignment="Right" VerticalAlignment="Top"
                                     Points="50,0 50,50 0,0"
