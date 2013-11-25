@@ -73,7 +73,7 @@
                             Padding="18,0"
                             Background="{StaticResource GSAccentBrush}"
                             Content="{Binding WateringScheduler.Missed}"
-                            Visibility="{Binding WateringScheduler.Missed, Converter={StaticResource NullToVisibility}, FallbackValue=Collapsed}" 
+                            Visibility="{Binding WateringScheduler.MissedLate, Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
                         />
 
                         <Border BorderThickness="3" IsHitTestVisible="False">

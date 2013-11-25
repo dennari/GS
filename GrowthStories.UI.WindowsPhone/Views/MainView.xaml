@@ -26,17 +26,12 @@
         <DataTemplate x:Key="NotificationTemplate">
             <StackPanel>
             <TextBlock 
-                Style="{StaticResource GSTextBlockStyle}"
+                Style="{StaticResource GSPlaceholderTextBlockStyle}"
                 Foreground="White"
-                Text="{Binding Name}"               
-                FontSize="{StaticResource PhoneFontSizeExtraLarge}"
-                toolkit:TiltEffect.IsTiltEnabled="True"/>
-            <TextBlock 
-                Style="{StaticResource GSTextBlockStyle}"
-                Foreground="White"
-                Text="{Binding Number}"               
-                FontSize="{StaticResource PhoneFontSizeLarge}"
-                toolkit:TiltEffect.IsTiltEnabled="True"/>
+                Width="400"
+                Text="{Binding NotificationText}"               
+                Visibility="{Binding ShouldShow, Converter={StaticResource BooleanToVisibility}}"
+                />
             </StackPanel>
         </DataTemplate>
 
@@ -104,15 +99,20 @@
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
                 <Grid x:Name="ContentPanel2" Margin="0,0" DataContext="{Binding NotificationsVM}">
+                    
                     <TextBlock 
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
                         Text="There are no notifications to display at this time." 
                         FontWeight="Bold"
                         Margin="8,0,0,24"
-                        Width="400" />
+                        Width="400" 
+                        Visibility="{Binding Notifications.Count, Converter={StaticResource ZeroToVisibility}}"
+                        />
+                    
                     <phone:LongListSelector 
                         ItemsSource="{Binding Notifications}"
                         ItemTemplate="{StaticResource NotificationTemplate}"
+                        Visibility="{Binding Notifications.Count, Converter={StaticResource NonZeroToVisibility}}"
                         />
                 </Grid>
             </phone:PanoramaItem>

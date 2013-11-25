@@ -291,6 +291,24 @@ namespace Growthstories.UI.ViewModel
             private set
             {
                 this.RaiseAndSetIfChanged(ref _Missed, value);
+                this.raisePropertyChanged("MissedNotification");
+                this.raisePropertyChanged("MissedLate");
+            }
+        }
+
+        public string MissedNotification
+        {
+            get
+            {
+                return String.Format("{0:F0}", Missed);
+            }
+        }
+
+        public bool MissedLate
+        {
+            get
+            {
+                return Missed > 0;
             }
         }
 
