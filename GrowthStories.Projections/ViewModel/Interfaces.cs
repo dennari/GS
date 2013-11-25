@@ -278,6 +278,22 @@ namespace Growthstories.UI.ViewModel
 
     }
 
+
+    public interface ISettingsViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray
+    {
+
+        IButtonViewModel LocationServices { get; }
+        IButtonViewModel SharedByDefault { get; }
+        IReactiveCommand NavigateToAbout { get; }
+    }
+
+    public interface IAboutViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray
+    {
+
+
+    }
+
+
     public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         bool IsRegistered { get; }
@@ -514,7 +530,8 @@ namespace Growthstories.UI.ViewModel
         HARVESTING,
         CO2,
         AIRHUMIDITY,
-        PH2
+        PH2,
+        SETTINGS
     }
 
     public enum ApplicationBarMode

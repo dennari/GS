@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-
-namespace GrowthStories.UI.WindowsPhone
+﻿using Growthstories.UI.ViewModel;
+namespace Growthstories.UI.WindowsPhone
 {
-    public partial class AboutView : PhoneApplicationPage
+    public class AboutViewBase : GSView<IAboutViewModel>
     {
+
+    }
+
+    public partial class AboutView : AboutViewBase
+    {
+
         public AboutView()
         {
             InitializeComponent();
+
+
         }
     }
 }

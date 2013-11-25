@@ -158,11 +158,6 @@
                             VerticalContentAlignment="Center"
                             Margin="0,0,0,-12"
                             />
-
-                        <!--<TextBlock                    
-                        Text="{Binding WateringSchedule.Label}"
-                        FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                        Foreground="{StaticResource PhoneForegroundBrush}"/>-->
                 </local:GSLabel>
                 <local:GSLabel Label="nourishing schedule">
                         <local:GSToggleSwitch 
@@ -170,9 +165,6 @@
                             Content="{Binding FertilizingSchedule}"
                             ContentTemplate="{StaticResource ScheduleTemplate}"
                             VerticalContentAlignment="Center"/>
-                        <!--<TextBlock Text="{Binding FertilizingSchedule.Label}"
-                        FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                        Foreground="{StaticResource PhoneForegroundBrush}"/>-->
                 </local:GSLabel>
 
                 <!-- PROFILE PICTURE -->

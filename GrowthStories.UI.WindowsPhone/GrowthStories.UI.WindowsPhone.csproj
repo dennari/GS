@@ -141,6 +141,9 @@
     <Compile Include="ViewModels\DesignViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
     <Compile Include="ViewModels\DesignViewModel2.cs" />
+    <Compile Include="Views\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SignInRegisterView.cs" />
     <Compile Include="Views\PlantActionListView.xaml.cs">
       <DependentUpon>PlantActionListView.xaml</DependentUpon>
@@ -225,6 +228,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\PlantActionListView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -272,6 +279,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Bg\action_bg.jpg" />
+    <Content Include="Assets\Icons\appbar.settings.png" />
     <Content Include="Assets\Icons\ApplicationBar.Add.png" />
     <Content Include="Assets\Icons\ApplicationBar.Cancel.png" />
     <Content Include="Assets\Icons\ApplicationBar.Check.png" />

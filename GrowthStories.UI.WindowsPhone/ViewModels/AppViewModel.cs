@@ -64,6 +64,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
             Resolver.RegisterLazySingleton(() => new SignInRegisterView(), typeof(IViewFor<ISignInRegisterViewModel>));
+            Resolver.RegisterLazySingleton(() => new SettingsView(), typeof(IViewFor<ISettingsViewModel>));
+            Resolver.RegisterLazySingleton(() => new AboutView(), typeof(IViewFor<IAboutViewModel>));
             Resolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<IAddEditPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantActionView(), typeof(IViewFor<IPlantActionViewModel>));
             //Resolver.RegisterLazySingleton(() => new TimelineActionView(), typeof(IViewFor<ITimelineActionViewModel>));
@@ -92,16 +94,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 if (T is IGardenPivotViewModel)
                     return typeof(IGardenPivotViewModel);
-                //{
-                //    var vm = (IGardenPivotViewModel)T;
-                //    return vm.NavigateInterface != null ? vm.NavigateInterface : typeof(IGardenPivotViewModel);
-                //}
-
-
+                if (T is ISettingsViewModel)
+                    return typeof(ISettingsViewModel);
+                if (T is IAboutViewModel)
+                    return typeof(IAboutViewModel);
                 if (T is IAddEditPlantViewModel)
                     return typeof(IAddEditPlantViewModel);
-                //if (T is ITimelineActionViewModel)
-                //    return typeof(ITimelineActionViewModel);
                 if (T is ISignInRegisterViewModel)
                     return typeof(ISignInRegisterViewModel);
                 if (T is IPlantActionViewModel)

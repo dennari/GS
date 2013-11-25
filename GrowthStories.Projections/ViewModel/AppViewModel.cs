@@ -218,6 +218,8 @@ namespace Growthstories.UI.ViewModel
                 return new GardenViewModel(null, this);
             }, typeof(IGardenViewModel));
             resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
+            resolver.RegisterLazySingleton(() => new SettingsViewModel(this), typeof(ISettingsViewModel));
+            resolver.RegisterLazySingleton(() => new AboutViewModel(this), typeof(IAboutViewModel));
 
             resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(FriendsViewModel));
 
@@ -225,6 +227,8 @@ namespace Growthstories.UI.ViewModel
             resolver.RegisterLazySingleton(() => new SearchUsersViewModel(
                 Kernel.Get<ITransportEvents>(),
                 this), typeof(SearchUsersViewModel));
+
+
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 

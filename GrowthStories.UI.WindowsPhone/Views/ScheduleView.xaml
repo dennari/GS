@@ -40,7 +40,7 @@
                             <Border x:Name="DisabledBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsHitTestVisible="False" Margin="{StaticResource PhoneTouchTargetOverhang}" Visibility="Collapsed">
                                 <ContentControl x:Name="DisabledContent" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{StaticResource PhoneDisabledBrush}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
-                            
+
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -56,7 +56,7 @@
         <local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
         </local:GSViewGrid.Background>
-        
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -73,7 +73,7 @@
 				    x:Name="TimeSpanPicker"                
                     PickerButtonStyle="{StaticResource PickerBoxToggleButtonStyle1}"
                     />
-                    
+
             </local:GSLabel>
 
             <local:GSLabel 
@@ -95,8 +95,8 @@
 
                                 <TextBlock Style="{StaticResource GSTextBlockStyle}" Foreground="White" FontWeight="Bold" Text="{Binding Item1.Name, Converter={StaticResource ToUpperOrLowerCase}}" Grid.Column="0"  />
                                 <TextBlock Style="{StaticResource GSTextBlockStyle}" HorizontalAlignment="Right" Foreground="White" Text="{Binding Item2.IntervalLabel}" Grid.Column="1" />
-                            </Grid>  
-                       
+                            </Grid>
+
                         </DataTemplate>
                     </local:GSLongListSelector.ItemTemplate>
                 </local:GSLongListSelector>
