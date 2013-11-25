@@ -19,7 +19,7 @@
                 <TextBlock 
                         Text="Off" 
                         Grid.Column="0" 
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
                 <TextBlock 
                         Text="On" 
                         Grid.Column="0" 
