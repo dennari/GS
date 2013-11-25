@@ -69,7 +69,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             //Resolver.RegisterLazySingleton(() => new TimelineActionView(), typeof(IViewFor<ITimelineActionViewModel>));
             Resolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
             Resolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
-            Resolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
+
+            Resolver.RegisterLazySingleton(() =>
+            {
+                return new PlantActionListView();
+            }, typeof(IViewFor<IPlantActionListViewModel>));
+
             Resolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
             Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
@@ -84,6 +89,15 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             ViewLocator.ViewModelToViewModelInterfaceFunc = T =>
             {
+
+                if (T is IGardenPivotViewModel)
+                    return typeof(IGardenPivotViewModel);
+                //{
+                //    var vm = (IGardenPivotViewModel)T;
+                //    return vm.NavigateInterface != null ? vm.NavigateInterface : typeof(IGardenPivotViewModel);
+                //}
+
+
                 if (T is IAddEditPlantViewModel)
                     return typeof(IAddEditPlantViewModel);
                 //if (T is ITimelineActionViewModel)
@@ -98,8 +112,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     return typeof(IScheduleViewModel);
                 if (T is ISearchUsersViewModel)
                     return typeof(ISearchUsersViewModel);
-                if (T is IGardenPivotViewModel)
-                    return typeof(IGardenPivotViewModel);
                 if (T is IGardenViewModel)
                     return typeof(IGardenViewModel);
                 if (T is IPlantViewModel)

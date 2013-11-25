@@ -7,6 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:design="clr-namespace:Growthstories.UI.ViewModel.Design"
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:media="clr-namespace:System.Windows.Media;assembly=System.Windows"
@@ -19,6 +20,8 @@
 	mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
+    <design:PlantViewModel x:Key="PlantViewModelDesign" d:IsDataSource="True" />
+    <design:GardenViewModel x:Key="GardenViewModelDesign" d:IsDataSource="True" />
 
     <!--<design:AddMeasurementViewModelDesign x:Key="AddMeasurementViewModelDesign" d:IsDataSource="True" />
 	<design:ListUsersViewModelDesign x:Key="ListUsersViewModelDesign" d:IsDataSource="True" />-->
@@ -243,10 +246,7 @@
                         </StackPanel>
                         <toolkit:ContextMenuService.ContextMenu>
                             <toolkit:ContextMenu>
-                                <toolkit:MenuItem Header="Edit" 
-                                              Command="{Binding EditCommand}"
-                                              CommandParameter="{Binding}"/>
-
+                                <toolkit:MenuItem Header="Edit" Command="{Binding EditCommand}"/>                                        
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
                     </StackPanel>

@@ -107,13 +107,15 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private object _SelectedItem;
         public object SelectedItem
         {
-            get { return _SelectedPage; }
+            get { return _SelectedItem; }
             set
             {
                 if (value != null)
                 {
+                    this.RaiseAndSetIfChanged(ref _SelectedItem, value);
                     var v = value as IGSViewModel;
                     if (v != null)
                     {

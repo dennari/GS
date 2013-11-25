@@ -11,7 +11,9 @@
     d:DesignHeight="800"
     mc:Ignorable="d">
 
-
+    
+    
+    
     <local:GSLongListSelector
         x:Name="TimeLine" 
         ItemsSource="{Binding Actions}" 

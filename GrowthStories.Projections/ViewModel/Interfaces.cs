@@ -52,6 +52,7 @@ namespace Growthstories.UI.ViewModel
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
+        bool CanGoBack { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
         Task LogOut();
@@ -73,7 +74,7 @@ namespace Growthstories.UI.ViewModel
         //IObservable<IPlantViewModel> Plants { get; }
         //IObservable<IPlantActionViewModel> PlantActions(Guid guid);
 
-
+        IReactiveCommand BackKeyPressedCommand { get; }
         IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
         IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null);
         IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null);
@@ -104,7 +105,7 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems, IControlsPageOrientation
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
     {
         Guid Id { get; }
         IReactiveCommand SelectedItemsChanged { get; }
@@ -113,9 +114,11 @@ namespace Growthstories.UI.ViewModel
         string Username { get; }
     }
 
-    public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel
+    public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel, IControlsPageOrientation
     {
         IPlantViewModel SelectedPlant { get; }
+        IRoutableViewModel InnerViewModel { get; }
+        //Type NavigateInterface { get; }
 
     }
 
@@ -135,7 +138,8 @@ namespace Growthstories.UI.ViewModel
 
     public interface IPlantActionListViewModel : IGSRoutableViewModel, IControlsAppBar
     {
-
+        IPlantViewModel Plant { get; set; }
+        IReactiveCommand NavigateToSelected { get; }
     }
 
 
@@ -172,8 +176,10 @@ namespace Growthstories.UI.ViewModel
         string Species { get; }
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ScrollCommand { get; }
+        IReactiveCommand NavigateToEmptyActionCommand { get; }
+        IReactiveCommand ShowActionList { get; }
         //IReactiveCommand ActionTapped { get; }
-        IReactiveCommand AddActionCommand(PlantActionType type);
+        //IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }
         Photo Photo { get; }
         //PlantState State { get; }
@@ -181,6 +187,8 @@ namespace Growthstories.UI.ViewModel
         IPlantActionViewModel SelectedItem { get; }
         IScheduleViewModel WateringSchedule { get; }
         IScheduleViewModel FertilizingSchedule { get; }
+
+        IYAxisShitViewModel Chart { get; }
 
         PlantScheduler WateringScheduler { get; }
         PlantScheduler FertilizingScheduler { get; }
@@ -249,17 +257,6 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-
-
-
-    public interface ISeries
-    {
-        Tuple<double, double> XRange { get; }
-        Tuple<double, double> YRange { get; }
-        double[] XValues { get; }
-        double[] YValues { get; }
-        Tuple<double, double>[] Values { get; }
-    }
 
 
     public interface IScheduleViewModel : IGSRoutableViewModel
@@ -341,7 +338,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand OpenZoomView { get; }
         Guid PlantId { get; set; }
         Guid UserId { get; set; }
-        IReactiveCommand EditCommand { get; set; }
+        IReactiveCommand EditCommand { get; }
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
 
@@ -466,6 +463,11 @@ namespace Growthstories.UI.ViewModel
     {
         ApplicationBarMode AppBarMode { get; }
         bool AppBarIsVisible { get; }
+    }
+
+    public interface IControlsBackButton
+    {
+        bool CanGoBack { get; }
     }
 
     public interface IControlsSystemTray

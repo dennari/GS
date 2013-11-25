@@ -20,34 +20,51 @@ using System.Collections;
 namespace Growthstories.UI.ViewModel
 {
 
-    public sealed class PlantActionItem
-    {
-        public IconType Icon { get; set; }
-        public string Title { get; set; }
-        public IReactiveCommand Command { get; set; }
-
-    }
 
     public sealed class PlantActionListViewModel : RoutableViewModel, IPlantActionListViewModel
     {
-        private readonly IPlantViewModel Plant;
+
+
+        private IPlantViewModel _Plant;
+        public IPlantViewModel Plant
+        {
+            get
+            {
+                return _Plant;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Plant, value);
+            }
+        }
 
 
 
-        public IReadOnlyReactiveList<PlantActionItem> PlantActions { get; private set; }
+
+        public IReadOnlyReactiveList<IButtonViewModel> PlantActions { get; private set; }
+        public IReactiveCommand NavigateToSelected { get; private set; }
 
         public PlantActionListViewModel(IPlantViewModel plant, IGSAppViewModel app)
             : base(app)
         {
             this.Plant = plant;
-            var plantActions = new ReactiveList<PlantActionItem>();
+            var plantActions = new ReactiveList<IButtonViewModel>();
+
+            NavigateToSelected = new ReactiveCommand();
+            NavigateToSelected.OfType<PlantActionType>().Subscribe(x =>
+            {
+                if (this.Plant != null)
+                    this.Plant.NavigateToEmptyActionCommand.Execute(x);
+            });
+
             foreach (var o in PlantActionViewModel.ActionTypeToLabel)
             {
-                plantActions.Add(new PlantActionItem()
+                plantActions.Add(new ButtonViewModel()
                 {
-                    Title = o.Value,
-                    Icon = PlantActionViewModel.ActionTypeToIcon[o.Key],
-                    Command = Plant.AddActionCommand(o.Key)
+                    Text = o.Value,
+                    IconType = PlantActionViewModel.ActionTypeToIcon[o.Key],
+                    Command = NavigateToSelected,
+                    CommandParameter = o.Key
                 });
             }
 
