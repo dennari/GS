@@ -422,8 +422,8 @@ namespace Growthstories.UI.ViewModel
         double Minimum { get; set; }
         double Maximum { get; set; }
         double YAxisStep { get; set; }
-        int YAxisLabelStep { get; set; }
-        int XAxisLabelStep { get; set; }
+        double YAxisLabelStep { get; set; }
+        double XAxisLabelStep { get; set; }
         string LineColor { get; set; }
         IReadOnlyReactiveList<IPlantMeasureViewModel> Series { get; set; }
 

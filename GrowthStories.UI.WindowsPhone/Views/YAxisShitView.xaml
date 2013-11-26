@@ -191,64 +191,24 @@
                 HorizontalAlignment="Stretch"     
                 >
 
-                <!--<chart:RadCartesianChart.Grid>
-                    <chart:CartesianChartGrid MajorXLineDashArray="5, 5" MajorYLineDashArray="5, 5" MajorLinesVisibility="XY">
-                        <chart:CartesianChartGrid.MajorYLineStyle>
-                            <Style TargetType="Line">
-                                <Setter Property="Stroke" Value="Gray"/>
-                            </Style>
-                        </chart:CartesianChartGrid.MajorYLineStyle>
-                        <chart:CartesianChartGrid.MajorXLineStyle>
-                            <Style TargetType="Line">
-                                <Setter Property="Stroke" Value="Gray"/>
-                            </Style>
-                        </chart:CartesianChartGrid.MajorXLineStyle>
-                    </chart:CartesianChartGrid>
-                </chart:RadCartesianChart.Grid>-->
-
                 <chart:RadCartesianChart.HorizontalAxis>
-                    <chart:DateTimeCategoricalAxis 
-                        Style="{StaticResource dateAxisStyle}" 
-                        DateTimeComponent="Second" 
+                    <!--<chart:DateTimeCategoricalAxis 
+                        Style="{StaticResource dateAxisStyle}"                       
                         LabelFormat="d"
                         LabelFitMode="Rotate"
                         GapLength="0.5"                        
-                        LabelInterval="{Binding XAxisLabelStep}"
-                        
-                        />
+                        LabelInterval="{Binding XAxisLabelStep}"/>-->
+                <chart:DateTimeContinuousAxis                    
+                    LabelFitMode="Rotate"
+                    LabelFormat="d"
+                    MaximumTicks="12"
+                    />
+            </chart:RadCartesianChart.HorizontalAxis>
 
-                    
-                </chart:RadCartesianChart.HorizontalAxis>
-
-                <chart:RadCartesianChart.VerticalAxis>
-                    <!--<chart:LinearAxis 
-                        LineStroke="{StaticResource PhoneDisabledBrush}" 
-                        LineThickness="2"
-                        >
-                        <chart:LinearAxis.LabelTemplate>
-                            <DataTemplate>
-
-                            </DataTemplate>
-                        </chart:LinearAxis.LabelTemplate>
-                        <chart:LinearAxis.MajorTickTemplate>
-                            <DataTemplate>
-
-                            </DataTemplate>
-                        </chart:LinearAxis.MajorTickTemplate>
-                    </chart:LinearAxis>-->
-                    <!--<chart:LinearAxis 
-                        Minimum="{Binding Minimum}" 
-                        Maximum="{Binding Maximum}" 
-                        MajorStep="{Binding YAxisStep}"
-                        
-                        Style="{StaticResource linearAxisStyle}" 
-                        />-->
-                    <chart:LinearAxis 
-                        Style="{StaticResource linearAxisStyle}" 
-                        
-                        />
-
+                <chart:RadCartesianChart.VerticalAxis>  
+                    <chart:LinearAxis  Style="{StaticResource linearAxisStyle}" />
                 </chart:RadCartesianChart.VerticalAxis>
+                
                 <chart:RadCartesianChart.Grid>
                     <chart:CartesianChartGrid MajorLinesVisibility="None" StripLinesVisibility="Y">
                         <chart:CartesianChartGrid.YStripeBrushes>
@@ -265,7 +225,7 @@
                     ValueBinding="{Binding ValueBinding}"
                     CategoryBinding="{Binding CategoryBinding}"
                     ItemsSource="{Binding Series}" 
-                    CombineMode="None"/>
+                    />
                 
             </chart:RadCartesianChart>
         </Grid>

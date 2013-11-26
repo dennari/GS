@@ -23,7 +23,7 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
             this.PlantVM = plantVM;
-            this.XAxisLabelStep = 1;
+            this.XAxisLabelStep = 60 * 60 * 24; // seconds in the day
             this.Minimum = double.MinValue;
             this.Maximum = double.MaxValue;
 
@@ -57,7 +57,9 @@ namespace Growthstories.UI.ViewModel
                     if (y >= 2)
                     {
                         var tuple = new Tuple<MeasurementType, IReadOnlyReactiveList<IPlantMeasureViewModel>>(x.Key, series);
-                        this.EnabledSeries.Add(tuple);
+                        var match = this.EnabledSeries.FirstOrDefault(z => z.Item1 == x.Key);
+                        if (match == null)
+                            this.EnabledSeries.Add(tuple);
                         if (Series == null)
                             SetSeries(x.Key, series);
                     }
@@ -97,8 +99,10 @@ namespace Growthstories.UI.ViewModel
             this.LineColor = m.SeriesColor;
             this.SeriesTitle = m.TitleWithUnit;
 
-            this.XAxisLabelStep = (int)Math.Ceiling((double)series.Count / NumLabels);
-            //var range = Series.Last().Created - Series.First().Created;
+            //this.XAxisLabelStep = (int)Math.Ceiling((double)series.Count / NumLabels);
+            //TimeSpan range = Series.Last().Created - Series.First().Created;
+            //this.XAxisLabelStep = range.TotalSeconds / NumLabels;
+
 
         }
 
@@ -146,8 +150,9 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private int _YAxisLabelStep;
-        public int YAxisLabelStep
+        // in seconds, the unit is set in the view
+        private double _YAxisLabelStep;
+        public double YAxisLabelStep
         {
             get
             {
@@ -159,8 +164,8 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private int _XAxisLabelStep;
-        public int XAxisLabelStep
+        private double _XAxisLabelStep;
+        public double XAxisLabelStep
         {
             get
             {

@@ -47,54 +47,54 @@ namespace Growthstories.UI.WindowsPhone
             //this.RenderChart();
             //this.GSChart.Series.Add(pvm.TelerikSeries.Values.First() as LineSeries);
 
-            var xAxis = this.GSChart.HorizontalAxis as DateTimeCategoricalAxis;
+            var xAxis = this.GSChart.HorizontalAxis as DateTimeContinuousAxis;
             //var yAxis = this.GSChart.VerticalAxis as LinearAxis;
 
 
 
         }
 
-        private void Toggle(LineSeries x)
-        {
+        //private void Toggle(LineSeries x)
+        //{
 
-            if (GSChart.Series.Contains(x))
-                GSChart.Series.Remove(x);
-            else
-                GSChart.Series.Add(x);
-
-
-        }
+        //    if (GSChart.Series.Contains(x))
+        //        GSChart.Series.Remove(x);
+        //    else
+        //        GSChart.Series.Add(x);
 
 
-        private void RenderChart(IEnumerable<object> dSeries)
-        {
-            var chart = this.GSChart;
+        //}
 
-            //var lSeries = (LineSeries)chart.Series[0];
-            //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
-            //this.TestText.Text = "RenderChart";
-            foreach (var s in dSeries)
-            {
-                //var series = new LineSeries()
-                //{
-                //    Stroke = new SolidColorBrush(Colors.Orange),
-                //    StrokeThickness = 4
-                //};
 
-                //for (var i = 0; i < s.XValues.Length; i++)
-                //    series.DataPoints.Add(new CategoricalDataPoint()
-                //    {
-                //        Value = s.YValues[i],
-                //        Category = s.XValues[i]
-                //    });
+        //private void RenderChart(IEnumerable<object> dSeries)
+        //{
+        //    var chart = this.GSChart;
 
-                //var yx = chart.VerticalAxis as LinearAxis;
-                //yx.Min
-                var line = s as LineSeries;
-                if (line != null)
-                    chart.Series.Add(line);
-            }
-        }
+        //    //var lSeries = (LineSeries)chart.Series[0];
+        //    //lSeries.Stroke = new SolidColorBrush(Colors.Magenta);
+        //    //this.TestText.Text = "RenderChart";
+        //    foreach (var s in dSeries)
+        //    {
+        //        //var series = new LineSeries()
+        //        //{
+        //        //    Stroke = new SolidColorBrush(Colors.Orange),
+        //        //    StrokeThickness = 4
+        //        //};
+
+        //        //for (var i = 0; i < s.XValues.Length; i++)
+        //        //    series.DataPoints.Add(new CategoricalDataPoint()
+        //        //    {
+        //        //        Value = s.YValues[i],
+        //        //        Category = s.XValues[i]
+        //        //    });
+
+        //        //var yx = chart.VerticalAxis as LinearAxis;
+        //        //yx.Min
+        //        var line = s as LineSeries;
+        //        if (line != null)
+        //            chart.Series.Add(line);
+        //    }
+        //}
 
 
 
