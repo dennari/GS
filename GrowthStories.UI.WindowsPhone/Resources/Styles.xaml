@@ -74,7 +74,6 @@
                         Background="{TemplateBinding Background}"
                         >
                        
-
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -168,12 +167,11 @@
                 SelectionBackground="Transparent"
                 SelectionForeground="White"
             -->
-
         </StackPanel>
     </DataTemplate>
 
     <DataTemplate x:Key="DetailPhotoTemplate">
-        <Grid HorizontalAlignment="Stretch" Height="350" Margin="12,0">
+        <Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
             <Grid.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
             </Grid.Background>
@@ -322,7 +320,6 @@
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="TextWrapping" Value="Wrap" />
-
     </Style>
 
     

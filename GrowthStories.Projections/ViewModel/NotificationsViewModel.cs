@@ -25,6 +25,51 @@ namespace Growthstories.UI.ViewModel
         public double Number { get; set; }
         public TimeSpan Interval { get; set; }
         public DateTimeOffset Date { get; set; }
+
+
+        public string NotificationText
+        {
+            get
+            {
+
+                if (Number < 0.2 && Number > -0.2)
+                {
+                    switch (Type)
+                    {
+                        case NotificationType.WATERING_SCHEDULE:
+                            return Name + " can be watered now";
+
+                        case NotificationType.FERTILIZING_SCHEDULE:
+                            return Name + " can be nourished now";
+                    }
+
+                }
+                
+                if (Number >= 0.2)
+                {
+                    switch (Type)
+                    {
+                        case NotificationType.WATERING_SCHEDULE:
+                            return Name + " needs watering";
+
+                        case NotificationType.FERTILIZING_SCHEDULE:
+                            return Name + " needs nourishing";
+                    }
+                }
+   
+                return "";
+            }
+        }
+
+
+        public bool ShouldShow
+        {
+            get
+            {
+                return Number > -0.2;
+            }
+        }
+
     }
 
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
