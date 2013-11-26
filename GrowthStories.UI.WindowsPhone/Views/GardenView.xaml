@@ -72,7 +72,7 @@
                         HorizontalAlignment="Left"
                             Padding="18,0"
                             Background="{StaticResource GSAccentBrush}"
-                            Content="{Binding WateringScheduler.Missed}"
+                            Content="{Binding WateringScheduler.MissedNotification}"
                             Visibility="{Binding WateringScheduler.MissedLate, Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
                         />
 

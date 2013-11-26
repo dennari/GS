@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
-  <DefaultLanguage xmlns="" code="en-US" />
+  <DefaultLanguage xmlns="" code="en" />
   <Languages xmlns="">
     <Language code="en" />
-    <Language code="fi-FI" />
   </Languages>
   <App xmlns="" ProductID="{fe617508-961a-4981-a3c6-71e35e48b703}" Title="Growth Stories" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="GrowthStories.UI.WindowsPhone author" Description="Sample description" Publisher="GrowthStories.UI.WindowsPhone" PublisherID="{9bb55742-8e03-4a09-a29f-e0f415577103}">
     <IconPath IsRelative="true" IsResource="false">Assets\Icons\application_icon_99.png</IconPath>
@@ -12,7 +11,6 @@
       <Capability Name="ID_CAP_SENSORS" />
       <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
       <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
-      <Capability Name="ID_CAP_PUSH_NOTIFICATION" />
       <Capability Name="ID_CAP_IDENTITY_DEVICE" />
     </Capabilities>
     <Tasks>

@@ -209,7 +209,7 @@
                 <chart:RadCartesianChart.HorizontalAxis>
                     <chart:DateTimeCategoricalAxis 
                         Style="{StaticResource dateAxisStyle}" 
-                        DateTimeComponent="Hour" 
+                        DateTimeComponent="Second" 
                         LabelFormat="d"
                         LabelFitMode="Rotate"
                         GapLength="0.5"                        

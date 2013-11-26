@@ -48,7 +48,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private ReactiveCommand _AddCommand;
-        public IReactiveCommand AddCommand
+        public virtual IReactiveCommand AddCommand
         {
             get
             {
@@ -69,7 +69,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        public IObservable<bool> CanExecute { get; protected set; }
+        public virtual IObservable<bool> CanExecute { get; protected set; }
 
 
         public ApplicationBarMode AppBarMode

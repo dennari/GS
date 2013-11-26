@@ -31,14 +31,32 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                switch (Type)
-                {
-                    case NotificationType.WATERING_SCHEDULE:
-                        return Name + " should be watered";
 
-                    case NotificationType.FERTILIZING_SCHEDULE:
-                        return Name + " should be nourished";
+                if (Number < 0.2 && Number > -0.2)
+                {
+                    switch (Type)
+                    {
+                        case NotificationType.WATERING_SCHEDULE:
+                            return Name + " can be watered now";
+
+                        case NotificationType.FERTILIZING_SCHEDULE:
+                            return Name + " can be nourished now";
+                    }
+
                 }
+                
+                if (Number >= 0.2)
+                {
+                    switch (Type)
+                    {
+                        case NotificationType.WATERING_SCHEDULE:
+                            return Name + " needs watering";
+
+                        case NotificationType.FERTILIZING_SCHEDULE:
+                            return Name + " needs nourishing";
+                    }
+                }
+   
                 return "";
             }
         }
@@ -48,8 +66,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return true;
-                //return Number > 0.2;
+                return Number > -0.2;
             }
         }
 

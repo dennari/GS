@@ -263,7 +263,7 @@ namespace Growthstories.UI.ViewModel
                 if (num == 1)
                     this.MissedText = string.Format("Last {0} missed.", Schedule.Type == ScheduleType.WATERING ? "watering" : "nourishment");
                 else
-                    this.MissedText = string.Format("Last {0} {1} missed.", num, Schedule.Type == ScheduleType.WATERING ? "waterings" : "nourishments");
+                    this.MissedText = string.Format("Last {0} {1} missed.", (int)num, Schedule.Type == ScheduleType.WATERING ? "waterings" : "nourishments");
 
             }
             else
