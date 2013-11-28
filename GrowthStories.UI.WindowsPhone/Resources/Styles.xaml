@@ -63,128 +63,10 @@
  ############ ACTIONS ##############################
  ################################################### -->
 
-    <Style TargetType="local:PlantActionView">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:PlantActionView">
-                    
-                    <local:GSViewGrid
-                        TopTitle="GROWTH STORIES"
-                        Title="{Binding Label}"
-                        Background="{TemplateBinding Background}"
-                        >
-                       
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
 
-                            <StackPanel Margin="-12,25,-12,16" Grid.Row="0">
-                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
-                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
-                                <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
-                            </StackPanel>
 
-                            <ContentPresenter
-								    Margin="0,0,0,0"
-								    Grid.Row="1"
-                                    DataContext="{TemplateBinding DataContext}"
-								    Content="{TemplateBinding DataContext}" 
-								    ContentTemplate="{TemplateBinding ContentTemplate}" 
-								    Visibility="{TemplateBinding ContentVisibility}" 
-								    HorizontalAlignment="Stretch">
-                            </ContentPresenter>
+    
 
-                            <local:GSChatTextBox
-                                    Grid.Row="2"
-							        Margin="0,0,0,100"
-                                    Padding="8,8,8,100"                                   
-							        Hint="Enter comment / note"
-							        MinHeight="100"
-                                    c4fBinding:TextBinding.UpdateSourceOnChange="True"
-							        VerticalAlignment="Top"						
-							        Text="{Binding Note, Mode=TwoWay}" 		
-							        Visibility="{TemplateBinding NoteVisibility}" />
-
-                            <TextBlock Text="" Foreground="Transparent" Grid.Row="3" />
-
-                        </Grid>
-
-                    </local:GSViewGrid>
-                    
-                 
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <DataTemplate x:Key="DetailMeasureTemplate">
-
-        <StackPanel>
-
-            <local:GSLabel Label="dimension">
-                <local:GSListPicker 
-				x:Name="MeasurementTypePicker"			
-				ExpansionMode="ExpansionAllowed"
-				ItemsSource="{Binding Options}"
-                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-				BorderBrush="{StaticResource GSBackgroundBrush}"
-                CacheMode="BitmapCache" Margin="0,12,0,12"
-				>
-                    <local:GSListPicker.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding TitleWithUnit}" 
-								   Style="{StaticResource GSTextBoxOnTextBlockStyle}" />
-                        </DataTemplate>
-                    </local:GSListPicker.ItemTemplate>
-                </local:GSListPicker>
-            </local:GSLabel>
-
-            <local:GSLabel Label="value">
-                <local:GSTextBox 
-                Hint=" " 
-				Text="{Binding SValue, Mode=TwoWay}" 
-				c4fBinding:TextBinding.UpdateSourceOnChange="True"
-                InputScope="Number" 
-                Margin="-12,0,-12,12"
-                FontSize="90"
-                Padding="20,0,20,0"
-                HorizontalAlignment="Stretch"
-                TextAlignment="Right"
-                BorderThickness="4"               
-                />
-            </local:GSLabel>
-
-            <local:GSLabel Label="note" />
-
-                <!--
-            BorderBrush="WhiteSmoke"
-                Foreground="WhiteSmoke"
-                Background="Transparent"
-                SelectionBackground="Transparent"
-                SelectionForeground="White"
-            -->
-        </StackPanel>
-    </DataTemplate>
-
-    <DataTemplate x:Key="DetailPhotoTemplate">
-        <Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
-            <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
-            </Grid.Background>
-            <Button 
-                Style="{StaticResource GSButtonStyle}"
-                BorderThickness="3"
-                Command="{Binding PhotoChooserCommand}"                
-                >
-                <TextBlock Text="select or snap a photo" Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
-            </Button>
-
-        </Grid>
-    </DataTemplate>
 
     <Style TargetType="local:PlantActionView" x:Key="PlantPhotoActionStyle">
         <Setter Property="Template">
@@ -195,60 +77,16 @@
                             <ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
                         </Grid.Background>
                     </Grid>
+                        
+                 
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <DataTemplate x:Key="TimelinePhotoTemplate">
-        <Button Height="220" 
-            BorderBrush="WhiteSmoke"
-            BorderThickness="3"    
-            HorizontalAlignment="Stretch" Style="{StaticResource GSButtonStyle}" Margin="12,6,12,12" Command="{Binding PhotoTimelineTap}">
-            <Button.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>
-                <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo}"/>-->
-            </Button.Background>
-        </Button>
-    </DataTemplate>
 
-    <Style TargetType="local:TimelineActionView">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:TimelineActionView">
-                    <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
-                        <ContentPresenter 
-							DataContext="{TemplateBinding DataContext}"
-                            Content="{TemplateBinding DataContext}" 
-							ContentTemplate="{TemplateBinding ContentTemplate}" 
-							Visibility="{TemplateBinding ContentVisibility}" 
-							HorizontalAlignment="Stretch"/>
-                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
-                            <StackPanel Orientation="Vertical" Width="110">
-                                <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-                                <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
-                                <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
-                            </StackPanel>
-                            <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                                <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                                <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                                <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <toolkit:ContextMenuService.ContextMenu>
-                            <toolkit:ContextMenu>
-                                <toolkit:MenuItem Header="Edit" 
-                                              Command="{Binding EditCommand}"
-                                              CommandParameter="{Binding}"/>
 
-                            </toolkit:ContextMenu>
-                        </toolkit:ContextMenuService.ContextMenu>
-                    </StackPanel>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+
 
     <Style TargetType="ContentControl" x:Key="PlantNextAction">
         <Setter Property="Template">
@@ -708,5 +546,32 @@
                 </local:GSLabel>
             </StackPanel>
         </DataTemplate>
+
+
+
+    <Style TargetType="local:GSViewModelViewHost">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:GSViewModelViewHost">
+                    <Grid 
+                        x:Name="PART_Container"
+                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+
+              
+
+                            <ContentPresenter
+                            x:Name="PART_CurrentContentPresentationSite"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+             
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

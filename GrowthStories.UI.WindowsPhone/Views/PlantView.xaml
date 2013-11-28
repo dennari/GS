@@ -11,8 +11,41 @@
     d:DesignHeight="800"
     mc:Ignorable="d">
 
+    <local:PlantViewBase.Resources>
+        <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
+            <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
+                <ContentPresenter 
+						DataContext="{TemplateBinding DataContext}"
+                        Content="{TemplateBinding Content}" 
+						ContentTemplate="{TemplateBinding ContentTemplate}" 
+						Visibility="{TemplateBinding ContentVisibility}" 
+						HorizontalAlignment="Stretch"/>
+                <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
+                    <StackPanel Orientation="Vertical" Width="110">
+                        <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                        <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                        <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                    </StackPanel>
+                    <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                        <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                        <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu>
+                        <toolkit:MenuItem Header="Edit" 
+                                              Command="{Binding EditCommand}"
+                                              CommandParameter="{Binding}"/>
 
-    <Grid>
+                    </toolkit:ContextMenu>
+                </toolkit:ContextMenuService.ContextMenu>
+            </StackPanel>
+        </ControlTemplate>
+    </local:PlantViewBase.Resources>
+    
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -92,7 +125,42 @@
             </phone:LongListSelector.ListHeaderTemplate>
             <phone:LongListSelector.ItemTemplate>
                 <DataTemplate>
-                    <local:TimelineActionView ViewModel="{Binding}"/>
+                    <local:PlantActionView 
+                        ViewModel="{Binding}" 
+                        Content="{Binding}"
+                        Template="{StaticResource TimelineActionTemplate}">         
+                        <local:PlantActionView.PhotoTemplate>
+                            <DataTemplate>
+                            <Button Height="220" 
+                                BorderBrush="WhiteSmoke"
+                                BorderThickness="3"    
+                                HorizontalAlignment="Stretch" 
+                                Style="{StaticResource GSButtonStyle}" 
+                                Margin="12,6,12,12" 
+                                Command="{Binding PhotoTimelineTap}">
+                                <Button.Background>
+                                    <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>-->
+                                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding TimelinePhotoSource}"/>
+
+                                </Button.Background>
+                              </Button>
+                               <!--<Grid>
+                                  <Image 
+                                    Height="220" 
+                                    Stretch="UniformToFill" 
+                                    HorizontalAlignment="Stretch" 
+                                    VerticalAlignment="Stretch" 
+                                    Margin="12,0" 
+                                    Source="{Binding TimelinePhotoSource}" />
+                                  <TextBlock 
+                                        Text="{Binding Photo.FileName}" 
+                                        VerticalAlignment="Top" 
+                                        FontSize="{StaticResource PhoneFontSizeSmall}"
+                                        TextWrapping="Wrap"/>
+                               </Grid>-->
+                            </DataTemplate>
+                        </local:PlantActionView.PhotoTemplate>
+                    </local:PlantActionView>
                 </DataTemplate>
             </phone:LongListSelector.ItemTemplate>
 

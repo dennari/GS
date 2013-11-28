@@ -1,4 +1,5 @@
-﻿using Growthstories.Domain.Entities;
+﻿using Growthstories.Core;
+using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
@@ -103,21 +104,6 @@ namespace Growthstories.UI.ViewModel
                     SetProperty(x);
                 });
 
-                var updatePipe = this.AddCommand.RegisterAsyncTask(_ =>
-                {
-
-                    return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
-                    {
-                        Note = this.Note,
-                        Photo = this.Photo,
-                        Value = this.Value,
-                        MeasurementType = this.MeasurementType
-                    });
-
-
-
-                });
-
 
 
 
@@ -129,27 +115,6 @@ namespace Growthstories.UI.ViewModel
                 this.Date = now.ToString("d");
                 this.Time = now.ToString("t");
 
-                var addPipe = this.AddCommand.RegisterAsyncTask(_ =>
-                {
-
-
-                    return App.HandleCommand(new CreatePlantAction(
-                                   Guid.NewGuid(),
-                                   this.UserId,
-                                   this.PlantId,
-                                   this.ActionType,
-                                   this.Note
-                               )
-                    {
-                        Photo = this.Photo,
-                        MeasurementType = this.MeasurementType,
-                        Value = this.Value
-                    });
-
-
-                });
-
-
 
             }
 
@@ -157,16 +122,64 @@ namespace Growthstories.UI.ViewModel
 
             this.EditCommand = new ReactiveCommand();
             this.EditCommand.Subscribe(_ => this.Navigate(this));
-            //this.EditCommand.Subscribe
 
 
         }
 
 
-        public virtual void SetupAddCommand()
+
+        private ReactiveCommand _AddCommand;
+        public override IReactiveCommand AddCommand
+        {
+            get
+            {
+
+                if (_AddCommand == null)
+                {
+                    _AddCommand = new ReactiveCommand(this.CanExecute == null ? Observable.Return(true) : this.CanExecute, false);
+                    _AddCommand.Subscribe(this.AddCommandSubscription);
+                    this.AsyncAddObservable = _AddCommand.RegisterAsyncTask(AsyncAddCommand);
+                    this.AsyncAddObservable.Publish().Connect();
+
+                } 
+                return _AddCommand;
+
+            }
+        }
+
+
+        protected Task<IGSAggregate> AsyncAddCommand(object _)
         {
 
+            if (State == null)
+            {
+                return App.HandleCommand(new CreatePlantAction(
+                                 Guid.NewGuid(),
+                                 this.UserId,
+                                 this.PlantId,
+                                 this.ActionType,
+                                 this.Note
+                             )
+                {
+                    Photo = this.Photo,
+                    MeasurementType = this.MeasurementType,
+                    Value = this.Value
+                });
+
+            }
+            else
+            {
+                return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
+                {
+                    Note = this.Note,
+                    Photo = this.Photo,
+                    Value = this.Value,
+                    MeasurementType = this.MeasurementType
+                });
+            }
+
         }
+
 
 
         protected virtual void TimelineLinesSetup()
@@ -277,6 +290,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+        public IObservable<IGSAggregate> AsyncAddObservable { get; protected set; }
     }
 
 
@@ -320,15 +335,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        
-        public override IReactiveCommand AddCommand
-        {
-            get
-            {
-                return base.AddCommand;
-            }
-        }
-
 
         public override void AddCommandSubscription(object p)
         {
@@ -336,20 +342,8 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        
-        public override IObservable<bool> CanExecute
-        {
-            get
-            {
-                return this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
-                    .Select(x =>
-                    {
-                        return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
-                    })
-                    .StartWith(false);
-            }
 
-        }
+        //public override IObservable<bool> CanExecute { get; protected set; }
 
         public PlantMeasureViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.MEASURED, app, state)
@@ -372,15 +366,25 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => double.TryParse(x, out dValue))
                 .Subscribe(x => this.Value = dValue);
 
-           
 
-            //this.CanExecute = 
+            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
+              .Select(x =>
+              {
+                  if (state != null && x.Item2 == state.MeasurementType)
+                  {
+                      return x.Item1.HasValue && x.Item1 != state.Value;
+                  }
+                  return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
+              });
 
             if (state != null)
             {
                 this.SelectedMeasurementType = MeasurementTypeHelper.Options[state.MeasurementType];
                 this.SValue = this.SelectedMeasurementType.FormatValue(state.Value.Value);
                 this.Value = state.Value;
+
+
+
             }
             else
             {
@@ -424,6 +428,7 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref _IsZoomViewOpen, value); }
         }
 
+        //public override IObservable<bool> CanExecute { get; protected set; }
 
         public PlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.PHOTOGRAPHED, app, state)
@@ -433,6 +438,14 @@ namespace Growthstories.UI.ViewModel
                 throw new InvalidCastException();
             this.Icon = IconType.PHOTO;
 
+            this.CanExecute = this.WhenAnyValue(x => x.Photo).Select(x =>
+            {
+                if (state != null)
+                {
+                    return x != null && x != state.Photo;
+                }
+                return x != null;
+            });
 
             if (state != null)
             {

@@ -129,7 +129,8 @@ namespace Growthstories.UI.ViewModel
                     );
 
 
-            this.AddCommand.RegisterAsyncTask((_) => this.AddTask());
+            this.AddCommand.RegisterAsyncTask((_) => this.AddTask()).Publish().Connect();
+
 
         }
 
@@ -407,6 +408,8 @@ namespace Growthstories.UI.ViewModel
             {
 
                 await App.HandleCommand(new SetProfilepicture(plantId, this.Photo));
+                if (current.Actions.Count == 0)
+                    await App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
             }
             //this.Ta
             if (!this.TagSet.SetEquals(this.Tags))

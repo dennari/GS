@@ -43,9 +43,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Handler = Kernel.Get<IDispatchCommands>();
 
             this.CreateRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
-            this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData()));
-            this.PushRemoteUserCommand.RegisterAsyncTask(o => PushRemoteUser());
-            this.SyncCommand.RegisterAsyncTask(_ => SyncAll());
+            this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData())).Publish().Connect();
+            this.PushRemoteUserCommand.RegisterAsyncTask(o => PushRemoteUser()).Publish().Connect();
+            this.SyncCommand.RegisterAsyncTask(_ => SyncAll()).Publish().Connect();
         }
 
         private async Task<bool> SyncAll()

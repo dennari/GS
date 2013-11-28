@@ -53,21 +53,14 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-        public static PhotoOrientation Orientation(this IBuffer imageBuffer)
+        public static async Task<PhotoOrientation> Orientation(this Stream image)
         {
-            using (var session = new EditingSession(imageBuffer))
+            using (var source = new StreamImageSource(image, ImageFormat.Jpeg))
             {
-                return session.Dimensions.Width >= session.Dimensions.Height ? PhotoOrientation.LANDSCAPE : PhotoOrientation.PORTRAIT;
-            }
-        }
+                var info = await source.GetInfoAsync();
 
-        public static Task<Photo> SavePhotoToLocalStorageAsync(this Stream image)
-        {
-            return image.ToBuffer().SavePhotoToLocalStorageAsync();
-            //var path = await buffer.SaveAsync();
-            //var o = buffer.Orientation();
-            //image.Position = 0;
-            //return Tuple.Create(path, o);
+                return info.ImageSize.Width >= info.ImageSize.Height ? PhotoOrientation.LANDSCAPE : PhotoOrientation.PORTRAIT;
+            }
         }
 
         /// <summary>
@@ -77,7 +70,7 @@ namespace Growthstories.UI.WindowsPhone
         /// <param name="image">Photo to save</param>
         /// <returns>Path to the saved file in MediaLibrary</returns>
         /// </summary>
-        public static async Task<Photo> SavePhotoToLocalStorageAsync(this IBuffer image)
+        public static async Task<Photo> SavePhotoToLocalStorageAsync(this Stream image)
         {
             //string savedPath = null;
 
@@ -94,47 +87,32 @@ namespace Growthstories.UI.WindowsPhone
                 int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
                 var maxSize = new Size(4096, 4096); // Maximum texture size on WP8 is 4096x4096
 
-                AutoResizeConfiguration resizeConfiguration = null;
-
-                double w, h;
-                uint s;
-
-                using (var editingSession = new EditingSession(image))
+                Tuple<Stream, Size> scaled = null;
+                try
                 {
-                    w = editingSession.Dimensions.Width;
-                    h = (uint)editingSession.Dimensions.Height;
-                    s = image.Length;
+                    scaled = await image.ScaleAsync(maxPixels, maxSize, maxBytes);
 
-                    if (editingSession.Dimensions.Width * editingSession.Dimensions.Height > maxPixels)
-                    {
-                        var compactedSize = CalculateSize(editingSession.Dimensions, maxSize, maxPixels);
-
-                        resizeConfiguration = new AutoResizeConfiguration(maxBytes, compactedSize,
-                            new Size(0, 0), AutoResizeMode.Automatic, 0, ColorSpace.Yuv420);
-
-                        w = compactedSize.Width;
-                        h = compactedSize.Height;
-
-                    }
+                }
+                catch // throws for example if photo's dimensions can't be read
+                {
+                    return null;
                 }
 
-                if (resizeConfiguration != null)
-                {
-                    image = await Nokia.Graphics.Imaging.JpegTools.AutoResizeAsync(image, resizeConfiguration);
-                    s = image.Length;
-                }
-
-                photo.Width = (uint)w;
-                photo.Height = (uint)h;
-                photo.Size = s;
+                photo.Width = (uint)scaled.Item2.Width;
+                photo.Height = (uint)scaled.Item2.Height;
+                //photo.Size = s;
 
                 //var local = ;
                 var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
                 var imgFile = await imgFolder.CreateFileAsync(photo.FileName, CreationCollisionOption.ReplaceExisting);
                 //file.
+                var img = scaled.Item1;
+                //img.Seek(0, SeekOrigin.Begin);
+
+                img.Position = 0;
                 using (var writeStream = await imgFile.OpenStreamForWriteAsync())
                 {
-                    using (var readStream = image.AsStream())
+                    using (var readStream = img)
                     {
                         await readStream.CopyToAsync(writeStream);
                         await writeStream.FlushAsync();
@@ -142,30 +120,47 @@ namespace Growthstories.UI.WindowsPhone
                 }
                 photo.LocalFullPath = imgFile.Path;
 
-                //Windows.Storage.PathIO.
-
-
-                //using (var store = IsolatedStorageFile.GetUserStoreForApplication())
-                //{
-
-                //    if (!store.DirectoryExists(IMG_FOLDER))
-                //    {
-                //        store.CreateDirectory(IMG_FOLDER);
-                //    }
-
-                //    using (var file = store.CreateFile(savedPath))
-                //    {
-                //        using (var localImage = image.AsStream())
-                //        {
-                //            localImage.CopyTo(file);
-
-                //            file.Flush();
-                //        }
-                //    }
-                //}
             }
 
             return photo;
+        }
+
+        public static async Task<Tuple<Stream, Size>> ScaleAsync(this Stream image, int maxPixels, Size maxSize, uint maxBytes)
+        {
+
+            double w, h;
+            long s;
+
+            using (var source = new StreamImageSource(image, ImageFormat.Jpeg))
+            {
+                var info = await source.GetInfoAsync();
+
+                w = info.ImageSize.Width;
+                h = info.ImageSize.Height;
+                s = image.Length;
+
+                if (w * h > maxPixels)
+                {
+                    var compactedSize = CalculateSize(info.ImageSize, maxSize, maxPixels);
+
+                    var resizeConfiguration = new AutoResizeConfiguration(maxBytes, compactedSize,
+                        new Size(0, 0), AutoResizeMode.Automatic, 0, ColorSpace.Yuv420);
+
+
+                    var buffer = await Nokia.Graphics.Imaging.JpegTools.AutoResizeAsync(image.ToBuffer(), resizeConfiguration);
+
+                    return Tuple.Create(buffer.AsStream(), compactedSize);
+
+                }
+                else
+                {
+                    return Tuple.Create(image, info.ImageSize);
+                }
+            }
+
+
+
+
         }
 
 

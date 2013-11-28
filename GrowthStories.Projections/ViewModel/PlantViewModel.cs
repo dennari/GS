@@ -25,6 +25,7 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand ShareCommand { get; protected set; }
         public IReactiveCommand WateringCommand { get; protected set; }
+        public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
@@ -103,6 +104,17 @@ namespace Growthstories.UI.ViewModel
             {
                 var vm = CreateEmptyActionVM(PlantActionType.WATERED);
                 vm.AddCommand.Execute(null);
+            });
+            this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+            {
+                var vm = (IPlantPhotographViewModel)CreateEmptyActionVM(PlantActionType.PHOTOGRAPHED);
+                vm.PhotoChooserCommand.Execute(null);
+                vm.WhenAnyValue(x => x.Photo).Subscribe(x =>
+                {
+                    if (x != null)
+                        vm.AddCommand.Execute(null);
+                });
+                //vm.AddCommand.Execute(null);
             });
 
 
@@ -445,6 +457,7 @@ namespace Growthstories.UI.ViewModel
 
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
+                            //_Actions.Add(x);
                             _Actions.Insert(0, x);
 
                             x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
@@ -462,7 +475,7 @@ namespace Growthstories.UI.ViewModel
                                     });
                             }
 
-                            ScrollCommand.Execute(x);
+                            //ScrollCommand.Execute(x);
                         });
                     }
 
@@ -540,8 +553,7 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "photograph",
                             IconType = IconType.PHOTO,
-                            Command = NavigateToEmptyActionCommand,
-                            CommandParameter = PlantActionType.PHOTOGRAPHED
+                            Command = this.PhotoCommand
                         },
                         new ButtonViewModel(null)
                         {

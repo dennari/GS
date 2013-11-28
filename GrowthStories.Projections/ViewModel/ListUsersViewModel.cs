@@ -128,7 +128,7 @@ namespace Growthstories.UI.ViewModel
                     ProgressIndicatorIsVisible = false;
                     App.Router.NavigateBack.Execute(null);
 
-                });
+                }).Publish().Connect();
 
 
             /*

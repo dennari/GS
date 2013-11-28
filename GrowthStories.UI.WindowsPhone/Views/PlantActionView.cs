@@ -91,42 +91,45 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        public DataTemplate PhotoTemplate { get; set; }
+        public DataTemplate MeasureTemplate { get; set; }
+
+        DataTemplate SelectedTemplate;
+        string SelectedBackground;
+
         protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
 
             if (vm == null)
                 return;
 
-            DataTemplate contentTemplate = null;
-            Brush bg = GetBg("/Assets/Bg/action_bg.jpg");
+            SelectedTemplate = null;
+            SelectedBackground = "/Assets/Bg/action_bg.jpg";
             //base.OnViewModelChanged(vm);
             if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
             {
-                contentTemplate = Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
+                SelectedTemplate = PhotoTemplate;//Application.Current.Resources["DetailPhotoTemplate"] as DataTemplate;
             }
             if (vm.ActionType == PlantActionType.MEASURED)
             {
-                contentTemplate = Application.Current.Resources["DetailMeasureTemplate"] as DataTemplate;
+                SelectedTemplate = MeasureTemplate;//Application.Current.Resources["DetailMeasureTemplate"] as DataTemplate;
             }
             if (vm.ActionType == PlantActionType.WATERED)
             {
-                bg = GetBg("/Assets/Bg/watering_bg.jpg");
+                SelectedBackground = "/Assets/Bg/watering_bg.jpg";
 
             }
 
-            if (contentTemplate != null)
-            {
-                if (contentTemplate != this.ContentTemplate)
-                    this.ContentTemplate = contentTemplate;
-                this.ContentVisibility = System.Windows.Visibility.Visible;
-            }
-            else
-            {
-                this.ContentVisibility = System.Windows.Visibility.Collapsed;
-            }
 
-            //this.DataContext = vm;
-            this.Background = bg;
+
+        }
+
+        protected override void OnContentChanged(object oldContent, object newContent)
+        {
+            base.OnContentChanged(oldContent, newContent);
+            ContentTemplate = SelectedTemplate;
+            ContentVisibility = SelectedTemplate == null ? Visibility.Collapsed : Visibility.Visible;
+            Background = GetBg(SelectedBackground);
 
         }
 
@@ -167,17 +170,17 @@ namespace Growthstories.UI.WindowsPhone
 
         public PlantActionView()
         {
-            this.WhenNavigatedTo(ViewModel, () =>
-            {
-                if (this.ViewModel.ActionType == PlantActionType.PHOTOGRAPHED)
-                {
-                    var vm = this.ViewModel as IPlantPhotographViewModel;
-                    if (vm != null && vm.PlantActionId == default(Guid))
-                        vm.PhotoChooserCommand.Execute(null);
-                }
+            //this.WhenNavigatedTo(ViewModel, () =>
+            //{
+            //    if (this.ViewModel.ActionType == PlantActionType.PHOTOGRAPHED)
+            //    {
+            //        var vm = this.ViewModel as IPlantPhotographViewModel;
+            //        if (vm != null && vm.PlantActionId == default(Guid))
+            //            vm.PhotoChooserCommand.Execute(null);
+            //    }
 
-                return Disposable.Empty;
-            });
+            //    return Disposable.Empty;
+            //});
         }
 
 
@@ -185,57 +188,61 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
-    public class TimelineActionView : PlantActionView
-    {
-        public TimelineActionView()
-        {
+    //public class TimelineActionView : PlantActionView
+    //{
+    //    public TimelineActionView()
+    //    {
 
-        }
-
-        protected override void OnViewModelChanged(IPlantActionViewModel vm)
-        {
-            if (vm == null)
-                return;
-            DataTemplate contentTemplate = null;
+    //    }
 
 
+    //    DataTemplate PhotoTemplate { get; set; }
+    //    DataTemplate MeasureTemplate { get; set; }
 
-            if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
-                contentTemplate = Application.Current.Resources["TimelinePhotoTemplate"] as DataTemplate;
-            else if (vm.ActionType == PlantActionType.MEASURED)
-                contentTemplate = Application.Current.Resources["TimelineMeasureTemplate"] as DataTemplate;
-
-
-            if (contentTemplate != null)
-            {
-                if (contentTemplate != this.ContentTemplate)
-                    this.ContentTemplate = contentTemplate;
-                this.ContentVisibility = System.Windows.Visibility.Visible;
-
-            }
-            else
-            {
-                this.ContentVisibility = System.Windows.Visibility.Collapsed;
-            }
+    //    protected override void OnViewModelChanged(IPlantActionViewModel vm)
+    //    {
+    //        if (vm == null)
+    //            return;
+    //        DataTemplate contentTemplate = null;
 
 
-        }
 
-        //public static readonly DependencyProperty ContentVisibilityProperty =
-        // DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(TimelineActionView), new PropertyMetadata(Visibility.Collapsed));
-
-        //public Visibility ContentVisibility
-        //{
-        //    get { return (Visibility)GetValue(ContentVisibilityProperty); }
-        //    set
-        //    {
-
-        //        if (value != ContentVisibility)
-        //            SetValue(ContentVisibilityProperty, value);
-        //    }
-        //}
+    //        if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
+    //            contentTemplate = Application.Current.Resources["TimelinePhotoTemplate"] as DataTemplate;
+    //        else if (vm.ActionType == PlantActionType.MEASURED)
+    //            contentTemplate = Application.Current.Resources["TimelineMeasureTemplate"] as DataTemplate;
 
 
-    }
+    //        if (contentTemplate != null)
+    //        {
+    //            if (contentTemplate != this.ContentTemplate)
+    //                this.ContentTemplate = contentTemplate;
+    //            this.ContentVisibility = System.Windows.Visibility.Visible;
+
+    //        }
+    //        else
+    //        {
+    //            this.ContentVisibility = System.Windows.Visibility.Collapsed;
+    //        }
+
+
+    //    }
+
+    //    //public static readonly DependencyProperty ContentVisibilityProperty =
+    //    // DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(TimelineActionView), new PropertyMetadata(Visibility.Collapsed));
+
+    //    //public Visibility ContentVisibility
+    //    //{
+    //    //    get { return (Visibility)GetValue(ContentVisibilityProperty); }
+    //    //    set
+    //    //    {
+
+    //    //        if (value != ContentVisibility)
+    //    //            SetValue(ContentVisibilityProperty, value);
+    //    //    }
+    //    //}
+
+
+    //}
 
 }
