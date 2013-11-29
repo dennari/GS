@@ -91,6 +91,13 @@
         </Style>
 
         <Style x:Key="timeLineAxisStyle" TargetType="chart:DateTimeContinuousAxis" BasedOn="{StaticResource baseAxisStyle}">
+            <Setter Property="LabelStyle">
+                <Setter.Value>
+                    <Style TargetType="TextBlock"  BasedOn="{StaticResource textBlockStyle}">
+                        <Setter Property="FontSize" Value="11" />
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="dateTimeCategoricalAxisStyle" TargetType="chart:DateTimeCategoricalAxis" BasedOn="{StaticResource baseAxisStyle}">
@@ -166,12 +173,14 @@
                 <GradientStop Color="#FFE87D48"/>-->
             </RadialGradientBrush>
         </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <TextBlock Text="{Binding SeriesTitle}" 
+  
+    
+            <TextBlock Text="{Binding SeriesTitle}" 
                        FontSize="30"
                        FontWeight="Bold"
                        Foreground="WhiteSmoke"
@@ -180,16 +189,34 @@
                    FontFamily="{StaticResource GSAppTitleFont}"
                    />
            
-        <!--<Border Grid.Row="1" BorderThickness="3" BorderBrush="White"></Border>-->
-            
-        <chart:RadCartesianChart                 
+                <chart:RadCartesianChart                 
 			    x:Name="GSChart"
                 Grid.Row="1"
                 Height="400"
                 Margin="12,0"
                 VerticalAlignment="Top"
-                HorizontalAlignment="Stretch"     
+                HorizontalAlignment="Stretch"                   
                 >
+
+            <chart:RadCartesianChart.EmptyContent>
+                <StackPanel Margin="0,-60,0,0">
+                    <TextBlock
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="No data available to plot" 
+                    FontWeight="Bold"
+                    Margin="6,0,0,24"
+                    Width="500"
+                 />
+
+                    <TextBlock 
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Add some measurements to your plant's timeline, and this view will display a chart." 
+                    Grid.Row="1" Margin="6,0,0,0"
+                    Width="500"
+                    FontSize="24"
+                />
+                </StackPanel>
+            </chart:RadCartesianChart.EmptyContent>
 
                 <chart:RadCartesianChart.HorizontalAxis>
                     <!--<chart:DateTimeCategoricalAxis 
@@ -201,10 +228,13 @@
                 <chart:DateTimeContinuousAxis                    
                     LabelFitMode="Rotate"
                     LabelFormat="d"
-                    MaximumTicks="12"
+                    MaximumTicks="6"
+                    Style="{StaticResource timeLineAxisStyleWithTicks}"
+                    FontSize="11"
                     />
             </chart:RadCartesianChart.HorizontalAxis>
 
+            
                 <chart:RadCartesianChart.VerticalAxis>  
                     <chart:LinearAxis  Style="{StaticResource linearAxisStyle}" />
                 </chart:RadCartesianChart.VerticalAxis>
@@ -224,10 +254,12 @@
                     StrokeThickness="7"
                     ValueBinding="{Binding ValueBinding}"
                     CategoryBinding="{Binding CategoryBinding}"
-                    ItemsSource="{Binding Series}" 
+                    ItemsSource="{Binding Series}"                     
                     />
                 
+            
             </chart:RadCartesianChart>
         </Grid>
+
 
 </local:YAxisShitViewBase>
