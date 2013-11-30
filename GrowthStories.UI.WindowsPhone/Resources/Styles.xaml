@@ -287,15 +287,15 @@
                             </Grid.RowDefinitions>
 
                         <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                                <Grid Margin="25,20,25,26" HorizontalAlignment="Stretch">
+                                <Grid Margin="24,20,24,24" HorizontalAlignment="Stretch">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Row="0" Margin="0,0,0,25" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                    <StackPanel Grid.Row="0" Margin="0,0,0,24" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
                                         <TextBlock
-					                    Margin="0,0,0,-5"
+					                    Margin="0,0,0,-4"
 					                    Text="{TemplateBinding TopTitle}"
 					                    Style="{StaticResource GSAppTitleStyle}" />
                                         <TextBlock
@@ -330,15 +330,15 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Grid Margin="25,20,25,25" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <Grid Margin="24,20,24,24" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                <StackPanel Grid.Row="0" Margin="0,0,0,25" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
+                                <StackPanel Grid.Row="0" Margin="0,0,0,24" Visibility="{Binding Title, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibility}}">
                                     <TextBlock
-					            Margin="0,0,0,-5"
+					            Margin="0,0,0,-4"
 					            Text="{TemplateBinding TopTitle}"
 					            Style="{StaticResource GSAppTitleStyle}" />
                                     <TextBlock
@@ -359,9 +359,7 @@
 
                             </Grid>
                         
-                        <!--<Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />-->
-                        
-
+                        <!--<Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />-->                       
                     </Grid>
                     </ControlTemplate>
                 </Setter.Value>

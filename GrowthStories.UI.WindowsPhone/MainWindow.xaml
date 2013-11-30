@@ -11,8 +11,13 @@
     SupportedOrientations="{Binding ClientSupportedOrientations}"  
     Orientation="{Binding Orientation}"
 	Height="800"
+    shell:SystemTray.BackgroundColor="Black"
+    shell:SystemTray.ForegroundColor="White"
+    shell:SystemTray.Opacity="0.2"
     shell:SystemTray.IsVisible="{Binding SystemTrayIsVisible}"
-	>
+    >
+
+  
     <phone:PhoneApplicationPage.Resources>
         <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
             <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
@@ -26,7 +31,7 @@
             IsVisible="{Binding ProgressIndicatorIsVisible}" />
     </shell:SystemTray.ProgressIndicator>
    
-    <Grid>
+    <Grid Margin="0,0,0,0">
         <routing:RoutedViewHost 
 		    x:Name="Content"
 		    Router="{Binding Router}"
@@ -34,8 +39,6 @@
 		    Transition="Fade"
 		    TransitionPart="OutIn"
 	       />
-
-
     </Grid>
     
     <bar:Bindable.ApplicationBar>
