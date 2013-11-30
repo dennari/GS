@@ -135,6 +135,7 @@ namespace Growthstories.UI.ViewModel
         IReadOnlyReactiveList<RemoteUser> List { get; }
         IReactiveCommand SearchCommand { get; }
         IReactiveCommand UserSelectedCommand { get; }
+        string Search { get; set; }
     }
 
 

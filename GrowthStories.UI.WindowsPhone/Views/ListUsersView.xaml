@@ -12,6 +12,7 @@
     d:DataContext="{StaticResource ListUsersViewModelDesign}"
     mc:Ignorable="d" Width="480" Height="800">
     
+    
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
@@ -45,18 +46,83 @@
                     KeyUp="UserListBox_KeyUp"
                     ActionIcon="/Assets/Icons/appbar.add.png"
                     ActionIconTapped="UserListBox_IconTapped" 
-                    BorderThickness="3" Margin="-12,0,-12,0"
+                    BorderThickness="3" Margin="-12,0,-12,12"
+                    
               />
 
-            <ScrollViewer Grid.Row="1">
-                <StackPanel x:Name="ContentPanel" Margin="0,0,0,0">
-                    <phone:LongListSelector 
-                    x:Name="UserSelector"
-                    ItemsSource="{Binding List}" 
-                    ItemTemplate="{StaticResource ListUsersTemplate}"
-                    SelectionChanged="UserSelector_SelectionChanged"/>
+            <StackPanel
+                Visibility="{Binding App.ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Searching..." 
+                    FontWeight="Normal"
+                    Margin="0,0,0,24"
+                    HorizontalAlignment="Left"
+                    Width="400"                   
+                  />
+                <ProgressBar IsIndeterminate="True" IsEnabled="True" Foreground="White" />
+            </StackPanel>
+
+
+            <StackPanel Visibility="{Binding App.ProgressIndicatorIsVisible, 
+                    Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+
+                
+                <StackPanel
+                    Visibility="{Binding ValidSearch, Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+                    <TextBlock
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Please enter the username of the user you would like to follow" 
+                    FontWeight="Normal"
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,24"
+                    Width="400"                   
+                  />
                 </StackPanel>
-            </ScrollViewer>
+
+
+                <StackPanel Visibility="{Binding ValidSearch, Converter={StaticResource BooleanToVisibility}}">
+                    
+                        <StackPanel
+                        Visibility="{Binding SearchFinished, Converter={StaticResource BooleanToVisibility}}">
+                        <TextBlock
+                        Style="{StaticResource GSPlaceholderTextBlockStyle}"                    
+                        Visibility="{Binding List.Count, Converter={StaticResource ZeroToVisibility}}" 
+                        Text="No matching users were found" 
+                        FontWeight="Bold"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,24"
+                        Width="400"                   
+                      />
+
+                        <TextBlock
+                        Style="{StaticResource GSPlaceholderTextBlockStyle}"                    
+                        Visibility="{Binding List.Count, Converter={StaticResource ZeroToVisibility}}" 
+                        Text="Please try entering a different username." 
+                        FontWeight="Normal"
+                        Margin="0,0,0,24"
+                        HorizontalAlignment="Left"
+                        Width="400"                   
+                      />
+
+                        <ScrollViewer>
+                            <StackPanel x:Name="ContentPanel" Margin="0,0,0,0">
+                                <phone:LongListSelector 
+                        x:Name="UserSelector"
+                        ItemsSource="{Binding List}" 
+                        ItemTemplate="{StaticResource ListUsersTemplate}"
+                        SelectionChanged="UserSelector_SelectionChanged"
+                        Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
+                            />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+
+
+            </StackPanel>
+                   
+            
         </StackPanel>
     
     </local:GSViewGrid>

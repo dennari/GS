@@ -54,14 +54,19 @@
             <HyperlinkButton      
                Content="Help and support" HorizontalAlignment="Left" FontSize="30"
                NavigateUri="http://www.growthstories.com/about#contact"
+               TargetName="_blank"
                VerticalAlignment="Top" Grid.Row="2" Margin="-12,20,0,0" 
                Foreground="White"
+               toolkit:TiltEffect.IsTiltEnabled="True"
                 />
 
             <HyperlinkButton Content="Privacy policy" HorizontalAlignment="Left" FontSize="30"
                NavigateUri="http://www.growthstories.com/legal#privacy"
                VerticalAlignment="Top" Grid.Row="3" Margin="-12,10,0,0"
-               Foreground="White" />
+               TargetName="_blank"
+               Foreground="White" 
+               toolkit:TiltEffect.IsTiltEnabled="True"
+                />
         </Grid>
 
     </local:GSViewGrid>

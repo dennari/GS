@@ -31,6 +31,7 @@ namespace Growthstories.UI.ViewModel
     //    }
     //}
 
+
     public sealed class SearchUsersViewModel : RoutableViewModel, ISearchUsersViewModel
     {
         private readonly ITransportEvents Transporter;
@@ -46,6 +47,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SearchCommand { get; private set; }
         public IReactiveCommand UserSelectedCommand { get; private set; }
 
+
+
         private bool _InProgress;
         public bool ProgressIndicatorIsVisible
         {
@@ -54,8 +57,51 @@ namespace Growthstories.UI.ViewModel
                 return _InProgress;
             }
             private set
-            {
+            {     
                 this.RaiseAndSetIfChanged(ref _InProgress, value);
+            }
+        }
+
+        private bool _ValidSearch;
+        public bool ValidSearch
+        {
+            get
+            {
+                return _ValidSearch;
+            }
+
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _ValidSearch, value);
+            }
+        }
+
+
+        private string _Search;
+        public string Search
+        {
+            get
+            {
+                return _Search;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Search, value);
+                ValidSearch = !string.IsNullOrWhiteSpace(value) && value.Length >= 2;
+                SearchFinished = false;
+            }
+        }
+
+        private bool _SearchFinished;
+        public bool SearchFinished
+        {
+            get 
+            {
+                return _SearchFinished;
+            }
+            set
+            {
+                 this.RaiseAndSetIfChanged(ref _SearchFinished, value);
             }
         }
 
@@ -64,6 +110,7 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
 
+            SearchFinished = false;
             Transporter = transporter;
             _List = new ReactiveList<RemoteUser>();
             SearchCommand = new ReactiveCommand();
@@ -75,8 +122,6 @@ namespace Growthstories.UI.ViewModel
                 .Throttle(TimeSpan.FromMilliseconds(400))
                 .DistinctUntilChanged();
 
-
-
             var results = input
                 .Select(s =>
                 {
@@ -87,16 +132,15 @@ namespace Growthstories.UI.ViewModel
                 .Publish()
                 .RefCount();
 
-
             input.Subscribe(_ => ProgressIndicatorIsVisible = true);
 
             results.Subscribe(x =>
             {
                 ProgressIndicatorIsVisible = false;
+                SearchFinished = true;
                 _List.Clear();
                 if (x.Users != null && x.Users.Count > 0)
                 {
-
                     _List.AddRange(x.Users);
                 }
             });
@@ -107,7 +151,6 @@ namespace Growthstories.UI.ViewModel
             //UserSelectedCommand.Re
 
             UserSelectedCommand.Subscribe(_ => ProgressIndicatorIsVisible = true);
-
             UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
                 {
@@ -121,12 +164,12 @@ namespace Growthstories.UI.ViewModel
                     {
                         foreach (var p in x.Garden.Plants)
                             cmds.Add(new CreateSyncStream(p.AggregateId, Core.PullStreamType.PLANT, x.AggregateId));
-
                     }
 
                     await App.HandleCommand(cmds);
                     ProgressIndicatorIsVisible = false;
                     App.Router.NavigateBack.Execute(null);
+                  
 
                 }).Publish().Connect();
 
@@ -140,11 +183,7 @@ namespace Growthstories.UI.ViewModel
                 });
             */
 
-
         }
-
-
-
 
         public override string UrlPathSegment
         {
@@ -161,16 +200,12 @@ namespace Growthstories.UI.ViewModel
             get { return false; }
         }
 
-
         public bool SystemTrayIsVisible
         {
-            get { return true; }
+            get { return false; }
         }
+
     }
-
-
-
-
 
 
 }
