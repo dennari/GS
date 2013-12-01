@@ -57,6 +57,7 @@ namespace Growthstories.UI.WindowsPhone
 
         IDisposable PinCommandSubscription = Disposable.Empty;
         IDisposable ShareCommandSubscription = Disposable.Empty;
+
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
 
@@ -82,6 +83,7 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+
         private void Share(IPlantViewModel vm)
         {
             ShareLinkTask shareLinkTask = new ShareLinkTask();
@@ -98,7 +100,6 @@ namespace Growthstories.UI.WindowsPhone
             if (Tile != null)
                 Tile.Delete();
             ViewModel.HasTile = false;
-
         }
 
 
@@ -110,10 +111,10 @@ namespace Growthstories.UI.WindowsPhone
                 BackTitle = ViewModel.Name,
                 BackContent = "GROWTH STORIES",
                 //WideBackContent = "GROWTH STORIES",
-                Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
-                //BackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute),
-                //BackBackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute)
-
+                //Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
+                BackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
+                BackBackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
+                
                 //SmallBackgroundImage = [small Tile size URI],
                 //BackgroundImage = [front of medium Tile size URI],
                 //BackBackgroundImage = [back of medium Tile size URI],
@@ -122,7 +123,7 @@ namespace Growthstories.UI.WindowsPhone
             };
 
             if (Tile == null)
-                ShellTile.Create(new Uri(ViewModel.UrlPath, UriKind.Relative), TileData, true);
+                ShellTile.Create(new Uri(ViewModel.UrlPath, UriKind.Relative), TileData, false);
             else
                 Tile.Update(TileData);
             ViewModel.HasTile = true;
