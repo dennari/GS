@@ -148,6 +148,10 @@ namespace Growthstories.Sync
         {
             return _App ?? (_App = (GSApp)Repository.GetById(GSAppState.GSAppId));
         }
+        public void ResetApp()
+        {
+            this._App = null;
+        }
 
         //public 
 
@@ -289,7 +293,11 @@ namespace Growthstories.Sync
             remoteStreams
                 .SelectMany(x => x)
                 .Where(x => GSApp.CanHandle(x, true))
-                .Aggregate(A, (X, m) => { X.Handle(m); return X; });
+                .Aggregate(A, (X, m) =>
+                {
+                    X.Handle(m);
+                    return X;
+                });
 
             A.Handle(c);
 

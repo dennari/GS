@@ -209,7 +209,8 @@
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
                         </Button>
-                    </StackPanel>
+                        
+                        </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </phone:PanoramaItem>

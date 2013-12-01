@@ -15,6 +15,7 @@ namespace Growthstories.Sync
 
         Uri ShareUri(Guid userId, Guid plantId);
         Uri UserListUri(string username);
+        Uri UserInfoUri(string email);
         Uri PhotoDownloadUri(string blobKey);
 
         Uri PhotoUploadUri { get; }
@@ -72,6 +73,10 @@ namespace Growthstories.Sync
             return new Uri(BaseUri, string.Format("/api/user/list?prefix={0}", username));
         }
 
+        public Uri UserInfoUri(string email)
+        {
+            return new Uri(BaseUri, string.Format("/api/user/email/{0}", email));
+        }
 
         public Uri PhotoUploadUri
         {

@@ -19,6 +19,7 @@ namespace Growthstories.Domain
         IGSAggregate Handle(IMessage c);
         IGSAggregate Handle(IStreamSegment msgs);
         int AttachAggregates(ISyncPullResponse pullResp);
+        void ResetApp();
         GSApp Handle(Pull c);
         GSApp Handle(Push c);
 

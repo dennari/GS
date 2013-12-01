@@ -168,5 +168,11 @@ namespace Growthstories.Sync
                 Photo = request.Photo
             });
         }
+
+
+        public Task<RemoteUser> UserInfoAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

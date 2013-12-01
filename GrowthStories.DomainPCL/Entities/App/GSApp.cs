@@ -18,7 +18,8 @@ namespace Growthstories.Domain.Entities
        ICommandHandler<SetUsername>,
        ICommandHandler<SetEmail>,
        ICommandHandler<SetPassword>,
-       ICommandHandler<CreatePlant>,
+       ICommandHandler<AddPlant>,
+       ICommandHandler<AddGarden>,
        ICommandHandler<AssignAppUser>,
        ICommandHandler<LogOutAppUser>,
        ICommandHandler<SetAuthToken>,
@@ -34,10 +35,36 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new GSAppCreated(command));
         }
-        public void Handle(CreatePlant command)
+        public void Handle(AddPlant command)
         {
+            //&& this.State.User.Id == cmd.AggregateId
             RaiseEvent(new SyncStreamCreated(command));
         }
+        public void Handle(AddGarden command)
+        {
+            if (this.State != null && this.State.User != null && this.State.User.Id == command.AggregateId && this.State.User.GardenId == default(Guid))
+            {
+                var copy = new AddGarden(this.Id, command.GardenId);
+                RaiseEvent(new GardenAdded(copy));
+
+            }
+        }
+
+        public void Handle(PlantAdded e)
+        {
+            if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId)
+                RaiseEvent(new SyncStreamCreated(e.PlantId, PullStreamType.PLANT, this.State.User.Id));
+        }
+
+        public void Handle(GardenAdded e)
+        {
+            if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId && this.State.User.GardenId == default(Guid))
+            {
+                var copy = new AddGarden(this.Id, e.GardenId);
+                RaiseEvent(new GardenAdded(copy));
+            }
+        }
+
         public void Handle(CreateUser command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -124,10 +151,11 @@ namespace Growthstories.Domain.Entities
 
         public static bool CanHandle(IMessage cmd, bool isRemote = false)
         {
+
+
             if (!isRemote)
             {
-                if (cmd is CreatePlant)
-                    return true;
+
                 if (cmd is CreateUser)
                     return true;
                 if (cmd is SetUsername)
@@ -137,6 +165,18 @@ namespace Growthstories.Domain.Entities
                 if (cmd is SetPassword)
                     return true;
                 if (cmd is BecomeFollower)
+                    return true;
+                if (cmd is AddPlant)
+                    return true;
+                if (cmd is AddGarden)
+                    return true;
+            }
+            else
+            {
+
+                if (cmd is PlantAdded)
+                    return true;
+                if (cmd is GardenAdded)
                     return true;
             }
             //else

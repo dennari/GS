@@ -22,7 +22,23 @@
         <DataTemplate x:Key="C4fTile">
 
             <StackPanel>
-                   
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu>
+                        <toolkit:MenuItem Header="Water" 
+                                          Command="{Binding WateringCommand}"
+                                          CommandParameter="{Binding}"
+                                          IsEnabled="{Binding HasWriteAccess}"/>
+                        <toolkit:MenuItem Header="Edit" 
+                                          Command="{Binding EditCommand}"
+                                          CommandParameter="{Binding}"
+                                          IsEnabled="{Binding HasWriteAccess}"/>
+                        <toolkit:MenuItem Header="Delete" 
+                                          Command="{Binding DeleteCommand}"
+                                          CommandParameter="{Binding}"
+                                          IsEnabled="{Binding HasWriteAccess}"/>
+
+                    </toolkit:ContextMenu>
+                </toolkit:ContextMenuService.ContextMenu>
                 <c4f:Tile 
                         HorizontalAlignment="Left"
                         Margin="0, 0"
@@ -94,20 +110,7 @@
                         </Border>
                     </Grid>
                 
-                <toolkit:ContextMenuService.ContextMenu>
-                    <toolkit:ContextMenu>
-                        <toolkit:MenuItem Header="Water" 
-                                              Command="{Binding MultiWateringCommand}"
-                                              CommandParameter="{Binding}"/>
-                        <toolkit:MenuItem Header="Edit" 
-                                              Command="{Binding EditCommand}"
-                                              CommandParameter="{Binding}"/>
-                        <toolkit:MenuItem Header="Delete" 
-                                              Command="{Binding MultiDeleteCommand}"
-                                              CommandParameter="{Binding}"/>
 
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
             </c4f:Tile>
 
                 

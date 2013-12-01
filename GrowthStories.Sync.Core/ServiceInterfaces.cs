@@ -29,6 +29,7 @@ namespace Growthstories.Sync
 
         IAuthResponse CreateAuthResponse(Tuple<HttpResponseMessage, string> resp);
         IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp);
+        RemoteUser CreateUserInfoResponse(Tuple<HttpResponseMessage, string> resp);
         //IPhotoUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp);
     }
 

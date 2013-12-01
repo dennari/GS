@@ -11,7 +11,8 @@ namespace Growthstories.Sync
 
         Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands();
 
-        Task AuthorizeUser();
+        Task<IAuthResponse> AuthorizeUser();
+        Task<IAuthResponse> AuthorizeUser(string email, string password);
 
         void SetupCurrentUser(IAuthUser user);
     }
@@ -43,6 +44,17 @@ namespace Growthstories.Sync
 
 
         public Tuple<IAuthUser, IAggregateCommand[]> GetNewUserCommands()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        Task<IAuthResponse> IUserService.AuthorizeUser()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IAuthResponse> AuthorizeUser(string email, string password)
         {
             throw new NotImplementedException();
         }

@@ -94,5 +94,16 @@ namespace Growthstories.Sync
         {
             throw new NotImplementedException();
         }
+
+
+        Task<IAuthResponse> IUserService.AuthorizeUser()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IAuthResponse> AuthorizeUser(string email, string password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -70,8 +70,47 @@ namespace Growthstories.UI.ViewModel
 
 
         public Guid PlantActionId { get; protected set; }
-        public Guid PlantId { get; set; }
-        public Guid UserId { get; set; }
+
+
+        private Guid? _PlantId;
+        public Guid? PlantId
+        {
+            get
+            {
+                return _PlantId;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PlantId, value);
+            }
+        }
+
+        private Guid? _UserId;
+        public Guid? UserId
+        {
+            get
+            {
+                return _UserId;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UserId, value);
+            }
+        }
+
+
+        private bool _IsEditEnabled;
+        public bool IsEditEnabled
+        {
+            get
+            {
+                return _IsEditEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsEditEnabled, value);
+            }
+        }
 
 
         public DateTimeOffset Created { get; protected set; }
@@ -120,7 +159,12 @@ namespace Growthstories.UI.ViewModel
 
             TimelineLinesSetup();
 
-            this.EditCommand = new ReactiveCommand();
+            this.WhenAnyValue(x => x.UserId).Subscribe(x =>
+            {
+                this.IsEditEnabled = x.HasValue && x.Value == App.User.Id ? true : false;
+            });
+
+            this.EditCommand = new ReactiveCommand(this.WhenAnyValue(x => x.IsEditEnabled));
             this.EditCommand.Subscribe(_ => this.Navigate(this));
 
 
@@ -155,8 +199,8 @@ namespace Growthstories.UI.ViewModel
             {
                 return App.HandleCommand(new CreatePlantAction(
                                  Guid.NewGuid(),
-                                 this.UserId,
-                                 this.PlantId,
+                                 this.UserId.Value,
+                                 this.PlantId.Value,
                                  this.ActionType,
                                  this.Note
                              )

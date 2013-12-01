@@ -14,6 +14,14 @@
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu>
+                        <toolkit:MenuItem Header="Edit" 
+                            Command="{Binding EditCommand}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding IsEditEnabled}"/>
+                    </toolkit:ContextMenu>
+                </toolkit:ContextMenuService.ContextMenu>
                 <ContentPresenter 
 						DataContext="{TemplateBinding DataContext}"
                         Content="{TemplateBinding Content}" 
@@ -33,14 +41,6 @@
                         <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
                     </StackPanel>
                 </StackPanel>
-                <toolkit:ContextMenuService.ContextMenu>
-                    <toolkit:ContextMenu>
-                        <toolkit:MenuItem Header="Edit" 
-                                              Command="{Binding EditCommand}"
-                                              CommandParameter="{Binding}"/>
-
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
             </StackPanel>
         </ControlTemplate>
     </local:PlantViewBase.Resources>

@@ -139,19 +139,9 @@ namespace Growthstories.UI.ViewModel
             {
 
                 app.WhenAnyValue(x => x.User)
-                    .StartWith(app.User)
-                    .Subscribe(x =>
-                    {
-                        if (x == null)
-                        {
-                            if (this.User != null)
-                                this.UnInit();
-                        }
-                        else
-                        {
-                            this.Init(x);
-                        }
-                    });
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(x => this.Init(x));
             }
 
 
@@ -287,22 +277,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        private void UnInit()
-        {
-            this.User = null;
-            this.Username = null;
-            this.Id = default(Guid);
-            if (_Plants != null)
-            {
-                _Plants.Clear();
-            }
 
-            //this.State = state.Garden;
-            this.TileModeAppBarButtons.Clear();
-            this.TileModeAppBarButtons.Add(this.AddPlantButton);
-            this.AppBarButtons = this.TileModeAppBarButtons;
-            this.PlantTitle = null;
-        }
 
 
         private ButtonViewModel _AddPlantButton;

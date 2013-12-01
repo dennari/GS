@@ -33,6 +33,58 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
     }
 
+    public class GardenViewModelDesign : GardenViewModel
+    {
+        public GardenViewModelDesign()
+            : base(null, new MockAppViewModel(true))
+        {
+            this.Plants = new ReactiveList<IPlantViewModel>()
+            {
+                new PlantViewModelDesign("Jare","Aloe Vera"),
+                new PlantViewModelDesign("Kari","Phaleonopsis"),
+
+            };
+        }
+
+        public new IReactiveList<IPlantViewModel> Plants { get; private set; }
+
+    }
+
+    public class PlantViewModelDesign : PlantViewModel
+    {
+        public PlantViewModelDesign()
+            : base(null, new MockAppViewModel(true))
+        {
+
+        }
+
+        public PlantViewModelDesign(string name, string species)
+            : this()
+        {
+            this.Name = name;
+            this.Species = species;
+        }
+
+        public new IReactiveList<IPlantViewModel> Plants { get; private set; }
+
+    }
+
+    public class PlantActionViewModelDesign : PlantActionViewModel
+    {
+        public PlantActionViewModelDesign(PlantActionType type)
+            : base(type, new MockAppViewModel(true))
+        {
+
+        }
+
+        public PlantActionViewModelDesign()
+            : this(PlantActionType.WATERED)
+        {
+
+        }
+    }
+
+
     public sealed class MockAppViewModel : Growthstories.UI.ViewModel.AppViewModel, IApplicationRootState
     {
 
@@ -57,7 +109,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             : base()
         {
 
-            this.Kernel = new StandardKernel(new BootstrapDesign());
+            //this.Kernel = new StandardKernel(new BootstrapDesign());
 
             var userId = Guid.NewGuid();
             var gardenId = Guid.NewGuid();

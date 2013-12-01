@@ -30,7 +30,7 @@
                 <GradientStop Color="#FFE87D48"/>-->
             </RadialGradientBrush>
         </local:GSViewGrid.Background>
-
+ 
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -50,12 +50,12 @@
                    Foreground="White"
                    FontSize="24"
                    Width="430"
-                   Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+                   Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
                 />
 
                 <!--<TextBox Text="{Binding Message}" 
                          Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>-->
-                <local:GSLabel Label="Username" Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+                <local:GSLabel Label="Username" Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
                     <local:GSTextBox Text="{Binding Username, Mode=TwoWay}"
                                      Margin="-12,0"
                                      c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
@@ -72,13 +72,29 @@
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
                 </local:GSLabel>
-                <local:GSLabel Label="Password confirmation" Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+                <local:GSLabel Label="Password confirmation" Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
                     <PasswordBox
                         Style="{StaticResource GSPasswordStyle}"
                         Password="{Binding PasswordConfirmation, Mode=TwoWay}" 
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
                 </local:GSLabel>
+                <Button 
+                    Style="{StaticResource GSButtonStyle}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding SwitchModeCommand}"
+                    Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}}"
+                    Margin="0,12"
+                    >
+                    <TextBlock 
+                       Style="{StaticResource GSTextBlockStyle}"
+                       Text="New user? Register!" HorizontalAlignment="Left"
+                       VerticalAlignment="Top" Margin="0"
+                       Foreground="White"
+                       FontSize="24" TextDecorations="Underline"
+                      />
+                </Button>
             </StackPanel>
             <Button 
                 x:Name="LeftButton"  
