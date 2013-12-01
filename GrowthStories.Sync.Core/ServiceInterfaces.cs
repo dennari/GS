@@ -13,7 +13,7 @@ namespace Growthstories.Sync
         ISyncPushRequest CreatePushRequest(SyncHead syncHead);
         ISyncPushRequest CreateUserSyncRequest(Guid userId);
         ISyncPullRequest CreatePullRequest(ICollection<PullStream> streams);
-        IPhotoUploadRequest CreatePhotoUploadRequest(Photo x);
+        IPhotoUploadRequest CreatePhotoUploadRequest(Tuple<Photo, Guid> x);
         IPhotoDownloadRequest CreatePhotoDownloadRequest(Photo x);
     }
 

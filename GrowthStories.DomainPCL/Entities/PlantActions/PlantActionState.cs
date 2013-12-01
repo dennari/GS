@@ -112,6 +112,22 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public void Apply(BlobKeySet @event)
+        {
+            if (this.Type != PlantActionType.PHOTOGRAPHED)
+                throw DomainError.Named("invalid_type", "Can't set BlobKey for an action that isn't a photograph.");
+            if (this.Photo == null)
+                throw DomainError.Named("photo_not_set", "Can't set BlobKey without a photo.");
+
+            this.Photo.BlobKey = @event.BlobKey;
+            if (@event.Pmd != null)
+            {
+                this.Photo.RemoteUri = @event.Pmd.RemoteUri;
+                this.Photo.Width = @event.Pmd.Width;
+                this.Photo.Height = @event.Pmd.Height;
+
+            }
+        }
 
 
     }

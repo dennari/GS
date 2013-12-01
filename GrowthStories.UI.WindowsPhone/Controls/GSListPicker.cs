@@ -163,6 +163,8 @@ namespace Growthstories.UI.WindowsPhone
         }
     }
 
+
+
     public class GSChatTextBox : ChatBubbleTextBox
     {
         public GSChatTextBox()
@@ -225,6 +227,9 @@ namespace Growthstories.UI.WindowsPhone
             SelectedItem = base.SelectedItem;
         }
 
+        public string ResetAfterSelection { get; set; }
+
+
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(
                 "SelectedItem",
@@ -247,7 +252,15 @@ namespace Growthstories.UI.WindowsPhone
         public new object SelectedItem
         {
             get { return GetValue(SelectedItemProperty); }
-            set { SetValue(SelectedItemProperty, value); }
+            set
+            {
+
+                SetValue(SelectedItemProperty, value);
+                if (ResetAfterSelection != null)
+                {
+                    SetValue(SelectedItemProperty, null);
+                }
+            }
         }
     }
 

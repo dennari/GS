@@ -120,6 +120,9 @@ namespace Growthstories.Sync
     {
 
         public Photo Photo { get; set; }
+        public string BlobKey { get; set; }
+        public Guid PlantActionId { get; set; }
+
 
     }
 
@@ -130,17 +133,19 @@ namespace Growthstories.Sync
         private readonly IPhotoHandler FileOpener;
 
 
-        public PhotoUploadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
+        public PhotoUploadRequest(Photo photo, Guid plantActionId, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
         {
             // TODO: Complete member initialization
 
             this.jFactory = jFactory;
             this.Photo = photo;
+            this.PlantActionId = plantActionId;
             this.FileOpener = fileOpener;
             this.Transporter = transporter;
         }
 
         public Photo Photo { get; private set; }
+        public Guid PlantActionId { get; private set; }
 
         public bool IsEmpty
         {

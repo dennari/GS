@@ -218,37 +218,37 @@ namespace Growthstories.DomainTests
 
 
 
-        [Test]
-        public async void RealTestReadModel()
-        {
+        //[Test]
+        //public async void RealTestReadModel()
+        //{
 
-            await TestSyncReadModel();
+        //    await TestSyncReadModel();
 
-        }
+        //}
 
-        public async Task TestSyncReadModel()
-        {
+        //public  Task TestSyncReadModel()
+        //{
 
-            var originalRemoteEvents = TestAddUserViewModel();
+        //    var originalRemoteEvents = TestAddUserViewModel();
 
-            var remoteUser = (UserCreated)originalRemoteEvents[0];
+        //    var remoteUser = (UserCreated)originalRemoteEvents[0];
 
-            var remotePlant = (PlantCreated)originalRemoteEvents[3];
+        //    var remotePlant = (PlantCreated)originalRemoteEvents[3];
 
-            var remoteComment = (PlantActionCreated)originalRemoteEvents[5];
+        //    var remoteComment = (PlantActionCreated)originalRemoteEvents[5];
 
-            this.App = new TestAppViewModel(Kernel);
-            this.Ctx = App.Context.CurrentUser;
-            Assert.IsNotNull(Ctx);
-            Assert.IsNotNullOrEmpty(Ctx.Username);
+        //    this.App = new TestAppViewModel(Kernel);
+        //    this.Ctx = App.Context.CurrentUser;
+        //    Assert.IsNotNull(Ctx);
+        //    Assert.IsNotNullOrEmpty(Ctx.Username);
 
-            var fvm = (FriendsViewModel)App.Resolver.GetService(typeof(FriendsViewModel));
+        //    var fvm = (FriendsViewModel)App.Resolver.GetService(typeof(FriendsViewModel));
 
-            Assert.AreEqual(1, fvm.Friends.Count);
-            var friend = fvm.Friends[0];
-            Assert.AreEqual(remoteUser.AggregateId, friend.User.Id);
-            Assert.AreEqual(remoteUser.Username, friend.User.Username);
-        }
+        //    Assert.AreEqual(1, fvm.Friends.Count);
+        //    var friend = fvm.Friends[0];
+        //    Assert.AreEqual(remoteUser.AggregateId, friend.User.Id);
+        //    Assert.AreEqual(remoteUser.Username, friend.User.Username);
+        //}
 
 
         [Test]
@@ -292,6 +292,61 @@ namespace Growthstories.DomainTests
 
 
 
+        [Test]
+        public void TestPhotoUpload()
+        {
+            Setup();
+            // ARRANGE
+            var u = App.User;
+            Assert.IsNotNull(u);
+            var plantId = Guid.NewGuid();
+            var plantActionId = Guid.NewGuid();
+
+            var photo = new Photo()
+            {
+                LocalFullPath = @"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg",
+                LocalUri = "plant_bg.jpg",
+                FileName = "plant_bg.jpg",
+                Width = 500,
+                Height = 500,
+                Size = 500 * 500 * 3
+            };
+
+            //TestPushIncludesPublicEvents();
+
+
+            TestUtils.WaitForTask(App.HandleCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(new CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "Just a photo")
+            {
+                Photo = photo
+            }
+            ));
+            TestUtils.WaitForTask(App.HandleCommand(new SchedulePhotoUpload(photo)));
+
+
+            //Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
+
+            Assert.IsNull(photo.BlobKey);
+            var R = TestUtils.WaitForTask(App.Synchronize());
+            //var R = Rs[0];
+
+            Assert.IsNotNull(R.PhotoUploadRequests);
+            Assert.IsNotNull(photo.BlobKey);
+
+
+            //Assert.AreEqual(0, AppState.PhotoUploads.Count);
+
+
+        }
+
+        [Test]
+        public void TestPhotoDownload()
+        {
+            Setup();
+            var originalRemoteEvents = TestUtils.WaitForTask(CreateRemoteData());
+
+        }
+
 
         [Test]
         public async void RealTestSyncPlantStream()
@@ -308,11 +363,14 @@ namespace Growthstories.DomainTests
 
             var originalRemoteEvents = await CreateRemoteData();
 
-            var remoteUser = (UserCreated)originalRemoteEvents[0];
+            var remoteUser = (UserCreated)originalRemoteEvents.OfType<UserCreated>().First();
 
-            var remotePlant = (PlantCreated)originalRemoteEvents[1];
+            var remotePlant = (PlantCreated)originalRemoteEvents.OfType<PlantCreated>().First();
 
-            var remoteComment = (PlantActionCreated)originalRemoteEvents[3];
+            var remoteComment = (PlantActionCreated)originalRemoteEvents.OfType<PlantActionCreated>().Where(x => x.Type == PlantActionType.COMMENTED).First();
+
+            var remotePhoto = (PlantActionCreated)originalRemoteEvents.OfType<PlantActionCreated>().Where(x => x.Type == PlantActionType.PHOTOGRAPHED).First();
+
 
 
             await App.HandleCommand(new CreateSyncStream(remotePlant.AggregateId, PullStreamType.PLANT, remoteUser.AggregateId));
@@ -329,6 +387,13 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(1, remoteCommentAggregate.Version);
             Assert.AreEqual(remoteComment.Note, remoteCommentAggregate.State.Note);
+
+            var remotePhotoAggregate = (PlantAction)Repository.GetById(remotePhoto.AggregateId);
+
+            Assert.AreEqual(2, remotePhotoAggregate.Version);
+            Assert.IsNotNull(remotePhotoAggregate.State.Photo.BlobKey);
+            Assert.IsNotNull(remotePhotoAggregate.State.Photo.RemoteUri);
+
 
 
             var R3 = await App.Synchronize();
@@ -449,12 +514,51 @@ namespace Growthstories.DomainTests
                 MessageId = Guid.NewGuid()
             };
 
+            var photo = new Photo()
+            {
+                LocalFullPath = @"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg",
+                LocalUri = "plant_bg.jpg",
+                FileName = "plant_bg.jpg",
+                Width = 500,
+                Height = 500,
+                Size = 500 * 500 * 3
+            };
 
+
+            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Email, remoteUser.Password);
+
+
+            var remotePhoto = new PlantActionCreated(
+             App.SetIds(
+            new CreatePlantAction(
+                Guid.NewGuid(),
+                remoteUser.AggregateId,
+                remotePlant.AggregateId,
+                PlantActionType.PHOTOGRAPHED,
+                "Hello remote world") { Photo = photo },
+            null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 1,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid()
+            };
+
+            var uploadRequest = new PhotoUploadRequest(photo, Get<IJsonFactory>(), Transporter, Get<IPhotoHandler>());
+            var uploadResponse = await uploadRequest.GetResponse();
+
+            var remoteSetBlobKey = new BlobKeySet(App.SetIds(new SetBlobKey(remotePhoto.AggregateId, uploadResponse.BlobKey), null, remoteUser.AggregateId))
+            {
+                AggregateVersion = 2,
+                Created = DateTimeOffset.UtcNow,
+                MessageId = Guid.NewGuid(),
+            };
 
             var remoteEvents = new List<IEvent>() { 
                 remotePlant,
                 remotePlantProperty,
                 remoteComment,
+                remotePhoto,
+                remoteSetBlobKey,
                 remoteGarden, 
                 remoteAddGarden,                
                 remoteAddPlant
@@ -464,7 +568,6 @@ namespace Growthstories.DomainTests
 
 
 
-            var authResponse = await Transporter.RequestAuthAsync(remoteUser.Email, remoteUser.Password);
 
             Assert.AreEqual(authResponse.StatusCode, GSStatusCode.OK);
             this.RemoteAuth = authResponse.AuthToken;

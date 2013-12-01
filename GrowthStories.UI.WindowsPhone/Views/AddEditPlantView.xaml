@@ -92,7 +92,27 @@
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                 </Grid>
         </DataTemplate>
-      
+        <DataTemplate x:Key="IsSharedTemplate">
+            <Grid Margin="0,0,0,10" Width="340">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock 
+                        Text="Off" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsShared, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                <TextBlock 
+                        Text="On" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsShared, Converter={StaticResource BooleanToVisibility}}"/>
+                <TextBlock 
+                        Text="An explanation" 
+                        Grid.Column="1" 
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding IsShared, Converter={StaticResource BooleanToVisibility}}"/>
+            </Grid>
+        </DataTemplate>
 
 
     </UserControl.Resources>
@@ -160,8 +180,17 @@
                             Margin="-12,0,-12,-12"
                             />
                 </local:GSLabel>
+                <local:GSLabel Label="shared">
+                    <local:GSToggleSwitch 
+                                IsChecked="{Binding IsShared, Mode=TwoWay}"
+                                Content="{Binding}"
+                                ContentTemplate="{StaticResource IsSharedTemplate}"
+                                VerticalContentAlignment="Center"
+                                Margin="-12,0,-12,-12"
+                                />
+                </local:GSLabel>
 
-                <!-- PROFILE PICTURE -->
+            <!-- PROFILE PICTURE -->
                  <local:GSLabel Label="profile photo">
 
                     <c4f:Tile

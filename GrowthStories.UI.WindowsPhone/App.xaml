@@ -17,7 +17,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <!--includes the ViewModelLocator, i.e. bootstrapping-->
                 <ResourceDictionary Source="Resources/Styles.xaml" />
-                <ResourceDictionary Source="Resources/Templates.xaml" />
+                <ResourceDictionary Source="Resources/DesignData.xaml"/>
                 <ResourceDictionary Source="Resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

@@ -97,6 +97,23 @@ namespace Growthstories.Domain.Messaging
         }
     }
 
+    public class SetBlobKey : PlantActionCommand
+    {
+        //public PlantActionType Type { get; private set; }
+
+        public string BlobKey { get; set; }
+
+
+
+        //protected SetPlantActionProperty() { }
+        public SetBlobKey(Guid id, string blobKey)
+            : base(id)
+        {
+            this.BlobKey = blobKey;
+
+        }
+    }
+
     #endregion
 
 

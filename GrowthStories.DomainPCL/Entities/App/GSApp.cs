@@ -27,8 +27,8 @@ namespace Growthstories.Domain.Entities
        ICommandHandler<SetSyncStamp>,
        ICommandHandler<Pull>,
        ICommandHandler<Push>,
-        ICommandHandler<SchedulePhotoUpload>,
-        ICommandHandler<CompletePhotoUpload>
+       ICommandHandler<SchedulePhotoUpload>,
+       ICommandHandler<CompletePhotoUpload>
     {
         public void Handle(CreateGSApp command)
         {
@@ -111,16 +111,16 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PhotoUploadCompleted(command));
         }
 
-        public void Handle(CompletePhotoDownload command)
-        {
-            RaiseEvent(new PhotoDownloadCompleted(command));
-        }
+        //public void Handle(CompletePhotoDownload command)
+        //{
+        //    RaiseEvent(new PhotoDownloadCompleted(command));
+        //}
 
-        public void Handle(PlantActionCreated e)
-        {
-            if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
-                RaiseEvent(new PhotoDownloadScheduled(e));
-        }
+        //public void Handle(PlantActionCreated e)
+        //{
+        //    if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
+        //        RaiseEvent(new PhotoDownloadScheduled(e));
+        //}
 
         public static bool CanHandle(IMessage cmd, bool isRemote = false)
         {
@@ -139,12 +139,12 @@ namespace Growthstories.Domain.Entities
                 if (cmd is BecomeFollower)
                     return true;
             }
-            else
-            {
-                var e = cmd as PlantActionCreated;
-                if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
-                    return true;
-            }
+            //else
+            //{
+            //    var e = cmd as PlantActionCreated;
+            //    if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
+            //        return true;
+            //}
             return false;
         }
 

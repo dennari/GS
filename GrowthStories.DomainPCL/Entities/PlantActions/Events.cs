@@ -293,6 +293,9 @@ namespace Growthstories.Domain.Messaging
 
             if (!ValidTypes.ContainsKey(D.EntityType))
                 throw new ArgumentException();
+            if (D.PropertyName == "blobKey")
+                throw new ArgumentException();
+
 
             this.Type = ValidTypes[D.EntityType];
 
@@ -319,6 +322,53 @@ namespace Growthstories.Domain.Messaging
             D.ParentId = null;
         }
     }
+
+    [DTOObject(DTOType.setProperty)]
+    public class BlobKeySet : EventBase
+    {
+        [JsonProperty]
+        public string BlobKey { get; private set; }
+
+        [JsonProperty]
+        public Photo Pmd { get; private set; }
+
+        protected BlobKeySet() { }
+
+        public BlobKeySet(SetBlobKey cmd)
+            : base(cmd)
+        {
+            this.BlobKey = cmd.BlobKey;
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+
+            if (D.PropertyName != "blobKey")
+                throw new ArgumentException();
+
+            this.BlobKey = D.PropertyValue;
+            if (D.Pmd != null && D.Pmd.RemoteUri != null)
+                this.Pmd = D.Pmd;
+
+            base.FromDTO(D);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.PropertyName = "blobKey";
+            D.PropertyValue = this.BlobKey;
+            D.EntityType = DTOType.photo;
+
+            base.FillDTO(D);
+
+            D.ParentId = null;
+        }
+    }
+
+
+
     #endregion
 
 

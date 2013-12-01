@@ -70,6 +70,11 @@ namespace Growthstories.Sync
 
         [JsonProperty(PropertyName = Language.PROPERTY_VALUE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public dynamic PropertyValue { get; set; }
+
+
+        [JsonProperty(PropertyName = "pmd", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public Photo Pmd { get; set; }
+
         #endregion
 
         [JsonProperty(PropertyName = Language.NOTE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]

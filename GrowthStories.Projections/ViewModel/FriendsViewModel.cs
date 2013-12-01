@@ -12,26 +12,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class FriendsViewModel : RoutableViewModel, IFriendsViewModel
+    public class FriendsViewModel : MultipageViewModel, IFriendsViewModel
     {
 
-        protected IGardenViewModel _SelectedItem;
-        public IGardenViewModel SelectedFriend { get { return _SelectedItem; } set { this.RaiseAndSetIfChanged(ref _SelectedItem, value); } }
+        private IGardenViewModel _SelectedFriend;
+        public IGardenViewModel SelectedFriend { get { return _SelectedFriend; } set { this.RaiseAndSetIfChanged(ref _SelectedFriend, value); } }
 
-        public object SelectedItem
-        {
-            get { return SelectedFriend; }
-            set
-            {
-
-                var v = value as IGardenViewModel;
-                if (v != null)
-                    SelectedFriend = v;
-            }
-        }
-
-
-        public IReactiveCommand FriendTapped { get; protected set; }
 
 
         private IDisposable loadSubscription = Disposable.Empty;
@@ -86,17 +72,17 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
 
-
-            //this.FriendTapped = new ReactiveCommand();
-            //this.FriendTapped.OfType<IGardenViewModel>().Subscribe(x =>
-            //{
-            //    this.SelectedItem = x;
-            //   ;
-            //});
-
-            this.WhenAny(x => x.SelectedFriend, x => x.GetValue())
+            this.WhenAny(x => x.SelectedPage, x => x.GetValue())
                 .Where(x => x != null)
-                .Subscribe(_ => App.Router.Navigate.Execute(this));
+                .OfType<IGardenViewModel>()
+                .Subscribe(x => this.SelectedFriend = x);
+
+            this.WhenAnyValue(x => x.SelectedFriend)
+                .Where(x => x != null && App.Router.GetCurrentViewModel() != this)
+                .Subscribe(_ =>
+                {
+                    App.Router.Navigate.Execute(this);
+                });
 
         }
         protected ReactiveList<IButtonViewModel> _AppBarButtons;

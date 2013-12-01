@@ -134,19 +134,21 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controls\GSListPicker.cs" />
-    <Compile Include="Controls\GSViewModelViewHost.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="ReactiveUIHelpers.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
+    <Compile Include="ViewModels\DeisgnViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
+    <Compile Include="Views\SignInRegisterView.xaml.cs">
+      <DependentUpon>SignInRegisterView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PlantActionAddEditView.xaml.cs">
       <DependentUpon>PlantActionAddEditView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SignInRegisterView.cs" />
     <Compile Include="Views\PlantActionListView.xaml.cs">
       <DependentUpon>PlantActionListView.xaml</DependentUpon>
     </Compile>
@@ -181,8 +183,8 @@
       <DependentUpon>AboutView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PlantActionView.cs" />
-    <Compile Include="Views\AddPlantView.xaml.cs">
-      <DependentUpon>AddPlantView.xaml</DependentUpon>
+    <Compile Include="Views\AddEditPlantView.xaml.cs">
+      <DependentUpon>AddEditPlantView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GardenView.xaml.cs">
       <DependentUpon>GardenView.xaml</DependentUpon>
@@ -210,7 +212,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <Page Include="Resources\Templates.xaml">
+    <Page Include="Resources\DesignData.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -226,7 +228,11 @@
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\AddPlantView.xaml">
+    <Page Include="Views\AddEditPlantView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SignInRegisterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

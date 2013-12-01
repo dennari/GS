@@ -52,6 +52,36 @@ namespace Growthstories.UI
 
         }
 
+        public static async Task<Tuple<AllSyncResult, GSStatusCode?>> PushAll(this IGSAppViewModel app, int maxRounds = 20)
+        {
+            int counter = 0;
+            ISyncInstance R = null;
+            GSStatusCode? nullResponseCode = null;
+            while (counter < maxRounds)
+            {
+                R = await app.Push();
+                counter++;
+                if (R == null) // there is nothing to do
+                {
+                    return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
+                }
+                else if (R.PushReq.IsEmpty)
+                {
+                    return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
+                }
+                else if (R.PushResp.StatusCode != GSStatusCode.OK)
+                {
+                    nullResponseCode = R.PushResp.StatusCode;
+                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
+
+                }
+            }
+
+            return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
+
+
+        }
+
 
 
     }

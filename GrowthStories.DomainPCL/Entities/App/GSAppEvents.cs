@@ -211,11 +211,14 @@ namespace Growthstories.Domain.Messaging
     {
         [JsonProperty]
         public Photo Photo { get; private set; }
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
 
         private PhotoUploadScheduled() { }
         public PhotoUploadScheduled(SchedulePhotoUpload cmd)
         {
             this.Photo = cmd.Photo;
+            this.PlantActionId = cmd.PlantActionId;
         }
 
 

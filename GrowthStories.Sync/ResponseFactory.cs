@@ -144,6 +144,9 @@ namespace Growthstories.Sync
             if (r.StatusCode == GSStatusCode.OK)
             {
                 r.Photo = req.Photo;
+                r.PlantActionId = req.PlantActionId;
+                r.Photo.BlobKey = resp.Item2;
+                r.BlobKey = resp.Item2;
             }
             return r;
 

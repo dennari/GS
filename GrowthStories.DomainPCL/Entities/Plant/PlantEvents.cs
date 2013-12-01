@@ -101,23 +101,28 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
     public class ProfilepictureSet : EventBase
     {
 
         [JsonProperty]
         public Photo Profilepicture { get; private set; }
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
 
         protected ProfilepictureSet() { }
-        public ProfilepictureSet(Guid entityId, Photo profilepicture)
+        public ProfilepictureSet(Guid entityId, Photo profilepicture, Guid plantActionId)
             : base(entityId)
         {
             this.Profilepicture = profilepicture;
+            this.PlantActionId = plantActionId;
         }
 
         public ProfilepictureSet(SetProfilepicture cmd)
             : base(cmd)
         {
             this.Profilepicture = cmd.Profilepicture;
+            this.PlantActionId = cmd.PlantActionId;
 
         }
 
@@ -126,13 +131,47 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"ProfilepicturePath changed to {0}", Profilepicture);
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            base.FillDTO(D);
+            D.PropertyName = "photo";
+
+            D.PropertyValue = new JObject();
+
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantActionId.ToString();
+
+            D.EntityType = DTOType.plant;
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.PropertyName != "photo")
+                throw new ArgumentException();
+            try
+            {
+                var val = (JObject)D.PropertyValue;
+                this.PlantActionId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+            }
+            catch
+            {
+
+            }
+            base.FromDTO(D);
+
+        }
+
     }
 
     [DTOObject(DTOType.setProperty)]
     public class MarkedPlantPublic : EventBase
     {
         protected MarkedPlantPublic() { }
-        public MarkedPlantPublic(Guid entityId) : base(entityId) { }
+        //public MarkedPlantPublic(Guid entityId) : base(entityId) { }
         public MarkedPlantPublic(MarkPlantPublic cmd) : base(cmd) { }
 
 
@@ -144,10 +183,12 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            base.FillDTO(D);
             D.PropertyName = Language.SHARED;
             D.PropertyValue = true;
             D.EntityType = DTOType.plant;
+
+            base.FillDTO(D);
+
 
         }
 
@@ -172,7 +213,7 @@ namespace Growthstories.Domain.Messaging
     public class MarkedPlantPrivate : EventBase
     {
         public MarkedPlantPrivate() { }
-        public MarkedPlantPrivate(Guid entityId) : base(entityId) { }
+        //public MarkedPlantPrivate(Guid entityId) : base(entityId) { }
         public MarkedPlantPrivate(MarkPlantPrivate cmd) : base(cmd) { }
 
 
@@ -184,10 +225,11 @@ namespace Growthstories.Domain.Messaging
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
-            base.FillDTO(D);
             D.PropertyName = Language.SHARED;
             D.PropertyValue = false;
             D.EntityType = DTOType.plant;
+            base.FillDTO(D);
+
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -348,6 +390,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    [DTOObject(DTOType.setProperty)]
     public class SpeciesSet : EventBase
     {
         [JsonProperty]
@@ -367,6 +410,27 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Species set to {1} for plant {0}.", AggregateId, Species);
         }
 
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.plant;
+            D.PropertyName = "species";
+            D.PropertyValue = this.Species;
+
+            base.FillDTO(D);
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.plant || (D.PropertyName != "species"))
+                throw new ArgumentException();
+
+            this.Species = D.PropertyValue;
+
+            base.FromDTO(D);
+        }
     }
 
 

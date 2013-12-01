@@ -12,6 +12,7 @@ using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using Microsoft.Phone.Tasks;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -55,6 +56,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         IDisposable PinCommandSubscription = Disposable.Empty;
+        IDisposable ShareCommandSubscription = Disposable.Empty;
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
 
@@ -71,7 +73,24 @@ namespace Growthstories.UI.WindowsPhone
                     DeleteTile();
             });
 
+            ShareCommandSubscription.Dispose();
+            ShareCommandSubscription = vm.ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                Share(vm);
+            });
 
+
+        }
+
+        private void Share(IPlantViewModel vm)
+        {
+            ShareLinkTask shareLinkTask = new ShareLinkTask();
+
+            shareLinkTask.Title = "Sharing " + vm.Name;
+            shareLinkTask.LinkUri = new Uri("http://code.msdn.com/wpapps", UriKind.Absolute);
+            shareLinkTask.Message = "Here are some great code samples for Windows Phone.";
+
+            shareLinkTask.Show();
         }
 
         private void DeleteTile()
@@ -94,7 +113,7 @@ namespace Growthstories.UI.WindowsPhone
                 Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
                 //BackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute),
                 //BackBackgroundImage = new Uri("/Assets/Tiles/SecondaryTile.png", UriKind.Absolute)
-                
+
                 //SmallBackgroundImage = [small Tile size URI],
                 //BackgroundImage = [front of medium Tile size URI],
                 //BackBackgroundImage = [back of medium Tile size URI],

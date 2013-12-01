@@ -74,12 +74,12 @@ namespace Growthstories.Domain.Entities
 
         public void Handle(MarkPlantPublic command)
         {
-            RaiseEvent(new MarkedPlantPublic(command.AggregateId));
+            RaiseEvent(new MarkedPlantPublic(command));
         }
 
         public void Handle(MarkPlantPrivate command)
         {
-            RaiseEvent(new MarkedPlantPrivate(command.AggregateId));
+            RaiseEvent(new MarkedPlantPrivate(command));
         }
 
         public void Handle(SetProfilepicture command)

@@ -80,7 +80,7 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoUploadUri);
+            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoUploadUri);
             var response = await SendAndGetBodyAsync(request);
             var r = new PhotoUriResponse()
             {
@@ -96,7 +96,7 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoDownloadUri(blobKey));
+            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoDownloadUri(blobKey));
             var response = await SendAndGetBodyAsync(request);
             var r = new PhotoUriResponse()
             {
@@ -312,7 +312,7 @@ namespace Growthstories.Sync
         {
 
 
-            if (request.Method == HttpMethod.Post && AuthToken != null)
+            if ((request.Method == HttpMethod.Post || request.Method == HttpMethod.Get) && AuthToken != null)
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.AccessToken);
             }

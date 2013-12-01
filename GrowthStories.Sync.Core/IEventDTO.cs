@@ -33,6 +33,8 @@ namespace Growthstories.Sync
     }
 
 
+
+
     #region Concrete message types
     public interface ISetPropertyDTO : IEventDTO
     {
@@ -40,6 +42,8 @@ namespace Growthstories.Sync
         string PropertyName { get; set; }
         dynamic PropertyValue { get; set; }
         Guid PropertyEntityId { get; set; }
+        Photo Pmd { get; set; }
+
     }
 
     public interface IDelPropertyDTO : IEventDTO

@@ -30,14 +30,17 @@ namespace Growthstories.Sync
     {
         Uri UploadUri { get; }
         Photo Photo { get; }
+        Guid PlantActionId { get; }
         Task<IPhotoUploadResponse> GetResponse();
         Stream Stream { get; }
     }
 
     public interface IPhotoUploadResponse : ISyncResponse
     {
-
+        string BlobKey { get; }
         Photo Photo { get; }
+        Guid PlantActionId { get; }
+
     }
 
     public interface IPhotoDownloadRequest : ISyncRequest

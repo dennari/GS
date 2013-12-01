@@ -236,8 +236,14 @@
             <Setter Property="SelectionBackground" Value="WhiteSmoke" />
             -->
         </Style>
+        <Style TargetType="PasswordBox" x:Key="GSPasswordStyle">
+            <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>           
 
-        <Style TargetType="local:GSChatTextBox">
+        </Style>
+
+    <Style TargetType="local:GSChatTextBox">
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}"/>
             <Setter Property="Padding" Value="8,8,8,8" />
@@ -431,145 +437,5 @@
         </Style>
 
 
-        <Style TargetType="local:SignInRegisterView">
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
-            <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
-            <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeNormal}"/>
-            <Setter Property="Foreground" Value="{StaticResource PhoneForegroundBrush}"/>
-            <Setter Property="Background" Value="{StaticResource PhoneChromeBrush}"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="local:SignInRegisterView">
-                        <Grid 
-                        Background="{TemplateBinding Background}"
-                        HorizontalAlignment="Stretch"                        
-                        >
-                            <Grid 
-                            Width="480"
-                            Height="800"
-                            HorizontalAlignment="Left">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel 
-                                Grid.ColumnSpan="2" 
-                                Margin="0,0,0,18">
-                                    <TextBlock 
-                                    x:Name="TitleTextBlock"
-                                    Text="{Binding Title}" 
-                                    Foreground="{TemplateBinding Foreground}"
-                                    Margin="24,16,24,24"
-                                    FontFamily="{StaticResource PhoneFontFamilySemiBold}"/>
-                                    <!--<TextBlock 
-                                    x:Name="CaptionTextBlock"
-                                    Text="{TemplateBinding Caption}"
-                                    Foreground="{TemplateBinding Foreground}"
-                                    Visibility="Collapsed"
-                                    Margin="24,8,24,0"
-                                    FontSize="{StaticResource PhoneFontSizeLarge}"                                    
-                                    FontFamily="{StaticResource PhoneFontFamilySemiBold}"
-                                    TextWrapping="Wrap"
-                                    HorizontalAlignment="Left"/>
-                                <TextBlock 
-                                    x:Name="MessageTextBlock"
-                                    Text="{TemplateBinding Message}"
-                                    Foreground="{TemplateBinding Foreground}"
-                                    Margin="24,11,24,0"
-                                    Visibility="Collapsed"
-                                    FontSize="{StaticResource PhoneFontSizeMedium}"
-                                    FontFamily="{StaticResource PhoneFontFamilySemiLight}"                                                                        
-                                    TextWrapping="Wrap"
-                                    HorizontalAlignment="Left"/>-->
-                                    <ContentPresenter Margin="24,0" DataContext="{Binding}"/>
-                                </StackPanel>
-                                <Button 
-                                x:Name="LeftButton"  
-                                Grid.Row="1" Grid.Column="0"
-                                Command="{Binding OKCommand}"
-                                IsEnabled="{Binding CanExecute}"
-                                Foreground="{TemplateBinding Foreground}"
-                                Margin="12,0,0,12"   
-                                c4f:TiltEffect.IsTiltEnabled="True">
-                                    <TextBlock Text="{Binding LeftButtonContent}"/>
-                                </Button>
-                                <!--<Button 
-                                x:Name="RightButton"
-                                Grid.Row="1" Grid.Column="1"
-                                Content="{TemplateBinding RightButtonContent}"
-                                IsEnabled="{TemplateBinding IsRightButtonEnabled}"
-                                Foreground="{TemplateBinding Foreground}"
-                                Margin="0,0,12,12"
-                                Visibility="Collapsed"                             
-                                c4f:TiltEffect.IsTiltEnabled="True"/>-->
-                            </Grid>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <DataTemplate x:Key="RegisterTemplate">
-            <StackPanel>
-                <TextBox Text="{Binding Message}" Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>
-                <local:GSLabel Label="Username">
-                    <local:GSTextBox Text="{Binding Username, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-                </local:GSLabel>
-                <local:GSLabel Label="Email">
-                    <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-                </local:GSLabel>
-                <local:GSLabel Label="Password">
-                    <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-                </local:GSLabel>
-                <local:GSLabel Label="Password confirmation">
-                    <local:GSTextBox Text="{Binding PasswordConfirmation, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-                </local:GSLabel>
-            </StackPanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="SignInTemplate">
-            <StackPanel>
-                <local:GSLabel Label="Email">
-                    <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-                </local:GSLabel>
-                <local:GSLabel Label="Password">
-                    <local:GSTextBox Text="{Binding Password, Mode=TwoWay}" c4fBinding:TextBinding.UpdateSourceOnChange="True"></local:GSTextBox>
-                </local:GSLabel>
-            </StackPanel>
-        </DataTemplate>
-
-
-
-    <Style TargetType="local:GSViewModelViewHost">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:GSViewModelViewHost">
-                    <Grid 
-                        x:Name="PART_Container"
-                        VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
-
-              
-
-                            <ContentPresenter
-                            x:Name="PART_CurrentContentPresentationSite"
-                            Content="{TemplateBinding Content}"
-                            ContentTemplate="{TemplateBinding ContentTemplate}"
-                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-
-             
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
 
 </ResourceDictionary>

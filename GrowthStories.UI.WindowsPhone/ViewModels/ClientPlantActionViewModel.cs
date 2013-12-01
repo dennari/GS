@@ -53,6 +53,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         private void SetPhotos(Photo p)
         {
+            if (p == null || p.Uri == null)
+                return;
             TimelinePhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
             {
                 CreateOptions = BitmapCreateOptions.DelayCreation,
@@ -60,6 +62,27 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 DecodePixelHeight = 220,
                 //DecodePixelWidth = 450
             };
+            //var fakeUri = new Uri("http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg", UriKind.RelativeOrAbsolute);
+            //var fakeUri = new Uri("http://dennari-macbook.lan:8080/_ah/img/uAtkbmrhY17K87WPNEyaZA?paska=moi.jpg", UriKind.RelativeOrAbsolute);
+
+            //TimelinePhotoSource = new BitmapImage(fakeUri)
+            //{
+            //    CreateOptions = BitmapCreateOptions.DelayCreation,
+            //    DecodePixelType = DecodePixelType.Physical,
+            //    DecodePixelHeight = 220,
+
+            //    //DecodePixelWidth = 450
+            //};
+            //TimelinePhotoSource.ImageOpened += TimelinePhotoSource_ImageOpened;
+            //TimelinePhotoSource.ImageFailed += TimelinePhotoSource_ImageFailed;
+
+            //PhotoSource = new BitmapImage(fakeUri)
+            //{
+            //    CreateOptions = BitmapCreateOptions.DelayCreation,
+            //    DecodePixelType = DecodePixelType.Physical,
+            //    DecodePixelHeight = (int)p.Height,
+            //    //DecodePixelWidth = (int)p.Width
+            //};
             PhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
             {
                 CreateOptions = BitmapCreateOptions.DelayCreation,
@@ -67,6 +90,17 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 DecodePixelHeight = (int)p.Height,
                 //DecodePixelWidth = (int)p.Width
             };
+        }
+
+        private void TimelinePhotoSource_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
+        {
+            var ee = e.ErrorException;
+        }
+
+        private void TimelinePhotoSource_ImageOpened(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var ee = e.OriginalSource;
+
         }
 
         public ClientPlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)

@@ -1,0 +1,85 @@
+﻿<local:SignInRegisterViewBase
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+    x:Class="Growthstories.UI.WindowsPhone.SignInRegisterView"
+    d:DataContext="{StaticResource SignInRegisterViewModelDesign}"
+    mc:Ignorable="d">
+    <local:SignInRegisterViewBase.Resources>
+
+
+    </local:SignInRegisterViewBase.Resources>
+
+
+
+    <local:GSViewGrid 
+        TopTitle="GROWTH STORIES"
+		Title="{Binding Title}" 
+		Style="{StaticResource NoScroll}">
+        <local:GSViewGrid.Background>
+            <RadialGradientBrush 
+                Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
+                <GradientStop Color="#FF9E2277" Offset="1"/>
+                <GradientStop Color="#FFE8570E"/>
+                <!--<GradientStop Color="#FFA2578B" Offset="1"/>
+                <GradientStop Color="#FFE87D48"/>-->
+            </RadialGradientBrush>
+        </local:GSViewGrid.Background>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.ColumnSpan="2">
+                <!--<TextBox Text="{Binding Message}" 
+                         Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>-->
+                <local:GSLabel Label="Username" Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+                    <local:GSTextBox Text="{Binding Username, Mode=TwoWay}"
+                                     Margin="-12,0"
+                                     c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Email">
+                    <local:GSTextBox Text="{Binding Email, Mode=TwoWay}" 
+                                     Margin="-12,0"
+                                     c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Password">
+                    <PasswordBox
+                        Style="{StaticResource GSPasswordStyle}"
+                        Password="{Binding Password, Mode=TwoWay}" 
+                        Margin="-12,0"
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+                <local:GSLabel Label="Password confirmation" Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+                    <PasswordBox
+                        Style="{StaticResource GSPasswordStyle}"
+                        Password="{Binding PasswordConfirmation, Mode=TwoWay}" 
+                        Margin="-12,0"
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                </local:GSLabel>
+            </StackPanel>
+            <Button 
+                x:Name="LeftButton"  
+                Grid.Row="1" Grid.Column="0"
+                Command="{Binding OKCommand}"
+                IsEnabled="{Binding CanExecute}"         
+                Margin="-12,0"
+                toolkit:TiltEffect.IsTiltEnabled="True">
+                <TextBlock Text="submit"/>
+            </Button>
+
+        </Grid>
+        
+
+    </local:GSViewGrid>
+</local:SignInRegisterViewBase>

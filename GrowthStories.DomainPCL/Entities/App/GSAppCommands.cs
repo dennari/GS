@@ -169,12 +169,14 @@ namespace Growthstories.Domain.Messaging
 
 
         public readonly Photo Photo;
+        public Guid PlantActionId { get; private set; }
 
 
-        public SchedulePhotoUpload(Photo photo)
+        public SchedulePhotoUpload(Photo photo, Guid plantActionId)
             : base(GSAppState.GSAppId)
         {
             this.Photo = photo;
+            this.PlantActionId = plantActionId;
         }
 
 
@@ -192,12 +194,15 @@ namespace Growthstories.Domain.Messaging
 
 
         public readonly Photo Photo;
+        public readonly Guid PlantActionId;
+        public readonly string BlobKey;
 
-
-        public CompletePhotoUpload(Photo photo)
+        public CompletePhotoUpload(IPhotoUploadResponse response)
             : base(GSAppState.GSAppId)
         {
-            this.Photo = photo;
+            this.Photo = response.Photo;
+            this.PlantActionId = response.PlantActionId;
+            this.BlobKey = response.BlobKey;
         }
 
 

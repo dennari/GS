@@ -71,10 +71,9 @@ namespace Growthstories.UI.ViewModel
 
             this.IsRegistered = app.User.IsRegistered();
 
-            this.Title = IsRegistered ? "New user" : "Sign in";
-            this.LeftButtonContent = "submit";
+            this.Title = !IsRegistered ? "new user" : "sign in";
 
-            //app.WhenAnyValue(x => x.User.)
+
 
 
         }
@@ -244,4 +243,7 @@ namespace Growthstories.UI.ViewModel
             get { return false; }
         }
     }
+
+
+
 }

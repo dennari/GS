@@ -87,8 +87,7 @@ namespace Growthstories.UI.Persistence
 
         public virtual void ReInitialize()
         {
-            if (Interlocked.Increment(ref this.initialized) > 1)
-                return;
+
 
             this.ExecuteCommand(Guid.Empty, (connection, statement) =>
                         statement.ExecuteWithoutExceptions("DROP TABLE IF EXISTS Plants;"));

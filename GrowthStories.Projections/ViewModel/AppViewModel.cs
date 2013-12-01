@@ -204,8 +204,8 @@ namespace Growthstories.UI.ViewModel
             this.Router.CurrentViewModel
                  .OfType<IControlsProgressIndicator>()
                  .Select(x => x.WhenAny(y => y.ProgressIndicatorIsVisible, y => y.GetValue()).StartWith(x.ProgressIndicatorIsVisible))
-                 .Switch()
-                 .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true);
+                 .Switch().ObserveOn(RxApp.MainThreadScheduler)
+                 .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true, RxApp.MainThreadScheduler);
 
 
 
@@ -284,6 +284,20 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _User, value);
             }
         }
+
+        private bool _IsRegistered;
+        public bool IsRegistered
+        {
+            get
+            {
+                return _IsRegistered;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsRegistered, value);
+            }
+        }
+
 
         private ObservableAsPropertyHelper<bool> _CanGoBack;
         public bool CanGoBack
@@ -482,6 +496,8 @@ namespace Growthstories.UI.ViewModel
 
                 this.Model = app;
                 this.User = user;
+                if (user.IsRegistered())
+                    this.IsRegistered = true;
                 return user;
                 //return app;
             });
@@ -545,9 +561,13 @@ namespace Growthstories.UI.ViewModel
                 new SetPassword(user.Id, password)
             ));
 
-            var R = await this.SyncAll();
+            var R = await this.PushAll();
             if (R.Item1 == AllSyncResult.AllSynced)
+            {
+                this.IsRegistered = true;
                 return RegisterRespone.success;
+
+            }
             else if (R.Item1 == AllSyncResult.SomeLeft)
                 return RegisterRespone.tryagain;
             else if (R.Item1 == AllSyncResult.Error)
@@ -601,7 +621,32 @@ namespace Growthstories.UI.ViewModel
                 RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
                 RequestFactory.CreatePushRequest(Model.State.SyncHead),
                 Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
-                Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray()
+                null
+            );
+
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
+                return null;
+
+
+
+            return await _Synchronize(s);
+        }
+
+        public async Task<ISyncInstance> Push()
+        {
+            //if (SyncService == null)
+            //    SyncService = Kernel.Get<ISynchronizerService>();
+
+
+
+            if (User.AccessToken == null)
+                await Context.AuthorizeUser();
+
+            var s = new SyncInstance(
+                RequestFactory.CreatePullRequest(null),
+                RequestFactory.CreatePushRequest(Model.State.SyncHead),
+                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
+                null
             );
 
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
@@ -652,7 +697,7 @@ namespace Growthstories.UI.ViewModel
             if (s.PhotoUploadRequests.Length > 0)
             {
                 var responses = await s.UploadPhotos();
-                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoUpload(x.Photo)).ToArray();
+                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoUpload(x) { AncestorId = User.Id }).ToArray();
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(Model.State.Id, successes));
             }

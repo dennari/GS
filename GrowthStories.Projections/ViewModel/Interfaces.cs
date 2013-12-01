@@ -28,7 +28,6 @@ namespace Growthstories.UI.ViewModel
 
     public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect
     {
-        IReactiveCommand FriendTapped { get; }
         IReadOnlyReactiveList<IGardenViewModel> Friends { get; }
         IGardenViewModel SelectedFriend { get; }
     }
@@ -54,6 +53,7 @@ namespace Growthstories.UI.ViewModel
     {
         bool IsInDesignMode { get; }
         bool CanGoBack { get; }
+        bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
         Task LogOut();
@@ -69,6 +69,7 @@ namespace Growthstories.UI.ViewModel
         Task<IAuthUser> Initialize();
         Task<RegisterRespone> Register(string username, string email, string password);
         Task<ISyncInstance> Synchronize();
+        Task<ISyncInstance> Push();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
         Task<IGSAggregate> HandleCommand(MultiCommand x);
         //IObservable<IUserViewModel> Users();
@@ -178,6 +179,7 @@ namespace Growthstories.UI.ViewModel
         string Name { get; }
         string Species { get; }
         IReactiveCommand PinCommand { get; }
+        IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
         IReactiveCommand DeleteCommand { get; }
@@ -189,6 +191,7 @@ namespace Growthstories.UI.ViewModel
         Photo Photo { get; }
         int? MissedCount { get; }
         bool HasTile { get; set; }
+        bool IsShared { get; set; }
         //PlantState State { get; }
         IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; }
         IPlantActionViewModel SelectedItem { get; }

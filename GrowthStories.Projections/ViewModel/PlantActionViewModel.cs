@@ -141,14 +141,14 @@ namespace Growthstories.UI.ViewModel
                     this.AsyncAddObservable = _AddCommand.RegisterAsyncTask(AsyncAddCommand);
                     this.AsyncAddObservable.Publish().Connect();
 
-                } 
+                }
                 return _AddCommand;
 
             }
         }
 
 
-        protected Task<IGSAggregate> AsyncAddCommand(object _)
+        protected virtual Task<IGSAggregate> AsyncAddCommand(object _)
         {
 
             if (State == null)
@@ -462,6 +462,17 @@ namespace Growthstories.UI.ViewModel
         public override void AddCommandSubscription(object p)
         {
             //this.SendCommand(new Photograph(this.State.EntityId, this.State.PlantId, this.Note, this.Path), true);
+        }
+
+        protected override async Task<IGSAggregate> AsyncAddCommand(object _)
+        {
+            var action = await base.AsyncAddCommand(_);
+            if (State == null)
+            {
+                await App.HandleCommand(new SchedulePhotoUpload(this.Photo, action.Id));
+            }
+            return action;
+
         }
 
 

@@ -12,6 +12,7 @@ namespace Growthstories.Domain.Entities
 
     public class PlantAction : AggregateBase<PlantActionState, PlantActionCreated>,
         ICommandHandler<CreatePlantAction>,
+        ICommandHandler<SetBlobKey>,
         ICommandHandler<SetPlantActionProperty>
     {
 
@@ -29,6 +30,12 @@ namespace Growthstories.Domain.Entities
         {
 
             RaiseEvent(new PlantActionPropertySet(command, this.State.Type));
+        }
+
+        public void Handle(SetBlobKey command)
+        {
+
+            RaiseEvent(new BlobKeySet(command));
         }
 
     }

@@ -49,6 +49,10 @@ namespace Growthstories.UI.Services
         public void SetupCurrentUser(IAuthUser user)
         {
             _CurrentUser = user;
+            if (user.AccessToken != null)
+            {
+                Transporter.AuthToken = user;
+            }
         }
 
 

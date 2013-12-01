@@ -62,7 +62,7 @@ namespace Growthstories.Domain.Entities
 
         public readonly IDictionary<Guid, PullStream> SyncStreamDict = new Dictionary<Guid, PullStream>();
 
-        public readonly IDictionary<string, Photo> PhotoUploads = new Dictionary<string, Photo>();
+        public readonly IDictionary<string, Tuple<Photo, Guid>> PhotoUploads = new Dictionary<string, Tuple<Photo, Guid>>();
 
         public readonly IDictionary<string, Photo> PhotoDownloads = new Dictionary<string, Photo>();
 
@@ -137,7 +137,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PhotoUploadScheduled @event)
         {
-            PhotoUploads[@event.Photo.LocalFullPath] = @event.Photo;
+            PhotoUploads[@event.Photo.LocalFullPath] = Tuple.Create(@event.Photo, @event.PlantActionId);
         }
 
         public void Apply(PhotoUploadCompleted @event)

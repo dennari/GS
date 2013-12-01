@@ -47,12 +47,15 @@ namespace Growthstories.Domain.Messaging
     {
 
         public Photo Profilepicture { get; private set; }
+        public Guid PlantActionId { get; private set; }
+
 
         protected SetProfilepicture() { }
-        public SetProfilepicture(Guid entityId, Photo profilepicture)
+        public SetProfilepicture(Guid entityId, Photo profilepicture, Guid plantActionId)
             : base(entityId)
         {
             this.Profilepicture = profilepicture;
+            this.PlantActionId = plantActionId;
         }
 
         public override string ToString()

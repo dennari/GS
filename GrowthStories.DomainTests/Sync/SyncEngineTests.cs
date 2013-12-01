@@ -740,6 +740,7 @@ namespace Growthstories.DomainTests
                 File.Delete(photo.LocalFullPath);
             }
             catch { }
+            Assert.IsFalse(File.Exists(photo.LocalFullPath));
 #endif
 
 

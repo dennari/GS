@@ -75,7 +75,7 @@ namespace Growthstories.Sync
 
         public Uri PhotoUploadUri
         {
-            get { return new Uri(BaseUri, "/api/photo/uploadurl"); }
+            get { return new Uri(BaseUri, "/api/photo/uploadUrl"); }
         }
 
         public Uri PhotoDownloadUri(string blobKey)

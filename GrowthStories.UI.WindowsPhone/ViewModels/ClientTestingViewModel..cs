@@ -26,6 +26,8 @@ using Ninject;
 using Growthstories.Core;
 using EventStore;
 using EventStore.Persistence;
+using EventStore.Persistence.SqlPersistence;
+using Growthstories.UI.Persistence;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -46,6 +48,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData())).Publish().Connect();
             this.PushRemoteUserCommand.RegisterAsyncTask(o => PushRemoteUser()).Publish().Connect();
             this.SyncCommand.RegisterAsyncTask(_ => SyncAll()).Publish().Connect();
+            this.PushCommand.RegisterAsyncTask(_ => PushAll()).Publish().Connect();
+
+            this.ClearDBCommand.Subscribe(_ => this.ClearDB());
+
         }
 
         private async Task<bool> SyncAll()
@@ -56,6 +62,20 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             while (counter < maxRounds)
             {
                 R = await App.Synchronize();
+                if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
+                    return true;
+            }
+            return false;
+        }
+
+        private async Task<bool> PushAll()
+        {
+            int maxRounds = 100;
+            int counter = 0;
+            ISyncInstance R = null;
+            while (counter < maxRounds)
+            {
+                R = await App.Push();
                 if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
                     return true;
             }
@@ -410,12 +430,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public void ClearDB()
         {
 
-            var db = Kernel.Get<IPersistSyncStreams>();
-            db.Purge();
-            //Kernel.Get<IGSRepository>().ClearCaches();
-            Kernel.Get<OptimisticPipelineHook>().Dispose();
-            //((FakeUserService)Kernel.Get<IUserService>()).EnsureCurrenUser();
-
+            var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
+            if (db != null)
+                db.ReInitialize();
+            var db2 = Kernel.Get<IUIPersistence>() as SQLiteUIPersistence;
+            if (db2 != null)
+                db2.ReInitialize();
         }
 
         public T Get<T>() { return Kernel.Get<T>(); }

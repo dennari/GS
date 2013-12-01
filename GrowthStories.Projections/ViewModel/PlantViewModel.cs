@@ -24,6 +24,7 @@ namespace Growthstories.UI.ViewModel
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
         public IReactiveCommand ShareCommand { get; protected set; }
+        public IReactiveCommand TryShareCommand { get; protected set; }
         public IReactiveCommand WateringCommand { get; protected set; }
         public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
@@ -74,6 +75,18 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        private bool _IsShared;
+        public bool IsShared
+        {
+            get
+            {
+                return _IsShared;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsShared, value);
+            }
+        }
 
 
 
@@ -95,9 +108,33 @@ namespace Growthstories.UI.ViewModel
             this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
-            this.ShareCommand = new ReactiveCommand();
+            this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+            {
+                if (App.User.IsRegistered())
+                {
+                    this.ShareCommand.Execute(null);
+                }
+                else
+                {
+                    var svm = new SignInRegisterViewModel(App);
+                    svm.Response.Subscribe(x =>
+                    {
+                        if (x == RegisterRespone.success)
+                            this.ShareCommand.Execute(null);
+                    });
+                    this.Navigate(svm);
+                }
 
+            });
 
+            if (app != null)
+            {
+                var canShare = Observable.CombineLatest(
+                    this.WhenAnyValue(x => x.IsShared),
+                    App.WhenAnyValue(x => x.IsRegistered),
+                    (a, b) => a && b);
+                this.ShareCommand = new ReactiveCommand(canShare);
+            }
 
 
             this.WateringCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
@@ -133,6 +170,7 @@ namespace Growthstories.UI.ViewModel
                 this.State = state;
                 this.Id = state.Id;
                 this.UserId = state.UserId;
+                this.IsShared = state.Public;
 
                 this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                     .StartWith(state.Name)
@@ -148,6 +186,12 @@ namespace Growthstories.UI.ViewModel
                 this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
                     .StartWith(state.Profilepicture)
                     .Subscribe(x => this.Photo = x);
+
+                this.ListenTo<MarkedPlantPublic>(this.State.Id)
+                    .Subscribe(x => this.IsShared = true);
+
+                this.ListenTo<MarkedPlantPrivate>(this.State.Id)
+                    .Subscribe(x => this.IsShared = false);
 
                 this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
                     .StartWith(state.Tags)
@@ -566,7 +610,7 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "share",
                             IconType = IconType.SHARE,
-                            Command = ShareCommand
+                            Command = TryShareCommand
                         },
 
                     };

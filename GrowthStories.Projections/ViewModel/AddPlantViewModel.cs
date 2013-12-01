@@ -44,6 +44,7 @@ namespace Growthstories.UI.ViewModel
                 this.Photo = current.Photo;
                 this.ProfilePictureButtonText = "";
                 this.Current = current;
+                this.IsShared = current.IsShared;
                 this.WateringSchedule = current.WateringSchedule;
                 if (current.WateringSchedule.Interval.HasValue && current.WateringSchedule.Interval.Value.TotalSeconds > 0)
                     this.WateringSchedule.IsEnabled = true;
@@ -134,7 +135,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        protected bool AnyChange(string name, string species, TimeSpan? fert, TimeSpan? water, Photo pic, IList<string> tags)
+        protected bool AnyChange(string name, string species, TimeSpan? fert, TimeSpan? water, Photo pic, IList<string> tags, bool isShared)
         {
             int changes = 0;
             if (Current.Species != species)
@@ -154,6 +155,10 @@ namespace Growthstories.UI.ViewModel
                 changes++;
             }
             if (Current.Photo != pic)
+            {
+                changes++;
+            }
+            if (Current.IsShared != isShared)
             {
                 changes++;
             }
@@ -182,7 +187,7 @@ namespace Growthstories.UI.ViewModel
                 return false;
 
             if (Current != null)
-                return AnyChange(name, species, fert, water, pic, tags);
+                return AnyChange(name, species, fert, water, pic, tags, this.IsShared);
 
             return true;
         }
@@ -336,6 +341,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private bool _IsShared;
+        public bool IsShared
+        {
+            get
+            {
+                return _IsShared;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsShared, value);
+            }
+        }
+
         protected Guid _Id;
         public Guid Id
         {
@@ -391,6 +409,19 @@ namespace Growthstories.UI.ViewModel
             {
                 await App.HandleCommand(new SetSpecies(plantId, this.Species));
             }
+            if (current.IsShared != this.IsShared)
+            {
+                if (this.IsShared == true)
+                {
+                    await App.HandleCommand(new MarkPlantPublic(plantId));
+
+                }
+                else
+                {
+                    await App.HandleCommand(new MarkPlantPrivate(plantId));
+
+                }
+            }
 
             if (this.FertilizingSchedule.HasChanged)
             {
@@ -406,10 +437,15 @@ namespace Growthstories.UI.ViewModel
             }
             if (this.Photo != null && current.Photo != this.Photo)
             {
+                var plantActionId = Guid.NewGuid();
 
-                await App.HandleCommand(new SetProfilepicture(plantId, this.Photo));
                 if (current.Actions.Count == 0)
-                    await App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
+                {
+                    await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
+
+                }
+                await App.HandleCommand(new SetProfilepicture(plantId, this.Photo, plantActionId));
+
             }
             //this.Ta
             if (!this.TagSet.SetEquals(this.Tags))

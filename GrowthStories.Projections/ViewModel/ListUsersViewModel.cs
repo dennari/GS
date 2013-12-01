@@ -106,6 +106,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
         public SearchUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
             : base(app)
         {

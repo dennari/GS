@@ -31,12 +31,13 @@ namespace Growthstories.Sync
 
     }
 
+
     public sealed class Photo : IPhoto
     {
 
-        [JsonProperty]
+        [JsonProperty(PropertyName = "width", Required = Required.Default)]
         public uint Width { get; set; }
-        [JsonProperty]
+        [JsonProperty(PropertyName = "height", Required = Required.Default)]
         public uint Height { get; set; }
 
         [JsonProperty]
@@ -53,7 +54,7 @@ namespace Growthstories.Sync
         public string LocalUri { get; set; }
 
 
-        [JsonProperty]
+        [JsonProperty(PropertyName = "servingUrl", Required = Required.Default)]
         public string RemoteUri { get; set; }
 
         [JsonProperty]

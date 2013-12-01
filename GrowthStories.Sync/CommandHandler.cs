@@ -124,6 +124,20 @@ namespace Growthstories.Sync
             else
                 Repository.Save(aggregate);
 
+            foreach (var msg in msgs)
+            {
+                var cmd = msg as IAggregateCommand;
+                if (cmd != null)
+                {
+                    IAggregateCommand derived = null;
+                    if (this.CreateDerivedCommand(cmd, out derived))
+                    {
+                        Handle(derived);
+                    }
+                }
+            }
+
+
 
             return aggregate;
 
@@ -189,11 +203,26 @@ namespace Growthstories.Sync
                     var plant = (Plant)Repository.GetById(photo.PlantId);
                     if (plant.State.Profilepicture == null)
                     {
-                        derived = new SetProfilepicture(photo.PlantId, photo.Photo);
+                        derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
+                        {
+                            AncestorId = photo.AncestorId
+                        };
                         return true;
                     }
                 }
                 catch { }
+            }
+
+            var upload = cmd as CompletePhotoUpload;
+            if (upload != null && upload.PlantActionId != default(Guid))
+            {
+
+                derived = new SetBlobKey(upload.PlantActionId, upload.BlobKey)
+                {
+                    AncestorId = upload.AncestorId
+                };
+                return true;
+
             }
 
 
