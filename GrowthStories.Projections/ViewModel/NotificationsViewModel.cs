@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Growthstories.Domain.Messaging;
+using Growthstories.Domain.Entities;
+using Growthstories.Core;
+
 
 namespace Growthstories.UI.ViewModel
 {
@@ -17,7 +21,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public sealed class Notification
+    public sealed class Notification : IComparable<Notification>
     {
         public string Name { get; set; }
         public Guid Id { get; set; }
@@ -31,37 +35,39 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-
-                if (Number < 0.2 && Number > -0.2)
-                {
-                    switch (Type)
-                    {
-                        case NotificationType.WATERING_SCHEDULE:
-                            return Name + " can be watered now";
-
-                        case NotificationType.FERTILIZING_SCHEDULE:
-                            return Name + " can be nourished now";
-                    }
-
-                }
                 
-                if (Number >= 0.2)
+                ScheduleType SType = ScheduleType.WATERING;
+                switch (Type)
                 {
-                    switch (Type)
-                    {
-                        case NotificationType.WATERING_SCHEDULE:
-                            return Name + " needs watering";
+                    case NotificationType.WATERING_SCHEDULE:
+                        SType = ScheduleType.WATERING;
+                        break;
 
-                        case NotificationType.FERTILIZING_SCHEDULE:
-                            return Name + " needs nourishing";
-                    }
+                    case NotificationType.FERTILIZING_SCHEDULE:
+                        SType = ScheduleType.FERTILIZING;
+                        break;
                 }
-   
-                return "";
+
+                return PlantScheduler.NotificationText(Interval, Number, SType, Name.ToUpper());               
             }
         }
 
 
+        public long TicksToAction
+        {
+            get
+            {
+                return (long)(Interval.Ticks * Number);
+            }
+        }
+
+  
+        public int CompareTo(Notification o2)
+        {
+            return (int)(o2.TicksToAction - this.TicksToAction);
+        }
+
+        /*
         public bool ShouldShow
         {
             get
@@ -69,6 +75,7 @@ namespace Growthstories.UI.ViewModel
                 return Number > -0.2;
             }
         }
+        */
 
     }
 
@@ -113,9 +120,6 @@ namespace Growthstories.UI.ViewModel
                     UpdateList(notification);
 
                 });
-
-
-
 
 
 
@@ -164,8 +168,25 @@ namespace Growthstories.UI.ViewModel
                 Notifications.RemoveAt(index.Value);
             }
             NotificationsForPlant[key] = Notifications.Count - 1;
+
+            //Notifications.Sort();           
         }
 
+        /*
+        public class Comparer<Notification> : IComparer<Notification>
+        {
+
+            int Compare(Notification o1, Notification o2)
+            {
+
+                //o1.TicksToAction
+
+                return o1.TicksToAction - o2.TicksToAction;
+            }
+        }
+        */
+
+        
         private Dictionary<Tuple<Guid, NotificationType>, int?> NotificationsForPlant = new Dictionary<Tuple<Guid, NotificationType>, int?>();
 
         private ReactiveList<Notification> _Notifications = new ReactiveList<Notification>();

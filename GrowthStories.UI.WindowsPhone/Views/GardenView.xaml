@@ -57,17 +57,28 @@
                             </BeginStoryboard>
                         </EventTrigger>
                     </Grid.Triggers>
-                    <Canvas>
+                    <Canvas>                    
                         <Image
                             x:Name="Img"
                             Width="396" Height="396"
 	        		        Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
+                            Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}"
                             Stretch="UniformToFill">
                             <Image.RenderTransform>
                                 <CompositeTransform/>
                             </Image.RenderTransform>
                         </Image>
-                    </Canvas>
+                        
+                            <Image
+                            Source="/Assets/Icons/NoImage.png" 
+                            Stretch="UniformToFill"
+                            Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}"
+                            >
+                                <Image.RenderTransform>
+                                    <CompositeTransform/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Canvas>
                     <c4f:TileNotification
                         HorizontalAlignment="Left"
                             Padding="18,0"

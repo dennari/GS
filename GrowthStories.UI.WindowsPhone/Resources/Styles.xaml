@@ -94,17 +94,24 @@
                 <ControlTemplate TargetType="ContentControl">
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,24" Visibility="{TemplateBinding Visibility}">
 
-                        <StackPanel Orientation="Vertical" Width="110" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}">
+                        <StackPanel Orientation="Vertical" Width="110" Visibility="{Binding Now, Converter={StaticResource BooleanToVisibility},  ConverterParameter=negate}">
                             <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
                             <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                         </StackPanel>
 
-                        <TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
+                        <TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" 
+                                  Visibility="{Binding Now, Converter={StaticResource BooleanToVisibility}}" VerticalAlignment="Center"/>
 
                         <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
 
-                        <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
+                        <!--
+                        <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" 
+                             Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
+
                         <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
+                        -->
+
+                        <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" VerticalAlignment="Center"/>
 
                     </StackPanel>
                 </ControlTemplate>

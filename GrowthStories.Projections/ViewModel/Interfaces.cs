@@ -216,6 +216,140 @@ namespace Growthstories.UI.ViewModel
     {
         private IScheduleViewModel Schedule;
 
+
+        public const double WINDOW = 0.2;
+
+
+        public static string IntervalText(long ticks, double Number)
+        {
+            string IntervalText;
+
+            var t = new TimeSpan((long)(ticks * Math.Abs(Number)));
+            if (t.TotalWeeks() > 0)
+            {
+                IntervalText = string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
+            }
+            else if (t.Days > 0)
+            {
+                IntervalText = string.Format("{0:%d} days, {1:D} hours", t, t.Hours);
+            }
+            else if (t.Hours > 0)
+            {
+                IntervalText = string.Format("{0:%h} hours", t);
+            }
+            else
+            {
+                IntervalText = string.Format("{0:%m} minutes", t);
+            }
+
+            return IntervalText;
+        }
+
+
+        public static string NotificationText(TimeSpan Interval, double Number, ScheduleType Type, String Name)
+        {
+            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Number)));
+
+            // if now is time to water
+            if ((Number < WINDOW && Number > -WINDOW))
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return "Time to water " + Name.ToUpper() + "!";
+
+                    case ScheduleType.FERTILIZING:
+                        return "Time to nourish " + Name.ToUpper() + "!";
+                }
+            }
+
+            // if watering is after some time
+            if (Number <= -WINDOW)
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return Name.ToUpper() + " should be watered in " + IntervalText(Interval.Ticks, Number);
+
+                    case ScheduleType.FERTILIZING:
+                        return Name.ToUpper() + " should be nourished in " + IntervalText(Interval.Ticks, Number);
+                }
+            }
+
+            // if we are late but not very late
+            if (Number >= WINDOW && Number < 1)
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return Name + " needs watering";
+
+                    case ScheduleType.FERTILIZING:
+                        return Name + " needs nourishing";
+                }
+            }
+
+            // awfully late
+            return string.Format(
+                "Last {0} {1} missed for {2}",
+                (int)Number + 1,
+                Type == ScheduleType.WATERING ? "waterings" : "nourishments",
+                Name);
+        }
+
+
+        public static string NotificationText(TimeSpan Interval, double Number, ScheduleType Type)
+        {
+            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Number)));
+
+            // if now is time to water
+            if ((Number < WINDOW && Number > -WINDOW))
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return "Time to water!";
+
+                    case ScheduleType.FERTILIZING:
+                        return "Time to nourish!";
+                }
+
+            }
+
+            // if watering is not late
+            if (Number <= -WINDOW)
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return "watering in " + IntervalText(Interval.Ticks, Number);
+
+                    case ScheduleType.FERTILIZING:
+                        return "nourishing in " + IntervalText(Interval.Ticks, Number);
+                }
+            }
+
+            // if we are late but not very late
+            if (Number >= WINDOW && Number < 1)
+            {
+                switch (Type)
+                {
+                    case ScheduleType.WATERING:
+                        return "needs watering";
+
+                    case ScheduleType.FERTILIZING:
+                        return "needs nourishing";
+                }
+            }
+
+            // awfully late
+            return string.Format(
+                "Last {0} {1} missed",
+                (int)Number + 1,
+                Type == ScheduleType.WATERING ? "waterings" : "nourishments");
+        }
+
+
         public PlantScheduler(IScheduleViewModel vm)
         {
             this.Schedule = vm;
@@ -243,6 +377,7 @@ namespace Growthstories.UI.ViewModel
             get { return this.Schedule.Interval; }
         }
 
+
         public DateTimeOffset ComputeNext()
         {
 
@@ -262,18 +397,9 @@ namespace Growthstories.UI.ViewModel
             var num = (double)passedSeconds / Schedule.Interval.Value.TotalSeconds;
 
             this.Missed = num;
-            if (num > 0)
-            {
-                if (num == 1)
-                    this.MissedText = string.Format("Last {0} missed.", Schedule.Type == ScheduleType.WATERING ? "watering" : "nourishment");
-                else
-                    this.MissedText = string.Format("Last {0} {1} missed.", (int)num, Schedule.Type == ScheduleType.WATERING ? "waterings" : "nourishments");
 
-            }
-            else
-            {
-                this.MissedText = null;
-            }
+            string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);          
+            this.MissedText = char.ToUpper(temp[0]) + temp.Substring(1);
 
             this.WeekDay = ans.ToString("dddd");
             this.Date = ans.ToString("d");
@@ -297,6 +423,7 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _Missed, value);
                 this.raisePropertyChanged("MissedNotification");
                 this.raisePropertyChanged("MissedLate");
+                this.raisePropertyChanged("Now");
             }
         }
 
@@ -304,7 +431,15 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return String.Format("{0:F0}", Missed);
+                return String.Format("{0:F0}", Missed + 1);
+            }
+        }
+
+        public bool Now
+        {
+            get
+            {
+                return Missed > -WINDOW;
             }
         }
 
@@ -312,7 +447,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return Missed > 0;
+                return Missed > WINDOW;
             }
         }
 
@@ -380,7 +515,6 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _Time, value);
             }
         }
-
     }
 
 

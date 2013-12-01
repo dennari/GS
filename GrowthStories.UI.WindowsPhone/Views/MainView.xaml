@@ -26,12 +26,17 @@
         <DataTemplate x:Key="NotificationTemplate">
             <StackPanel>
             <TextBlock 
-                Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                Style="{StaticResource GSTextBlockStyle}"
                 Foreground="White"
                 Width="400"
-                Text="{Binding NotificationText}"               
-                Visibility="{Binding ShouldShow, Converter={StaticResource BooleanToVisibility}}"
+                Margin="0,0,0,24"
+                Text="{Binding NotificationText}"
+                TextWrapping="Wrap"
                 />
+
+                <!--
+                Visibility="{Binding ShouldShow, Converter={StaticResource BooleanToVisibility}}"
+                -->
             </StackPanel>
         </DataTemplate>
 

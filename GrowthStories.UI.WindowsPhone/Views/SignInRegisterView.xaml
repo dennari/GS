@@ -41,6 +41,18 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.ColumnSpan="2">
+
+                <TextBlock 
+                   Style="{StaticResource GSTextBlockStyle}" 
+                   Text="To share stuff, you need to have a Growth Stories account. Enter the following information and you are good to go!" HorizontalAlignment="Left"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Top" Grid.Row="0" Margin="0,0,0,24" FontWeight="Bold"
+                   Foreground="White"
+                   FontSize="24"
+                   Width="430"
+                   Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+                />
+
                 <!--<TextBox Text="{Binding Message}" 
                          Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>-->
                 <local:GSLabel Label="Username" Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
