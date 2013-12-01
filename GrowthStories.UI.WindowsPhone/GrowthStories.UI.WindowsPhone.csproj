@@ -303,6 +303,7 @@
     <Content Include="Assets\Icons\icon_ph2_appbar.png" />
     <Content Include="Assets\Icons\icon_pruning.png" />
     <Content Include="Assets\Icons\icon_soil_humidity_appbar.png" />
+    <Content Include="Assets\Icons\NoImage.png" />
     <Content Include="BugSense\BugSense - SDK License Agreement.txt" />
     <Content Include="README_FIRST.txt" />
     <Content Include="Toolkit.Content\ApplicationBar.Add.png" />
