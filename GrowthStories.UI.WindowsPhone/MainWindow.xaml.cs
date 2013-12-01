@@ -30,6 +30,7 @@ namespace Growthstories.UI.WindowsPhone
     public partial class MainWindow : MainWindowBase
     {
 
+
         //private Task<IAuthUser> InitializeTask;
 
         public MainWindow()
@@ -38,7 +39,6 @@ namespace Growthstories.UI.WindowsPhone
             //this.SetBinding(ViewModelProperty, new Binding());
             ViewModel = new AppViewModel();
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
-
         }
 
         //public static readonly DependencyProperty ViewModelProperty =

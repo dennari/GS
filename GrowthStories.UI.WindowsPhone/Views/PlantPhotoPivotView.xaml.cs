@@ -18,13 +18,24 @@ namespace Growthstories.UI.WindowsPhone
     {
 
     }
+
+
     public partial class PlantPhotoPivotView : PlantPhotoPivotViewBase
     {
 
         public PlantPhotoPivotView()
-        {
+        {            
+            //((ContentControl)Parent).Height = Double.NaN;
+            
             InitializeComponent();
+            Height = Double.NaN;
+
+            //MainWindow.instance.Height = Double.NaN;
+
+            //((ContentControl)Parent).Height = Double.NaN;
         }
+
+        
 
     }
 }

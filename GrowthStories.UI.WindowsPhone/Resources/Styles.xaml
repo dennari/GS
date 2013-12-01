@@ -72,13 +72,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:PlantActionView">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12,0">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0">
                         <Grid.Background>
                             <ImageBrush Stretch="Uniform" ImageSource="{Binding PhotoSource}" />
                         </Grid.Background>
-                    </Grid>
-                        
-                 
+                    </Grid>                 
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

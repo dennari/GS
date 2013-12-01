@@ -11,68 +11,90 @@
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives"             
     xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"             
     xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
-	mc:Ignorable="d" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+	mc:Ignorable="d" 
     d:DataContext="{StaticResource PlantViewModelDesign}"
+    VerticalAlignment="Stretch"
     >
 
-    <Grid x:Name="LayoutRoot"
+    <!--
+    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+    -->
+
+    <Grid  
+        x:Name="LayoutRoot"
             HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
+            VerticalAlignment="Stretch"      
           >
-     
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
         <phone:Pivot 
             HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            HorizontalContentAlignment="Stretch"
-            VerticalContentAlignment="Stretch"
+            VerticalAlignment="Stretch"          
 			x:Name="Actions" 
 			ItemsSource="{Binding Actions, 
                 Converter={StaticResource PlantActionFilter}, 
                 ConverterParameter=Photo}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-			Title="{Binding Name}">          
+			Title="{Binding Name}"
+            >          
 
             <phone:Pivot.Template>
                 <ControlTemplate TargetType="phone:Pivot">
+                    
                     <Grid 
                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
                         VerticalAlignment="{TemplateBinding VerticalAlignment}"
                         >
+                        
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
+                        
                         <Primitives:PivotHeadersControl 
                             x:Name="HeadersListElement" 
-                            Grid.Row="1"
+                            Grid.Row="0"
                             Visibility="Visible"
+                            Margin="0,0,0,0"
                             />
-                        <ItemsPresenter
-                            x:Name="PivotItemPresenter" Grid.Row="0"/>
-                    </Grid>
+                        
+                        <ItemsPresenter Margin="-12,-32,-12,-12"
+                            x:Name="PivotItemPresenter" Grid.Row="0" 
+                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                 
+                </Grid>
+                    
                 </ControlTemplate>
             </phone:Pivot.Template>
             <phone:Pivot.HeaderTemplate>
                 <DataTemplate>
-                    <Image 
-					Source="/Assets/Bg/panorama_logo.png" 
-					Stretch="UniformToFill" 
-					Width="480" 
-					Margin="0"/>
+                    <ContentControl />
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
-            <phone:Pivot.ItemTemplate>
+            <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-
-                    <Grid   HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
-                        <local:PlantActionView                         
+                    <ContentControl />
+                </DataTemplate>
+            </phone:Pivot.TitleTemplate>
+            
+            <phone:Pivot.ItemTemplate>
+                     
+                <DataTemplate>
+    
+                    <Grid>
+                    
+                        <local:PlantActionView                                                   
                             ViewModel="{Binding}" 
                             Style="{StaticResource PlantPhotoActionStyle}" 
-                            Margin="-12,-28,-12,0"
+                            Margin="0,0,0,0"
                             Command="{Binding OpenZoomView}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             />
+                       
+                        
                         <telerikPrimitives:RadWindow 
                             IsFullScreen="True"
                             x:Name="window"
@@ -91,27 +113,29 @@
                                                EndScaleY="0"/>
                             </telerikPrimitives:RadWindow.CloseAnimation>
                             <Grid>
-                                <TextBlock Text="Zoom and pan for a more detailed view"
-                           Foreground="{StaticResource PhoneAccentBrush}"
-                           Margin="0, 12, 0, 0"/>
-                                <slideView:PanAndZoomImage Grid.Row="1"
+                                <slideView:PanAndZoomImage Grid.Row="0"
                                            ZoomMode="Free"
                                            x:Name="panZoom"
                                            MaximumZoom="4"
-                                           Source="{Binding Photo}"/>
+                                           Source="{Binding PhotoSource}"/>
+
+                                <TextBlock 
+                                    Grid.Row="0"
+                                    Text="Zoom and pan for a more detailed view"
+                                    Foreground="WhiteSmoke"
+                                    Margin="12, 12, 12, 12"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Left"
+                                           />
                             </Grid>
                         </telerikPrimitives:RadWindow>
-                    </Grid>
-
-
-
-
+                                        
+                </Grid>
 
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
 
         </phone:Pivot>
-
 
     </Grid>
 

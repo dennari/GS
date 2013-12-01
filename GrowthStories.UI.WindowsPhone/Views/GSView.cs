@@ -22,6 +22,7 @@ namespace Growthstories.UI.WindowsPhone
         public GSView()
         {
             this.SetBinding(ViewModelProperty, new Binding());
+            Height = 800;
         }
 
         public T ViewModel

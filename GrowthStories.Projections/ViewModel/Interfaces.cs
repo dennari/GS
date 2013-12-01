@@ -203,7 +203,6 @@ namespace Growthstories.UI.ViewModel
         PlantScheduler WateringScheduler { get; }
         PlantScheduler FertilizingScheduler { get; }
 
-
         string TodayWeekDay { get; }
         string TodayDate { get; }
 
