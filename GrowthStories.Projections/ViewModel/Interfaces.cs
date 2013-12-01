@@ -64,7 +64,7 @@ namespace Growthstories.UI.ViewModel
         bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
-        Task LogOut();
+
         IUserService Context { get; }
         IAuthUser User { get; }
         IEndpoint Endpoint { get; }
@@ -77,6 +77,7 @@ namespace Growthstories.UI.ViewModel
         Task<IAuthUser> Initialize();
         Task<RegisterResponse> Register(string username, string email, string password);
         Task<SignInResponse> SignIn(string email, string password);
+        Task<GSApp> SignOut(bool createUnregUser = true);
         Task<ISyncInstance> Synchronize();
         Task<ISyncInstance> Push();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
@@ -397,7 +398,7 @@ namespace Growthstories.UI.ViewModel
 
             this.Missed = num;
 
-            string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);          
+            string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);
             this.MissedText = char.ToUpper(temp[0]) + temp.Substring(1);
 
             this.WeekDay = ans.ToString("dddd");
@@ -544,6 +545,10 @@ namespace Growthstories.UI.ViewModel
         IButtonViewModel LocationServices { get; }
         IButtonViewModel SharedByDefault { get; }
         IReactiveCommand NavigateToAbout { get; }
+        IReactiveCommand WarnCommand { get; }
+        IReactiveCommand WarningDismissedCommand { get; }
+        IReactiveCommand SignOutCommand { get; }
+        bool DialogIsOn { get; set; }
     }
 
     public interface IAboutViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray
@@ -665,7 +670,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand Command { get; }
         object CommandParameter { get; }
         string Text { get; }
-        bool IsEnabled { get; }
+        bool IsEnabled { get; set; }
     }
 
     public interface IButtonViewModel : IMenuItemViewModel

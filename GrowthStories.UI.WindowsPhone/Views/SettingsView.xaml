@@ -27,14 +27,31 @@
                
             </Grid>
         </DataTemplate>
+        <DataTemplate x:Key="SignInSwitchTemplate">
+            <Grid Margin="0,0,0,10" Width="340">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="330"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" 
+                            Visibility="{Binding SignIn.IsEnabled, Converter={StaticResource BooleanToVisibility}}">
+                    <TextBlock Text="Signed in as" />
+                    <TextBlock  Text="{Binding Email}"/>
+                </StackPanel>
+                <TextBlock 
+                        Text="Not signed in" 
+                        Grid.Column="0" 
+                        Visibility="{Binding SignIn.IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+
+            </Grid>
+        </DataTemplate>
     </local:SettingsViewBase.Resources>
 
 
 
     <local:GSViewGrid 
         TopTitle="GROWTH STORIES"
-		Title="settings" 
-		Style="{StaticResource NoScroll}">
+		Title="settings">		
         <local:GSViewGrid.Background>
             <RadialGradientBrush 
                 Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
@@ -46,6 +63,15 @@
          </local:GSViewGrid.Background>
 
         <StackPanel>
+            <local:GSLabel Label="Account">
+                <local:GSToggleSwitch
+                            IsChecked="{Binding SignIn.IsEnabled, Mode=TwoWay}"                                                       
+                            Content="{Binding}"
+                            ContentTemplate="{StaticResource SignInSwitchTemplate}"
+                            VerticalContentAlignment="Center"
+                            Margin="-12,0,-12,-12"
+                            />
+            </local:GSLabel>
             <local:GSLabel Label="Share plant locations">
                 <local:GSToggleSwitch
                             IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
@@ -88,6 +114,7 @@
 
             <Button 
                 Style="{StaticResource GSButtonStyle}" 
+                HorizontalAlignment="Left"
                 HorizontalContentAlignment="Left"
                 Command="{Binding NavigateToAbout}"
                 Padding="0,0,0,0"
