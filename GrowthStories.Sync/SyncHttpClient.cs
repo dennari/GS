@@ -78,6 +78,13 @@ namespace Growthstories.Sync
             return ResponseFactory.CreateUserListResponse(await SendAndGetBodyAsync(request));
         }
 
+        public async Task<RemoteUser> UserInfoAsync(string email)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserInfoUri(email));
+
+            return ResponseFactory.CreateUserInfoResponse(await SendAndGetBodyAsync(request));
+        }
+
         public async Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoUploadUri);

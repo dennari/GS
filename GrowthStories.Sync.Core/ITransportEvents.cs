@@ -13,7 +13,7 @@ namespace Growthstories.Sync
         Task<IAuthResponse> RequestAuthAsync(string username, string password);
 
         Task<IUserListResponse> ListUsersAsync(string username);
-
+        Task<RemoteUser> UserInfoAsync(string email);
 
         Task<IPhotoUriResponse> RequestPhotoUploadUri();
         Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey);

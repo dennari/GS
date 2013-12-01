@@ -117,6 +117,18 @@ namespace Growthstories.Sync
             return r;
         }
 
+        public RemoteUser CreateUserInfoResponse(Tuple<HttpResponseMessage, string> resp)
+        {
+
+            //var r = CreateWithStatusCode<UserListResponse>(resp.Item1);
+            if (resp.Item1.IsSuccessStatusCode)
+            {
+                return jFactory.Deserialize<RemoteUser>(resp.Item2);
+            }
+
+            throw new FileNotFoundException("Error occured when trying to retrieve info for user");
+        }
+
         T CreateWithStatusCode<T>(HttpResponseMessage resp) where T : HttpResponse, new()
         {
             return new T()

@@ -111,6 +111,12 @@ namespace Growthstories.UI.ViewModel
             get { return _Repository ?? (_Repository = Kernel.Get<IGSRepository>()); }
         }
 
+        protected ITransportEvents _Transporter;
+        protected ITransportEvents Transporter
+        {
+            get { return _Transporter ?? (_Transporter = Kernel.Get<ITransportEvents>()); }
+        }
+
         protected IUIPersistence _UIPersistence;
         protected IUIPersistence UIPersistence
         {
@@ -165,23 +171,32 @@ namespace Growthstories.UI.ViewModel
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
 
 
-            this.Router.CurrentViewModel.Subscribe(x =>
-            {
-                UpdateAppBar();
-                UpdateMenuItems();
-            });
+            //this.Router.NavigationStack.R
 
             this.Router.CurrentViewModel
-                .OfType<IHasAppBarButtons>()
-                .Select(x => x.WhenAny(y => y.AppBarButtons, y => y.GetValue()).StartWith(x.AppBarButtons))
+                .Select(x =>
+                {
+                    var xx = x as IHasAppBarButtons;
+                    if (xx != null)
+                        return xx.WhenAnyValue(y => y.AppBarButtons);
+                    return Observable.Return(new ReactiveList<IButtonViewModel>());
+                })
                 .Switch()
-                .Subscribe(x => UpdateAppBar(x));
+                .Throttle(TimeSpan.FromMilliseconds(200))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.UpdateAppBar(x ?? new ReactiveList<IButtonViewModel>()));
+
 
             this.Router.CurrentViewModel
-                .OfType<IHasMenuItems>()
-                .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
+                .Select(x =>
+                {
+                    var xx = x as IHasMenuItems;
+                    if (xx != null)
+                        return xx.WhenAnyValue(y => y.AppBarMenuItems);
+                    return Observable.Return(new ReactiveList<IMenuItemViewModel>());
+                })
                 .Switch()
-                .Subscribe(x => UpdateMenuItems(x));
+                .Subscribe(x => this.UpdateMenuItems(x ?? new ReactiveList<IMenuItemViewModel>()));
 
             this.Router.CurrentViewModel
                 .OfType<IControlsAppBar>()
@@ -233,20 +248,16 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
 
-            resolver.RegisterLazySingleton(() =>
-            {
-                return new GardenViewModel(null, this);
-            }, typeof(IGardenViewModel));
-            resolver.RegisterLazySingleton(() => new NotificationsViewModel(this), typeof(INotificationsViewModel));
-            resolver.RegisterLazySingleton(() => new SettingsViewModel(this), typeof(ISettingsViewModel));
+            resolver.Register(() => ResetSupport(() => new GardenViewModel(null, this)), typeof(IGardenViewModel));
+            resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
+            resolver.Register(() => ResetSupport(() => new NotificationsViewModel(this)), typeof(INotificationsViewModel));
+            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
+
             resolver.RegisterLazySingleton(() => new AboutViewModel(this), typeof(IAboutViewModel));
 
-            resolver.RegisterLazySingleton(() => new FriendsViewModel(this), typeof(FriendsViewModel));
 
 
-            resolver.RegisterLazySingleton(() => new SearchUsersViewModel(
-                Kernel.Get<ITransportEvents>(),
-                this), typeof(SearchUsersViewModel));
+            resolver.RegisterLazySingleton(() => new SearchUsersViewModel(Transporter, this), typeof(SearchUsersViewModel));
 
 
 
@@ -254,6 +265,48 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        }
+
+        private object _myGarden;
+        private object _myFriends;
+        private object _myNotifications;
+        private object _mySettings;
+
+        protected object ResetSupport<T>(Func<T> factory) where T : class
+        {
+            if (typeof(T) == typeof(GardenViewModel))
+            {
+                if (_myGarden == null)
+                    _myGarden = factory();
+                return _myGarden;
+            }
+            if (typeof(T) == typeof(FriendsViewModel))
+            {
+                if (_myFriends == null)
+                    _myFriends = factory();
+                return _myFriends;
+            }
+            if (typeof(T) == typeof(NotificationsViewModel))
+            {
+                if (_myNotifications == null)
+                    _myNotifications = factory();
+                return _myNotifications;
+            }
+            if (typeof(T) == typeof(SettingsViewModel))
+            {
+                if (_mySettings == null)
+                    _mySettings = factory();
+                return _mySettings;
+            }
+            return null;
+        }
+
+        public void ResetUI()
+        {
+            _myGarden = null;
+            _myFriends = null;
+            _myNotifications = null;
+            _mySettings = null;
         }
 
 
@@ -292,7 +345,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _IsRegistered;
             }
-            set
+            protected set
             {
                 this.RaiseAndSetIfChanged(ref _IsRegistered, value);
             }
@@ -524,7 +577,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public async Task<RegisterRespone> Register(string username, string email, string password)
+        public async Task<RegisterResponse> Register(string username, string email, string password)
         {
 
             IAuthUser user = this.User;
@@ -549,7 +602,7 @@ namespace Growthstories.UI.ViewModel
             }
 
             if (user.IsRegistered())
-                return RegisterRespone.alreadyRegistered;
+                return RegisterResponse.alreadyRegistered;
 
 
             if (User.AccessToken == null)
@@ -565,13 +618,13 @@ namespace Growthstories.UI.ViewModel
             if (R.Item1 == AllSyncResult.AllSynced)
             {
                 this.IsRegistered = true;
-                return RegisterRespone.success;
+                return RegisterResponse.success;
 
             }
             else if (R.Item1 == AllSyncResult.SomeLeft)
-                return RegisterRespone.tryagain;
+                return RegisterResponse.tryagain;
             else if (R.Item1 == AllSyncResult.Error)
-                return RegisterRespone.emailInUse;
+                return RegisterResponse.emailInUse;
 
             //for (var i = 0; i < 3; i++)
             //{
@@ -589,12 +642,71 @@ namespace Growthstories.UI.ViewModel
             //}
 
 
-            return RegisterRespone.success;
+            return RegisterResponse.success;
 
 
 
         }
 
+
+
+        public async Task<SignInResponse> SignIn(string email, string password)
+        {
+            IAuthResponse authResponse = null;
+            RemoteUser u = null;
+            try
+            {
+                authResponse = await Context.AuthorizeUser(email, password);
+                u = await Transporter.UserInfoAsync(email);
+
+            }
+            catch
+            {
+                return SignInResponse.accountNotFound;
+            }
+
+            // Clear db
+            if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
+            {
+                await CurrentHandleJob;
+            }
+            this.ClearDB();
+            Handler.ResetApp();
+
+            var app = (GSApp)Handler.Handle(new CreateGSApp());
+            Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
+            Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+
+
+
+
+            this._Model = null;
+            this.Model = app;
+            this.User = app.State.User;
+            this.IsRegistered = true;
+            Context.SetupCurrentUser(this.User);
+
+            Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
+
+            // now we get the user stream AND info on the plants
+            await this.SyncAll();
+            // now we get the plants too
+            await this.SyncAll();
+
+
+            // Reset UI
+            this.ResetUI();
+
+
+            return SignInResponse.success;
+
+
+        }
+
+        protected virtual void ClearDB()
+        {
+            throw new NotImplementedException();
+        }
 
         private ISynchronizerService SyncService;
 
@@ -617,8 +729,9 @@ namespace Growthstories.UI.ViewModel
             if (User.AccessToken == null)
                 await Context.AuthorizeUser();
 
+            var syncStreams = Model.State.SyncStreams.ToArray();
             var s = new SyncInstance(
-                RequestFactory.CreatePullRequest(Model.State.SyncStreams.ToArray()),
+                RequestFactory.CreatePullRequest(syncStreams),
                 RequestFactory.CreatePushRequest(Model.State.SyncHead),
                 Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
                 null
@@ -935,31 +1048,35 @@ namespace Growthstories.UI.ViewModel
         private IDisposable ButtonsAddSubscription = Disposable.Empty;
         private IDisposable ButtonsRemoveSubscription = Disposable.Empty;
 
-        private void UpdateAppBar(IReadOnlyReactiveList<IButtonViewModel> x = null)
+        private void UpdateAppBar(IReadOnlyReactiveList<IButtonViewModel> x)
         {
-            this._AppBarButtons.RemoveRange(0, this._AppBarButtons.Count);
-            if (x != null)
-            {
-                this._AppBarButtons.AddRange(x);
-                ButtonsAddSubscription.Dispose();
-                ButtonsRemoveSubscription.Dispose();
-                ButtonsAddSubscription = x.ItemsAdded.Subscribe(y =>
-                {
-                    this._AppBarButtons.Add(y);
-                });
-                ButtonsRemoveSubscription = x.ItemsRemoved.Subscribe(y =>
-                {
-                    this._AppBarButtons.Remove(y);
-                });
 
-            }
+            if (x == null)
+                return;
+
+            this._AppBarButtons.RemoveRange(0, this._AppBarButtons.Count);
+
+            this._AppBarButtons.AddRange(x);
+            ButtonsAddSubscription.Dispose();
+            ButtonsRemoveSubscription.Dispose();
+            ButtonsAddSubscription = x.ItemsAdded.Subscribe(y =>
+            {
+                this._AppBarButtons.Add(y);
+            });
+            ButtonsRemoveSubscription = x.ItemsRemoved.Subscribe(y =>
+            {
+                this._AppBarButtons.Remove(y);
+            });
+
+
         }
 
-        private void UpdateMenuItems(IReadOnlyReactiveList<IMenuItemViewModel> x = null)
+        private void UpdateMenuItems(IReadOnlyReactiveList<IMenuItemViewModel> x)
         {
+            if (x == null)
+                return;
             this._AppBarMenuItems.RemoveRange(0, this._AppBarMenuItems.Count);
-            if (x != null)
-                this._AppBarMenuItems.AddRange(x);
+            this._AppBarMenuItems.AddRange(x);
         }
 
 
@@ -1042,21 +1159,6 @@ namespace Growthstories.UI.ViewModel
             throw new NotImplementedException();
 
         }
-
-        public virtual Task AddTestData()
-        {
-
-            throw new NotImplementedException();
-
-        }
-
-        public virtual Task ClearDB()
-        {
-            throw new NotImplementedException();
-
-        }
-
-
 
 
 

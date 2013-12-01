@@ -119,7 +119,7 @@ namespace Growthstories.UI.ViewModel
                     var svm = new SignInRegisterViewModel(App);
                     svm.Response.Subscribe(x =>
                     {
-                        if (x == RegisterRespone.success)
+                        if ((!x.Item1 && x.Item2 == RegisterResponse.success) || (x.Item1 && x.Item3 == SignInResponse.success))
                             this.ShareCommand.Execute(null);
                     });
                     this.Navigate(svm);
@@ -134,6 +134,16 @@ namespace Growthstories.UI.ViewModel
                     App.WhenAnyValue(x => x.IsRegistered),
                     (a, b) => a && b);
                 this.ShareCommand = new ReactiveCommand(canShare);
+
+                Observable.CombineLatest(
+                    this.WhenAnyValue(x => x.UserId),
+                    App.WhenAnyValue(x => x.User),
+                    (a, b) => Tuple.Create(a, b)
+                  ).Subscribe(x =>
+                  {
+                      this.HasWriteAccess = x.Item2 != null && x.Item1 == x.Item2.Id;
+                  });
+
             }
 
 
@@ -270,6 +280,10 @@ namespace Growthstories.UI.ViewModel
                 AppBarMenuItems = __AppBarMenuItems;
             });
 
+
+
+
+
         }
 
 
@@ -283,6 +297,20 @@ namespace Growthstories.UI.ViewModel
                 return _OwnPlant;
             }
         }
+
+        private bool _HasWriteAccess;
+        public bool HasWriteAccess
+        {
+            get
+            {
+                return _HasWriteAccess;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _HasWriteAccess, value);
+            }
+        }
+
 
 
         public PlantViewModel(PlantState state, IScheduleViewModel wateringSchedule, IScheduleViewModel fertilizingSchedule, IGSAppViewModel app)
@@ -376,7 +404,7 @@ namespace Growthstories.UI.ViewModel
         public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }
 
         protected string _Name;
-        public string Name { get { return _Name; } private set { this.RaiseAndSetIfChanged(ref _Name, value); } }
+        public string Name { get { return _Name; } protected set { this.RaiseAndSetIfChanged(ref _Name, value); } }
 
         protected Photo _Photo;
         public Photo Photo
@@ -420,7 +448,7 @@ namespace Growthstories.UI.ViewModel
 
 
         protected string _Species;
-        public string Species { get { return _Species; } private set { this.RaiseAndSetIfChanged(ref _Species, value); } }
+        public string Species { get { return _Species; } protected set { this.RaiseAndSetIfChanged(ref _Species, value); } }
 
 
 
@@ -502,6 +530,8 @@ namespace Growthstories.UI.ViewModel
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
                             //_Actions.Add(x);
+                            x.PlantId = this.Id;
+                            x.UserId = this.UserId;
                             _Actions.Insert(0, x);
 
                             x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));

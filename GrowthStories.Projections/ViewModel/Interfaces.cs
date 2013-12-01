@@ -42,12 +42,20 @@ namespace Growthstories.UI.ViewModel
     {
 
     }
-    public enum RegisterRespone
+    public enum RegisterResponse
     {
         alreadyRegistered,
         emailInUse,
         success,
         tryagain
+    }
+    public enum SignInResponse
+    {
+
+        accountNotFound,
+        invalidPassword,
+        tryagain,
+        success
     }
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
@@ -67,7 +75,8 @@ namespace Growthstories.UI.ViewModel
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         Task<IAuthUser> Initialize();
-        Task<RegisterRespone> Register(string username, string email, string password);
+        Task<RegisterResponse> Register(string username, string email, string password);
+        Task<SignInResponse> SignIn(string email, string password);
         Task<ISyncInstance> Synchronize();
         Task<ISyncInstance> Push();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
@@ -95,16 +104,7 @@ namespace Growthstories.UI.ViewModel
         IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm);
 
         PageOrientation Orientation { get; }
-        //Task AddTestData();
-        //Task ClearDB();
 
-
-        //IGardenViewModel GardenFactory(Guid guid);
-
-
-
-        //IPlantWaterViewModel BuildNextWatering(IPlantActionViewModel a);
-        //IPlantFertilizeViewModel BuildNextNourishing(IPlantActionViewModel a);
 
     }
 
@@ -556,7 +556,7 @@ namespace Growthstories.UI.ViewModel
     public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         bool IsRegistered { get; }
-        IObservable<RegisterRespone> Response { get; }
+        IObservable<Tuple<bool, RegisterResponse, SignInResponse>> Response { get; }
         IReactiveCommand OKCommand { get; }
         string Username { get; set; }
         string Password { get; set; }
@@ -611,8 +611,8 @@ namespace Growthstories.UI.ViewModel
     public interface IPlantActionViewModel : IPlantActionBaseViewModel, ICommandViewModel
     {
         IReactiveCommand OpenZoomView { get; }
-        Guid PlantId { get; set; }
-        Guid UserId { get; set; }
+        Guid? PlantId { get; set; }
+        Guid? UserId { get; set; }
         IReactiveCommand EditCommand { get; }
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }

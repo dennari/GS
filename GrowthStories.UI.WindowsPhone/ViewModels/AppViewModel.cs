@@ -18,6 +18,8 @@ using Growthstories.Domain.Messaging;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using EventStore.Persistence;
 using EventStore;
+using EventStore.Persistence.SqlPersistence;
+using Growthstories.UI.Persistence;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -146,7 +148,26 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
+        protected override void ClearDB()
+        {
+            //base.ClearDB();
+            var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
+            if (db != null)
+                db.ReInitialize();
+            var db2 = Kernel.Get<IUIPersistence>() as SQLiteUIPersistence;
+            if (db2 != null)
+                db2.ReInitialize();
 
+            var repo = Repository as GSRepository;
+            if (repo != null)
+            {
+                repo.ClearCaches();
+            }
+            var pipelineHook = Kernel.Get<OptimisticPipelineHook>();
+            pipelineHook.Dispose();
+
+
+        }
 
 
     }

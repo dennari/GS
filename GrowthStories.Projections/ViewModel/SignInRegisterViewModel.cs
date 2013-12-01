@@ -20,7 +20,8 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand OKCommand { get; protected set; }
-        public IObservable<RegisterRespone> Response { get; protected set; }
+        public IReactiveCommand SwitchModeCommand { get; protected set; }
+        public IObservable<Tuple<bool, RegisterResponse, SignInResponse>> Response { get; protected set; }
 
 
         public SignInRegisterViewModel(IGSAppViewModel app)
@@ -53,25 +54,63 @@ namespace Growthstories.UI.ViewModel
             {
                 throw x;
             });
-            this.Response = this.OKCommand.RegisterAsyncTask(_ => App.Register(this.Username, this.Email, this.Password));
-            this.Response.Subscribe(x =>
+
+            this.Response = this.OKCommand.RegisterAsyncTask(async _ =>
             {
-                this.ProgressIndicatorIsVisible = false;
-                if (x == RegisterRespone.emailInUse)
+                if (SignInMode)
                 {
-                    this.Message = "The specified email-address is already registered";
+                    var r = await App.SignIn(this.Email, this.Password);
+                    return Tuple.Create(true, RegisterResponse.alreadyRegistered, r);
+
                 }
                 else
                 {
-                    App.Router.NavigateBack.Execute(null);
+                    var r = await App.Register(this.Username, this.Email, this.Password);
+                    return Tuple.Create(false, r, SignInResponse.accountNotFound);
                 }
+            });
+            this.Response.Subscribe(x =>
+            {
+                this.ProgressIndicatorIsVisible = false;
+                bool IsSuccess = x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
+
+                if (x.Item2 == RegisterResponse.emailInUse)
+                {
+                    this.Message = "The specified email-address is already registered";
+                }
+
+                if (IsSuccess)
+                {
+                    if (!SignInMode)
+                        App.Router.NavigateBack.Execute(null);
+                    else
+                        App.Router.NavigateAndReset.Execute(new MainViewModel(App));
+
+                }
+
+
 
             });
 
 
-            this.IsRegistered = app.User.IsRegistered();
+            this.SwitchModeCommand = new ReactiveCommand();
+            this.SwitchModeCommand.Subscribe(_ =>
+            {
+                this.SignInMode = !this.SignInMode;
+            });
 
-            this.Title = !IsRegistered ? "new user" : "sign in";
+            Observable.CombineLatest(
+                this.WhenAnyValue(x => x.SignInMode),
+                App.WhenAnyValue(x => x.User),
+                (a, b) => Tuple.Create(a, b)
+              ).Subscribe(x =>
+              {
+                  //this.IsRegistered = x.Item2 != null && x.Item1 == x.Item2.Id;
+              });
+
+
+            this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "new user" : "sign in");
+
 
 
 
@@ -85,12 +124,12 @@ namespace Growthstories.UI.ViewModel
 
         bool UsernameCheck(string username)
         {
-            return username != null && username.Length > 2;
+            return SignInMode || (username != null && username.Length > 2);
         }
 
         bool PasswordCheck(string p, string pc)
         {
-            return p != null && p.Length >= 6 && (IsRegistered || p == pc);
+            return p != null && p.Length >= 6 && (SignInMode || p == pc);
         }
 
         protected bool _CanExecute;
@@ -118,6 +157,20 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _IsRegistered, value);
             }
         }
+
+        private bool _SignInMode = true;
+        public bool SignInMode
+        {
+            get
+            {
+                return _SignInMode;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SignInMode, value);
+            }
+        }
+
 
 
         protected string _Username;

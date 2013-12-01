@@ -99,7 +99,7 @@ namespace Growthstories.DomainTests
             var u = TestUtils.WaitForTask(App.Initialize());
 
             ISignInRegisterViewModel reg = new SignInRegisterViewModel(App);
-            RegisterRespone? R = null;
+            RegisterResponse? R = null;
             var oneResponse = reg.Response.Take(1);
             oneResponse.Subscribe(x =>
             {
@@ -121,7 +121,7 @@ namespace Growthstories.DomainTests
 
             reg.OKCommand.Execute(null);
             TestUtils.WaitForTask(Task.Run(async () => await oneResponse));
-            Assert.AreEqual(RegisterRespone.success, R);
+            Assert.AreEqual(RegisterResponse.success, R);
 
 
         }

@@ -146,6 +146,14 @@ namespace Growthstories.Domain.Messaging
 
 
         private SyncStreamCreated() { }
+
+        public SyncStreamCreated(Guid streamId, PullStreamType type, Guid? ancestorId = null)
+        {
+            this.StreamId = streamId;
+            this.SyncStreamType = type;
+            this.AncestorId = ancestorId;
+        }
+
         public SyncStreamCreated(CreateUser createEvent)
         {
             this.StreamId = createEvent.AggregateId;
@@ -155,6 +163,13 @@ namespace Growthstories.Domain.Messaging
         public SyncStreamCreated(CreatePlant createEvent)
         {
             this.StreamId = createEvent.AggregateId;
+            this.SyncStreamType = PullStreamType.PLANT;
+            this.AncestorId = createEvent.AncestorId;
+        }
+
+        public SyncStreamCreated(AddPlant createEvent)
+        {
+            this.StreamId = createEvent.PlantId;
             this.SyncStreamType = PullStreamType.PLANT;
             this.AncestorId = createEvent.AncestorId;
         }

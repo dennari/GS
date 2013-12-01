@@ -106,8 +106,8 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(SyncStreamCreated @event)
         {
-            if (SyncStreamDict.ContainsKey(@event.StreamId))
-                throw DomainError.Named("duplicate_syncstreams", "Stream already exists");
+            //if (SyncStreamDict.ContainsKey(@event.StreamId))
+            //    throw DomainError.Named("duplicate_syncstreams", "Stream already exists");
             SyncStreamDict[@event.StreamId] = new PullStream(@event.StreamId, @event.SyncStreamType, @event.AncestorId);
         }
 
@@ -227,6 +227,13 @@ namespace Growthstories.Domain.Entities
         {
 
             this._User.Email = @event.Email;
+
+        }
+
+        public void Apply(GardenAdded @event)
+        {
+
+            this._User.GardenId = @event.GardenId;
 
         }
 

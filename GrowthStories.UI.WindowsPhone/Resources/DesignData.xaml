@@ -13,5 +13,8 @@
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"     
     mc:Ignorable="d">
 
-    <vm:SignInRegisterViewModelDesign x:Key="SignInRegisterViewModelDesign" d:IsDataSource="true"/>
+    <!--<vm:SignInRegisterViewModelDesign x:Key="SignInRegisterViewModelDesign" d:IsDataSource="true"/>
+    <vm:GardenViewModelDesign x:Key="GardenViewModelDesign" d:IsDataSource="true"/>
+    <vm:PlantViewModelDesign x:Key="PlantViewModelDesign" d:IsDataSource="true"/>
+    <vm:PlantActionViewModelDesign x:Key="PlantActionViewModelDesign" d:IsDataSource="true"/>-->
 </ResourceDictionary>

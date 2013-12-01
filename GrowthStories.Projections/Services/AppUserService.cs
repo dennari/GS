@@ -86,7 +86,7 @@ namespace Growthstories.UI.Services
 
         }
 
-        public Task AuthorizeUser()
+        public Task<IAuthResponse> AuthorizeUser()
         {
 
             if (CurrentUser == null)
@@ -117,21 +117,7 @@ namespace Growthstories.UI.Services
                 //    throw new InvalidOperationException("Can't auth user");
 
 
-
-                IAuthResponse authResponse = null;
-                counter = 0;
-                while (counter < 3)
-                {
-                    authResponse = await Transporter.RequestAuthAsync(CurrentUser.Email, CurrentUser.Password);
-                    if (authResponse.StatusCode == GSStatusCode.OK)
-                        break;
-                    await Task.Delay(2000);
-                    //throw new InvalidOperationException("Can't synchronize user");
-                    counter++;
-                }
-
-                if (authResponse.StatusCode != GSStatusCode.OK)
-                    throw new InvalidOperationException(string.Format("Can't authorize user {0}", CurrentUser.Username));
+                var authResponse = await AuthorizeUser(CurrentUser.Email, CurrentUser.Password);
 
                 _CurrentUser.AccessToken = authResponse.AuthToken.AccessToken;
                 _CurrentUser.ExpiresIn = authResponse.AuthToken.ExpiresIn;
@@ -141,7 +127,36 @@ namespace Growthstories.UI.Services
 
                 Transporter.AuthToken = authResponse.AuthToken;
                 //u.State.Apply(new AuthTokenSet(new SetAuthToken(u.Id, authResponse.AuthToken)));
+                return authResponse;
             });
+
+        }
+
+        public async Task<IAuthResponse> AuthorizeUser(string email, string password)
+        {
+
+
+            IAuthResponse authResponse = null;
+            int counter = 0;
+            while (counter < 3)
+            {
+                authResponse = await Transporter.RequestAuthAsync(email, password);
+                if (authResponse.StatusCode == GSStatusCode.OK)
+                    break;
+                await Task.Delay(2000);
+                //throw new InvalidOperationException("Can't synchronize user");
+                counter++;
+            }
+
+            if (authResponse.StatusCode != GSStatusCode.OK)
+                throw new InvalidOperationException(string.Format("Can't authorize user {0}", email));
+
+
+            Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+
+            Transporter.AuthToken = authResponse.AuthToken;
+            return authResponse;
+
 
         }
 

@@ -430,12 +430,26 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public void ClearDB()
         {
 
+            //base.ClearDB();
             var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
             if (db != null)
                 db.ReInitialize();
             var db2 = Kernel.Get<IUIPersistence>() as SQLiteUIPersistence;
             if (db2 != null)
                 db2.ReInitialize();
+
+            var repo = Kernel.Get<IGSRepository>() as GSRepository;
+            if (repo != null)
+            {
+                repo.ClearCaches();
+            }
+            var pipelineHook = Kernel.Get<OptimisticPipelineHook>();
+            pipelineHook.Dispose();
+
+            ((AppViewModel)App).ResetUI();
+
+            App.Router.NavigateAndReset.Execute(new MainViewModel(App));
+
         }
 
         public T Get<T>() { return Kernel.Get<T>(); }
