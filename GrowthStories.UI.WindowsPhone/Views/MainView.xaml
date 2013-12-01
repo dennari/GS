@@ -29,14 +29,14 @@
                 Style="{StaticResource GSTextBlockStyle}"
                 Foreground="White"
                 Width="350"
-                Margin="0,0,0,24"
+                HorizontalAlignment="Left"
+                TextAlignment="Left"
+                Margin="12,0,0,24"
                 Text="{Binding NotificationText}"
                 TextWrapping="Wrap"
                 />
 
-                <!--
-                Visibility="{Binding ShouldShow, Converter={StaticResource BooleanToVisibility}}"
-                -->
+               
             </StackPanel>
         </DataTemplate>
 
