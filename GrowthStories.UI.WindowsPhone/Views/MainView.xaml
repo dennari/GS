@@ -28,7 +28,7 @@
             <TextBlock 
                 Style="{StaticResource GSTextBlockStyle}"
                 Foreground="White"
-                Width="400"
+                Width="350"
                 Margin="0,0,0,24"
                 Text="{Binding NotificationText}"
                 TextWrapping="Wrap"

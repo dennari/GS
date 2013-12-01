@@ -46,7 +46,7 @@
          </local:GSViewGrid.Background>
 
         <StackPanel>
-            <local:GSLabel Label="Allow location services">
+            <local:GSLabel Label="Share plant locations">
                 <local:GSToggleSwitch
                             IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
                             Content="{Binding LocationServices}"
@@ -55,6 +55,17 @@
                             Margin="-12,0,-12,-12"
                             />
             </local:GSLabel>
+
+            <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="WhiteSmoke"
+                Margin="0,-6,0,48"
+                FontSize="24"
+                HorizontalAlignment="Stretch"
+                Text="Sharing the location of your plants helps others to figure out where different species can be grown."
+                TextWrapping="Wrap"
+                />
+
             <local:GSLabel Label="Share new plants by default">
                 <local:GSToggleSwitch 
                             IsChecked="{Binding SharedByDefault.IsEnabled, Mode=TwoWay}"                                                    
@@ -64,7 +75,17 @@
                             Margin="-12,0,-12,-12"
                             />
             </local:GSLabel>
-            
+
+             <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="WhiteSmoke"
+                Margin="0,-6,0,48"
+                FontSize="24"
+                HorizontalAlignment="Stretch"
+                Text="When you share plants, they will be made available for others to view and follow"
+                TextWrapping="Wrap"
+                />
+
             <Button 
                 Style="{StaticResource GSButtonStyle}" 
                 HorizontalContentAlignment="Left"
