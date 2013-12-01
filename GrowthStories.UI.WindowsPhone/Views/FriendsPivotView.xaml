@@ -23,9 +23,21 @@
 			ItemsSource="{Binding Friends}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
+            <phone:Pivot.TitleTemplate>
+                <DataTemplate>
+                    <TextBlock 
+                        Style="{StaticResource GSAppTitleStyle}"
+                        Text="GROWTH STORIES" 
+                        Margin="0,4,0,8" />
+                </DataTemplate>
+
+            </phone:Pivot.TitleTemplate>
+
             <phone:Pivot.HeaderTemplate>
                 <DataTemplate>
-                    <ContentControl Content="{Binding Username}"/>
+                    <TextBlock 
+                        Style="{StaticResource GSPageTitleStyle}"
+                        Text="{Binding Username}"  />
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
 
@@ -36,7 +48,6 @@
             </phone:Pivot.ItemTemplate>
 
         </phone:Pivot>
-
 
     </Grid>
 
