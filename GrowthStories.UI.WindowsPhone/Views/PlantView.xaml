@@ -79,7 +79,7 @@
             Grid.Row="1"
             ListHeader="{Binding}"
             VerticalAlignment="Stretch"
-            Margin="0,0,0,36"
+            Margin="0,0,0,0"
             Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}"
         >
 

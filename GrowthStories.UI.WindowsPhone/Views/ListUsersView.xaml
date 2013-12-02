@@ -15,11 +15,36 @@
     
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">
-            <TextBlock 
+
+            <Grid Margin="-0, 0, 0, 20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock 
+                Style="{Binding GSTextBlockStyle}"
                 Text="{Binding Username}"               
-                FontSize="{StaticResource PhoneFontSizeExtraLarge}"
+                FontSize="34"
                 toolkit:TiltEffect.IsTiltEnabled="True"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Left"
+                FontWeight="Bold"
+                Foreground="White"
                 />
+                
+                <TextBlock 
+                    Grid.Column="1"
+                    Style="{Binding GSTextBlockStyle}"
+                    Foreground="White"
+                    Text="{Binding FriendlyPlantCount}"               
+                    FontSize="34"
+                    toolkit:TiltEffect.IsTiltEnabled="True"
+                    HorizontalAlignment="Stretch"
+                    TextAlignment="Right"                    
+                />
+            </Grid>
+                
         </DataTemplate>
     </UserControl.Resources>
     
@@ -41,15 +66,17 @@
 
         <StackPanel Grid.Row="0">
    
-            <toolkit:PhoneTextBox
+            <local:GSTextBox
                     x:Name="UserListBox"
-                    KeyUp="UserListBox_KeyUp"
-                    ActionIcon="/Assets/Icons/appbar.add.png"
-                    ActionIconTapped="UserListBox_IconTapped" 
+                    KeyUp="UserListBox_KeyUp"             
                     BorderThickness="3" Margin="-12,0,-12,12"
                     
               />
-
+            <!--
+            ActionIcon="/Assets/Icons/appbar.add.png"
+                    ActionIconTapped="UserListBox_IconTapped"
+            -->
+            
             <StackPanel
                 Visibility="{Binding App.ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
                 <TextBlock

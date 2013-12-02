@@ -28,7 +28,7 @@ namespace Growthstories.UI.WindowsPhone
         public PlantView()
         {
             InitializeComponent();
-
+            Height = Double.NaN;
             //this.WhenAnyValue(x => (int?)x.ViewModel.MissedCount)
             //    .Subscribe(x =>
             //    {
@@ -80,7 +80,11 @@ namespace Growthstories.UI.WindowsPhone
                 Share(vm);
             });
 
-
+            if (vm.UserId == vm.App.User.Id) {
+                Margin = new Thickness(0, 0, 0, 72);
+            } else {
+                Margin = new Thickness(0, 0, 0, 0);
+            }
         }
 
 
