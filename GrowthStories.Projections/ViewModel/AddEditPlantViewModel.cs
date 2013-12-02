@@ -115,7 +115,11 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(_ => this.Navigate(this.FertilizingSchedule));
 
 
-            this.CanExecute = this.Changed.Select(_ => this.IsValid());
+            this.CanExecute = Observable.Merge(
+                    this.Changed,
+                    this.WateringSchedule.Changed,
+                    this.FertilizingSchedule.Changed)
+                .Select(_ => this.IsValid());
 
             this.AddCommand.RegisterAsyncTask((_) => this.AddTask()).Publish().Connect();
 

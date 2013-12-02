@@ -35,7 +35,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                
+
                 ScheduleType SType = ScheduleType.WATERING;
                 switch (Type)
                 {
@@ -48,7 +48,7 @@ namespace Growthstories.UI.ViewModel
                         break;
                 }
 
-                return PlantScheduler.NotificationText(Interval, Number, SType, Name.ToUpper());               
+                return PlantScheduler.NotificationText(Interval, Number, SType, Name.ToUpper());
             }
         }
 
@@ -61,7 +61,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-  
+
         public int CompareTo(Notification o2)
         {
             return (int)(o2.TicksToAction - this.TicksToAction);
@@ -100,27 +100,43 @@ namespace Growthstories.UI.ViewModel
 
             this.Garden = app.Resolver.GetService<IGardenViewModel>();
 
-            Garden.Plants.ItemsAdded.StartWith(Garden.Plants)
-                .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => Tuple.Create(x, y)))
+            var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
+            currentAndFuturePlants
+                .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
                 .Where(x => x.Item2 != null)
                 .SelectMany(x => x.Item2.WhenAnyValue(y => y.LastActionTime, y => Tuple.Create(x, y)))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
 
-                    var notification = new Notification()
+                    var plant = x.Item1.Item1;
+                    if (!x.Item1.Item3)
+                        TryRemove(plant.Id, NotificationType.WATERING_SCHEDULE);
+                    else
                     {
-                        Name = x.Item1.Item1.Name,
-                        Id = x.Item1.Item1.Id,
-                        Type = NotificationType.WATERING_SCHEDULE,
-                        Number = x.Item1.Item2.Missed,
-                        Interval = x.Item1.Item2.Interval.Value
-                    };
+                        var notification = new Notification()
+                        {
+                            Name = plant.Name,
+                            Id = plant.Id,
+                            Type = NotificationType.WATERING_SCHEDULE,
+                            Number = x.Item1.Item2.Missed,
+                            Interval = x.Item1.Item2.Interval.Value
+                        };
 
-                    UpdateList(notification);
 
+                        UpdateList(notification);
+                    }
                 });
 
+            //currentAndFuturePlants
+            //    .SelectMany(x => x.WhenAnyValue(y => y.IsWateringScheduleEnabled, y => Tuple.Create(x, y)))
+            //    .Where(x => !x.Item2)
+            //    .ObserveOn(RxApp.MainThreadScheduler)
+            //    .Subscribe(x =>
+            //    {
+            //        TryRemove(x.Item1.Id, NotificationType.WATERING_SCHEDULE);
+
+            //    });
 
 
             //{
@@ -158,16 +174,25 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        private void TryRemove(Guid id, NotificationType type)
+        {
+            var found = this.Notifications.FirstOrDefault(y => y.Id == id && y.Type == type);
+            if (found != null)
+                this.Notifications.Remove(found);
+        }
+
         private void UpdateList(Notification notification)
         {
+
+            TryRemove(notification.Id, notification.Type);
             Notifications.Add(notification);
-            var key = Tuple.Create(notification.Id, NotificationType.WATERING_SCHEDULE);
-            int? index = null;
-            if (NotificationsForPlant.TryGetValue(key, out index))
-            {
-                Notifications.RemoveAt(index.Value);
-            }
-            NotificationsForPlant[key] = Notifications.Count - 1;
+            //var key = Tuple.Create(notification.Id, NotificationType.WATERING_SCHEDULE);
+            //int? index = null;
+            //if (NotificationsForPlant.TryGetValue(key, out index))
+            //{
+            //    Notifications.RemoveAt(index.Value);
+            //}
+            //NotificationsForPlant[key] = Notifications.Count - 1;
 
             //Notifications.Sort();           
         }
@@ -186,7 +211,7 @@ namespace Growthstories.UI.ViewModel
         }
         */
 
-        
+
         private Dictionary<Tuple<Guid, NotificationType>, int?> NotificationsForPlant = new Dictionary<Tuple<Guid, NotificationType>, int?>();
 
         private ReactiveList<Notification> _Notifications = new ReactiveList<Notification>();
