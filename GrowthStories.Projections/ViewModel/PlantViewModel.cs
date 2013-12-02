@@ -231,6 +231,16 @@ namespace Growthstories.UI.ViewModel
                 this.ListenTo<MarkedPlantPrivate>(this.State.Id)
                     .Subscribe(x => this.IsShared = false);
 
+                this.ListenTo<ScheduleToggled>(this.State.Id)
+                    .Subscribe(x =>
+                    {
+                        if (x.Type == ScheduleType.WATERING)
+                            this.IsWateringScheduleEnabled = x.IsEnabled;
+                        else
+                            this.IsFertilizingScheduleEnabled = x.IsEnabled;
+
+                    });
+
                 this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
                     .StartWith(state.Tags)
                     .Subscribe(x => this.Tags = new ReactiveList<string>(x));
@@ -250,55 +260,86 @@ namespace Growthstories.UI.ViewModel
 
             }
 
-            this.WhenAny(x => x.WateringSchedule, x => x.GetValue())
-                .Where(x => x.Interval.HasValue)
-                .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.WATERED), (schedule, axion) => Tuple.Create(schedule, axion))
-                .DistinctUntilChanged()
-                .Subscribe(x =>
-                {
-                    if (x.Item1 == null || !x.Item1.Interval.HasValue)
-                        return;
-                    IPlantActionViewModel a = x.Item2;
-                    if (a == null)
-                        a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.WATERED);
-                    if (a != null)
-                    {
-                        if (this.WateringScheduler == null)
-                        {
-                            this.WateringScheduler = new PlantScheduler(x.Item1)
-                            {
-                                Icon = IconType.WATER
-                            };
-                        }
-                        this.WateringScheduler.LastActionTime = a.Created;
-                    }
+            var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
+            actionsAccessed.SelectMany(_ =>
+            {
 
-                });
+                return Observable.CombineLatest(
+                    this.WhenAnyValue(y => y.WateringSchedule).Where(y => y != null),
+                    this.Actions.ItemsAdded.StartWith(this.Actions).Where(x => x.ActionType == PlantActionType.WATERED),
+                    (x, y) => Tuple.Create(x, y)
+                 );
+            }).Subscribe(x =>
+            {
+                if (this.WateringScheduler == null || this.WateringScheduler.Schedule != x.Item1)
+                    this.WateringScheduler = new PlantScheduler(x.Item1) { Icon = IconType.WATER };
+                this.WateringScheduler.LastActionTime = x.Item2.Created;
+            });
 
-            this.WhenAny(x => x.FertilizingSchedule, x => x.GetValue())
-                .Where(x => x.Interval.HasValue)
-                .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.FERTILIZED), (schedule, axion) => Tuple.Create(schedule, axion))
-                .DistinctUntilChanged()
-                .Subscribe(x =>
-                {
-                    if (x.Item1 == null || !x.Item1.Interval.HasValue)
-                        return;
-                    IPlantActionViewModel a = x.Item2;
-                    if (a == null)
-                        a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.FERTILIZED);
-                    if (a != null)
-                    {
-                        if (this.FertilizingScheduler == null)
-                        {
+            actionsAccessed.SelectMany(_ =>
+            {
 
-                            this.FertilizingScheduler = new PlantScheduler(x.Item1)
-                            {
-                                Icon = IconType.FERTILIZE
-                            };
-                        }
-                        this.FertilizingScheduler.LastActionTime = a.Created;
-                    }
-                });
+                return Observable.CombineLatest(
+                    this.WhenAnyValue(y => y.FertilizingSchedule).Where(y => y != null),
+                    this.Actions.ItemsAdded.StartWith(this.Actions).Where(x => x.ActionType == PlantActionType.FERTILIZED),
+                    (x, y) => Tuple.Create(x, y)
+                 );
+            }).Subscribe(x =>
+            {
+                if (this.FertilizingScheduler == null || this.FertilizingScheduler.Schedule != x.Item1)
+                    this.FertilizingScheduler = new PlantScheduler(x.Item1) { Icon = IconType.FERTILIZE };
+                this.FertilizingScheduler.LastActionTime = x.Item2.Created;
+            });
+
+            //this.WhenAny(x => x.WateringSchedule, x => x.GetValue())
+            //    .Where(x => x.Interval.HasValue)
+            //    .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.WATERED), (schedule, axion) => Tuple.Create(schedule, axion))
+            //    .DistinctUntilChanged()
+            //    .Subscribe(x =>
+            //    {
+            //        if (x.Item1 == null || !x.Item1.Interval.HasValue)
+            //            return;
+            //        IPlantActionViewModel a = x.Item2;
+            //        if (a == null)
+            //            a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.WATERED);
+            //        if (a != null)
+            //        {
+            //            if (this.WateringScheduler == null)
+            //            {
+            //                this.WateringScheduler = new PlantScheduler(x.Item1)
+            //                {
+            //                    Icon = IconType.WATER
+            //                };
+            //            }
+            //            this.WateringScheduler.LastActionTime = a.Created;
+            //        }
+
+            //    });
+
+            //this.WhenAny(x => x.FertilizingSchedule, x => x.GetValue())
+            //    .Where(x => x.Interval.HasValue)
+            //    .CombineLatest(this.Actions.ItemsAdded.Where(x => x.ActionType == PlantActionType.FERTILIZED), (schedule, axion) => Tuple.Create(schedule, axion))
+            //    .DistinctUntilChanged()
+            //    .Subscribe(x =>
+            //    {
+            //        if (x.Item1 == null || !x.Item1.Interval.HasValue)
+            //            return;
+            //        IPlantActionViewModel a = x.Item2;
+            //        if (a == null)
+            //            a = this.Actions.FirstOrDefault(y => y.ActionType == PlantActionType.FERTILIZED);
+            //        if (a != null)
+            //        {
+            //            if (this.FertilizingScheduler == null)
+            //            {
+
+            //                this.FertilizingScheduler = new PlantScheduler(x.Item1)
+            //                {
+            //                    Icon = IconType.FERTILIZE
+            //                };
+            //            }
+            //            this.FertilizingScheduler.LastActionTime = a.Created;
+            //        }
+            //    });
 
             this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
                 .Subscribe(x => this.MissedCount = (int?)x);
@@ -399,6 +440,20 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _FertilizingSchedule, value);
             }
         }
+
+        private bool _ActionsAccessed;
+        public bool ActionsAccessed
+        {
+            get
+            {
+                return _ActionsAccessed;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ActionsAccessed, value);
+            }
+        }
+
 
         protected IReactiveList<string> _Tags;
         public IReactiveList<string> Tags
@@ -548,7 +603,7 @@ namespace Growthstories.UI.ViewModel
                 if (_Actions == null)
                 {
                     _Actions = new ReactiveList<IPlantActionViewModel>();
-
+                    this.ActionsAccessed = true;
                     if (this.State != null)
                     {
                         var actionsPipe = App.CurrentPlantActions(this.State.Id)
@@ -581,34 +636,6 @@ namespace Growthstories.UI.ViewModel
                         });
                     }
 
-                    //actionsPipe
-                    //    .OfType<IPlantWaterViewModel>()
-                    //    .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
-                    //    .ObserveOn(RxApp.MainThreadScheduler)
-                    //    .Subscribe(x => ComputeNextWatering(x));
-
-                    //actionsPipe
-                    //    .OfType<IPlantFertilizeViewModel>()
-                    //    .Throttle(new TimeSpan(0, 0, 0, 0, 200), RxApp.TaskpoolScheduler)
-                    //    .ObserveOn(RxApp.MainThreadScheduler)
-                    //    .Subscribe(x => ComputeNextFertilizing(x));
-
-
-                    //if (this.Photo == null)
-                    //{
-                    //    actionsPipe
-                    //    .OfType<IPlantPhotographViewModel>()
-                    //    .Take(1)
-                    //    .Select(x => x.PhotoData)
-                    //    .Subscribe(x => App.Bus.SendCommand(new SetProfilepicture(Id, x)));
-
-                    //}
-
-                    //App.FuturePlantActions(this.State).Subscribe(x =>
-                    //{
-                    //    Actions.Insert(0, x);
-                    //    ScrollCommand.Execute(x);
-                    //});
 
                 }
                 return _Actions;

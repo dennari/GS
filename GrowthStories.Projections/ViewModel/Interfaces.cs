@@ -216,7 +216,7 @@ namespace Growthstories.UI.ViewModel
 
     public sealed class PlantScheduler : ReactiveObject
     {
-        private IScheduleViewModel Schedule;
+        public readonly IScheduleViewModel Schedule;
 
 
         public const double WINDOW = 0.2;

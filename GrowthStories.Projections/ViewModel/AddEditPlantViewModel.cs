@@ -63,6 +63,12 @@ namespace Growthstories.UI.ViewModel
                 this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
 
+            // a little hack to forward the enabled flag to the schedule viewmodels
+            ScheduleViewModel schedule = this.WateringSchedule as ScheduleViewModel;
+            this.WhenAnyValue(x => x.IsWateringScheduleEnabled).ToProperty(schedule, x => x.IsEnabled, out schedule._IsEnabled, this.IsWateringScheduleEnabled);
+            schedule = this.FertilizingSchedule as ScheduleViewModel;
+            this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled).ToProperty(schedule, x => x.IsEnabled, out schedule._IsEnabled, this.IsFertilizingScheduleEnabled);
+
 
 
             var garden = app.Resolver.GetService<IGardenViewModel>();

@@ -150,6 +150,18 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        // this is only used to help bindings in the switch datatemplate in AddEditPlantView.xaml
+        public ObservableAsPropertyHelper<bool> _IsEnabled;
+        public bool IsEnabled
+        {
+            get
+            {
+                if (_IsEnabled == null)
+                    return false;
+                return _IsEnabled.Value;
+            }
+        }
+
 
 
         public DateTimeOffset ComputeNext(DateTimeOffset last)
