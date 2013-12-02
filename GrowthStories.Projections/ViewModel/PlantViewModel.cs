@@ -88,6 +88,32 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private bool _IsWateringScheduleEnabled;
+        public bool IsWateringScheduleEnabled
+        {
+            get
+            {
+                return _IsWateringScheduleEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsWateringScheduleEnabled, value);
+            }
+        }
+
+        private bool _IsFertilizingScheduleEnabled;
+        public bool IsFertilizingScheduleEnabled
+        {
+            get
+            {
+                return _IsFertilizingScheduleEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsFertilizingScheduleEnabled, value);
+            }
+        }
+
 
 
         public PlantViewModel()
@@ -181,6 +207,8 @@ namespace Growthstories.UI.ViewModel
                 this.Id = state.Id;
                 this.UserId = state.UserId;
                 this.IsShared = state.Public;
+                this.IsFertilizingScheduleEnabled = state.IsFertilizingScheduleEnabled;
+                this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
 
                 this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                     .StartWith(state.Name)

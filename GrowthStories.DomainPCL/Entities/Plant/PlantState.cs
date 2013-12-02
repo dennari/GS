@@ -24,7 +24,11 @@ namespace Growthstories.Domain.Entities
         [JsonProperty]
         public Guid? WateringScheduleId { get; private set; }
         [JsonProperty]
+        public bool IsWateringScheduleEnabled { get; private set; }
+        [JsonProperty]
         public Guid? FertilizingScheduleId { get; private set; }
+        [JsonProperty]
+        public bool IsFertilizingScheduleEnabled { get; private set; }
         [JsonProperty]
         public IList<string> Tags { get; private set; }
         [JsonProperty]
@@ -92,6 +96,14 @@ namespace Growthstories.Domain.Entities
                 this.WateringScheduleId = @event.ScheduleId;
             else
                 this.FertilizingScheduleId = @event.ScheduleId;
+        }
+
+        public void Apply(ScheduleToggled @event)
+        {
+            if (@event.Type == ScheduleType.WATERING)
+                this.IsWateringScheduleEnabled = @event.IsEnabled;
+            else
+                this.IsFertilizingScheduleEnabled = @event.IsEnabled;
         }
 
 

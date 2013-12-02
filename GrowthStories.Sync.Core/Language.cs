@@ -61,6 +61,8 @@ namespace Growthstories.Sync
         public const string EMAIL = "email";
         public const string VALUE = "value";
         public const string MEASUREMENT_TYPE = "measurementType";
+        public const string WATERINGSCHEDULE_ENABLED = "wateringEnabled";
+        public const string FERTILIZINGSCHEDULE_ENABLED = "fertilizingEnabled";
 
 
 

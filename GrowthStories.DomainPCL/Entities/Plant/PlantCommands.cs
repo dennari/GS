@@ -89,6 +89,26 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class ToggleSchedule : PlantCommand
+    {
+        public readonly bool IsEnabled;
+        public readonly ScheduleType Type;
+
+        protected ToggleSchedule() { }
+        public ToggleSchedule(Guid plantId, bool isEnabled, ScheduleType type)
+            : base(plantId)
+        {
+            this.IsEnabled = isEnabled;
+            this.Type = type;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set {0} schedule to {1}", Type, IsEnabled);
+        }
+
+    }
+
     public class DeletePlant : PlantCommand
     {
 

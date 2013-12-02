@@ -193,6 +193,8 @@ namespace Growthstories.UI.ViewModel
         int? MissedCount { get; }
         bool HasTile { get; set; }
         bool IsShared { get; set; }
+        bool IsFertilizingScheduleEnabled { get; }
+        bool IsWateringScheduleEnabled { get; }
         //PlantState State { get; }
         IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; }
         IPlantActionViewModel SelectedItem { get; }
@@ -521,7 +523,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IScheduleViewModel : IGSRoutableViewModel
     {
-        bool IsEnabled { get; set; }
+        //bool IsEnabled { get; set; }
         Guid? Id { get; }
         TimeSpan? Interval { get; set; }
         IReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>> OtherSchedules { get; set; }

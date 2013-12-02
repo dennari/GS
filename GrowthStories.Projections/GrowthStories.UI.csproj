@@ -116,7 +116,7 @@
     </Compile>
     <Compile Include="ViewModel\MultipageViewModel.cs" />
     <Compile Include="ViewModel\PlantViewModel.cs" />
-    <Compile Include="ViewModel\AddPlantViewModel.cs" />
+    <Compile Include="ViewModel\AddEditPlantViewModel.cs" />
     <Compile Include="ViewModel\GardenViewModel.cs" />
     <Compile Include="ViewModel\GSViewModelBase.cs" />
   </ItemGroup>

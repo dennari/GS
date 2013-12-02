@@ -168,9 +168,9 @@ namespace Growthstories.Domain.Messaging
     }
 
     [DTOObject(DTOType.setProperty)]
-    public class MarkedPlantPublic : EventBase
+    public sealed class MarkedPlantPublic : EventBase
     {
-        protected MarkedPlantPublic() { }
+        private MarkedPlantPublic() { }
         //public MarkedPlantPublic(Guid entityId) : base(entityId) { }
         public MarkedPlantPublic(MarkPlantPublic cmd) : base(cmd) { }
 
@@ -210,9 +210,9 @@ namespace Growthstories.Domain.Messaging
     }
 
     [DTOObject(DTOType.setProperty)]
-    public class MarkedPlantPrivate : EventBase
+    public sealed class MarkedPlantPrivate : EventBase
     {
-        public MarkedPlantPrivate() { }
+        private MarkedPlantPrivate() { }
         //public MarkedPlantPrivate(Guid entityId) : base(entityId) { }
         public MarkedPlantPrivate(MarkPlantPrivate cmd) : base(cmd) { }
 
@@ -246,6 +246,56 @@ namespace Growthstories.Domain.Messaging
         }
 
     }
+
+    [DTOObject(DTOType.setProperty)]
+    public sealed class ScheduleToggled : EventBase
+    {
+
+        [JsonProperty]
+        public bool IsEnabled { get; private set; }
+        [JsonProperty]
+        public ScheduleType Type { get; private set; }
+
+        private ScheduleToggled() { }
+        //public MarkedPlantPrivate(Guid entityId) : base(entityId) { }
+        public ScheduleToggled(ToggleSchedule cmd)
+            : base(cmd)
+        {
+            this.IsEnabled = cmd.IsEnabled;
+            this.Type = cmd.Type;
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"{0} schedule set to {1}", Type, IsEnabled);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.PropertyName = Type == ScheduleType.WATERING ? Language.WATERINGSCHEDULE_ENABLED : Language.FERTILIZINGSCHEDULE_ENABLED;
+            D.PropertyValue = IsEnabled;
+            D.EntityType = DTOType.plant;
+            base.FillDTO(D);
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.PropertyName != Language.WATERINGSCHEDULE_ENABLED && D.PropertyName != Language.FERTILIZINGSCHEDULE_ENABLED)
+                throw new ArgumentException();
+            if (D.EntityType != DTOType.plant)
+                throw new ArgumentException();
+            this.Type = D.PropertyName == Language.WATERINGSCHEDULE_ENABLED ? ScheduleType.WATERING : ScheduleType.FERTILIZING;
+            this.IsEnabled = (bool)D.PropertyValue;
+            base.FromDTO(D);
+
+        }
+
+    }
+
 
     public enum ScheduleType
     {

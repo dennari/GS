@@ -18,6 +18,7 @@ namespace Growthstories.UI.ViewModel
     {
         public ScheduleType Type { get; private set; }
         private readonly ScheduleState ScheduleState;
+        public Guid? Id { get; private set; }
 
 
         public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSAppViewModel app)
@@ -28,23 +29,8 @@ namespace Growthstories.UI.ViewModel
             this.Type = scheduleType;
             this.Title = scheduleType == ScheduleType.WATERING ? "watering schedule" : "nourishing schedule";
 
-            //this.SelectValueType = new ReactiveCommand();
-            //this.SelectValueType
-            //     .OfType<IntervalValue>()
-            //     .ToProperty(this, x => x.ValueType, out this._ValueType, new IntervalValue(IntervalValueType.DAY));
 
-            //this.ValueTypes = IntervalValue.GetAll();
-
-            //double dVal;
-
-            //this.WhenAny(x => x.Id, x => x.Value, (id, val) => Tuple.Create(id.GetValue(), val.GetValue()))
-            //    .Where(x => x.Item1 != default(Guid) && double.TryParse(x.Item2, out dVal))
-            //    .Select(x => this.format(this.ValueType.Compute(x.Item2), x.Item1))
-            //    .ToProperty(this, x => x.Label, out this._Label, state != null ? this.format(state.Interval, state.Id) : "");
-
-
-
-            this.CanExecute = this.WhenAny(x => x.Interval, x => x.GetValue()).Select(x => x != null);
+            this.CanExecute = this.WhenAnyValue(x => x.Interval).Select(x => x != null);
             //.Select(x => !string.IsNullOrWhiteSpace(x) && double.TryParse(x, out dVal) && (state == null || this.ValueType.Compute(x) != state.Interval));
             this.WhenAny(x => x.OtherSchedules, x => x.GetValue()).Subscribe(x =>
             {
@@ -61,32 +47,16 @@ namespace Growthstories.UI.ViewModel
                 this.Interval = x.Item2.Interval;
             });
 
-            TimeSpan? originalInterval = ScheduleState != null ? TimeSpan.FromSeconds(ScheduleState.Interval) : (TimeSpan?)null;
 
 
-            this.WhenAnyValue(x => x.Interval).Subscribe(x =>
-            {
-                if (x != null)
-                {
-                    if (originalInterval == null)
-                    {
-                        HasChanged = true;
-                        this.Id = Guid.NewGuid();
-                    }
-                    else
-                    {
-                        HasChanged = originalInterval == x ? false : true;
+            TimeSpan? originalInterval = TimeSpan.FromSeconds(state != null ? state.Interval : 24 * 3600 * 2);
 
-                    }
-                    this.IsEnabled = true;
-                }
-                else
-                {
-                    this.IsEnabled = false;
-                }
 
-                this.raisePropertyChanged("IntervalLabel");
-            });
+            this.WhenAnyValue(x => x.Interval)
+                .Do(x => IntervalLabel = ComputeIntervalLabel(x))
+                .Select(x => x != originalInterval)
+                .ToProperty(this, x => x.HasChanged, out _HasChanged, false);
+
 
             //this.WhenAny(x => x.IsEnabled, x => x.GetValue()).Subscribe(x =>
             //{
@@ -96,14 +66,10 @@ namespace Growthstories.UI.ViewModel
             //});
 
             //this.WhenAny(x => x.OtherSchedules, x => x.GetValue()).Where(x => x != null).Select(x => x.)
+            this.Interval = originalInterval;
+            if (state != null)
+                this.Id = state.Id;
 
-            if (ScheduleState != null)
-            {
-                //this.Value = this.ValueType.Compute(ScheduleState.Interval);
-
-                this.Interval = TimeSpan.FromSeconds(ScheduleState.Interval);
-                this.Id = ScheduleState.Id;
-            }
 
         }
 
@@ -120,39 +86,44 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        protected bool _HasChanged;
+
+        private ObservableAsPropertyHelper<bool> _HasChanged;
         public bool HasChanged
         {
             get
             {
-                return _HasChanged;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _HasChanged, value);
+                return _HasChanged.Value;
             }
         }
 
 
+        protected string ComputeIntervalLabel(TimeSpan? tt)
+        {
+            if (!tt.HasValue)
+                return null;
+            var t = tt.Value;
+            if (t.TotalWeeks() > 0)
+                return string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
+            if (t.Days > 0)
+                return string.Format("{0:%d} days, {0:%h} hours", t);
+            return string.Format("{0:%h} hours", t);
+        }
+
+
+        private string _IntervalLabel;
         public string IntervalLabel
         {
             get
             {
-                if (Interval.HasValue)
-                {
-                    var t = Interval.Value;
-                    //int w = t.TotalWeeks(), h = t.
-
-                    if (t.TotalWeeks() > 0)
-                        return string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
-                    if (t.Days > 0)
-                        return string.Format("{0:%d} days, {0:%h} hours", t);
-                    return string.Format("{0:%h} hours", t);
-
-                }
-                return "Not set";
+                return _IntervalLabel;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IntervalLabel, value);
             }
         }
+
+
 
         public IconType OKIcon
         {
@@ -179,19 +150,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        bool _IsEnabled;
-        public bool IsEnabled
-        {
-            get
-            {
-                return _IsEnabled;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _IsEnabled, value);
-            }
-        }
-
 
 
         public DateTimeOffset ComputeNext(DateTimeOffset last)
@@ -202,17 +160,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        //protected string format(long interval, Guid id)
-        //{
-        //    return string.Format("{0} {2}", this.ValueType.Compute(interval), id, this.ValueType);
-        //}
 
-        protected Guid? _Id;
-        public Guid? Id
-        {
-            get { return _Id; }
-            protected set { this.RaiseAndSetIfChanged(ref _Id, value); }
-        }
+
 
 
 
@@ -265,19 +214,12 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        public Task<Schedule> Create()
+        public async Task<Schedule> Create()
         {
-            //long val = this.ValueType.Compute(this.Value);
-            if (!Interval.HasValue || !Id.HasValue)
-                return null;
-            if (this.ScheduleState != null && Interval.Value == TimeSpan.FromSeconds(this.ScheduleState.Interval) && IsEnabled)
-            {
 
-                return null;
-            }
-
-
-            return Task.Run(async () => (Schedule)(await this.App.HandleCommand(new CreateSchedule(Id.Value, (long)Interval.Value.TotalSeconds))));
+            var id = Guid.NewGuid();
+            this.Id = id;
+            return (Schedule)(await this.App.HandleCommand(new CreateSchedule(id, (long)Interval.Value.TotalSeconds)));
 
         }
 

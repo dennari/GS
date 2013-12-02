@@ -21,7 +21,8 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<SetSpecies>,
         ICommandHandler<SetProfilepicture>,
         ICommandHandler<MarkPlantPublic>,
-        ICommandHandler<MarkPlantPrivate>
+        ICommandHandler<MarkPlantPrivate>,
+        ICommandHandler<ToggleSchedule>
     {
         public Plant()
         {
@@ -52,6 +53,12 @@ namespace Growthstories.Domain.Entities
             if (command.AggregateId != this.State.Id)
                 throw new InvalidOperationException("command was misrouted.");
             RaiseEvent(new ScheduleSet(command));
+        }
+
+        public void Handle(ToggleSchedule command)
+        {
+
+            RaiseEvent(new ScheduleToggled(command));
         }
 
         public void Handle(SetTags command)

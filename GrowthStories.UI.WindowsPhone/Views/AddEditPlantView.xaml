@@ -71,7 +71,7 @@
                 </Popup>
             </Grid>
         </ControlTemplate>
-        <DataTemplate x:Key="ScheduleTemplate">
+        <DataTemplate x:Key="WateringScheduleTemplate">
                 <Grid Margin="0,0,0,10" Width="340">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>
@@ -80,17 +80,38 @@
                     <TextBlock 
                         Text="Off" 
                         Grid.Column="0" 
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                        Visibility="{Binding IsWateringScheduleEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
                     <TextBlock 
                         Text="On" 
                         Grid.Column="0" 
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                        Visibility="{Binding IsWateringScheduleEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                     <TextBlock 
-                        Text="{Binding IntervalLabel}" 
+                        Text="{Binding WateringSchedule.IntervalLabel}" 
                         Grid.Column="1" 
                         HorizontalAlignment="Center"
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                        Visibility="{Binding IsWateringScheduleEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                 </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="FertilizingScheduleTemplate">
+            <Grid Margin="0,0,0,10" Width="340">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock 
+                        Text="Off" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsFertilizingScheduleEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                <TextBlock 
+                        Text="On" 
+                        Grid.Column="0" 
+                        Visibility="{Binding IsFertilizingScheduleEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                <TextBlock 
+                        Text="{Binding FertilizingSchedule.IntervalLabel}" 
+                        Grid.Column="1" 
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding IsFertilizingScheduleEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+            </Grid>
         </DataTemplate>
         <DataTemplate x:Key="IsSharedTemplate">
             <Grid Margin="0,0,0,10" Width="340">
@@ -164,18 +185,18 @@
 
                 <local:GSLabel Label="watering schedule">
                         <local:GSToggleSwitch
-                            IsChecked="{Binding WateringSchedule.IsEnabled, Mode=TwoWay}"
-                            Content="{Binding WateringSchedule}"
-                            ContentTemplate="{StaticResource ScheduleTemplate}"
+                            IsChecked="{Binding IsWateringScheduleEnabled, Mode=TwoWay}"
+                            Content="{Binding}"
+                            ContentTemplate="{StaticResource WateringScheduleTemplate}"
                             VerticalContentAlignment="Center"
                             Margin="-12,0,-12,-12"
                             />
                 </local:GSLabel>
                 <local:GSLabel Label="nourishing schedule">
                         <local:GSToggleSwitch 
-                            IsChecked="{Binding FertilizingSchedule.IsEnabled, Mode=TwoWay}"
-                            Content="{Binding FertilizingSchedule}"
-                            ContentTemplate="{StaticResource ScheduleTemplate}"
+                            IsChecked="{Binding IsFertilizingScheduleEnabled, Mode=TwoWay}"
+                            Content="{Binding}"
+                            ContentTemplate="{StaticResource FertilizingScheduleTemplate}"
                             VerticalContentAlignment="Center"
                             Margin="-12,0,-12,-12"
                             />
