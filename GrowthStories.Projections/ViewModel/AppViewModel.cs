@@ -558,22 +558,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public Task LogOut()
-        {
-
-            if (this.User != null)
-            {
-                return Task.Run(async () =>
-                {
-                    await HandleCommand(new LogOutAppUser(User.Id));
-                    this.User = null;
-                });
-
-            }
-
-            return null;
-
-        }
 
 
 
@@ -648,7 +632,36 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        public async Task<GSApp> SignOut(bool createUnregUser = true)
+        {
+            // Clear db
+            if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
+            {
+                await CurrentHandleJob;
+            }
+            this.ClearDB();
+            Handler.ResetApp();
+            this._Model = null;
 
+            // Reset UI
+            this.ResetUI();
+
+            GSApp app = null;
+
+            if (createUnregUser)
+            {
+                await this.Initialize();
+                app = this.Model;
+            }
+            else
+            {
+                app = (GSApp)Handler.Handle(new CreateGSApp());
+                this.Model = app;
+
+            }
+
+            return app;
+        }
 
         public async Task<SignInResponse> SignIn(string email, string password)
         {
@@ -665,23 +678,12 @@ namespace Growthstories.UI.ViewModel
                 return SignInResponse.accountNotFound;
             }
 
-            // Clear db
-            if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
-            {
-                await CurrentHandleJob;
-            }
-            this.ClearDB();
-            Handler.ResetApp();
 
-            var app = (GSApp)Handler.Handle(new CreateGSApp());
+            var app = await SignOut(false);
+
             Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
             Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
-
-
-
-            this._Model = null;
-            this.Model = app;
             this.User = app.State.User;
             this.IsRegistered = true;
             Context.SetupCurrentUser(this.User);
@@ -694,8 +696,7 @@ namespace Growthstories.UI.ViewModel
             await this.SyncAll();
 
 
-            // Reset UI
-            this.ResetUI();
+
 
 
             return SignInResponse.success;
