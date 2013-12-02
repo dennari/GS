@@ -31,6 +31,12 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty CommandProperty =
            DependencyProperty.Register("Command", typeof(ICommand), typeof(PlantActionView), new PropertyMetadata(null, CommandValueChanged));
 
+        public static readonly DependencyProperty PhotoTemplateProperty =
+            DependencyProperty.Register("PhotoTemplate", typeof(DataTemplate), typeof(PlantActionView), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty MeasureTemplateProperty =
+            DependencyProperty.Register("MeasureTemplate", typeof(DataTemplate), typeof(PlantActionView), new PropertyMetadata(null));
+
         public static readonly DependencyProperty ContentVisibilityProperty =
            DependencyProperty.Register("ContentVisibility", typeof(System.Windows.Visibility), typeof(PlantActionView), new PropertyMetadata(Visibility.Collapsed));
 
@@ -91,11 +97,21 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        public DataTemplate PhotoTemplate { get; set; }
-        public DataTemplate MeasureTemplate { get; set; }
+        public DataTemplate PhotoTemplate
+        {
+            get { return (DataTemplate)GetValue(PhotoTemplateProperty); }
+            set { SetValue(PhotoTemplateProperty, value); }
+        }
+        public DataTemplate MeasureTemplate
+        {
+            get { return (DataTemplate)GetValue(MeasureTemplateProperty); }
+            set { SetValue(MeasureTemplateProperty, value); }
+        }
+
+        public const string DEFAULT_BG = "/Assets/Bg/action_bg.jpg";
 
         DataTemplate SelectedTemplate;
-        string SelectedBackground;
+        string SelectedBackground = DEFAULT_BG;
 
         protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
@@ -104,7 +120,7 @@ namespace Growthstories.UI.WindowsPhone
                 return;
 
             SelectedTemplate = null;
-            SelectedBackground = "/Assets/Bg/action_bg.jpg";
+            SelectedBackground = DEFAULT_BG;
             //base.OnViewModelChanged(vm);
             if (vm.ActionType == PlantActionType.PHOTOGRAPHED)
             {
@@ -119,19 +135,21 @@ namespace Growthstories.UI.WindowsPhone
                 SelectedBackground = "/Assets/Bg/watering_bg.jpg";
 
             }
+            //SelectedTemplate.
 
-
-
-        }
-
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-            base.OnContentChanged(oldContent, newContent);
             ContentTemplate = SelectedTemplate;
             ContentVisibility = SelectedTemplate == null ? Visibility.Collapsed : Visibility.Visible;
             Background = GetBg(SelectedBackground);
 
         }
+
+        //protected override void OnContentChanged(object oldContent, object newContent)
+        //{
+        //    base.OnContentChanged(oldContent, newContent);
+        //    ContentTemplate = SelectedTemplate;
+        //    ContentVisibility = SelectedTemplate == null ? Visibility.Collapsed : Visibility.Visible;
+        //    Background = GetBg(SelectedBackground);
+        //}
 
 
         protected ImageBrush GetBg(string path)

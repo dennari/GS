@@ -23,8 +23,8 @@
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
                 <ContentPresenter 
-						DataContext="{TemplateBinding DataContext}"
-                        Content="{TemplateBinding Content}" 
+						DataContext="{Binding}"
+                        Content="{Binding}" 
 						ContentTemplate="{TemplateBinding ContentTemplate}" 
 						Visibility="{TemplateBinding ContentVisibility}" 
 						HorizontalAlignment="Stretch"/>
@@ -126,8 +126,7 @@
             <phone:LongListSelector.ItemTemplate>
                 <DataTemplate>
                     <local:PlantActionView 
-                        ViewModel="{Binding}" 
-                        Content="{Binding}"
+                        ViewModel="{Binding}"
                         Template="{StaticResource TimelineActionTemplate}">         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>

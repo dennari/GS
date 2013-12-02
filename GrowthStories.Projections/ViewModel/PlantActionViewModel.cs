@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -117,6 +118,10 @@ namespace Growthstories.UI.ViewModel
 
         public int Updates { get; set; }
 
+
+        protected IDisposable TimelineLinesSubscription = Disposable.Empty;
+        protected IDisposable EditCommandSubscription = Disposable.Empty;
+
         public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
         {
@@ -157,7 +162,8 @@ namespace Growthstories.UI.ViewModel
 
             }
 
-            TimelineLinesSetup();
+            TimelineLinesSubscription = this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
+
 
             this.WhenAnyValue(x => x.UserId).Subscribe(x =>
             {
@@ -165,7 +171,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.EditCommand = new ReactiveCommand(this.WhenAnyValue(x => x.IsEditEnabled));
-            this.EditCommand.Subscribe(_ => this.Navigate(this));
+            EditCommandSubscription = this.EditCommand.Subscribe(_ => this.Navigate(this));
 
 
         }
@@ -225,12 +231,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        protected virtual void TimelineLinesSetup()
-        {
-            this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
-
-        }
 
         public virtual void SetProperty(PlantActionPropertySet prop)
         {
@@ -350,32 +350,42 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected MeasurementTypeHelper _SelectedMeasurementType;
+        readonly ObservableAsPropertyHelper<MeasurementTypeHelper> _SelectedMeasurementType;
         public MeasurementTypeHelper SelectedMeasurementType
         {
-            get { return _SelectedMeasurementType; }
-            set { this.RaiseAndSetIfChanged(ref _SelectedMeasurementType, value); }
+            get
+            {
+                return _SelectedMeasurementType.Value;
+            }
         }
 
+
+
+        private object _SelectedItem;
         public object SelectedItem
         {
             get
             {
-                return SelectedMeasurementType;
+                return _SelectedItem;
             }
             set
             {
-                var v = value as MeasurementTypeHelper;
-                if (v != null)
-                    this.SelectedMeasurementType = v;
+                this.RaiseAndSetIfChanged(ref _SelectedItem, value);
             }
         }
+
 
         protected string _SValue;
         public string SValue
         {
-            get { return _SValue; }
-            set { this.RaiseAndSetIfChanged(ref _SValue, value); }
+            get
+            {
+                return _SValue;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SValue, value);
+            }
         }
 
 
@@ -402,8 +412,6 @@ namespace Growthstories.UI.ViewModel
             //    .ToProperty(this, x => x.Series, out _Series, state != null ? MeasurementTypes.FirstOrDefault(x => x.Type == state.MeasurementType) : MeasurementTypes[0]);
 
 
-            this.WhenAnyValue(x => x.SelectedMeasurementType).Where(x => x != null).Subscribe(x => this.MeasurementType = x.Type);
-
 
             double dValue = 0;
             this.WhenAnyValue(x => x.SValue, x => x)
@@ -421,32 +429,40 @@ namespace Growthstories.UI.ViewModel
                   return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
               });
 
-            if (state != null)
+
+            var defaultMeasurementType = MeasurementTypeHelper.Options[state != null ? state.MeasurementType : MeasurementType.LENGTH];
+
+            this.WhenAnyValue(x => x.SelectedItem)
+                .Select(x =>
+                {
+                    return x as MeasurementTypeHelper;
+                })
+                .ToProperty(this, x => x.SelectedMeasurementType, out _SelectedMeasurementType, defaultMeasurementType);
+
+
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Where(x => x != null).Subscribe(x =>
             {
-                this.SelectedMeasurementType = MeasurementTypeHelper.Options[state.MeasurementType];
-                this.SValue = this.SelectedMeasurementType.FormatValue(state.Value.Value);
-                this.Value = state.Value;
+                this.MeasurementType = x.Type;
+            });
 
+            // dispose of the default content
+            TimelineLinesSubscription.Dispose();
 
-
-            }
-            else
-            {
-                this.SelectedMeasurementType = MeasurementTypeHelper.Options[MeasurementType.LENGTH];
-            }
-
-
-
-
-
-
-        }
-
-        protected override void TimelineLinesSetup()
-        {
             this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.TimelineFirstLine = x == null ? null : x.TimelineTitle);
             this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true));
+
+
+            this.SelectedItem = defaultMeasurementType;
+            this.SValue = state != null ? defaultMeasurementType.FormatValue(state.Value.Value) : string.Empty;
+
+
+
+
+
+
         }
+
+
 
         public override void SetProperty(PlantActionPropertySet prop)
         {
@@ -482,14 +498,14 @@ namespace Growthstories.UI.ViewModel
                 throw new InvalidCastException();
             this.Icon = IconType.PHOTO;
 
-            this.CanExecute = this.WhenAnyValue(x => x.Photo).Select(x =>
-            {
-                if (state != null)
-                {
-                    return x != null && x != state.Photo;
-                }
-                return x != null;
-            });
+
+
+
+            this.CanExecute = Observable.CombineLatest(
+                this.WhenAnyValue(x => x.Photo),
+                this.WhenAnyValue(x => x.Note),
+                (x, y) => state != null ? (x != null && (x != state.Photo || y != state.Note)) : x != null
+            );
 
             if (state != null)
             {
