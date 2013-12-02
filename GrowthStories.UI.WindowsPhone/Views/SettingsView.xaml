@@ -72,6 +72,8 @@
                             Margin="-12,0,-12,-12"
                             />
             </local:GSLabel>
+            
+            
             <local:GSLabel Label="Share plant locations">
                 <local:GSToggleSwitch
                             IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
@@ -92,6 +94,7 @@
                 TextWrapping="Wrap"
                 />
 
+            <!--
             <local:GSLabel Label="Share new plants by default">
                 <local:GSToggleSwitch 
                             IsChecked="{Binding SharedByDefault.IsEnabled, Mode=TwoWay}"                                                    
@@ -111,6 +114,8 @@
                 Text="When you share plants, they will be made available for others to view and follow"
                 TextWrapping="Wrap"
                 />
+            
+            -->
 
             <Button 
                 Style="{StaticResource GSButtonStyle}" 

@@ -128,7 +128,7 @@
                         Grid.Column="0" 
                         Visibility="{Binding IsShared, Converter={StaticResource BooleanToVisibility}}"/>
                 <TextBlock 
-                        Text="An explanation" 
+                        Text="" 
                         Grid.Column="1" 
                         HorizontalAlignment="Center"
                         Visibility="{Binding IsShared, Converter={StaticResource BooleanToVisibility}}"/>
@@ -211,6 +211,17 @@
                                 />
                 </local:GSLabel>
 
+            <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="WhiteSmoke"
+                Margin="0,-6,0,32"
+                FontSize="24"
+                HorizontalAlignment="Stretch"
+                Text="When you share plants, they will be made available for others to view and follow"
+                TextWrapping="Wrap"
+                />
+
+     
             <!-- PROFILE PICTURE -->
                  <local:GSLabel Label="profile photo">
 

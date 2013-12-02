@@ -59,12 +59,13 @@
                                             FontSize="66" 
                                             FontFamily="{StaticResource GSPageTitleFont}" 
                                             HorizontalAlignment="Left" 
-                                            Margin="10,-2,0,38">
+                                            Margin="10,-2,0,24">
                                 <ContentControl.RenderTransform>
                                     <TranslateTransform x:Name="headerTransform"/>
                                 </ContentControl.RenderTransform>
                             </ContentControl>
-                            <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Grid.Row="1" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <ContentPresenter Content="{TemplateBinding Content}" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0,0,0,30" Grid.Row="1" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>

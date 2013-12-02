@@ -93,7 +93,8 @@ namespace Growthstories.UI.WindowsPhone
             ShareLinkTask shareLinkTask = new ShareLinkTask();
 
             shareLinkTask.Title = "Sharing " + vm.Name;
-            shareLinkTask.LinkUri = new Uri("http://code.msdn.com/wpapps", UriKind.Absolute);
+            shareLinkTask.LinkUri = new Uri(
+                "http://www.growthstories.com/plant/" + vm.UserId + "/" + vm.Id , UriKind.Absolute);
             shareLinkTask.Message = "Check out how my plant " + vm.Name + " is doing!";
 
             shareLinkTask.Show();
