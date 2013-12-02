@@ -38,7 +38,7 @@
                 Converter={StaticResource PlantActionFilter}, 
                 ConverterParameter=Photo}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-			Title="{Binding Name}"
+			Title=""
             >          
 
             <phone:Pivot.Template>

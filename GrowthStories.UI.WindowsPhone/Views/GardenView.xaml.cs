@@ -27,6 +27,7 @@ namespace Growthstories.UI.WindowsPhone
         public GardenView()
         {
             InitializeComponent();
+            Height = Double.NaN;
         }
 
 
@@ -34,6 +35,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             this.ViewModel.SelectedItemsChanged.Execute(Tuple.Create(e.AddedItems, e.RemovedItems));
         }
+
 
 
     }

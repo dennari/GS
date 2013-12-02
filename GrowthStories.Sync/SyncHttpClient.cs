@@ -134,11 +134,18 @@ namespace Growthstories.Sync
         {
             var req = new HttpRequestMessage(HttpMethod.Post, uri);
             var form = new MultipartFormDataContent();
-            form.Add(new StreamContent(file), "file", "filename");
+            
+            StreamContent c = new StreamContent(file);
+            c.Headers.Remove("Content-Disposition");
+            c.Headers.TryAddWithoutValidation("Content-Disposition", "form-data; name=\"file\"; filename=\"filename.jpg\"");
+            form.Add(c);
+
+            // the content-disposition header has to be set manually because
+            // the app engine production parser insist on a space before filename
+            // http://stackoverflow.com/questions/2893268/appengine-blobstore-upload-failing-with-a-request-that-works-in-the-development
 
             req.Content = form;
-
-
+            
             return SendAndGetBodyAsync(req);
 
         }

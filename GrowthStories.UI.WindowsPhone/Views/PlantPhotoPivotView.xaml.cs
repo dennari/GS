@@ -24,15 +24,9 @@ namespace Growthstories.UI.WindowsPhone
     {
 
         public PlantPhotoPivotView()
-        {            
-            //((ContentControl)Parent).Height = Double.NaN;
-            
+        {                        
             InitializeComponent();
-            Height = Double.NaN;
-
-            //MainWindow.instance.Height = Double.NaN;
-
-            //((ContentControl)Parent).Height = Double.NaN;
+            Height = Double.NaN;      // no shit -- juho
         }
 
         

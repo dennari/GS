@@ -90,10 +90,11 @@ namespace Growthstories.UI.WindowsPhone
 
             shareLinkTask.Title = "Sharing " + vm.Name;
             shareLinkTask.LinkUri = new Uri("http://code.msdn.com/wpapps", UriKind.Absolute);
-            shareLinkTask.Message = "Here are some great code samples for Windows Phone.";
+            shareLinkTask.Message = "Check out how my plant " + vm.Name + " is doing!";
 
             shareLinkTask.Show();
         }
+
 
         private void DeleteTile()
         {

@@ -13,8 +13,10 @@ using System.Windows.Input;
 using Growthstories.Sync;
 using System.Reactive.Disposables;
 
+
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class ListUsersViewBase : GSView<ISearchUsersViewModel>
     {
 
@@ -61,7 +63,6 @@ namespace Growthstories.UI.WindowsPhone
         {
 
         }
-
 
     }
 }
