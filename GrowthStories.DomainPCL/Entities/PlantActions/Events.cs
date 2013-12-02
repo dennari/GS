@@ -21,7 +21,17 @@ namespace Growthstories.Domain.Messaging
         DTOType.addPhoto,
         DTOType.addFertilizing,
         DTOType.addMeasurement,
-        DTOType.addFBComment)]
+        DTOType.addFBComment,
+        DTOType.addBlooming,
+        DTOType.addDeceased,
+        DTOType.addHarvesting,
+        DTOType.addMisting,
+        DTOType.addPollination,
+        DTOType.addPruning,
+        DTOType.addSprouting,
+        DTOType.addTransfer
+   
+        )]
     public class PlantActionCreated : EventBase, ICreateMessage, IAggregateEvent<PlantActionState>
     {
         [JsonIgnore]
@@ -140,6 +150,23 @@ namespace Growthstories.Domain.Messaging
                 D.EventType = DTOType.addFertilizing;
             if (this.Type == PlantActionType.WATERED)
                 D.EventType = DTOType.addWatering;
+            if (this.Type == PlantActionType.BLOOMED)
+                D.EventType = DTOType.addBlooming;
+            if (this.Type == PlantActionType.DECEASED)
+                D.EventType = DTOType.addDeceased;
+            if (this.Type == PlantActionType.HARVESTED)
+                D.EventType = DTOType.addHarvesting;
+            if (this.Type == PlantActionType.MISTED)
+                D.EventType = DTOType.addMisting;
+            if (this.Type == PlantActionType.POLLINATED)
+                D.EventType = DTOType.addPollination;
+            if (this.Type == PlantActionType.PRUNED)
+                D.EventType = DTOType.addPruning;
+            if (this.Type == PlantActionType.SPROUTED)
+                D.EventType = DTOType.addSprouting;
+            if (this.Type == PlantActionType.TRANSFERRED)
+                D.EventType = DTOType.addTransfer;
+
             if (this.Type == PlantActionType.MEASURED)
             {
                 D.EventType = DTOType.addMeasurement;
@@ -158,9 +185,6 @@ namespace Growthstories.Domain.Messaging
                 D.FBUid = this.FBUid;
             }
 
-
-
-
             base.FillDTO(D);
             //D.Name = this.Name;
         }
@@ -177,6 +201,23 @@ namespace Growthstories.Domain.Messaging
                 this.Type = PlantActionType.FERTILIZED;
             if (D.EventType == DTOType.addWatering)
                 this.Type = PlantActionType.WATERED;
+            if (D.EventType == DTOType.addBlooming)
+                this.Type = PlantActionType.BLOOMED;
+            if (D.EventType == DTOType.addDeceased)
+                this.Type = PlantActionType.DECEASED;
+            if (D.EventType == DTOType.addHarvesting)
+                this.Type = PlantActionType.HARVESTED;
+            if (D.EventType == DTOType.addMisting)
+                this.Type = PlantActionType.MISTED;
+            if (D.EventType == DTOType.addPollination)
+                this.Type = PlantActionType.POLLINATED;
+            if (D.EventType == DTOType.addPruning)
+                this.Type = PlantActionType.PRUNED;
+            if (D.EventType == DTOType.addSprouting)
+                this.Type = PlantActionType.SPROUTED;
+            if (D.EventType == DTOType.addTransfer)
+                this.Type = PlantActionType.TRANSFERRED;
+
             if (D.EventType == DTOType.addMeasurement)
             {
                 this.Type = PlantActionType.MEASURED;
@@ -277,7 +318,14 @@ namespace Growthstories.Domain.Messaging
                 {DTOType.fertilizing, PlantActionType.FERTILIZED},
                 {DTOType.watering, PlantActionType.WATERED},
                 {DTOType.measurement, PlantActionType.MEASURED},
-                {DTOType.photo, PlantActionType.PHOTOGRAPHED} 
+                {DTOType.photo, PlantActionType.PHOTOGRAPHED},
+                {DTOType.blooming, PlantActionType.BLOOMED},
+                {DTOType.deceased, PlantActionType.DECEASED},
+                {DTOType.harvesting, PlantActionType.HARVESTED},
+                {DTOType.misting, PlantActionType.MISTED},
+                {DTOType.pollination, PlantActionType.POLLINATED},
+                {DTOType.sprouting, PlantActionType.SPROUTED},
+                {DTOType.transfer, PlantActionType.TRANSFERRED}
             };
                 }
                 return _ValidTypes;

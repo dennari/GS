@@ -37,6 +37,22 @@ namespace Growthstories.Sync
         setProperty,
         plantData,
         photoMetadata,
-        createUser
+        createUser,
+        blooming,
+        addBlooming,
+        deceased,
+        addDeceased,
+        harvesting,
+        addHarvesting,
+        pollination,
+        addPollination,
+        pruning,
+        addPruning,
+        sprouting,
+        addSprouting,
+        transfer,
+        addTransfer,
+        misting,
+        addMisting
     }
 }
