@@ -152,12 +152,11 @@
                     />
                     </StackPanel>
 
-
                     <local:GSLongListSelector
                         Margin="-2,0,0,0"
                         x:Name="FriendsSelector"
                         ItemsSource="{Binding Friends}"
-                        ItemTemplate="{StaticResource ListUsersTemplate}"
+                        ItemTemplate="{StaticResource ListUsersTemplate}"                        
                         SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
                         Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
                         />

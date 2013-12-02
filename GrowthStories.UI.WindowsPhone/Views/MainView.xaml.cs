@@ -29,7 +29,12 @@ namespace Growthstories.UI.WindowsPhone
             //FriendsSelector.SelectedItem = null;
         }
 
-
+        /*
+        private void FriendsSelector_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ViewModel.FriendsVM.RaisePropertyChanged("SelectedFriend");
+        }
+         */
 
 
 
