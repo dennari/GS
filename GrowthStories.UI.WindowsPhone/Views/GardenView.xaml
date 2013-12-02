@@ -241,9 +241,9 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-            </Grid.RowDefinitions>          
-        
-        <StackPanel>
+            </Grid.RowDefinitions>
+
+        <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}}">
             <TextBlock 
             Style="{StaticResource GSPlaceholderTextBlockStyle}"
             Text="You don't have any plants yet." 
@@ -262,7 +262,21 @@
             Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
         />
         </StackPanel>
-        
+
+        <StackPanel Visibility="{Binding OwnGarden, 
+            Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+            
+            <TextBlock 
+            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+            Text="This user has no shared plants." 
+            FontWeight="Bold"
+            Margin="-24,0,0,24"
+            Width="400"
+            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+            />            
+        </StackPanel>
+
+
         <toolkit:LongListMultiSelector
 		    x:Name="PlantsSelector"
 		    ItemsSource="{Binding Plants}"

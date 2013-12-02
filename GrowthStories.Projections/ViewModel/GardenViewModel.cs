@@ -252,6 +252,21 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private bool _OwnGarden = true;
+        public bool OwnGarden
+        {
+            get
+            {
+                return _OwnGarden;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _OwnGarden, value);
+            }
+        }
+
+
         private void Init(IAuthUser user)
         {
             this.User = user;
@@ -261,6 +276,21 @@ namespace Growthstories.UI.ViewModel
 
             this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();
 
+            if (App.User == null || App.User.Id == null || user.Id == App.User.Id)
+            {
+                OwnGarden = true;
+                this.TileModeAppBarButtons.Add(this.AddPlantButton);
+                this.TileModeAppBarButtons.Add(this.SettingsButton);
+                this.AppBarButtons = this.TileModeAppBarButtons;
+                this.AppBarIsVisible = true;
+            
+            } else {
+                OwnGarden = false;
+                this.AppBarIsVisible = false;
+                OwnGarden = user.Id == App.User.Id;
+            }
+            
+            /*
             if (user.Id == App.User.Id)
             {
                 this.TileModeAppBarButtons.Add(this.AddPlantButton);
@@ -272,9 +302,7 @@ namespace Growthstories.UI.ViewModel
             {
                 this.AppBarIsVisible = false;
             }
-
-
-
+            */
         }
 
 

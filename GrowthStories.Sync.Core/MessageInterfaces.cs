@@ -293,6 +293,29 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public int Version { get; set; }
 
+
+        public int PlantCount
+        {
+            get
+            {
+                if (Garden != null && Garden.Plants != null)
+                {
+                    return Garden.Plants.Count();
+                }
+                return 0;
+            }
+        }
+
+
+        [JsonIgnore]
+        public string FriendlyPlantCount
+        {
+            get 
+            {
+                return PlantCount + " plants";
+            }
+        }
+
     }
 
 
