@@ -84,10 +84,12 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSContentControl()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
             //this.WhenAny()
         }
 
+        //public static readonly DependencyProperty ViewModelProperty =
+        //    DependencyProperty.Register("ViewModel", typeof(T), typeof(ContentControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(T), typeof(ContentControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
@@ -99,27 +101,19 @@ namespace Growthstories.UI.WindowsPhone
             }
             set
             {
-
-                if (value != null)
-                {
-                    SetValue(ViewModelProperty, value);
-                    //OnViewModelChanged(value);
-                }
+                SetValue(ViewModelProperty, value);
             }
         }
-
 
 
         object IViewFor.ViewModel
         {
             get
             {
-                //return this.GetViewModel();
                 return this.ViewModel;
             }
             set
             {
-
                 this.ViewModel = value as T;
             }
         }
@@ -132,14 +126,8 @@ namespace Growthstories.UI.WindowsPhone
 
         public void ViewModelChangeReport(object vm)
         {
-            if (vm == null)
-                return;
-            var v = vm as T;
-            if (v == null)
-                return;
-            if (vm != this.ViewModel)
-                this.ViewModel = v;
-            this.OnViewModelChanged(v);
+
+            this.OnViewModelChanged(vm as T);
         }
 
     }

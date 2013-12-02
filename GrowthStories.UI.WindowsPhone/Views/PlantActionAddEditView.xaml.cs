@@ -31,6 +31,12 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        protected override void OnViewModelChanged(IPlantActionViewModel vm)
+        {
+            base.OnViewModelChanged(vm);
+
+
+        }
 
 
     }

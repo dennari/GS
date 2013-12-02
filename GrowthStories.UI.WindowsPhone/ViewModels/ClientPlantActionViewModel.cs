@@ -111,8 +111,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 .Where(x => x != default(Photo));
 
 
-            //if (state != null)
-            //    photoStream.StartWith(state.Photo);
+            if (state != null)
+                photoStream.StartWith(state.Photo);
 
             photoStream.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
