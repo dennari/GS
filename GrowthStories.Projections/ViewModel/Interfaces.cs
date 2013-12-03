@@ -64,7 +64,7 @@ namespace Growthstories.UI.ViewModel
         bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
-
+        IReactiveCommand ShowPopup { get; }
         IUserService Context { get; }
         IAuthUser User { get; }
         IEndpoint Endpoint { get; }
@@ -547,10 +547,10 @@ namespace Growthstories.UI.ViewModel
         IButtonViewModel LocationServices { get; }
         IButtonViewModel SharedByDefault { get; }
         IReactiveCommand NavigateToAbout { get; }
-        IReactiveCommand WarnCommand { get; }
-        IReactiveCommand WarningDismissedCommand { get; }
+        //IReactiveCommand WarnCommand { get; }
+        //IReactiveCommand WarningDismissedCommand { get; }
         IReactiveCommand SignOutCommand { get; }
-        bool DialogIsOn { get; set; }
+        //bool DialogIsOn { get; set; }
     }
 
     public interface IAboutViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray
@@ -679,6 +679,28 @@ namespace Growthstories.UI.ViewModel
     {
         IconType IconType { get; }
     }
+
+    public interface IPopupViewModel
+    {
+        IReactiveCommand DismissedCommand { get; }
+        string Caption { get; }
+        string Message { get; }
+        string LeftButtonContent { get; }
+        string RightButtonContent { get; }
+        bool IsLeftButtonEnabled { get; }
+        bool IsRightButtonEnabled { get; }
+        bool IsFullScreen { get; }
+
+    }
+
+    public enum PopupResult
+    {
+        LeftButton,
+        RightButton,
+        BackButton,
+        None
+    }
+
 
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel
     {

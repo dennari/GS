@@ -33,58 +33,58 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        IDisposable WarnSubscription = Disposable.Empty;
-        protected override void OnViewModelChanged(ISettingsViewModel vm)
-        {
-            WarnSubscription.Dispose();
-            WarnSubscription = vm.WarnCommand
-                .OfType<bool>()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    if (x)
-                        this.LogOutDialog.Show();
-                    else
-                        this.LogOutDialog.Dismiss();
-                });
-        }
+        //    IDisposable WarnSubscription = Disposable.Empty;
+        //    protected override void OnViewModelChanged(ISettingsViewModel vm)
+        //    {
+        //        WarnSubscription.Dispose();
+        //        WarnSubscription = vm.WarnCommand
+        //            .OfType<bool>()
+        //            .ObserveOn(RxApp.MainThreadScheduler)
+        //            .Subscribe(x =>
+        //            {
+        //                if (x)
+        //                    this.LogOutDialog.Show();
+        //                else
+        //                    this.LogOutDialog.Dismiss();
+        //            });
+        //    }
 
 
-        CustomMessageBox _LogOutDialog;
-        CustomMessageBox LogOutDialog
-        {
-            get
-            {
-                if (_LogOutDialog == null || _LogOutDialog != null)
-                {
-                    _LogOutDialog = new CustomMessageBox()
-                    {
-                        Caption = "Confirmation",
-                        Message = "Are you sure you wish to sign out?",
-                        LeftButtonContent = "yes",
-                        IsRightButtonEnabled = false
-                    };
+        //    CustomMessageBox _LogOutDialog;
+        //    CustomMessageBox LogOutDialog
+        //    {
+        //        get
+        //        {
+        //            if (_LogOutDialog == null || _LogOutDialog != null)
+        //            {
+        //                _LogOutDialog = new CustomMessageBox()
+        //                {
+        //                    Caption = "Confirmation",
+        //                    Message = "Are you sure you wish to sign out?",
+        //                    LeftButtonContent = "yes",
+        //                    IsRightButtonEnabled = false
+        //                };
 
-                    _LogOutDialog.Dismissed += (s1, e1) =>
-                    {
-                        switch (e1.Result)
-                        {
-                            case CustomMessageBoxResult.LeftButton:
-                                ViewModel.SignOutCommand.Execute(null);
-                                break;
-                            default:
-                                break;
-                        }
-                        ViewModel.DialogIsOn = false;
+        //                _LogOutDialog.Dismissed += (s1, e1) =>
+        //                {
+        //                    switch (e1.Result)
+        //                    {
+        //                        case CustomMessageBoxResult.LeftButton:
+        //                            ViewModel.SignOutCommand.Execute(null);
+        //                            break;
+        //                        default:
+        //                            break;
+        //                    }
+        //                    ViewModel.DialogIsOn = false;
 
-                    };
+        //                };
 
-                }
-                return _LogOutDialog;
-            }
-        }
+        //            }
+        //            return _LogOutDialog;
+        //        }
+        //    }
+        //}
+
     }
-
-
 
 }

@@ -25,19 +25,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand WarnCommand { get; protected set; }
         public IReactiveCommand WarningDismissedCommand { get; protected set; }
         public IReactiveCommand SignOutCommand { get; protected set; }
-
-        private bool _DialogIsOn;
-        public bool DialogIsOn
-        {
-            get
-            {
-                return _DialogIsOn;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _DialogIsOn, value);
-            }
-        }
+        public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
         private string _Email;
         public string Email
@@ -81,6 +69,7 @@ namespace Growthstories.UI.ViewModel
             this.WarnCommand = new ReactiveCommand();
             this.WarningDismissedCommand = new ReactiveCommand();
             this.SignOutCommand = new ReactiveCommand();
+            this.MaybeSignOutCommand = new ReactiveCommand();
 
             Observable.CombineLatest(
                 App.WhenAnyValue(x => x.User).Where(x => x != null),
@@ -114,8 +103,9 @@ namespace Growthstories.UI.ViewModel
 
                 if (x == false && App.IsRegistered)
                 {
-                    this.WarnCommand.Execute(true);
-                    this.DialogIsOn = true;
+
+                    App.ShowPopup.Execute(this.LogOutWarning);
+
 
                 }
                 if (x == true && !App.IsRegistered)
@@ -123,19 +113,8 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
-             {
-                 if (this.DialogIsOn)
-                 {
-                     this.WarnCommand.Execute(false);
-                     this.DialogIsOn = false;
-                     this.RefreshSignInSwitch = !this.RefreshSignInSwitch;
-                     x.Cancel = true;
-                 }
 
-             });
-
-
+            this.MaybeSignOutCommand.OfType<PopupResult>().Where(x => x == PopupResult.LeftButton).Subscribe(_ => this.SignOutCommand.Execute(null));
 
             var logOutResult = this.SignOutCommand.RegisterAsyncTask(async (_) => await App.SignOut());
             logOutResult.Subscribe(x => this.Navigate(new MainViewModel(App)));
@@ -146,6 +125,28 @@ namespace Growthstories.UI.ViewModel
 
             };
         }
+
+        private IPopupViewModel _LogOutWarning;
+        private IPopupViewModel LogOutWarning
+        {
+            get
+            {
+                if (_LogOutWarning == null)
+                {
+                    _LogOutWarning = new PopupViewModel()
+                    {
+                        Caption = "Confirmation",
+                        Message = "Are you sure you wish to sign out?",
+                        LeftButtonContent = "yes",
+                        DismissedCommand = this.MaybeSignOutCommand
+                    };
+                }
+                return _LogOutWarning;
+            }
+        }
+
+
+
 
         private IButtonViewModel _LocationServices;
         public IButtonViewModel LocationServices

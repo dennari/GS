@@ -264,8 +264,10 @@ namespace Growthstories.UI.ViewModel
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
 
-
+            ShowPopup = new ReactiveCommand();
         }
+
+        public IReactiveCommand ShowPopup { get; private set; }
 
         private object _myGarden;
         private object _myFriends;
