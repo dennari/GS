@@ -22,8 +22,8 @@ namespace Growthstories.UI.WindowsPhone
     class StagingEndpoint : Endpoint
     {
         //public StagingEndpoint() : base(new Uri("http://gs-devel.appspot.com")) { }
-        public StagingEndpoint() : base(new Uri("http://192.168.0.51:8080")) { }
-        //public StagingEndpoint() : base(new Uri("http://dennari-macbook.lan:8080")) { }
+        //public StagingEndpoint() : base(new Uri("http://192.168.0.51:8080")) { }
+        public StagingEndpoint() : base(new Uri("http://dennari-macbook.lan:8080")) { }
     }
 
 

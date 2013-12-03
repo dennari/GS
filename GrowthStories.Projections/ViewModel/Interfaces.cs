@@ -47,7 +47,8 @@ namespace Growthstories.UI.ViewModel
         alreadyRegistered,
         emailInUse,
         success,
-        tryagain
+        tryagain,
+        connectionerror
     }
     public enum SignInResponse
     {
@@ -55,7 +56,8 @@ namespace Growthstories.UI.ViewModel
         accountNotFound,
         invalidPassword,
         tryagain,
-        success
+        success,
+        connectionerror
     }
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
@@ -65,6 +67,9 @@ namespace Growthstories.UI.ViewModel
         string AppName { get; }
         IMessageBus Bus { get; }
         IReactiveCommand ShowPopup { get; }
+        IReactiveCommand SynchronizeCommand { get; }
+        IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
+        IPopupViewModel SyncPopup { get; }
         IUserService Context { get; }
         IAuthUser User { get; }
         IEndpoint Endpoint { get; }
@@ -563,6 +568,7 @@ namespace Growthstories.UI.ViewModel
     public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
     {
         bool IsRegistered { get; }
+        bool NavigateBack { get; set; }
         IObservable<Tuple<bool, RegisterResponse, SignInResponse>> Response { get; }
         IReactiveCommand OKCommand { get; }
         string Username { get; set; }
@@ -575,7 +581,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation
+    public interface IYAxisShitViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsPageOrientation, IControlsAppBar
     {
         //sIDictionary<MeasurementType, ISeries> Series { get; }
         //IDictionary<MeasurementType, object> TelerikSeries { get; }

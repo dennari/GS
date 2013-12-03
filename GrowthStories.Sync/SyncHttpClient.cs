@@ -22,7 +22,10 @@ namespace Growthstories.Sync
         void InitClient()
         {
 
-            Client = new System.Net.Http.HttpClient(this.Handler);
+            Client = new System.Net.Http.HttpClient(this.Handler)
+            {
+                Timeout = TimeSpan.FromSeconds(20)
+            };
             //Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
         }
 
@@ -134,7 +137,7 @@ namespace Growthstories.Sync
         {
             var req = new HttpRequestMessage(HttpMethod.Post, uri);
             var form = new MultipartFormDataContent();
-            
+
             StreamContent c = new StreamContent(file);
             c.Headers.Remove("Content-Disposition");
             c.Headers.TryAddWithoutValidation("Content-Disposition", "form-data; name=\"file\"; filename=\"filename.jpg\"");
@@ -145,7 +148,7 @@ namespace Growthstories.Sync
             // http://stackoverflow.com/questions/2893268/appengine-blobstore-upload-failing-with-a-request-that-works-in-the-development
 
             req.Content = form;
-            
+
             return SendAndGetBodyAsync(req);
 
         }
@@ -177,7 +180,7 @@ namespace Growthstories.Sync
 
         protected async Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            HttpResponseMessage r = null;
+            HttpResponseMessage r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
             string s = null;
             try
             {
@@ -188,7 +191,7 @@ namespace Growthstories.Sync
             catch (Exception e)
             {
                 Logger.Error(e.ToString());
-                throw e;
+                //throw e;
             }
 
 

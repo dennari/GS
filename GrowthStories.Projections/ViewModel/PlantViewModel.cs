@@ -134,6 +134,15 @@ namespace Growthstories.UI.ViewModel
             this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
+
+            var afterShareSyncCommand = new ReactiveCommand();
+            var syncResults = afterShareSyncCommand.RegisterAsyncTask(async (_) => await App.SyncAll());
+            syncResults.Subscribe(x =>
+            {
+                if (x.Item1 == AllSyncResult.AllSynced)
+                    this.ShareCommand.Execute(null);
+            });
+
             this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
             {
                 if (App.User.IsRegistered())
@@ -142,11 +151,19 @@ namespace Growthstories.UI.ViewModel
                 }
                 else
                 {
-                    var svm = new SignInRegisterViewModel(App);
+                    var svm = new SignInRegisterViewModel(App)
+                    {
+                        SignInMode = false,
+                        NavigateBack = true
+                    };
                     svm.Response.Subscribe(x =>
                     {
                         if ((!x.Item1 && x.Item2 == RegisterResponse.success) || (x.Item1 && x.Item3 == SignInResponse.success))
-                            this.ShareCommand.Execute(null);
+                        {
+                            // sync
+                            afterShareSyncCommand.Execute(null);
+
+                        }
                     });
                     this.Navigate(svm);
                 }
