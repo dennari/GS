@@ -265,9 +265,45 @@ namespace Growthstories.UI.ViewModel
 
 
             ShowPopup = new ReactiveCommand();
+            SynchronizeCommand = new ReactiveCommand();
+
+            this.SynchronizeCommand.Subscribe(x =>
+            {
+                //this.CanSynchronize = false;
+                ShowPopup.Execute(this.SyncPopup);
+            });
+            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
+            syncResult.Subscribe(x =>
+            {
+                //this.CanSynchronize = true;
+                App.ShowPopup.Execute(null);
+            });
+
+            this.SyncResults = syncResult;
+
         }
 
         public IReactiveCommand ShowPopup { get; private set; }
+        public IReactiveCommand SynchronizeCommand { get; private set; }
+        public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; protected set; }
+
+        private IPopupViewModel _SyncPopup;
+        public IPopupViewModel SyncPopup
+        {
+            get
+            {
+                if (_SyncPopup == null)
+                {
+                    _SyncPopup = new PopupViewModel()
+                    {
+                        Caption = "Synchronizing",
+                        Message = null,
+                        IsLeftButtonEnabled = false
+                    };
+                }
+                return _SyncPopup;
+            }
+        }
 
         private object _myGarden;
         private object _myFriends;
@@ -592,7 +628,18 @@ namespace Growthstories.UI.ViewModel
 
 
             if (User.AccessToken == null)
-                await Context.AuthorizeUser();
+            {
+                try
+                {
+                    await Context.AuthorizeUser();
+
+                }
+                catch
+                {
+                    return RegisterResponse.connectionerror;
+                }
+
+            }
 
             await this.HandleCommand(new MultiCommand(
                 new SetEmail(user.Id, email),
@@ -730,7 +777,19 @@ namespace Growthstories.UI.ViewModel
 
 
             if (User.AccessToken == null)
-                await Context.AuthorizeUser();
+            {
+                try
+                {
+                    var authResponse = await Context.AuthorizeUser();
+
+                }
+                catch
+                {
+                    return null;
+                }
+
+            }
+
 
             var syncStreams = Model.State.SyncStreams.ToArray();
             var s = new SyncInstance(
@@ -756,7 +815,18 @@ namespace Growthstories.UI.ViewModel
 
 
             if (User.AccessToken == null)
-                await Context.AuthorizeUser();
+            {
+                try
+                {
+                    var authResponse = await Context.AuthorizeUser();
+
+                }
+                catch
+                {
+                    return null;
+                }
+
+            }
 
             var s = new SyncInstance(
                 RequestFactory.CreatePullRequest(null),
@@ -1170,6 +1240,7 @@ namespace Growthstories.UI.ViewModel
         {
             get { return this; }
         }
+
     }
 
     public enum View

@@ -147,13 +147,13 @@ namespace Growthstories.UI.ViewModel
             this.SynchronizeCommand.Subscribe(x =>
             {
                 this.CanSynchronize = false;
-                App.ShowPopup.Execute(this.SyncPopup);
+                App.SynchronizeCommand.Execute(null);
             });
-            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await App.SyncAll());
-            syncResult.Subscribe(x =>
+
+            App.SyncResults.Subscribe(x =>
             {
                 this.CanSynchronize = true;
-                App.ShowPopup.Execute(null);
+
             });
 
 
@@ -184,23 +184,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private IPopupViewModel _SyncPopup;
-        private IPopupViewModel SyncPopup
-        {
-            get
-            {
-                if (_SyncPopup == null)
-                {
-                    _SyncPopup = new PopupViewModel()
-                    {
-                        Caption = "Synchronizing",
-                        Message = null,
-                        IsLeftButtonEnabled = false
-                    };
-                }
-                return _SyncPopup;
-            }
-        }
+
 
 
 

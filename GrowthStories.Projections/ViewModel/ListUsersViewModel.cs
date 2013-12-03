@@ -151,7 +151,7 @@ namespace Growthstories.UI.ViewModel
             UserSelectedCommand = new ReactiveCommand();
             //UserSelectedCommand.Re
 
-            UserSelectedCommand.Subscribe(_ => ProgressIndicatorIsVisible = true);
+            UserSelectedCommand.Subscribe(_ => App.ShowPopup.Execute(App.SyncPopup));
             UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
                 {
@@ -171,7 +171,7 @@ namespace Growthstories.UI.ViewModel
 
                     await App.SyncAll();
 
-                    ProgressIndicatorIsVisible = false;
+                    App.ShowPopup.Execute(null);
                     App.Router.NavigateBack.Execute(null);
 
 

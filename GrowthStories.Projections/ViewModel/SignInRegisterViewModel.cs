@@ -52,7 +52,7 @@ namespace Growthstories.UI.ViewModel
             });
             this.OKCommand.ThrownExceptions.Subscribe(x =>
             {
-                throw x;
+                //throw x;
             });
 
             this.Response = this.OKCommand.RegisterAsyncTask(async _ =>
@@ -81,10 +81,10 @@ namespace Growthstories.UI.ViewModel
 
                 if (IsSuccess)
                 {
-                    if (!SignInMode)
-                        App.Router.NavigateBack.Execute(null);
-                    else
+                    if (SignInMode)
                         App.Router.NavigateAndReset.Execute(new MainViewModel(App));
+                    if (!SignInMode && NavigateBack)
+                        App.Router.NavigateBack.Execute(null);
 
                 }
 
@@ -112,10 +112,13 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "new user" : "sign in");
 
 
+            NavigateBack = true;
 
 
 
         }
+
+        public bool NavigateBack { get; set; }
 
         bool EmailCheck(string email)
         {

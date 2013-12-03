@@ -98,17 +98,9 @@ namespace Growthstories.UI.Services
             {
 
                 var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
-                int counter = 0;
-                ISyncPushResponse pushResp = null;
-                while (counter < 3)
-                {
-                    pushResp = await s.Push();
-                    if (pushResp.StatusCode == GSStatusCode.OK)
-                        break;
-                    await Task.Delay(2000);
-                    //throw new InvalidOperationException("Can't synchronize user");
-                    counter++;
-                }
+                //int counter = 0;
+                ISyncPushResponse pushResp = await s.Push();
+
                 if (pushResp.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Can't synchronize user");
 
@@ -136,17 +128,7 @@ namespace Growthstories.UI.Services
         {
 
 
-            IAuthResponse authResponse = null;
-            int counter = 0;
-            while (counter < 3)
-            {
-                authResponse = await Transporter.RequestAuthAsync(email, password);
-                if (authResponse.StatusCode == GSStatusCode.OK)
-                    break;
-                await Task.Delay(2000);
-                //throw new InvalidOperationException("Can't synchronize user");
-                counter++;
-            }
+            var authResponse = await Transporter.RequestAuthAsync(email, password);
 
             if (authResponse.StatusCode != GSStatusCode.OK)
                 throw new InvalidOperationException(string.Format("Can't authorize user {0}", email));
