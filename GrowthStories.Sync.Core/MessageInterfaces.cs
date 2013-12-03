@@ -298,11 +298,19 @@ namespace Growthstories.Sync
         {
             get
             {
+                int i = 0;
                 if (Garden != null && Garden.Plants != null)
                 {
-                    return Garden.Plants.Count();
+                    foreach (RemotePlant p in Garden.Plants)
+                    {
+                        if (p.Public)
+                        {
+                            i++;
+                        }
+
+                    }
                 }
-                return 0;
+                return i;
             }
         }
 

@@ -157,7 +157,7 @@ namespace Growthstories.UI.ViewModel
                     AppBarMode = ApplicationBarMode.DEFAULT;
                     TileModeAppBarButtons.Remove(SelectPlantsButton);
                     TileModeAppBarButtons.Remove(AddPlantButton);
-                    TileModeAppBarButtons.Add(DeletePlantsButton);
+                    //TileModeAppBarButtons.Add(DeletePlantsButton);
                     TileModeAppBarButtons.Add(WaterPlantsButton);
 
                 }
@@ -165,7 +165,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     AppBarMode = ApplicationBarMode.MINIMIZED;
                     TileModeAppBarButtons.Remove(WaterPlantsButton);
-                    TileModeAppBarButtons.Remove(DeletePlantsButton);
+                    //TileModeAppBarButtons.Remove(DeletePlantsButton);
                     TileModeAppBarButtons.Add(AddPlantButton);
                     if (_Plants != null && _Plants.Count > 0 && !TileModeAppBarButtons.Contains(SelectPlantsButton))
                         TileModeAppBarButtons.Add(SelectPlantsButton);

@@ -758,11 +758,13 @@ namespace Growthstories.UI.ViewModel
                             Text = "edit",
                             Command = EditCommand,
                         },
+                        /*
                          new MenuItemViewModel(null)
                         {
                             Text = "delete",
                             Command = DeleteCommand
                         },
+                        */
                         new MenuItemViewModel(null)
                         {
                             Text = HasTile ? "unpin" : "pin",

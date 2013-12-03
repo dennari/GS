@@ -11,7 +11,7 @@
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives"
     xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"
-	xmlns:toolkitPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:toolkitPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
     d:DataContext="{StaticResource GardenViewModelDesign}"
@@ -21,25 +21,40 @@
 
         <DataTemplate x:Key="C4fTile">
 
-            <StackPanel>
-                <toolkit:ContextMenuService.ContextMenu>
-                    <toolkit:ContextMenu>
-                        <toolkit:MenuItem Header="Water" 
-                                          Command="{Binding WateringCommand}"
-                                          CommandParameter="{Binding}"
-                                          IsEnabled="{Binding HasWriteAccess}"/>
-                        <toolkit:MenuItem Header="Edit" 
-                                          Command="{Binding EditCommand}"
-                                          CommandParameter="{Binding}"
-                                          IsEnabled="{Binding HasWriteAccess}"/>
-                        <toolkit:MenuItem Header="Delete" 
-                                          Command="{Binding DeleteCommand}"
-                                          CommandParameter="{Binding}"
-                                          IsEnabled="{Binding HasWriteAccess}"/>
+            
+                <StackPanel>
 
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
-                <c4f:Tile 
+                    <toolkit:ContextMenuService.ContextMenu>
+                            <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" 
+                                                 BorderBrush="Transparent" BorderThickness="0" Padding="48,48,48,48">
+                                <toolkit:MenuItem Header="Water"
+                                                  Background="WhiteSmoke"
+                                                  Opacity="0.9"
+                                                  Foreground="{StaticResource GSAccentBrush}"
+                                                  Command="{Binding WateringCommand}"
+                                                  CommandParameter="{Binding}"
+                                                  IsEnabled="{Binding HasWriteAccess}"/>
+                                <toolkit:MenuItem Header="Edit" 
+                                                  Opacity="0.9"
+                                                  Background="WhiteSmoke"
+                                                  Foreground="{StaticResource GSAccentBrush}"
+                                                  Command="{Binding EditCommand}"
+                                                  CommandParameter="{Binding}"
+                                                  IsEnabled="{Binding HasWriteAccess}"/>
+                                <!--
+                                <toolkit:MenuItem Header="Delete" 
+                                                  Opacity="0.9"
+                                                  Background="WhiteSmoke"
+                                                  Foreground="{StaticResource GSAccentBrush}"
+                                                  Command="{Binding DeleteCommand}"
+                                                  CommandParameter="{Binding}"
+                                                  IsEnabled="{Binding HasWriteAccess}"/>
+                                -->
+                            </toolkit:ContextMenu>
+                        </toolkit:ContextMenuService.ContextMenu>
+                        
+                
+                    <c4f:Tile 
                         HorizontalAlignment="Left"
                         Margin="0, 0"
                         Width="190"
@@ -108,10 +123,11 @@
                                 <SolidColorBrush Color="WhiteSmoke"/>
                             </Border.BorderBrush>
                         </Border>
-                    </Grid>
-                
 
-            </c4f:Tile>
+                        </Grid>
+
+                    
+                    </c4f:Tile>
 
                 
             <TextBlock 
@@ -132,8 +148,8 @@
                Foreground="WhiteSmoke"
             />
 
-
             </StackPanel>
+         
 
         </DataTemplate>
 

@@ -100,8 +100,19 @@
                 Padding="0,0,0,0"
                 Margin="-6,0,0,0"
                 >
-                <TextBlock Text="synchronize" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
+                <TextBlock Text="synchronize now" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
             </Button>
+
+            <TextBlock 
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="WhiteSmoke"
+                Margin="0,12,0,36"
+                FontSize="24"
+                HorizontalAlignment="Stretch"
+                Text="To allow for sharing and backups, the application automatically synchronizes data with the Growth Stories backend."
+                TextWrapping="Wrap"
+                />
+
 
             <!--<local:GSLabel Label="Share plant locations">
                 <local:GSToggleSwitch

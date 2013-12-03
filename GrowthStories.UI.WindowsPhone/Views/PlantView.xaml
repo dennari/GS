@@ -14,9 +14,13 @@
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
-                <toolkit:ContextMenuService.ContextMenu>
-                    <toolkit:ContextMenu>
+                <toolkit:ContextMenuService.ContextMenu >
+                    <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
+                                                 BorderBrush="Transparent" BorderThickness="0">
                         <toolkit:MenuItem Header="Edit" 
+                            Background="WhiteSmoke"                           
+                            Opacity="0.9"
+                            Foreground="{StaticResource GSAccentBrush}"              
                             Command="{Binding EditCommand}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding IsEditEnabled}"/>
