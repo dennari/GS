@@ -25,6 +25,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand WarnCommand { get; protected set; }
         public IReactiveCommand WarningDismissedCommand { get; protected set; }
         public IReactiveCommand SignOutCommand { get; protected set; }
+        public IReactiveCommand SynchronizeCommand { get; protected set; }
         public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
         private string _Email;
@@ -37,6 +38,19 @@ namespace Growthstories.UI.ViewModel
             private set
             {
                 this.RaiseAndSetIfChanged(ref _Email, value);
+            }
+        }
+
+        private bool _CanSynchronize = true;
+        public bool CanSynchronize
+        {
+            get
+            {
+                return _CanSynchronize;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _CanSynchronize, value);
             }
         }
 
@@ -70,6 +84,7 @@ namespace Growthstories.UI.ViewModel
             this.WarningDismissedCommand = new ReactiveCommand();
             this.SignOutCommand = new ReactiveCommand();
             this.MaybeSignOutCommand = new ReactiveCommand();
+            this.SynchronizeCommand = new ReactiveCommand();
 
             Observable.CombineLatest(
                 App.WhenAnyValue(x => x.User).Where(x => x != null),
@@ -92,7 +107,7 @@ namespace Growthstories.UI.ViewModel
                 InsideJob = false;
             });
 
-            this.SignIn.WhenAnyValue(x => x.IsEnabled).Subscribe(x =>
+            this.SignIn.WhenAnyValue(x => x.IsEnabled).Skip(1).Subscribe(x =>
             {
                 if (InsideJob)
                 {
@@ -124,6 +139,30 @@ namespace Growthstories.UI.ViewModel
                 IsEnabled = false,
 
             };
+
+
+
+
+
+            this.SynchronizeCommand.Subscribe(x =>
+            {
+                this.CanSynchronize = false;
+                App.ShowPopup.Execute(this.SyncPopup);
+            });
+            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await App.SyncAll());
+            syncResult.Subscribe(x =>
+            {
+                this.CanSynchronize = true;
+                App.ShowPopup.Execute(null);
+            });
+
+
+
+
+
+
+
+
         }
 
         private IPopupViewModel _LogOutWarning;
@@ -145,6 +184,23 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private IPopupViewModel _SyncPopup;
+        private IPopupViewModel SyncPopup
+        {
+            get
+            {
+                if (_SyncPopup == null)
+                {
+                    _SyncPopup = new PopupViewModel()
+                    {
+                        Caption = "Synchronizing",
+                        Message = null,
+                        IsLeftButtonEnabled = false
+                    };
+                }
+                return _SyncPopup;
+            }
+        }
 
 
 

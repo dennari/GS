@@ -283,13 +283,15 @@ namespace Growthstories.UI.ViewModel
                 this.TileModeAppBarButtons.Add(this.SettingsButton);
                 this.AppBarButtons = this.TileModeAppBarButtons;
                 this.AppBarIsVisible = true;
-            
-            } else {
+
+            }
+            else
+            {
                 OwnGarden = false;
                 this.AppBarIsVisible = false;
                 OwnGarden = user.Id == App.User.Id;
             }
-            
+
             /*
             if (user.Id == App.User.Id)
             {
@@ -384,7 +386,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "Settings",
                         IconType = IconType.SETTINGS,
-                        Command = App.Router.NavigateCommandFor<ISettingsViewModel>()
+                        Command = Observable.Return(true).ToCommandWithSubscription((_) => this.Navigate(new SettingsViewModel(App)))
 
                     };
                 return _SettingsButton;
