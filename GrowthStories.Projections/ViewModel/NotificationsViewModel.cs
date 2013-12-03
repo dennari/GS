@@ -101,7 +101,9 @@ namespace Growthstories.UI.ViewModel
             this.Garden = app.Resolver.GetService<IGardenViewModel>();
 
             var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
+            IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
             currentAndFuturePlants
+                .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
                 .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
                 .Where(x => x.Item2 != null)
                 .SelectMany(x => x.Item2.WhenAnyValue(y => y.LastActionTime, y => Tuple.Create(x, y)))

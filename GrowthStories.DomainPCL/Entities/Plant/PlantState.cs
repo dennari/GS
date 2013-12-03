@@ -37,6 +37,8 @@ namespace Growthstories.Domain.Entities
         public string Species { get; private set; }
         [JsonProperty]
         public Photo Profilepicture { get; private set; }
+        [JsonProperty]
+        public Guid? ProfilepictureActionId { get; private set; }
 
 
 
@@ -88,6 +90,7 @@ namespace Growthstories.Domain.Entities
         public void Apply(ProfilepictureSet @event)
         {
             this.Profilepicture = @event.Profilepicture;
+            this.ProfilepictureActionId = @event.PlantActionId;
         }
 
         public void Apply(ScheduleSet @event)

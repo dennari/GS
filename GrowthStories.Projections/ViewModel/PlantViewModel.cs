@@ -242,6 +242,16 @@ namespace Growthstories.UI.ViewModel
                     .StartWith(state.Profilepicture)
                     .Subscribe(x => this.Photo = x);
 
+                if (state.Profilepicture == null && state.ProfilepictureActionId.HasValue)
+                {
+                    var photoId = state.ProfilepictureActionId.Value;
+                    this.Actions.ItemsAdded.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == photoId).Take(1).Subscribe(x =>
+                    {
+                        this.Photo = x.Photo;
+                    });
+                }
+
+
                 this.ListenTo<MarkedPlantPublic>(this.State.Id)
                     .Subscribe(x => this.IsShared = true);
 

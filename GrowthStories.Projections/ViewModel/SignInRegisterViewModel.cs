@@ -8,6 +8,8 @@ using System.Reactive.Linq;
 using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using System.Threading.Tasks;
+//using System.Security.Cryptography;
+//using System.Security.Crypto
 
 namespace Growthstories.UI.ViewModel
 {
@@ -117,6 +119,14 @@ namespace Growthstories.UI.ViewModel
 
 
         }
+
+
+        //public static string GetHashCode(string p)
+        //{
+        //    var a = new SHA256Managed();
+        //    return Convert.ToBase64String(a.ComputeHash(new System.Text.UTF8Encoding().GetBytes(p)));
+        //}
+
 
         public bool NavigateBack { get; set; }
 
