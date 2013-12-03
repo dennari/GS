@@ -103,6 +103,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+
     public class MenuItemViewModel : ReactiveObject, IMenuItemViewModel
     {
 
@@ -180,6 +182,36 @@ namespace Growthstories.UI.ViewModel
         }
         #endregion
     }
+
+
+
+    public class PopupViewModel : IPopupViewModel
+    {
+
+        public PopupViewModel()
+        {
+            IsLeftButtonEnabled = true;
+            IsRightButtonEnabled = false;
+        }
+
+        public IReactiveCommand DismissedCommand { get; set; }
+
+        public string Caption { get; set; }
+
+        public string Message { get; set; }
+
+        public string LeftButtonContent { get; set; }
+
+        public string RightButtonContent { get; set; }
+
+        public bool IsLeftButtonEnabled { get; set; }
+
+        public bool IsRightButtonEnabled { get; set; }
+
+        public bool IsFullScreen { get; set; }
+    }
+
+
 
 
 }

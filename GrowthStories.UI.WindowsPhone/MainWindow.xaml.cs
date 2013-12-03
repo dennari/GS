@@ -38,8 +38,46 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             //this.SetBinding(ViewModelProperty, new Binding());
             ViewModel = new AppViewModel();
+            ViewModel.ShowPopup
+                .OfType<IPopupViewModel>()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.ShowPopup(x));
+
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
         }
+
+
+        CustomMessageBox Popup;
+        IPopupViewModel PopupVm;
+        private void ShowPopup(IPopupViewModel x)
+        {
+            var popup = new CustomMessageBox()
+            {
+                Caption = x.Caption,
+                Message = x.Message,
+                LeftButtonContent = x.LeftButtonContent,
+                IsRightButtonEnabled = x.IsRightButtonEnabled,
+                IsLeftButtonEnabled = x.IsLeftButtonEnabled,
+                RightButtonContent = x.RightButtonContent,
+                IsFullScreen = x.IsFullScreen
+            };
+
+            popup.Dismissed += (s1, e1) =>
+            {
+                if (x.DismissedCommand != null)
+                {
+                    x.DismissedCommand.Execute(e1.Result == CustomMessageBoxResult.LeftButton ? PopupResult.LeftButton : PopupResult.RightButton);
+                }
+                this.IsDialogShown = false;
+            };
+
+            this.IsDialogShown = true;
+            this.PopupVm = x;
+            this.Popup = popup;
+            popup.Show();
+        }
+
+
 
         //public static readonly DependencyProperty ViewModelProperty =
         //   DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
@@ -142,12 +180,25 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        private bool IsDialogShown;
+
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
             //if (MessageBox.Show("Are you sure you want to exit?", "Confirm Exit?",
             //                        MessageBoxButton.OKCancel) != MessageBoxResult.OK)
             //{
             base.OnBackKeyPress(e);
+            if (IsDialogShown)
+            {
+                IsDialogShown = false;
+                if (Popup != null)
+                    Popup.Dismiss();
+                if (PopupVm != null && PopupVm.DismissedCommand != null)
+                    PopupVm.DismissedCommand.Execute(PopupResult.BackButton);
+
+                return;
+            }
+
             ViewModel.BackKeyPressedCommand.Execute(e);
             if (e.Cancel == true)
             {
