@@ -41,6 +41,7 @@
                                                   Command="{Binding EditCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
+                                <!--
                                 <toolkit:MenuItem Header="Delete" 
                                                   Opacity="0.9"
                                                   Background="WhiteSmoke"
@@ -48,6 +49,7 @@
                                                   Command="{Binding DeleteCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
+                                -->
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
                         
