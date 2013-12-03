@@ -39,11 +39,31 @@ namespace Growthstories.UI.WindowsPhone
             //this.SetBinding(ViewModelProperty, new Binding());
             ViewModel = new AppViewModel();
             ViewModel.ShowPopup
-                .OfType<IPopupViewModel>()
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.ShowPopup(x));
+                .Subscribe(x =>
+                {
+                    var y = x as IPopupViewModel;
+                    if (y != null)
+                        this.ShowPopup(y);
+                    else
+                        this.DismissPopup();
+                });
 
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
+        }
+
+        private void DismissPopup(PopupResult result = PopupResult.None)
+        {
+            if (IsDialogShown)
+            {
+                IsDialogShown = false;
+                if (Popup != null)
+                    Popup.Dismiss();
+                if (PopupVm != null && PopupVm.DismissedCommand != null)
+                    PopupVm.DismissedCommand.Execute(result);
+
+                return;
+            }
         }
 
 
@@ -190,12 +210,7 @@ namespace Growthstories.UI.WindowsPhone
             base.OnBackKeyPress(e);
             if (IsDialogShown)
             {
-                IsDialogShown = false;
-                if (Popup != null)
-                    Popup.Dismiss();
-                if (PopupVm != null && PopupVm.DismissedCommand != null)
-                    PopupVm.DismissedCommand.Execute(PopupResult.BackButton);
-
+                DismissPopup(PopupResult.BackButton);
                 return;
             }
 

@@ -28,7 +28,7 @@
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="SignInSwitchTemplate">
-            <Grid Margin="0,0,0,10" Width="340">
+            <Grid Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="330"/>
                     <ColumnDefinition Width="*"/>
@@ -72,9 +72,38 @@
                             Margin="-12,0,-12,-12"
                             />
             </local:GSLabel>
-            
-            
-            <local:GSLabel Label="Share plant locations">
+            <!--<local:GSLabel Label="Synchronization">
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                     
+                    <TextBlock Text="{Binding LastSyncedText}" />
+                    <Button Grid.Column="1" 
+                            Style="{StaticResource GSButtonStyle}"
+                            HorizontalAlignment="Right"
+                            >
+                        <TextBlock Text="synchronize" TextDecorations="Underline"/>
+                    </Button>
+
+
+
+                </Grid>
+            </local:GSLabel>-->
+            <Button 
+                Style="{StaticResource GSButtonStyle}" 
+                HorizontalAlignment="Left"
+                HorizontalContentAlignment="Left"
+                Command="{Binding SynchronizeCommand}"
+                IsEnabled="{Binding CanSynchronize}"
+                Padding="0,0,0,0"
+                Margin="-6,0,0,0"
+                >
+                <TextBlock Text="synchronize" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
+            </Button>
+
+            <!--<local:GSLabel Label="Share plant locations">
                 <local:GSToggleSwitch
                             IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
                             Content="{Binding LocationServices}"
@@ -92,7 +121,7 @@
                 HorizontalAlignment="Stretch"
                 Text="Sharing the location of your plants helps others to figure out where different species can be grown."
                 TextWrapping="Wrap"
-                />
+                />-->
 
             <!--
             <local:GSLabel Label="Share new plants by default">

@@ -57,7 +57,7 @@ namespace Growthstories.UI.ViewModel
                 return _InProgress;
             }
             private set
-            {     
+            {
                 this.RaiseAndSetIfChanged(ref _InProgress, value);
             }
         }
@@ -95,13 +95,13 @@ namespace Growthstories.UI.ViewModel
         private bool _SearchFinished;
         public bool SearchFinished
         {
-            get 
+            get
             {
                 return _SearchFinished;
             }
             set
             {
-                 this.RaiseAndSetIfChanged(ref _SearchFinished, value);
+                this.RaiseAndSetIfChanged(ref _SearchFinished, value);
             }
         }
 
@@ -168,9 +168,12 @@ namespace Growthstories.UI.ViewModel
                     }
 
                     await App.HandleCommand(cmds);
+
+                    await App.SyncAll();
+
                     ProgressIndicatorIsVisible = false;
                     App.Router.NavigateBack.Execute(null);
-                  
+
 
                 }).Publish().Connect();
 
