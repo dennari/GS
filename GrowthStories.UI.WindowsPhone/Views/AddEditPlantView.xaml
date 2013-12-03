@@ -15,6 +15,7 @@
    
     mc:Ignorable="d">
     <UserControl.Resources>
+        <!--
         <ItemsPanelTemplate x:Key="TagsPanelTemplate">
             <StackPanel Orientation="Horizontal"/>
         </ItemsPanelTemplate>
@@ -71,6 +72,7 @@
                 </Popup>
             </Grid>
         </ControlTemplate>
+        -->
         <DataTemplate x:Key="ScheduleTemplate">
                 <Grid Margin="0,0,0,10" Width="340">
                     <Grid.ColumnDefinitions>
@@ -144,6 +146,7 @@
                 </local:GSLabel>
                             
                 <!-- Tags -->
+                <!--
                 <local:GSLabel Label="tags">
                     <toolkit:AutoCompleteBox 
                         VerticalAlignment="Top" 
@@ -161,7 +164,7 @@
                     ItemsSource="{Binding Tags}"
                     ItemTemplate="{StaticResource TagsItemTemplate}"
                     ItemsPanel="{StaticResource TagsPanelTemplate}"/>
-
+                -->
 
                 <local:GSLabel Label="watering schedule">
                         <local:GSToggleSwitch
