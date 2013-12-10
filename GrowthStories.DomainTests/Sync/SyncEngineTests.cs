@@ -686,10 +686,10 @@ namespace Growthstories.DomainTests
                     Photo = photo
                 }
             ));
-            TestUtils.WaitForTask(App.HandleCommand(new SchedulePhotoUpload(photo)));
+            TestUtils.WaitForTask(App.HandleCommand(new SchedulePhotoUpload(photo, plantActionId)));
 
 
-            Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
+            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState.PhotoUploads.Values.Single());
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
@@ -703,6 +703,7 @@ namespace Growthstories.DomainTests
         }
 
         [TestMethod]
+        [Ignore] // photodownloads disabled for now
         public void TestPhotoDownload()
         {
 

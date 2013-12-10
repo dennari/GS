@@ -369,11 +369,12 @@ namespace Growthstories.DomainTests
 
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
+            vm.IsFertilizingScheduleEnabled = true;
             vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.IsFertilizingScheduleEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
 
 
             Guid newId = TestUtils.WaitForTask(vm.AddTask());
@@ -381,11 +382,11 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(newInterval, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
+            Assert.IsTrue(vm.IsFertilizingScheduleEnabled);
             vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.IsFertilizingScheduleEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
 
 
             Guid newId2 = TestUtils.WaitForTask(vm.AddTask());
@@ -431,11 +432,12 @@ namespace Growthstories.DomainTests
 
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
             vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            vm.IsWateringScheduleEnabled = true;
+            Assert.IsTrue(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
 
 
             Guid newId = TestUtils.WaitForTask(vm.AddTask());
@@ -443,11 +445,11 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(newInterval, (int)pvm.WateringSchedule.Interval.Value.TotalSeconds);
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
+            Assert.IsTrue(vm.IsWateringScheduleEnabled);
             vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsTrue(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
 
 
             Guid newId2 = TestUtils.WaitForTask(vm.AddTask());
@@ -499,12 +501,14 @@ namespace Growthstories.DomainTests
 
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsFalse(vm.WateringSchedule.IsEnabled);
-            Assert.IsFalse(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
             vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval);
             vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            vm.IsWateringScheduleEnabled = true;
+            vm.IsFertilizingScheduleEnabled = true;
+            Assert.IsTrue(vm.IsWateringScheduleEnabled);
+            Assert.IsTrue(vm.IsFertilizingScheduleEnabled);
 
 
             Guid newId = TestUtils.WaitForTask(vm.AddTask());
@@ -513,16 +517,16 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(newInterval, (int)pvm.FertilizingSchedule.Interval.Value.TotalSeconds);
 
             vm = new AddEditPlantViewModel(App, pvm);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
+            Assert.IsTrue(vm.IsFertilizingScheduleEnabled);
+            Assert.IsTrue(vm.IsWateringScheduleEnabled);
 
-            vm.FertilizingSchedule.IsEnabled = false;
-            vm.WateringSchedule.IsEnabled = false;
+            vm.IsFertilizingScheduleEnabled = false;
+            vm.IsWateringScheduleEnabled = false;
 
             vm.FertilizingSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
             vm.WateringSchedule.Interval = TimeSpan.FromSeconds(newInterval2);
-            Assert.IsTrue(vm.WateringSchedule.IsEnabled);
-            Assert.IsTrue(vm.FertilizingSchedule.IsEnabled);
+            Assert.IsFalse(vm.IsWateringScheduleEnabled);
+            Assert.IsFalse(vm.IsFertilizingScheduleEnabled);
 
 
             Guid newId2 = TestUtils.WaitForTask(vm.AddTask());

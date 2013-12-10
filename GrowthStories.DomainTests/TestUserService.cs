@@ -19,10 +19,7 @@ namespace Growthstories.DomainTests
 
         public IAuthUser CurrentUser { get; private set; }
 
-        public Task AuthorizeUser()
-        {
-            return Task.FromResult(0);
-        }
+
 
         public void SetupCurrentUser(IAuthUser user)
         {
@@ -49,6 +46,21 @@ namespace Growthstories.DomainTests
             };
             return Tuple.Create(authUser, new IAggregateCommand[0]);
 
+        }
+
+
+        public Task<IAuthResponse> AuthorizeUser()
+        {
+            return Task.FromResult<IAuthResponse>(new AuthResponse()
+            {
+                AuthToken = new AuthToken("hjkjh", 3600, "fghfgh"),
+                StatusCode = GSStatusCode.OK
+            });
+        }
+
+        public Task<IAuthResponse> AuthorizeUser(string email, string password)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -232,11 +232,14 @@ namespace Growthstories.DomainTests
                 FileName = "sdfsdf",
                 LocalFullPath = "sdfsf"
             };
+            Guid plantActionId = Guid.NewGuid();
             Assert.AreNotEqual(newPhoto, vm.Photo);
-            var plant = (Plant)Handler.Handle(new SetProfilepicture(State.Id, newPhoto));
+            var plant = (Plant)Handler.Handle(new SetProfilepicture(State.Id, newPhoto, plantActionId));
             Assert.AreEqual(newPhoto.BlobKey, plant.State.Profilepicture.BlobKey);
             Assert.AreEqual(newPhoto.LocalFullPath, plant.State.Profilepicture.LocalFullPath);
             Assert.AreEqual(newPhoto.FileName, plant.State.Profilepicture.FileName);
+            Assert.AreEqual(plantActionId, plant.State.ProfilepictureActionId);
+
             Assert.AreEqual(newPhoto.BlobKey, vm.Photo.BlobKey);
             Assert.AreEqual(newPhoto.LocalFullPath, vm.Photo.LocalFullPath);
             Assert.AreEqual(newPhoto.FileName, vm.Photo.FileName);

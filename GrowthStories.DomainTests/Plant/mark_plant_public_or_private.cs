@@ -16,7 +16,7 @@ namespace Growthstories.DomainTests
             var UserId = Guid.NewGuid();
             Given(new PlantCreated(id, "Jore", UserId));
             When(new MarkPlantPublic(id));
-            Expect(new MarkedPlantPublic(id)
+            Expect(new MarkedPlantPublic(new MarkPlantPublic(id))
             {
                 AggregateVersion = 2,
                 MessageId = FakeEventFactory.FakeEventId,
@@ -30,7 +30,7 @@ namespace Growthstories.DomainTests
             var UserId = Guid.NewGuid();
             Given(new PlantCreated(id, "Jore", UserId));
             When(new MarkPlantPrivate(id));
-            Expect(new MarkedPlantPrivate(id)
+            Expect(new MarkedPlantPrivate(new MarkPlantPrivate(id))
             {
                 AggregateVersion = 2,
                 MessageId = FakeEventFactory.FakeEventId,
