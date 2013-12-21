@@ -176,12 +176,16 @@ namespace Growthstories.DomainTests
             Assert.IsNotNull(R);
             Assert.IsTrue(R.Users.Count > 0);
 
-            lvm.UserSelectedCommand.Execute(R.Users[0]);
 
             var fvm = (FriendsViewModel)App.Resolver.GetService(typeof(FriendsViewModel));
+            // this syncs automagically            
+            lvm.UserSelectedCommand.Execute(R.Users[0]);
+            var R3 = TestUtils.WaitForFirst(lvm.SyncResults);
+            Assert.AreEqual(AllSyncResult.AllSynced, R3.Item1);
 
-            var R3 = WaitForTask(App.Synchronize());
-            SyncAssertions(R3);
+
+            //var R3 = WaitForTask(App.Synchronize());
+            //SyncAssertions(R3);
 
             Assert.AreEqual(1, fvm.Friends.Count);
             var friend = fvm.Friends[0];
@@ -194,21 +198,6 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(remotePlant.AggregateId, plant.Id);
             Assert.AreEqual(remotePlant.Name, plant.Name);
 
-
-            //var task3 = plant.Actions.ItemsAdded.Take(1).GetAwaiter();
-            Assert.AreEqual(1, plant.Actions.Count);
-            var action = plant.Actions[0];
-            Assert.AreEqual(remoteComment.AggregateId, action.PlantActionId);
-            Assert.AreEqual(remoteComment.Type, action.ActionType);
-            Assert.AreEqual(remoteComment.Note, action.Note);
-
-
-            int CurrentSyncSequence = App.Model.State.SyncHead.GlobalCommitSequence;
-            var R4 = WaitForTask(App.Synchronize());
-            SyncAssertions(R4);
-
-            //Assert.IsTrue(R4.PushReq.IsEmpty);
-            Assert.AreEqual(CurrentSyncSequence, App.Model.State.SyncHead.GlobalCommitSequence);
 
             return originalRemoteEvents;
 

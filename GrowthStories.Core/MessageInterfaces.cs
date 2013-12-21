@@ -405,7 +405,9 @@ namespace Growthstories.Core
         Type AggregateType { get; }
     }
 
-
+    public interface IDeleteEvent : IEvent
+    {
+    }
 
     public interface ICommand : IMessage
     {
@@ -425,5 +427,11 @@ namespace Growthstories.Core
         Guid? StreamEntityId { get; set; }
         Guid? StreamAncestorId { get; set; }
     }
+
+    public interface IDeleteCommand : IAggregateCommand
+    {
+
+    }
+
 
 }

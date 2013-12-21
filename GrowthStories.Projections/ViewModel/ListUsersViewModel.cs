@@ -142,7 +142,9 @@ namespace Growthstories.UI.ViewModel
                 _List.Clear();
                 if (x.Users != null && x.Users.Count > 0)
                 {
-                    _List.AddRange(x.Users);
+                    var filtered = x.Users.Where(y => !App.SyncStreams.ContainsKey(y.AggregateId)).ToArray();
+                    if (filtered.Length > 0)
+                        _List.AddRange(filtered);
                 }
             });
 
@@ -152,32 +154,42 @@ namespace Growthstories.UI.ViewModel
             //UserSelectedCommand.Re
 
             UserSelectedCommand.Subscribe(_ => App.ShowPopup.Execute(App.SyncPopup));
-            UserSelectedCommand
+            this.SyncResults = UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
                 {
 
                     var x = xx as RemoteUser;
                     if (x == null)
-                        return;
-                    var cmds = new MultiCommand(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
+                        return null;
+                    //var cmds = new MultiCommand(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
-                    if (x.Garden != null && x.Garden.Plants != null)
-                    {
-                        foreach (var p in x.Garden.Plants)
-                            cmds.Add(new CreateSyncStream(p.AggregateId, Core.PullStreamType.PLANT, x.AggregateId));
-                    }
+                    //if (x.Garden != null && x.Garden.Plants != null)
+                    //{
+                    //    foreach (var p in x.Garden.Plants)
+                    //        cmds.Add(new CreateSyncStream(p.AggregateId, Core.PullStreamType.PLANT, x.AggregateId));
+                    //}
 
-                    await App.HandleCommand(cmds);
+                    //await App.HandleCommand(cmds);
 
+                    //var syncResult = await App.SyncAll();
+
+
+                    await App.HandleCommand(new CreateSyncStream(x.AggregateId, PullStreamType.USER));
+
+                    // now we get the user stream AND info on the plants
                     await App.SyncAll();
+                    // now we get the plants too
+                    var syncResult = await App.SyncAll();
+
 
                     App.ShowPopup.Execute(null);
-                    App.Router.NavigateBack.Execute(null);
+                    if (App.Router.NavigationStack.Count > 0)
+                        App.Router.NavigateBack.Execute(null);
+                    return syncResult;
 
+                });
 
-                }).Publish().Connect();
-
-
+            this.SyncResults.Publish().Connect();
             /*
             this.SyncStreams
                 .Subscribe(x =>
@@ -209,6 +221,9 @@ namespace Growthstories.UI.ViewModel
             get { return false; }
         }
 
+
+
+        public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; private set; }
     }
 
 

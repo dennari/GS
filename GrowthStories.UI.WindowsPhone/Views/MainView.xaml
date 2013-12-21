@@ -159,6 +159,7 @@
                         ItemsSource="{Binding Friends}"
                         ItemTemplate="{StaticResource ListUsersTemplate}"                        
                         SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
+                        ItemTappedCommand="{Binding ItemTappedCommand}"
                         Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
                         />
 

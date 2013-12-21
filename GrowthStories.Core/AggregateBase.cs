@@ -25,6 +25,7 @@ namespace Growthstories.Core
         PullStreamType SyncStreamType { get; }
         bool UIPersistable { get; }
         void Handle(IMessage msg);
+        void Handle(IDeleteCommand cmd);
         IAggregateState State { get; }
         void ApplyRemoteMessage(IMessage Event);
         bool HasUncommittedEvents { get; }
@@ -56,6 +57,10 @@ namespace Growthstories.Core
 
 
         }
+
+        public abstract void Handle(IDeleteCommand cmd);
+
+
 
         public bool HasUncommittedEvents
         {

@@ -25,6 +25,7 @@ namespace Growthstories.UI.ViewModel
         public string Time { get; protected set; }
         public PlantActionType ActionType { get; protected set; }
         public IReactiveCommand EditCommand { get; protected set; }
+        public IReactiveCommand DeleteCommand { get; protected set; }
 
         public IconType Icon { get; protected set; }
 
@@ -121,6 +122,7 @@ namespace Growthstories.UI.ViewModel
 
         protected IDisposable TimelineLinesSubscription = Disposable.Empty;
         protected IDisposable EditCommandSubscription = Disposable.Empty;
+        protected IDisposable DeleteCommandSubscription = Disposable.Empty;
 
         public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
@@ -172,6 +174,13 @@ namespace Growthstories.UI.ViewModel
 
             this.EditCommand = new ReactiveCommand(this.WhenAnyValue(x => x.IsEditEnabled));
             EditCommandSubscription = this.EditCommand.Subscribe(_ => this.Navigate(this));
+
+            this.DeleteCommand = new ReactiveCommand(Observable.Return(state != null));
+            //DeleteCommandSubscription = this.DeleteCommand.Subscribe(_ => this.Navigate(this));
+            this.DeleteCommand
+               .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.PlantActionId)))
+               .Publish()
+               .Connect();
 
 
         }

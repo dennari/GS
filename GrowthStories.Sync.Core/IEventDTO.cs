@@ -27,12 +27,12 @@ namespace Growthstories.Sync
         Guid? ParentAncestorId { get; set; }
     }
 
+
+
     public interface IAddEntityDTO : IEventDTO
     {
 
     }
-
-
 
 
     #region Concrete message types

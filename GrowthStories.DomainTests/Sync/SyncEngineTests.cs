@@ -255,6 +255,38 @@ namespace Growthstories.DomainTests
 
         }
 
+        [TestMethod]
+        public void TestDeletedPlantIsNotPulled()
+        {
+
+            // ARRANGE
+            var u = App.Context.CurrentUser;
+            var plantId = Guid.NewGuid();
+            //var gardenId = Guid.NewGuid();
+
+            TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
+            TestUtils.WaitForTask(App.HandleCommand(new CreateGarden(u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(new AddGarden(u.Id, u.GardenId)));
+            TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
+            var plant = (Plant)TestUtils.WaitForTask(App.HandleCommand(new CreatePlant(plantId, "Jare", u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(new AddPlant(u.GardenId, plantId, u.Id, null)));
+            Assert.IsFalse(plant.State.IsDeleted);
+
+
+            var R = TestUtils.WaitForTask(App.Synchronize());
+
+            Assert.AreEqual(R.PullReq.Streams.First(x => x.StreamId == plantId).Type, PullStreamType.PLANT);
+
+            TestUtils.WaitForTask(App.HandleCommand(new DeleteAggregate(plantId)));
+
+            var R2 = TestUtils.WaitForTask(App.Synchronize());
+            Assert.IsNull(R2.PullReq.Streams.FirstOrDefault(x => x.StreamId == plantId));
+            Assert.IsTrue(plant.State.IsDeleted);
+
+
+
+        }
+
 
         [TestMethod]
         public void TestPullRemembersSince()
@@ -814,7 +846,96 @@ namespace Growthstories.DomainTests
         }
 
 
+        [TestMethod]
+        public void TestPullPlantProjectionStream()
+        {
 
+            // ARRANGE
+            var u = App.User;
+            var plantId = Guid.NewGuid();
+            var photoActionId = Guid.NewGuid();
+            var commentActionId = Guid.NewGuid();
+            var measurementActionId = Guid.NewGuid();
+            string remoteName = "Jore";
+            string remoteSpecies = "A. Vera";
+
+            App.HandleCommand(new CreateSyncStream(plantId, PullStreamType.PLANT, u.Id));
+
+            Transporter.PullResponseFactory = (r) => new HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.PLANT,
+                    new PlantCreated(new CreatePlant(plantId, remoteName, u.GardenId, u.Id))
+                    {
+                        AggregateVersion = 1,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 20),
+                        MessageId = Guid.NewGuid()
+                    },
+                    new SpeciesSet(new SetSpecies(plantId, remoteSpecies))
+                    {
+                        AggregateVersion = 3,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 15),
+                        MessageId = Guid.NewGuid()
+                    },
+                    new ProfilepictureSet(new SetProfilepicture(plantId, null, photoActionId))
+                    {
+                        AggregateVersion = 3,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 15),
+                        MessageId = Guid.NewGuid()
+                    },
+                    new PlantActionCreated(new CreatePlantAction(photoActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, "photo")
+                    {
+                        Photo = new Photo()
+                    })
+                    {
+                        AggregateVersion = 1,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 15),
+                        MessageId = Guid.NewGuid()
+                    },
+                    new PlantActionCreated(new CreatePlantAction(commentActionId, u.Id, plantId, PlantActionType.COMMENTED, "comment"))
+                    {
+                        AggregateVersion = 1,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 15),
+                        MessageId = Guid.NewGuid()
+                    },
+                    new PlantActionCreated(new CreatePlantAction(measurementActionId, u.Id, plantId, PlantActionType.MEASURED, "measurement")
+                    {
+                        Value = 22,
+                        MeasurementType = MeasurementType.AIR_HUMIDITY
+                    })
+                    {
+                        AggregateVersion = 1,
+                        Created = DateTimeOffset.UtcNow - new TimeSpan(0, 0, 15),
+                        MessageId = Guid.NewGuid()
+                    }
+                )
+
+            };
+
+            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            Assert.IsNotNull(R.PullReq);
+            Assert.IsNotNull(R.PullResp);
+
+            Assert.AreEqual(GSStatusCode.OK, R.PullResp.StatusCode);
+
+            Plant plant = (Plant)Repository.GetById(plantId);
+
+            Assert.AreEqual(3, plant.Version);
+            Assert.AreEqual(remoteName, plant.State.Name);
+            Assert.AreEqual(remoteSpecies, plant.State.Species);
+            Assert.AreEqual(photoActionId, plant.State.ProfilepictureActionId);
+
+            PlantAction photo = (PlantAction)Repository.GetById(photoActionId);
+            Assert.AreEqual(PlantActionType.PHOTOGRAPHED, photo.State.Type);
+
+            PlantAction comment = (PlantAction)Repository.GetById(commentActionId);
+            Assert.AreEqual(PlantActionType.COMMENTED, comment.State.Type);
+
+            PlantAction measurement = (PlantAction)Repository.GetById(measurementActionId);
+            Assert.AreEqual(PlantActionType.MEASURED, measurement.State.Type);
+            Assert.AreEqual(22, measurement.State.Value);
+
+        }
 
 
     }

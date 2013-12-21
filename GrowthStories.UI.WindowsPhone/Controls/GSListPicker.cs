@@ -1,8 +1,10 @@
 ﻿
 using Coding4Fun.Toolkit.Controls;
 using Microsoft.Phone.Controls;
+using ReactiveUI;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 namespace Growthstories.UI.WindowsPhone
@@ -220,14 +222,13 @@ namespace Growthstories.UI.WindowsPhone
         public GSLongListSelector()
         {
             SelectionChanged += LongListSelector_SelectionChanged;
+            //Ite
         }
 
         void LongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectedItem = base.SelectedItem;
         }
-
-        public string ResetAfterSelection { get; set; }
 
 
         public static readonly DependencyProperty SelectedItemProperty =
@@ -237,6 +238,36 @@ namespace Growthstories.UI.WindowsPhone
                 typeof(GSLongListSelector),
                 new PropertyMetadata(null, OnSelectedItemChanged)
             );
+
+
+        public static readonly DependencyProperty ItemTappedCommandProperty =
+           DependencyProperty.Register("ItemTappedCommand", typeof(ICommand), typeof(GSLongListSelector), new PropertyMetadata(null, ItemTappedCommandValueChanged));
+
+
+
+        static void ItemTappedCommandValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                var view = (GSLongListSelector)sender;
+                //view.SetDataContext(view.ViewModel, (DisplayMode)e.NewValue);
+                if (e.NewValue != null && view.ItemTappedCommand != e.NewValue)
+                    view.ItemTappedCommand = (ICommand)e.NewValue;
+
+            }
+            catch { }
+
+        }
+
+        public ICommand ItemTappedCommand
+        {
+            get { return (ICommand)GetValue(ItemTappedCommandProperty); }
+            set
+            {
+                //if (value != null && value != ItemTappedCommand)
+                SetValue(ItemTappedCommandProperty, value);
+            }
+        }
 
         private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -249,17 +280,27 @@ namespace Growthstories.UI.WindowsPhone
             base.SelectedItem = e.NewValue;
         }
 
+
+
+
+        protected override void OnTap(System.Windows.Input.GestureEventArgs e)
+        {
+            base.OnTap(e);
+            object item = ((FrameworkElement)e.OriginalSource).DataContext;
+            if (ItemTappedCommand != null)
+                ItemTappedCommand.Execute(item);
+
+        }
+
+        //protected override 
+
         public new object SelectedItem
         {
             get { return GetValue(SelectedItemProperty); }
             set
             {
-
-                SetValue(SelectedItemProperty, value);
-                if (ResetAfterSelection != null)
-                {
-                    SetValue(SelectedItemProperty, null);
-                }
+                if (value != SelectedItem)
+                    SetValue(SelectedItemProperty, value);
             }
         }
     }

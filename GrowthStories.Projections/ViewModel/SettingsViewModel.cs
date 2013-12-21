@@ -20,13 +20,14 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        bool InsideJob = false;
+        //bool InsideJob = false;
         public IReactiveCommand NavigateToAbout { get; protected set; }
-        public IReactiveCommand WarnCommand { get; protected set; }
-        public IReactiveCommand WarningDismissedCommand { get; protected set; }
+        //public IReactiveCommand WarnCommand { get; protected set; }
+        //public IReactiveCommand WarningDismissedCommand { get; protected set; }
         public IReactiveCommand SignOutCommand { get; protected set; }
+        public IReactiveCommand SignInCommand { get; protected set; }
         public IReactiveCommand SynchronizeCommand { get; protected set; }
-        public IReactiveCommand MaybeSignOutCommand { get; protected set; }
+        //public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
         private string _Email;
         public string Email
@@ -55,19 +56,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private bool _RefreshSignInSwitch;
-        private bool RefreshSignInSwitch
-        {
-            get
-            {
-                return _RefreshSignInSwitch;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _RefreshSignInSwitch, value);
-            }
-        }
-
         public SettingsViewModel(IGSAppViewModel app)
             : base(app)
         {
@@ -79,60 +67,84 @@ namespace Growthstories.UI.ViewModel
                 IsEnabled = false,
 
             };
-            this.SignIn = new ButtonViewModel();
-            this.WarnCommand = new ReactiveCommand();
-            this.WarningDismissedCommand = new ReactiveCommand();
-            this.SignOutCommand = new ReactiveCommand();
-            this.MaybeSignOutCommand = new ReactiveCommand();
-            this.SynchronizeCommand = new ReactiveCommand();
-
-            Observable.CombineLatest(
+            var hasUserAndIsRegistered = Observable.CombineLatest(
                 App.WhenAnyValue(x => x.User).Where(x => x != null),
                 App.WhenAnyValue(x => x.IsRegistered),
-                this.WhenAnyValue(x => x.RefreshSignInSwitch),
-                (x, y, z) => Tuple.Create(x, y, z)
-             )
+                (x, y) => Tuple.Create(x, y)
+             );
+            var canSignOut = hasUserAndIsRegistered.Select(x => x.Item2 && x.Item1.AccessToken != null);
+
+
+
+            //this.WarnCommand = new ReactiveCommand();
+            //this.WarningDismissedCommand = new ReactiveCommand();
+
+
+            this.SignOutCommand = new ReactiveCommand(canSignOut);
+
+            this.SignInCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
+            this.SignInCommand.Subscribe(x => this.Navigate(new SignInRegisterViewModel(App)));
+
+            this.SignOutCommand = new ReactiveCommand(canSignOut);
+            this.SignOutCommand.Where(x => x == null).Subscribe(_ => App.ShowPopup.Execute(this.LogOutWarning));
+            var logOutResult = this.SignOutCommand.RegisterAsyncTask(async (x) =>
+            {
+                try
+                {
+                    PopupResult r = (PopupResult)x;
+                    if (r == PopupResult.LeftButton)
+                        return await App.SignOut();
+                }
+                catch
+                {
+
+                }
+                return null;
+            });
+            logOutResult.Where(x => x != null).Subscribe(_ => this.Navigate(new MainViewModel(App)));
+
+
+            this.SynchronizeCommand = new ReactiveCommand();
+
+            this.SignInButton = new ButtonViewModel()
+            {
+                Text = "sign in",
+                IconType = IconType.SIGNIN,
+                Command = SignInCommand
+            };
+            this.SignOutButton = new ButtonViewModel()
+            {
+                Text = "sign out",
+                IconType = IconType.SIGNOUT,
+                Command = SignOutCommand
+            };
+
+            hasUserAndIsRegistered
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(x =>
             {
-                InsideJob = true;
+
                 if (x.Item2 && x.Item1.AccessToken != null)
                 {
-                    this.SignIn.IsEnabled = true;
                     this.Email = x.Item1.Email;
+                    this._AppBarButtons.Remove(this.SignInButton);
+                    this._AppBarButtons.Add(this.SignOutButton);
+
                 }
                 else
-                    this.SignIn.IsEnabled = false;
-
-                InsideJob = false;
-            });
-
-            this.SignIn.WhenAnyValue(x => x.IsEnabled).Skip(1).Subscribe(x =>
-            {
-                if (InsideJob)
                 {
-
-                    return;
+                    this.Email = null;
+                    this._AppBarButtons.Remove(this.SignOutButton);
+                    this._AppBarButtons.Add(this.SignInButton);
                 }
-                this.RefreshSignInSwitch = !this.RefreshSignInSwitch;
 
-                if (x == false && App.IsRegistered)
-                {
-
-                    App.ShowPopup.Execute(this.LogOutWarning);
-
-
-                }
-                if (x == true && !App.IsRegistered)
-                    this.Navigate(new SignInRegisterViewModel(App));
             });
 
 
 
-            this.MaybeSignOutCommand.OfType<PopupResult>().Where(x => x == PopupResult.LeftButton).Subscribe(_ => this.SignOutCommand.Execute(null));
 
-            var logOutResult = this.SignOutCommand.RegisterAsyncTask(async (_) => await App.SignOut());
-            logOutResult.Subscribe(x => this.Navigate(new MainViewModel(App)));
+
+
 
             this.SharedByDefault = new ButtonViewModel()
             {
@@ -177,7 +189,7 @@ namespace Growthstories.UI.ViewModel
                         Caption = "Confirmation",
                         Message = "Are you sure you wish to sign out?",
                         LeftButtonContent = "yes",
-                        DismissedCommand = this.MaybeSignOutCommand
+                        DismissedCommand = this.SignOutCommand
                     };
                 }
                 return _LogOutWarning;
@@ -214,18 +226,11 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private IButtonViewModel _SignIn;
-        public IButtonViewModel SignIn
-        {
-            get
-            {
-                return _SignIn;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _SignIn, value);
-            }
-        }
+        public IButtonViewModel SignInButton { get; private set; }
+        public IButtonViewModel SignOutButton { get; private set; }
+
+
+
 
 
         public override string UrlPathSegment
@@ -235,12 +240,12 @@ namespace Growthstories.UI.ViewModel
 
         public ApplicationBarMode AppBarMode
         {
-            get { return ApplicationBarMode.MINIMIZED; }
+            get { return ApplicationBarMode.DEFAULT; }
         }
 
         public bool AppBarIsVisible
         {
-            get { return false; }
+            get { return true; }
         }
 
         protected bool _ProgressIndicatorIsVisible;
@@ -253,6 +258,12 @@ namespace Growthstories.UI.ViewModel
         public bool SystemTrayIsVisible
         {
             get { return false; }
+        }
+
+        ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get { return _AppBarButtons; }
         }
     }
 

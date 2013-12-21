@@ -124,6 +124,16 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public IDictionary<Guid, PullStream> SyncStreams
+        {
+            get
+            {
+                if (Model != null)
+                    return Model.State.SyncStreamDict;
+                return new Dictionary<Guid, PullStream>();
+            }
+        }
+
         IUserService _Context = null;
         public IUserService Context
         {
@@ -142,31 +152,29 @@ namespace Growthstories.UI.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        GSViewLocator _ViewLocator;
-        public GSViewLocator ViewLocator
-        {
-            get
-            {
-                if (_ViewLocator == null)
-                {
-                    _ViewLocator = new GSViewLocator();
-                }
-                return _ViewLocator;
-            }
-        }
+        //GSViewLocator _ViewLocator;
+        //public GSViewLocator ViewLocator
+        //{
+        //    get
+        //    {
+        //        if (_ViewLocator == null)
+        //        {
+        //            _ViewLocator = new GSViewLocator();
+        //        }
+        //        return _ViewLocator;
+        //    }
+        //}
 
         public AppViewModel()
         {
 
-            var resolver = new ModernDependencyResolver();
-            resolver.InitializeResolver();
-            resolver.RegisterLazySingleton(() => ViewLocator, typeof(IViewLocator));
 
 
-            RxApp.DependencyResolver = resolver;
+
+            var resolver = RxApp.MutableResolver;
 
             this.Resolver = resolver;
-
+            
             resolver.RegisterConstant(this, typeof(IScreen));
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
 
@@ -587,6 +595,7 @@ namespace Growthstories.UI.ViewModel
 
                 this.Model = app;
                 this.User = user;
+                this.IsRegistered = false;
                 if (user.IsRegistered())
                     this.IsRegistered = true;
                 return user;
@@ -946,7 +955,7 @@ namespace Growthstories.UI.ViewModel
 
             var current = UIPersistence.GetUsers(id)
                 .ToObservable()
-                .Where(x => x.Id != this.User.Id)
+                .Where(x => x.Id != this.User.Id && !x.IsDeleted)
                 .Select(x => new GardenViewModel(x, this));
 
             return current;
@@ -967,6 +976,7 @@ namespace Growthstories.UI.ViewModel
 
             var current = UIPersistence.GetActions(PlantActionId, plantId, null)
                 .ToObservable()
+                .Where(x => !x.IsDeleted)
                 .Select(x => PlantActionViewModelFactory(x.Type, x));
 
             return current;
@@ -992,6 +1002,7 @@ namespace Growthstories.UI.ViewModel
 
             var current = UIPersistence.GetPlants(plantId, null, user.Id)
                 .ToObservable()
+                .Where(x => !x.Item1.IsDeleted)
                 .Select(x =>
                 {
                     var p = new PlantViewModel(x.Item1,

@@ -58,6 +58,7 @@ namespace Growthstories.Core
 
         public abstract void Apply(IEvent @event);
 
+        public abstract void Apply(IDeleteEvent @event);
 
         public abstract void Merge(IMessage local, IMessage remote, out IMessage localNew, out IMessage remoteNew);
         public abstract bool IsDuplicate(IMessage x);
@@ -109,6 +110,8 @@ namespace Growthstories.Core
 
     public abstract class EntityState<TCreateEvent> : AggregateState where TCreateEvent : IEvent
     {
+        [JsonProperty]
+        public bool IsDeleted { get; private set; }
 
         private bool applying = false;
 
@@ -116,6 +119,11 @@ namespace Growthstories.Core
             : base()
         {
 
+        }
+
+        public override void Apply(IDeleteEvent @event)
+        {
+            this.IsDeleted = true;
         }
 
         public virtual void Apply(TCreateEvent @event)
@@ -171,6 +179,8 @@ namespace Growthstories.Core
 
     public abstract class AggregateState<TCreateEvent> : AggregateState where TCreateEvent : ICreateMessage
     {
+        [JsonProperty]
+        public bool IsDeleted { get; private set; }
 
         private bool applying = false;
         private readonly HashSet<Guid> AppliedEventIds = new HashSet<Guid>();
@@ -193,6 +203,11 @@ namespace Growthstories.Core
             }
             Id = @event.AggregateId;
             Created = @event.Created;
+        }
+
+        public override void Apply(IDeleteEvent @event)
+        {
+            this.IsDeleted = true;
         }
 
         public override void Apply(IEvent @event)

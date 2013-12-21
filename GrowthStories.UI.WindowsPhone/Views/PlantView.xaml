@@ -24,6 +24,13 @@
                             Command="{Binding EditCommand}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding IsEditEnabled}"/>
+                        <toolkit:MenuItem Header="Delete" 
+                            Background="WhiteSmoke"                           
+                            Opacity="0.9"
+                            Foreground="{StaticResource GSAccentBrush}"              
+                            Command="{Binding DeleteCommand}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding IsEditEnabled}"/>
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
                 <ContentPresenter 

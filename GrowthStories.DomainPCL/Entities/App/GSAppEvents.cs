@@ -196,6 +196,31 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public sealed class SyncStreamDeleted : GSAppEvent
+    {
+        [JsonProperty]
+        public Guid StreamId { get; private set; }
+
+
+
+        private SyncStreamDeleted() { }
+
+        public SyncStreamDeleted(Guid streamId)
+        {
+            this.StreamId = streamId;
+
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Deleted syncstream {0}", StreamId);
+        }
+
+
+    }
+
+
     public sealed class SyncStampSet : GSAppEvent
     {
         [JsonProperty]

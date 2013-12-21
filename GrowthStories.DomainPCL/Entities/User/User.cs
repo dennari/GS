@@ -44,6 +44,11 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public override void Handle(IDeleteCommand cmd)
+        {
+            RaiseEvent(new AggregateDeleted(cmd));
+        }
+
         public void Handle(CreateGarden command)
         {
             RaiseEvent(new GardenCreated(command));

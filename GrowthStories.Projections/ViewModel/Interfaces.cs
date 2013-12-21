@@ -79,6 +79,8 @@ namespace Growthstories.UI.ViewModel
         //GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
+        IDictionary<Guid, PullStream> SyncStreams { get; }
+
         Task<IAuthUser> Initialize();
         Task<RegisterResponse> Register(string username, string email, string password);
         Task<SignInResponse> SignIn(string email, string password);
@@ -117,6 +119,7 @@ namespace Growthstories.UI.ViewModel
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
     {
         Guid Id { get; }
+        Guid UserId { get; }
         IReactiveCommand SelectedItemsChanged { get; }
         IAuthUser User { get; }
         IReadOnlyReactiveList<IPlantViewModel> Plants { get; }
@@ -546,7 +549,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface ISettingsViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray
+    public interface ISettingsViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray, IHasAppBarButtons
     {
 
         IButtonViewModel LocationServices { get; }
@@ -565,7 +568,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
+    public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray, IHasAppBarButtons
     {
         bool IsRegistered { get; }
         bool NavigateBack { get; set; }
@@ -627,6 +630,7 @@ namespace Growthstories.UI.ViewModel
         Guid? PlantId { get; set; }
         Guid? UserId { get; set; }
         IReactiveCommand EditCommand { get; }
+        IReactiveCommand DeleteCommand { get; }
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
 
@@ -825,7 +829,9 @@ namespace Growthstories.UI.ViewModel
         CO2,
         AIRHUMIDITY,
         PH2,
-        SETTINGS
+        SETTINGS,
+        SIGNOUT,
+        SIGNIN
     }
 
     public enum ApplicationBarMode

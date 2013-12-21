@@ -37,17 +37,8 @@ namespace Growthstories.UI.WindowsPhone
         {
             InitializeComponent();
             //this.SetBinding(ViewModelProperty, new Binding());
-            ViewModel = new AppViewModel();
-            ViewModel.ShowPopup
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    var y = x as IPopupViewModel;
-                    if (y != null)
-                        this.ShowPopup(y);
-                    else
-                        this.DismissPopup();
-                });
+            //ViewModel = new AppViewModel();
+
 
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
         }
@@ -66,6 +57,23 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        IDisposable ShowPopupSubscription = Disposable.Empty;
+        protected override void OnViewModelChanged(AppViewModel vm)
+        {
+            //base.OnViewModelChanged(vm);
+
+            ShowPopupSubscription.Dispose();
+            ShowPopupSubscription = ViewModel.ShowPopup
+              .ObserveOn(RxApp.MainThreadScheduler)
+              .Subscribe(x =>
+              {
+                  var y = x as IPopupViewModel;
+                  if (y != null)
+                      this.ShowPopup(y);
+                  else
+                      this.DismissPopup();
+              });
+        }
 
         CustomMessageBox Popup;
         IPopupViewModel PopupVm;

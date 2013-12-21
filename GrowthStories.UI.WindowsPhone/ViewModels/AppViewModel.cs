@@ -20,6 +20,7 @@ using EventStore.Persistence;
 using EventStore;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.UI.Persistence;
+using Growthstories.UI.Services;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -31,7 +32,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations;
+        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
             get
@@ -88,41 +89,51 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             //Resolver.Re
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
             {
-                this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
+                try
+                {
+                    this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
+
+                }
+                catch { }
             });
 
-            ViewLocator.ViewModelToViewModelInterfaceFunc = T =>
+            var wl = Resolver.GetService<IViewLocator>();
+            var ViewLocator = wl as GSViewLocator;
+            if (ViewLocator != null)
             {
+                ViewLocator.ViewModelToViewModelInterfaceFunc = T =>
+                {
 
-                if (T is IGardenPivotViewModel)
-                    return typeof(IGardenPivotViewModel);
-                if (T is ISettingsViewModel)
-                    return typeof(ISettingsViewModel);
-                if (T is IAboutViewModel)
-                    return typeof(IAboutViewModel);
-                if (T is IAddEditPlantViewModel)
-                    return typeof(IAddEditPlantViewModel);
-                if (T is ISignInRegisterViewModel)
-                    return typeof(ISignInRegisterViewModel);
-                if (T is IPlantActionViewModel)
-                    return typeof(IPlantActionViewModel);
-                if (T is IYAxisShitViewModel)
-                    return typeof(IYAxisShitViewModel);
-                if (T is IScheduleViewModel)
-                    return typeof(IScheduleViewModel);
-                if (T is ISearchUsersViewModel)
-                    return typeof(ISearchUsersViewModel);
-                if (T is IGardenViewModel)
-                    return typeof(IGardenViewModel);
-                if (T is IPlantViewModel)
-                    return typeof(IPlantViewModel);
-                if (T is IFriendsViewModel)
-                    return typeof(IFriendsViewModel);
-                if (T is IPlantActionListViewModel)
-                    return typeof(IPlantActionListViewModel);
-                return T.GetType();
+                    if (T is IGardenPivotViewModel)
+                        return typeof(IGardenPivotViewModel);
+                    if (T is ISettingsViewModel)
+                        return typeof(ISettingsViewModel);
+                    if (T is IAboutViewModel)
+                        return typeof(IAboutViewModel);
+                    if (T is IAddEditPlantViewModel)
+                        return typeof(IAddEditPlantViewModel);
+                    if (T is ISignInRegisterViewModel)
+                        return typeof(ISignInRegisterViewModel);
+                    if (T is IPlantActionViewModel)
+                        return typeof(IPlantActionViewModel);
+                    if (T is IYAxisShitViewModel)
+                        return typeof(IYAxisShitViewModel);
+                    if (T is IScheduleViewModel)
+                        return typeof(IScheduleViewModel);
+                    if (T is ISearchUsersViewModel)
+                        return typeof(ISearchUsersViewModel);
+                    if (T is IGardenViewModel)
+                        return typeof(IGardenViewModel);
+                    if (T is IPlantViewModel)
+                        return typeof(IPlantViewModel);
+                    if (T is IFriendsViewModel)
+                        return typeof(IFriendsViewModel);
+                    if (T is IPlantActionListViewModel)
+                        return typeof(IPlantActionListViewModel);
+                    return T.GetType();
 
-            };
+                };
+            }
             Initialize();
 
 

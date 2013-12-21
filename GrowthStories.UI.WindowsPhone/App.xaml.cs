@@ -10,6 +10,9 @@ using Growthstories.UI.WindowsPhone.Resources;
 using System.Globalization;
 using ReactiveUI.Mobile;
 using BugSense;
+using ReactiveUI;
+using Growthstories.UI.WindowsPhone.ViewModels;
+using Growthstories.UI.Services;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -60,6 +63,21 @@ namespace Growthstories.UI.WindowsPhone
             //host.SetupDefaultSuspendResume();
             // BugSense
             BugSenseHandler.Instance.InitAndStartSession(this, "e73c0669");
+
+
+            var resolver = RxApp.MutableResolver;
+            resolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));
+            resolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(resolver.GetService<ISuspensionDriver>());
+            resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(GSViewLocator));
+            resolver.RegisterLazySingleton(() => resolver.GetService<GSViewLocator>(), typeof(IViewLocator));
+
+
+            //resolver.InitializeResolver();
+
+            this.ViewModel = new AppViewModel();
+            resolver.RegisterConstant(ViewModel, typeof(IApplicationRootState));
+
+            //RxApp.DependencyResolver = resolver;
 
         }
 

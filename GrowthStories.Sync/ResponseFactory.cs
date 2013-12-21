@@ -57,13 +57,23 @@ namespace Growthstories.Sync
                         .Where(x => x.ErrorCode == "OK")
                         .Select(x =>
                         {
-                            x.Stream.Segments = Translator.In(x.DTOs)
-                                .Select(y => (IStreamSegment)(new StreamSegment(y)))
-                                .ToDictionary(y => y.AggregateId);
+                            try
+                            {
+                                x.Stream.Segments = Translator.In(x.DTOs)
+                                    .Select(y => (IStreamSegment)(new StreamSegment(y)))
+                                    .ToDictionary(y => y.AggregateId);
 
-                            x.Stream.NextSince = x.NextSince;
-                            return x.Stream;
+                                x.Stream.NextSince = x.NextSince;
+                                return x.Stream;
+
+                            }
+                            catch
+                            {
+
+                            }
+                            return null;
                         })
+                        .Where(x => x != null)
                         .ToArray();
 
                     //r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();

@@ -291,6 +291,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Bg\action_bg.jpg" />
+    <Content Include="Assets\Icons\appbar.door.enter.png" />
+    <Content Include="Assets\Icons\appbar.door.leave.png" />
     <Content Include="Assets\Icons\appbar.settings.png" />
     <Content Include="Assets\Icons\ApplicationBar.Add.png" />
     <Content Include="Assets\Icons\ApplicationBar.Cancel.png" />

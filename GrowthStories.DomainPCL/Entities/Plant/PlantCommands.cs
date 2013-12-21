@@ -109,18 +109,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public class DeletePlant : PlantCommand
-    {
 
-        public DeletePlant() { }
-        public DeletePlant(Guid id) : base(id) { }
-
-        public override string ToString()
-        {
-            return string.Format(@"Delete plant {0}.", AggregateId);
-        }
-
-    }
 
 
     public class SetName : PlantCommand

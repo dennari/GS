@@ -159,6 +159,65 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+    [DTOObject(DTOType.delEntity)]
+    public class AggregateDeleted : EventBase, IDeleteEvent
+    {
+
+
+        protected AggregateDeleted() { }
+        public AggregateDeleted(IDeleteCommand cmd)
+            : base(cmd)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Deleted aggregate {0}.", AggregateId);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IDelEntityDTO)Dto;
+
+
+            base.FillDTO(D);
+
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IDelEntityDTO)Dto;
+
+
+            base.FromDTO(D);
+        }
+    }
+
+    public class DeleteAggregate : IDeleteCommand
+    {
+
+
+        public DeleteAggregate(Guid id)
+        {
+            this.AggregateId = id;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Delete aggregate {0}.", AggregateId);
+        }
+
+        public Guid AggregateId { get; private set; }
+        public Guid? AncestorId { get; set; }
+        public Guid? ParentAncestorId { get; set; }
+        public Guid? ParentId { get; set; }
+        public Guid? StreamEntityId { get; set; }
+        public Guid? StreamAncestorId { get; set; }
+        public Guid? EntityId { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public Guid MessageId { get; set; }
+    }
 
 
     public static class DateTimeMixins

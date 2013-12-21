@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <local:SettingsViewBase.Resources>
-        <DataTemplate x:Key="SwitchTemplate">
+        <!--<DataTemplate x:Key="SwitchTemplate">
             <Grid Margin="0,0,0,10" Width="340">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70"/>
@@ -33,18 +33,9 @@
                     <ColumnDefinition Width="330"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" 
-                            Visibility="{Binding SignIn.IsEnabled, Converter={StaticResource BooleanToVisibility}}">
-                    <TextBlock Text="Signed in as" />
-                    <TextBlock  Text="{Binding Email}"/>
-                </StackPanel>
-                <TextBlock 
-                        Text="Not signed in" 
-                        Grid.Column="0" 
-                        Visibility="{Binding SignIn.IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
-
+              
             </Grid>
-        </DataTemplate>
+        </DataTemplate>-->
     </local:SettingsViewBase.Resources>
 
 
@@ -64,13 +55,24 @@
 
         <StackPanel>
             <local:GSLabel Label="Account">
-                <local:GSToggleSwitch
-                            IsChecked="{Binding SignIn.IsEnabled, Mode=TwoWay}"                                                       
-                            Content="{Binding}"
-                            ContentTemplate="{StaticResource SignInSwitchTemplate}"
-                            VerticalContentAlignment="Center"
-                            Margin="-12,0,-12,-12"
-                            />
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="330"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+
+                <StackPanel Grid.Column="0" 
+                            Visibility="{Binding Email, Converter={StaticResource NullToVisibility}}">
+                    <TextBlock Text="Signed in as" />
+                    <TextBlock  Text="{Binding Email}"/>
+                </StackPanel>
+                <TextBlock 
+                        Text="Not signed in" 
+                        Grid.Column="0" 
+                        Visibility="{Binding Email, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+                </Grid>
+
             </local:GSLabel>
             <!--<local:GSLabel Label="Synchronization">
                 <Grid Margin="0,0,0,10">

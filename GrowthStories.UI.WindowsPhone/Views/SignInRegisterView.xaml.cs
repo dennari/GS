@@ -29,7 +29,13 @@ namespace Growthstories.UI.WindowsPhone
         {
             InitializeComponent();
 
-
+            this.TabItems = new List<Control>()
+            {
+                this.username,
+                this.email,
+                this.password,
+                this.passwordConfirmation
+            };
         }
     }
 

@@ -50,10 +50,21 @@ namespace Growthstories.Domain.Entities
             }
         }
 
+        public override void Handle(IDeleteCommand cmd)
+        {
+
+        }
+
         public void Handle(PlantAdded e)
         {
-            if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId)
-                RaiseEvent(new SyncStreamCreated(e.PlantId, PullStreamType.PLANT, this.State.User.Id));
+            //if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId)
+            RaiseEvent(new SyncStreamCreated(e.PlantId, PullStreamType.PLANT, e.AggregateId));
+        }
+
+        public void Handle(DeleteAggregate e)
+        {
+            if (this.State.SyncStreamDict.ContainsKey(e.AggregateId))
+                RaiseEvent(new SyncStreamDeleted(e.AggregateId));
         }
 
         public void Handle(GardenAdded e)
@@ -169,6 +180,8 @@ namespace Growthstories.Domain.Entities
                 if (cmd is AddPlant)
                     return true;
                 if (cmd is AddGarden)
+                    return true;
+                if (cmd is DeleteAggregate)
                     return true;
             }
             else

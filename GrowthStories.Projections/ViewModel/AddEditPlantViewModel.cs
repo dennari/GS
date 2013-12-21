@@ -25,7 +25,7 @@ namespace Growthstories.UI.ViewModel
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
 
-        protected readonly IPlantViewModel Current;
+        public IPlantViewModel Current { get; protected set; }
         protected readonly HashSet<string> TagSet;
 
         public AddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
@@ -406,15 +406,11 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SetWateringSchedule(plantId, r.Id));
             }
 
-            if (this.Photo != null && current.Photo != this.Photo)
+            if (this.Photo != null && current.Photo != this.Photo && current.Actions.Count == 0)
             {
                 var plantActionId = Guid.NewGuid();
-
-                if (current.Actions.Count == 0)
-                {
-                    await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
-                    await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
-                }
+                await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
+                await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
                 await App.HandleCommand(new SetProfilepicture(plantId, this.Photo, plantActionId));
 
             }

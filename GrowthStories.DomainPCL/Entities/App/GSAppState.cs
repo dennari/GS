@@ -111,6 +111,13 @@ namespace Growthstories.Domain.Entities
             SyncStreamDict[@event.StreamId] = new PullStream(@event.StreamId, @event.SyncStreamType, @event.AncestorId);
         }
 
+        public void Apply(SyncStreamDeleted @event)
+        {
+            if (SyncStreamDict.ContainsKey(@event.StreamId))
+                SyncStreamDict.Remove(@event.StreamId);
+
+        }
+
         //public void Apply(SyncStampSet @event)
         //{
         //    PullStream syncStream = null;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -16,8 +17,20 @@ namespace Growthstories.UI.ViewModel
     {
 
         private IGardenViewModel _SelectedFriend;
-        public IGardenViewModel SelectedFriend { get { return _SelectedFriend; } set { this.RaiseAndSetIfChanged(ref _SelectedFriend, value); } }
+        public IGardenViewModel SelectedFriend
+        {
+            get
+            {
+                return _SelectedFriend;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SelectedFriend, value);
+            }
+        }
 
+
+        public IReactiveCommand ItemTappedCommand { get; set; }
 
 
         private IDisposable loadSubscription = Disposable.Empty;
@@ -31,6 +44,12 @@ namespace Growthstories.UI.ViewModel
                        .Subscribe(x =>
                        {
                            _Friends.Add(x);
+
+                           this.ListenTo<AggregateDeleted>(x.UserId)
+                             .Subscribe(y =>
+                             {
+                                 _Friends.Remove(x);
+                             });
                        });
         }
 
@@ -66,6 +85,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public IReactiveCommand UnFollowCommand { get; private set; }
 
 
         public FriendsViewModel(IGSAppViewModel app)
@@ -77,20 +97,38 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IGardenViewModel>()
                 .Subscribe(x => this.SelectedFriend = x);
 
-            this.WhenAnyValue(x => x.SelectedFriend)
-                .Where(x => x != null && App.Router.GetCurrentViewModel() != this)
-                .Subscribe(_ =>
+            this.ItemTappedCommand = new ReactiveCommand(App.Router.CurrentViewModel.Select(x => x != this));
+            this.ItemTappedCommand.Subscribe(_ => this.Navigate(this));
+
+
+            this.App.Router.CurrentViewModel.Subscribe(x =>
+            {
+                if (x == this)
                 {
-                    App.Router.Navigate.Execute(this);
-                });
+                    this.AppBarButtons = this.GardenButtons;
+
+                }
+                else
+                {
+                    this.AppBarButtons = this.MainViewButtons;
+
+                }
+            });
+
+            this.UnFollowCommand = new ReactiveCommand();
+            this.UnFollowCommand
+              .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.SelectedFriend.UserId)))
+              .Publish()
+              .Connect();
 
         }
-        protected ReactiveList<IButtonViewModel> _AppBarButtons;
-        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+
+        ReactiveList<IButtonViewModel> _MainViewButtons;
+        private ReactiveList<IButtonViewModel> MainViewButtons
         {
             get
             {
-                return _AppBarButtons ?? (_AppBarButtons = new ReactiveList<IButtonViewModel>() {
+                return _MainViewButtons ?? (_MainViewButtons = new ReactiveList<IButtonViewModel>() {
                     new ButtonViewModel(null)
                     {
                         Text = "add",
@@ -101,20 +139,51 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        ReactiveList<IButtonViewModel> _GardenButtons;
+        private ReactiveList<IButtonViewModel> GardenButtons
+        {
+            get
+            {
+                return _GardenButtons ?? (_GardenButtons = new ReactiveList<IButtonViewModel>() {
+                    new ButtonViewModel(null)
+                    {
+                        Text = "unfollow",
+                        IconType = IconType.CANCEL,
+                        Command = this.UnFollowCommand
+                    }            
+                });
+            }
+        }
+
+        private new IReadOnlyReactiveList<IButtonViewModel> _AppBarButtons;
+        public new IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                return _AppBarButtons;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+            }
+        }
+
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
         }
-
-        public ApplicationBarMode AppBarMode
+        private new ApplicationBarMode _AppBarMode = ApplicationBarMode.MINIMIZED;
+        public new ApplicationBarMode AppBarMode
         {
-            get { return ApplicationBarMode.MINIMIZED; }
+            get { return _AppBarMode; }
+            set { this.RaiseAndSetIfChanged(ref _AppBarMode, value); }
         }
 
-        public bool AppBarIsVisible
+        public new bool AppBarIsVisible
         {
             get { return true; }
         }
+
     }
 
 }

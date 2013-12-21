@@ -210,6 +210,12 @@ namespace Growthstories.UI.ViewModel
 
 
             this.DeleteCommand = new ReactiveCommand();
+            this.DeleteCommand.Subscribe(_ => App.Router.NavigateBack.Execute(null));
+            this.DeleteCommand
+                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id)))
+                .Publish()
+                .Connect();
+
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
@@ -645,6 +651,13 @@ namespace Growthstories.UI.ViewModel
                             _Actions.Insert(0, x);
 
                             x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+                            //x.DeleteCommand.Subscribe(_ => _Actions.Remove(x));
+
+                            this.ListenTo<AggregateDeleted>(x.PlantActionId)
+                              .Subscribe(y =>
+                              {
+                                  _Actions.Remove(x);
+                              });
 
                             var photo = x as IPlantPhotographViewModel;
                             if (photo != null)
@@ -758,13 +771,11 @@ namespace Growthstories.UI.ViewModel
                             Text = "edit",
                             Command = EditCommand,
                         },
-                        /*
                          new MenuItemViewModel(null)
                         {
                             Text = "delete",
                             Command = DeleteCommand
                         },
-                        */
                         new MenuItemViewModel(null)
                         {
                             Text = HasTile ? "unpin" : "pin",

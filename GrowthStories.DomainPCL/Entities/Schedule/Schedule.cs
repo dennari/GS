@@ -18,5 +18,9 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new ScheduleCreated(command));
         }
+        public override void Handle(IDeleteCommand cmd)
+        {
+            RaiseEvent(new AggregateDeleted(cmd));
+        }
     }
 }

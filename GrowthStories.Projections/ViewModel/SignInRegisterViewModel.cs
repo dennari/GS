@@ -171,7 +171,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private bool _SignInMode = true;
+        private bool _SignInMode = false;
         public bool SignInMode
         {
             get
@@ -289,12 +289,12 @@ namespace Growthstories.UI.ViewModel
 
         public ApplicationBarMode AppBarMode
         {
-            get { return ApplicationBarMode.MINIMIZED; }
+            get { return ApplicationBarMode.DEFAULT; }
         }
 
         public bool AppBarIsVisible
         {
-            get { return false; }
+            get { return true; }
         }
 
         protected bool _ProgressIndicatorIsVisible;
@@ -307,6 +307,22 @@ namespace Growthstories.UI.ViewModel
         public bool SystemTrayIsVisible
         {
             get { return false; }
+        }
+
+        ReactiveList<IButtonViewModel> _AppBarButtons;
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                return _AppBarButtons ?? (_AppBarButtons = new ReactiveList<IButtonViewModel>()
+                {
+                    new ButtonViewModel() {
+                        Text = "submit",
+                        IconType = IconType.CHECK,
+                        Command = this.OKCommand
+                    }
+                });
+            }
         }
     }
 

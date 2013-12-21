@@ -206,7 +206,10 @@
 
      
             <!-- PROFILE PICTURE -->
-                 <local:GSLabel Label="profile photo">
+                 <local:GSLabel 
+                     Label="profile photo"
+                     Visibility="{Binding Current, Converter={StaticResource NullToVisibility}, ConverterParameter=inv}"
+                     >
 
                     <c4f:Tile
                         BorderBrush="WhiteSmoke"

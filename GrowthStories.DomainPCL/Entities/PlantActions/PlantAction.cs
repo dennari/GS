@@ -26,6 +26,11 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PlantActionCreated(command));
         }
 
+        public override void Handle(IDeleteCommand cmd)
+        {
+            RaiseEvent(new AggregateDeleted(cmd));
+        }
+
         public void Handle(SetPlantActionProperty command)
         {
 

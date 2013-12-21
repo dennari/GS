@@ -9,7 +9,6 @@
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     SupportedOrientations="{Binding ClientSupportedOrientations}"  
-    Orientation="{Binding Orientation}"
 	shell:SystemTray.BackgroundColor="Black"
     shell:SystemTray.ForegroundColor="White"
     shell:SystemTray.Opacity="0.2"
@@ -37,10 +36,18 @@
         <routing:RoutedViewHost 
 		    x:Name="Content"
 		    Router="{Binding Router}"
-		    CacheMode="BitmapCache"
-		    Transition="Fade"
-		    TransitionPart="OutIn"
+
 	       />
+        <!--<local:GSRoutedViewHost
+		    x:Name="Content"
+		    Router="{Binding Router}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            />-->
+        <!--<local:SignInRegisterView x:Name="TestSignIn"/>-->
+            
     </Grid>
     
     <bar:Bindable.ApplicationBar>

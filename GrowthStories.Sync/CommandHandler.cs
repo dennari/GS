@@ -205,14 +205,14 @@ namespace Growthstories.Sync
                 try
                 {
                     var plant = (Plant)Repository.GetById(photo.PlantId);
-                    if (plant.State.Profilepicture == null)
+                    //if (plant.State.Profilepicture == null)
+                    //{
+                    derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
                     {
-                        derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
-                        {
-                            AncestorId = photo.AncestorId
-                        };
-                        return true;
-                    }
+                        AncestorId = photo.AncestorId
+                    };
+                    return true;
+                    //}
                 }
                 catch { }
             }

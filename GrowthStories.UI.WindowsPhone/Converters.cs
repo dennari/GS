@@ -68,6 +68,8 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.CO2,IconFolder+"icon_co2_appbar.png"},
             {IconType.AIRHUMIDITY,IconFolder+"icon_air_humidity_appbar.png"},
             {IconType.SETTINGS,IconFolder+"appbar.settings.png"},
+            {IconType.SIGNIN,IconFolder+"appbar.door.enter.png"},
+            {IconType.SIGNOUT,IconFolder+"appbar.door.leave.png"}
 
         };
 
@@ -180,15 +182,18 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return Visibility.Collapsed;
             }
-            
+
             IEnumerable<Object> list = (IEnumerable<Object>)value;
 
-            if (list.Count() == 0) {
-                return Visibility.Collapsed;            
-            } else {
+            if (list.Count() == 0)
+            {
+                return Visibility.Collapsed;
+            }
+            else
+            {
                 return Visibility.Visible;
             }
-            
+
         }
 
         public object ConvertBack(object value, Type targetType, object parameter,

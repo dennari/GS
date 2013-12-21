@@ -30,7 +30,13 @@ namespace Growthstories.UI.ViewModel
             App.CurrentPlants(u).Concat(App.FuturePlants(u)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
                 _Plants.Add(x);
+                this.ListenTo<AggregateDeleted>(x.Id)
+                   .Subscribe(y =>
+                   {
+                       _Plants.Remove(x);
+                   });
             });
+
         }
 
         protected ReactiveList<IPlantViewModel> _Plants;
@@ -123,6 +129,7 @@ namespace Growthstories.UI.ViewModel
         public string PlantTitle { get; protected set; }
 
         public Guid Id { get; protected set; }
+        public Guid UserId { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -272,6 +279,7 @@ namespace Growthstories.UI.ViewModel
             this.User = user;
             this.Username = user.Username;
             this.Id = user.GardenId;
+            this.UserId = user.Id;
             //this.State = state.Garden;
 
             this.PlantTitle = string.Format("{0}'s garden", User.Username).ToUpper();

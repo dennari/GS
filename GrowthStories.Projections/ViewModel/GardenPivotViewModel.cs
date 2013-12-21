@@ -128,6 +128,11 @@ namespace Growthstories.UI.ViewModel
             get { return Vm.Id; }
         }
 
+        public Guid UserId
+        {
+            get { return Vm.UserId; }
+        }
+
         public IReactiveCommand SelectedItemsChanged
         {
             get { return Vm.SelectedItemsChanged; }
