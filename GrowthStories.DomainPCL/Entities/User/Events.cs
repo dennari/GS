@@ -370,7 +370,6 @@ namespace Growthstories.Domain.Messaging
                 throw new ArgumentException();
 
             base.FromDTO(D);
-
         }
 
     }

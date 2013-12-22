@@ -4,7 +4,7 @@
   <Languages xmlns="">
     <Language code="en" />
   </Languages>
-  <App xmlns="" ProductID="{fe617508-961a-4981-a3c6-71e35e48b703}" Title="Growth Stories" RuntimeType="Silverlight" Version="1.0.0.1" Genre="apps.normal" Author="GrowthStories.UI.WindowsPhone author" Description="Growth Stories is a mobile application and community for anyone growing their own plants. It helps you to take better care of your plants, while having more fun!" Publisher="GrowthStories.UI.WindowsPhone" PublisherID="{9bb55742-8e03-4a09-a29f-e0f415577103}">
+  <App xmlns="" ProductID="{fe617508-961a-4981-a3c6-71e35e48b703}" Title="Growth Stories" RuntimeType="Silverlight" Version="1.0.0.2" Genre="apps.normal" Author="GrowthStories.UI.WindowsPhone author" Description="Growth Stories is a mobile application and community for anyone growing their own plants. It helps you to take better care of your plants, while having more fun!" Publisher="GrowthStories.UI.WindowsPhone" PublisherID="{9bb55742-8e03-4a09-a29f-e0f415577103}">
     <IconPath IsRelative="true" IsResource="false">Assets\Icons\application_icon_99.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />

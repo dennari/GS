@@ -277,7 +277,7 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(R.PullReq.Streams.First(x => x.StreamId == plantId).Type, PullStreamType.PLANT);
 
-            TestUtils.WaitForTask(App.HandleCommand(new DeleteAggregate(plantId)));
+            TestUtils.WaitForTask(App.HandleCommand(new DeleteAggregate(plantId, "plant")));
 
             var R2 = TestUtils.WaitForTask(App.Synchronize());
             Assert.IsNull(R2.PullReq.Streams.FirstOrDefault(x => x.StreamId == plantId));

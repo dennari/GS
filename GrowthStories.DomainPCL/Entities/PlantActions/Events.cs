@@ -306,8 +306,8 @@ namespace Growthstories.Domain.Messaging
 
         }
 
-        protected Dictionary<DTOType, PlantActionType> _ValidTypes;
-        protected Dictionary<DTOType, PlantActionType> ValidTypes
+        public static Dictionary<DTOType, PlantActionType> _ValidTypes;
+        public static Dictionary<DTOType, PlantActionType> ValidTypes
         {
             get
             {
@@ -333,8 +333,6 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-
-
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
@@ -357,13 +355,10 @@ namespace Growthstories.Domain.Messaging
             D.PropertyName = "note";
             D.PropertyValue = this.Note;
 
-            D.EntityType = this.ValidTypes
+            D.EntityType = PlantActionPropertySet.ValidTypes
                 .Where(x => x.Value == this.Type)
                 .Select(x => x.Key)
                 .FirstOrDefault();
-
-
-
 
             base.FillDTO(D);
 

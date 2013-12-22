@@ -163,26 +163,105 @@ namespace Growthstories.Domain.Messaging
     public class AggregateDeleted : EventBase, IDeleteEvent
     {
 
+        
+        public AggregateDeleted() { }
 
-        protected AggregateDeleted() { }
+        [JsonProperty]
+        public string Kind {get; set; }
+
         public AggregateDeleted(IDeleteCommand cmd)
             : base(cmd)
         {
-
+            this.Kind = cmd.Kind;
         }
+
 
         public override string ToString()
         {
             return string.Format(@"Deleted aggregate {0}.", AggregateId);
         }
 
+
         public override void FillDTO(IEventDTO Dto)
         {
             var D = (IDelEntityDTO)Dto;
 
-
             base.FillDTO(D);
 
+            switch (this.Kind)
+            {
+                case "user":
+                    D.EntityType = DTOType.user;
+                    break;
+
+                case "plant":
+                    D.EntityType = DTOType.plant;
+                    break;
+
+                case "blooming":
+                    D.EntityType = DTOType.blooming;
+                    break;
+
+                case "comment":
+                    D.EntityType = DTOType.comment;
+                    break;
+
+                case "deceased":
+                    D.EntityType = DTOType.deceased;
+                    break;
+
+                case "fertilizing":
+                    D.EntityType = DTOType.fertilizing;
+                    break;
+
+                case "harvesting":
+                    D.EntityType = DTOType.harvesting;
+                    break;
+
+                case "measurement":
+                    D.EntityType = DTOType.measurement;
+                    break;
+
+                case "misting":
+                    D.EntityType = DTOType.misting;
+                    break;
+
+                case "photo":
+                    D.EntityType = DTOType.photo;
+                    break;
+
+                case "pollination":
+                    D.EntityType = DTOType.pollination;
+                    break;
+
+                case "pruning":
+                    D.EntityType = DTOType.pruning;
+                    break;
+
+                case "sprouting":
+                    D.EntityType = DTOType.sprouting;
+                    break;
+
+                case "transfer":
+                    D.EntityType = DTOType.transfer;
+                    break;
+
+                case "watering":
+                    D.EntityType = DTOType.watering;
+                    break;
+
+                default:
+                    D.EntityType = DTOType.user;
+                    break;
+            }
+
+            if (this.Kind == null)
+            {
+                D.EntityType = DTOType.plant;
+            }
+
+
+            
         }
 
         public override void FromDTO(IEventDTO Dto)
@@ -198,9 +277,10 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-        public DeleteAggregate(Guid id)
+        public DeleteAggregate(Guid id, string Kind)
         {
             this.AggregateId = id;
+            this.Kind = Kind;
         }
 
         public override string ToString()
@@ -208,6 +288,7 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Delete aggregate {0}.", AggregateId);
         }
 
+        public string Kind { get; set; }
         public Guid AggregateId { get; private set; }
         public Guid? AncestorId { get; set; }
         public Guid? ParentAncestorId { get; set; }

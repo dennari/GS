@@ -23,7 +23,16 @@ namespace Growthstories.UI.WindowsPhone
         public GSView()
         {
             //this.SetBinding(ViewModelProperty, new Binding());
-            //Height = 800;
+            
+            // this is needed to prevent shitty page transitions for
+            // pages with backgrounds, affecting LUMIA 520 and probably 
+            // other models
+            //
+            // it however breaks landscape views so in those we should
+            // set Height = Double.NaN, which sets height to Auto
+            //
+            //  -- JOJ 22.12.2013
+            Height = 800;
         }
 
         public T ViewModel

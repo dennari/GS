@@ -207,12 +207,10 @@ namespace Growthstories.UI.ViewModel
                 //vm.AddCommand.Execute(null);
             });
 
-
-
             this.DeleteCommand = new ReactiveCommand();
             this.DeleteCommand.Subscribe(_ => App.Router.NavigateBack.Execute(null));
             this.DeleteCommand
-                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id)))
+                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
                 .Publish()
                 .Connect();
 
@@ -224,7 +222,6 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-
 
                 this.State = state;
                 this.Id = state.Id;

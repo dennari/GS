@@ -64,7 +64,7 @@ namespace Growthstories.UI.ViewModel
             {PlantActionType.HARVESTED,"harvested"},
             {PlantActionType.FERTILIZED,"nourished"},
             {PlantActionType.FBCOMMENTED,"commented"},
-            {PlantActionType.DECEASED,"declare deceased"},
+            {PlantActionType.DECEASED,"deceased"},
             {PlantActionType.COMMENTED,"commented"},
             {PlantActionType.BLOOMED,"blooming!"}
         };
@@ -177,12 +177,71 @@ namespace Growthstories.UI.ViewModel
 
             this.DeleteCommand = new ReactiveCommand(Observable.Return(state != null));
             //DeleteCommandSubscription = this.DeleteCommand.Subscribe(_ => this.Navigate(this));
+
+            string kind = "";
+            switch (type)
+            {
+                case PlantActionType.BLOOMED:
+                    kind = "blooming";
+                    break;
+
+                case PlantActionType.COMMENTED:
+                    kind = "comment";
+                    break;
+
+                case PlantActionType.FBCOMMENTED:
+                    kind = "fbComment";
+                    break;
+
+                case PlantActionType.DECEASED:
+                    kind = "deceased";
+                    break;
+                
+                case PlantActionType.FERTILIZED:
+                    kind = "fertilizing";
+                    break;
+
+                case PlantActionType.HARVESTED:
+                    kind = "harvesting";
+                    break;
+
+                case PlantActionType.MEASURED:
+                    kind = "measurement";
+                    break;
+
+                case PlantActionType.MISTED:
+                    kind = "misted";
+                    break;
+
+                case PlantActionType.PHOTOGRAPHED:
+                    kind = "photo";
+                    break;
+
+                case PlantActionType.POLLINATED:
+                    kind = "pollination";
+                    break;
+
+                case PlantActionType.PRUNED:
+                    kind = "pruning";
+                    break;
+
+                case PlantActionType.SPROUTED:
+                    kind = "sprouting";
+                    break;
+
+                case PlantActionType.TRANSFERRED:
+                    kind = "transfer";
+                    break;
+
+                case PlantActionType.WATERED:
+                    kind = "watering";
+                    break;
+            }
+
             this.DeleteCommand
-               .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.PlantActionId)))
+               .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.PlantActionId, kind)))
                .Publish()
                .Connect();
-
-
         }
 
 

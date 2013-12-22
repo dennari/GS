@@ -58,10 +58,10 @@ namespace Growthstories.Sync
         #region IAddEntityDTO
         #endregion
 
-        #region ISetPropertyDTO
         [JsonProperty(PropertyName = Language.ENTITY_TYPE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public DTOType EntityType { get; set; }
 
+        #region ISetPropertyDTO
         [JsonProperty(PropertyName = Language.PROPERTY_ENTITY_ID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public Guid PropertyEntityId { get; set; }
 
@@ -113,7 +113,6 @@ namespace Growthstories.Sync
 
         [JsonProperty(PropertyName = Language.VALUE, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public double Value { get; set; }
-
 
 
         [JsonProperty(PropertyName = Language.FBUID, Required = Required.Default, DefaultValueHandling = DefaultValueHandling.Ignore)]

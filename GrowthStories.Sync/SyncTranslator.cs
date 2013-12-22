@@ -28,9 +28,7 @@ namespace Growthstories.Sync
 
             ed.AggregateVersion -= 1;
 
-
             return ed;
-
         }
 
 

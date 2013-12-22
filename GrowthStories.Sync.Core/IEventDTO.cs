@@ -52,9 +52,10 @@ namespace Growthstories.Sync
         string PropertyName { get; set; }
     }
 
+
     public interface IDelEntityDTO : IEventDTO
     {
-
+        DTOType EntityType { get; set; }
     }
 
     public interface ICreateUserDTO : IEventDTO

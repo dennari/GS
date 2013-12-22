@@ -117,7 +117,8 @@ namespace Growthstories.UI.ViewModel
 
             this.UnFollowCommand = new ReactiveCommand();
             this.UnFollowCommand
-              .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.SelectedFriend.UserId)))
+              .RegisterAsyncTask((_) => App.HandleCommand(
+                    new DeleteAggregate(this.SelectedFriend.UserId, "following")))  // will not work
               .Publish()
               .Connect();
 
