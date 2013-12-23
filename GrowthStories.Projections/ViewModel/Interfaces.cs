@@ -360,14 +360,17 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public PlantScheduler(IScheduleViewModel vm)
+        public PlantScheduler(IScheduleViewModel vm, bool own)
         {
             this.Schedule = vm;
+            this._OwnPlant = own;
 
             this.WhenAnyValue(x => x.LastActionTime)
                 .Where(x => x.HasValue)
                 .Subscribe(x => this.ComputeNext());
         }
+
+        private bool _OwnPlant;
 
         private DateTimeOffset? _LastActionTime;
         public DateTimeOffset? LastActionTime
@@ -433,6 +436,7 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _Missed, value);
                 this.raisePropertyChanged("MissedNotification");
                 this.raisePropertyChanged("MissedLate");
+                this.raisePropertyChanged("MissedLateAndOwn");
                 this.raisePropertyChanged("Now");
             }
         }
@@ -459,6 +463,15 @@ namespace Growthstories.UI.ViewModel
             {
                 return Missed > WINDOW;
             }
+        }
+
+        public bool MissedLateAndOwn
+        {
+            get
+            {
+                return MissedLate && _OwnPlant; 
+            }
+
         }
 
         private string _MissedText;

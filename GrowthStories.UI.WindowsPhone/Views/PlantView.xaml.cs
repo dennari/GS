@@ -29,6 +29,12 @@ namespace Growthstories.UI.WindowsPhone
         {
             InitializeComponent();
             Height = Double.NaN;
+
+            if (ViewModel != null)
+            {
+                OnViewModelChanged(ViewModel);
+            }
+
             //this.WhenAnyValue(x => (int?)x.ViewModel.MissedCount)
             //    .Subscribe(x =>
             //    {
@@ -57,6 +63,8 @@ namespace Growthstories.UI.WindowsPhone
 
         IDisposable PinCommandSubscription = Disposable.Empty;
         IDisposable ShareCommandSubscription = Disposable.Empty;
+        IDisposable DeleteCommandSubscription = Disposable.Empty;
+
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
@@ -85,14 +93,30 @@ namespace Growthstories.UI.WindowsPhone
             } else {
                 Margin = new Thickness(0, 0, 0, 0);
             }
+
+            DeleteCommandSubscription.Dispose();
+            DeleteCommandSubscription = vm.DeleteCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                DeleteTile(vm);
+            });
         }
 
+
+        public static void DeleteTile(IPlantViewModel pvm)
+        {
+            var t = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(pvm.UrlPathSegment));
+            if (t != null)
+            {
+                t.Delete();
+                pvm.HasTile = false; 
+            }
+        }
 
         private void Share(IPlantViewModel vm)
         {
             ShareLinkTask shareLinkTask = new ShareLinkTask();
 
-            shareLinkTask.Title = "Sharing " + vm.Name;
+            shareLinkTask.Title = "Story of " + vm.Name;
             shareLinkTask.LinkUri = new Uri(
                 "http://www.growthstories.com/plant/" + vm.UserId + "/" + vm.Id , UriKind.Absolute);
             shareLinkTask.Message = "Check out how my plant " + vm.Name + " is doing!";
@@ -113,9 +137,9 @@ namespace Growthstories.UI.WindowsPhone
         {
             FlipTileData TileData = new FlipTileData()
             {
-                Title = ViewModel.Name,
-                BackTitle = ViewModel.Name,
-                BackContent = "GROWTH STORIES",
+                Title = ViewModel.Name.ToUpper(),
+                BackTitle = ViewModel.Name.ToUpper(),
+                //BackContent = "GROWTH STORIES",
                 //WideBackContent = "GROWTH STORIES",
                 //Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
                 BackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),

@@ -50,7 +50,8 @@ namespace Growthstories.UI.ViewModel
             this.OKCommand.Subscribe(x =>
             {
                 this.Message = null;
-                this.ProgressIndicatorIsVisible = true;
+                App.ShowPopup.Execute(App.SyncPopup);
+                // this.ProgressIndicatorIsVisible = true;
             });
             this.OKCommand.ThrownExceptions.Subscribe(x =>
             {
@@ -73,7 +74,8 @@ namespace Growthstories.UI.ViewModel
             });
             this.Response.Subscribe(x =>
             {
-                this.ProgressIndicatorIsVisible = false;
+                App.ShowPopup.Execute(null);
+                //this.ProgressIndicatorIsVisible = false;
                 bool IsSuccess = x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
 
                 if (x.Item2 == RegisterResponse.emailInUse)

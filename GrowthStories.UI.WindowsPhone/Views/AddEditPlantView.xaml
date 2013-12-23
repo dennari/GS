@@ -15,6 +15,7 @@
    
     mc:Ignorable="d">
     <UserControl.Resources>
+        
         <!--
         <ItemsPanelTemplate x:Key="TagsPanelTemplate">
             <StackPanel Orientation="Horizontal"/>
@@ -73,6 +74,7 @@
             </Grid>
         </ControlTemplate>
         -->
+        
         <DataTemplate x:Key="ScheduleTemplate">
                 <Grid Margin="0,0,0,10" Width="340">
                     <Grid.ColumnDefinitions>

@@ -96,7 +96,7 @@
 
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
-                    <StackPanel>
+                    <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}">
                         <Grid Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">
                             <ContentControl                            
                                 DataContext="{Binding FertilizingScheduler}"

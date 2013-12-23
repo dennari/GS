@@ -1691,7 +1691,7 @@ namespace SQLite
         {
             if (_autoPk != null)
             {
-                _autoPk.SetValue(obj, Convert.ChangeType(id, _autoPk.ColumnType, null));
+                _autoPk.SetValue(obj, Convert.ChangeType(id, _autoPk.ColumnType));
             }
         }
 

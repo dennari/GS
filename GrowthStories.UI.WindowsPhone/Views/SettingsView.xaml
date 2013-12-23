@@ -54,6 +54,7 @@
          </local:GSViewGrid.Background>
 
         <StackPanel>
+            <!--
             <local:GSLabel Label="Account">
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
@@ -61,19 +62,51 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-
-                <StackPanel Grid.Column="0" 
-                            Visibility="{Binding Email, Converter={StaticResource NullToVisibility}}">
-                    <TextBlock Text="Signed in as" />
-                    <TextBlock  Text="{Binding Email}"/>
-                </StackPanel>
+               
                 <TextBlock 
+                        Style="{StaticResource GSTextBlockStyle}"
+                        Foreground="WhiteSmoke"
+                        Margin="0,12,0,36"
+                        FontSize="24"
                         Text="Not signed in" 
                         Grid.Column="0" 
                         Visibility="{Binding Email, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
                 </Grid>
 
             </local:GSLabel>
+            -->
+            
+            <TextBlock Text="account" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White"
+                       Margin="0,0,0,12" />
+
+                <TextBlock 
+                    Style="{StaticResource GSTextBlockStyle}"
+                    Foreground="WhiteSmoke"
+                    Margin="0,0,0,36"
+                    FontSize="24"
+                    Text="Not signed in" 
+                    Grid.Column="0" 
+                    Visibility="{Binding Email, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+
+            <StackPanel Grid.Column="0" Margin="0,0,0,36"
+                            Visibility="{Binding Email, Converter={StaticResource NullToVisibility}}">
+                <TextBlock 
+                    Text="Signed in as" 
+                    Style="{StaticResource GSTextBlockStyle}"
+                    Foreground="WhiteSmoke"
+                    Margin="0,0,0,12"
+                    FontSize="24"
+                    />
+                <TextBlock 
+                    Text="juho@moi.com"
+                    Style="{StaticResource GSTextBlockStyle}"
+                    Foreground="WhiteSmoke"
+                    FontWeight="Bold"
+                    Margin="0,0,0,0"
+                    FontSize="24"                      
+                           />
+            </StackPanel>
+
             <!--<local:GSLabel Label="Synchronization">
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
@@ -99,6 +132,7 @@
                 HorizontalContentAlignment="Left"
                 Command="{Binding SynchronizeCommand}"
                 IsEnabled="{Binding CanSynchronize}"
+                toolkit:TiltEffect.IsTiltEnabled="True"
                 Padding="0,0,0,0"
                 Margin="-6,0,0,0"
                 >
@@ -164,6 +198,7 @@
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Left"
                 Command="{Binding NavigateToAbout}"
+                toolkit:TiltEffect.IsTiltEnabled="True"
                 Padding="0,0,0,0"
                 Margin="-6,0,0,0"
                 >

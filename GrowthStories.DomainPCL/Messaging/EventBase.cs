@@ -251,17 +251,16 @@ namespace Growthstories.Domain.Messaging
                     break;
 
                 default:
-                    D.EntityType = DTOType.user;
+                    // BUG
+                    D.EntityType = DTOType.NOTYPE;
                     break;
             }
 
             if (this.Kind == null)
             {
-                D.EntityType = DTOType.plant;
+                // BUG
+                D.EntityType = DTOType.NOTYPE;
             }
-
-
-            
         }
 
         public override void FromDTO(IEventDTO Dto)

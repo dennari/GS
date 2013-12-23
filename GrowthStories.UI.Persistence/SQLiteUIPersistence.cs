@@ -123,17 +123,25 @@ namespace Growthstories.UI.Persistence
             }
         }
 
+
         public void Save(IGSAggregate aggregate)
         {
             try
             {
+                // why is the dynamic keyword there twice ?
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
-
             }
+
             catch (RuntimeBinderException)
             {
 
             }
+        }
+
+
+        void Persist(IAggregateState state)
+        {
+            
         }
 
         void Persist(PlantActionState state)

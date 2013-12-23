@@ -63,7 +63,7 @@ namespace Growthstories.UI.ViewModel
             {PlantActionType.MEASURED,"measured"},
             {PlantActionType.HARVESTED,"harvested"},
             {PlantActionType.FERTILIZED,"nourished"},
-            {PlantActionType.FBCOMMENTED,"commented"},
+           // {PlantActionType.FBCOMMENTED,"commented"}, // before enabling this it needs to be filtered out from the action list UI
             {PlantActionType.DECEASED,"deceased"},
             {PlantActionType.COMMENTED,"commented"},
             {PlantActionType.BLOOMED,"blooming!"}
@@ -210,7 +210,7 @@ namespace Growthstories.UI.ViewModel
                     break;
 
                 case PlantActionType.MISTED:
-                    kind = "misted";
+                    kind = "misting";
                     break;
 
                 case PlantActionType.PHOTOGRAPHED:

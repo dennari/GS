@@ -11,6 +11,7 @@ using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Windows.Data;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -23,11 +24,44 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(GardenView));
 
+
+   
         public GardenView()
         {
             InitializeComponent();
             Height = Double.NaN;
+
+            Logger.Info("initialized garden view");
+        }
+
+        
+        protected override void OnViewModelChanged(IGardenViewModel vm)
+        {
+
+            Logger.Info("gardenview onViewModelChanged");
+
+
+            foreach (PlantViewModel pvm in ViewModel.Plants)
+            {
+
+                Logger.Info("subscribing for plant " + pvm.Name);
+
+
+                pvm.DeleteCommand
+                    .Subscribe(_ => PlantView.DeleteTile(pvm));
+                //pvm.DeleteCommand.Execute(null);
+            }    
+        }
+
+        
+        public void handleDelete(PlantViewModel pvm)
+        {
+
+            PlantView.DeleteTile(pvm);
+
+            //MessageBoxResult res = MessageBox.Show("Are you sure you wish to delete the plant " + pvm.Name + "?");
         }
 
 

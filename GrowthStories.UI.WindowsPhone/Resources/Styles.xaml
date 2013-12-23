@@ -58,6 +58,7 @@
     <SolidColorBrush x:Key="GSBackgroundBrush" Color="{StaticResource GSBackgroundColor}"/>
     <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}"/>
 
+    <SolidColorBrush x:Key="GSWhiteBrush" Color="WhiteSmoke"/>
 
     <!-- ############################################### 
  ############ ACTIONS ##############################
@@ -277,7 +278,26 @@
             </Setter>
         </Style>
 
-        <Style TargetType="local:GSToggleSwitch">
+
+    <DataTemplate x:Key="GSProcessPopupTemplate">
+        <Border BorderBrush="{StaticResource GSAccentBrush}" Background="WhiteSmoke" Padding="24,24,24,24">
+
+            <StackPanel Background="WhiteSmoke" HorizontalAlignment="Stretch">
+                <TextBlock
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"                    
+                    Foreground="{StaticResource GSAccentBrush}"
+                    Text="Synchronizing..." 
+                    FontWeight="Bold"
+                    Margin="0,0,0,24"
+                    HorizontalAlignment="Left"
+                    Width="400"                   
+                  />
+                <ProgressBar IsIndeterminate="True" IsEnabled="True" Foreground="{StaticResource GSAccentBrush}" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <Style TargetType="local:GSToggleSwitch">
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>
             <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeLarge}"/>

@@ -151,11 +151,7 @@ namespace Growthstories.UI.ViewModel
                     .Subscribe(x => this.Init(x));
             }
 
-
-
             //this.Id = iid;
-
-
 
             this._SelectedPlants.IsEmptyChanged.Subscribe(x =>
             {
@@ -215,14 +211,18 @@ namespace Growthstories.UI.ViewModel
             this.MultiWateringCommand = new ReactiveCommand();
 
 
-
             this.MultiWateringCommand.Subscribe((_) =>
             {
                 if (this._SelectedPlants.Count == 0)
                     return;
                 foreach (var x in _SelectedPlants)
+                {
                     x.WateringCommand.Execute(null);
+                }
+                _SelectedPlants.Clear();
+                this.IsPlantSelectionEnabled = false;
             });
+
             this.MultiDeleteCommand = new ReactiveCommand();
             this.MultiDeleteCommand.Subscribe((_) =>
             {
@@ -243,6 +243,7 @@ namespace Growthstories.UI.ViewModel
             // })
 
         }
+
 
         protected IGardenPivotViewModel _PivotVM;
         public IGardenPivotViewModel PivotVM

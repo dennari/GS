@@ -28,7 +28,12 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand WateringCommand { get; protected set; }
         public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
+        public IReactiveCommand GardenViewDeleteCommand { get; protected set; }
+        public IReactiveCommand DeleteRequestedCommand { get; protected set; }
+
+
         public IReactiveCommand EditCommand { get; protected set; }
+
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
 
@@ -207,9 +212,18 @@ namespace Growthstories.UI.ViewModel
                 //vm.AddCommand.Execute(null);
             });
 
+            this.DeleteRequestedCommand = new ReactiveCommand();
             this.DeleteCommand = new ReactiveCommand();
+            this.GardenViewDeleteCommand = new ReactiveCommand();
+            
             this.DeleteCommand.Subscribe(_ => App.Router.NavigateBack.Execute(null));
             this.DeleteCommand
+                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
+                .Publish()
+                .Connect();
+
+            // ( garden view version does not navigate back )
+            this.GardenViewDeleteCommand
                 .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
                 .Publish()
                 .Connect();
@@ -217,8 +231,6 @@ namespace Growthstories.UI.ViewModel
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
-
-
 
             if (state != null)
             {
@@ -302,7 +314,7 @@ namespace Growthstories.UI.ViewModel
             }).Subscribe(x =>
             {
                 if (this.WateringScheduler == null || this.WateringScheduler.Schedule != x.Item1)
-                    this.WateringScheduler = new PlantScheduler(x.Item1) { Icon = IconType.WATER };
+                    this.WateringScheduler = new PlantScheduler(x.Item1, OwnPlant) { Icon = IconType.WATER };
                 this.WateringScheduler.LastActionTime = x.Item2.Created;
             });
 
@@ -317,7 +329,7 @@ namespace Growthstories.UI.ViewModel
             }).Subscribe(x =>
             {
                 if (this.FertilizingScheduler == null || this.FertilizingScheduler.Schedule != x.Item1)
-                    this.FertilizingScheduler = new PlantScheduler(x.Item1) { Icon = IconType.FERTILIZE };
+                    this.FertilizingScheduler = new PlantScheduler(x.Item1, OwnPlant) { Icon = IconType.FERTILIZE };
                 this.FertilizingScheduler.LastActionTime = x.Item2.Created;
             });
 
@@ -378,11 +390,6 @@ namespace Growthstories.UI.ViewModel
             {
                 AppBarMenuItems = __AppBarMenuItems;
             });
-
-
-
-
-
         }
 
 
@@ -756,7 +763,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return new ReactiveList<IMenuItemViewModel>()
+                ReactiveList<IMenuItemViewModel> ret = new ReactiveList<IMenuItemViewModel>()
                     {
                         new MenuItemViewModel(null)
                         {
@@ -767,18 +774,32 @@ namespace Growthstories.UI.ViewModel
                         {
                             Text = "edit",
                             Command = EditCommand,
-                        },
-                         new MenuItemViewModel(null)
+                        },                                              
+                                        
+                    };
+                
+                if (!HasTile) // kludge
+                {
+                    ret.Add
+                    (
+                        new MenuItemViewModel(null)
                         {
                             Text = "delete",
                             Command = DeleteCommand
-                        },
-                        new MenuItemViewModel(null)
+                        }
+                    );
+                }
+
+                ret.Add
+                (
+                  new MenuItemViewModel(null)
                         {
                             Text = HasTile ? "unpin" : "pin",
-                            Command = PinCommand           
+                            Command = PinCommand
                         }
-                    };
+                );
+
+                return ret;
             }
         }
 

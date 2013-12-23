@@ -101,23 +101,28 @@ namespace Growthstories.Sync
                 {
                     try
                     {
-                        var DTOTs = TI.GetCustomAttribute<DTOObjectAttribute>().Type;
-                        IList<Type> TypeList = null;
-                        foreach (var DTOT in DTOTs)
+                        if (TI != null && TI.GetCustomAttribute<DTOObjectAttribute>() != null)
                         {
-                            if (DTOToEvent.TryGetValue(DTOT, out TypeList))
+                            var DTOTs = TI.GetCustomAttribute<DTOObjectAttribute>().Type;
+                            IList<Type> TypeList = null;
+                            foreach (var DTOT in DTOTs)
                             {
-                                TypeList.Add(T);
+                                if (DTOToEvent.TryGetValue(DTOT, out TypeList))
+                                {
+                                    TypeList.Add(T);
+                                }
+                                else
+                                {
+                                    DTOToEvent[DTOT] = new List<Type>() { T };
+                                }
                             }
-                            else
-                            {
-                                DTOToEvent[DTOT] = new List<Type>() { T };
-                            }
-                        }
+                        }                       
                     }
+
                     catch (Exception)
                     {
-                        //Events.Add(T);
+                        // TODO: is this appropriate?
+                        //       should we log?
                     }
 
                 }

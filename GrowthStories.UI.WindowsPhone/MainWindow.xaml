@@ -19,6 +19,8 @@
     Height="800"
     -->
 
+    
+
     <phone:PhoneApplicationPage.Resources>
         <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
             <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>

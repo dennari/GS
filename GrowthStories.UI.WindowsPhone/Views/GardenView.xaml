@@ -29,13 +29,13 @@
                                                  BorderBrush="Transparent" BorderThickness="0" Padding="48,48,48,48">
                                 <toolkit:MenuItem Header="Water"
                                                   Background="WhiteSmoke"
-                                                  Opacity="0.9"
+                                                  Opacity="1.0"
                                                   Foreground="{StaticResource GSAccentBrush}"
                                                   Command="{Binding WateringCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
                                 <toolkit:MenuItem Header="Edit" 
-                                                  Opacity="0.9"
+                                                  Opacity="1.0"
                                                   Background="WhiteSmoke"
                                                   Foreground="{StaticResource GSAccentBrush}"
                                                   Command="{Binding EditCommand}"
@@ -43,10 +43,10 @@
                                                   IsEnabled="{Binding HasWriteAccess}"/>
                                 <!--
                                 <toolkit:MenuItem Header="Delete" 
-                                                  Opacity="0.9"
+                                                  Opacity="1.0"
                                                   Background="WhiteSmoke"
                                                   Foreground="{StaticResource GSAccentBrush}"
-                                                  Command="{Binding DeleteCommand}"
+                                                  Command="{Binding GardenViewDeleteCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
                                 -->
@@ -115,7 +115,8 @@
                             Padding="18,0"
                             Background="{StaticResource GSAccentBrush}"
                             Content="{Binding WateringScheduler.MissedNotification}"
-                            Visibility="{Binding WateringScheduler.MissedLate, Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
+                            Visibility="{Binding WateringScheduler.MissedLateAndOwn, 
+                               Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
                         />
 
                         <Border BorderThickness="3" IsHitTestVisible="False">

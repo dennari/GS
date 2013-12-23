@@ -116,12 +116,17 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.UnFollowCommand = new ReactiveCommand();
-            this.UnFollowCommand
+
+            /* 
+             This would end up sending a delEntity for the user being unfollowed to the server
+             definitely not the right thing to do
+             
+             this.UnFollowCommand
               .RegisterAsyncTask((_) => App.HandleCommand(
-                    new DeleteAggregate(this.SelectedFriend.UserId, "following")))  // will not work
+                    new DeleteAggregate(this.SelectedFriend.UserId)))
               .Publish()
               .Connect();
-
+            */ 
         }
 
         ReactiveList<IButtonViewModel> _MainViewButtons;
@@ -146,12 +151,14 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _GardenButtons ?? (_GardenButtons = new ReactiveList<IButtonViewModel>() {
+                    /*
                     new ButtonViewModel(null)
                     {
                         Text = "unfollow",
                         IconType = IconType.CANCEL,
                         Command = this.UnFollowCommand
-                    }            
+                    } 
+                    */
                 });
             }
         }
@@ -182,7 +189,7 @@ namespace Growthstories.UI.ViewModel
 
         public new bool AppBarIsVisible
         {
-            get { return true; }
+            get { return this.AppBarButtons == this.MainViewButtons; }
         }
 
     }

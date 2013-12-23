@@ -37,6 +37,16 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        public static readonly DependencyProperty HasTitleProperty = DependencyProperty.Register("HasTitle", typeof(bool), typeof(GSViewGrid), new PropertyMetadata(null));
+        public bool HasTitle
+        {
+            get  
+            {
+                return Title != null && Title.Length > 0;     
+            }
+        }
+
+
         public static readonly DependencyProperty TopTitleProperty = DependencyProperty.Register("TopTitle", typeof(string), typeof(GSViewGrid), new PropertyMetadata(null));
 
         /// <summary>

@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Globalization;
 
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
@@ -1691,7 +1692,7 @@ namespace SQLite
         {
             if (_autoPk != null)
             {
-                _autoPk.SetValue(obj, Convert.ChangeType(id, _autoPk.ColumnType, null));
+                _autoPk.SetValue(obj, Convert.ChangeType(id, _autoPk.ColumnType, CultureInfo.InvariantCulture));
             }
         }
 
@@ -2225,7 +2226,7 @@ namespace SQLite
                 }
                 else if (value is Byte || value is UInt16 || value is SByte || value is Int16)
                 {
-                    SQLite3.BindInt(stmt, index, Convert.ToInt32(value));
+                    SQLite3.BindInt(stmt, index, Convert.ToInt32(value, CultureInfo.InvariantCulture));
                 }
                 else if (value is Boolean)
                 {
@@ -2233,11 +2234,11 @@ namespace SQLite
                 }
                 else if (value is UInt32 || value is Int64)
                 {
-                    SQLite3.BindInt64(stmt, index, Convert.ToInt64(value));
+                    SQLite3.BindInt64(stmt, index, Convert.ToInt64(value, CultureInfo.InvariantCulture));
                 }
                 else if (value is Single || value is Double || value is Decimal)
                 {
-                    SQLite3.BindDouble(stmt, index, Convert.ToDouble(value));
+                    SQLite3.BindDouble(stmt, index, Convert.ToDouble(value, CultureInfo.InvariantCulture));
                 }
                 else if (value is DateTime)
                 {
@@ -2256,7 +2257,7 @@ namespace SQLite
 #else
                 } else if (value.GetType().GetTypeInfo().IsEnum) {
 #endif
-                    SQLite3.BindInt(stmt, index, Convert.ToInt32(value));
+                    SQLite3.BindInt(stmt, index, Convert.ToInt32(value, CultureInfo.InvariantCulture));
                 }
                 else if (value is byte[])
                 {
@@ -2918,11 +2919,11 @@ namespace SQLite
             if (nut != null)
             {
                 if (obj == null) return null;
-                return Convert.ChangeType(obj, nut);
+                return Convert.ChangeType(obj, nut, CultureInfo.InvariantCulture);
             }
             else
             {
-                return Convert.ChangeType(obj, t);
+                return Convert.ChangeType(obj, t, CultureInfo.InvariantCulture);
             }
         }
 

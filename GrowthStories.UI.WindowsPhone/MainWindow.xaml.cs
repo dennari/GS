@@ -75,20 +75,72 @@ namespace Growthstories.UI.WindowsPhone
               });
         }
 
+
+        private static System.Windows.Media.Brush PopupForeground
+        {
+            get
+            {
+                return (System.Windows.Media.Brush)(Application.Current.Resources["GSTextBoxBrush"]);
+            }
+        }
+
+
         CustomMessageBox Popup;
         IPopupViewModel PopupVm;
         private void ShowPopup(IPopupViewModel x)
         {
             var popup = new CustomMessageBox()
             {
+                //ContentTemplate = (DataTemplate)(Application.Current.Resources["GSProcessPopupTemplate"]),         
                 Caption = x.Caption,
                 Message = x.Message,
                 LeftButtonContent = x.LeftButtonContent,
                 IsRightButtonEnabled = x.IsRightButtonEnabled,
                 IsLeftButtonEnabled = x.IsLeftButtonEnabled,
                 RightButtonContent = x.RightButtonContent,
-                IsFullScreen = x.IsFullScreen
+                IsFullScreen = x.IsFullScreen,             
+                Foreground = PopupForeground,
+                Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
             };
+
+            if (x.Caption.Contains("Synchronizing"))
+            {
+                    
+                    StackPanel sp = new StackPanel()
+                    {
+                        Margin = new Thickness(0,12,0,0)
+                    };
+
+                    sp.Children.Add(
+                        new ProgressBar()
+                        {
+                            IsIndeterminate = true,
+                            IsEnabled = true,
+                            Margin = new Thickness(0, 12, 0, 12),
+                            Foreground = PopupForeground
+                        }
+                    );
+                 
+                    sp.Children.Add(
+                        new TextBlock()
+                        {
+                            Style = (Style)(Application.Current.Resources["GSTextBlockStyle"]),
+                            Text = "Take a breath while Growth Stories is exchanging data", 
+                            Foreground = PopupForeground,
+                            TextWrapping = TextWrapping.Wrap,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            TextAlignment = System.Windows.TextAlignment.Left,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            FontSize = 24,
+                            Width = 430,
+                        }
+                    );
+
+
+                popup.Content = sp;
+            }
+
+            popup.ApplyTemplate();
 
             popup.Dismissed += (s1, e1) =>
             {

@@ -22,7 +22,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSView()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding());
             
             // this is needed to prevent shitty page transitions for
             // pages with backgrounds, affecting LUMIA 520 and probably 
@@ -43,7 +43,7 @@ namespace Growthstories.UI.WindowsPhone
                 if (value != null)
                 {
                     SetValue(ViewModelProperty, value);
-                    //OnViewModelChanged(value);
+                    OnViewModelChanged(value); // comment removed
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSContentControl()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding());
             //this.WhenAny()
         }
 
@@ -180,7 +180,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSPage()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding()); // TEST JUHO
         }
 
         public T ViewModel
