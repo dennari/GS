@@ -378,7 +378,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             //return remoteEvents;
         }
 
-        protected async Task PushAsAnother(IAuthToken anotherAuth, IEnumerable<IEvent> events)
+        public async Task PushAsAnother(IAuthToken anotherAuth, IEnumerable<IEvent> events)
         {
             var tmp = HttpClient.AuthToken;
             HttpClient.AuthToken = anotherAuth;

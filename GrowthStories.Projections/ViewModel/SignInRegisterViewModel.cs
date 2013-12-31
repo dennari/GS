@@ -10,16 +10,20 @@ using Growthstories.Core;
 using System.Threading.Tasks;
 //using System.Security.Cryptography;
 //using System.Security.Crypto
+using EventStore.Logging;
 
 namespace Growthstories.UI.ViewModel
 {
 
+    
 
 
 
     public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel
     {
 
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SignInRegisterViewModel));
 
         public IReactiveCommand OKCommand { get; protected set; }
         public IReactiveCommand SwitchModeCommand { get; protected set; }
@@ -38,10 +42,8 @@ namespace Growthstories.UI.ViewModel
                     x => x.PasswordConfirmation,
                     (e, u, p, pc) =>
                     {
-
                         this.Message = null;
                         return this.EmailCheck(e) && this.UsernameCheck(u) && this.PasswordCheck(p, pc);
-
                     }
                 );
             canExecute.Subscribe(x => this.CanExecute = x);
@@ -64,36 +66,81 @@ namespace Growthstories.UI.ViewModel
                 {
                     var r = await App.SignIn(this.Email, this.Password);
                     return Tuple.Create(true, RegisterResponse.alreadyRegistered, r);
-
                 }
                 else
                 {
                     var r = await App.Register(this.Username, this.Email, this.Password);
-                    return Tuple.Create(false, r, SignInResponse.accountNotFound);
+                    return Tuple.Create(false, r, SignInResponse.invalidLogin);
                 }
             });
+
             this.Response.Subscribe(x =>
             {
                 App.ShowPopup.Execute(null);
-                //this.ProgressIndicatorIsVisible = false;
                 bool IsSuccess = x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
 
-                if (x.Item2 == RegisterResponse.emailInUse)
+                Logger.Info("response with " + x.Item2.ToString());
+
+                App.ShowPopup.Execute(new PopupViewModel()
                 {
-                    this.Message = "The specified email-address is already registered";
+                   Caption = "debug",
+                   Message = "response with " + x.Item2.ToString()
+                }
+                );
+
+                string msg = null;
+                string caption = null;
+                
+                if (!SignInMode)
+                {
+                    caption = "Could not sign you up";
+                    switch (x.Item2)
+                    {
+                        case RegisterResponse.connectionerror:
+                            msg = "We could could not create an account for you, because we could not reach the Growth Stories servers. Please try again later.";
+                            break;
+
+                        case RegisterResponse.emailInUse:
+                            msg = "Could not create a new account for you, because the email address you provided is already in use";
+                            break;
+                    }
+
+                } else {
+                    caption = "Could not sign you in";
+                    switch (x.Item3)
+                    {
+                        case SignInResponse.connectionerror:
+                            msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later";
+                            break;
+
+                        // we don't distinguish between invalid username or password currently
+                        case SignInResponse.invalidLogin:
+                            msg = "The username or password was incorrect. Please check your username and password and try again.";
+                            break;
+                    }
                 }
 
+                if (msg != null)
+                {
+                    var pvm = new PopupViewModel()
+                    {
+                        Caption = caption,
+                        Message = msg,
+                        LeftButtonContent = "OK"
+                        /*
+                        DismissedCommand = this.SignOutCommand
+                        */
+                    };
+                    App.ShowPopup.Execute(pvm);
+                }
+                 
                 if (IsSuccess)
                 {
                     if (SignInMode)
                         App.Router.NavigateAndReset.Execute(new MainViewModel(App));
                     if (!SignInMode && NavigateBack)
                         App.Router.NavigateBack.Execute(null);
-
                 }
-
-
-
             });
 
 
@@ -115,11 +162,7 @@ namespace Growthstories.UI.ViewModel
 
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "new user" : "sign in");
 
-
             NavigateBack = true;
-
-
-
         }
 
 
@@ -145,6 +188,173 @@ namespace Growthstories.UI.ViewModel
         bool PasswordCheck(string p, string pc)
         {
             return p != null && p.Length >= 6 && (SignInMode || p == pc);
+        }
+
+    
+        public bool _UsernameTouched;
+        public bool UsernameTouched
+        {
+            get
+            {
+                return _UsernameTouched;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UsernameTouched, value);
+                this.raisePropertyChanged("UsernameComplaint");
+            }
+        }
+
+        public bool _EmailTouched;
+        public bool EmailTouched
+        {
+            get 
+            {
+                return _EmailTouched;
+            }
+
+            set 
+            {
+                this.RaiseAndSetIfChanged(ref _EmailTouched, value);
+                this.raisePropertyChanged("EmailComplaint");
+            }
+        }
+
+        public bool _PasswordTouched;
+        public bool PasswordTouched
+        {
+            get
+            {
+                return _PasswordTouched;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PasswordTouched, value);
+                this.raisePropertyChanged("PasswordComplaint");
+            }
+        }
+
+
+        public bool _PasswordConfirmationTouched;
+        public bool PasswordConfirmationTouched
+        {
+            get
+            {
+                return _PasswordConfirmationTouched;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PasswordConfirmationTouched, value);
+                this.raisePropertyChanged("PasswordConfirmationComplaint");
+            }
+        }
+
+
+        public string UsernameComplaint
+        {
+            get
+            {
+                if (!UsernameTouched)
+                {
+                    return null;
+                }
+
+                if (Username == null || Username.Length == 0)
+                {
+                    return "Username must be provided.";
+                }
+
+                if (!UsernameCheck(Username))
+                {
+                    return "Username is not valid. It should have at least three characters.";
+                }
+
+                return null;
+            }
+        }
+
+        public string EmailComplaint
+        {
+            get 
+            {  
+                if(!EmailTouched)
+                {
+                    return null;
+                }
+
+                if (Email == null || Email.Length == 0)
+                {
+                    return "Email address must be provided.";
+                }
+
+                if (!EmailCheck(Email))
+                {
+                    return "Email address is not valid.";
+                }
+
+                return null;
+            }
+        }
+
+
+        public string PasswordComplaint
+        {
+            get
+            {
+                if (!PasswordTouched)
+                {
+                    return null;
+                }
+
+                if (Password == null || Password.Length == 0)
+                {
+                    return "Password must be provided.";
+                }
+
+                if (Password.Length < 6)
+                {
+                    return "Password is not valid. It should have at least 6 characters.";
+                }
+
+                return null;
+            }
+        }
+
+        public string PasswordConfirmationComplaint
+        {
+            get
+            {
+                if (!PasswordConfirmationTouched)
+                {
+                    return null;
+                }
+
+                if (PasswordConfirmation == null || PasswordConfirmation.Length == 0)
+                {
+                    return "Password confirmation must be provided.";
+                }
+
+                if (!PasswordConfirmation.Equals(Password))
+                {
+                    return "Password confirmation does not match password.";
+                }
+
+                return null;
+            }
+        }
+
+
+
+        public bool PasswordComplainNoMatch()
+        {
+            return Password != null
+                && Password.Length > 0
+                && PasswordConfirmation != null
+                && Password.Length > 0
+                && !Password.Equals(PasswordConfirmation);
         }
 
         protected bool _CanExecute;
@@ -187,7 +397,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
         protected string _Username;
         public string Username
         {
@@ -198,6 +407,7 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _Username, value);
+                this.raisePropertyChanged("UsernameComplaint");
             }
         }
 
@@ -211,6 +421,8 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _Email, value);
+                this.raisePropertyChanged("EmailComplaint");
+
             }
         }
 
@@ -264,6 +476,7 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _Password, value);
+                this.raisePropertyChanged("PasswordComplaint");
             }
         }
 
@@ -277,11 +490,9 @@ namespace Growthstories.UI.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _PasswordConfirmation, value);
+                this.raisePropertyChanged("PasswordConfirmationComplaint");
             }
         }
-
-
-
 
 
         public override string UrlPathSegment
@@ -327,7 +538,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
     }
-
 
 
 }

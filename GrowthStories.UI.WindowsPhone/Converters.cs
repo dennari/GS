@@ -69,8 +69,8 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.AIRHUMIDITY,IconFolder+"icon_air_humidity_appbar.png"},
             {IconType.SETTINGS,IconFolder+"appbar.settings.png"},
             {IconType.SIGNIN,IconFolder+"appbar.door.enter.png"},
-            {IconType.SIGNOUT,IconFolder+"appbar.door.leave.png"}
-
+            {IconType.SIGNOUT,IconFolder+"appbar.door.leave.png"},
+            {IconType.SIGNUP,IconFolder+"appbar.signup.png"}
         };
 
 

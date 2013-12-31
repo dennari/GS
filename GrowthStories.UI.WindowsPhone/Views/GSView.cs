@@ -32,7 +32,10 @@ namespace Growthstories.UI.WindowsPhone
             // set Height = Double.NaN, which sets height to Auto
             //
             //  -- JOJ 22.12.2013
-            Height = 800;
+            if ((int)Math.Round(Height) != 800)
+            {
+                Height = 800; 
+            }
         }
 
         public T ViewModel
@@ -240,7 +243,7 @@ namespace Growthstories.UI.WindowsPhone
 
     public class GSRoutedViewHost : ContentControl
     {
-        IDisposable _inner = null;
+        //IDisposable _inner = null;
 
         /// <summary>
         /// The Router associated with this View Host.

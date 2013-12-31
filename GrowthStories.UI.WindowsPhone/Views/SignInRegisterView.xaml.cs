@@ -37,6 +37,27 @@ namespace Growthstories.UI.WindowsPhone
                 this.passwordConfirmation
             };
         }
+
+        private void username_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.UsernameTouched = true;
+        }
+
+        private void email_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.EmailTouched = true;
+        }
+
+        private void password_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PasswordTouched = true;
+        }
+
+        private void passwordConfirmation_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PasswordConfirmationTouched = true;
+        }
+
     }
 
 

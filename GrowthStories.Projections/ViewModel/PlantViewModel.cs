@@ -102,6 +102,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
+                this.raisePropertyChanged("ShowWateringScheduler");
                 this.RaiseAndSetIfChanged(ref _IsWateringScheduleEnabled, value);
             }
         }
@@ -115,6 +116,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
+                this.raisePropertyChanged("ShowFertilizingScheduler");
                 this.RaiseAndSetIfChanged(ref _IsFertilizingScheduleEnabled, value);
             }
         }
@@ -506,7 +508,11 @@ namespace Growthstories.UI.ViewModel
             {
                 return _WateringScheduler;
             }
-            private set { this.RaiseAndSetIfChanged(ref _WateringScheduler, value); }
+            private set 
+            {
+                this.raisePropertyChanged("ShowWateringScheduler");
+                this.RaiseAndSetIfChanged(ref _WateringScheduler, value); 
+            }
         }
 
         protected PlantScheduler _FertilizingScheduler;
@@ -516,9 +522,29 @@ namespace Growthstories.UI.ViewModel
             {
                 return _FertilizingScheduler;
             }
-            private set { this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value); }
+            private set 
+            {
+                this.raisePropertyChanged("ShowFertilizingScheduler");
+                this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value); 
+            }
         }
 
+
+        public bool ShowFertilizingScheduler
+        {
+            get
+            {
+                return FertilizingScheduler != null && IsFertilizingScheduleEnabled;
+            }
+        }
+
+        public bool ShowWateringScheduler
+        {
+            get 
+            {
+                return WateringScheduler != null && IsWateringScheduleEnabled;
+            }
+        }
 
         public string TodayWeekDay { get { return DateTimeOffset.Now.ToString("dddd"); } }
         public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }

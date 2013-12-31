@@ -28,8 +28,12 @@ namespace Growthstories.UI.WindowsPhone
         public PlantView()
         {
             InitializeComponent();
-            Height = Double.NaN;
 
+            if (Height != Double.NaN)
+            {
+                Height = Double.NaN;
+            }
+            
             if (ViewModel != null)
             {
                 OnViewModelChanged(ViewModel);

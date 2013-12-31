@@ -10,6 +10,7 @@ using Growthstories.UI.WindowsPhone.Resources;
 using System.Globalization;
 using ReactiveUI.Mobile;
 using BugSense;
+using BugSense.Core.Model;
 using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using Growthstories.UI.Services;
@@ -61,9 +62,11 @@ namespace Growthstories.UI.WindowsPhone
 
             //var host = RxApp.DependencyResolver.GetService<ISuspensionHost>();
             //host.SetupDefaultSuspendResume();
+            
             // BugSense
-            BugSenseHandler.Instance.InitAndStartSession(this, "e73c0669");
-
+            // modified when updating to bugsense library 3.6 -- JOJ 30.12.2013
+            BugSenseHandler.Instance.InitAndStartSession(new ExceptionManager(Current), "e73c0669");
+            BugSenseHandler.Instance.HandleWhileDebugging = true;
 
             var resolver = RxApp.MutableResolver;
             resolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));

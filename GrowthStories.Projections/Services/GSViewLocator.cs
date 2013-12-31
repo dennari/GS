@@ -47,7 +47,7 @@ namespace Growthstories.UI.Services
             {
                 ret = (IViewFor)RxApp.DependencyResolver.GetService(type, contract);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //this.Log().ErrorException("Failed to instantiate view: " + type.FullName, ex);
                 throw;

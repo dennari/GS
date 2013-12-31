@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
-    class SynchronizerSqlitePersistence : IStoreSyncHeads, IDisposable
+
+    // removed IStoreSyncHeads as it does not exist -- JOJ 30.12.2013
+    class SynchronizerSqlitePersistence : IDisposable 
     {
         private readonly string Path;
         private bool disposed = false;

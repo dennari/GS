@@ -19,9 +19,10 @@
     mc:Ignorable="d">
     <UserControl.Resources>
 
+        
+        
         <DataTemplate x:Key="C4fTile">
-
-            
+     
                 <StackPanel>
 
                     <toolkit:ContextMenuService.ContextMenu>
@@ -53,15 +54,16 @@
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
                         
-                
                     <c4f:Tile 
+                        toolkit:TiltEffect.IsTiltEnabled="True"
                         HorizontalAlignment="Left"
                         Margin="0, 0"
                         Width="190"
                         Height="190"
                         c4fBinding:FrameworkElementBinding.ClipToBounds="True"
                         Command="{Binding DataContext.ShowDetailsCommand, ElementName=PlantsSelector}"
-                        CommandParameter="{Binding}">
+                        CommandParameter="{Binding}"
+                        >
                 <Grid>
                     <Grid.Triggers>
                         <EventTrigger RoutedEvent="Canvas.Loaded" >
@@ -140,7 +142,7 @@
                 Foreground="WhiteSmoke"
             />
 
-             <TextBlock 
+                    <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
                Text="{Binding Species}" HorizontalAlignment="Left"
                VerticalAlignment="Top" Margin="0,-2,0,0"
@@ -150,7 +152,6 @@
             />
 
             </StackPanel>
-         
 
         </DataTemplate>
 

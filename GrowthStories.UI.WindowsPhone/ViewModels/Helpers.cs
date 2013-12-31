@@ -135,8 +135,7 @@ namespace ReactiveUI
         }
     }
 
-   
-
+  
     public class MockReactiveCommand : IReactiveCommand
     {
 

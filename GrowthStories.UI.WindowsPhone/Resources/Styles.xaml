@@ -222,8 +222,19 @@
             <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
         </Style>
 
+        <Style x:Key="GSFormComplaintStyle" BasedOn="{StaticResource GSTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource GSAccentBrush}"/>
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Width" Value="430" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Margin" Value="0,0,0,24 "/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
 
-        <!-- ////////////////////////////
+
+    <!-- ////////////////////////////
 	/////// CONTROLS /////////////
 	//////////////////////////////-->
 

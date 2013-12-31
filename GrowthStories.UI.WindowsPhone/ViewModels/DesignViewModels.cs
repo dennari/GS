@@ -65,7 +65,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Species = species;
         }
 
-        public new IReactiveList<IPlantViewModel> Plants { get; private set; }
+        // commented out, probably just copypaste mistake
+        //public new IReactiveList<IPlantViewModel> Plants { get; private set; }
 
     }
 

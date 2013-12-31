@@ -16,7 +16,6 @@ using Telerik.Charting;
 using System.Windows.Data;
 using System.ComponentModel;
 using System.Reactive.Linq;
-using System.Linq;
 using Growthstories.Sync;
 
 namespace Growthstories.UI.WindowsPhone

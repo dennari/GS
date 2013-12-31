@@ -101,6 +101,7 @@ namespace Growthstories.UI.WindowsPhone
                 IsFullScreen = x.IsFullScreen,             
                 Foreground = PopupForeground,
                 Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
+                BorderBrush = PopupForeground
             };
 
             if (x.Caption.Contains("Synchronizing"))

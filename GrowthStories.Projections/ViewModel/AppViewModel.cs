@@ -581,30 +581,23 @@ namespace Growthstories.UI.ViewModel
                             Handler.Handle(cmd);
                         }
                     }
-
-
-                }
-                else
-                {
+                
+                } else {
                     user = app.State.User;
                 }
-
-
 
                 Context.SetupCurrentUser(user);
 
                 this.Model = app;
                 this.User = user;
                 this.IsRegistered = false;
-                if (user.IsRegistered())
-                    this.IsRegistered = true;
+                if (user.IsRegistered())         
+                    this.IsRegistered = true; 
                 return user;
                 //return app;
             });
             return InitializeJob;
         }
-
-
 
 
 
@@ -615,7 +608,6 @@ namespace Growthstories.UI.ViewModel
 
             if (user == null)
             {
-
                 var u = this.Context.GetNewUserCommands();
 
                 foreach (var cmd in u.Item2)
@@ -624,7 +616,6 @@ namespace Growthstories.UI.ViewModel
                 }
 
                 user = u.Item1;
-
             }
 
             if (user == null)
@@ -633,21 +624,20 @@ namespace Growthstories.UI.ViewModel
             }
 
             if (user.IsRegistered())
+            {
                 return RegisterResponse.alreadyRegistered;
-
+            }
 
             if (User.AccessToken == null)
             {
                 try
                 {
                     await Context.AuthorizeUser();
-
                 }
                 catch
                 {
                     return RegisterResponse.connectionerror;
                 }
-
             }
 
             await this.HandleCommand(new MultiCommand(
@@ -661,8 +651,8 @@ namespace Growthstories.UI.ViewModel
             {
                 this.IsRegistered = true;
                 return RegisterResponse.success;
-
             }
+
             else if (R.Item1 == AllSyncResult.SomeLeft)
                 return RegisterResponse.tryagain;
             else if (R.Item1 == AllSyncResult.Error)
@@ -685,9 +675,6 @@ namespace Growthstories.UI.ViewModel
 
 
             return RegisterResponse.success;
-
-
-
         }
 
         public async Task<GSApp> SignOut(bool createUnregUser = true)
@@ -729,11 +716,10 @@ namespace Growthstories.UI.ViewModel
             {
                 authResponse = await Context.AuthorizeUser(email, password);
                 u = await Transporter.UserInfoAsync(email);
-
             }
             catch
             {
-                return SignInResponse.accountNotFound;
+                return SignInResponse.invalidLogin;
             }
 
 
@@ -766,6 +752,7 @@ namespace Growthstories.UI.ViewModel
         {
             throw new NotImplementedException();
         }
+
 
         private ISynchronizerService SyncService;
 

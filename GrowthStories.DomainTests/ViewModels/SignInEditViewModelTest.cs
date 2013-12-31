@@ -86,10 +86,6 @@ namespace Growthstories.DomainTests
 
             Assert.AreEqual(u.Id, u2.Id);
             Assert.IsFalse(u2.IsRegistered());
-
-
-
-
         }
 
         [Test]

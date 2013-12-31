@@ -16,7 +16,7 @@
     <local:GSViewGrid 
         TopTitle="GROWTH STORIES"
 		Title="{Binding Title}" 
-		Style="{StaticResource NoScroll}">
+		>
         <local:GSViewGrid.Background>
             <RadialGradientBrush 
                 Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
@@ -33,46 +33,87 @@
                    Style="{StaticResource GSTextBlockStyle}" 
                    Text="To share stuff, you need to have a Growth Stories account. Enter the following information and you are good to go!" HorizontalAlignment="Left"
                    TextWrapping="Wrap"
-                   VerticalAlignment="Top" Grid.Row="0" Margin="0,0,0,24" FontWeight="Bold"
+                   VerticalAlignment="Top" 
+                   Grid.Row="0" Margin="0,0,0,24" 
+                   FontWeight="Bold"
                    Foreground="White"
                    FontSize="24"
                    Width="430"
                    Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
                 />
 
-                <!--<TextBox Text="{Binding Message}" 
-                         Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>-->
                 <local:GSLabel Label="Username" Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
                     <local:GSTextBox 
                         x:Name="username"
                         Text="{Binding Username, Mode=TwoWay}"
                         Margin="-12,0"
-                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
-                </local:GSLabel>
-                <local:GSLabel Label="Email">
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                        LostFocus="username_LostFocus"
+                        />
+            </local:GSLabel>
+
+            <TextBlock 
+                Style="{StaticResource GSFormComplaintStyle}" 
+                Text="{Binding UsernameComplaint}" 
+                Visibility="{Binding UsernameComplaint, 
+                Converter={StaticResource NullToVisibility}}"
+            />
+               
+            <local:GSLabel Label="Email">
                     <local:GSTextBox 
                         x:Name="email"
                         Text="{Binding Email, Mode=TwoWay}" 
                         Margin="-12,0"
-                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                        LostFocus="email_LostFocus"
+                        />
                 </local:GSLabel>
-                <local:GSLabel Label="Password">
+
+            <TextBlock 
+                Style="{StaticResource GSFormComplaintStyle}" 
+                Text="{Binding EmailComplaint}" 
+                Visibility="{Binding EmailComplaint, 
+                Converter={StaticResource NullToVisibility}}"
+            />
+
+            <local:GSLabel Label="Password">
                     <PasswordBox
                         x:Name="password"
                         Style="{StaticResource GSPasswordStyle}"
                         Password="{Binding Password, Mode=TwoWay}" 
                         Margin="-12,0"
-                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                        LostFocus="password_LostFocus"
+                        />
                 </local:GSLabel>
-                <local:GSLabel Label="Password confirmation" Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+
+            <TextBlock 
+                Style="{StaticResource GSFormComplaintStyle}" 
+                Text="{Binding PasswordComplaint}" 
+                Visibility="{Binding PasswordComplaint, 
+                Converter={StaticResource NullToVisibility}}"
+            />
+
+            <local:GSLabel Label="Password confirmation" 
+                    Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
                     <PasswordBox
                         x:Name="passwordConfirmation"
                         Style="{StaticResource GSPasswordStyle}"
                         Password="{Binding PasswordConfirmation, Mode=TwoWay}" 
                         Margin="-12,0"
-                        c4fBinding:TextBinding.UpdateSourceOnChange="True"/>
+                        c4fBinding:TextBinding.UpdateSourceOnChange="True"
+                        LostFocus="passwordConfirmation_LostFocus"
+                        />
                 </local:GSLabel>
-                <Button 
+
+            <TextBlock 
+                Style="{StaticResource GSFormComplaintStyle}" 
+                Text="{Binding PasswordConfirmationComplaint}" 
+                Visibility="{Binding PasswordConfirmationComplaint, 
+                Converter={StaticResource NullToVisibility}}"
+            />
+
+            <Button 
                     Style="{StaticResource GSButtonStyle}"
                     HorizontalAlignment="Left"
                     HorizontalContentAlignment="Left"
@@ -89,17 +130,6 @@
                       />
                 </Button>
             </StackPanel>
-            <!--<Button 
-                x:Name="LeftButton"  
-                Grid.Row="1" Grid.Column="0"
-                Command="{Binding OKCommand}"
-                IsEnabled="{Binding CanExecute}"         
-                Margin="-12,0"
-                toolkit:TiltEffect.IsTiltEnabled="True">
-                <TextBlock Text="submit"/>
-            </Button>-->
-
-        <!--</Grid>-->
         
 
     </local:GSViewGrid>

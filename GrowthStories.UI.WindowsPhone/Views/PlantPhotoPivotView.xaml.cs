@@ -26,7 +26,11 @@ namespace Growthstories.UI.WindowsPhone
         public PlantPhotoPivotView()
         {                        
             InitializeComponent();
-            Height = Double.NaN;      // no shit -- juho
+
+            if (Height != Double.NaN)
+            {
+                Height = Double.NaN;
+            }
         }
 
         

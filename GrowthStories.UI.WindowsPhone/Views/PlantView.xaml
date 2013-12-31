@@ -97,12 +97,12 @@
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
                     <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}">
-                        <Grid Visibility="{Binding FertilizingScheduler, Converter={StaticResource NullToVisibility}}">
+                        <Grid Visibility="{Binding ShowFertilizingScheduler, Converter={StaticResource BooleanToVisibility}}">
                             <ContentControl                            
                                 DataContext="{Binding FertilizingScheduler}"
                                 Style="{StaticResource PlantNextAction}"/>
                         </Grid>
-                        <Grid Visibility="{Binding WateringScheduler, Converter={StaticResource NullToVisibility}}">
+                        <Grid Visibility="{Binding ShowWateringScheduler, Converter={StaticResource BooleanToVisibility}}">
                             <ContentControl                           
                             DataContext="{Binding WateringScheduler}"
                             Style="{StaticResource PlantNextAction}"/>
@@ -142,6 +142,7 @@
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                             <Button Height="220" 
+                                toolkit:TiltEffect.IsTiltEnabled="True"
                                 BorderBrush="WhiteSmoke"
                                 BorderThickness="3"    
                                 HorizontalAlignment="Stretch" 

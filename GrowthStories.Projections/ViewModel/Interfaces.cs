@@ -42,6 +42,7 @@ namespace Growthstories.UI.ViewModel
     {
 
     }
+
     public enum RegisterResponse
     {
         alreadyRegistered,
@@ -50,11 +51,10 @@ namespace Growthstories.UI.ViewModel
         tryagain,
         connectionerror
     }
+    
     public enum SignInResponse
     {
-
-        accountNotFound,
-        invalidPassword,
+        invalidLogin,
         tryagain,
         success,
         connectionerror
@@ -594,6 +594,17 @@ namespace Growthstories.UI.ViewModel
         string Message { get; }
         //string Username { get; set; }
 
+        string UsernameComplaint { get; }
+        bool UsernameTouched { get; set; }
+
+        string EmailComplaint { get; }
+        bool EmailTouched { get; set; }
+
+        string PasswordComplaint { get; }
+        bool PasswordTouched { get; set; }
+
+        string PasswordConfirmationComplaint { get; }
+        bool PasswordConfirmationTouched { get; set; }
     }
 
 
@@ -844,7 +855,8 @@ namespace Growthstories.UI.ViewModel
         PH2,
         SETTINGS,
         SIGNOUT,
-        SIGNIN
+        SIGNIN,
+        SIGNUP
     }
 
     public enum ApplicationBarMode

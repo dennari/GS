@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using Growthstories.Domain.Messaging;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -509,7 +510,7 @@ namespace Growthstories.UI.ViewModel
 
         public long Compute(string sValue)
         {
-            var dValue = double.Parse(sValue);
+            var dValue = double.Parse(sValue, CultureInfo.InvariantCulture);
             return (long)(dValue * this.Unit);
         }
 

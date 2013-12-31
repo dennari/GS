@@ -98,7 +98,7 @@
                     FontSize="24"
                     />
                 <TextBlock 
-                    Text="juho@moi.com"
+                    Text="{Binding Email}"
                     Style="{StaticResource GSTextBlockStyle}"
                     Foreground="WhiteSmoke"
                     FontWeight="Bold"

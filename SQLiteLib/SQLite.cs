@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using System.Globalization;
 
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
@@ -2319,7 +2320,7 @@ namespace SQLite
                     else
                     {
                         var text = SQLite3.ColumnString(stmt, index);
-                        return DateTime.Parse(text);
+                        return DateTime.Parse(text, CultureInfo.InvariantCulture);
                     }
 #if !NETFX_CORE
                 }

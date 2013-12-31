@@ -31,7 +31,11 @@ namespace Growthstories.UI.WindowsPhone
         public GardenView()
         {
             InitializeComponent();
-            Height = Double.NaN;
+
+            if (Height != Double.NaN)
+            {
+                Height = Double.NaN;
+            }
 
             Logger.Info("initialized garden view");
         }

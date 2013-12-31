@@ -125,7 +125,8 @@
 
     <local:GSViewGrid
         TopTitle="GROWTH STORIES"
-		Title="{Binding Title}">
+		Title="{Binding Title}"
+        >
 
         <local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>

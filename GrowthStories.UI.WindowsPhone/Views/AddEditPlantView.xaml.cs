@@ -30,7 +30,6 @@ namespace Growthstories.UI.WindowsPhone
         public AddPlantView()
         {
             InitializeComponent();
-
         }
 
         /*

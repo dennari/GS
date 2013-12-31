@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EventStore.Persistence.SqlPersistence;
 using EventStore;
 using EventStore.Serialization;
 using EventStore.Persistence;
+using System.Globalization;
 
 namespace SQLite
 {
@@ -57,7 +57,7 @@ namespace SQLite
                         SQLite3.ColumnInt(stmt, StreamRevisionIndex),
                         new Guid(SQLite3.ColumnString(stmt, CommitIdIndex)),
                         SQLite3.ColumnInt(stmt, CommitSequenceIndex),
-                        DateTime.Parse(SQLite3.ColumnString(stmt, CommitStampIndex)),
+                        DateTime.Parse(SQLite3.ColumnString(stmt, CommitStampIndex), CultureInfo.InvariantCulture),
                         headers,
                         events);
                 }
