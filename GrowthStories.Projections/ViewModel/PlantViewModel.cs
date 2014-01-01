@@ -135,9 +135,6 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
 
-
-
-
             this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
@@ -150,14 +147,26 @@ namespace Growthstories.UI.ViewModel
                     this.ShareCommand.Execute(null);
             });
 
+
             this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
             {
-                if (App.User.IsRegistered())
+                if (!App.HasDataConnection)
                 {
-                    this.ShareCommand.Execute(null);
+                     PopupViewModel pvm = new PopupViewModel()
+                    {
+                        Caption = "Data connection required",
+                        Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+                    App.ShowPopup.Execute(pvm);
+                    return;
                 }
-                else
-                {
+
+                if (App.User.IsRegistered()) {
+                    this.ShareCommand.Execute(null);
+                
+                } else {
                     var svm = new SignInRegisterViewModel(App)
                     {
                         SignInMode = false,
@@ -169,13 +178,12 @@ namespace Growthstories.UI.ViewModel
                         {
                             // sync
                             afterShareSyncCommand.Execute(null);
-
                         }
                     });
                     this.Navigate(svm);
                 }
-
             });
+
 
             if (app != null)
             {

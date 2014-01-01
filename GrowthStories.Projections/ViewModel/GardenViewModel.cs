@@ -396,7 +396,6 @@ namespace Growthstories.UI.ViewModel
                         Text = "Settings",
                         IconType = IconType.SETTINGS,
                         Command = Observable.Return(true).ToCommandWithSubscription((_) => this.Navigate(new SettingsViewModel(App)))
-
                     };
                 return _SettingsButton;
             }

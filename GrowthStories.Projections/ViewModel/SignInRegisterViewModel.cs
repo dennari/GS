@@ -16,9 +16,6 @@ namespace Growthstories.UI.ViewModel
 {
 
     
-
-
-
     public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel
     {
 
@@ -55,6 +52,7 @@ namespace Growthstories.UI.ViewModel
                 App.ShowPopup.Execute(App.SyncPopup);
                 // this.ProgressIndicatorIsVisible = true;
             });
+
             this.OKCommand.ThrownExceptions.Subscribe(x =>
             {
                 //throw x;
@@ -70,7 +68,7 @@ namespace Growthstories.UI.ViewModel
                 else
                 {
                     var r = await App.Register(this.Username, this.Email, this.Password);
-                    return Tuple.Create(false, r, SignInResponse.invalidLogin);
+                    return Tuple.Create(false, r, SignInResponse.invalidEmail);
                 }
             });
 
@@ -78,16 +76,7 @@ namespace Growthstories.UI.ViewModel
             {
                 App.ShowPopup.Execute(null);
                 bool IsSuccess = x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
-
-                Logger.Info("response with " + x.Item2.ToString());
-
-                App.ShowPopup.Execute(new PopupViewModel()
-                {
-                   Caption = "debug",
-                   Message = "response with " + x.Item2.ToString()
-                }
-                );
-
+    
                 string msg = null;
                 string caption = null;
                 
@@ -101,7 +90,7 @@ namespace Growthstories.UI.ViewModel
                             break;
 
                         case RegisterResponse.emailInUse:
-                            msg = "Could not create a new account for you, because the email address you provided is already in use";
+                            msg = "Could not create a new account for you, because the email address you provided is already in use.";
                             break;
                     }
 
@@ -110,12 +99,15 @@ namespace Growthstories.UI.ViewModel
                     switch (x.Item3)
                     {
                         case SignInResponse.connectionerror:
-                            msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later";
+                            msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
                             break;
 
-                        // we don't distinguish between invalid username or password currently
-                        case SignInResponse.invalidLogin:
-                            msg = "The username or password was incorrect. Please check your username and password and try again.";
+                        case SignInResponse.invalidEmail:
+                            msg = "The email address was incorrect. Please check your input and try again.";
+                            break;
+
+                        case SignInResponse.invalidPassword:
+                            msg = "The password was incorrect. Please check your input and try again.";
                             break;
                     }
                 }

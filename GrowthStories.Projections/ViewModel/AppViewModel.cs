@@ -21,6 +21,8 @@ using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
 using System.Reactive.Disposables;
 using EventStore.Persistence;
+using System.Net.NetworkInformation;
+
 
 namespace Growthstories.UI.ViewModel
 {
@@ -230,8 +232,6 @@ namespace Growthstories.UI.ViewModel
                  .Switch().ObserveOn(RxApp.MainThreadScheduler)
                  .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true, RxApp.MainThreadScheduler);
 
-
-
             this.Router.CurrentViewModel
                 //.OfType<IControlsPageOrientation>()
                 .Select(x =>
@@ -262,38 +262,38 @@ namespace Growthstories.UI.ViewModel
             resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
 
             resolver.RegisterLazySingleton(() => new AboutViewModel(this), typeof(IAboutViewModel));
-
-
-
             resolver.RegisterLazySingleton(() => new SearchUsersViewModel(Transporter, this), typeof(SearchUsersViewModel));
-
-
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
-
             ShowPopup = new ReactiveCommand();
             SynchronizeCommand = new ReactiveCommand();
+            UISyncFinished = new ReactiveCommand();
 
             this.SynchronizeCommand.Subscribe(x =>
             {
                 //this.CanSynchronize = false;
                 ShowPopup.Execute(this.SyncPopup);
             });
+
             var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
+
             syncResult.Subscribe(x =>
             {
                 //this.CanSynchronize = true;
                 App.ShowPopup.Execute(null);
+                UISyncFinished.Execute(x);
             });
 
             this.SyncResults = syncResult;
-
         }
+
 
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SynchronizeCommand { get; private set; }
+        public IReactiveCommand UISyncFinished { get; private set; }
         public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; protected set; }
+
 
         private IPopupViewModel _SyncPopup;
         public IPopupViewModel SyncPopup
@@ -429,10 +429,6 @@ namespace Growthstories.UI.ViewModel
         Task<IGSAggregate> CurrentHandleJob;
         public Task<IGSAggregate> HandleCommand(IAggregateCommand x)
         {
-
-
-
-
             var prevJob = CurrentHandleJob;
 
             CurrentHandleJob = Task.Run(async () =>
@@ -708,18 +704,39 @@ namespace Growthstories.UI.ViewModel
             return app;
         }
 
+
         public async Task<SignInResponse> SignIn(string email, string password)
         {
             IAuthResponse authResponse = null;
             RemoteUser u = null;
-            try
-            {
+
+            try {
                 authResponse = await Context.AuthorizeUser(email, password);
+
+                // server returns 401 when user is not found
+                if (authResponse.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
+                {
+                    return SignInResponse.invalidEmail;
+                }
+
+                // server returns 403 when password is incorrect
+                if (authResponse.StatusCode == GSStatusCode.FORBIDDEN)
+                {
+                    return SignInResponse.invalidPassword;
+                }
+
+                // anything else (except OK) means there is either a connection error
+                // or something broken at the backend
+                if (authResponse.StatusCode != GSStatusCode.OK)
+                {
+                    return SignInResponse.connectionerror;
+                }
+
                 u = await Transporter.UserInfoAsync(email);
-            }
-            catch
-            {
-                return SignInResponse.invalidLogin;
+
+            } catch {
+                // this would be caused by Transporter.USerInfoAsync failing
+                return SignInResponse.connectionerror;
             }
 
 
@@ -739,13 +756,7 @@ namespace Growthstories.UI.ViewModel
             // now we get the plants too
             await this.SyncAll();
 
-
-
-
-
             return SignInResponse.success;
-
-
         }
 
         protected virtual void ClearDB()
@@ -770,34 +781,34 @@ namespace Growthstories.UI.ViewModel
             //if (SyncService == null)
             //    SyncService = Kernel.Get<ISynchronizerService>();
 
-
-
+            // obtain access token if required
             if (User.AccessToken == null)
             {
                 try
                 {
                     var authResponse = await Context.AuthorizeUser();
-
                 }
                 catch
                 {
                     return null;
                 }
-
             }
 
-
             var syncStreams = Model.State.SyncStreams.ToArray();
-            var s = new SyncInstance(
+
+            var s = new SyncInstance
+            (
                 RequestFactory.CreatePullRequest(syncStreams),
                 RequestFactory.CreatePushRequest(Model.State.SyncHead),
                 Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
                 null
             );
 
+            // ?? pullrequest should really never be empty
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
+            {
                 return null;
-
+            }
 
 
             return await _Synchronize(s);
@@ -839,17 +850,19 @@ namespace Growthstories.UI.ViewModel
             return await _Synchronize(s);
         }
 
+
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
             bool handlePull = false;
             IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;
 
-
-
             if (!s.PullReq.IsEmpty)
             {
                 var pullResp = await s.Pull();
-                if (pullResp != null && pullResp.StatusCode == GSStatusCode.OK && pullResp.Streams != null && pullResp.Streams.Count > 0)
+                if (pullResp != null 
+                    && pullResp.StatusCode == GSStatusCode.OK 
+                    && pullResp.Streams != null 
+                    && pullResp.Streams.Count > 0)
                 {
                     Handler.AttachAggregates(pullResp);
                     handlePull = true;
@@ -860,6 +873,7 @@ namespace Growthstories.UI.ViewModel
                     }
                 }
             }
+
             if (!s.PushReq.IsEmpty)
             {
                 if (handlePull)
@@ -876,6 +890,7 @@ namespace Growthstories.UI.ViewModel
                     Handler.Handle(new Push(s));
                 }
             }
+
             if (s.PhotoUploadRequests.Length > 0)
             {
                 var responses = await s.UploadPhotos();
@@ -883,6 +898,7 @@ namespace Growthstories.UI.ViewModel
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(Model.State.Id, successes));
             }
+
             if (downloadRequests.Length > 0)
             {
                 var responses = await s.DownloadPhotos(downloadRequests);
@@ -1231,7 +1247,13 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
+        public bool HasDataConnection
+        {
+            get
+            {
+                return NetworkInterface.GetIsNetworkAvailable();
+            }
+        }
 
 
         public IGSAppViewModel App

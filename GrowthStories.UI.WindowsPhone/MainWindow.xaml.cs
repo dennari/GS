@@ -265,13 +265,12 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
-            //if (MessageBox.Show("Are you sure you want to exit?", "Confirm Exit?",
-            //                        MessageBoxButton.OKCancel) != MessageBoxResult.OK)
-            //{
-            base.OnBackKeyPress(e);
+            base.OnBackKeyPress(e); 
+
             if (IsDialogShown)
             {
                 DismissPopup(PopupResult.BackButton);
+                e.Cancel = true;
                 return;
             }
 
@@ -287,6 +286,7 @@ namespace Growthstories.UI.WindowsPhone
             //e.Cancel = true;
 
             //}
+            //        
         }
 
         protected override void OnOrientationChanged(OrientationChangedEventArgs e)

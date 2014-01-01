@@ -76,10 +76,8 @@ namespace Growthstories.UI.ViewModel
              );
             var canSignOut = hasUserAndIsRegistered.Select(x => x.Item2 && x.Item1.AccessToken != null);
 
-
             //this.WarnCommand = new ReactiveCommand();
             //this.WarningDismissedCommand = new ReactiveCommand();
-
 
             this.SignInCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
             this.SignInCommand.Subscribe(x => 
@@ -162,22 +160,56 @@ namespace Growthstories.UI.ViewModel
             this.SharedByDefault = new ButtonViewModel()
             {
                 IsEnabled = false,
-
             };
 
             this.SynchronizeCommand.Subscribe(x =>
             {
-                this.CanSynchronize = false;
-                App.SynchronizeCommand.Execute(null);
+                if (!App.HasDataConnection)
+                {
+                    PopupViewModel pvm = new PopupViewModel()
+                    {
+                        Caption = "Data connection reqyured",
+                        Message = "Synchronizing requires a data connection. Please enable one in your phone's settings and try again.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+                    App.ShowPopup.Execute(pvm);
+                
+                } else {
+                    this.CanSynchronize = false;
+                    App.SynchronizeCommand.Execute(null);
+
+                }
             });
 
-            App.SyncResults.Subscribe(x =>
+            App.SyncResults.Subscribe((x) =>
             {
+                //_SyncResult = x.Item1;
                 this.CanSynchronize = true;
+            });
 
+
+            App.UISyncFinished.Subscribe(x =>
+            {
+                var res = x as Tuple<Sync.AllSyncResult, Sync.GSStatusCode?>;
+
+                if (res.Item1 == Sync.AllSyncResult.Error)
+                {
+                    PopupViewModel pvm = new PopupViewModel()
+                    {
+                        Caption = "Failed to synchronize",
+                        Message = "Could not synchronize with the Growth Stories servers. Please try again later.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+                    App.ShowPopup.Execute(pvm);
+                }
             });
 
         }
+
+        private Sync.AllSyncResult _SyncResult;
+
 
         private IPopupViewModel _LogOutWarning;
         private IPopupViewModel LogOutWarning
@@ -212,6 +244,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         private IButtonViewModel _SharedByDefault;
         public IButtonViewModel SharedByDefault
         {
@@ -230,12 +263,9 @@ namespace Growthstories.UI.ViewModel
         public IButtonViewModel SignUpButton { get; private set; }
 
 
-
-
-
         public override string UrlPathSegment
         {
-            get { throw new NotImplementedException(); }
+            get { return "settings"; }
         }
 
         public ApplicationBarMode AppBarMode
@@ -265,6 +295,7 @@ namespace Growthstories.UI.ViewModel
         {
             get { return _AppBarButtons; }
         }
+
     }
 
 

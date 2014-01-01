@@ -54,7 +54,8 @@ namespace Growthstories.UI.ViewModel
     
     public enum SignInResponse
     {
-        invalidLogin,
+        invalidEmail,
+        invalidPassword,
         tryagain,
         success,
         connectionerror
@@ -68,6 +69,8 @@ namespace Growthstories.UI.ViewModel
         IMessageBus Bus { get; }
         IReactiveCommand ShowPopup { get; }
         IReactiveCommand SynchronizeCommand { get; }
+        IReactiveCommand UISyncFinished { get; }
+
         IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
         IPopupViewModel SyncPopup { get; }
         IUserService Context { get; }
@@ -113,7 +116,7 @@ namespace Growthstories.UI.ViewModel
 
         PageOrientation Orientation { get; }
 
-
+        bool HasDataConnection { get; }
     }
 
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
@@ -605,6 +608,9 @@ namespace Growthstories.UI.ViewModel
 
         string PasswordConfirmationComplaint { get; }
         bool PasswordConfirmationTouched { get; set; }
+
+        bool SignInMode { get; }
+
     }
 
 

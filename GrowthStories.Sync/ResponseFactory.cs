@@ -98,9 +98,8 @@ namespace Growthstories.Sync
 
         public IAuthResponse CreateAuthResponse(Tuple<HttpResponseMessage, string> resp)
         {
-
-
             var r = CreateWithStatusCode<AuthResponse>(resp.Item1);
+
             if (r.StatusCode == GSStatusCode.OK)
             {
                 r.AuthToken = jFactory.Deserialize<AuthToken>(resp.Item2);
@@ -110,15 +109,14 @@ namespace Growthstories.Sync
                     throw new InvalidOperationException();
             }
 
-
             return r;
         }
 
 
         public IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp)
         {
-
             var r = CreateWithStatusCode<UserListResponse>(resp.Item1);
+
             if (r.StatusCode == GSStatusCode.OK)
             {
                 r.Users = jFactory.Deserialize<List<RemoteUser>>(resp.Item2);
@@ -127,23 +125,57 @@ namespace Growthstories.Sync
             return r;
         }
 
+
         public RemoteUser CreateUserInfoResponse(Tuple<HttpResponseMessage, string> resp)
         {
-
             //var r = CreateWithStatusCode<UserListResponse>(resp.Item1);
             if (resp.Item1.IsSuccessStatusCode)
             {
                 return jFactory.Deserialize<RemoteUser>(resp.Item2);
             }
 
+            // why is this a FileNotFoundException ? -- JOJ
             throw new FileNotFoundException("Error occured when trying to retrieve info for user");
         }
 
         T CreateWithStatusCode<T>(HttpResponseMessage resp) where T : HttpResponse, new()
         {
+            var sc = GSStatusCode.FAIL;
+            switch (resp.StatusCode)
+            {
+                case HttpStatusCode.Forbidden:
+                    sc = GSStatusCode.FORBIDDEN;
+                    break;
+
+                case HttpStatusCode.OK:
+                    sc = GSStatusCode.OK;
+                    break;
+
+                case HttpStatusCode.Unauthorized:
+                    sc = GSStatusCode.AUTHENTICATION_REQUIRED;
+                    break;
+
+                case HttpStatusCode.InternalServerError:
+                    sc = GSStatusCode.FORBIDDEN;
+                    break;
+
+                case HttpStatusCode.NotFound:
+                    // for some reason the HttpClient returna http message with a 
+                    // 404 status when server is unreachable
+                    // we are not using the 404 code on the http status line currently
+                    // for anything, so getting this code means that server is probably
+                    // really unreachable (or down)
+                    sc = GSStatusCode.SERVER_UNREACHABLE; 
+                    break;
+
+                default:
+                    sc = GSStatusCode.FAIL;
+                    break;
+            }
+
             return new T()
             {
-                StatusCode = resp.IsSuccessStatusCode ? GSStatusCode.OK : GSStatusCode.FAIL
+                StatusCode = sc
             };
         }
 

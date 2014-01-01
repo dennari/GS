@@ -238,11 +238,15 @@ namespace Growthstories.Sync
     public enum GSStatusCode
     {
         FAIL = 0,
+        SERVER_UNREACHABLE = 2,
+
         OK = 200,
         VERSION_TOO_LOW = 452,
         AUTHENTICATION_REQUIRED = 401,
         BAD_REQUEST = 400,
-        INTERNAL_SERVER_ERROR = 500
+        INTERNAL_SERVER_ERROR = 500,
+        FORBIDDEN = 403, // returned for invalid passwords in /auth 
+
     }
 
 

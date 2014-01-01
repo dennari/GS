@@ -110,6 +110,10 @@ namespace Growthstories.UI.Services
 
 
                 var authResponse = await AuthorizeUser(CurrentUser.Email, CurrentUser.Password);
+                if (authResponse.StatusCode != GSStatusCode.OK)
+                {
+                    throw new InvalidOperationException();
+                }
 
                 _CurrentUser.AccessToken = authResponse.AuthToken.AccessToken;
                 _CurrentUser.ExpiresIn = authResponse.AuthToken.ExpiresIn;
@@ -124,23 +128,20 @@ namespace Growthstories.UI.Services
 
         }
 
+
         public async Task<IAuthResponse> AuthorizeUser(string email, string password)
         {
-
-
             var authResponse = await Transporter.RequestAuthAsync(email, password);
 
-            if (authResponse.StatusCode != GSStatusCode.OK)
-                throw new InvalidOperationException(string.Format("Can't authorize user {0}", email));
-
-
-            Handler.Handle(new SetAuthToken(authResponse.AuthToken));
-
-            Transporter.AuthToken = authResponse.AuthToken;
+            if (authResponse.StatusCode == GSStatusCode.OK)
+            {
+                Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+                Transporter.AuthToken = authResponse.AuthToken;
+            }
+            
             return authResponse;
-
-
         }
+
 
         //public Task TryAuth()
         //{

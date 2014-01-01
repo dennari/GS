@@ -18,6 +18,7 @@ namespace Growthstories.UI.WindowsPhone
         void ViewModelChangeReport(object vm);
     }
 
+
     public class GSView<T> : UserControl, IReportViewModelChange, IViewFor<T> where T : class
     {
         public GSView()
@@ -45,8 +46,12 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (value != null)
                 {
+                    var oldValue = this.ViewModel;
                     SetValue(ViewModelProperty, value);
-                    OnViewModelChanged(value); // comment removed
+                    if (oldValue == null || !oldValue.Equals(value))
+                    {
+                        OnViewModelChanged(value);
+                    }
                 }
             }
         }
@@ -78,7 +83,10 @@ namespace Growthstories.UI.WindowsPhone
             //    return;
             //if (vm != this.ViewModel)
             //    this.ViewModel = v;
-            this.OnViewModelChanged(vm as T);
+
+            this.ViewModel = vm as T;
+
+            //this.OnViewModelChanged(vm as T);
         }
 
         protected virtual void OnViewModelChanged(T vm)

@@ -12,8 +12,6 @@ namespace Growthstories.UI.WindowsPhone
         public AboutView()
         {
             InitializeComponent();
-
-
         }
     }
 }

@@ -29,8 +29,11 @@ namespace Growthstories.UI.WindowsPhone
         public SettingsView()
         {
             InitializeComponent();
+        }
 
-
+        protected override void OnViewModelChanged(ISettingsViewModel vm)
+        {
+            base.OnViewModelChanged(vm);
         }
 
         //    IDisposable WarnSubscription = Disposable.Empty;

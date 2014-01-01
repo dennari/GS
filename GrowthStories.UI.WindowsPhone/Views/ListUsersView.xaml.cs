@@ -12,7 +12,7 @@ using ReactiveUI;
 using System.Windows.Input;
 using Growthstories.Sync;
 using System.Reactive.Disposables;
-
+using System.Net.NetworkInformation;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -32,6 +32,22 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        protected override void OnViewModelChanged(ISearchUsersViewModel vm)
+        {
+            if (!SyncHttpClient.HasInternetConnection)
+            {
+                PopupViewModel pvm = new PopupViewModel()
+                {
+                    Caption = "No data connection available",
+                    Message = "Following users requires a data connection. Please enable a data connection and try again.",
+                    IsLeftButtonEnabled = true,
+                    DismissedCommand = vm.App.Router.NavigateBack,
+                    LeftButtonContent = "OK"
+                };
+                vm.App.ShowPopup.Execute(pvm);
+            } 
+        }
+
 
         private void UserListBox_IconTapped(object sender, EventArgs e)
         {
@@ -41,6 +57,7 @@ namespace Growthstories.UI.WindowsPhone
             this.Focus();
 
         }
+
 
         private void UserListBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {

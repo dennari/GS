@@ -20,17 +20,6 @@ using System.Collections;
 namespace Growthstories.UI.ViewModel
 {
 
-    //public sealed class RemoteUser
-    //{
-    //    public readonly string Name;
-
-
-    //    public RemoteUser(string name)
-    //    {
-    //        this.Name = name;
-    //    }
-    //}
-
 
     public sealed class SearchUsersViewModel : RoutableViewModel, ISearchUsersViewModel
     {
@@ -105,7 +94,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private bool _NotReachable;
+        public bool NotReachable
+        {
+            get
+            {
+                return _NotReachable;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _NotReachable, value);
+            }
 
+        }
 
         public SearchUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
             : base(app)
@@ -139,6 +140,9 @@ namespace Growthstories.UI.ViewModel
             {
                 ProgressIndicatorIsVisible = false;
                 SearchFinished = true;
+
+                NotReachable = x.StatusCode != GSStatusCode.OK;
+
                 _List.Clear();
                 if (x.Users != null && x.Users.Count > 0)
                 {
@@ -190,6 +194,7 @@ namespace Growthstories.UI.ViewModel
                 });
 
             this.SyncResults.Publish().Connect();
+           
             /*
             this.SyncStreams
                 .Subscribe(x =>

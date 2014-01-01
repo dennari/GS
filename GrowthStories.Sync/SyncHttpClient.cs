@@ -10,6 +10,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.NetworkInformation;
+
 
 namespace Growthstories.Sync
 {
@@ -174,9 +176,10 @@ namespace Growthstories.Sync
         {
             if (Client == null)
                 InitClient();
-
+            
             return Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
+
 
         protected async Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
         {
@@ -193,9 +196,6 @@ namespace Growthstories.Sync
                 Logger.Error(e.ToString());
                 //throw e;
             }
-
-
-
 
             Logger.Info("[RESPONSEBODY]\n" + s);
             return Tuple.Create(r, s);
@@ -295,9 +295,13 @@ namespace Growthstories.Sync
         }
 
 
-
-
-
+        public static bool HasInternetConnection
+        {
+            get
+            {
+                return NetworkInterface.GetIsNetworkAvailable();
+            }
+        }
 
 
     }

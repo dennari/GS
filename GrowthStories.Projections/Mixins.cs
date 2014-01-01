@@ -34,13 +34,14 @@ namespace Growthstories.UI
                 if (R == null) // there is nothing to do
                 {
                     return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
-                }
-                else if (R.PushReq.IsEmpty)
-                {
+
+                } else if (R.PullResp.StatusCode != GSStatusCode.OK) {
+                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
+
+                } else if (R.PushReq.IsEmpty) {
                     return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
-                }
-                else if (R.PushResp.StatusCode != GSStatusCode.OK)
-                {
+                
+                } else if (R.PushResp.StatusCode != GSStatusCode.OK) {
                     nullResponseCode = R.PushResp.StatusCode;
                     return Tuple.Create(AllSyncResult.Error, nullResponseCode);
 
