@@ -730,7 +730,14 @@ namespace Growthstories.UI.ViewModel
         bool IsLeftButtonEnabled { get; }
         bool IsRightButtonEnabled { get; }
         bool IsFullScreen { get; }
+        PopupType Type { get; }
+        string ProgressMessage { get; }
+    }
 
+    public enum PopupType
+    {
+        BASIC,
+        PROGRESS,
     }
 
     public enum PopupResult

@@ -14,6 +14,7 @@ using BugSense.Core.Model;
 using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using Growthstories.UI.Services;
+using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -82,6 +83,31 @@ namespace Growthstories.UI.WindowsPhone
 
             //RxApp.DependencyResolver = resolver;
 
+            ApplyGSAccentColor();
+        }
+
+
+        // Apply the orange gs accent color for the app globally
+        //
+        // Described in:
+        //    http://stackoverflow.com/questions/14537071/windows-phone-8-change-accent-and-theme-colour
+        //
+        private void ApplyGSAccentColor()
+        {
+            try
+            {
+                Resources.Remove("PhoneAccentColor");
+                Resources.Add("PhoneAccentColor", Application.Current.Resources["GSAccentColor"]);
+
+                var ab = (SolidColorBrush)Resources["PhoneAccentBrush"];
+                var ac = (Color)Resources["PhoneAccentColor"];
+                ab.Color = ac;
+
+            }
+            catch
+            {
+                Debugger.Break();
+            }
         }
 
         // Code to execute when the application is launching (eg, from Start)

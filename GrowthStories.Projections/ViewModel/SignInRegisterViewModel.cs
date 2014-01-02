@@ -49,8 +49,7 @@ namespace Growthstories.UI.ViewModel
             this.OKCommand.Subscribe(x =>
             {
                 this.Message = null;
-                App.ShowPopup.Execute(App.SyncPopup);
-                // this.ProgressIndicatorIsVisible = true;
+                App.ShowPopup.Execute(PPViewModel());
             });
 
             this.OKCommand.ThrownExceptions.Subscribe(x =>
@@ -82,7 +81,7 @@ namespace Growthstories.UI.ViewModel
                 
                 if (!SignInMode)
                 {
-                    caption = "Could not sign you up";
+                    caption = "Could not register";
                     switch (x.Item2)
                     {
                         case RegisterResponse.connectionerror:
@@ -119,9 +118,6 @@ namespace Growthstories.UI.ViewModel
                         Caption = caption,
                         Message = msg,
                         LeftButtonContent = "OK"
-                        /*
-                        DismissedCommand = this.SignOutCommand
-                        */
                     };
                     App.ShowPopup.Execute(pvm);
                 }
@@ -151,12 +147,29 @@ namespace Growthstories.UI.ViewModel
                   //this.IsRegistered = x.Item2 != null && x.Item1 == x.Item2.Id;
               });
 
-
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "new user" : "sign in");
-
             NavigateBack = true;
         }
 
+
+        private ProgressPopupViewModel PPViewModel()
+        {
+            if (SignInMode)
+            {
+                return new ProgressPopupViewModel()
+                {
+                    Caption = "Signing in",
+                    ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data."
+                };
+            
+            } else {
+                return new ProgressPopupViewModel()
+                {
+                    Caption = "Registering",
+                    ProgressMessage = "Please wait while Growth Stories creates you a new account."
+                };
+            }
+        }
 
         //public static string GetHashCode(string p)
         //{

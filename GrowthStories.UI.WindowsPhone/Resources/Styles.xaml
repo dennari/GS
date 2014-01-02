@@ -166,8 +166,10 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    
- 
+    <Style TargetType="Button">
+        <Setter Property="BorderBrush" Value="{StaticResource GSInputColor}" />
+    </Style>
+
 
     <Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>

@@ -130,7 +130,7 @@ namespace Growthstories.UI.ViewModel
             };
             this.SignUpButton = new ButtonViewModel()
             {
-                Text = "sign up",
+                Text = "register",
                 IconType = IconType.SIGNUP,
                 Command = SignUpCommand
             };
@@ -168,7 +168,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     PopupViewModel pvm = new PopupViewModel()
                     {
-                        Caption = "Data connection reqyured",
+                        Caption = "Data connection required",
                         Message = "Synchronizing requires a data connection. Please enable one in your phone's settings and try again.",
                         IsLeftButtonEnabled = true,
                         LeftButtonContent = "OK"

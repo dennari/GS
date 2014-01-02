@@ -192,6 +192,7 @@ namespace Growthstories.UI.ViewModel
         {
             IsLeftButtonEnabled = true;
             IsRightButtonEnabled = false;
+            Type = PopupType.BASIC;
         }
 
         public IReactiveCommand DismissedCommand { get; set; }
@@ -209,8 +210,22 @@ namespace Growthstories.UI.ViewModel
         public bool IsRightButtonEnabled { get; set; }
 
         public bool IsFullScreen { get; set; }
+
+        public PopupType Type { get; set; }
+
+        public string ProgressMessage { get; set; }
     }
 
+
+    public class ProgressPopupViewModel : PopupViewModel
+    {
+        public ProgressPopupViewModel()
+        {
+            Type = PopupType.PROGRESS;
+            Caption = "Synchronizing";
+            ProgressMessage = "Take a breath while Growth Stories is exchanging data";
+        }
+    }
 
 
 

@@ -85,13 +85,59 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private StackPanel ProgressPopupContent(IPopupViewModel pvm)
+        {
+            StackPanel sp = new StackPanel()
+            {
+                Margin = new Thickness(0,12,0,0)
+            };
+
+            sp.Children.Add(
+                new ProgressBar()
+                {
+                    IsIndeterminate = true,
+                    IsEnabled = true,
+                    Margin = new Thickness(0, 12, 0, 12),
+                    Foreground = PopupForeground
+                }
+            );
+                 
+            sp.Children.Add(
+                new TextBlock()
+                {
+                    Style = (Style)(Application.Current.Resources["GSTextBlockStyle"]),
+                    Text = pvm.ProgressMessage, 
+                    Foreground = PopupForeground,
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    TextAlignment = System.Windows.TextAlignment.Left,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    FontSize = 24,
+                    Width = 430,
+                    //FontWeight = FontWeights.Light,
+                }
+            );
+            return sp;
+        }
+
+
+        private object PopupContent(IPopupViewModel pvm)
+        {
+            switch (pvm.Type)
+            {
+                case PopupType.PROGRESS:
+                    return ProgressPopupContent(pvm);
+            }
+            return null; // default content
+        }
+
+
         CustomMessageBox Popup;
         IPopupViewModel PopupVm;
         private void ShowPopup(IPopupViewModel x)
         {
             var popup = new CustomMessageBox()
             {
-                //ContentTemplate = (DataTemplate)(Application.Current.Resources["GSProcessPopupTemplate"]),         
                 Caption = x.Caption,
                 Message = x.Message,
                 LeftButtonContent = x.LeftButtonContent,
@@ -104,41 +150,10 @@ namespace Growthstories.UI.WindowsPhone
                 BorderBrush = PopupForeground
             };
 
-            if (x.Caption.Contains("Synchronizing"))
+            var pc = PopupContent(x);
+            if (pc != null)
             {
-                    
-                    StackPanel sp = new StackPanel()
-                    {
-                        Margin = new Thickness(0,12,0,0)
-                    };
-
-                    sp.Children.Add(
-                        new ProgressBar()
-                        {
-                            IsIndeterminate = true,
-                            IsEnabled = true,
-                            Margin = new Thickness(0, 12, 0, 12),
-                            Foreground = PopupForeground
-                        }
-                    );
-                 
-                    sp.Children.Add(
-                        new TextBlock()
-                        {
-                            Style = (Style)(Application.Current.Resources["GSTextBlockStyle"]),
-                            Text = "Take a breath while Growth Stories is exchanging data", 
-                            Foreground = PopupForeground,
-                            TextWrapping = TextWrapping.Wrap,
-                            VerticalAlignment = VerticalAlignment.Top,
-                            TextAlignment = System.Windows.TextAlignment.Left,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            FontSize = 24,
-                            Width = 430,
-                        }
-                    );
-
-
-                popup.Content = sp;
+                popup.Content = pc;
             }
 
             popup.ApplyTemplate();
@@ -186,7 +201,6 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
 
             IDictionary<string, string> qs = this.NavigationContext.QueryString;
             Exception ee = null;

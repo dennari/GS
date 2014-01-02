@@ -302,12 +302,7 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_SyncPopup == null)
                 {
-                    _SyncPopup = new PopupViewModel()
-                    {
-                        Caption = "Synchronizing",
-                        Message = null,
-                        IsLeftButtonEnabled = false
-                    };
+                    _SyncPopup = new ProgressPopupViewModel();
                 }
                 return _SyncPopup;
             }
@@ -643,6 +638,7 @@ namespace Growthstories.UI.ViewModel
             ));
 
             var R = await this.PushAll();
+
             if (R.Item1 == AllSyncResult.AllSynced)
             {
                 this.IsRegistered = true;
@@ -652,7 +648,10 @@ namespace Growthstories.UI.ViewModel
             else if (R.Item1 == AllSyncResult.SomeLeft)
                 return RegisterResponse.tryagain;
             else if (R.Item1 == AllSyncResult.Error)
+                // BUG: this should only be returned when email is in use,
+                // not because of connection errors or other similar problems
                 return RegisterResponse.emailInUse;
+
 
             //for (var i = 0; i < 3; i++)
             //{
@@ -669,9 +668,9 @@ namespace Growthstories.UI.ViewModel
             //        return RegisterRespone.emailInUse;
             //}
 
-
             return RegisterResponse.success;
         }
+
 
         public async Task<GSApp> SignOut(bool createUnregUser = true)
         {
@@ -689,16 +688,13 @@ namespace Growthstories.UI.ViewModel
 
             GSApp app = null;
 
-            if (createUnregUser)
-            {
+            if (createUnregUser) {
                 await this.Initialize();
                 app = this.Model;
-            }
-            else
-            {
+
+            } else {
                 app = (GSApp)Handler.Handle(new CreateGSApp());
                 this.Model = app;
-
             }
 
             return app;
