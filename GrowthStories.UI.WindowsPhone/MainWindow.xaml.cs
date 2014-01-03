@@ -43,16 +43,24 @@ namespace Growthstories.UI.WindowsPhone
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
         }
 
+
         private void DismissPopup(PopupResult result = PopupResult.None)
         {
             if (IsDialogShown)
             {
                 IsDialogShown = false;
                 if (Popup != null)
+                {
                     Popup.Dismiss();
-                if (PopupVm != null && PopupVm.DismissedCommand != null)
-                    PopupVm.DismissedCommand.Execute(result);
-
+                }
+                
+                // we already have a subscription to popup.dismiss, which
+                // will take care of calling the dismissedcommand
+                // this would create another execution for the dismissedcommand,
+                // which can create problems
+                //   -- JOJ 3.12.2014
+                //if (PopupVm != null && PopupVm.DismissedCommand != null)
+                //    PopupVm.DismissedCommand.Execute(result);
                 return;
             }
         }
@@ -162,7 +170,9 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (x.DismissedCommand != null)
                 {
-                    x.DismissedCommand.Execute(e1.Result == CustomMessageBoxResult.LeftButton ? PopupResult.LeftButton : PopupResult.RightButton);
+                    x.DismissedCommand.Execute(
+                        e1.Result == CustomMessageBoxResult.LeftButton ? 
+                        PopupResult.LeftButton : PopupResult.RightButton);
                 }
                 this.IsDialogShown = false;
             };
@@ -277,13 +287,19 @@ namespace Growthstories.UI.WindowsPhone
 
         private bool IsDialogShown;
 
+
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
             base.OnBackKeyPress(e); 
-
+            
             if (IsDialogShown)
             {
-                DismissPopup(PopupResult.BackButton);
+                // popups have their own subscription to the backkeypress,
+                // so there is no need to call this here
+                // we still need to cancel the event though
+                //  -- JOJ 3.1.2014
+                // DismissPopup(PopupResult.BackButton);
+
                 e.Cancel = true;
                 return;
             }
@@ -293,15 +309,16 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return;
             }
-            if (!ViewModel.Router.NavigateBack.CanExecute(null)) return;
+
+            if (!ViewModel.Router.NavigateBack.CanExecute(null))
+            {
+                return;
+            }
 
             e.Cancel = true;
-            ViewModel.Router.NavigateBack.Execute(null);
-            //e.Cancel = true;
-
-            //}
-            //        
+            ViewModel.Router.NavigateBack.Execute(null);    
         }
+
 
         protected override void OnOrientationChanged(OrientationChangedEventArgs e)
         {
