@@ -858,10 +858,12 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
+                /*
                 if (SelectedItem != null && Filter == PlantActionType.PHOTOGRAPHED)
                 {
                     return false;
                 }
+                */
 
                 return UserId == App.User.Id;
             }
