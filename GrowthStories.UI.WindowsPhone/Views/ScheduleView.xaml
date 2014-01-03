@@ -26,6 +26,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PickerBox:PickerBoxToggleButton">
+                        
                         <Grid Background="Transparent">
                             <Border x:Name="EnabledBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="{StaticResource PhoneTouchTargetOverhang}">
                                 <ContentControl
@@ -40,7 +41,6 @@
                             <Border x:Name="DisabledBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" IsHitTestVisible="False" Margin="{StaticResource PhoneTouchTargetOverhang}" Visibility="Collapsed">
                                 <ContentControl x:Name="DisabledContent" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{StaticResource PhoneDisabledBrush}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
-
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -70,7 +70,6 @@
                     Value="{Binding Interval, Mode=TwoWay}"
 				    SelectorFormat="wdh"
                     OkButtonIconUri="{Binding OKIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
-                    CancelButtonIconUri="{Binding CancelIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
 				    DisplayValueFormat="g"
 				    x:Name="TimeSpanPicker"                
                     PickerButtonStyle="{StaticResource PickerBoxToggleButtonStyle1}"

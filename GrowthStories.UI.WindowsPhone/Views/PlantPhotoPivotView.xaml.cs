@@ -34,6 +34,5 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         
-
     }
 }

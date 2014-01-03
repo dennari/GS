@@ -128,9 +128,8 @@ namespace Growthstories.UI.ViewModel
         {
 
         }
-        /// <summary>
-        /// Initializes a new instance of the MainViewModel class.
-        /// </summary>
+ 
+
         public PlantViewModel(PlantState state, IGSAppViewModel app)
             : base(app)
         {
@@ -617,8 +616,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
         private IPlantActionViewModel CreateEmptyActionVM(PlantActionType type)
         {
             var vm = App.PlantActionViewModelFactory(type);
@@ -706,7 +703,6 @@ namespace Growthstories.UI.ViewModel
                                         this.Filter = PlantActionType.PHOTOGRAPHED;
                                         this.SelectedItem = photo;
                                         this.Navigate(this);
-
                                     });
                             }
 
@@ -858,10 +854,15 @@ namespace Growthstories.UI.ViewModel
         }
 
         public ApplicationBarMode AppBarMode { get { return ApplicationBarMode.DEFAULT; } }
-        public bool AppBarIsVisible
+        public virtual bool AppBarIsVisible
         {
             get
             {
+                if (SelectedItem != null && Filter == PlantActionType.PHOTOGRAPHED)
+                {
+                    return false;
+                }
+
                 return UserId == App.User.Id;
             }
         }
@@ -875,5 +876,6 @@ namespace Growthstories.UI.ViewModel
 
 
     }
+
 
 }
