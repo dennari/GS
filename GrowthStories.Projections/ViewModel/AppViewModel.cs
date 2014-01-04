@@ -894,9 +894,6 @@ namespace Growthstories.UI.ViewModel
 
         public async Task<ISyncInstance> Synchronize()
         {
-            //if (SyncService == null)
-            //    SyncService = Kernel.Get<ISynchronizerService>();
-
             // obtain access token if required
             if (User.AccessToken == null)
             {
@@ -904,9 +901,14 @@ namespace Growthstories.UI.ViewModel
                     var authResponse = await Context.AuthorizeUser();    
                 
                 } catch {
-                    return null;
+                    return new SyncInstance(SyncStatus.AUTH_ERROR);
                 }
             }
+
+            // TODO: what if auth token is expired?
+            // (this would also have to be considered for other 
+            //  requests, so probably should look at a general way to 
+            //  implement this)
 
             var syncStreams = Model.State.SyncStreams.ToArray();
 
@@ -921,7 +923,11 @@ namespace Growthstories.UI.ViewModel
             // ?? pullrequest should really never be empty
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
             {
-                return null;
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                return new SyncInstance(SyncStatus.PULL_EMPTY_ERROR);
             }
 
             return await _Synchronize(s);
@@ -930,15 +936,11 @@ namespace Growthstories.UI.ViewModel
 
         public async Task<ISyncInstance> Push()
         {
-            //if (SyncService == null)
-            //    SyncService = Kernel.Get<ISynchronizerService>();
-
             if (User.AccessToken == null)
             {
                 try
                 {
                     var authResponse = await Context.AuthorizeUser();
-
                 }
                 catch
                 {
@@ -981,12 +983,27 @@ namespace Growthstories.UI.ViewModel
                         downloadRequests = Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray();
                     }
                 }
+
+                if (pullResp == null || pullResp.StatusCode != GSStatusCode.OK)
+                {
+                    s.Status = SyncStatus.PULL_ERROR;
+                    return s;
+                }
             }
+
 
             if (!s.PushReq.IsEmpty)
             {
                 if (handlePull)
-                    s.Merge();
+                {
+                    try {
+                        s.Merge();
+                    } catch {
+                        if (Debugger.IsAttached) { Debugger.Break(); };
+                        s.Status = SyncStatus.MERGE_ERROR;
+                        return s;
+                    }
+                }
 
                 var pushResp = await s.Push();
                 if (pushResp != null && pushResp.StatusCode == GSStatusCode.OK)
@@ -998,6 +1015,13 @@ namespace Growthstories.UI.ViewModel
                     }
                     Handler.Handle(new Push(s));
                 }
+
+                if (pushResp == null || (pushResp.StatusCode != GSStatusCode.OK
+                    && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW))
+                {
+                    s.Status = SyncStatus.PUSH_ERROR;
+                    return s;
+                }
             }
 
             if (s.PhotoUploadRequests.Length > 0)
@@ -1006,6 +1030,15 @@ namespace Growthstories.UI.ViewModel
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoUpload(x) { AncestorId = User.Id }).ToArray();
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(Model.State.Id, successes));
+
+                foreach (var resp in responses)
+                {
+                    if (resp.StatusCode != GSStatusCode.OK)
+                    {
+                        s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
+                        return s;
+                    }
+                }
             }
 
             if (downloadRequests.Length > 0)
@@ -1014,9 +1047,19 @@ namespace Growthstories.UI.ViewModel
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoDownload(x.Photo)).ToArray();
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(Model.State.Id, successes));
-            }
-            return s;
 
+                foreach (var resp in responses)
+                {
+                    if (resp.StatusCode != GSStatusCode.OK)
+                    {
+                        s.Status = SyncStatus.PHOTODOWNLOAD_ERROR;
+                        return s;
+                    }
+                }
+            }
+            s.Status = SyncStatus.OK;
+
+            return s;
         }
 
 

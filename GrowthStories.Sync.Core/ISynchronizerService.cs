@@ -34,11 +34,29 @@ namespace Growthstories.Sync
         Error
     }
 
+
+    public enum SyncStatus
+    {
+        OK,
+        PULL_ERROR,
+        PULL_HANDLE_ERROR,
+        MERGE_ERROR,
+        PUSH_ERROR,
+        PHOTOUPLOAD_ERROR,
+        PHOTODOWNLOAD_ERROR,
+        AUTH_ERROR,
+        PULL_EMPTY_ERROR
+    }
+    
+
     public interface ISyncInstance
     {
         
         /*IAuthResponse AuthResp { get; }*/
-        
+
+        SyncStatus Status { get; set; }
+        GSStatusCode Code {get; set; }
+
         ISyncPullRequest PullReq { get; }
         ISyncPushRequest PushReq { get; }
         ISyncPullResponse PullResp { get; }

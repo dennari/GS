@@ -10,6 +10,9 @@ namespace Growthstories.Sync
     public sealed class SyncInstance : ISyncInstance
     {
 
+        public SyncStatus Status { get; set; }
+        public GSStatusCode Code { get; set; }
+
         public ISyncPullRequest PullReq { get; private set; }
         public ISyncPushRequest PushReq { get; private set; }
 
@@ -21,6 +24,11 @@ namespace Growthstories.Sync
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncInstance));
 
+
+        public SyncInstance(SyncStatus s)
+        {
+            Status = s;
+        }
 
         public SyncInstance(
             ISyncPullRequest aPullReq,
@@ -35,6 +43,7 @@ namespace Growthstories.Sync
             this.PushReq = aPushReq;
             this.PhotoUploadRequests = PhotoUploadRequests ?? new IPhotoUploadRequest[] { };
             this.PhotoDownloadRequests = PhotoDownloadRequests ?? new IPhotoDownloadRequest[] { };
+            this.Status = SyncStatus.OK;
         }
 
         public async Task<ISyncPullResponse> Pull()

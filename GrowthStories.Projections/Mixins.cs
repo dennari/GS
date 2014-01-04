@@ -14,7 +14,8 @@ namespace Growthstories.UI
     {
 
 
-        public static ReactiveCommand ToCommandWithSubscription(this IObservable<bool> This, Action<object> subscription, bool allowsConcurrentExecution = false, IScheduler scheduler = null)
+        public static ReactiveCommand ToCommandWithSubscription(this IObservable<bool> This, 
+            Action<object> subscription, bool allowsConcurrentExecution = false, IScheduler scheduler = null)
         {
             var cmd = new ReactiveCommand(This, allowsConcurrentExecution, scheduler);
             cmd.Subscribe(subscription);
@@ -22,7 +23,8 @@ namespace Growthstories.UI
         }
 
 
-        public static async Task<Tuple<AllSyncResult, GSStatusCode?>> SyncAll(this IGSAppViewModel app, int maxRounds = 20)
+        public static async Task<Tuple<AllSyncResult, GSStatusCode?>> 
+            SyncAll(this IGSAppViewModel app, int maxRounds = 20)
         {
             int counter = 0;
             ISyncInstance R = null;
@@ -33,20 +35,16 @@ namespace Growthstories.UI
                 R = await app.Synchronize();
                 counter++;
 
-                if (R == null) // there is nothing to do
+                if (R.Status != SyncStatus.OK)
+                {
+                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
+                }
+
+                // TODO: check if there is more stuff to pull
+
+                if (R.PushReq.IsEmpty)
                 {
                     return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
-
-                } else if (R.PullResp.StatusCode != GSStatusCode.OK) {
-                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
-
-                } else if (R.PushReq.IsEmpty) {
-                    return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
-                
-                } else if (R.PushResp.StatusCode != GSStatusCode.OK) {
-                    nullResponseCode = R.PushResp.StatusCode;
-                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
-
                 }
             }
 

@@ -13,6 +13,7 @@ using Growthstories.Domain.Entities;
 using EventStore.Persistence;
 using EventStore;
 using System.IO;
+using System.Diagnostics;
 
 namespace Growthstories.Sync
 {
@@ -30,14 +31,12 @@ namespace Growthstories.Sync
         }
 
 
-
         protected GSStatusCode HandleHttpResponse(HttpResponseMessage resp)
         {
             if (resp.IsSuccessStatusCode)
                 return GSStatusCode.OK;
             return GSStatusCode.FAIL;
         }
-
 
 
         public ISyncPullResponse CreatePullResponse(ISyncPullRequest req, Tuple<HttpResponseMessage, string> resp)
@@ -66,11 +65,11 @@ namespace Growthstories.Sync
                                 x.Stream.NextSince = x.NextSince;
                                 return x.Stream;
 
-                            }
-                            catch
-                            {
+                            } catch {
+                                if (Debugger.IsAttached) { Debugger.Break(); }
 
                             }
+                            // TODO/JOJ: is empty try catch and returning null a good idea?
                             return null;
                         })
                         .Where(x => x != null)
