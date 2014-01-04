@@ -31,6 +31,30 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+
+    public sealed class InternalRegisterAppUser : AggregateCommand<GSApp>
+    {
+        public readonly Guid UserId;
+        public readonly string Username;
+        public readonly string Password;
+        public readonly string Email;
+
+        public InternalRegisterAppUser(Guid userId, string username, string password, string email)
+            : base(GSAppState.GSAppId)
+        {
+            this.UserId = userId;
+            this.Username = username;
+            this.Password = password;
+            this.Email = email;
+        }
+
+       public override string ToString()
+        {
+            return string.Format(@"Internally mark user registered", UserId);
+        }
+
+    }
+
     public sealed class AssignAppUser : AggregateCommand<GSApp>
     {
         public readonly Guid UserId;
@@ -41,8 +65,6 @@ namespace Growthstories.Domain.Messaging
         public Guid UserGardenId;
 
         public int UserVersion;
-
-
 
         public AssignAppUser(Guid userId, string username, string password, string email)
             : base(GSAppState.GSAppId)

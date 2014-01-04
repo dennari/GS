@@ -27,10 +27,12 @@ namespace Growthstories.UI
             int counter = 0;
             ISyncInstance R = null;
             GSStatusCode? nullResponseCode = null;
+
             while (counter < maxRounds)
             {
                 R = await app.Synchronize();
                 counter++;
+
                 if (R == null) // there is nothing to do
                 {
                     return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
@@ -49,9 +51,8 @@ namespace Growthstories.UI
             }
 
             return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
-
-
         }
+
 
         public static async Task<Tuple<AllSyncResult, GSStatusCode?>> PushAll(this IGSAppViewModel app, int maxRounds = 20)
         {

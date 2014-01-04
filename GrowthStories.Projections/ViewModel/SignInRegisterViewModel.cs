@@ -91,6 +91,10 @@ namespace Growthstories.UI.ViewModel
                         case RegisterResponse.emailInUse:
                             msg = "Could not create a new account for you, because the email address you provided is already in use.";
                             break;
+
+                        case RegisterResponse.usernameInUse:
+                            msg = "Could not create a new account for you, because the username you provided is already in use.";
+                            break;
                     }
 
                 } else {
@@ -147,7 +151,7 @@ namespace Growthstories.UI.ViewModel
                   //this.IsRegistered = x.Item2 != null && x.Item1 == x.Item2.Id;
               });
 
-            this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "new user" : "sign in");
+            this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "register" : "sign in");
             NavigateBack = true;
         }
 

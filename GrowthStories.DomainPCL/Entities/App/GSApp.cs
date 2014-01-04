@@ -29,7 +29,8 @@ namespace Growthstories.Domain.Entities
        ICommandHandler<Pull>,
        ICommandHandler<Push>,
        ICommandHandler<SchedulePhotoUpload>,
-       ICommandHandler<CompletePhotoUpload>
+       ICommandHandler<CompletePhotoUpload>,
+       ICommandHandler<InternalRegisterAppUser>
     {
         public void Handle(CreateGSApp command)
         {
@@ -96,15 +97,16 @@ namespace Growthstories.Domain.Entities
                 RaiseEvent(new EmailSet(copy));
             }
         }
+
         public void Handle(SetPassword command)
         {
             if (command.AggregateId == this.State.User.Id)
             {
-
                 var copy = new SetPassword(this.Id, command.Password);
                 RaiseEvent(new PasswordSet(copy));
             }
         }
+        
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -138,6 +140,10 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new Pushed(command));
         }
 
+        public void Handle(InternalRegisterAppUser command)
+        {
+            RaiseEvent(new InternalRegistered(command));
+        }
 
         public void Handle(SchedulePhotoUpload command)
         {
@@ -166,7 +172,6 @@ namespace Growthstories.Domain.Entities
 
             if (!isRemote)
             {
-
                 if (cmd is CreateUser)
                     return true;
                 if (cmd is SetUsername)

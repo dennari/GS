@@ -53,8 +53,6 @@ namespace Growthstories.Sync
         public IEnumerable<IEventDTO> Out(IEnumerable<IStreamSegment> streams)
         {
 
-            //IEventDTO ed = null;
-
             foreach (var stream in streams)
             {
                 int i = 0;
@@ -91,16 +89,14 @@ namespace Growthstories.Sync
 
         }
 
+
         public IGrouping<Guid, IEvent>[] In(IEnumerable<IEventDTO> enumerable)
         {
-
             return enumerable
                 .Select(x => In(x))
                 .OfType<EventBase>()
                 .GroupBy(x => x.StreamEntityId ?? x.AggregateId)
                 .ToArray();
-
-
         }
     }
 }

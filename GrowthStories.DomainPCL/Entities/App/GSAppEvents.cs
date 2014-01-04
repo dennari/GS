@@ -53,12 +53,40 @@ namespace Growthstories.Domain.Messaging
         {
             return string.Format(@"Created GSApp {0}", EntityId);
         }
-
-
-
-
-
     }
+
+
+
+    public sealed class InternalRegistered : GSAppEvent
+    {
+        [JsonProperty]
+        public Guid UserId { get; private set; }
+
+        [JsonProperty]
+        public string Username { get; private set; }
+
+        [JsonProperty]
+        public string Password { get; private set; }
+
+        [JsonProperty]
+        public string Email { get; private set; }
+
+        private InternalRegistered() { }
+        public InternalRegistered(InternalRegisterAppUser cmd)
+            : base(cmd)
+        {
+            this.UserId = cmd.UserId;
+            this.Username = cmd.Username;
+            this.Password = cmd.Password;
+            this.Email = cmd.Email;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Internally registered user {0} to app.", UserId);
+        }
+    }
+
 
     public sealed class AppUserAssigned : GSAppEvent
     {
@@ -196,6 +224,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+
     public sealed class SyncStreamDeleted : GSAppEvent
     {
         [JsonProperty]
@@ -208,7 +237,6 @@ namespace Growthstories.Domain.Messaging
         public SyncStreamDeleted(Guid streamId)
         {
             this.StreamId = streamId;
-
         }
 
 

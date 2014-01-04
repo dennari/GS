@@ -63,8 +63,15 @@ namespace Growthstories.Sync
         string Username { get; set; }
         string Password { get; set; }
         string Email { get; set; }
-
     }
+
+    public interface IRegisterDTO : IEventDTO
+    {
+        string Username { get; set; }
+        string Password { get; set; }
+        string Email { get; set; }
+    }
+
 
     public interface ICreatePlantDTO : IAddEntityDTO
     {

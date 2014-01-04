@@ -13,6 +13,8 @@ using System.Net;
 using EventStore.Persistence;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using System.Diagnostics;
+
 namespace Growthstories.UI.Services
 {
 
@@ -49,6 +51,14 @@ namespace Growthstories.UI.Services
         public void SetupCurrentUser(IAuthUser user)
         {
             _CurrentUser = user;
+            if (user.Password == null || user.Password.Length == 0)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+            }
+            
             if (user.AccessToken != null)
             {
                 Transporter.AuthToken = user;
@@ -63,7 +73,13 @@ namespace Growthstories.UI.Services
 
             var commands = new IAggregateCommand[4];
 
-            var u = new CreateUser(userId, "UnregUser", "unregpassword", string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
+            // TODO:
+            // change unregpassword to randomly generated one
+            // -- JOJ 4.1.2014
+            //
+
+            var u = new CreateUser(userId, AuthUser.UnregUsername, "unregpassword", 
+                string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
             commands[0] = u;
             commands[1] = new CreateGarden(gardenId, userId);
             commands[2] = new AddGarden(userId, gardenId);
@@ -101,10 +117,16 @@ namespace Growthstories.UI.Services
                 //int counter = 0;
                 ISyncPushResponse pushResp = await s.Push();
 
-                if (pushResp.StatusCode != GSStatusCode.OK)
+                if (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW)
+                {
                     throw new InvalidOperationException("Can't synchronize user");
+                }
 
-                Handler.Handle(new Push(s));
+                if (pushResp.StatusCode == GSStatusCode.OK)
+                {
+                    Handler.Handle(new Push(s));
+                }
+
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
 

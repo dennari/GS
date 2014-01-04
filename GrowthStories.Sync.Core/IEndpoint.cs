@@ -19,6 +19,7 @@ namespace Growthstories.Sync
         Uri PhotoDownloadUri(string blobKey);
 
         Uri PhotoUploadUri { get; }
+        Uri RegisterUri(string username, string email, string password);
 
     }
 
@@ -76,6 +77,13 @@ namespace Growthstories.Sync
         public Uri UserInfoUri(string email)
         {
             return new Uri(BaseUri, string.Format("/api/user/email/{0}", email));
+        }
+
+        public Uri RegisterUri(string username, string email, string password)
+        {
+            return new Uri(BaseUri, string.Format(
+               "/api/register?username={0}&email={1}&password={2}", 
+               username, email, password));
         }
 
         public Uri PhotoUploadUri

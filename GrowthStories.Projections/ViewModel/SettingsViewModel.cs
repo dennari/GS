@@ -57,6 +57,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private bool _IsRegistered = false;
+        public bool IsRegistered
+        {
+            get
+            {
+                return _IsRegistered;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _CanSynchronize, value);
+            }
+        }
 
         public SettingsViewModel(IGSAppViewModel app)
             : base(app)
@@ -79,7 +92,8 @@ namespace Growthstories.UI.ViewModel
             //this.WarnCommand = new ReactiveCommand();
             //this.WarningDismissedCommand = new ReactiveCommand();
 
-            this.SignInCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
+            this.SignInCommand = new ReactiveCommand();
+            //this.SignInCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
             this.SignInCommand.Subscribe(x => 
             { 
                 SignInRegisterViewModel svm = new SignInRegisterViewModel(App);
@@ -88,10 +102,13 @@ namespace Growthstories.UI.ViewModel
             }
             );
 
-            this.SignUpCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
+            this.SignUpCommand = new ReactiveCommand();
+            //this.SignUpCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
             this.SignUpCommand.Subscribe(x => this.Navigate(new SignInRegisterViewModel(App)));
 
-            this.SignOutCommand = new ReactiveCommand(canSignOut);
+            //this.SignOutCommand = new ReactiveCommand(canSignOut);
+            this.SignOutCommand = new ReactiveCommand();
+
             this.SignOutCommand.Where(x => x == null).Subscribe(_ => App.ShowPopup.Execute(this.LogOutWarning));
             var logOutResult = this.SignOutCommand.RegisterAsyncTask(async (x) =>
             {
@@ -134,23 +151,43 @@ namespace Growthstories.UI.ViewModel
                 IconType = IconType.SIGNUP,
                 Command = SignUpCommand
             };
-            
-            
+
+            this.Email = App.User.Email;
+            this.ListenTo<InternalRegistered>()
+                .Select(x => x.Email)
+                .StartWith(App.User.Email)
+                .Subscribe(x => 
+                    {
+                        this.Email = x;
+                    });
+
+            /*
+            this.ListenTo<InternalRegistered>()
+                .Select(x)
+                .StartWith(App.User.Email)
+                .Subscribe(x =>
+                {
+                    this.Email = x;
+                });
+            */
+
             hasUserAndIsRegistered
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(x =>
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
             {
+                this.IsRegistered = x.Item2;
 
                 this._AppBarButtons.Remove(this.SignUpButton);
                 this._AppBarButtons.Remove(this.SignInButton);
                 this._AppBarButtons.Remove(this.SignOutButton);
 
-                if (x.Item2 && x.Item1.AccessToken != null) {
-                    this.Email = x.Item1.Email;
+                if (x.Item2) {
+                //if (x.Item2 && x.Item1.AccessToken != null) {
+                    //this.Email = x.Item1.Email;
                     this._AppBarButtons.Add(this.SignOutButton);
                 
                 } else {
-                    this.Email = null;
+                    //this.Email = null;
                     this._AppBarButtons.Add(this.SignInButton);
                     this._AppBarButtons.Add(this.SignUpButton);
                 }
@@ -188,7 +225,6 @@ namespace Growthstories.UI.ViewModel
                 this.CanSynchronize = true;
             });
 
-
             App.UISyncFinished.Subscribe(x =>
             {
                 var res = x as Tuple<Sync.AllSyncResult, Sync.GSStatusCode?>;
@@ -209,7 +245,6 @@ namespace Growthstories.UI.ViewModel
         }
 
         private Sync.AllSyncResult _SyncResult;
-
 
         private IPopupViewModel _LogOutWarning;
         private IPopupViewModel LogOutWarning

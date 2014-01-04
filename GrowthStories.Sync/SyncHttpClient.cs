@@ -55,20 +55,17 @@ namespace Growthstories.Sync
         }
 
 
-
         public async Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-
             return ResponseFactory.CreatePushResponse(request, await SendAndGetBodyAsync(CreatePushRequest(request)));
-
         }
 
 
         public async Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-
             return ResponseFactory.CreatePullResponse(request, await SendAndGetBodyAsync(CreatePullRequest(request)));
         }
+
 
         public async Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
@@ -83,12 +80,22 @@ namespace Growthstories.Sync
             return ResponseFactory.CreateUserListResponse(await SendAndGetBodyAsync(request));
         }
 
+
         public async Task<RemoteUser> UserInfoAsync(string email)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserInfoUri(email));
 
             return ResponseFactory.CreateUserInfoResponse(await SendAndGetBodyAsync(request));
         }
+
+        
+        public async Task<APIRegisterResponse> RegisterAsync(string username, string email, string password)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.RegisterUri(username, email, password));
+
+            return ResponseFactory.CreateRegisterResponse(await SendAndGetBodyAsync(request));
+        }
+
 
         public async Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
@@ -105,6 +112,7 @@ namespace Growthstories.Sync
             }
             return r;
         }
+
 
         public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
         {

@@ -54,6 +54,7 @@ namespace Growthstories.Sync
         addTransfer,
         misting,
         addMisting,
-        delEntity
+        delEntity,
+        register
     }
 }

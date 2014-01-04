@@ -36,6 +36,9 @@ namespace Growthstories.Sync
 
     public interface ISyncInstance
     {
+        
+        /*IAuthResponse AuthResp { get; }*/
+        
         ISyncPullRequest PullReq { get; }
         ISyncPushRequest PushReq { get; }
         ISyncPullResponse PullResp { get; }

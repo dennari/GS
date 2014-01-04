@@ -30,6 +30,7 @@ namespace Growthstories.Domain.Entities
         }
     }
 
+
     public class UserState : AggregateState<UserCreated>, IAuthUser
     {
 
@@ -68,27 +69,31 @@ namespace Growthstories.Domain.Entities
             }
         }
 
-
         [JsonProperty]
         public string Password { get; private set; }
-        [JsonProperty]
-        public string Username { get; private set; }
+
         [JsonProperty]
         public string Email { get; private set; }
 
+        [JsonProperty]
+        public string Username { get; private set; }
+ 
         [JsonIgnore]
         public string AccessToken { get; set; }
+
         [JsonIgnore]
         public int ExpiresIn { get; set; }
+        
         [JsonIgnore]
         public string RefreshToken { get; set; }
 
         [JsonProperty]
         public bool IsCollaborator { get; set; }
 
-
+        public bool IsRegistered { get; set; }
 
         public UserState() { }
+
 
         public new void Apply(UserCreated @event)
         {
@@ -99,13 +104,29 @@ namespace Growthstories.Domain.Entities
 
             this.Schedules = new Dictionary<Guid, ScheduleState>();
             this.Gardens = new Dictionary<Guid, GardenState>();
-
         }
 
+        public void Apply(Registered @event)
+        {
+            this.Username = @event.Username;
+            this.IsRegistered = true;
+
+            // these events cannot contain the 
+            // username / password information
+        }
+
+        /*
         public bool IsRegistered()
         {
-            return Email != null && !Email.StartsWith(AuthUser.UnregEmailPrefix);
+            // the UserState is not being updated with email addresses
+            // as we don't wish to expose them via the API to followers,
+            // therefore we use just the username for this 
+            // -- JOJ 4.1.2013
+
+            return Username != null && !Username.Equals(AuthUser.UnregUsername);
+            //return Email != null && !Email.StartsWith(AuthUser.UnregEmailPrefix);
         }
+        */
 
         protected Guid _GardenId;
         public Guid GardenId
@@ -119,30 +140,22 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(BecameFollower @event)
         {
-
             this.Friends.Add(@event.Target);
-
         }
 
         public void Apply(UsernameSet @event)
         {
-
             this.Username = @event.Username;
-
         }
 
         public void Apply(PasswordSet @event)
         {
-
             this.Password = @event.Password;
-
         }
 
         public void Apply(EmailSet @event)
-        {
-
+        {    
             this.Email = @event.Email;
-
         }
 
         public void Apply(CollaborationRequested @event)
@@ -220,10 +233,8 @@ namespace Growthstories.Domain.Entities
                 scheduleState = new ScheduleState(@event);
             }
 
-
             this.Schedules[scheduleState.Id] = scheduleState;
         }
-
 
 
         public override void Merge(IMessage incoming, IMessage outgoing, out IMessage incomingNew, out IMessage outgoingNew)

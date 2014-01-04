@@ -79,7 +79,7 @@ namespace Growthstories.Sync
         string Email { get; }
         Guid GardenId { get; }
         bool IsCollaborator { get; }
-        bool IsRegistered();
+        bool IsRegistered { get; }
     }
 
 
@@ -133,6 +133,7 @@ namespace Growthstories.Sync
 
     }
 
+
     public interface ISyncPullResponse : ISyncResponse
     {
         //IEnumerable<IGrouping<Guid, IEvent>> Events { get; }
@@ -140,9 +141,8 @@ namespace Growthstories.Sync
         ICollection<IStreamSegment> Streams { get; }
 
         //long SyncStamp { get; }
-
-
     }
+
 
     public sealed class SyncHead
     {
@@ -186,6 +186,7 @@ namespace Growthstories.Sync
 
     }
 
+
     public interface ISyncPushResponse : ISyncResponse
     {
 
@@ -200,10 +201,7 @@ namespace Growthstories.Sync
          */
         Guid LastExecuted { get; }
 
-
-
         //public Map<String, Long> guids = new HashMap<String, Long>();
-
     }
 
 
@@ -260,6 +258,23 @@ namespace Growthstories.Sync
 
     //}
 
+   
+    public enum RegisterStatus
+    {
+        OK,
+        USERNAME_EXISTS,
+        EMAIL_EXISTS
+    }
+
+
+    public class APIRegisterResponse
+    {
+        [JsonProperty(PropertyName = "registerStatus", Required = Required.Always)]
+        public RegisterStatus RegisterStatus {get; set;}
+
+        [JsonIgnore]
+        public HttpStatusCode HttpStatus;
+    }
 
 
     public class RemoteUser

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Growthstories.Domain.Entities
 {
@@ -17,41 +18,49 @@ namespace Growthstories.Domain.Entities
     public sealed class AuthUser : IAuthUser
     {
 
+        public const string UnregUsername = "UnregUser";
         public const string UnregEmailPrefix = "GSUnregUserEmail_";
 
         public string Username { get; set; }
 
-
-        public string Password { get; set; }
+        private string _Password;
+        public string Password 
+        { 
+            get 
+            {
+                return _Password;
+            }
+            set
+            {
+                if (value == null || value.Length == 0) 
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                    }
+                }
+                _Password = value;
+            }
+        }
 
         public string Email { get; set; }
 
-
         public Guid GardenId { get; set; }
-
 
         public string AccessToken { get; set; }
 
-
         public int ExpiresIn { get; set; }
-
 
         public string RefreshToken { get; set; }
 
-
         public Guid Id { get; set; }
-
 
         public int Version { get; set; }
 
         public bool IsCollaborator { get; set; }
 
+        public bool IsRegistered { get; set; }
 
-
-        public bool IsRegistered()
-        {
-            return Email != null && !Email.StartsWith(AuthUser.UnregEmailPrefix);
-        }
     }
 
 
@@ -92,17 +101,16 @@ namespace Growthstories.Domain.Entities
             : this()
         {
             this.Apply(e);
-
         }
 
 
         public override void Apply(GSAppCreated @event)
         {
-
             if (@event.AggregateId != GSAppId)
                 throw new ArgumentException(string.Format("There can only be a single GSApp aggregate per installation and it has to be assigned id {0}", GSAppId));
             base.Apply(@event);
         }
+
 
         public void Apply(SyncStreamCreated @event)
         {
@@ -110,6 +118,7 @@ namespace Growthstories.Domain.Entities
             //    throw DomainError.Named("duplicate_syncstreams", "Stream already exists");
             SyncStreamDict[@event.StreamId] = new PullStream(@event.StreamId, @event.SyncStreamType, @event.AncestorId);
         }
+
 
         public void Apply(SyncStreamDeleted @event)
         {
@@ -181,15 +190,27 @@ namespace Growthstories.Domain.Entities
             }
         }
 
+
         public void Apply(Pushed @event)
         {
             SyncHead = @event.SyncHead;
         }
 
 
+        public void Apply(InternalRegistered @event)
+        {
+            this._User.Email = @event.Email;
+            this._User.Password = @event.Password;
+            this._User.IsRegistered = true;
+            this._User.Username = @event.Username;
+        }
+
 
         public void Apply(AppUserAssigned @event)
         {
+            // quite confusing that sometimes this._User points to
+            // a UserState and sometimes to an AuthUser
+            // -- JOJ 4.1.2014
             this._User = new AuthUser()
             {
                 Id = @event.UserId,
@@ -218,30 +239,22 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(UsernameSet @event)
         {
-
             this._User.Username = @event.Username;
-
         }
 
         public void Apply(PasswordSet @event)
         {
-
             this._User.Password = @event.Password;
-
         }
 
         public void Apply(EmailSet @event)
         {
-
             this._User.Email = @event.Email;
-
         }
 
         public void Apply(GardenAdded @event)
         {
-
             this._User.GardenId = @event.GardenId;
-
         }
 
 

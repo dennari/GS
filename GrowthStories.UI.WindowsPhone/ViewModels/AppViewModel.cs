@@ -31,7 +31,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-
         private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
@@ -86,7 +85,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
             Resolver.Register(() => new ClientAddEditPlantViewModel(this), typeof(IAddEditPlantViewModel));
-            //Resolver.Re
+
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
             {
                 try
@@ -135,10 +134,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 };
             }
             Initialize();
-
-
-
         }
+
 
         public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
@@ -158,7 +155,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return base.PlantActionViewModelFactory(type, state);
         }
 
-
         protected override void ClearDB()
         {
             //base.ClearDB();
@@ -176,8 +172,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
             var pipelineHook = Kernel.Get<OptimisticPipelineHook>();
             pipelineHook.Dispose();
-
-
         }
 
 

@@ -10,8 +10,39 @@ namespace Growthstories.Domain.Messaging
 {
 
 
-
     #region User
+
+    [DTOObject(DTOType.register)]  
+    public sealed class Registered : EventBase, IAggregateEvent<UserState>
+    {
+
+        [JsonProperty]
+        public string Username { get; private set; }
+        [JsonProperty]
+        public string Password { get; private set; }
+        [JsonProperty]
+        public string Email { get; private set; }
+
+        private Registered() { }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            // no need for translation to work in this direction
+            throw new NotImplementedException();
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IRegisterDTO)Dto;
+            base.FromDTO(D);
+            this.Username = D.Username;
+            this.Password = D.Password;
+            this.Email = D.Email;
+        }
+
+        public UserState AggregateState { get; set; }
+
+    }
 
     [DTOObject(DTOType.createUser)]
     public sealed class UserCreated : EventBase, ICreateMessage, IAggregateEvent<UserState>

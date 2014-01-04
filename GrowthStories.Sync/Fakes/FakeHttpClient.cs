@@ -16,15 +16,15 @@ namespace Growthstories.Sync
         private readonly IResponseFactory ResponseFactory;
 
 
-        public FakeHttpClient(
-            IResponseFactory responseFactory
-            )
+        public FakeHttpClient(IResponseFactory responseFactory)
         {
             this.ResponseFactory = responseFactory;
         }
 
-
-
+        public Task<APIRegisterResponse> RegisterAsync(string username, string email, string password)
+        {
+            throw new NotImplementedException();
+        }
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
@@ -35,7 +35,6 @@ namespace Growthstories.Sync
         public Task<string> SendAndGetBodyAsync(HttpRequestMessage request)
         {
             throw new NotImplementedException();
-
         }
 
         public Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)

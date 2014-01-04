@@ -162,7 +162,7 @@ namespace Growthstories.UI.ViewModel
                     return;
                 }
 
-                if (App.User.IsRegistered()) {
+                if (App.User.IsRegistered) {
                     this.ShareCommand.Execute(null);
                 
                 } else {

@@ -83,16 +83,22 @@ namespace Growthstories.Sync
             return r;
         }
 
-        public ISyncPushResponse CreatePushResponse(ISyncPushRequest req, Tuple<HttpResponseMessage, string> resp)
-        {
 
-            if (!resp.Item1.IsSuccessStatusCode)
+        public ISyncPushResponse CreatePushResponse(ISyncPushRequest req, Tuple<HttpResponseMessage, string> resp)
+        {   
+            try
+            {
+                var ret = jFactory.Deserialize<HttpPushResponse>(resp.Item2);
+
+                return ret;
+            }
+            catch
+            {
                 return new HttpPushResponse()
                 {
                     StatusCode = GSStatusCode.FAIL
                 };
-
-            return jFactory.Deserialize<HttpPushResponse>(resp.Item2);
+            }
         }
 
 
@@ -123,6 +129,24 @@ namespace Growthstories.Sync
             }
 
             return r;
+        }
+
+
+        public APIRegisterResponse CreateRegisterResponse(Tuple<HttpResponseMessage, string> resp)
+        {
+            APIRegisterResponse ret;
+            
+            if (resp.Item1.IsSuccessStatusCode)
+            {
+                ret = jFactory.Deserialize<APIRegisterResponse>(resp.Item2);
+
+            } else {
+                ret = new APIRegisterResponse();
+                
+            }
+            ret.HttpStatus = resp.Item1.StatusCode;
+
+            return ret;
         }
 
 

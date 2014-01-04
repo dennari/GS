@@ -31,7 +31,11 @@ namespace Growthstories.Sync
         IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp);
         RemoteUser CreateUserInfoResponse(Tuple<HttpResponseMessage, string> resp);
         //IPhotoUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp);
+
+        APIRegisterResponse CreateRegisterResponse(Tuple<HttpResponseMessage, string> resp);
+
     }
+
 
     public interface IPhotoHandler
     {

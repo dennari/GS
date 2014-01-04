@@ -48,8 +48,10 @@ namespace Growthstories.UI.ViewModel
         alreadyRegistered,
         emailInUse,
         success,
-        tryagain,
-        connectionerror
+        tryagain,         
+        connectionerror,  
+        usernameInUse,    
+        almostSuccess     // registered but sync failed after that
     }
     
     public enum SignInResponse
@@ -60,6 +62,7 @@ namespace Growthstories.UI.ViewModel
         success,
         connectionerror
     }
+
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         bool IsInDesignMode { get; }
@@ -134,7 +137,6 @@ namespace Growthstories.UI.ViewModel
         IPlantViewModel SelectedPlant { get; }
         IRoutableViewModel InnerViewModel { get; }
         //Type NavigateInterface { get; }
-
     }
 
 

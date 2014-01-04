@@ -13,6 +13,7 @@ using Growthstories.Domain.Messaging;
 using System.Threading.Tasks;
 using Growthstories.UI.Services;
 using CommonDomain;
+using System.Diagnostics;
 
 using System.Reactive;
 using System.Reactive.Linq;
@@ -23,6 +24,9 @@ using System.Reactive.Disposables;
 using EventStore.Persistence;
 using System.Net.NetworkInformation;
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -169,19 +173,12 @@ namespace Growthstories.UI.ViewModel
 
         public AppViewModel()
         {
-
-
-
-
             var resolver = RxApp.MutableResolver;
 
             this.Resolver = resolver;
             
             resolver.RegisterConstant(this, typeof(IScreen));
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
-
-
-            //this.Router.NavigationStack.R
 
             this.Router.CurrentViewModel
                 .Select(x =>
@@ -370,7 +367,6 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-
                 return _User;
             }
             protected set
@@ -456,10 +452,9 @@ namespace Growthstories.UI.ViewModel
             return CurrentHandleJob;
         }
 
+
         public Task<IGSAggregate> HandleCommand(MultiCommand x)
         {
-
-
             var prevJob = CurrentHandleJob;
 
             CurrentHandleJob = Task.Run(async () =>
@@ -512,7 +507,6 @@ namespace Growthstories.UI.ViewModel
             return CurrentGetByIdJob;
         }
 
-        //public Task<IGSAggregate>
 
         protected Task<IAuthUser> InitializeJob;
         public Task<IAuthUser> Initialize()
@@ -530,7 +524,6 @@ namespace Growthstories.UI.ViewModel
 
                 var uiPersistence = Kernel.Get<IUIPersistence>();
                 uiPersistence.Initialize();
-
 
                 try
                 {
@@ -581,17 +574,141 @@ namespace Growthstories.UI.ViewModel
 
                 this.Model = app;
                 this.User = user;
-                this.IsRegistered = false;
-                if (user.IsRegistered())         
-                    this.IsRegistered = true; 
+
+                // did not now how to execute code
+                // in the RxApp.MainThreadScheduler
+                // without this kludge 
+                //   -- JOJ 4.1.2014
+                var kludge = new ReactiveCommand();
+                kludge
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                    {
+                        this.IsRegistered = false;
+                        if (user.IsRegistered)
+                        {
+                            this.IsRegistered = true;
+                        }
+                    });
+                kludge.Execute(null);
+                
+                this.ListenTo<InternalRegistered>(app.State.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => 
+                        {
+                            this.IsRegistered = true;
+                        });
+
+                this.ListenTo<Registered>(user.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => this.IsRegistered = true);
+
                 return user;
-                //return app;
             });
             return InitializeJob;
         }
 
 
+        protected IObservable<T> ListenTo<T>(Guid id = default(Guid)) where T : IEvent
+        {
+            var allEvents = this.Bus.Listen<IEvent>().OfType<T>();
+            if (id == default(Guid))
+                return allEvents;
+            else
+                return allEvents.Where(x => x.AggregateId == id);
+        }
 
+        
+        public async Task<RegisterResponse> Register(string username, string email, string password)
+        {
+            await EnsureUserInitialized();
+
+            if (IsRegistered)
+            {
+                return RegisterResponse.alreadyRegistered;
+            }
+
+            if (User.AccessToken == null)
+            {
+                try
+                {
+                    await Context.AuthorizeUser();
+                }
+                catch
+                {
+                    return RegisterResponse.connectionerror;
+                }
+            }
+
+            // make sure stuff is synchronized before registering, so
+            // that there will be no sync conflict after the registration
+            var asr = await this.SyncAll();
+            if (asr.Item1 != AllSyncResult.AllSynced)
+            {
+                if (Debugger.IsAttached) { Debugger.Break(); }
+                return RegisterResponse.connectionerror;
+            }
+
+            APIRegisterResponse resp = await Transporter.RegisterAsync(username, email, password);
+
+            if (resp.HttpStatus != System.Net.HttpStatusCode.OK)
+            {
+                // could of course be also internal server error
+                // etc but for users we present these as connection errors
+                return RegisterResponse.connectionerror;
+            }
+
+            if (resp.RegisterStatus == RegisterStatus.EMAIL_EXISTS)
+            {
+                return RegisterResponse.emailInUse;
+            }
+
+            if (resp.RegisterStatus == RegisterStatus.USERNAME_EXISTS)
+            {
+                return RegisterResponse.usernameInUse;
+            }
+
+            InternalRegisterAppUser cmd = new InternalRegisterAppUser(User.Id, username, password, email);
+            await this.HandleCommand(cmd);
+ 
+            // synchronizing is not really required here, 
+            // but it is probably nice to still to do it
+            /*
+            asr = await this.SyncAll();
+            if (asr.Item1 != AllSyncResult.AllSynced)
+            {
+                if (Debugger.IsAttached) { Debugger.Break(); }
+            }
+            */
+
+            return RegisterResponse.success;    
+        }
+
+
+
+        private async Task EnsureUserInitialized()
+        {
+            IAuthUser user = this.User;
+
+            if (user == null)
+            {
+                var u = this.Context.GetNewUserCommands();
+
+                foreach (var cmd in u.Item2)
+                {
+                    await this.HandleCommand(cmd);
+                }
+                user = u.Item1;
+            }
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Can't create new user");
+            }
+        }
+
+
+        /*
         public async Task<RegisterResponse> Register(string username, string email, string password)
         {
 
@@ -670,6 +787,7 @@ namespace Growthstories.UI.ViewModel
 
             return RegisterResponse.success;
         }
+        */
 
 
         public async Task<GSApp> SignOut(bool createUnregUser = true)
@@ -735,10 +853,10 @@ namespace Growthstories.UI.ViewModel
                 return SignInResponse.connectionerror;
             }
 
-
             var app = await SignOut(false);
 
             Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
+            Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
             Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
             this.User = app.State.User;
@@ -754,6 +872,7 @@ namespace Growthstories.UI.ViewModel
 
             return SignInResponse.success;
         }
+
 
         protected virtual void ClearDB()
         {
@@ -772,6 +891,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         public async Task<ISyncInstance> Synchronize()
         {
             //if (SyncService == null)
@@ -780,12 +900,10 @@ namespace Growthstories.UI.ViewModel
             // obtain access token if required
             if (User.AccessToken == null)
             {
-                try
-                {
-                    var authResponse = await Context.AuthorizeUser();
-                }
-                catch
-                {
+                try {
+                    var authResponse = await Context.AuthorizeUser();    
+                
+                } catch {
                     return null;
                 }
             }
@@ -806,16 +924,14 @@ namespace Growthstories.UI.ViewModel
                 return null;
             }
 
-
             return await _Synchronize(s);
         }
+
 
         public async Task<ISyncInstance> Push()
         {
             //if (SyncService == null)
             //    SyncService = Kernel.Get<ISynchronizerService>();
-
-
 
             if (User.AccessToken == null)
             {
@@ -828,7 +944,6 @@ namespace Growthstories.UI.ViewModel
                 {
                     return null;
                 }
-
             }
 
             var s = new SyncInstance(
@@ -840,8 +955,6 @@ namespace Growthstories.UI.ViewModel
 
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
                 return null;
-
-
 
             return await _Synchronize(s);
         }
@@ -907,12 +1020,9 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
         IObservable<IGardenViewModel> _Gardens;
         public IObservable<IGardenViewModel> FutureGardens(IAuthUser user = null)
         {
-
 
             if (_Gardens == null)
             {
@@ -921,8 +1031,6 @@ namespace Growthstories.UI.ViewModel
 
                 var garden = Bus.Listen<IEvent>()
                     .OfType<GardenAdded>();
-
-
 
                 _Gardens = Observable.CombineLatest(U, garden, (u, g) => Tuple.Create(u, g))
                     .Where(x =>
@@ -936,14 +1044,11 @@ namespace Growthstories.UI.ViewModel
             if (user != null)
                 return _Gardens.Where(x => x.User.Id == user.Id);
             return _Gardens;
-
         }
 
 
         public IObservable<IGardenViewModel> CurrentGardens(IAuthUser user = null)
         {
-
-
             //Func<Guid?, IEnumerable<UserState>> f = UIPersistence.GetUsers;
 
             //var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
@@ -958,7 +1063,6 @@ namespace Growthstories.UI.ViewModel
                 .Select(x => new GardenViewModel(x, this));
 
             return current;
-
         }
 
 
