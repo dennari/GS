@@ -12,6 +12,9 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Windows.Data;
 using EventStore.Logging;
+using System.Windows.Media.Animation;
+using System.Windows.Media;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -19,6 +22,7 @@ namespace Growthstories.UI.WindowsPhone
     {
 
     }
+
 
     public partial class GardenView : GardenViewBase
     {
@@ -39,6 +43,7 @@ namespace Growthstories.UI.WindowsPhone
 
             Logger.Info("initialized garden view");
         }
+
 
         
         protected override void OnViewModelChanged(IGardenViewModel vm)
@@ -74,9 +79,69 @@ namespace Growthstories.UI.WindowsPhone
             this.ViewModel.SelectedItemsChanged.Execute(Tuple.Create(e.AddedItems, e.RemovedItems));
         }
 
+
+
+        private void Img_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            var img = sender as System.Windows.Controls.Image;
+
+            DoubleAnimation wa = new DoubleAnimation();
+            wa.Duration = new Duration(TimeSpan.FromSeconds(0.6));
+            wa.From = 0;
+            wa.To = 1.0;
+            
+            Storyboard sb = new Storyboard();
+            sb.Children.Add(wa);
+            
+            var sp = FindParent<StackPanel>(img);
+            
+            if (sp != null)
+            {
+                Storyboard.SetTarget(wa, sp);
+                Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
+            }
+
+            if (Math.Abs(sp.Opacity - 1.0) > 0.001)
+            {
+                sb.Begin();
+            }
+            
+        }
+
+
     
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {      
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);    
+            
+            if (parentObject == null) return null;
+            
+            T parent = parentObject as T;
+            if (parent != null)
+                return parent;
+            else
+                return FindParent<T>(parentObject);
+        }
 
 
+
+        public static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                T ch = child as T;
+                if (ch != null) {
+                    return ch;
+                } else {
+                    T result = FindVisualChild<T>(child);
+                    if (result != null)
+                        return result;
+                }
+            }
+            return null;
+        }
 
     }
 }

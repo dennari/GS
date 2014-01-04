@@ -19,11 +19,10 @@
     mc:Ignorable="d">
     <UserControl.Resources>
 
-        
-        
+                
         <DataTemplate x:Key="C4fTile">
      
-                <StackPanel>
+                <StackPanel x:Name="panel" Opacity="0.0">
 
                     <toolkit:ContextMenuService.ContextMenu>
                             <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" 
@@ -54,7 +53,8 @@
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
                         
-                    <c4f:Tile 
+                    <c4f:Tile
+                        Name="thetile"
                         toolkit:TiltEffect.IsTiltEnabled="True"
                         HorizontalAlignment="Left"
                         Margin="0, 0"
@@ -96,7 +96,9 @@
                             Width="396" Height="396"
 	        		        Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
                             Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}"
-                            Stretch="UniformToFill">
+                            Stretch="UniformToFill"
+                            ImageOpened="Img_ImageOpened"
+                            >
                             <Image.RenderTransform>
                                 <CompositeTransform/>
                             </Image.RenderTransform>
@@ -106,6 +108,7 @@
                             Source="/Assets/Icons/NoImage.png" 
                             Stretch="UniformToFill"
                             Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}"
+                            ImageOpened="Img_ImageOpened"
                             >
                                 <Image.RenderTransform>
                                     <CompositeTransform/>
