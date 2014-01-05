@@ -80,7 +80,7 @@
             </local:GSLabel>
             -->
 
-            <!--
+            <!--            
             <Button 
                 Margin="0,0,0,20"
                 Content="moro"
@@ -115,14 +115,15 @@
                 <c4f:Tile
                         toolkit:TiltEffect.SuppressTilt="True"
                         toolkit:TiltEffect.IsTiltEnabled="False"
-                        Name="thetile"
+                            
+                    Name="thetile"
                         Margin="0,0,0,0"
                         c4fBinding:FrameworkElementBinding.ClipToBounds="True"
                                 >
 
                     <Grid>
                         <Canvas>
-
+                            
                             <Image
                             Width="186"    
                             Source="/Assets/Icons/NoImage.png" 
@@ -133,6 +134,7 @@
                                     <CompositeTransform/>
                                 </Image.RenderTransform>
                             </Image>
+                            
                         </Canvas>
                         <c4f:TileNotification
                         HorizontalAlignment="Left"

@@ -83,30 +83,60 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
+            ImgOpened(sender, false);
+        }
+
+        private void Img_PlaceHolderImageOpened(object sender, RoutedEventArgs e)
+        {
+            ImgOpened(sender, true);
+        }
+
+
+        private void ImgOpened(object sender, bool isPlaceholder)
+        {
+
             var img = sender as System.Windows.Controls.Image;
 
             DoubleAnimation wa = new DoubleAnimation();
             wa.Duration = new Duration(TimeSpan.FromSeconds(0.8));
+            wa.BeginTime = TimeSpan.FromSeconds(0.5);
             wa.From = 0;
             wa.To = 1.0;
             wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
 
             Storyboard sb = new Storyboard();
             sb.Children.Add(wa);
-            
+
             var sp = GSViewUtils.FindParent<StackPanel>(img);
-            
+
             if (sp != null)
             {
                 Storyboard.SetTarget(wa, sp);
                 Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
             }
 
-            if (Math.Abs(sp.Opacity - 1.0) > 0.001)
+            var c4fTile = GSViewUtils.FindParent<Button>(img);
+            var button = GSViewUtils.FindParent<Button>(c4fTile);
+            var vm = button.CommandParameter as PlantViewModel;
+
+            if (vm.Photo != null && isPlaceholder)
             {
+                return;
+            }
+
+            if (vm.Photo == null && !isPlaceholder)
+            {
+                return;
+            }
+
+            // this event is somehow triggered many times, 
+            // so do this only once
+            // ( double comparison against zero should be ok )
+            if (sp.Opacity == 0)
+            {
+                
                 sb.Begin();
             }
-            
         }
 
 
