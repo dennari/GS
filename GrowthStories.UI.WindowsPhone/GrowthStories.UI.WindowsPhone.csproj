@@ -171,6 +171,7 @@
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
+    <Compile Include="Views\GSTileUtils.cs" />
     <Compile Include="Views\SignInRegisterView.xaml.cs">
       <DependentUpon>SignInRegisterView.xaml</DependentUpon>
     </Compile>

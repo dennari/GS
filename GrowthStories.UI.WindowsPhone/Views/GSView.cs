@@ -21,6 +21,16 @@ namespace Growthstories.UI.WindowsPhone
 
     public class GSView<T> : UserControl, IReportViewModelChange, IViewFor<T> where T : class
     {
+
+
+        public static readonly DependencyProperty ViewModelProperty =
+           DependencyProperty.Register(
+            "ViewModel", 
+            typeof(IRoutableViewModel), 
+            typeof(UserControl), 
+            new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+
+
         public GSView()
         {
             this.SetBinding(ViewModelProperty, new Binding());
@@ -39,26 +49,18 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+
         public T ViewModel
         {
             get { return GetValue(ViewModelProperty) as T; }
             set
             {
-                if (value != null)
-                {
-                    var oldValue = this.ViewModel;
-                    SetValue(ViewModelProperty, value);
-                    if (oldValue == null || !oldValue.Equals(value))
-                    {
-                        OnViewModelChanged(value);
-                    }
-                }
+                SetValue(ViewModelProperty, value);
             }
+
         }
 
-        public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(UserControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
-
+        
 
         object IViewFor.ViewModel
         {
@@ -74,6 +76,7 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+
         public void ViewModelChangeReport(object vm)
         {
             //if (vm == null)
@@ -84,10 +87,9 @@ namespace Growthstories.UI.WindowsPhone
             //if (vm != this.ViewModel)
             //    this.ViewModel = v;
 
-            this.ViewModel = vm as T;
-
-            //this.OnViewModelChanged(vm as T);
+            this.OnViewModelChanged(vm as T);
         }
+
 
         protected virtual void OnViewModelChanged(T vm)
         {
@@ -128,9 +130,7 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }
         }
-
     }
-
 
 
 

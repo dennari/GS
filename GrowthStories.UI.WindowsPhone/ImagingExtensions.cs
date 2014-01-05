@@ -17,8 +17,9 @@ namespace Growthstories.UI.WindowsPhone
 {
     public static class ImagingExtensions
     {
+
         public const string URI_SEPARATOR = "/";
-        public const string IMG_FOLDER = @"LocalImages";
+        public const string IMG_FOLDER = WP8PhotoHandler.IMG_FOLDER;
         public const string URI_SCHEME = @"ms-appdata://"; // Local folder URI scheme (WP8)
 
         public static IBuffer ToBuffer(this Stream stream)
@@ -81,7 +82,8 @@ namespace Growthstories.UI.WindowsPhone
                 //var filenameBase = "gsphoto_" + DateTime.UtcNow.Ticks.ToString();
                 //savedPath = ,IMG_FOLDER + @"\" + filenameBase + @".jpg";
                 photo.FileName = "gsphoto_" + DateTime.UtcNow.Ticks.ToString() + ".jpg";
-                photo.LocalUri = URI_SCHEME + URI_SEPARATOR + IMG_FOLDER + URI_SEPARATOR + photo.FileName;
+                photo.LocalUri = WP8PhotoHandler.GetImagePath(photo.FileName);
+                //photo.LocalUri = URI_SCHEME + URI_SEPARATOR + IMG_FOLDER + URI_SEPARATOR + photo.FileName;
 
                 uint maxBytes = (uint)(1.5 * 1024 * 1024); // 0.5 megabytes
                 int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
@@ -103,7 +105,9 @@ namespace Growthstories.UI.WindowsPhone
                 //photo.Size = s;
 
                 //var local = ;
-                var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                //var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                var imgFolder = await WP8PhotoHandler.GetImageFolder();
+
                 var imgFile = await imgFolder.CreateFileAsync(photo.FileName, CreationCollisionOption.ReplaceExisting);
                 //file.
                 var img = scaled.Item1;
@@ -121,9 +125,9 @@ namespace Growthstories.UI.WindowsPhone
                 photo.LocalFullPath = imgFile.Path;
 
             }
-
             return photo;
         }
+
 
         public static async Task<Tuple<Stream, Size>> ScaleAsync(this Stream image, int maxPixels, Size maxSize, uint maxBytes)
         {

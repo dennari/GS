@@ -49,17 +49,13 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
 
-            Logger.Info("gardenview onViewModelChanged");
-
-
             foreach (PlantViewModel pvm in ViewModel.Plants)
             {
 
-                Logger.Info("subscribing for plant " + pvm.Name);
+                //Logger.Info("subscribing for plant " + pvm.Name);
 
-
-                pvm.DeleteCommand
-                    .Subscribe(_ => PlantView.DeleteTile(pvm));
+                //pvm.DeleteCommand
+                //    .Subscribe(_ => PlantView.DeleteTile(pvm));
                 //pvm.DeleteCommand.Execute(null);
             }    
         }
@@ -68,7 +64,7 @@ namespace Growthstories.UI.WindowsPhone
         public void handleDelete(PlantViewModel pvm)
         {
 
-            PlantView.DeleteTile(pvm);
+            //PlantView.DeleteTile(pvm);
 
             //MessageBoxResult res = MessageBox.Show("Are you sure you wish to delete the plant " + pvm.Name + "?");
         }
@@ -147,7 +143,10 @@ namespace Growthstories.UI.WindowsPhone
             //   -- JOJ 5.12.2014
 
             var btn = sender as Button;
-            ViewModel.ShowDetailsCommand.Execute(btn.CommandParameter);
+            if (ViewModel != null)
+            {
+                ViewModel.ShowDetailsCommand.Execute(btn.CommandParameter);
+            }
         }
 
     

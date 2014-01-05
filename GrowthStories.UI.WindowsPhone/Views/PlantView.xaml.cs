@@ -23,10 +23,10 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
+
     public partial class PlantView : PlantViewBase
     {
-
-
+        
         public PlantView()
         {
             InitializeComponent();
@@ -103,7 +103,7 @@ namespace Growthstories.UI.WindowsPhone
             DeleteCommandSubscription.Dispose();
             DeleteCommandSubscription = vm.DeleteCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                DeleteTile(vm);
+                DeleteTile();
             });
 
             //vm.ResetAnimationsCommand.Subscribe(_ =>
@@ -111,17 +111,6 @@ namespace Growthstories.UI.WindowsPhone
             //    AnimatedSources = new HashSet<object>();
             //});
 
-        }
-
-
-        public static void DeleteTile(IPlantViewModel pvm)
-        {
-            var t = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(pvm.UrlPathSegment));
-            if (t != null)
-            {
-                t.Delete();
-                pvm.HasTile = false; 
-            }
         }
 
         private void Share(IPlantViewModel vm)
@@ -139,36 +128,13 @@ namespace Growthstories.UI.WindowsPhone
 
         private void DeleteTile()
         {
-            if (Tile != null)
-                Tile.Delete();
-            ViewModel.HasTile = false;
+            GSTileUtils.DeleteTile(ViewModel);
         }
 
 
         private void CreateOrUpdateTile()
         {
-            FlipTileData TileData = new FlipTileData()
-            {
-                Title = ViewModel.Name.ToUpper(),
-                BackTitle = ViewModel.Name.ToUpper(),
-                //BackContent = "GROWTH STORIES",
-                //WideBackContent = "GROWTH STORIES",
-                //Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
-                BackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
-                BackBackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
-                
-                //SmallBackgroundImage = [small Tile size URI],
-                //BackgroundImage = [front of medium Tile size URI],
-                //BackBackgroundImage = [back of medium Tile size URI],
-                //WideBackgroundImage = [front of wide Tile size URI],
-                //WideBackBackgroundImage = [back of wide Tile size URI],
-            };
-
-            if (Tile == null)
-                ShellTile.Create(new Uri(ViewModel.UrlPath, UriKind.Relative), TileData, false);
-            else
-                Tile.Update(TileData);
-            ViewModel.HasTile = true;
+            GSTileUtils.CreateOrUpdateTile(ViewModel);
         }
 
 
