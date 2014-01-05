@@ -37,6 +37,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
 
+        public IReactiveCommand ResetAnimationsCommand { get; protected set; }
+
 
         //public IReactiveCommand FlickCommand { get; protected set; }
         //public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
@@ -137,7 +139,7 @@ namespace Growthstories.UI.ViewModel
             this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
-
+            ResetAnimationsCommand = new ReactiveCommand();
             var afterShareSyncCommand = new ReactiveCommand();
             var syncResults = afterShareSyncCommand.RegisterAsyncTask(async (_) => await App.SyncAll());
             syncResults.Subscribe(x =>

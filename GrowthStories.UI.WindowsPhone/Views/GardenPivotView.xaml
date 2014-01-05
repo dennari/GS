@@ -29,6 +29,9 @@
 
 
                 <phone:Pivot 
+                
+                Loaded="Plants_Loaded"    
+                LoadedPivotItem="Plants_LoadedPivotItem"
 			    x:Name="Plants" 
 			    ItemsSource="{Binding Plants}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"

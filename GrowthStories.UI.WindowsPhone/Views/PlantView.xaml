@@ -142,7 +142,7 @@
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                             <Button Height="0"
-                                Opacity="0"
+                                Opacity="0.0"
                                 toolkit:TiltEffect.IsTiltEnabled="True"
                                 BorderBrush="WhiteSmoke"
                                 BorderThickness="3"    
@@ -167,7 +167,9 @@
                                         VerticalAlignment="Stretch"
                                         Stretch="UniformToFill" 
                                         Source="{Binding TimelinePhotoSource}"
-                                        ImageOpened="ImageBrush_ImageOpened" />
+                                        ImageOpened="ImageBrush_ImageOpened"
+                                        Loaded="Image_Loaded"
+                                        />
                                 
                                 </Button>
                                <!--<Grid>

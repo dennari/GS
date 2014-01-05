@@ -35,6 +35,22 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private void Plants_LoadedPivotItem(object sender, PivotItemEventArgs e)
+        {
+            //var pvm = e.Item.Content as IPlantViewModel;
+            //pvm.ResetAnimationsCommand.Execute(null);
+        }
+
+
+        private void Plants_Loaded(object sender, RoutedEventArgs e)
+        {
+            //foreach (var pvm in ViewModel.Plants)
+            //{
+            //    pvm.ResetAnimationsCommand.Execute(null);
+            //}
+        }
+
+
         //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         //{
         //    var plantActionView = (PlantActionView)sender;

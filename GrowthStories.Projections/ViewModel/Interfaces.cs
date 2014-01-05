@@ -202,6 +202,9 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand DeleteCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
+
+        IReactiveCommand ResetAnimationsCommand { get; }
+
         //IReactiveCommand ActionTapped { get; }
         //IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }

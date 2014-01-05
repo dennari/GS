@@ -105,6 +105,12 @@ namespace Growthstories.UI.WindowsPhone
             {
                 DeleteTile(vm);
             });
+
+            //vm.ResetAnimationsCommand.Subscribe(_ =>
+            //{
+            //    AnimatedSources = new HashSet<object>();
+            //});
+
         }
 
 
@@ -166,10 +172,25 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void ImageBrush_ImageOpened(object sender, RoutedEventArgs e)
-        {
+        private static HashSet<object> LoadedImages = new HashSet<object>();
+        private static HashSet<object> LoadedSources = new HashSet<object>();
+        private HashSet<object> AnimatedSources = new HashSet<object>();
 
+     
+        private void ImageBrush_ImageOpened(object sender, RoutedEventArgs e)
+        {            
             var img = sender as System.Windows.Controls.Image;
+
+            LoadedImages.Add(img);
+            LoadedSources.Add(img.Source);
+
+            FadeInImage(img);
+        }
+
+
+        private void FadeInImage(Image img)
+        {
+            AnimatedSources.Add(img.Source);
 
             var ha = new DoubleAnimation();
             ha.Duration = new Duration(TimeSpan.FromSeconds(0.7));
@@ -179,7 +200,7 @@ namespace Growthstories.UI.WindowsPhone
 
             var oa = new DoubleAnimation();
             oa.Duration = new Duration(TimeSpan.FromSeconds(0.7));
-            oa.From = 0;
+            oa.From = 0.0;
             oa.To = 1.0;
             oa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
 
@@ -198,13 +219,45 @@ namespace Growthstories.UI.WindowsPhone
                 Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
             }
 
-            if (Math.Abs(b.Opacity - 1.0) > 0.001)
-            {
+            //if (b.Opacity == 0.0)
+            //{
                 sb.Begin();
-            }
+            //}    
         }
 
 
+        private void Image_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+            var img = sender as System.Windows.Controls.Image;
+            var b = GSViewUtils.FindParent<Button>(img);
+
+            bool contains = LoadedImages.Contains(img);
+            bool opaCheck = b.Opacity == 0.0;
+            bool c2 = LoadedSources.Contains(img.Source);
+            
+            // the longlist selector is lazy loading content all the time
+            // and each the Image object is a new one 
+            // 
+            // we get the ImageOpened event only once during application running for each source
+            // we get the ImageLoaded event each time the long list selector is doing some lazy
+            //   loading
+            //
+            if (!LoadedImages.Contains(img) && LoadedSources.Contains(img.Source))
+            {
+                if (AnimatedSources.Contains(img.Source))
+                {
+                    if ((int)b.Height != 220)
+                    {
+                        b.Height = 220;
+                        b.Opacity = 1.0;
+                    }
+                
+                } else {
+                    FadeInImage(img);
+                }
+            }
+        }
 
 
         //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
