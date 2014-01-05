@@ -141,20 +141,35 @@
                         Template="{StaticResource TimelineActionTemplate}">         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
-                            <Button Height="220" 
+                            <Button Height="0"
+                                Opacity="0"
                                 toolkit:TiltEffect.IsTiltEnabled="True"
                                 BorderBrush="WhiteSmoke"
                                 BorderThickness="3"    
                                 HorizontalAlignment="Stretch" 
                                 Style="{StaticResource GSButtonStyle}" 
                                 Margin="12,6,12,12" 
-                                Command="{Binding PhotoTimelineTap}">
+                                Command="{Binding PhotoTimelineTap}"
+                                Padding="0,0,0,0"
+                                    >
+                                <!--
                                 <Button.Background>
-                                    <!--<ImageBrush Stretch="UniformToFill" ImageSource="{Binding Photo, Converter={StaticResource PhotoToImageSource}, ConverterParameter=450x220}"/>-->
-                                    <ImageBrush Stretch="UniformToFill" ImageSource="{Binding TimelinePhotoSource}"/>
+                                    <ImageBrush 
+                                        Stretch="UniformToFill" 
+                                        ImageSource="{Binding TimelinePhotoSource}"
+                                        ImageOpened="ImageBrush_ImageOpened"
+                                        />
 
                                 </Button.Background>
-                              </Button>
+                                -->
+                                    <Image                                         
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Stretch="UniformToFill" 
+                                        Source="{Binding TimelinePhotoSource}"
+                                        ImageOpened="ImageBrush_ImageOpened" />
+                                
+                                </Button>
                                <!--<Grid>
                                   <Image 
                                     Height="220" 

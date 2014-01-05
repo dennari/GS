@@ -86,14 +86,15 @@ namespace Growthstories.UI.WindowsPhone
             var img = sender as System.Windows.Controls.Image;
 
             DoubleAnimation wa = new DoubleAnimation();
-            wa.Duration = new Duration(TimeSpan.FromSeconds(0.6));
+            wa.Duration = new Duration(TimeSpan.FromSeconds(0.8));
             wa.From = 0;
             wa.To = 1.0;
-            
+            wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
             Storyboard sb = new Storyboard();
             sb.Children.Add(wa);
             
-            var sp = FindParent<StackPanel>(img);
+            var sp = GSViewUtils.FindParent<StackPanel>(img);
             
             if (sp != null)
             {
@@ -109,39 +110,17 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-    
-        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {      
-            DependencyObject parentObject = VisualTreeHelper.GetParent(child);    
-            
-            if (parentObject == null) return null;
-            
-            T parent = parentObject as T;
-            if (parent != null)
-                return parent;
-            else
-                return FindParent<T>(parentObject);
-        }
-
-
-
-        public static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        private void Button_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
+            // for some reason command triggering did not work for the button
+            // so we are doing it this way
+            //   -- JOJ 5.12.2014
 
-                T ch = child as T;
-                if (ch != null) {
-                    return ch;
-                } else {
-                    T result = FindVisualChild<T>(child);
-                    if (result != null)
-                        return result;
-                }
-            }
-            return null;
+            var btn = sender as Button;
+            ViewModel.ShowDetailsCommand.Execute(btn.CommandParameter);
         }
+
+    
 
     }
 }

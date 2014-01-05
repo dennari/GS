@@ -13,6 +13,8 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Reactive.Disposables;
 using Microsoft.Phone.Tasks;
+using System.Windows.Media.Animation;
+using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -163,12 +165,58 @@ namespace Growthstories.UI.WindowsPhone
             ViewModel.HasTile = true;
         }
 
+
+        private void ImageBrush_ImageOpened(object sender, RoutedEventArgs e)
+        {
+
+            var img = sender as System.Windows.Controls.Image;
+
+            var ha = new DoubleAnimation();
+            ha.Duration = new Duration(TimeSpan.FromSeconds(0.7));
+            ha.From = 0;
+            ha.To = 220;
+            ha.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
+            var oa = new DoubleAnimation();
+            oa.Duration = new Duration(TimeSpan.FromSeconds(0.7));
+            oa.From = 0;
+            oa.To = 1.0;
+            oa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
+            Storyboard sb = new Storyboard();
+            sb.Children.Add(oa);
+            sb.Children.Add(ha);
+
+            var b = GSViewUtils.FindParent<Button>(img);
+
+            if (b != null)
+            {
+                Storyboard.SetTarget(ha, b);
+                Storyboard.SetTargetProperty(ha, new PropertyPath("Height"));
+
+                Storyboard.SetTarget(oa, b);
+                Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
+            }
+
+            if (Math.Abs(b.Opacity - 1.0) > 0.001)
+            {
+                sb.Begin();
+            }
+        }
+
+
+
+
         //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         //{
         //    var plantActionView = (PlantActionView)sender;
         //    //var plant = ViewModel.SelectedItem;
         //    ViewModel.ActionTapped.Execute(plantActionView.ViewModel);
         //}
-
     }
+
+
+
+
+
 }

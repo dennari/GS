@@ -52,19 +52,46 @@
                                 -->
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
-                        
-                    <c4f:Tile
+
+                <Button
+                    HorizontalAlignment="Left"
+                    Margin="-12,-12,-12,-12"
+                    toolkit:TiltEffect.IsTiltEnabled="True"
+                    Padding="0,0,0,0"
+                    BorderThickness="3"
+                    BorderBrush="WhiteSmoke"
+                    Tap="Button_Tap"
+                    CommandParameter="{Binding}"    
+                    Width="210"
+                    Height="210"
+                    VerticalContentAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    >
+                    
+                    
+
+                    <!--
+                    Command="{Binding DataContext.ShowDetailsCommand, ElementName=PlantsSelector}"
+                    -->
+
+                    <!--
+                    <Border BorderThickness="3" IsHitTestVisible="False">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="WhiteSmoke"/>
+                        </Border.BorderBrush>
+                     -->
+                            <c4f:Tile
+                        toolkit:TiltEffect.SuppressTilt="True"
+                        toolkit:TiltEffect.IsTiltEnabled="False"
                         Name="thetile"
-                        toolkit:TiltEffect.IsTiltEnabled="True"
-                        HorizontalAlignment="Left"
-                        Margin="0, 0"
-                        Width="190"
-                        Height="190"
+                        Margin="0,0,0,0"
                         c4fBinding:FrameworkElementBinding.ClipToBounds="True"
-                        Command="{Binding DataContext.ShowDetailsCommand, ElementName=PlantsSelector}"
-                        CommandParameter="{Binding}"
-                        >
-                <Grid>
+                                >
+
+                        <!--
+                            -->
+
+                        <Grid>
                     <Grid.Triggers>
                         <EventTrigger RoutedEvent="Canvas.Loaded" >
                             <BeginStoryboard>
@@ -90,7 +117,8 @@
                             </BeginStoryboard>
                         </EventTrigger>
                     </Grid.Triggers>
-                    <Canvas>                    
+                    
+                    <Canvas>             
                         <Image
                             x:Name="Img"
                             Width="396" Height="396"
@@ -105,8 +133,9 @@
                         </Image>
                         
                             <Image
-                            Source="/Assets/Icons/NoImage.png" 
-                            Stretch="UniformToFill"
+                            Source="/Assets/Icons/NoImage.png"
+                                Width="182"
+                            Stretch="Fill"
                             Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}"
                             ImageOpened="Img_ImageOpened"
                             >
@@ -124,19 +153,22 @@
                                Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
                         />
 
+                        <!--
                         <Border BorderThickness="3" IsHitTestVisible="False">
                             <Border.BorderBrush>
                                 <SolidColorBrush Color="WhiteSmoke"/>
                             </Border.BorderBrush>
                         </Border>
-
+                        -->
                         </Grid>
+                </c4f:Tile>
+                        
+                    <!--</Border>-->
+                </Button>
 
-                    
-                    </c4f:Tile>
 
-                
-            <TextBlock 
+
+                <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
                Text="{Binding Name, Converter={StaticResource ToUpperOrLowerCase}}" HorizontalAlignment="Left"
                VerticalAlignment="Top" Margin="0,8,0,0"
@@ -306,7 +338,7 @@
             IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
             SelectionChanged="PlantsSelector_SelectionChanged"
 		    GridCellSize="198,272"
-            LayoutMode="Grid"
+            LayoutMode="Grid"            
             Margin="10,0,0,0"
             BorderBrush="{StaticResource GSAccentBrush}"
             Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"

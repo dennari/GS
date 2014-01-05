@@ -7,7 +7,11 @@
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     x:Class="Growthstories.UI.WindowsPhone.SettingsView"    
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+
+    >
 
     <local:SettingsViewBase.Resources>
         <!--<DataTemplate x:Key="SwitchTemplate">
@@ -74,6 +78,76 @@
                 </Grid>
 
             </local:GSLabel>
+            -->
+
+            <!--
+            <Button 
+                Margin="0,0,0,20"
+                Content="moro"
+                    BorderThickness="3"
+                    BorderBrush="WhiteSmoke"
+                    >
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border BorderThickness="3"
+                                BorderBrush="WhiteSmoke">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            
+            <Button
+                    HorizontalAlignment="Left"
+                    Margin="-12,-12,-12,-12"
+                    toolkit:TiltEffect.IsTiltEnabled="True"
+                    Padding="0,0,0,0"
+                    BorderThickness="3"
+                    BorderBrush="WhiteSmoke"
+                    Tap="Button_Tap"
+                    CommandParameter="{Binding}"    
+                    Width="214"
+                    Height="214"
+                    VerticalContentAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    >
+
+                <c4f:Tile
+                        toolkit:TiltEffect.SuppressTilt="True"
+                        toolkit:TiltEffect.IsTiltEnabled="False"
+                        Name="thetile"
+                        Margin="0,0,0,0"
+                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
+                                >
+
+                    <Grid>
+                        <Canvas>
+
+                            <Image
+                            Width="186"    
+                            Source="/Assets/Icons/NoImage.png" 
+                            Stretch="Fill"
+                            ImageOpened="Img_ImageOpened"
+                            >
+                                <Image.RenderTransform>
+                                    <CompositeTransform/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Canvas>
+                        <c4f:TileNotification
+                        HorizontalAlignment="Left"
+                            Padding="18,0"
+                            Background="{StaticResource GSAccentBrush}"
+                            Content="{Binding WateringScheduler.MissedNotification}"
+                            Visibility="{Binding WateringScheduler.MissedLateAndOwn, 
+                               Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
+                        />
+
+                     
+                    </Grid>
+                </c4f:Tile>
+
+            </Button>
             -->
             
             <TextBlock Text="account" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White"
@@ -205,6 +279,31 @@
                 >
                 <TextBlock Text="about" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
             </Button>
+
+         
+
+
+
+            <TextBlock 
+               Style="{StaticResource GSTextBlockStyle}"
+               Text="{Binding Name, Converter={StaticResource ToUpperOrLowerCase}}" HorizontalAlignment="Left"
+               VerticalAlignment="Top" Margin="0,8,0,0"
+               FontWeight="Bold"              
+                FontSize="18"
+                Foreground="WhiteSmoke"
+            />
+
+            <TextBlock 
+               Style="{StaticResource GSTextBlockStyle}"
+               Text="{Binding Species}" HorizontalAlignment="Left"
+               VerticalAlignment="Top" Margin="0,-2,0,0"
+               FontWeight="Normal"              
+               FontSize="18"
+               Foreground="WhiteSmoke"
+            />
+
+            
+            
         </StackPanel>
 
 

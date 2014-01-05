@@ -25,6 +25,10 @@ namespace Growthstories.UI.ViewModel
         protected IPlantViewModel _SelectedPlant;
         public IPlantViewModel SelectedPlant { get { return _SelectedPlant; } set { this.RaiseAndSetIfChanged(ref _SelectedPlant, value); } }
 
+        // just to keep compiler happy
+        public IReactiveCommand ShowDetailsCommand { get; private set; }
+
+
         private IRoutableViewModel _InnerViewModel;
         public IRoutableViewModel InnerViewModel
         {
