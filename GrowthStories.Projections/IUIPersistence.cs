@@ -17,6 +17,7 @@ namespace Growthstories.UI
 
         public void Purge()
         {
+
         }
 
 
@@ -27,6 +28,12 @@ namespace Growthstories.UI
 
         public void PersistPlant(PlantCreated a)
         {
+        }
+
+
+        public PlantActionState GetLatestWatering(Guid? PlantId)
+        {
+            return null;
         }
 
 
@@ -45,6 +52,10 @@ namespace Growthstories.UI
             return new PlantActionState[0];
         }
 
+        public IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null)
+        {
+            return new PlantActionState[0];
+        }
 
         public void Save(Core.IGSAggregate aggregate)
         {

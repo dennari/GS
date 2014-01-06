@@ -75,7 +75,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\ARM\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;DEBUG_AGENT</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -163,6 +163,7 @@
     <Compile Include="BootstrapDesign.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Class1.cs" />
     <Compile Include="GSViewUtils.cs" />
     <Compile Include="Controls\GSListPicker.cs" />
     <Compile Include="Converters.cs" />
@@ -171,7 +172,6 @@
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
-    <Compile Include="Views\GSTileUtils.cs" />
     <Compile Include="Views\SignInRegisterView.xaml.cs">
       <DependentUpon>SignInRegisterView.xaml</DependentUpon>
     </Compile>
@@ -619,6 +619,10 @@
     <ProjectReference Include="..\GrowthStories.UI.Persistence.WP8\GrowthStories.UI.Persistence.WP8.csproj">
       <Project>{F3ECA552-6646-4C77-A36C-46901F000BD5}</Project>
       <Name>GrowthStories.UI.Persistence.WP8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GrowthStories.UI.WindowsPhone.BA\GrowthStories.UI.WindowsPhone.BA.csproj">
+      <Project>{EC6EBFAB-E3D5-431F-AE04-66665289724B}</Project>
+      <Name>GrowthStories.UI.WindowsPhone.BA</Name>
     </ProjectReference>
     <ProjectReference Include="..\SQLiteLibWP8\SQLiteLibWP8.csproj">
       <Project>{ABC2A119-396A-4300-AB1A-85473355C3B8}</Project>

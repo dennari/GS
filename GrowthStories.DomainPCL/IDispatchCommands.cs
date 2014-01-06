@@ -34,10 +34,13 @@ namespace Growthstories.Domain
 
         void Initialize();
 
+        PlantActionState GetLatestWatering(Guid? PlantId);
 
         IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
         IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
         IEnumerable<UserState> GetUsers(Guid? UserId = null);
+        IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null);
+
         //IEnumerable<ScheduleState> GetSchedules(Guid PlantId);
 
 
@@ -46,8 +49,6 @@ namespace Growthstories.Domain
 
         void Save(IGSAggregate aggregate);
         void SaveCollaborator(Guid collaboratorId, bool status);
-
-
 
     }
 

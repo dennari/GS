@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 
+
 namespace Growthstories.UI.ViewModel
 {
 
@@ -148,7 +149,6 @@ namespace Growthstories.UI.ViewModel
                     this.ShareCommand.Execute(null);
             });
 
-
             this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
             {
                 if (!App.HasDataConnection)
@@ -227,7 +227,11 @@ namespace Growthstories.UI.ViewModel
             this.DeleteCommand = new ReactiveCommand();
             this.GardenViewDeleteCommand = new ReactiveCommand();
             
-            this.DeleteCommand.Subscribe(_ => App.Router.NavigateBack.Execute(null));
+            this.DeleteCommand.Subscribe(_ => 
+            {
+                    App.Router.NavigateBack.Execute(null);
+            });
+
             this.DeleteCommand
                 .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
                 .Publish()
@@ -313,6 +317,10 @@ namespace Growthstories.UI.ViewModel
 
             }
 
+            // we need these right away for tile notifications (specially with the WP start screen tiles)
+            this.WateringScheduler = new PlantScheduler(WateringSchedule, OwnPlant) { Icon = IconType.WATER };
+            this.WateringScheduler.LastActionTime = App.UIPersistence.GetLatestWatering(state.Id).Created;
+
             var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
             actionsAccessed.SelectMany(_ =>
             {
@@ -331,7 +339,6 @@ namespace Growthstories.UI.ViewModel
 
             actionsAccessed.SelectMany(_ =>
             {
-
                 return Observable.CombineLatest(
                     this.WhenAnyValue(y => y.FertilizingSchedule).Where(y => y != null),
                     this.Actions.ItemsAdded.StartWith(this.Actions).Where(x => x.ActionType == PlantActionType.FERTILIZED),
@@ -395,12 +402,16 @@ namespace Growthstories.UI.ViewModel
             //    });
 
             this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
-                .Subscribe(x => this.MissedCount = (int?)x);
+            .Subscribe(x => 
+            {
+                this.MissedCount = (int?)x;   
+            });
 
             this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
             {
                 AppBarMenuItems = __AppBarMenuItems;
             });
+
         }
 
 
@@ -579,8 +590,10 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _MissedCount;
+                return (int) (new DateTime().Ticks % 10000);
+                //return _MissedCount;
             }
+
             protected set
             {
                 this.RaiseAndSetIfChanged(ref _MissedCount, value);
@@ -810,8 +823,7 @@ namespace Growthstories.UI.ViewModel
                                         
                     };
                 
-                if (!HasTile) // kludge
-                {
+               
                     ret.Add
                     (
                         new MenuItemViewModel(null)
@@ -820,7 +832,7 @@ namespace Growthstories.UI.ViewModel
                             Command = DeleteCommand
                         }
                     );
-                }
+                
 
                 ret.Add
                 (

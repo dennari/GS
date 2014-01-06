@@ -15,6 +15,7 @@ using System.Reactive.Disposables;
 using Microsoft.Phone.Tasks;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using GrowthStories.UI.WindowsPhone.BA;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -101,17 +102,13 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             DeleteCommandSubscription.Dispose();
-            DeleteCommandSubscription = vm.DeleteCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            DeleteCommandSubscription = vm.DeleteCommand
+                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
                 DeleteTile();
             });
-
-            //vm.ResetAnimationsCommand.Subscribe(_ =>
-            //{
-            //    AnimatedSources = new HashSet<object>();
-            //});
-
         }
+
 
         private void Share(IPlantViewModel vm)
         {
@@ -134,7 +131,10 @@ namespace Growthstories.UI.WindowsPhone
 
         private void CreateOrUpdateTile()
         {
-            GSTileUtils.CreateOrUpdateTile(ViewModel);
+            var app = ViewModel.App as AppViewModel;
+            var pvm = ViewModel as PlantViewModel;
+
+            GSTileUtils.CreateOrUpdateTile(pvm, app, app.UIPersistence);
         }
 
 

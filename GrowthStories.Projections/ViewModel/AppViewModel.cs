@@ -124,7 +124,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         protected IUIPersistence _UIPersistence;
-        protected IUIPersistence UIPersistence
+        public IUIPersistence UIPersistence
         {
             get { return _UIPersistence ?? (_UIPersistence = Kernel.Get<IUIPersistence>()); }
         }
@@ -153,7 +153,9 @@ namespace Growthstories.UI.ViewModel
 
         public IMutableDependencyResolver Resolver { get; protected set; }
 
-        protected IKernel Kernel;
+        public IKernel Kernel;
+
+
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -790,7 +792,7 @@ namespace Growthstories.UI.ViewModel
         */
 
 
-        public async Task<GSApp> SignOut(bool createUnregUser = true)
+        public virtual async Task<GSApp> SignOut(bool createUnregUser = true)
         {
             // Clear db
             if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)

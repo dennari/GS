@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Growthstories.Domain;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -120,6 +121,8 @@ namespace Growthstories.UI.ViewModel
         PageOrientation Orientation { get; }
 
         bool HasDataConnection { get; }
+
+        IUIPersistence UIPersistence { get; }
     }
 
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
@@ -241,11 +244,11 @@ namespace Growthstories.UI.ViewModel
         public const double WINDOW = 0.2;
 
 
-        public static string IntervalText(long ticks, double Number)
+        public static string IntervalText(long ticks, double Missed)
         {
             string IntervalText;
 
-            var t = new TimeSpan((long)(ticks * Math.Abs(Number)));
+            var t = new TimeSpan((long)(ticks * Math.Abs(Missed)));
             if (t.TotalWeeks() > 0)
             {
                 IntervalText = string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
@@ -267,12 +270,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public static string NotificationText(TimeSpan Interval, double Number, ScheduleType Type, String Name)
+        public static string NotificationText(TimeSpan Interval, double Missed, ScheduleType Type, String Name)
         {
-            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Number)));
+            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Missed)));
 
             // if now is time to water
-            if ((Number < WINDOW && Number > -WINDOW))
+            if ((Missed < WINDOW && Missed > -WINDOW))
             {
                 switch (Type)
                 {
@@ -285,20 +288,20 @@ namespace Growthstories.UI.ViewModel
             }
 
             // if watering is after some time
-            if (Number <= -WINDOW)
+            if (Missed <= -WINDOW)
             {
                 switch (Type)
                 {
                     case ScheduleType.WATERING:
-                        return Name.ToUpper() + " should be watered in " + IntervalText(Interval.Ticks, Number);
+                        return Name.ToUpper() + " should be watered in " + IntervalText(Interval.Ticks, Missed);
 
                     case ScheduleType.FERTILIZING:
-                        return Name.ToUpper() + " should be nourished in " + IntervalText(Interval.Ticks, Number);
+                        return Name.ToUpper() + " should be nourished in " + IntervalText(Interval.Ticks, Missed);
                 }
             }
 
             // if we are late but not very late
-            if (Number >= WINDOW && Number < 1)
+            if (Missed >= WINDOW && Missed < 1)
             {
                 switch (Type)
                 {
@@ -313,18 +316,18 @@ namespace Growthstories.UI.ViewModel
             // awfully late
             return string.Format(
                 "Last {0} {1} missed for {2}",
-                (int)Number + 1,
+                PlantScheduler.GetMissedCount(Missed),
                 Type == ScheduleType.WATERING ? "waterings" : "nourishments",
                 Name);
         }
 
 
-        public static string NotificationText(TimeSpan Interval, double Number, ScheduleType Type)
+        public static string NotificationText(TimeSpan Interval, double Missed, ScheduleType Type)
         {
-            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Number)));
+            var t = new TimeSpan((long)(Interval.Ticks * Math.Abs(Missed)));
 
             // if now is time to water
-            if ((Number < WINDOW && Number > -WINDOW))
+            if ((Missed < WINDOW && Missed > -WINDOW))
             {
                 switch (Type)
                 {
@@ -338,20 +341,20 @@ namespace Growthstories.UI.ViewModel
             }
 
             // if watering is not late
-            if (Number <= -WINDOW)
+            if (Missed <= -WINDOW)
             {
                 switch (Type)
                 {
                     case ScheduleType.WATERING:
-                        return "watering in " + IntervalText(Interval.Ticks, Number);
+                        return "watering in " + IntervalText(Interval.Ticks, Missed);
 
                     case ScheduleType.FERTILIZING:
-                        return "nourishing in " + IntervalText(Interval.Ticks, Number);
+                        return "nourishing in " + IntervalText(Interval.Ticks, Missed);
                 }
             }
 
             // if we are late but not very late
-            if (Number >= WINDOW && Number < 1)
+            if (Missed >= WINDOW && Missed < 1)
             {
                 switch (Type)
                 {
@@ -366,7 +369,7 @@ namespace Growthstories.UI.ViewModel
             // awfully late
             return string.Format(
                 "Last {0} {1} missed",
-                (int)Number + 1,
+                PlantScheduler.GetMissedCount(Missed),
                 Type == ScheduleType.WATERING ? "waterings" : "nourishments");
         }
 
@@ -380,6 +383,7 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x.HasValue)
                 .Subscribe(x => this.ComputeNext());
         }
+
 
         private bool _OwnPlant;
 
@@ -402,26 +406,51 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        /*
+         * Calculate time for next scheduled event
+         */ 
+        public static DateTimeOffset ComputeNext(DateTimeOffset last, TimeSpan Interval)
+        {
+            if (Interval == null)
+                throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
+            
+            return last + Interval;
+        }
+
+
+        public static double CalculateMissed(DateTimeOffset last, TimeSpan Interval)
+        {
+            var next = ComputeNext(last, Interval);
+            var now = DateTimeOffset.UtcNow;
+            var passedSeconds = (long)(now - next).TotalSeconds;
+
+            var num = (double)passedSeconds / Interval.TotalSeconds;
+
+            return num;
+        }
+
+
+        public static int GetMissedCount(double missed)
+        {
+            if (missed > WINDOW)
+            {
+                return (int)Math.Ceiling(missed) + 1;
+            }
+            return 0;
+        }
+
+
         public DateTimeOffset ComputeNext()
         {
-
             if (!Schedule.Interval.HasValue)
                 return DateTimeOffset.MinValue;
             if (!LastActionTime.HasValue)
                 return DateTimeOffset.MinValue;
 
             var last = LastActionTime.Value;
-
-            var ans = Schedule.ComputeNext(last);
-
-            var now = DateTimeOffset.UtcNow;
-
-            var passedSeconds = (long)(now - ans).TotalSeconds;
-
-            var num = (double)passedSeconds / Schedule.Interval.Value.TotalSeconds;
-
-            this.Missed = num;
-
+            var ans = ComputeNext(last, (TimeSpan)Schedule.Interval);
+            this.Missed = CalculateMissed(last, (TimeSpan)Schedule.Interval);
+           
             string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);
             this.MissedText = char.ToUpper(temp[0]) + temp.Substring(1);
 
@@ -452,11 +481,12 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         public string MissedNotification
         {
             get
             {
-                return String.Format("{0:F0}", Missed + 1);
+                return GetMissedCount(Missed).ToString();
             }
         }
 
@@ -567,7 +597,8 @@ namespace Growthstories.UI.ViewModel
         string ScheduleTypeLabel { get; }
         //string IntervalLabel { get; }
         ScheduleType Type { get; }
-        DateTimeOffset ComputeNext(DateTimeOffset last);
+        
+        //DateTimeOffset ComputeNext(DateTimeOffset last);
         Task<Schedule> Create();
 
     }
@@ -756,14 +787,10 @@ namespace Growthstories.UI.ViewModel
         None
     }
 
-
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel
     {
         string UrlPath { get; }
     }
-
-
-
 
     public enum SupportedPageOrientation
     {

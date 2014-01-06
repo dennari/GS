@@ -15,6 +15,8 @@ using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using Growthstories.UI.Services;
 using System.Windows.Media;
+using GrowthStories.UI.WindowsPhone.BA;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -75,15 +77,13 @@ namespace Growthstories.UI.WindowsPhone
             resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(GSViewLocator));
             resolver.RegisterLazySingleton(() => resolver.GetService<GSViewLocator>(), typeof(IViewLocator));
 
-
-            //resolver.InitializeResolver();
-
             this.ViewModel = new AppViewModel();
             resolver.RegisterConstant(ViewModel, typeof(IApplicationRootState));
 
-            //RxApp.DependencyResolver = resolver;
-
             ApplyGSAccentColor();
+
+            // register background agent
+            ScheduledAgent.RegisterScheduledTask();
         }
 
 

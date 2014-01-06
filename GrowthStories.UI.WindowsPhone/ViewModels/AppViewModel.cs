@@ -21,6 +21,8 @@ using EventStore;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.UI.Persistence;
 using Growthstories.UI.Services;
+using GrowthStories.UI.WindowsPhone.BA;
+
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -134,6 +136,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 };
             }
             Initialize();
+        }
+
+
+        public override async Task<GSApp> SignOut(bool createUnregUser = true)
+        {
+            GSTileUtils.DeleteAllTiles();
+            return await base.SignOut(createUnregUser);
         }
 
 

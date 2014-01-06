@@ -226,9 +226,6 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
-
-
         protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
