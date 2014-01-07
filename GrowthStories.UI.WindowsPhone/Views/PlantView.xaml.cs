@@ -130,13 +130,13 @@ namespace Growthstories.UI.WindowsPhone
         private void FadeInImage(Image img)
         {
             AnimatedSources.Add(img.Source);
-
+            /*
             var ha = new DoubleAnimation();
             ha.Duration = new Duration(TimeSpan.FromSeconds(0.7));
             ha.From = 0;
             ha.To = 220;
             ha.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
-
+            */
             var oa = new DoubleAnimation();
             oa.Duration = new Duration(TimeSpan.FromSeconds(0.7));
             oa.From = 0.0;
@@ -145,14 +145,14 @@ namespace Growthstories.UI.WindowsPhone
 
             Storyboard sb = new Storyboard();
             sb.Children.Add(oa);
-            sb.Children.Add(ha);
+            //sb.Children.Add(ha);
 
             var b = GSViewUtils.FindParent<Button>(img);
 
             if (b != null)
             {
-                Storyboard.SetTarget(ha, b);
-                Storyboard.SetTargetProperty(ha, new PropertyPath("Height"));
+                //Storyboard.SetTarget(ha, b);
+                //Storyboard.SetTargetProperty(ha, new PropertyPath("Height"));
 
                 Storyboard.SetTarget(oa, b);
                 Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
@@ -160,7 +160,8 @@ namespace Growthstories.UI.WindowsPhone
 
             //if (b.Opacity == 0.0)
             //{
-                sb.Begin();
+            sb.Begin();
+            b.Height = 220;
             //}    
         }
 
