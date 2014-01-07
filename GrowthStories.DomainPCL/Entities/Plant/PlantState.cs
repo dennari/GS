@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
+
 namespace Growthstories.Domain.Entities
 {
     public sealed class PlantState : AggregateState<PlantCreated>
@@ -72,8 +73,6 @@ namespace Growthstories.Domain.Entities
             this.Name = @event.Name;
             this.UserId = @event.UserId;
             this.GardenId = @event.GardenId;
-
-
         }
 
 

@@ -15,6 +15,13 @@
     </Capabilities>
     <Tasks>
       <DefaultTask Name="_default" NavigationPage="MainWindow.xaml" />
+      <ExtendedTask Name="BackgroundTask">
+          <BackgroundServiceAgent 
+            Specifier="ScheduledTaskAgent" 
+            Name="Growth Stories Agent" 
+            Source="GrowthStories.UI.WindowsPhone.BA" 
+            Type="GrowthStories.UI.WindowsPhone.BA.ScheduledAgent" />
+      </ExtendedTask>
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="GrowthStories.UI.WindowsPhoneToken" TaskName="_default">

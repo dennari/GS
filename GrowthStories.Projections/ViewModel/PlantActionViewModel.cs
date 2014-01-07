@@ -124,6 +124,8 @@ namespace Growthstories.UI.ViewModel
         protected IDisposable EditCommandSubscription = Disposable.Empty;
         protected IDisposable DeleteCommandSubscription = Disposable.Empty;
 
+
+
         public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
         {

@@ -164,15 +164,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public DateTimeOffset ComputeNext(DateTimeOffset last)
-        {
-            if (Interval == null)
-                throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
-            return last + Interval.Value;
-        }
-
-
-
 
 
 

@@ -11,9 +11,15 @@ using System.ComponentModel;
 using BindableApplicationBar;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using Ninject;
+using Growthstories.Domain;
+using Microsoft.Phone.Scheduler;
+using GrowthStories.UI.WindowsPhone.BA;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class MainViewBase : GSView<MainViewModel>
     {
 
@@ -28,6 +34,27 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             //FriendsSelector.SelectedItem = null;
         }
+
+
+        private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var app = ViewModel.App as AppViewModel;
+            var uip = app.Kernel.Get<IUIPersistence>();
+        }
+
+
+        private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ScheduledAgent.RegisterScheduledTask();
+            ScheduledActionService.LaunchForTest(ScheduledAgent.TASK_NAME, TimeSpan.FromSeconds(10));
+        }
+
+
+        private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ScheduledAgent.RegisterScheduledTask();
+        }
+
 
         /*
         private void FriendsSelector_Tap(object sender, System.Windows.Input.GestureEventArgs e)

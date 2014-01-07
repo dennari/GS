@@ -248,6 +248,59 @@ namespace Growthstories.UI.Persistence
         }
 
 
+        public PlantActionState GetLatestWatering(Guid? PlantId)
+        {
+            var filters = new Dictionary<string, Guid?>(){
+                    {"PlantId",PlantId}
+                }.Where(x => x.Value.HasValue).ToArray();
+
+            if (filters.Length == 0)
+                throw new InvalidOperationException();
+
+            var list = this.ExecuteQuery(PlantId ?? default(Guid), query =>
+            {
+                foreach (var x in filters)
+                    query.AddParameter(@"@" + x.Key, x.Value);
+
+                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0}) ORDER BY Created DESC LIMIT 1;",
+                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+
+                var res = query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
+                return res;
+            });
+
+            if (list.Count() == 0)
+            {
+                return null;
+            }
+
+            return list.First();
+        }
+
+
+        public IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null)
+        {
+
+            var filters = new Dictionary<string, object>(){
+                    {"PlantId",PlantId},
+                    {"Type",(int)PlantActionType.PHOTOGRAPHED}
+            }.ToArray();
+
+            if (filters.Length == 0)
+                throw new InvalidOperationException();
+            return this.ExecuteQuery(PlantId ?? default(Guid), query =>
+            {
+                foreach (var x in filters)
+                    query.AddParameter(@"@" + x.Key, x.Value);
+
+                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0});",
+                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+
+                return query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
+            });
+        }
+
+
         public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
         {
 
@@ -261,7 +314,6 @@ namespace Growthstories.UI.Persistence
                 throw new InvalidOperationException();
             return this.ExecuteQuery(PlantId ?? default(Guid), query =>
             {
-
                 foreach (var x in filters)
                     query.AddParameter(@"@" + x.Key, x.Value);
 

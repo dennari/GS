@@ -21,6 +21,8 @@ using EventStore;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.UI.Persistence;
 using Growthstories.UI.Services;
+using GrowthStories.UI.WindowsPhone.BA;
+
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -31,7 +33,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
+
+        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations 
+            = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
+        
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
             get
@@ -43,7 +48,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 this.RaiseAndSetIfChanged(ref _ClientSupportedOrientations, value);
             }
         }
-
 
 
         public AppViewModel()
@@ -102,7 +106,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 ViewLocator.ViewModelToViewModelInterfaceFunc = T =>
                 {
-
                     if (T is IGardenPivotViewModel)
                         return typeof(IGardenPivotViewModel);
                     if (T is ISettingsViewModel)
@@ -134,6 +137,18 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 };
             }
             Initialize();
+
+            MyGardenCreatedCommand.Subscribe(x =>
+            {
+                GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
+            });
+        }
+
+
+        public override async Task<GSApp> SignOut(bool createUnregUser = true)
+        {
+            GSTileUtils.DeleteAllTiles();
+            return await base.SignOut(createUnregUser);
         }
 
 

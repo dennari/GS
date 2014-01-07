@@ -167,9 +167,9 @@
                 </Grid>
                
             </phone:PanoramaItem>
+            
             <!-- TESTING -->
             
-            <!--
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                     <ScrollViewer>
@@ -210,13 +210,20 @@
                             <TextBlock Text="Register"
                                            FontSize="{StaticResource PhoneFontSizeMediumLarge}"
                                            Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                        
+                            </Button>
+
+                            <Button Tap="UpdateTiles" Content="update tiles" />
+
+                            <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
+
+                            <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
+
+
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </phone:PanoramaItem>
-            -->
+            
             
         </phone:Panorama>
 

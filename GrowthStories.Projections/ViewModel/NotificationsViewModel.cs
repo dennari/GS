@@ -101,6 +101,7 @@ namespace Growthstories.UI.ViewModel
             this.Garden = app.Resolver.GetService<IGardenViewModel>();
 
             var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
+            
             IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
             currentAndFuturePlants
                 .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
@@ -112,6 +113,7 @@ namespace Growthstories.UI.ViewModel
                 {
 
                     var plant = x.Item1.Item1;
+
                     if (!x.Item1.Item3)
                         TryRemove(plant.Id, NotificationType.WATERING_SCHEDULE);
                     else
@@ -124,7 +126,6 @@ namespace Growthstories.UI.ViewModel
                             Number = x.Item1.Item2.Missed,
                             Interval = x.Item1.Item2.Interval.Value
                         };
-
 
                         UpdateList(notification);
                     }
@@ -225,9 +226,6 @@ namespace Growthstories.UI.ViewModel
             }
 
         }
-
-
-
 
         protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons

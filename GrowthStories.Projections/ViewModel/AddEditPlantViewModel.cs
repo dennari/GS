@@ -356,6 +356,10 @@ namespace Growthstories.UI.ViewModel
 
 
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
+
+            // why is the plantviewmodel instantiated with a null AppViewModel?
+            //   -- JOJ 5.1.2014
+
             IPlantViewModel current = Current == null ? new PlantViewModel(null, null) : Current;
             IPlantViewModel R = Current == null ? null : Current;
 

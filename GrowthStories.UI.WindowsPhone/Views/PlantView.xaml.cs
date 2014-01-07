@@ -15,18 +15,20 @@ using System.Reactive.Disposables;
 using Microsoft.Phone.Tasks;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using GrowthStories.UI.WindowsPhone.BA;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class PlantViewBase : GSView<IPlantViewModel>
     {
 
     }
 
+
     public partial class PlantView : PlantViewBase
     {
-
-
+        
         public PlantView()
         {
             InitializeComponent();
@@ -40,31 +42,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 OnViewModelChanged(ViewModel);
             }
-
-            //this.WhenAnyValue(x => (int?)x.ViewModel.MissedCount)
-            //    .Subscribe(x =>
-            //    {
-            //        if (Tile != null)
-            //        {
-            //            this.CreateOrUpdateTile();
-            //        }
-            //    });
         }
-
-
-        private ShellTile _Tile;
-        public ShellTile Tile
-        {
-            get
-            {
-                if (_Tile == null)
-                {
-                    _Tile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(ViewModel.UrlPathSegment));
-                }
-                return _Tile;
-            }
-        }
-
 
 
         IDisposable PinCommandSubscription = Disposable.Empty;
@@ -76,16 +54,15 @@ namespace Growthstories.UI.WindowsPhone
         {
 
             PinCommandSubscription.Dispose();
-            _Tile = null;
-            if (Tile != null)
-                ViewModel.HasTile = true;
-
+            ViewModel.HasTile = GSTileUtils.GetShellTile(vm) != null;
+            
             PinCommandSubscription = vm.PinCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                if (Tile == null)
+                if (vm.HasTile == null) {
                     CreateOrUpdateTile();
-                else
+                } else {
                     DeleteTile();
+                }
             });
 
             ShareCommandSubscription.Dispose();
@@ -101,28 +78,13 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             DeleteCommandSubscription.Dispose();
-            DeleteCommandSubscription = vm.DeleteCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            DeleteCommandSubscription = vm.DeleteCommand
+                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                DeleteTile(vm);
+                DeleteTile();
             });
-
-            //vm.ResetAnimationsCommand.Subscribe(_ =>
-            //{
-            //    AnimatedSources = new HashSet<object>();
-            //});
-
         }
 
-
-        public static void DeleteTile(IPlantViewModel pvm)
-        {
-            var t = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(pvm.UrlPathSegment));
-            if (t != null)
-            {
-                t.Delete();
-                pvm.HasTile = false; 
-            }
-        }
 
         private void Share(IPlantViewModel vm)
         {
@@ -139,36 +101,13 @@ namespace Growthstories.UI.WindowsPhone
 
         private void DeleteTile()
         {
-            if (Tile != null)
-                Tile.Delete();
-            ViewModel.HasTile = false;
+            GSTileUtils.DeleteTile(ViewModel);
         }
 
 
         private void CreateOrUpdateTile()
-        {
-            FlipTileData TileData = new FlipTileData()
-            {
-                Title = ViewModel.Name.ToUpper(),
-                BackTitle = ViewModel.Name.ToUpper(),
-                //BackContent = "GROWTH STORIES",
-                //WideBackContent = "GROWTH STORIES",
-                //Count = ViewModel.MissedCount.HasValue && ViewModel.MissedCount.Value > 0 ? ViewModel.MissedCount : null,
-                BackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
-                BackBackgroundImage = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"),
-                
-                //SmallBackgroundImage = [small Tile size URI],
-                //BackgroundImage = [front of medium Tile size URI],
-                //BackBackgroundImage = [back of medium Tile size URI],
-                //WideBackgroundImage = [front of wide Tile size URI],
-                //WideBackBackgroundImage = [back of wide Tile size URI],
-            };
-
-            if (Tile == null)
-                ShellTile.Create(new Uri(ViewModel.UrlPath, UriKind.Relative), TileData, false);
-            else
-                Tile.Update(TileData);
-            ViewModel.HasTile = true;
+        {         
+            GSTileUtils.CreateOrUpdateTile(ViewModel);
         }
 
 

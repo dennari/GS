@@ -30,6 +30,7 @@ namespace Growthstories.UI.WindowsPhone
 
     public class Bootstrap : BaseSetup
     {
+
         public override void Load()
         {
             base.Load();
@@ -58,14 +59,11 @@ namespace Growthstories.UI.WindowsPhone
                 if (conn == null)
                 {
                     conn = new SQLiteConnection(Path.Combine(Path.Combine(ApplicationData.Current.LocalFolder.Path, "sample.sqlite")));
-
                 }
                 return conn;
             };
             Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
         }
-
-
 
         protected override void PersistenceConfiguration()
         {
@@ -75,13 +73,12 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void LogConfiguration()
         {
-
             if (System.Diagnostics.Debugger.IsAttached)
                 LogFactory.BuildLogger = type => new DebuggerLog(type);
-
         }
 
     }
+
 
     class DebuggerLog : ILog
     {
@@ -149,12 +146,11 @@ namespace Growthstories.UI.WindowsPhone
                 WriteToConsole(Tag(message));
             }
 
-
         }
+
 
         public void Warn(string message, params object[] values)
         {
-
             try
             {
                 WriteToConsole(Tag(string.Format(message, values)));
@@ -164,10 +160,9 @@ namespace Growthstories.UI.WindowsPhone
             {
                 WriteToConsole(Tag(message));
             }
-
-
         }
 
+        
         public void Error(string message, params object[] values)
         {
 
