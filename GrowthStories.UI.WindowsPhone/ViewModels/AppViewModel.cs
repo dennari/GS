@@ -144,6 +144,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             });
         }
 
+        public bool NavigatingBack { get; set; }
 
         public override async Task<GSApp> SignOut(bool createUnregUser = true)
         {

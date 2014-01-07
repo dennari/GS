@@ -9,7 +9,7 @@
 	xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" 
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
     SupportedOrientations="{Binding ClientSupportedOrientations}"  
@@ -38,12 +38,16 @@
         <telerik:RadFadeAnimation x:Key="fadeInAnimation" StartOpacity="0.0" EndOpacity="1.0" Duration="0:0:2" />
         <telerik:RadFadeAnimation x:Key="fadeOutAnimation" StartOpacity="1.0" EndOpacity="0.0" Duration="0:0:2" />
 
-        <telerikPrimitives:RadTransition x:Key="MyTransition" PlayMode="Consecutively" 
-            ForwardInAnimation="{StaticResource fadeInAnimation}" 
-            ForwardOutAnimation="{StaticResource fadeOutAnimation}" 
-            BackwardInAnimation="{StaticResource fadeInAnimation}" 
-            BackwardOutAnimation="{StaticResource fadeOutAnimation}">       
-        </telerikPrimitives:RadTransition>
+        <telerik:RadSlideAnimation x:Key="GSSlideInAnimation" Duration="0:0:1" />
+        <telerik:RadSlideAnimation x:Key="GSSlideOutAnimation" Duration="0:0:1" />
+
+        <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
+        <telerikPrimitives:RadSlideAndSwivelTransition x:Key="GSSlideSwivel" />
+        <telerikPrimitives:RadSlideTransition x:Key="GSSlide" />
+
+        <!--
+        <telerik:RadTurnstileTransition x:Key="GSTurnstileAnimation" StartOpacity="1.0" EndOpacity="0.0" Duration="0:0:2" />
+        -->
         
     </phone:PhoneApplicationPage.Resources>
     
@@ -62,9 +66,10 @@
             <telerikPrimitives:RadTransitionControl.Content>
         -->
         
-        <routing:RoutedViewHost 
+        <local:AGSRoutedViewHost 
 		    x:Name="Content"
-		    Router="{Binding Router}"            
+		    Router="{Binding Router}"
+            Transition="{StaticResource GSSlide}"
 	       />
         
         <!--   

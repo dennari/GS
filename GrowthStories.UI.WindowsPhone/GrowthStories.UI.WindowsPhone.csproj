@@ -163,6 +163,7 @@
     <Compile Include="BootstrapDesign.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AGSRoutedViewHost.cs" />
     <Compile Include="GSViewUtils.cs" />
     <Compile Include="Controls\GSListPicker.cs" />
     <Compile Include="Converters.cs" />

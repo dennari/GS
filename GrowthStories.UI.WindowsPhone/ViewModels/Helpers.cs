@@ -14,7 +14,7 @@ using System.Collections.Specialized;
 namespace ReactiveUI
 {
 
-
+    /*
     public class MockReactiveList<T> : List<T>, IReactiveList<T>, IReadOnlyReactiveList<T>
     {
 
@@ -200,7 +200,7 @@ namespace ReactiveUI
         }
     }   
   
-
+    */
 }
 
 

@@ -332,6 +332,8 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             e.Cancel = true;
+
+            ViewModel.NavigatingBack = true;
             ViewModel.Router.NavigateBack.Execute(null);    
         }
 

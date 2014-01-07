@@ -5,7 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-
+using Telerik.Windows.Controls;
+using ReactiveUI.Xaml;
+using ReactiveUI;
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -26,6 +29,7 @@ namespace Growthstories.UI.WindowsPhone
                 return FindParent<T>(parentObject);
         }
 
-
     }
+
+    
 }
