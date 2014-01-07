@@ -24,11 +24,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
         private void LoadPlants(IAuthUser u)
         {
             App.CurrentPlants(u).Concat(App.FuturePlants(u)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
+                x.PlantIndex = _Plants.Count();
+
                 _Plants.Add(x);
                 this.ListenTo<AggregateDeleted>(x.Id)
                    .Subscribe(y =>

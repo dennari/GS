@@ -322,12 +322,15 @@ namespace Growthstories.UI.ViewModel
 
             // we need these right away for tile notifications (specially with the WP start screen tiles)
             this.WateringScheduler = new PlantScheduler(WateringSchedule, OwnPlant) { Icon = IconType.WATER };
-            var latest = App.UIPersistence.GetLatestWatering(state.Id);
-            if (latest != null)
+            if (state != null)
             {
-                this.WateringScheduler.LastActionTime = latest.Created;
+                var latest = App.UIPersistence.GetLatestWatering(state.Id);
+                if (latest != null)
+                {
+                    this.WateringScheduler.LastActionTime = latest.Created;
+                }
             }
-
+            
             var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
             
             actionsAccessed.SelectMany(_ =>
@@ -644,6 +647,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public int PlantIndex { get; set; }
+
 
         protected ReactiveList<IPlantActionViewModel> _Actions;
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions
@@ -665,7 +670,13 @@ namespace Growthstories.UI.ViewModel
                             //_Actions.Add(x);
                             x.PlantId = this.Id;
                             x.UserId = this.UserId;
+                            x.ActionIndex = 0;
                             _Actions.Insert(0, x);
+
+                            foreach (var a in _Actions)
+                            {
+                                a.ActionIndex++;
+                            }
 
                             x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
                             //x.DeleteCommand.Subscribe(_ => _Actions.Remove(x));

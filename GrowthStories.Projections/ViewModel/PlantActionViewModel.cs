@@ -28,6 +28,20 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand DeleteCommand { get; protected set; }
 
         public IconType Icon { get; protected set; }
+        
+
+        private int _ActionIndex;
+        public int ActionIndex
+        {
+            get
+            {
+                return _ActionIndex;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ActionIndex, value);
+            }
+        }
 
 
         public static readonly Dictionary<PlantActionType, IconType> ActionTypeToIcon = new Dictionary<PlantActionType, IconType>()

@@ -105,11 +105,11 @@ namespace Growthstories.UI.WindowsPhone
                     throw new Exception(String.Format("Couldn't find view for '{0}'.", x.Item1));
                 }
 
-                var gsvm = view.ViewModel as IGSViewModel;
+                var gsvm = x.Item1 as IGSViewModel;
                 Growthstories.UI.WindowsPhone.ViewModels.AppViewModel appvm = null;
-                if (gsvm != null)
+                if (gsvm != null && gsvm.App != null)
                 {
-                    appvm = gsvm as Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
+                    appvm = gsvm.App as Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
                 }
 
                 view.ViewModel = x.Item1;

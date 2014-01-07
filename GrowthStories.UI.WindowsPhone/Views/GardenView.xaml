@@ -21,8 +21,8 @@
 
                 
         <DataTemplate x:Key="C4fTile">
-     
-                <StackPanel x:Name="panel" Opacity="0.0">
+
+            <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}">
 
                     <toolkit:ContextMenuService.ContextMenu>
                             <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" 

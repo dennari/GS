@@ -7,32 +7,14 @@
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
-	d:DataContext="{StaticResource PlantViewModelDesign}"
+	xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
+    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
+   
+    d:DataContext="{StaticResource PlantViewModelDesign}"
     d:DesignHeight="800"
     mc:Ignorable="d">
 
-    <toolkit:TransitionService.NavigationInTransition>
-        <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn" />
-            </toolkit:NavigationInTransition.Backward>
-            <toolkit:NavigationInTransition.Forward>
-                <toolkit:TurnstileTransition Mode="BackwardIn" />
-            </toolkit:NavigationInTransition.Forward>
-        </toolkit:NavigationInTransition>
-    </toolkit:TransitionService.NavigationInTransition>
-
-    <toolkit:TransitionService.NavigationOutTransition>
-        <toolkit:NavigationOutTransition>
-            <toolkit:NavigationOutTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn" />
-            </toolkit:NavigationOutTransition.Backward>
-            <toolkit:NavigationOutTransition.Forward>
-                <toolkit:TurnstileTransition Mode="BackwardIn" />
-            </toolkit:NavigationOutTransition.Forward>
-        </toolkit:NavigationOutTransition>
-    </toolkit:TransitionService.NavigationOutTransition>
-
+ 
 
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
@@ -77,6 +59,9 @@
                 </StackPanel>
             </StackPanel>
         </ControlTemplate>
+
+        <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
+
     </local:PlantViewBase.Resources>
     
         <Grid>
@@ -84,25 +69,31 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         
-        <StackPanel Visibility="{Binding Actions.Count, Converter={StaticResource ZeroToVisibility}}">
+        <StackPanel                 
+            Visibility="{Binding Actions.Count, Converter={StaticResource ZeroToVisibility}}">
             
             <TextBlock 
+            
+            toolkit:TurnstileFeatherEffect.FeatheringIndex="1"
             Style="{StaticResource GSPlaceholderTextBlockStyle}"
             Text="This plant has no actions yet." 
             HorizontalAlignment="Left"
             Margin="12,24,0,24"
             Width="400"
             FontWeight="Bold"
+            toolkit:SlideInEffect.LineIndex="0"
             />
 
             <TextBlock 
+            toolkit:TurnstileFeatherEffect.FeatheringIndex="2"
             Style="{StaticResource GSPlaceholderTextBlockStyle}"
             HorizontalAlignment="Left"
             Text="Add actions for this plant by using the application bar at the bottom." 
             Margin="12,0,0,0"
             Width="400"
             Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}"
-           />
+            toolkit:SlideInEffect.LineIndex="1"
+                />
 
         </StackPanel>
         
@@ -114,6 +105,7 @@
             ListHeader="{Binding}"
             VerticalAlignment="Stretch"
             Margin="0,0,0,0"
+            
             Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}"
         >
 
@@ -161,7 +153,9 @@
                 <DataTemplate>
                     <local:PlantActionView 
                         ViewModel="{Binding}"
-                        Template="{StaticResource TimelineActionTemplate}">         
+                        Template="{StaticResource TimelineActionTemplate}"
+                        toolkit:SlideInEffect.LineIndex="{Binding ActionIndex}"
+                        >         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                             <Button Height="0"

@@ -15,6 +15,9 @@
     mc:Ignorable="d">
 
 
+    
+
+
     <reactive:ViewModelViewHost 
         ViewModel="{Binding InnerViewModel}"
         
@@ -29,7 +32,6 @@
 
 
                 <phone:Pivot 
-                
                 Loaded="Plants_Loaded"    
                 LoadedPivotItem="Plants_LoadedPivotItem"
 			    x:Name="Plants" 

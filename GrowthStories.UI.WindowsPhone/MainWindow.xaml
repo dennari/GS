@@ -19,6 +19,8 @@
     shell:SystemTray.IsVisible="{Binding SystemTrayIsVisible}"
     >
 
+  
+    
     <!--
     Height="800"
     -->
@@ -40,6 +42,12 @@
 
         <telerik:RadSlideAnimation x:Key="GSSlideInAnimation" Duration="0:0:1" />
         <telerik:RadSlideAnimation x:Key="GSSlideOutAnimation" Duration="0:0:1" />
+
+        <!--
+        <telerikPrimitives:RadTurnstileAndSlideTransition x:Key="GSTransition" />
+        -->
+        
+        <telerikPrimitives:RadContinuumTransition x:Key="GSTransition" />
 
         <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
         <telerikPrimitives:RadSlideAndSwivelTransition x:Key="GSSlideSwivel" />

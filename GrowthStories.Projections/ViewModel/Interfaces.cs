@@ -231,6 +231,7 @@ namespace Growthstories.UI.ViewModel
         string TodayWeekDay { get; }
         string TodayDate { get; }
 
+        int PlantIndex { get; set; }
 
     }
 
@@ -729,7 +730,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand DeleteCommand { get; }
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
-
+        int ActionIndex {get; set;}
 
     }
 

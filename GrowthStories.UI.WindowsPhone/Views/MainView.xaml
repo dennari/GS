@@ -108,10 +108,12 @@
                 <Grid x:Name="ContentPanel2" Margin="0,0" DataContext="{Binding NotificationsVM}">
                     
                     <TextBlock 
+                        HorizontalAlignment="Left"
+                        toolkit:SlideInEffect.LineIndex="0"
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
                         Text="There are no notifications to display at this time." 
                         FontWeight="Bold"
-                        Margin="8,0,0,24"
+                        Margin="12,0,0,24"
                         Width="400" 
                         Visibility="{Binding Notifications.Count, Converter={StaticResource ZeroToVisibility}}"
                         />
@@ -137,17 +139,21 @@
                     <StackPanel>
                     <TextBlock 
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                        toolkit:SlideInEffect.LineIndex="0"
+                        HorizontalAlignment="Left"
                         Text="You are not following anyone yet." 
                         FontWeight="Bold"
-                        Margin="6,0,0,24"
+                        Margin="12,0,0,24"
                         Width="400"
                         Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
 
                     <TextBlock 
+                        toolkit:SlideInEffect.LineIndex="0"
+                        HorizontalAlignment="Left"
                         Style="{StaticResource GSPlaceholderTextBlockStyle}"
                         Text="Add people to follow by using the application bar at the bottom." 
-                        VerticalAlignment="Top" Grid.Row="1" Margin="6,0,0,0"
+                        VerticalAlignment="Top" Grid.Row="1" Margin="12,0,0,0"
                         Width="400"
                         FontSize="24"
                         Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
