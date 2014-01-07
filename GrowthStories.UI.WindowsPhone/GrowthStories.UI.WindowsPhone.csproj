@@ -90,6 +90,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Design|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -350,9 +351,8 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_27_59.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_45_35.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_55_40.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_36_22.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_41_38.sap" />
     <None Include="Help\Nokia Imaging SDK.chm" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
