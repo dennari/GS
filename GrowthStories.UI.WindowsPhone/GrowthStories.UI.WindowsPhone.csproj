@@ -90,6 +90,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Design|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -349,9 +350,8 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_27_59.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_45_35.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2013_11_08_19_55_40.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_36_22.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_41_38.sap" />
     <None Include="Help\Nokia Imaging SDK.chm" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -578,10 +578,6 @@
     <ProjectReference Include="..\..\jEventStore\src\proj\EventStore\EventStore.csproj">
       <Project>{789B5308-2D5E-40CC-8755-B0131B9832A9}</Project>
       <Name>EventStore %28EventStore\EventStore%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Blend\ReactiveUI.Blend_WP8.csproj">
-      <Project>{685E862E-AA12-4D05-AD27-61AB2D71E411}</Project>
-      <Name>ReactiveUI.Blend_WP8</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ReactiveUI\ReactiveUI.Mobile\ReactiveUI.Mobile_WP8.csproj">
       <Project>{B90F3D02-1E3A-4DD7-8E00-30F28B6DCC1E}</Project>

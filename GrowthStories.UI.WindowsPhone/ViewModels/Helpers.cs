@@ -133,9 +133,30 @@ namespace ReactiveUI
         {
             get { throw new NotImplementedException(); }
         }
+
+        public IDisposable SuppressChangeNotifications()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Move(int oldIndex, int newIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IObservable<int> CountChanging
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public IObservable<int> CountChanged
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 
-  
+
     public class MockReactiveCommand : IReactiveCommand
     {
 
@@ -198,8 +219,8 @@ namespace ReactiveUI
         {
             get { return null; }
         }
-    }   
-  
+    }
+
 
 }
 
