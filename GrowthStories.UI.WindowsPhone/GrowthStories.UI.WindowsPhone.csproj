@@ -351,8 +351,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_36_22.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_07_12_41_38.sap" />
     <None Include="Help\Nokia Imaging SDK.chm" />
     <None Include="packages.config">
       <SubType>Designer</SubType>

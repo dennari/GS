@@ -84,9 +84,9 @@
 												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <phone:Panorama.Background>
+            <!--<phone:Panorama.Background>
                 <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
-            </phone:Panorama.Background>
+            </phone:Panorama.Background>-->
             <phone:Panorama.Title>
                 <Image 
 					Source="/Assets/Bg/panorama_logo.png" 

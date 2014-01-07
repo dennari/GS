@@ -128,9 +128,9 @@
 		Title="{Binding Title}"
         >
 
-        <local:GSViewGrid.Background>
+        <!--<local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:GSViewGrid.Background>
+        </local:GSViewGrid.Background>-->
                 
                       
             <StackPanel Grid.Row="1">

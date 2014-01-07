@@ -26,9 +26,9 @@
         >
         <reactive:ViewModelViewHost.DefaultContent>
             <Grid x:Name="LayoutRoot" Margin="0,0,0,0">
-                <Grid.Background>
+                <!--<Grid.Background>
                     <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.png"/>
-                </Grid.Background>
+                </Grid.Background>-->
 
 
                 <phone:Pivot 
