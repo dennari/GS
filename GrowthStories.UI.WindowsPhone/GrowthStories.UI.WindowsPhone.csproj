@@ -163,7 +163,6 @@
     <Compile Include="BootstrapDesign.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Class1.cs" />
     <Compile Include="GSViewUtils.cs" />
     <Compile Include="Controls\GSListPicker.cs" />
     <Compile Include="Converters.cs" />

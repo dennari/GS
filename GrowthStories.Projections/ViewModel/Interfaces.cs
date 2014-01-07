@@ -382,6 +382,30 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.LastActionTime)
                 .Where(x => x.HasValue)
                 .Subscribe(x => this.ComputeNext());
+
+            Action<Task> repeatAction = null;
+            repeatAction = _ =>
+            {
+                // kludge to execute in the main thread
+                var kludge = new ReactiveCommand();
+                kludge
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                    {
+                        this.ComputeNext();
+                    });
+                kludge.Execute(null);
+
+                // update quickly for debugging
+                Task.Delay(1000 * 10).ContinueWith
+                    (__ => repeatAction(__));    
+
+                // update once in a minute
+                //Task.Delay(1000 * 60).ContinueWith
+                //    (__ => repeatAction(__));           
+            };
+
+            repeatAction(null);
         }
 
 
@@ -434,7 +458,9 @@ namespace Growthstories.UI.ViewModel
         {
             if (missed > WINDOW)
             {
-                return (int)Math.Ceiling(missed) + 1;
+                //return (int)Math.Ceiling(missed) + 1;
+
+                return (int)(missed * 1000 + 1) % 100;
             }
             return 0;
         }
@@ -449,6 +475,7 @@ namespace Growthstories.UI.ViewModel
 
             var last = LastActionTime.Value;
             var ans = ComputeNext(last, (TimeSpan)Schedule.Interval);
+
             this.Missed = CalculateMissed(last, (TimeSpan)Schedule.Interval);
            
             string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);

@@ -65,8 +65,6 @@ namespace Growthstories.UI.WindowsPhone
             Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
         }
 
-
-
         protected override void PersistenceConfiguration()
         {
             Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope();
@@ -78,6 +76,7 @@ namespace Growthstories.UI.WindowsPhone
             if (System.Diagnostics.Debugger.IsAttached)
                 LogFactory.BuildLogger = type => new DebuggerLog(type);
         }
+
     }
 
 

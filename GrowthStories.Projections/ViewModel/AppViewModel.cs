@@ -285,9 +285,11 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.SyncResults = syncResult;
+
+            MyGardenCreatedCommand = new ReactiveCommand();
         }
 
-
+        public IReactiveCommand MyGardenCreatedCommand { get; private set; }
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SynchronizeCommand { get; private set; }
         public IReactiveCommand UISyncFinished { get; private set; }
@@ -318,6 +320,7 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_myGarden == null)
                     _myGarden = factory();
+                    MyGardenCreatedCommand.Execute(_myGarden);
                 return _myGarden;
             }
             if (typeof(T) == typeof(FriendsViewModel))
@@ -409,7 +412,6 @@ namespace Growthstories.UI.ViewModel
             }
 
         }
-
 
 
         //Task<T> RunTask<T>(Func<T> f)
@@ -1111,12 +1113,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
-
         public IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null)
         {
-
 
             //Func<Guid?, Guid?, Guid?, IEnumerable<PlantActionState>> f = UIPersistence.GetActions;
 
@@ -1128,15 +1126,11 @@ namespace Growthstories.UI.ViewModel
                 .Select(x => PlantActionViewModelFactory(x.Type, x));
 
             return current;
-
         }
-
-
 
 
         public IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null)
         {
-
             return Bus.Listen<IEvent>()
                     .OfType<PlantActionCreated>()
                     .Where(x => x.PlantId == plantId)
@@ -1146,8 +1140,6 @@ namespace Growthstories.UI.ViewModel
 
         public IObservable<IPlantViewModel> CurrentPlants(IAuthUser user, Guid? plantId = null)
         {
-
-
             var current = UIPersistence.GetPlants(plantId, null, user.Id)
                 .ToObservable()
                 .Where(x => !x.Item1.IsDeleted)
@@ -1162,16 +1154,13 @@ namespace Growthstories.UI.ViewModel
                 });
 
             return current;
-
         }
-
 
 
 
         IObservable<Tuple<ScheduleCreated, ScheduleSet>> _Schedules;
         public IObservable<IScheduleViewModel> FutureSchedules(Guid plantId)
         {
-
 
             if (_Schedules == null)
             {
@@ -1201,14 +1190,6 @@ namespace Growthstories.UI.ViewModel
 
 
         }
-
-
-
-
-
-
-
-
 
 
 

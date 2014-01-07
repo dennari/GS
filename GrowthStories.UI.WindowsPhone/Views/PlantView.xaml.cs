@@ -19,6 +19,7 @@ using GrowthStories.UI.WindowsPhone.BA;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class PlantViewBase : GSView<IPlantViewModel>
     {
 
@@ -41,31 +42,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 OnViewModelChanged(ViewModel);
             }
-
-            //this.WhenAnyValue(x => (int?)x.ViewModel.MissedCount)
-            //    .Subscribe(x =>
-            //    {
-            //        if (Tile != null)
-            //        {
-            //            this.CreateOrUpdateTile();
-            //        }
-            //    });
         }
-
-
-        private ShellTile _Tile;
-        public ShellTile Tile
-        {
-            get
-            {
-                if (_Tile == null)
-                {
-                    _Tile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(ViewModel.UrlPathSegment));
-                }
-                return _Tile;
-            }
-        }
-
 
 
         IDisposable PinCommandSubscription = Disposable.Empty;
@@ -77,16 +54,15 @@ namespace Growthstories.UI.WindowsPhone
         {
 
             PinCommandSubscription.Dispose();
-            _Tile = null;
-            if (Tile != null)
-                ViewModel.HasTile = true;
-
+            ViewModel.HasTile = GSTileUtils.GetShellTile(vm) != null;
+            
             PinCommandSubscription = vm.PinCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                if (Tile == null)
+                if (vm.HasTile == null) {
                     CreateOrUpdateTile();
-                else
+                } else {
                     DeleteTile();
+                }
             });
 
             ShareCommandSubscription.Dispose();
@@ -130,11 +106,8 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private void CreateOrUpdateTile()
-        {
-            var app = ViewModel.App as AppViewModel;
-            var pvm = ViewModel as PlantViewModel;
-
-            GSTileUtils.CreateOrUpdateTile(pvm, app, app.UIPersistence);
+        {         
+            GSTileUtils.CreateOrUpdateTile(ViewModel);
         }
 
 

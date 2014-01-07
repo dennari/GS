@@ -14,6 +14,7 @@ using System.Windows.Data;
 using EventStore.Logging;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using GrowthStories.UI.WindowsPhone.BA;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -45,25 +46,14 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
-
-            foreach (PlantViewModel pvm in ViewModel.Plants)
-            {
-
-                //Logger.Info("subscribing for plant " + pvm.Name);
-
-                //pvm.DeleteCommand
-                //    .Subscribe(_ => PlantView.DeleteTile(pvm));
-                //pvm.DeleteCommand.Execute(null);
-            }    
+           
         }
 
         
         public void handleDelete(PlantViewModel pvm)
         {
-
             //PlantView.DeleteTile(pvm);
 
             //MessageBoxResult res = MessageBox.Show("Are you sure you wish to delete the plant " + pvm.Name + "?");

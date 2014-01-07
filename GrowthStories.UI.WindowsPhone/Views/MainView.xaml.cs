@@ -40,8 +40,6 @@ namespace Growthstories.UI.WindowsPhone
         {
             var app = ViewModel.App as AppViewModel;
             var uip = app.Kernel.Get<IUIPersistence>();
-
-            GSTileUtils.UpdateTilesAndInfos(app, uip);
         }
 
 

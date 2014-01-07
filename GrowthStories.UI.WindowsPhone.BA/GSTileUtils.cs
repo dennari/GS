@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,14 +21,20 @@ using Growthstories.Domain.Messaging;
 using Newtonsoft.Json;
 using System.IO.IsolatedStorage;
 using System.Diagnostics;
-
+using ReactiveUI;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 
 namespace GrowthStories.UI.WindowsPhone.BA
 {
 
+
     public class TileUpdateInfo
     {
-
         [JsonProperty]
         public DateTimeOffset Last { get; set; }
         
@@ -45,158 +52,153 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         [JsonProperty]
         public string Name { get; set; }
-
     }
 
 
-    public class PeriodicTaskInfo
-    {
-        [JsonProperty]
-        public HashSet<TileUpdateInfo> infos { get; set;}
-    }
-    
-
-   
+ 
+     
     public class GSTileUtils
     {
 
 
         public const string SETTINGS_KEY = "periodicTaskInfo";
+        public const string SETTINGS_MUTEX = "GSSettingsMutex";
+     
 
-
-        public static PeriodicTaskInfo CreateEmptyPeriodikTaskInfo()
+        public static string GetSettingsKey(TileUpdateInfo info)
         {
-            var info = new PeriodicTaskInfo();
-            info.infos = new HashSet<TileUpdateInfo>();
-
-            return info;
+            return SETTINGS_KEY + info.UrlPath;
         }
 
 
-        public static PeriodicTaskInfo ReadPeriodicTaskInfo()
+        public static void WriteTileUpdateInfo(TileUpdateInfo info)
         {
-            var settings = IsolatedStorageSettings.ApplicationSettings;
-
-            if (!settings.Contains(SETTINGS_KEY))
+            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
             {
-                return CreateEmptyPeriodikTaskInfo();
-            }
 
-            string infoString = (string)settings[SETTINGS_KEY];
-            
-            try {
-                var ret = JsonConvert.DeserializeObject<PeriodicTaskInfo>(infoString);
-                return ret;
+                try { mutex.WaitOne();}
+                catch { } // catch exceptions associated with abandoned mutexes
 
-            } catch (Exception ex){
-                if (Debugger.IsAttached)
+                try
                 {
-                    Debugger.Break();
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+
+                    var s = JsonConvert.SerializeObject(info, Formatting.None);
+
+                    settings.Remove(GetSettingsKey(info));
+                    settings.Add(GetSettingsKey(info), s);
+                    settings.Save();
                 }
-                return CreateEmptyPeriodikTaskInfo();
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }          
+        }
+
+
+        public static HashSet<TileUpdateInfo> ReadTileUpdateInfos()
+        {
+            var ret = new HashSet<TileUpdateInfo>();
+
+            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
+            {
+
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    foreach (var pair in IsolatedStorageSettings.ApplicationSettings)
+                    {
+                        string key = pair.Key as string;
+                        string val = pair.Value as string;
+
+                        if (key != null && key.StartsWith(SETTINGS_KEY) && val != null)
+                        {
+                            var info = JsonConvert.DeserializeObject<TileUpdateInfo>(val);
+                            if (info != null && info.Name != null)
+                            {
+                                ret.Add(info);
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            } 
+
+            return ret;
+        }
+
+
+        public static void UpdateTile(IPlantViewModel pvm)
+        {
+            UpdateTile(pvm, false);
+        }
+
+
+        public static void CreateOrUpdateTile(IPlantViewModel pvm)
+        {
+            UpdateTile(pvm, true);
+        }
+
+
+        private static void UpdateTile(IPlantViewModel pvm, bool create)
+        {
+            var tile = GetShellTile(pvm);
+
+            if (tile != null || create)
+            {
+                TileUpdateInfo info = CreateTileUpdateInfo(pvm);
+                UpdateTile(info);
+                WriteTileUpdateInfo(info);
             }
-        }
-
-
-        public static void WritePeriodicTaskInfo(PeriodicTaskInfo info)
-        {
-            var settings = IsolatedStorageSettings.ApplicationSettings;
-
-            var s = JsonConvert.SerializeObject(info, Formatting.None);
-
-            settings.Remove(SETTINGS_KEY);
-            settings.Add(SETTINGS_KEY, s);
-            settings.Save();
-        }
-
-
-        public static void UpdateTilesAndInfos(IGSAppViewModel app, IUIPersistence uip)
-        {
-            var pti = CreateEmptyPeriodikTaskInfo();
-
-            pti.infos = CreateTileUpdateInfos(app, uip);
-            WritePeriodicTaskInfo(pti);
-
-            UpdateTiles(pti.infos);
         }
 
 
         public static void UpdateTiles()
         {
-            var pti = ReadPeriodicTaskInfo();
-            UpdateTiles(pti.infos);
+            var pti = ReadTileUpdateInfos();
+            UpdateTiles(pti);
         }
 
 
-        private static HashSet<PlantViewModel> GetPlantViewModels(IGSAppViewModel app, IUIPersistence pers)
+        public static void SubscribeForTileUpdates(IGardenViewModel garden)
         {
-            var ret = new HashSet<PlantViewModel>();
+            // subscribe to changes of each watering scheduler
 
-            if (app.User == null)
+            garden.Plants.ItemsAdded            
+                .Subscribe(x => 
             {
-                return ret;
-            }
-
-            var uid = app.User.Id;
-
-            foreach (var plant in pers.GetPlants(null, null, uid))
-            {
-                var wsvm = new ScheduleViewModel(plant.Item2, ScheduleType.WATERING, app);
-                var fsvm = new ScheduleViewModel(plant.Item3, ScheduleType.FERTILIZING, app);
-                var pvm = new PlantViewModel(plant.Item1, wsvm, fsvm, app);
-                ret.Add(pvm);
-            }
-            return ret;
-        }
-
-
-        private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(IGSAppViewModel app, IUIPersistence uip)
-        {
-            var pvms = GSTileUtils.GetPlantViewModels(app, uip);
-            return CreateTileUpdateInfos(pvms, app, uip);
-        }
-
-
-        private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(HashSet<PlantViewModel> pvms, IGSAppViewModel app, IUIPersistence uip)
-        {
-            // little bit lame to have side effects in this method, could refactor
-            // -- JOJ 6.1.2014
-
-            var ret = new HashSet<TileUpdateInfo>();
-
-            foreach (var pvm in pvms)
-            {
-                var tile = GetShellTile(pvm);
-
-                if (tile != null)
+                //  watch for watering scheduler updates
+                x.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
                 {
-                    if (pvm.State.IsDeleted)
-                    {
-                        tile.Delete();
-                    
-                    } else {
-                        var ti = CreateTileUpdateInfo(pvm, FetchActions(pvm.State.Id, uip, app));
-                        if (ti != null)
+                    u.WhenAnyValue(y => y.Missed)                
+                        .Subscribe(_ =>
                         {
-                            ret.Add(ti);
-                        }
-                        pvm.HasTile = true;
-                    }
-                } else {
-                    pvm.HasTile = false;
-                }
-            }
-            return ret;
+                            UpdateTile(x);
+                        });
+                });
+
+                // watch for watering schedule enabled updates
+                x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
+                {
+                    UpdateTile(x);
+                });
+
+                // also watch for added photos
+                x.WhenAnyValue(w => w.Actions.ItemsAdded)
+                    .Subscribe(u =>
+                {
+                    UpdateTile(x);
+                });
+            });
         }
 
 
-        public static void CreateOrUpdateTile(PlantViewModel pvm, IGSAppViewModel app, IUIPersistence uip)
-        {
-            var info = CreateTileUpdateInfo(pvm, FetchActions(pvm.State.Id, uip, app));
-            UpdateTile(info);
-            
-            UpdateTilesAndInfos(app, uip);
-        }
 
         public static ShellTile GetShellTile(IPlantViewModel pvm)
         {
@@ -210,10 +212,11 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static List<PlantActionViewModel> FetchActions(Guid plantId, IUIPersistence uip, IGSAppViewModel app)
+        public static List<PlantActionViewModel> FetchPhotoActions(Guid plantId, IGSAppViewModel app)
         {
             var ret = new List<PlantActionViewModel>();
-            
+            var uip = app.UIPersistence;
+
             foreach (var state in uip.GetPhotoActions(plantId))
             {
                 if (state.Type == PlantActionType.PHOTOGRAPHED)
@@ -236,15 +239,27 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
+        private static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
+        {
+            var app = pvm.App as AppViewModel;
+            return CreateTileUpdateInfo(pvm, FetchPhotoActions(pvm.Id, app));
+        }
+
+
         private static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm, IEnumerable<IPlantActionViewModel> list)
         {            
             TileUpdateInfo info = new TileUpdateInfo();
 
-            if (pvm.WateringSchedule != null && pvm.WateringScheduler != null)
+            if (pvm.WateringSchedule != null 
+                && pvm.WateringScheduler != null 
+                && pvm.IsWateringScheduleEnabled
+                && pvm.WateringScheduler.Interval != null
+                && pvm.WateringScheduler.LastActionTime != null)
             {
                 info.Interval = (TimeSpan)pvm.WateringSchedule.Interval;
                 info.Last = (DateTimeOffset)pvm.WateringScheduler.LastActionTime;
             }
+
             info.UrlPathSegment = pvm.UrlPathSegment;
             info.UrlPath = pvm.UrlPath;
             info.Name = pvm.Name;
@@ -337,6 +352,76 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
     }
+
+
+
+    /*
+    private static HashSet<PlantViewModel> GetPlantViewModels(IGSAppViewModel app, IUIPersistence pers)
+    {
+        var ret = new HashSet<PlantViewModel>();
+
+        if (app.User == null)
+        {
+            return ret;
+        }
+
+        var uid = app.User.Id;
+
+        foreach (var plant in pers.GetPlants(null, null, uid))
+        {
+            var wsvm = new ScheduleViewModel(plant.Item2, ScheduleType.WATERING, app);
+            var fsvm = new ScheduleViewModel(plant.Item3, ScheduleType.FERTILIZING, app);
+            var pvm = new PlantViewModel(plant.Item1, wsvm, fsvm, app);
+            ret.Add(pvm);
+        }
+        return ret;
+    }
+     */
+
+
+    /*
+    private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(IGSAppViewModel app, IUIPersistence uip)
+    {
+        var pvms = GSTileUtils.GetPlantViewModels(app, uip);
+        return CreateTileUpdateInfos(pvms, app, uip);
+    }
+    */
+
+
+    /*
+    private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(HashSet<PlantViewModel> pvms, IGSAppViewModel app, IUIPersistence uip)
+    {
+        // little bit lame to have side effects in this method, could refactor
+        // -- JOJ 6.1.2014
+
+        var ret = new HashSet<TileUpdateInfo>();
+
+        foreach (var pvm in pvms)
+        {
+            var tile = GetShellTile(pvm);
+
+            if (tile != null)
+            {
+                if (pvm.State.IsDeleted)
+                {
+                    tile.Delete();
+                    
+                } else {
+                    var ti = CreateTileUpdateInfo(pvm, FetchActions(pvm.State.Id, uip, app));
+                    if (ti != null)
+                    {
+                        ret.Add(ti);
+                    }
+                    pvm.HasTile = true;
+                }
+            } else {
+                pvm.HasTile = false;
+            }
+        }
+        return ret;
+    }
+    */
+
 
 
 }
