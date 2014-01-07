@@ -17,7 +17,8 @@ using Growthstories.UI.ViewModel;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
 using System.Threading.Tasks;
 using Growthstories.Sync;
-
+using Telerik;
+using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -26,6 +27,19 @@ namespace Growthstories.UI.WindowsPhone
     {
 
     }
+
+    /*
+    public class GSTransitionControl : RadTransitionControl
+    {
+
+        protected override void OnContentChanged(object oldContent, object newContent)
+        {
+
+        }
+
+    }
+    */
+
 
     public partial class MainWindow : MainWindowBase
     {
@@ -39,9 +53,11 @@ namespace Growthstories.UI.WindowsPhone
             //this.SetBinding(ViewModelProperty, new Binding());
             //ViewModel = new AppViewModel();
 
+            RadTransitionControl ctrl;
 
             //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
         }
+
 
 
         private void DismissPopup(PopupResult result = PopupResult.None)

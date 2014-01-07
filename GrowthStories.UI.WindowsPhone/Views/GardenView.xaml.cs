@@ -15,7 +15,7 @@ using EventStore.Logging;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
-
+using Microsoft.Phone.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -64,6 +64,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             this.ViewModel.SelectedItemsChanged.Execute(Tuple.Create(e.AddedItems, e.RemovedItems));
         }
+
 
 
 
@@ -131,6 +132,20 @@ namespace Growthstories.UI.WindowsPhone
             // for some reason command triggering did not work for the button
             // so we are doing it this way
             //   -- JOJ 5.12.2014
+
+           // var button = sender as Button;
+           //var button = sender as Button;
+
+           // var t = new ScaleTransform();
+           // t.ScaleX = 1.5;
+           // t.ScaleY = 1.5;
+
+           // button.RenderTransform = t;
+           /*
+           TurnstileTransition trans = new TurnstileTransition();
+
+           TransitionService.SetNavigationOutTransition(
+            */
 
             var btn = sender as Button;
             if (ViewModel != null)

@@ -322,7 +322,11 @@ namespace Growthstories.UI.ViewModel
 
             // we need these right away for tile notifications (specially with the WP start screen tiles)
             this.WateringScheduler = new PlantScheduler(WateringSchedule, OwnPlant) { Icon = IconType.WATER };
-            this.WateringScheduler.LastActionTime = App.UIPersistence.GetLatestWatering(state.Id).Created;
+            var latest = App.UIPersistence.GetLatestWatering(state.Id);
+            if (latest != null)
+            {
+                this.WateringScheduler.LastActionTime = latest.Created;
+            }
 
             var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
             

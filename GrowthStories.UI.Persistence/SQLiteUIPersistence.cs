@@ -250,7 +250,6 @@ namespace Growthstories.UI.Persistence
 
         public PlantActionState GetLatestWatering(Guid? PlantId)
         {
-
             var filters = new Dictionary<string, Guid?>(){
                     {"PlantId",PlantId}
                 }.Where(x => x.Value.HasValue).ToArray();
@@ -269,6 +268,11 @@ namespace Growthstories.UI.Persistence
                 var res = query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
                 return res;
             });
+
+            if (list.Count() == 0)
+            {
+                return null;
+            }
 
             return list.First();
         }
