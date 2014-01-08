@@ -86,7 +86,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public NotificationsViewModel(IGSAppViewModel app)
+        public NotificationsViewModel(IGardenViewModel garden, IGSAppViewModel app)
             : base(app)
         {
 
@@ -98,10 +98,10 @@ namespace Growthstories.UI.ViewModel
                 Command = this.HostScreen.Router.NavigateCommandFor<IAddEditPlantViewModel>()
             });
 
-            this.Garden = app.Resolver.GetService<IGardenViewModel>();
+            this.Garden = garden;
 
             var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
-            
+
             IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
             currentAndFuturePlants
                 .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start

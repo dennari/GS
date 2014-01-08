@@ -27,35 +27,38 @@ namespace Growthstories.UI.ViewModel
 
         private Task<bool> InitializeTask;
 
+        private async Task LoadAsync()
+        {
+            GardenVM = await Task.Run(() => App.Resolver.GetService<IGardenViewModel>());
+            this._Pages.Add(this.GardenVM);
+            this.SelectedPage = this.GardenVM;
+
+            NotificationsVM = await Task.Run(() => App.Resolver.GetService<INotificationsViewModel>());
+            this._Pages.Add(this.NotificationsVM);
+
+            FriendsVM = await Task.Run(() => App.Resolver.GetService<FriendsViewModel>());
+            this._Pages.Add(this.FriendsVM);
+        }
+
+        private void Load()
+        {
+            this.GardenVM = App.Resolver.GetService<IGardenViewModel>();
+            this._Pages.Add(this.GardenVM);
+            this.SelectedPage = this.GardenVM;
+
+            this.NotificationsVM = App.Resolver.GetService<INotificationsViewModel>();
+            this._Pages.Add(this.NotificationsVM);
+
+            this.FriendsVM = App.Resolver.GetService<FriendsViewModel>();
+            this._Pages.Add(this.FriendsVM);
+        }
 
         public MainViewModel(IGSAppViewModel app)
             : base(app)
         {
 
 
-            //this.InitializeTask = Task.Run(() =>
-            //{
-            GardenVM = App.Resolver.GetService<IGardenViewModel>();
-            this._Pages.Add(this.GardenVM);
-            this.SelectedPage = this.GardenVM;
-
-            NotificationsVM = App.Resolver.GetService<INotificationsViewModel>();
-            this._Pages.Add(this.NotificationsVM);
-
-            FriendsVM = App.Resolver.GetService<FriendsViewModel>();
-            this._Pages.Add(this.FriendsVM);
-
-            //     return true;
-            // });
-
-
-
-            //app.Gardens
-            //    .Where(x => x.UserState.Id == app.Context.CurrentUser.Id)
-            //    .Subscribe(x =>
-            //    {
-            //        this.GardenVM = x;
-            //    });
+            LoadAsync();
 
         }
 

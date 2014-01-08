@@ -18,53 +18,58 @@ namespace Growthstories.UI.ViewModel
         public MultipageViewModel(IGSAppViewModel app)
             : base(app)
         {
-            this.PageChangedCommand
-                .Select(x => TryGetPage(x))
-                .Subscribe(x => this.SelectedPage = x);
+
+            Task.Run(() =>
+            {
+                this.PageChangedCommand
+                    .Select(x => TryGetPage(x))
+                    .Subscribe(x => this.SelectedPage = x);
 
 
-            var currentPageChanged = this.WhenAny(x => x.SelectedPage, x => x.GetValue());
+
+                var currentPageChanged = this.WhenAny(x => x.SelectedPage, x => x.GetValue());
 
 
-            //this.ObservableForProperty(x => x.CurrentPage.)
+                //this.ObservableForProperty(x => x.CurrentPage.)
 
 
-            currentPageChanged
-                .OfType<IHasAppBarButtons>()
-                .Select(x => x.WhenAny(y => y.AppBarButtons, y => y.GetValue()).StartWith(x.AppBarButtons))
-                .Switch()
-                .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons, (IReadOnlyReactiveList<IButtonViewModel>)(new ReactiveList<IButtonViewModel>()));
+                currentPageChanged
+                    .OfType<IHasAppBarButtons>()
+                    .Select(x => x.WhenAny(y => y.AppBarButtons, y => y.GetValue()).StartWith(x.AppBarButtons))
+                    .Switch()
+                    .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons, (IReadOnlyReactiveList<IButtonViewModel>)(new ReactiveList<IButtonViewModel>()));
 
-            currentPageChanged
-                .OfType<IHasMenuItems>()
-                .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
-                .Switch()
-                .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems, (IReadOnlyReactiveList<IMenuItemViewModel>)(new ReactiveList<IMenuItemViewModel>()));
+                currentPageChanged
+                    .OfType<IHasMenuItems>()
+                    .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
+                    .Switch()
+                    .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems, (IReadOnlyReactiveList<IMenuItemViewModel>)(new ReactiveList<IMenuItemViewModel>()));
 
-            currentPageChanged
-                .OfType<IControlsAppBar>()
-                .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
-                .Switch()
-                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.DEFAULT);
+                currentPageChanged
+                    .OfType<IControlsAppBar>()
+                    .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
+                    .Switch()
+                    .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.DEFAULT);
 
-            currentPageChanged
-                 .OfType<IControlsAppBar>()
-                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
-                 .Switch()
-                 .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarVisibility, true);
+                currentPageChanged
+                     .OfType<IControlsAppBar>()
+                     .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
+                     .Switch()
+                     .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarVisibility, true);
 
-            currentPageChanged
-                .Select(x =>
-                {
-                    var xx = x as IControlsPageOrientation;
-                    if (xx != null)
-                        return xx.WhenAnyValue(y => y.SupportedOrientations);
-                    return Observable.Return(DefaultSupportedOrientation);
-                })
-                .Switch()
-                .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, DefaultSupportedOrientation);
-
+                currentPageChanged
+                    .Select(x =>
+                    {
+                        var xx = x as IControlsPageOrientation;
+                        if (xx != null)
+                            return xx.WhenAnyValue(y => y.SupportedOrientations);
+                        return Observable.Return(DefaultSupportedOrientation);
+                    })
+                    .Switch()
+                    .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, DefaultSupportedOrientation);
+            });
         }
+
 
         protected virtual SupportedPageOrientation DefaultSupportedOrientation
         {
@@ -158,20 +163,20 @@ namespace Growthstories.UI.ViewModel
         protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IButtonViewModel>> _AppBarButtons;
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
-            get { return _AppBarButtons.Value; }
+            get { return _AppBarButtons != null ? _AppBarButtons.Value : null; }
         }
 
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
         public SupportedPageOrientation SupportedOrientations
         {
 
-            get { return _SupportedOrientations.Value; }
+            get { return _SupportedOrientations != null ? _SupportedOrientations.Value : SupportedPageOrientation.Portrait; }
         }
 
         protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IMenuItemViewModel>> _AppBarMenuItems;
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
-            get { return _AppBarMenuItems.Value; }
+            get { return _AppBarMenuItems != null ? _AppBarMenuItems.Value : null; }
         }
 
         protected ReactiveList<IGSViewModel> __Pages;
@@ -185,13 +190,13 @@ namespace Growthstories.UI.ViewModel
         protected ObservableAsPropertyHelper<ApplicationBarMode> _AppBarMode;
         public ApplicationBarMode AppBarMode
         {
-            get { return _AppBarMode.Value; }
+            get { return _AppBarMode != null ? _AppBarMode.Value : ApplicationBarMode.MINIMIZED; }
         }
 
         protected ObservableAsPropertyHelper<bool> _AppBarVisibility;
         public bool AppBarIsVisible
         {
-            get { return _AppBarVisibility.Value; }
+            get { return _AppBarVisibility != null ? _AppBarVisibility.Value : true; }
         }
     }
 }
