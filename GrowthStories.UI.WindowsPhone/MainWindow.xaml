@@ -118,8 +118,7 @@
                 Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
                 <GradientStop Color="#FF9E2277" Offset="1"/>
                 <GradientStop Color="#FFE8570E"/>
-                <!--<GradientStop Color="#FFA2578B" Offset="1"/>
-                <GradientStop Color="#FFE87D48"/>-->
+
             </RadialGradientBrush>
         </Grid.Background>
 
@@ -128,105 +127,8 @@
 		    x:Name="Content"
 		    Router="{Binding Router}"
             AppVM="{Binding ViewModel}"
-            Transition="{StaticResource GSTurnStile}"
-	       >
-            <local:AGSRoutedViewHost.DefaultContent>
-     
-              <phone:Panorama Grid.Row="1" x:Name="MyPanorama" DataContext="{Binding MainVM}">
-        <!--<phone:Panorama.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
-            </phone:Panorama.Background>-->
-                        <phone:Panorama.Title>
-                            <Image 
-					Source="/Assets/Bg/panorama_logo.png" 
-					Stretch="UniformToFill" 
-					Width="750" 
-					Margin="12,60,0,0"/>
-                        </phone:Panorama.Title>
-
-                        <!-- MY GARDEN -->
-                        <phone:PanoramaItem 
-                Header="my garden" 
-                x:Name="mygardenItem"
-                DataContext="{Binding GardenVM}"
-                Style="{StaticResource GSPanoramaItemStyle}">
-                            <local:GardenView/>
-                        </phone:PanoramaItem>
-                        <!-- NOTIFICATIONS -->
-                        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
-                            <Grid x:Name="ContentPanel2" Margin="0,0" DataContext="{Binding NotificationsVM}">
-
-                                <TextBlock 
-                        HorizontalAlignment="Left"
-                        toolkit:SlideInEffect.LineIndex="0"
-                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                        Text="There are no notifications to display at this time." 
-                        FontWeight="Bold"
-                        Margin="12,0,0,24"
-                        Width="400" 
-                        Visibility="{Binding Notifications.Count, Converter={StaticResource ZeroToVisibility}}"
-                        />
-
-                                <phone:LongListSelector 
-                        ItemsSource="{Binding Notifications}"
-                        ItemTemplate="{StaticResource NotificationTemplate}"
-                        Visibility="{Binding Notifications.Count, Converter={StaticResource NonZeroToVisibility}}"
-                        />
-                            </Grid>
-                        </phone:PanoramaItem>
-                        <!-- FRIENDS -->
-                        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="following" x:Name="friendsItem">
-                            <!--
-                <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
-                    -->
-
-                            <Grid DataContext="{Binding FriendsVM}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <StackPanel>
-                                    <TextBlock 
-                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                        toolkit:SlideInEffect.LineIndex="0"
-                        HorizontalAlignment="Left"
-                        Text="You are not following anyone yet." 
-                        FontWeight="Bold"
-                        Margin="12,0,0,24"
-                        Width="400"
-                        Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
-                    />
-
-                                    <TextBlock 
-                        toolkit:SlideInEffect.LineIndex="0"
-                        HorizontalAlignment="Left"
-                        Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                        Text="Add people to follow by using the application bar at the bottom." 
-                        VerticalAlignment="Top" Grid.Row="1" Margin="12,0,0,0"
-                        Width="400"
-                        FontSize="24"
-                        Visibility="{Binding Friends.Count, Converter={StaticResource ZeroToVisibility}}"
-                    />
-                                </StackPanel>
-
-                                <local:GSLongListSelector
-                        Margin="-2,0,0,0"
-                        x:Name="FriendsSelector"
-                        ItemsSource="{Binding Friends}"
-                        ItemTemplate="{StaticResource ListUsersTemplate}"                        
-                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
-                        ItemTappedCommand="{Binding ItemTappedCommand}"
-                        Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
-                        />
-
-                            </Grid>
-
-                        </phone:PanoramaItem>
-
-
-                    </phone:Panorama>
-
-            </local:AGSRoutedViewHost.DefaultContent>
+            Transition="{StaticResource GSTurnStile}">
+	
         </local:AGSRoutedViewHost>
 
         <!--   

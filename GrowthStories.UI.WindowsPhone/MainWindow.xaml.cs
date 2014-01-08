@@ -37,17 +37,10 @@ namespace Growthstories.UI.WindowsPhone
         public MainWindow()
         {
             InitializeComponent();
-            MyPanorama.SelectionChanged += MyPanorama_SelectionChanged;
-        }
-
-        void MyPanorama_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ViewModel == null || ViewModel.MainVM == null)
-                return;
-
-            ViewModel.MainVM.PageChangedCommand.Execute(MyPanorama.SelectedIndex);
 
         }
+
+
 
 
 
@@ -75,7 +68,6 @@ namespace Growthstories.UI.WindowsPhone
         IDisposable ShowPopupSubscription = Disposable.Empty;
         protected override void OnViewModelChanged(AppViewModel vm)
         {
-            //base.OnViewModelChanged(vm);
 
             ShowPopupSubscription.Dispose();
             ShowPopupSubscription = vm.ShowPopup
@@ -193,23 +185,6 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-        //public static readonly DependencyProperty ViewModelProperty =
-        //   DependencyProperty.Register("ViewModel", typeof(Growthstories.UI.WindowsPhone.ViewModels.AppViewModel), typeof(MainWindow), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
-
-        //public AppViewModel ViewModel
-        //{
-        //    get
-        //    {
-        //        return (AppViewModel)GetValue(ViewModelProperty);
-        //    }
-        //    set
-        //    {
-        //        if (value != null && value != ViewModel)
-        //            SetValue(ViewModelProperty, value);
-        //    }
-        //}
-
-        //object IViewFor.ViewModel { get { return this.ViewModel; } set { this.ViewModel = (AppViewModel)value; } }
 
 
         /// <summary>
@@ -235,10 +210,8 @@ namespace Growthstories.UI.WindowsPhone
 
             if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0)
             {
-                ViewModel.WhenAnyValue(x => x.MainVM)
-                    .Where(x => x != null)
-                    .Take(1)
-                    .Subscribe(x => ViewModel.Router.Navigate.Execute(x));
+
+                ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
             }
         }
 
