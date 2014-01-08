@@ -14,7 +14,6 @@
     xmlns:toolkitPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
-    d:DataContext="{StaticResource GardenViewModelDesign}"
     x:Class="Growthstories.UI.WindowsPhone.GardenView"
     mc:Ignorable="d">
     <UserControl.Resources>

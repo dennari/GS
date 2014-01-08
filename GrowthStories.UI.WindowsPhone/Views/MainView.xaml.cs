@@ -1,20 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using BindableApplicationBar;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
-using Ninject;
-using Growthstories.Domain;
-using Microsoft.Phone.Scheduler;
-using GrowthStories.UI.WindowsPhone.BA;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -34,8 +22,19 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             //FriendsSelector.SelectedItem = null;
         }
+        private IDisposable GardenVMSubscription = Disposable.Empty;
+        protected override void OnViewModelChanged(MainViewModel vm)
+        {
+            //base.OnViewModelChanged(vm);
 
+            GardenVMSubscription.Dispose();
+            GardenVMSubscription = vm.WhenAnyValue(x => x.GardenVM).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                this.GardenView.ViewModel = vm.GardenVM;
 
+            });
+
+        }
         //private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
         //{
         //    var app = ViewModel.App as AppViewModel;

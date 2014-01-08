@@ -353,27 +353,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_01_19_20.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_01_19_53.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_01_31_45.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_01_40_28.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_02_00_12.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_03_27_12.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_14_29_12.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_14_31_14.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_14_34_41.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_14_47_45.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_14_51_27.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_18_08.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_20_32.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_25_38.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_48_32.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_49_59.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_52_22.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_53_48.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_15_55_28.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_16_20_09.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_01_08_20_08_46.sap" />
     <None Include="Help\Nokia Imaging SDK.chm" />
     <None Include="packages.config">
       <SubType>Designer</SubType>

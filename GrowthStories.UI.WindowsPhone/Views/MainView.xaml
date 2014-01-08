@@ -84,9 +84,16 @@
 												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <!--<phone:Panorama.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
-            </phone:Panorama.Background>-->
+            <phone:Panorama.Background>
+                <ImageBrush Stretch="UniformToFill" >
+                    <ImageBrush.ImageSource>
+                        <BitmapImage 
+                                    UriSource="/Assets/Bg/garden_all.jpg"
+                                    CreateOptions="BackgroundCreation"
+                                    />
+                    </ImageBrush.ImageSource>
+                </ImageBrush>
+            </phone:Panorama.Background>
             <phone:Panorama.Title>
                 <Image 
 					Source="/Assets/Bg/panorama_logo.png" 
@@ -99,9 +106,8 @@
             <phone:PanoramaItem 
                 Header="my garden" 
                 x:Name="mygardenItem"
-                DataContext="{Binding GardenVM}"
                 Style="{StaticResource GSPanoramaItemStyle}">
-                <local:GardenView/>
+                <local:GardenView ViewModel="{Binding GardenVM}" x:Name="GardenView"/>
             </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">

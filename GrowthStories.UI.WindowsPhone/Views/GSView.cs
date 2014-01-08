@@ -84,8 +84,11 @@ namespace Growthstories.UI.WindowsPhone
             //var v = vm as T;
             //if (v == null)
             //    return;
-            //if (vm != this.ViewModel)
-            //    this.ViewModel = v;
+            if (vm != this.ViewModel) // this happens if set the ViewModel property in XAML
+            {
+                this.ViewModel = vm as T; // this triggers another ViewModelChangeReport
+                return;
+            }
 
             this.OnViewModelChanged(vm as T);
         }

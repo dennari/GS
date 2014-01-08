@@ -9,8 +9,6 @@
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
-   
-    d:DataContext="{StaticResource PlantViewModelDesign}"
     d:DesignHeight="800"
     mc:Ignorable="d">
 

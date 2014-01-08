@@ -63,8 +63,24 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             MyGardenCreatedCommand.Subscribe(x =>
             {
-                GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
+                try
+                {
+                    GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
+                }
+                catch { }
             });
+
+            SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                try
+                {
+                    GSTileUtils.DeleteAllTiles();
+
+                }
+                catch { }
+
+            });
+
         }
 
         protected override IKernel GetKernel()
@@ -165,12 +181,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
         public bool NavigatingBack { get; set; }
-
-        public override async Task<GSApp> SignOut(bool createUnregUser = true)
-        {
-            GSTileUtils.DeleteAllTiles();
-            return await base.SignOut(createUnregUser);
-        }
 
 
         public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)

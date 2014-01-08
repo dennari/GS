@@ -15,7 +15,6 @@ using EventStore.Logging;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
-using Microsoft.Phone.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -32,7 +31,7 @@ namespace Growthstories.UI.WindowsPhone
         private static ILog Logger = LogFactory.BuildLogger(typeof(GardenView));
 
 
-   
+
         public GardenView()
         {
             InitializeComponent();
@@ -48,10 +47,10 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
-           
+            var a = "a";
         }
 
-        
+
         public void handleDelete(PlantViewModel pvm)
         {
             //PlantView.DeleteTile(pvm);
@@ -121,7 +120,7 @@ namespace Growthstories.UI.WindowsPhone
             // ( double comparison against zero should be ok )
             if (sp.Opacity == 0)
             {
-                
+
                 sb.Begin();
             }
         }
@@ -133,19 +132,19 @@ namespace Growthstories.UI.WindowsPhone
             // so we are doing it this way
             //   -- JOJ 5.12.2014
 
-           // var button = sender as Button;
-           //var button = sender as Button;
+            // var button = sender as Button;
+            //var button = sender as Button;
 
-           // var t = new ScaleTransform();
-           // t.ScaleX = 1.5;
-           // t.ScaleY = 1.5;
+            // var t = new ScaleTransform();
+            // t.ScaleX = 1.5;
+            // t.ScaleY = 1.5;
 
-           // button.RenderTransform = t;
-           /*
-           TurnstileTransition trans = new TurnstileTransition();
+            // button.RenderTransform = t;
+            /*
+            TurnstileTransition trans = new TurnstileTransition();
 
-           TransitionService.SetNavigationOutTransition(
-            */
+            TransitionService.SetNavigationOutTransition(
+             */
 
             var btn = sender as Button;
             if (ViewModel != null)
@@ -154,7 +153,7 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-    
+
 
     }
 }
