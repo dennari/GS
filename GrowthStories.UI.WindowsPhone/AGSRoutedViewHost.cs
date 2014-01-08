@@ -104,7 +104,7 @@ namespace Growthstories.UI.WindowsPhone
             {
 
                 this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
-                if (x.Item1 == null || x.Item1 is IMainViewModel) // allows including the initial view directly to DefaultContent
+                if (x.Item1 == null)
                 {
                     Content = DefaultContent;
                     if (AppVM != null)
