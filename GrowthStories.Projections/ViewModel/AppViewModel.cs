@@ -95,35 +95,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-        private async Task LoadMainVM()
-        {
-            var vm = await Task.Run(() =>
-            {
-                return new MainViewModel(this);
-            });
-
-            this.MainVM = vm;
-        }
-
-        private IMainViewModel _MainVM;
-        public IMainViewModel MainVM
-        {
-            get
-            {
-
-                if (_MainVM == null)
-                {
-                    LoadMainVM();
-                }
-                return _MainVM;
-            }
-            protected set
-            {
-                this.RaiseAndSetIfChanged(ref _MainVM, value);
-            }
-        }
-
         IRoutingState _Router;
         public IRoutingState Router
         {
@@ -196,9 +167,56 @@ namespace Growthstories.UI.ViewModel
 
         public AppViewModel()
         {
-            var resolver = RxApp.MutableResolver;
 
-            this.Resolver = resolver;
+            this.Resolver = RxApp.MutableResolver;
+
+
+
+            //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
+
+            // COMMANDS
+            ShowPopup = new ReactiveCommand();
+            SynchronizeCommand = Observable.Return(true).ToCommandWithSubscription(_ => ShowPopup.Execute(this.SyncPopup));
+            UISyncFinished = new ReactiveCommand();
+            PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
+            {
+
+                try
+                {
+                    this.Orientation = (PageOrientation)x;
+
+                }
+                catch
+                {
+
+                }
+
+            });
+
+            MyGardenCreatedCommand = new ReactiveCommand();
+            BackKeyPressedCommand = new ReactiveCommand();
+            InitializeJobStarted = new ReactiveCommand();
+            SignedOut = new ReactiveCommand();
+            InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
+
+            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
+
+            syncResult.Subscribe(x =>
+            {
+                //this.CanSynchronize = true;
+                App.ShowPopup.Execute(null);
+                UISyncFinished.Execute(x);
+            });
+
+            this.SyncResults = syncResult;
+
+            //LoadMainVM();
+        }
+
+        private void Bootstrap()
+        {
+
+            var resolver = Resolver;
 
             resolver.RegisterConstant(this, typeof(IScreen));
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
@@ -278,47 +296,11 @@ namespace Growthstories.UI.ViewModel
 
             resolver.Register(() => ResetSupport(() => new GardenViewModel(null, this)), typeof(IGardenViewModel));
             resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
-            resolver.Register(() => ResetSupport(() => new NotificationsViewModel(this)), typeof(INotificationsViewModel));
+            resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
             resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
 
             resolver.RegisterLazySingleton(() => new AboutViewModel(this), typeof(IAboutViewModel));
             resolver.RegisterLazySingleton(() => new SearchUsersViewModel(Transporter, this), typeof(SearchUsersViewModel));
-
-            //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
-            // COMMANDS
-            ShowPopup = new ReactiveCommand();
-            SynchronizeCommand = Observable.Return(true).ToCommandWithSubscription(_ => ShowPopup.Execute(this.SyncPopup));
-            UISyncFinished = new ReactiveCommand();
-            PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
-            {
-
-                try
-                {
-                    this.Orientation = (PageOrientation)x;
-
-                }
-                catch
-                {
-
-                }
-
-            });
-
-            MyGardenCreatedCommand = new ReactiveCommand();
-            BackKeyPressedCommand = new ReactiveCommand();
-            InitializeJobStarted = new ReactiveCommand();
-
-            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
-
-            syncResult.Subscribe(x =>
-            {
-                //this.CanSynchronize = true;
-                App.ShowPopup.Execute(null);
-                UISyncFinished.Execute(x);
-            });
-
-            this.SyncResults = syncResult;
-
         }
 
         #region COMMANDS
@@ -326,6 +308,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SynchronizeCommand { get; private set; }
         public IReactiveCommand UISyncFinished { get; private set; }
+        public IReactiveCommand SignedOut { get; private set; }
+
         public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; protected set; }
 
         public IReactiveCommand BackKeyPressedCommand { get; private set; }
@@ -839,7 +823,7 @@ namespace Growthstories.UI.ViewModel
         */
 
 
-        public virtual async Task<GSApp> SignOut(bool createUnregUser = true)
+        public async Task<GSApp> SignOut(bool createUnregUser = true)
         {
             // Clear db
             if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
@@ -867,6 +851,7 @@ namespace Growthstories.UI.ViewModel
                 this.Model = app;
             }
 
+            this.SignedOut.Execute(null);
             return app;
         }
 
