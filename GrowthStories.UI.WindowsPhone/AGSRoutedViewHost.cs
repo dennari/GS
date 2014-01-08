@@ -11,6 +11,8 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
 
+using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -35,6 +37,15 @@ namespace Growthstories.UI.WindowsPhone
         }
         public static readonly DependencyProperty RouterProperty =
             DependencyProperty.Register("Router", typeof(IRoutingState), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty AppVMProperty =
+             DependencyProperty.Register("AppVM", typeof(AppViewModel), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
+
+        public AppViewModel AppVM
+        {
+            get { return (AppViewModel)GetValue(AppVMProperty); }
+            set { SetValue(AppVMProperty, value); }
+        }
 
         /// <summary>
         /// This content is displayed whenever there is no page currently
@@ -91,9 +102,15 @@ namespace Growthstories.UI.WindowsPhone
             // the RoutedViewHost's ViewModel, and once on load via SizeChanged
             vmAndContract.DistinctUntilChanged().Subscribe(x =>
             {
-                if (x.Item1 == null)
+
+                this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
+                if (x.Item1 == null || x.Item1 is IMainViewModel) // allows including the initial view directly to DefaultContent
                 {
                     Content = DefaultContent;
+                    if (AppVM != null)
+                    {
+                        AppVM.NavigatingBack = false;
+                    }
                     return;
                 }
 
@@ -104,28 +121,19 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     throw new Exception(String.Format("Couldn't find view for '{0}'.", x.Item1));
                 }
-
-                var gsvm = x.Item1 as IGSViewModel;
-                Growthstories.UI.WindowsPhone.ViewModels.AppViewModel appvm = null;
-                if (gsvm != null && gsvm.App != null)
-                {
-                    appvm = gsvm.App as Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
-                }
-
                 view.ViewModel = x.Item1;
-                this.IsBackTransition = appvm != null && appvm.NavigatingBack;
                 Content = view;
 
-                if (appvm != null)
+                if (AppVM != null)
                 {
-                    appvm.NavigatingBack = false;
-                }                
+                    AppVM.NavigatingBack = false;
+                }
 
             }, ex => RxApp.DefaultExceptionHandler.OnNext(ex));
         }
     }
 
-    
+
 
 }
 

@@ -17,15 +17,14 @@
             <ResourceDictionary.MergedDictionaries>
                 <!--includes the ViewModelLocator, i.e. bootstrapping-->
                 <ResourceDictionary Source="Resources/Styles.xaml" />
-                <ResourceDictionary Source="Resources/DesignData.xaml"/>
+                <!--<ResourceDictionary Source="Resources/DesignData.xaml"/>-->
                 <ResourceDictionary Source="Resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 
     <Application.ApplicationLifetimeObjects>
-        <!--Required object that handles lifetime events for the application-->
-        <shell:PhoneApplicationService Launching="Application_Launching" Closing="Application_Closing" Activated="Application_Activated" Deactivated="Application_Deactivated" />
+        <shell:PhoneApplicationService/>
     </Application.ApplicationLifetimeObjects>
 
 </mobile:AutoSuspendApplication>

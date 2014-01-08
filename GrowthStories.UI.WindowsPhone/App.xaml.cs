@@ -65,14 +65,14 @@ namespace Growthstories.UI.WindowsPhone
 
             //var host = RxApp.DependencyResolver.GetService<ISuspensionHost>();
             //host.SetupDefaultSuspendResume();
-            
+
             // BugSense
             // modified when updating to bugsense library 3.6 -- JOJ 30.12.2013
             BugSenseHandler.Instance.InitAndStartSession(new ExceptionManager(Current), "e73c0669");
             BugSenseHandler.Instance.HandleWhileDebugging = true;
 
             var resolver = RxApp.MutableResolver;
-            resolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));
+            //resolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));
             resolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(resolver.GetService<ISuspensionDriver>());
             resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(GSViewLocator));
             resolver.RegisterLazySingleton(() => resolver.GetService<GSViewLocator>(), typeof(IViewLocator));

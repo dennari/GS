@@ -34,9 +34,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations 
+        private Microsoft.Phone.Controls.SupportedPageOrientation _ClientSupportedOrientations
             = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
-        
+
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
             get
@@ -53,19 +53,45 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public AppViewModel()
             : base()
         {
-            if (DesignModeDetector.IsInDesignMode())
+
+
+
+            InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
+
+            Initialize();
+
+
+            MyGardenCreatedCommand.Subscribe(x =>
             {
-                // Create design time view services and models
-                this.Kernel = new StandardKernel(new BootstrapDesign());
-            }
-            else
+                GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
+            });
+        }
+
+        protected override IKernel GetKernel()
+        {
+            if (this.Kernel == null)
             {
-                // Create run time view services and models
-                this.Kernel = new StandardKernel(new Bootstrap());
+                if (DesignModeDetector.IsInDesignMode())
+                {
+                    // Create design time view services and models
+                    this.Kernel = new StandardKernel(new BootstrapDesign());
+                }
+                else
+                {
+                    // Create run time view services and models
+                    this.Kernel = new StandardKernel(new Bootstrap());
+                }
             }
-            Kernel.Bind<IScreen>().ToConstant(this);
-            Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-            this.Bus = Kernel.Get<IMessageBus>();
+            return this.Kernel;
+        }
+
+        private void Bootstrap()
+        {
+            var kernel = GetKernel();
+
+            kernel.Bind<IScreen>().ToConstant(this);
+            kernel.Bind<IRoutingState>().ToConstant(this.Router);
+            this.Bus = kernel.Get<IMessageBus>();
 
             Resolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
             Resolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
@@ -87,7 +113,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             Resolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPlantViewModel>));
             Resolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
 
-            Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(Kernel, this), typeof(TestingViewModel));
+            Resolver.RegisterLazySingleton(() => new ClientTestingViewModel(kernel, this), typeof(TestingViewModel));
             Resolver.Register(() => new ClientAddEditPlantViewModel(this), typeof(IAddEditPlantViewModel));
 
             this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
@@ -136,12 +162,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 };
             }
-            Initialize();
-
-            MyGardenCreatedCommand.Subscribe(x =>
-            {
-                GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
-            });
         }
 
         public bool NavigatingBack { get; set; }

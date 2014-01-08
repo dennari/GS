@@ -28,34 +28,25 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
-    /*
-    public class GSTransitionControl : RadTransitionControl
-    {
-
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-
-        }
-
-    }
-    */
-
 
     public partial class MainWindow : MainWindowBase
     {
-
 
         //private Task<IAuthUser> InitializeTask;
 
         public MainWindow()
         {
             InitializeComponent();
-            //this.SetBinding(ViewModelProperty, new Binding());
-            //ViewModel = new AppViewModel();
+            MyPanorama.SelectionChanged += MyPanorama_SelectionChanged;
+        }
 
-            RadTransitionControl ctrl;
+        void MyPanorama_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel == null || ViewModel.MainVM == null)
+                return;
 
-            //this.InitializeTask = Task.Run(async () => await ViewModel.Initialize());
+            ViewModel.MainVM.PageChangedCommand.Execute(MyPanorama.SelectedIndex);
+
         }
 
 
@@ -69,7 +60,7 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     Popup.Dismiss();
                 }
-                
+
                 // we already have a subscription to popup.dismiss, which
                 // will take care of calling the dismissedcommand
                 // this would create another execution for the dismissedcommand,
@@ -87,7 +78,7 @@ namespace Growthstories.UI.WindowsPhone
             //base.OnViewModelChanged(vm);
 
             ShowPopupSubscription.Dispose();
-            ShowPopupSubscription = ViewModel.ShowPopup
+            ShowPopupSubscription = vm.ShowPopup
               .ObserveOn(RxApp.MainThreadScheduler)
               .Subscribe(x =>
               {
@@ -97,6 +88,7 @@ namespace Growthstories.UI.WindowsPhone
                   else
                       this.DismissPopup();
               });
+
         }
 
 
@@ -113,7 +105,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             StackPanel sp = new StackPanel()
             {
-                Margin = new Thickness(0,12,0,0)
+                Margin = new Thickness(0, 12, 0, 0)
             };
 
             sp.Children.Add(
@@ -125,12 +117,12 @@ namespace Growthstories.UI.WindowsPhone
                     Foreground = PopupForeground
                 }
             );
-                 
+
             sp.Children.Add(
                 new TextBlock()
                 {
                     Style = (Style)(Application.Current.Resources["GSTextBlockStyle"]),
-                    Text = pvm.ProgressMessage, 
+                    Text = pvm.ProgressMessage,
                     Foreground = PopupForeground,
                     TextWrapping = TextWrapping.Wrap,
                     VerticalAlignment = VerticalAlignment.Top,
@@ -168,7 +160,7 @@ namespace Growthstories.UI.WindowsPhone
                 IsRightButtonEnabled = x.IsRightButtonEnabled,
                 IsLeftButtonEnabled = x.IsLeftButtonEnabled,
                 RightButtonContent = x.RightButtonContent,
-                IsFullScreen = x.IsFullScreen,             
+                IsFullScreen = x.IsFullScreen,
                 Foreground = PopupForeground,
                 Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
                 BorderBrush = PopupForeground
@@ -187,7 +179,7 @@ namespace Growthstories.UI.WindowsPhone
                 if (x.DismissedCommand != null)
                 {
                     x.DismissedCommand.Execute(
-                        e1.Result == CustomMessageBoxResult.LeftButton ? 
+                        e1.Result == CustomMessageBoxResult.LeftButton ?
                         PopupResult.LeftButton : PopupResult.RightButton);
                 }
                 this.IsDialogShown = false;
@@ -241,9 +233,13 @@ namespace Growthstories.UI.WindowsPhone
                     ee = E;
                 }
 
-            if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0) // don't do anything if this isn't the initial load
-                this.ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
-
+            if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0)
+            {
+                ViewModel.WhenAnyValue(x => x.MainVM)
+                    .Where(x => x != null)
+                    .Take(1)
+                    .Subscribe(x => ViewModel.Router.Navigate.Execute(x));
+            }
         }
 
         private IDisposable PlantNavigationSubscription = Disposable.Empty;
@@ -306,8 +302,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
-            base.OnBackKeyPress(e); 
-            
+            base.OnBackKeyPress(e);
+
             if (IsDialogShown)
             {
                 // popups have their own subscription to the backkeypress,
@@ -334,7 +330,7 @@ namespace Growthstories.UI.WindowsPhone
             e.Cancel = true;
 
             ViewModel.NavigatingBack = true;
-            ViewModel.Router.NavigateBack.Execute(null);    
+            ViewModel.Router.NavigateBack.Execute(null);
         }
 
 
@@ -348,5 +344,7 @@ namespace Growthstories.UI.WindowsPhone
             //}
 
         }
+
+
     }
 }

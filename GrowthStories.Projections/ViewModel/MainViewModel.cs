@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -24,6 +25,7 @@ namespace Growthstories.UI.ViewModel
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
+        private Task<bool> InitializeTask;
 
 
         public MainViewModel(IGSAppViewModel app)
@@ -31,11 +33,22 @@ namespace Growthstories.UI.ViewModel
         {
 
 
+            //this.InitializeTask = Task.Run(() =>
+            //{
+            GardenVM = App.Resolver.GetService<IGardenViewModel>();
             this._Pages.Add(this.GardenVM);
+            this.SelectedPage = this.GardenVM;
+
+            NotificationsVM = App.Resolver.GetService<INotificationsViewModel>();
             this._Pages.Add(this.NotificationsVM);
+
+            FriendsVM = App.Resolver.GetService<FriendsViewModel>();
             this._Pages.Add(this.FriendsVM);
 
-            this.SelectedPage = this.GardenVM;
+            //     return true;
+            // });
+
+
 
             //app.Gardens
             //    .Where(x => x.UserState.Id == app.Context.CurrentUser.Id)
@@ -52,7 +65,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenVM ?? (_GardenVM = App.Resolver.GetService<IGardenViewModel>());
+                return _GardenVM;
             }
             protected set
             {
@@ -65,7 +78,12 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _NotificationsVM ?? (_NotificationsVM = App.Resolver.GetService<INotificationsViewModel>());
+                return _NotificationsVM;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _NotificationsVM, value);
+
             }
         }
 
@@ -74,7 +92,12 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _FriendsVM ?? (_FriendsVM = App.Resolver.GetService<FriendsViewModel>());
+                return _FriendsVM;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _FriendsVM, value);
+
             }
         }
 

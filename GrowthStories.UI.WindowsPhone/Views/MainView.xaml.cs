@@ -36,24 +36,24 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            var app = ViewModel.App as AppViewModel;
-            var uip = app.Kernel.Get<IUIPersistence>();
-        }
+        //private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    var app = ViewModel.App as AppViewModel;
+        //    var uip = app.Kernel.Get<IUIPersistence>();
+        //}
 
 
-        private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            ScheduledAgent.RegisterScheduledTask();
-            ScheduledActionService.LaunchForTest(ScheduledAgent.TASK_NAME, TimeSpan.FromSeconds(10));
-        }
+        //private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    ScheduledAgent.RegisterScheduledTask();
+        //    ScheduledActionService.LaunchForTest(ScheduledAgent.TASK_NAME, TimeSpan.FromSeconds(10));
+        //}
 
 
-        private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            ScheduledAgent.RegisterScheduledTask();
-        }
+        //private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    ScheduledAgent.RegisterScheduledTask();
+        //}
 
 
         /*

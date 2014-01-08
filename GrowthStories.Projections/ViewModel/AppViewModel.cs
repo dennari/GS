@@ -51,6 +51,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
         public SupportedPageOrientation SupportedOrientations
         {
@@ -93,10 +95,46 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        private async Task LoadMainVM()
+        {
+            var vm = await Task.Run(() =>
+            {
+                return new MainViewModel(this);
+            });
+
+            this.MainVM = vm;
+        }
+
+        private IMainViewModel _MainVM;
+        public IMainViewModel MainVM
+        {
+            get
+            {
+
+                if (_MainVM == null)
+                {
+                    LoadMainVM();
+                }
+                return _MainVM;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _MainVM, value);
+            }
+        }
+
         IRoutingState _Router;
         public IRoutingState Router
         {
-            get { return _Router ?? (_Router = new RoutingState()); }
+            get
+            {
+                if (_Router == null)
+                {
+                    _Router = new RoutingState();
+                }
+                return _Router;
+            }
         }
 
         IEndpoint _Endpoint;
@@ -153,32 +191,15 @@ namespace Growthstories.UI.ViewModel
 
         public IMutableDependencyResolver Resolver { get; protected set; }
 
-        public IKernel Kernel;
+        protected IKernel Kernel;
 
-
-
-        /// <summary>
-        /// Initializes a new instance of the MainViewModel class.
-        /// </summary>
-        //GSViewLocator _ViewLocator;
-        //public GSViewLocator ViewLocator
-        //{
-        //    get
-        //    {
-        //        if (_ViewLocator == null)
-        //        {
-        //            _ViewLocator = new GSViewLocator();
-        //        }
-        //        return _ViewLocator;
-        //    }
-        //}
 
         public AppViewModel()
         {
             var resolver = RxApp.MutableResolver;
 
             this.Resolver = resolver;
-            
+
             resolver.RegisterConstant(this, typeof(IScreen));
             resolver.RegisterConstant(this.Router, typeof(IRoutingState));
 
@@ -264,16 +285,28 @@ namespace Growthstories.UI.ViewModel
             resolver.RegisterLazySingleton(() => new SearchUsersViewModel(Transporter, this), typeof(SearchUsersViewModel));
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
-
+            // COMMANDS
             ShowPopup = new ReactiveCommand();
-            SynchronizeCommand = new ReactiveCommand();
+            SynchronizeCommand = Observable.Return(true).ToCommandWithSubscription(_ => ShowPopup.Execute(this.SyncPopup));
             UISyncFinished = new ReactiveCommand();
-
-            this.SynchronizeCommand.Subscribe(x =>
+            PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
             {
-                //this.CanSynchronize = false;
-                ShowPopup.Execute(this.SyncPopup);
+
+                try
+                {
+                    this.Orientation = (PageOrientation)x;
+
+                }
+                catch
+                {
+
+                }
+
             });
+
+            MyGardenCreatedCommand = new ReactiveCommand();
+            BackKeyPressedCommand = new ReactiveCommand();
+            InitializeJobStarted = new ReactiveCommand();
 
             var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
 
@@ -286,15 +319,24 @@ namespace Growthstories.UI.ViewModel
 
             this.SyncResults = syncResult;
 
-            MyGardenCreatedCommand = new ReactiveCommand();
         }
 
+        #region COMMANDS
         public IReactiveCommand MyGardenCreatedCommand { get; private set; }
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SynchronizeCommand { get; private set; }
         public IReactiveCommand UISyncFinished { get; private set; }
         public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; protected set; }
 
+        public IReactiveCommand BackKeyPressedCommand { get; private set; }
+
+        public IReactiveCommand InitializeJobStarted { get; private set; }
+
+        public IReactiveCommand PageOrientationChangedCommand { get; private set; }
+
+
+
+        #endregion
 
         private IPopupViewModel _SyncPopup;
         public IPopupViewModel SyncPopup
@@ -320,7 +362,7 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_myGarden == null)
                     _myGarden = factory();
-                    MyGardenCreatedCommand.Execute(_myGarden);
+                MyGardenCreatedCommand.Execute(_myGarden);
                 return _myGarden;
             }
             if (typeof(T) == typeof(FriendsViewModel))
@@ -403,15 +445,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private IReactiveCommand _BackKeyPressedCommand;
-        public IReactiveCommand BackKeyPressedCommand
-        {
-            get
-            {
-                return _BackKeyPressedCommand ?? (_BackKeyPressedCommand = new ReactiveCommand());
-            }
 
-        }
 
 
         //Task<T> RunTask<T>(Func<T> f)
@@ -512,6 +546,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        protected virtual IKernel GetKernel()
+        {
+            throw new NotImplementedException();
+        }
+
         protected Task<IAuthUser> InitializeJob;
         public Task<IAuthUser> Initialize()
         {
@@ -523,10 +562,14 @@ namespace Growthstories.UI.ViewModel
             {
                 GSApp app = null;
 
-                var persistence = Kernel.Get<IPersistSyncStreams>();
+
+                InitializeJobStarted.Execute(null);
+
+                var kernel = GetKernel();
+                var persistence = kernel.Get<IPersistSyncStreams>();
                 persistence.Initialize();
 
-                var uiPersistence = Kernel.Get<IUIPersistence>();
+                var uiPersistence = kernel.Get<IUIPersistence>();
                 uiPersistence.Initialize();
 
                 try
@@ -569,8 +612,10 @@ namespace Growthstories.UI.ViewModel
                             Handler.Handle(cmd);
                         }
                     }
-                
-                } else {
+
+                }
+                else
+                {
                     user = app.State.User;
                 }
 
@@ -595,10 +640,10 @@ namespace Growthstories.UI.ViewModel
                         }
                     });
                 kludge.Execute(null);
-                
+
                 this.ListenTo<InternalRegistered>(app.State.Id)
                     .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => 
+                    .Subscribe(x =>
                         {
                             this.IsRegistered = true;
                         });
@@ -622,7 +667,7 @@ namespace Growthstories.UI.ViewModel
                 return allEvents.Where(x => x.AggregateId == id);
         }
 
-        
+
         public async Task<RegisterResponse> Register(string username, string email, string password)
         {
             await EnsureUserInitialized();
@@ -674,7 +719,7 @@ namespace Growthstories.UI.ViewModel
 
             InternalRegisterAppUser cmd = new InternalRegisterAppUser(User.Id, username, password, email);
             await this.HandleCommand(cmd);
- 
+
             // synchronizing is not really required here, 
             // but it is probably nice to still to do it
             /*
@@ -685,7 +730,7 @@ namespace Growthstories.UI.ViewModel
             }
             */
 
-            return RegisterResponse.success;    
+            return RegisterResponse.success;
         }
 
 
@@ -810,11 +855,14 @@ namespace Growthstories.UI.ViewModel
 
             GSApp app = null;
 
-            if (createUnregUser) {
+            if (createUnregUser)
+            {
                 await this.Initialize();
                 app = this.Model;
 
-            } else {
+            }
+            else
+            {
                 app = (GSApp)Handler.Handle(new CreateGSApp());
                 this.Model = app;
             }
@@ -828,7 +876,8 @@ namespace Growthstories.UI.ViewModel
             IAuthResponse authResponse = null;
             RemoteUser u = null;
 
-            try {
+            try
+            {
                 authResponse = await Context.AuthorizeUser(email, password);
 
                 // server returns 401 when user is not found
@@ -852,7 +901,9 @@ namespace Growthstories.UI.ViewModel
 
                 u = await Transporter.UserInfoAsync(email);
 
-            } catch {
+            }
+            catch
+            {
                 // this would be caused by Transporter.USerInfoAsync failing
                 return SignInResponse.connectionerror;
             }
@@ -901,10 +952,13 @@ namespace Growthstories.UI.ViewModel
             // obtain access token if required
             if (User.AccessToken == null)
             {
-                try {
-                    var authResponse = await Context.AuthorizeUser();    
-                
-                } catch {
+                try
+                {
+                    var authResponse = await Context.AuthorizeUser();
+
+                }
+                catch
+                {
                     return new SyncInstance(SyncStatus.AUTH_ERROR);
                 }
             }
@@ -974,9 +1028,9 @@ namespace Growthstories.UI.ViewModel
             if (!s.PullReq.IsEmpty)
             {
                 var pullResp = await s.Pull();
-                if (pullResp != null 
-                    && pullResp.StatusCode == GSStatusCode.OK 
-                    && pullResp.Streams != null 
+                if (pullResp != null
+                    && pullResp.StatusCode == GSStatusCode.OK
+                    && pullResp.Streams != null
                     && pullResp.Streams.Count > 0)
                 {
                     Handler.AttachAggregates(pullResp);
@@ -1000,9 +1054,12 @@ namespace Growthstories.UI.ViewModel
             {
                 if (handlePull)
                 {
-                    try {
+                    try
+                    {
                         s.Merge();
-                    } catch {
+                    }
+                    catch
+                    {
                         if (Debugger.IsAttached) { Debugger.Break(); };
                         s.Status = SyncStatus.MERGE_ERROR;
                         return s;
@@ -1316,32 +1373,7 @@ namespace Growthstories.UI.ViewModel
             set { this.RaiseAndSetIfChanged(ref _Orientation, value); }
         }
 
-        private ReactiveCommand _PageOrientationChangedCommand;
-        public IReactiveCommand PageOrientationChangedCommand
-        {
-            get
-            {
 
-                if (_PageOrientationChangedCommand == null)
-                {
-                    _PageOrientationChangedCommand = new ReactiveCommand();
-                    _PageOrientationChangedCommand.Subscribe(x =>
-                    {
-                        try
-                        {
-                            this.Orientation = (PageOrientation)x;
-
-                        }
-                        catch
-                        {
-
-                        }
-                    });
-                }
-                return _PageOrientationChangedCommand;
-
-            }
-        }
 
 
         public IScreen HostScreen

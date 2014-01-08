@@ -49,12 +49,12 @@ namespace Growthstories.UI.ViewModel
         alreadyRegistered,
         emailInUse,
         success,
-        tryagain,         
-        connectionerror,  
-        usernameInUse,    
+        tryagain,
+        connectionerror,
+        usernameInUse,
         almostSuccess     // registered but sync failed after that
     }
-    
+
     public enum SignInResponse
     {
         invalidEmail,
@@ -176,7 +176,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IMainViewModel : IGSRoutableViewModel, IControlsSystemTray, IControlsProgressIndicator
+    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator
     {
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }
@@ -399,7 +399,7 @@ namespace Growthstories.UI.ViewModel
 
                 // update quickly for debugging
                 Task.Delay(1000 * 10).ContinueWith
-                    (__ => repeatAction(__));    
+                    (__ => repeatAction(__));
 
                 // update once in a minute
                 //Task.Delay(1000 * 60).ContinueWith
@@ -433,12 +433,12 @@ namespace Growthstories.UI.ViewModel
 
         /*
          * Calculate time for next scheduled event
-         */ 
+         */
         public static DateTimeOffset ComputeNext(DateTimeOffset last, TimeSpan Interval)
         {
             if (Interval == null)
                 throw new InvalidOperationException("This schedule is unspecified, so the next occurence cannot be computed.");
-            
+
             return last + Interval;
         }
 
@@ -478,7 +478,7 @@ namespace Growthstories.UI.ViewModel
             var ans = ComputeNext(last, (TimeSpan)Schedule.Interval);
 
             this.Missed = CalculateMissed(last, (TimeSpan)Schedule.Interval);
-           
+
             string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);
             this.MissedText = char.ToUpper(temp[0]) + temp.Substring(1);
 
@@ -538,7 +538,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return MissedLate && _OwnPlant; 
+                return MissedLate && _OwnPlant;
             }
 
         }
@@ -625,7 +625,7 @@ namespace Growthstories.UI.ViewModel
         string ScheduleTypeLabel { get; }
         //string IntervalLabel { get; }
         ScheduleType Type { get; }
-        
+
         //DateTimeOffset ComputeNext(DateTimeOffset last);
         Task<Schedule> Create();
 
@@ -730,7 +730,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand DeleteCommand { get; }
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
-        int ActionIndex {get; set;}
+        int ActionIndex { get; set; }
 
     }
 

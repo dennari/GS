@@ -25,16 +25,16 @@ namespace Growthstories.UI.WindowsPhone
 
         public static readonly DependencyProperty ViewModelProperty =
            DependencyProperty.Register(
-            "ViewModel", 
-            typeof(IRoutableViewModel), 
-            typeof(UserControl), 
+            "ViewModel",
+            typeof(IRoutableViewModel),
+            typeof(UserControl),
             new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
 
         public GSView()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
-            
+            //this.SetBinding(ViewModelProperty, new Binding());
+
             // this is needed to prevent shitty page transitions for
             // pages with backgrounds, affecting LUMIA 520 and probably 
             // other models
@@ -45,7 +45,7 @@ namespace Growthstories.UI.WindowsPhone
             //  -- JOJ 22.12.2013
             if ((int)Math.Round(Height) != 800)
             {
-                Height = 800; 
+                Height = 800;
             }
         }
 
@@ -60,7 +60,7 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        
+
 
         object IViewFor.ViewModel
         {
@@ -139,7 +139,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSContentControl()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
             //this.WhenAny()
         }
 
@@ -191,7 +191,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSPage()
         {
-            this.SetBinding(ViewModelProperty, new Binding()); // TEST JUHO
+            //this.SetBinding(ViewModelProperty, new Binding()); // TEST JUHO
         }
 
         public T ViewModel
