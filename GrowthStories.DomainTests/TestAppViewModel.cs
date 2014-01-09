@@ -1,8 +1,12 @@
-﻿using Growthstories.Core;
+﻿using EventStore;
+using EventStore.Persistence;
+using EventStore.Persistence.SqlPersistence;
+using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using Growthstories.UI.Persistence;
 using Growthstories.UI.ViewModel;
 using Ninject;
 using ReactiveUI;
@@ -56,6 +60,26 @@ namespace Growthstories.DomainTests
             //this.Model = (GSApp)Kernel.Get<IDispatchCommands>().Handle(new CreateGSApp());
             //this.User = Context.CurrentUser;
         }
+
+        protected override void ClearDB()
+        {
+            //base.ClearDB();
+            var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
+            if (db != null)
+                db.ReInitialize();
+            var db2 = Kernel.Get<IUIPersistence>() as SQLiteUIPersistence;
+            if (db2 != null)
+                db2.ReInitialize();
+
+            var repo = Repository as GSRepository;
+            if (repo != null)
+            {
+                repo.ClearCaches();
+            }
+            var pipelineHook = Kernel.Get<OptimisticPipelineHook>();
+            pipelineHook.Dispose();
+        }
+
 
 
     }

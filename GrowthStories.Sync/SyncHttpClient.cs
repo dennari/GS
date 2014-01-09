@@ -88,7 +88,7 @@ namespace Growthstories.Sync
             return ResponseFactory.CreateUserInfoResponse(await SendAndGetBodyAsync(request));
         }
 
-        
+
         public async Task<APIRegisterResponse> RegisterAsync(string username, string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.RegisterUri(username, email, password));
@@ -184,7 +184,7 @@ namespace Growthstories.Sync
         {
             if (Client == null)
                 InitClient();
-            
+
             return Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
 
@@ -205,7 +205,7 @@ namespace Growthstories.Sync
                 //throw e;
             }
 
-            Logger.Info("[RESPONSEBODY]\n" + s);
+            Logger.Info("[RESPONSEBODY]\n{0}", s);
             return Tuple.Create(r, s);
         }
 
@@ -242,7 +242,8 @@ namespace Growthstories.Sync
                         {"username",username},
                         {"password",password}
                     };
-            Logger.Info("[REQUESTBODY]\n" + Serializer.Serialize(dict));
+
+            Logger.Info("AuthRequest\n{0}", Serializer.Serialize(dict));
 
 
             var fContent = new FormUrlEncodedContent(dict);
@@ -287,7 +288,8 @@ namespace Growthstories.Sync
         {
 
             string sContent = req.ToString();
-            Logger.Info("[REQUESTBODY]\n" + sContent);
+
+            Logger.Info("REQUESTBODY\n{0}", sContent);
 
 
             return new HttpRequestMessage()
@@ -347,7 +349,7 @@ namespace Growthstories.Sync
             }
             request.Headers.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
 
-            Logger.Info("[HTTPREQUEST]\n" + request.ToString());
+            Logger.Info("HTTPREQUEST\n{0}", request.ToString());
 
             return request;
 
@@ -355,7 +357,7 @@ namespace Growthstories.Sync
 
         protected override HttpResponseMessage ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
-            Logger.Info("[HTTPRESPONSE]\n" + response.ToString());
+            Logger.Info("HTTPRESPONSE\n{0}", response.ToString());
             return response;
         }
 

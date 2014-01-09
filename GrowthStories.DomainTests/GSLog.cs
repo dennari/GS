@@ -1,5 +1,5 @@
 ﻿using EventStore.Logging;
-using EventStore.Persistence.SqlPersistence;
+using ReflectSoftware.Insight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,58 +10,62 @@ namespace Growthstories.DomainTests
     class GSLog : ILog
     {
         private Type type;
-        private readonly ILog Logger;
+        public static readonly ReflectInsight Logger = new ReflectInsight();
 
         public GSLog(Type type)
         {
             // TODO: Complete member initialization
             this.type = type;
-            this.Logger = new LogToNLog(type);
+            //this.Logger = new ReflectInsight(type.Name);
         }
 
-        protected string Tag(string m)
+        private Tuple<string, object[]> BeforeLog(string message, params object[] values)
         {
-            if (type.FullName.Contains("Growthstories") || type == typeof(SQLitePersistenceEngine))
-                return "[GS] " + m;
-            else
-                return m;
+            Logger.Category = type.Name;
+            return Tuple.Create(message, values);
         }
 
         public void Verbose(string message, params object[] values)
         {
-            Logger.Verbose(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendVerbose(p.Item1, p.Item2);
         }
 
         public void Debug(string message, params object[] values)
         {
-            Logger.Debug(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendDebug(p.Item1, p.Item2);
 
         }
 
         public void Info(string message, params object[] values)
         {
-            Logger.Info(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendInformation(p.Item1, p.Item2);
 
 
         }
 
         public void Warn(string message, params object[] values)
         {
-            Logger.Warn(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendWarning(p.Item1, p.Item2);
 
 
         }
 
         public void Error(string message, params object[] values)
         {
-            Logger.Error(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendError(p.Item1, p.Item2);
 
 
         }
 
         public void Fatal(string message, params object[] values)
         {
-            Logger.Fatal(Tag(message), values);
+            var p = BeforeLog(message, values);
+            Logger.SendFatal(p.Item1, p.Item2);
 
 
         }

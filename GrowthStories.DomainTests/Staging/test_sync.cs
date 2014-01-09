@@ -26,9 +26,12 @@ using Growthstories.Domain.Entities;
 //using EventStore.Dispatcher;
 using Growthstories.Domain;
 using EventStore.Logging;
-//using Growthstories.UI;
+using Growthstories.UI;
 //using System.Text;
 using Growthstories.UI.ViewModel;
+using Ninject;
+using System.Net;
+using System.Threading;
 //using System.IO;
 //using EventStore.Persistence;
 
@@ -40,13 +43,15 @@ namespace Growthstories.DomainTests
     {
 
 
-        private ILog Log = new LogToNLog(typeof(StagingSyncTests));
+        private GSLog Log = new GSLog(typeof(StagingSyncTests));
 
         private IAuthToken RemoteAuth;
 
 
         public void Setup()
         {
+
+            GSLog.Logger.ViewerClearAll();
 
             this.Ctx = TestUtils.WaitForTask(App.Initialize());
             Assert.IsNotNull(Ctx);
@@ -394,41 +399,136 @@ namespace Growthstories.DomainTests
 
 
         [Test]
-        public async void RealTestFriendship()
+        public async void RealTestBecomeFollower()
         {
 
-            await TestFriendship();
+            await TestBecomeFollower();
 
         }
 
-
-        public async Task<IAggregateCommand> TestFriendship()
+        PlantCreated RemotePlant = null;
+        public async Task<BecomeFollower> TestBecomeFollower()
         {
 
             Setup();
 
             var originalRemoteEvents = await CreateRemoteData();
 
-            var remoteUser = (UserCreated)originalRemoteEvents[0];
+            var remoteUser = (UserCreated)originalRemoteEvents.OfType<UserCreated>().First();
+
+            var remotePlant = (PlantCreated)originalRemoteEvents.OfType<PlantCreated>().First();
+
+            var allR = await App.SyncAll();
+
+            Assert.AreEqual(AllSyncResult.AllSynced, allR.Item1);
+
+            Log.Warn("------------- TestBecomeFollower ------------------");
 
             var relationshipCmd = App.SetIds(new BecomeFollower(Ctx.Id, remoteUser.AggregateId));
             await App.HandleCommand(relationshipCmd);
 
-            var friendshipCmd = App.SetIds(new RequestCollaboration(Ctx.Id, remoteUser.AggregateId));
-            await App.HandleCommand(friendshipCmd);
+            var R = await App.Synchronize();
+            SyncAssertions(R);
 
+            var stream = R.PushReq.Streams.First(x => x.AggregateId == Ctx.Id);
+
+            Assert.AreEqual(1, stream.Count);
+            Assert.IsInstanceOf<BecameFollower>(stream.First());
+
+            Assert.IsTrue(App.SyncStreams.ContainsKey(remoteUser.AggregateId));
+            Assert.IsTrue(App.SyncStreams.ContainsKey(remotePlant.AggregateId));
+            User user = (User)(await App.GetById(Ctx.Id));
+            Assert.IsTrue(user.State.Friends.ContainsKey(remoteUser.AggregateId));
+
+            Log.Warn("------------- RESTART ------------------");
+
+            var testUserName = "TestUser";
+            var testUserEmail = "mail@jee.net";
+            var testUserPw = "123456";
+
+            var registerResponse = await App.Register(testUserName, testUserEmail, testUserPw);
+
+            Assert.AreEqual(RegisterResponse.success, registerResponse);
+            var signinResponse = await App.SignIn(testUserEmail, testUserPw);
+            Assert.AreEqual(SignInResponse.success, signinResponse);
+
+
+            Assert.IsTrue(App.SyncStreams.ContainsKey(remoteUser.AggregateId));
+            Assert.IsTrue(App.SyncStreams.ContainsKey(remotePlant.AggregateId));
+
+            user = (User)(await App.GetById(Ctx.Id));
+            Assert.IsTrue(user.State.Friends.ContainsKey(remoteUser.AggregateId));
+
+            RemotePlant = remotePlant;
+
+            return relationshipCmd;
+
+        }
+
+        [Test]
+        public async void RealTestUnFollow()
+        {
+
+            await TestUnFollow();
+
+        }
+
+
+        public async Task<IAggregateCommand> TestUnFollow()
+        {
+
+            var cmd = await TestBecomeFollower();
+
+            var relationshipCmd = App.SetIds(new UnFollow(cmd.AggregateId, cmd.Target));
+            await App.HandleCommand(relationshipCmd);
 
             var R = await App.Synchronize();
             SyncAssertions(R);
 
+            var stream = R.PushReq.Streams.First(x => x.AggregateId == Ctx.Id);
+
+            Assert.AreEqual(1, stream.Count);
+            Assert.IsInstanceOf<UnFollowed>(stream.First());
+
+            Assert.IsFalse(App.SyncStreams.ContainsKey(cmd.AggregateId));
+            Assert.IsFalse(App.SyncStreams.ContainsKey(RemotePlant.AggregateId));
+            User user = (User)(await App.GetById(Ctx.Id));
+            Assert.IsFalse(user.State.Friends.ContainsKey(cmd.AggregateId));
+
+
+            // start from zero and sync
+
+            Log.Warn("------------- RESTART ------------------");
+
+            var testUserName = "TestUser";
+            var testUserEmail = "mail@jee.net";
+            var testUserPw = "123456";
+
+            var registerResponse = await App.Register(testUserName, testUserEmail, testUserPw);
+
+            Assert.AreEqual(RegisterResponse.success, registerResponse);
+
+
+            //Thread.Sleep(30000);
+
+            //var registerResponse = TestUtils.WaitForTask(Transporter.RegisterAsync(testUserName, testUserEmail, testUserPw));
+            //Assert.AreEqual(HttpStatusCode.OK, registerResponse.HttpStatus);
+
+
+            var signinResponse = await App.SignIn(testUserEmail, testUserPw);
+
+            Assert.AreEqual(SignInResponse.success, signinResponse);
+
+            Assert.IsFalse(App.SyncStreams.ContainsKey(cmd.AggregateId));
+            Assert.IsFalse(App.SyncStreams.ContainsKey(RemotePlant.AggregateId));
+            user = (User)(await App.GetById(Ctx.Id));
+            Assert.IsFalse(user.State.Friends.ContainsKey(cmd.AggregateId));
 
 
 
             return relationshipCmd;
 
         }
-
-
 
 
 

@@ -19,7 +19,7 @@ namespace Growthstories.DomainTests
 {
 
 
-    public class SignInEditViewModelTest : ViewModelTestBase
+    public class SignInRegisterViewModelTest : ViewModelTestBase
     {
 
         protected PlantState State;
@@ -77,7 +77,7 @@ namespace Growthstories.DomainTests
             Assert.IsNotNull(App.User);
 
             Assert.AreEqual(u.Id, App.User.Id);
-            Assert.IsFalse(u.IsRegistered());
+            Assert.IsFalse(u.IsRegistered);
 
             var restarted = new StagingAppViewModel(Kernel);
 
@@ -85,7 +85,7 @@ namespace Growthstories.DomainTests
             var u2 = TestUtils.WaitForTask(restarted.Initialize());
 
             Assert.AreEqual(u.Id, u2.Id);
-            Assert.IsFalse(u2.IsRegistered());
+            Assert.IsFalse(u2.IsRegistered);
         }
 
         [Test]

@@ -36,7 +36,7 @@ namespace Growthstories.DomainTests
     {
 
 
-        private ILog Log = new LogToNLog(typeof(AuthTest));
+        private ILog Log = new GSLog(typeof(AuthTest));
 
 
         [Test]
@@ -64,7 +64,7 @@ namespace Growthstories.DomainTests
 
 
             TestAssignUser();
-            Assert.IsFalse(App.User.IsRegistered());
+            Assert.IsFalse(App.User.IsRegistered);
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
             //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
@@ -98,7 +98,7 @@ namespace Growthstories.DomainTests
 
             TestAssignUser();
 
-            Assert.IsFalse(App.User.IsRegistered());
+            Assert.IsFalse(App.User.IsRegistered);
 
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
             //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
@@ -118,7 +118,7 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(regName, App.User.Username);
             Assert.AreEqual(regEmail, App.User.Email);
             Assert.AreEqual(regPassword, App.User.Password);
-            Assert.IsTrue(App.User.IsRegistered());
+            Assert.IsTrue(App.User.IsRegistered);
 
             //Assert.IsNull(auth.ExpiresIn);
             //SyncAssertions(R);
@@ -139,7 +139,7 @@ namespace Growthstories.DomainTests
         {
 
             TestAssignUser();
-            Assert.IsFalse(App.User.IsRegistered());
+            Assert.IsFalse(App.User.IsRegistered);
             var plantId = Guid.NewGuid();
             var plant = await App.HandleCommand(new CreatePlant(plantId, "Jore", App.User.GardenId, App.User.Id));
 
@@ -149,7 +149,7 @@ namespace Growthstories.DomainTests
 
             var restartedApp = new StagingAppViewModel(Kernel);
             await restartedApp.Initialize();
-            Assert.IsFalse(restartedApp.User.IsRegistered());
+            Assert.IsFalse(restartedApp.User.IsRegistered);
 
             var regName = "dennari";
             var regEmail = "dennari@ymail.com";
@@ -166,7 +166,7 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(regName, restartedApp.User.Username);
             Assert.AreEqual(regEmail, restartedApp.User.Email);
             Assert.AreEqual(regPassword, restartedApp.User.Password);
-            Assert.IsTrue(restartedApp.User.IsRegistered());
+            Assert.IsTrue(restartedApp.User.IsRegistered);
 
             //Assert.IsNull(auth.ExpiresIn);
             //SyncAssertions(R);

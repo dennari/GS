@@ -22,7 +22,7 @@ namespace Growthstories.Sync
         {
             var ee = (IDomainEvent)e;
             IEventDTO ed = ee.ToDTO();
-            Logger.Info("Translated {0} to {1}", e.ToString(), ed == null ? "null" : ed.ToString());
+            Logger.Info("OUT-Translated {0}", e.ToString());
             if (ed == null)
                 return null;
 
@@ -84,6 +84,7 @@ namespace Growthstories.Sync
         public IEvent In(IEventDTO dto)
         {
             var e = ((EventDTOUnion)dto).ToEvent();
+            Logger.Info("IN-Translated {0}", e.ToString());
             e.AggregateVersion += 1;
             return e;
 

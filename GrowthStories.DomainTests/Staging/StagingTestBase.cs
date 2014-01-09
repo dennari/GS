@@ -50,7 +50,7 @@ namespace Growthstories.DomainTests
         }
 
 
-        private ILog Log = new LogToNLog(typeof(StagingTestBase));
+        private ILog Log = new GSLog(typeof(StagingTestBase));
 
         public T Get<T>() { return Kernel.Get<T>(); }
         public IMessageBus Handler { get { return Get<IMessageBus>(); } }

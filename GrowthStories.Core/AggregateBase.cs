@@ -46,6 +46,7 @@ namespace Growthstories.Core
                 throw new InvalidOperationException(string.Format("Can't find handler for message {0}", @event.GetType().ToString()));
             try
             {
+                Logger.Info("Handle command {0}", @event);
                 this.applying = true;
                 ((dynamic)this).Handle((dynamic)@event);
                 this.applying = false;
@@ -77,7 +78,7 @@ namespace Growthstories.Core
         private bool applying = false;
         private TState _state;
         private IEventFactory _eventFactory;
-        private static ILog Logger = LogFactory.BuildLogger(typeof(TState));
+        private static ILog Logger = LogFactory.BuildLogger(typeof(AggregateBase));
 
         private readonly ICollection<IEvent> UncommittedRemoteEvents = new LinkedList<IEvent>();
 

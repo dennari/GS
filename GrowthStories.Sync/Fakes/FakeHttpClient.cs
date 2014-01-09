@@ -69,6 +69,8 @@ namespace Growthstories.Sync
 
         public Func<ISyncPullRequest, ISyncPullResponse> PullResponseFactory { get; set; }
 
+        public Func<string, IUserListResponse> ListUsersFactory { get; set; }
+
 
 
 
@@ -80,7 +82,12 @@ namespace Growthstories.Sync
 
         public Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IAuthResponse>(new AuthResponse()
+            {
+                AuthToken = new AuthToken("sdfgsd", 3600, "dfgdfg"),
+                StatusCode = GSStatusCode.OK,
+                StatusDescription = "OK"
+            });
 
         }
 
@@ -102,7 +109,7 @@ namespace Growthstories.Sync
 
         public Task<IUserListResponse> ListUsersAsync(string username)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(ListUsersFactory(username));
         }
 
 
