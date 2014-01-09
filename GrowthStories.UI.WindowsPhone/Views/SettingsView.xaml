@@ -46,17 +46,8 @@
 
     <local:GSViewGrid 
         TopTitle="GROWTH STORIES"
-		Title="settings">		
-        <local:GSViewGrid.Background>
-            <RadialGradientBrush 
-                Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
-                <GradientStop Color="#FF9E2277" Offset="1"/>
-                <GradientStop Color="#FFE8570E"/>
-                <!--<GradientStop Color="#FFA2578B" Offset="1"/>
-                <GradientStop Color="#FFE87D48"/>-->
-            </RadialGradientBrush>
-         </local:GSViewGrid.Background>
-
+		Title="settings">	
+    
         <StackPanel>
             <!--
             <local:GSLabel Label="Account">

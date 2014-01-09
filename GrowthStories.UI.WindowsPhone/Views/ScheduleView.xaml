@@ -54,9 +54,7 @@
         TopTitle="GROWTH STORIES"
 		Title="{Binding ScheduleTypeLabel}" 
 		Style="{StaticResource NoScroll}">
-        <local:GSViewGrid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:GSViewGrid.Background>
+        
 
         <Grid>
             <Grid.RowDefinitions>
@@ -69,11 +67,15 @@
                     Margin="-12,0,-12,0"
                     Value="{Binding Interval, Mode=TwoWay}"
 				    SelectorFormat="wdh"
+                    Background="Transparent"
+                    CancelButtonIconUri="{Binding CancelIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
                     OkButtonIconUri="{Binding OKIcon, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
 				    DisplayValueFormat="g"
 				    x:Name="TimeSpanPicker"                
                     PickerButtonStyle="{StaticResource PickerBoxToggleButtonStyle1}"
-                    />
+                    >
+                </telerikInput:RadTimeSpanPicker>
+
 
             </local:GSLabel>
 

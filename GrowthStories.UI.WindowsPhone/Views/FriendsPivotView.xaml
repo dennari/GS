@@ -14,10 +14,11 @@
     mc:Ignorable="d">
 
     <Grid x:Name="LayoutRoot">
+        
         <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.png"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.jpg"/>
         </Grid.Background>
-
+         
         <phone:Pivot 
 			x:Name="Friends" 
 			ItemsSource="{Binding Friends}"
