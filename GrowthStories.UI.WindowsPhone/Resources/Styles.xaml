@@ -14,9 +14,10 @@
 	xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls" 
 	xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls" 
     xmlns:Primitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone"
-    xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
-    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
-	xmlns:PickerBox="clr-namespace:Telerik.Windows.Controls.PickerBox;assembly=Telerik.Windows.Controls.Primitives"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" 
+	xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
+	xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
+	xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
     mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />
@@ -60,9 +61,13 @@
 
     <SolidColorBrush x:Key="GSWhiteBrush" Color="WhiteSmoke"/>
 
+    <RadialGradientBrush x:Key="GSBackgroundGradient"
+                Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
+        <GradientStop Color="#FF9E2277" Offset="1"/>
+        <GradientStop Color="#FFE8570E" />
+    </RadialGradientBrush>
 
 
-  
 
     <!-- ############################################### 
  ############ ACTIONS ##############################
@@ -478,6 +483,141 @@
             </Setter>
         </Style>
 
+
+    <!-- Styles for customizing RadTimeSpanPicker -->
+
+    <!--
+    <Style x:Key="LoopingListItemStyle1" TargetType="LoopingList:LoopingListItem">
+		<Setter Property="CacheMode" Value="BitmapCache"/>
+		<Setter Property="HorizontalAlignment" Value="Center"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+		<Setter Property="BorderThickness" Value="3"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="LoopingList:LoopingListItem">
+					<Border x:Name="root" BorderBrush="{StaticResource PhoneInactiveBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="{TemplateBinding Padding}">
+						<VisualStateManager.VisualStateGroups>
+							<VisualStateGroup x:Name="CommonStates">
+								<VisualStateGroup.Transitions>
+									<VisualTransition GeneratedDuration="0:0:0.2"/>
+								</VisualStateGroup.Transitions>
+								<VisualState x:Name="Collapsed">
+									<Storyboard>
+										<DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="root"/>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Expanded">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="root">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Transparent"/>
+										</ObjectAnimationUsingKeyFrames>
+										<DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="root"/>
+										<DoubleAnimation Duration="0" To=".6" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="contentPresenter"/>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Selected">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="root">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Transparent" />
+										</ObjectAnimationUsingKeyFrames>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="root">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Transparent"/>
+										</ObjectAnimationUsingKeyFrames>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="contentPresenter">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="White"/>
+										</ObjectAnimationUsingKeyFrames>
+										<DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="root"/>
+										<DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="contentPresenter"/>
+									</Storyboard>
+								</VisualState>
+								<VisualState x:Name="Disabled">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="root">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Transparent"/>
+										</ObjectAnimationUsingKeyFrames>
+										<DoubleAnimation Duration="0" To=".3" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="root"/>
+									</Storyboard>
+								</VisualState>
+							</VisualStateGroup>
+						</VisualStateManager.VisualStateGroups>
+						<ContentControl x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" DataContext="{TemplateBinding DataContext}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+    -->
+    
+    <Style x:Key="InputControlHeaderStyle" TargetType="ContentControl">
+        <Setter Property="Foreground" Value="WhiteSmoke" />
+        <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeNormal}"/>
+        <Setter Property="Margin" Value="12,12,12,-4"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+    
+    <telerik:RadPlaneProjectionAnimation x:Key="CloseAnimation" Axes="X" Duration="0:0:.2" EndAngleX="90" StartAngleX="0">
+        <telerik:RadPlaneProjectionAnimation.Easing>
+            <ExponentialEase EasingMode="EaseIn" Exponent="4"/>
+        </telerik:RadPlaneProjectionAnimation.Easing>
+    </telerik:RadPlaneProjectionAnimation>
+    <telerik:RadPlaneProjectionAnimation x:Key="OpenAnimation" Axes="X" Duration="0:0:.2" EndAngleX="0" StartAngleX="-90">
+        <telerik:RadPlaneProjectionAnimation.Easing>
+            <ExponentialEase EasingMode="EaseOut" Exponent="4"/>
+        </telerik:RadPlaneProjectionAnimation.Easing>
+    </telerik:RadPlaneProjectionAnimation>
+
+    <Style x:Key="GSTimeSpanLoopingList" TargetType="TimeSpanPicker:TimeSpanLoopingList">
+        <Setter Property="BorderThickness" Value="3" />
+        <Setter Property="BorderBrush" Value="White" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    
+    <Style x:Key="GSRadTimeSpanPickerStyle" TargetType="telerikInput:RadTimeSpanPicker">
+        <Setter Property="SelectorFormat" Value="hms"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="HeaderStyle" Value="{StaticResource InputControlHeaderStyle}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikInput:RadTimeSpanPicker">
+                    <telerikPrimitives:RadPickerBox x:Name="PART_PickerBox" HeaderTemplate="{TemplateBinding HeaderTemplate}" HeaderStyle="{TemplateBinding HeaderStyle}" Header="{TemplateBinding Header}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" PopupCloseAnimation="{StaticResource CloseAnimation}" PickerButtonStyle="{TemplateBinding PickerButtonStyle}" PopupOpenAnimation="{StaticResource OpenAnimation}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <telerikPrimitives:RadPickerBox.ApplicationBarInfo>
+                            <telerikPrimitives:ApplicationBarInfo x:Name="PART_AppBarInfo" 
+                                ForegroundColor="{StaticResource GSAccentColor}"
+                                BackgroundColor="WhiteSmoke">
+                                <telerikPrimitives:ApplicationBarButton x:Name="PART_OKButton"/>
+                                <telerikPrimitives:ApplicationBarButton x:Name="PART_CancelButton"/>
+                            </telerikPrimitives:ApplicationBarInfo>
+                        </telerikPrimitives:RadPickerBox.ApplicationBarInfo>
+                        <Grid x:Name="PART_PopupRoot" Background="{StaticResource GSBackgroundGradient}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <ContentControl x:Name="PART_PopupHeader" ContentTemplate="{TemplateBinding PopupHeaderTemplate}" Content="{TemplateBinding PopupHeader}" FontSize="{StaticResource PhoneFontSizeMedium}" FontFamily="{StaticResource PhoneFontFamilySemiBold}" HorizontalContentAlignment="Left" Margin="24, 55, 0, 24" Grid.Row="0"/>
+                            <Grid HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TimeSpanPicker:TimeSpanLoopingList x:Name="PART_SecondsList" ComponentType="Second" Grid.Column="0" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" Step="{TemplateBinding Step}"/>
+                                <TimeSpanPicker:TimeSpanLoopingList x:Name="PART_MinutesList" ComponentType="Minute" Grid.Column="1" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" Step="{TemplateBinding Step}"/>
+                                <TimeSpanPicker:TimeSpanLoopingList x:Name="PART_HoursList" ComponentType="Hour" Grid.Column="2" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" Step="{TemplateBinding Step}" />
+                                <TimeSpanPicker:TimeSpanLoopingList x:Name="PART_DaysList" ComponentType="Day" Grid.Column="3" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" Step="{TemplateBinding Step}"/>
+                                <TimeSpanPicker:TimeSpanLoopingList x:Name="PART_WeeksList" ComponentType="Week" Grid.Column="4" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" Step="{TemplateBinding Step}"/>
+                            </Grid>
+                        </Grid>
+                    </telerikPrimitives:RadPickerBox>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>
