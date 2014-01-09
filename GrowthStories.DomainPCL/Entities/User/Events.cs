@@ -12,7 +12,7 @@ namespace Growthstories.Domain.Messaging
 
     #region User
 
-    [DTOObject(DTOType.register)]  
+    [DTOObject(DTOType.register)]
     public sealed class Registered : EventBase, IAggregateEvent<UserState>
     {
 
@@ -326,6 +326,42 @@ namespace Growthstories.Domain.Messaging
         public override void FromDTO(IEventDTO Dto)
         {
             var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "following")
+                throw new ArgumentException();
+
+            base.FromDTO(D);
+
+        }
+
+    }
+
+    [DTOObject(DTOType.delProperty)]
+    public sealed class UnFollowed : RelationshipEvent
+    {
+
+
+        private UnFollowed() { }
+
+        public UnFollowed(UnFollow cmd)
+            : base(cmd)
+        {
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} stopped following user {1}.", this.AggregateId, this.Target);
+        }
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (IDelPropertyDTO)Dto;
+            D.PropertyName = "following";
+            base.FillDTO(D);
+        }
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (IDelPropertyDTO)Dto;
             if (D.EntityType != DTOType.user || D.PropertyName != "following")
                 throw new ArgumentException();
 

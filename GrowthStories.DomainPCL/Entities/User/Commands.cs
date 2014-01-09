@@ -176,6 +176,23 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class UnFollow : RelationshipCommand
+    {
+
+
+        public UnFollow(Guid userId, Guid target)
+            : base(userId, target)
+        {
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} wants to stop following user {1}.", this.AggregateId, this.Target);
+        }
+
+    }
+
     public class RequestCollaboration : RelationshipCommand
     {
 

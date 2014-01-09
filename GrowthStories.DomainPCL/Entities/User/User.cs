@@ -20,6 +20,7 @@ namespace Growthstories.Domain.Entities
     public class User : AggregateBase<UserState, UserCreated>,
         ICommandHandler<CreateUser>,
         ICommandHandler<BecomeFollower>,
+        ICommandHandler<UnFollow>,
         ICommandHandler<SetUsername>,
         ICommandHandler<SetEmail>,
         ICommandHandler<SetPassword>,
@@ -94,6 +95,11 @@ namespace Growthstories.Domain.Entities
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new BecameFollower(command));
+        }
+
+        public void Handle(UnFollow command)
+        {
+            RaiseEvent(new UnFollowed(command));
         }
 
         public void Handle(RequestCollaboration command)

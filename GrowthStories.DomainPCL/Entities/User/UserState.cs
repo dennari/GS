@@ -37,8 +37,8 @@ namespace Growthstories.Domain.Entities
         public static readonly Guid UnregUserId = Guid.NewGuid();//new Guid("11000000-0000-0000-0000-000000000011");
         public static readonly Guid UnregUserGardenId = Guid.NewGuid();//new Guid("11100000-0000-0000-0000-000000000111");
 
-        [JsonIgnore]
-        public readonly HashSet<Guid> Friends = new HashSet<Guid>();
+        [JsonProperty]
+        public readonly Dictionary<Guid, bool> Friends = new Dictionary<Guid, bool>();
         [JsonIgnore]
         public readonly HashSet<Guid> Collaborators = new HashSet<Guid>();
         [JsonIgnore]
@@ -77,13 +77,13 @@ namespace Growthstories.Domain.Entities
 
         [JsonProperty]
         public string Username { get; private set; }
- 
+
         [JsonIgnore]
         public string AccessToken { get; set; }
 
         [JsonIgnore]
         public int ExpiresIn { get; set; }
-        
+
         [JsonIgnore]
         public string RefreshToken { get; set; }
 
@@ -140,7 +140,12 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(BecameFollower @event)
         {
-            this.Friends.Add(@event.Target);
+            this.Friends[@event.Target] = true;
+        }
+
+        public void Apply(UnFollowed @event)
+        {
+            this.Friends.Remove(@event.Target);
         }
 
         public void Apply(UsernameSet @event)
@@ -154,7 +159,7 @@ namespace Growthstories.Domain.Entities
         }
 
         public void Apply(EmailSet @event)
-        {    
+        {
             this.Email = @event.Email;
         }
 

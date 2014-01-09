@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System;
+using System.Linq;
 using Growthstories.Domain.Messaging;
 using Growthstories.Core;
 using EventStore;
@@ -62,6 +63,24 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new SyncStreamCreated(e.PlantId, PullStreamType.PLANT, e.AggregateId));
         }
 
+        public void Handle(BecameFollower e)
+        {
+            //if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId)
+            if (this.State != null && this.State.User != null && this.State.User.Id == e.AggregateId) // don't sync friends of friends
+                RaiseEvent(new SyncStreamCreated(e.Target, PullStreamType.USER));
+        }
+
+        public void Handle(UnFollowed e)
+        {
+
+            if (this.State.SyncStreamDict.ContainsKey(e.Target))
+                RaiseEvent(new SyncStreamDeleted(e.Target));
+            // also delete the plant-streams
+            var streamIds = this.State.SyncStreams.Where(x => x.AncestorId == e.Target).Select(x => x.StreamId).ToArray();
+            foreach (var id in streamIds)
+                RaiseEvent(new SyncStreamDeleted(id));
+        }
+
         public void Handle(DeleteAggregate e)
         {
             if (this.State.SyncStreamDict.ContainsKey(e.AggregateId))
@@ -106,11 +125,25 @@ namespace Growthstories.Domain.Entities
                 RaiseEvent(new PasswordSet(copy));
             }
         }
-        
+
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new SyncStreamCreated(command));
         }
+
+        public void Handle(UnFollow command)
+        {
+
+            RaiseEvent(new SyncStreamDeleted(command.Target));
+
+            // also delete the plant-streams
+            var streamIds = this.State.SyncStreams.Where(x => x.AncestorId == command.Target).Select(x => x.StreamId).ToArray();
+            foreach (var id in streamIds)
+                RaiseEvent(new SyncStreamDeleted(id));
+
+
+        }
+
         public void Handle(CreateSyncStream command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -182,6 +215,8 @@ namespace Growthstories.Domain.Entities
                     return true;
                 if (cmd is BecomeFollower)
                     return true;
+                if (cmd is UnFollow)
+                    return true;
                 if (cmd is AddPlant)
                     return true;
                 if (cmd is AddGarden)
@@ -196,6 +231,12 @@ namespace Growthstories.Domain.Entities
                     return true;
                 if (cmd is GardenAdded)
                     return true;
+                if (cmd is BecameFollower)
+                    return true;
+                if (cmd is UnFollowed)
+                    return true;
+
+
             }
             //else
             //{

@@ -116,7 +116,7 @@
     <Compile Include="ViewModel\GardenPivotViewModel.cs" />
     <Compile Include="ViewModel\FriendsViewModel.cs" />
     <Compile Include="ViewModel\Interfaces.cs" />
-    <Compile Include="ViewModel\ListUsersViewModel.cs" />
+    <Compile Include="ViewModel\SearchUsersViewModel.cs" />
     <Compile Include="ViewModel\PlantActionViewModel.cs" />
     <Compile Include="ViewModel\ScheduleViewModel.cs" />
     <Compile Include="ViewModel\YAxisShitViewModel.cs" />

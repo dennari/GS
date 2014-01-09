@@ -146,7 +146,10 @@ namespace Growthstories.UI.ViewModel
                 _List.Clear();
                 if (x.Users != null && x.Users.Count > 0)
                 {
-                    var filtered = x.Users.Where(y => !App.SyncStreams.ContainsKey(y.AggregateId)).ToArray();
+                    var filtered = x.Users.Where(y =>
+                        !App.SyncStreams.ContainsKey(y.AggregateId) &&
+                        y.Garden != null && y.Garden.Plants != null && y.Garden.Plants.Count > 0
+                        ).ToArray();
                     if (filtered.Length > 0)
                         _List.AddRange(filtered);
                 }
@@ -165,20 +168,8 @@ namespace Growthstories.UI.ViewModel
                     var x = xx as RemoteUser;
                     if (x == null)
                         return null;
-                    //var cmds = new MultiCommand(new CreateSyncStream(x.AggregateId, Core.PullStreamType.USER));
 
-                    //if (x.Garden != null && x.Garden.Plants != null)
-                    //{
-                    //    foreach (var p in x.Garden.Plants)
-                    //        cmds.Add(new CreateSyncStream(p.AggregateId, Core.PullStreamType.PLANT, x.AggregateId));
-                    //}
-
-                    //await App.HandleCommand(cmds);
-
-                    //var syncResult = await App.SyncAll();
-
-
-                    await App.HandleCommand(new CreateSyncStream(x.AggregateId, PullStreamType.USER));
+                    await App.HandleCommand(new BecomeFollower(App.User.Id, x.AggregateId));
 
                     // now we get the user stream AND info on the plants
                     await App.SyncAll();
@@ -194,7 +185,7 @@ namespace Growthstories.UI.ViewModel
                 });
 
             this.SyncResults.Publish().Connect();
-           
+
             /*
             this.SyncStreams
                 .Subscribe(x =>

@@ -532,7 +532,7 @@ namespace Growthstories.UI.ViewModel
 
         protected virtual IKernel GetKernel()
         {
-            throw new NotImplementedException();
+            return this.Kernel;
         }
 
         protected Task<IAuthUser> InitializeJob;
@@ -905,10 +905,13 @@ namespace Growthstories.UI.ViewModel
 
             Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
 
-            // now we get the user stream AND info on the plants
+            // we pull our _own_ user stream, get info on the plants and the followed users
             await this.SyncAll();
-            // now we get the plants too
+            // we pull our _own_ plant streams, we pull followed users' streams and get info on followed users' plants
             await this.SyncAll();
+            // we pull followed user' plants
+            await this.SyncAll();
+
 
             return SignInResponse.success;
         }
