@@ -14,7 +14,6 @@ using System.Windows.Data;
 using EventStore.Logging;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
-using GrowthStories.UI.WindowsPhone.BA;
 
 namespace Growthstories.UI.WindowsPhone
 {

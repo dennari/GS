@@ -34,6 +34,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
     public class AppViewModel : ReactiveObject, IGSAppViewModel
     {
 
@@ -1407,23 +1408,8 @@ namespace Growthstories.UI.ViewModel
             get { return this; }
         }
 
+
     }
-
-    public enum View
-    {
-        EXCEPTION,
-        GARDEN,
-        PLANT,
-        ADD_PLANT,
-        ADD_COMMENT,
-        ADD_WATER,
-        ADD_PHOTO,
-        ADD_FERT,
-        SELECT_PROFILE_PICTURE
-    }
-
-
-
 
 
 }

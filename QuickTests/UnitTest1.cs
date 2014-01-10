@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Net.Sockets;
 
 namespace QuickTests
 {
@@ -174,8 +175,42 @@ namespace QuickTests
 
 
 
+        [TestMethod]
+        public void TestLogIO()
+        {
+            try
+            {
+
+                Int32 port = 28777;
+                string host = "dennari-macbook.lan";
+                var message = "+log|my_stream|my_node|info|this is log message\r\n";
+
+                // Translate the passed message into ASCII and store it as a Byte array.
+                Byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
+                using (var client = new TcpClient(host, port))
+                {
+                    client.SendTimeout = 2000;
+                    using (var stream = client.GetStream())
+                    {
+                        stream.Write(data, 0, data.Length);
+                        stream.Write(data, 0, data.Length);
+
+                    }
+                }
 
 
 
+            }
+            catch (ArgumentNullException e)
+            {
+                Console.WriteLine("ArgumentNullException: {0}", e);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: {0}", e);
+            }
+
+
+        }
     }
 }

@@ -16,6 +16,7 @@ using Growthstories.Core;
 //using EventStore.Logging;
 using CommonDomain;
 using System.Collections;
+using EventStore.Logging;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -28,7 +29,7 @@ namespace Growthstories.UI.ViewModel
         public readonly IObservable<IUserListResponse> SearchResults;
         public readonly IObservable<List<CreateSyncStream>> SyncStreams;
 
-        //      private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
 
         private ReactiveList<RemoteUser> _List;
@@ -150,8 +151,13 @@ namespace Growthstories.UI.ViewModel
                         !App.SyncStreams.ContainsKey(y.AggregateId) &&
                         y.Garden != null && y.Garden.Plants != null && y.Garden.Plants.Count > 0
                         ).ToArray();
+
                     if (filtered.Length > 0)
+                    {
+                        Logger.Info("Listed {0} users", filtered.Length);
                         _List.AddRange(filtered);
+
+                    }
                 }
             });
 
@@ -164,20 +170,29 @@ namespace Growthstories.UI.ViewModel
             this.SyncResults = UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
                 {
-
                     var x = xx as RemoteUser;
                     if (x == null)
                         return null;
 
+                    Logger.Info("Before BecomeFollower");
+
                     await App.HandleCommand(new BecomeFollower(App.User.Id, x.AggregateId));
 
                     // now we get the user stream AND info on the plants
+
+                    Logger.Info("Before SyncAll");
+
                     await App.SyncAll();
                     // now we get the plants too
                     var syncResult = await App.SyncAll();
 
+                    Logger.Info("Before ShowPopup");
 
                     App.ShowPopup.Execute(null);
+
+
+                    Logger.Info("Before NavigationStack");
+
                     if (App.Router.NavigationStack.Count > 0)
                         App.Router.NavigateBack.Execute(null);
                     return syncResult;

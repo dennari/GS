@@ -107,6 +107,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CommonDomain\src\PortableCommonDomain\PortableCommonDomain.csproj">
+      <Project>{d721924b-891e-4375-a6a6-ea28e4edb846}</Project>
+      <Name>PortableCommonDomain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\jEventStore\src\proj\EventStore.Core\EventStore.Core.csproj">
       <Project>{f6d5d6ff-df31-4f3e-8703-d9262bb1d0ec}</Project>
       <Name>EventStore.Core</Name>
