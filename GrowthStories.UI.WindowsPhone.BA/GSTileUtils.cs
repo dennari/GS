@@ -134,31 +134,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static void UpdateTile(IPlantViewModel pvm)
-        {
-            UpdateTile(pvm, false);
-        }
-
-
-        public static void CreateOrUpdateTile(IPlantViewModel pvm)
-        {
-            UpdateTile(pvm, true);
-        }
-
-
-        private static void UpdateTile(IPlantViewModel pvm, bool create)
-        {
-            var tile = GetShellTile(pvm);
-
-            if (tile != null || create)
-            {
-                TileUpdateInfo info = CreateTileUpdateInfo(pvm);
-                UpdateTile(info);
-                WriteTileUpdateInfo(info);
-            }
-        }
-
-
         public static void UpdateTiles()
         {
             var pti = ReadTileUpdateInfos();
@@ -179,21 +154,21 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     u.WhenAnyValue(y => y.Missed)                
                         .Subscribe(_ =>
                         {
-                            UpdateTile(x);
+                            UpdateTileAndInfo(x);
                         });
                 });
 
                 // watch for watering schedule enabled updates
                 x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
                 {
-                    UpdateTile(x);
+                    UpdateTileAndInfo(x);
                 });
 
                 // also watch for added photos
                 x.WhenAnyValue(w => w.Actions.ItemsAdded)
                     .Subscribe(u =>
                 {
-                    UpdateTile(x);
+                    UpdateTileAndInfo(x);
                 });
             });
         }
@@ -239,7 +214,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        private static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
+        public static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
         {
             var app = pvm.App as AppViewModel;
             return CreateTileUpdateInfo(pvm, FetchPhotoActions(pvm.Id, app));
@@ -316,19 +291,26 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static void UpdateTile(TileUpdateInfo info)
+        private static void UpdateTile(TileUpdateInfo info)
         {
             var tileData = GetTileData(info);
 
             var tile = GetShellTile(info.UrlPathSegment);
-            if (tile == null) {
-                ShellTile.Create(new Uri(info.UrlPath, UriKind.Relative), tileData, true);
-            
-            } else {
-                tile.Update(tileData);
-            }
+            tile.Update(tileData);
         }
 
+
+        public static void UpdateTileAndInfo(IPlantViewModel pvm)
+        {
+            var tile = GetShellTile(pvm);
+
+            if (tile != null)
+            {
+                TileUpdateInfo info = CreateTileUpdateInfo(pvm);
+                UpdateTile(info);
+                WriteTileUpdateInfo(info);
+            }
+        }
 
         public static void DeleteTile(IPlantViewModel pvm)
         {

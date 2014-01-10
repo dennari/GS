@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Globalization;
+using Growthstories.UI.ViewModel;
+using GrowthStories.UI.WindowsPhone.BA;
+using Microsoft.Phone.Shell;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -69,5 +73,33 @@ namespace Growthstories.UI.WindowsPhone
             }
             catch { }
         }
+    }
+
+   
+
+    public static class GSMainProgramTileUtils
+    {
+
+
+        /*
+         * Referencing ShellTile.Create is not allowed inside code
+         * within a background agent, so we have this separately here
+         */
+        public static void CreateOrUpdateTile(IPlantViewModel pvm)
+        {
+
+            var tile = GSTileUtils.GetShellTile(pvm);
+            if (tile != null) {
+                GSTileUtils.UpdateTileAndInfo(pvm);
+
+            } else {
+                var info = GSTileUtils.CreateTileUpdateInfo(pvm);
+                ShellTile.Create(new Uri(info.UrlPath, UriKind.Relative), GSTileUtils.GetTileData(info), true);
+                GSTileUtils.WriteTileUpdateInfo(info);
+
+            }
+
+        }
+
     }
 }

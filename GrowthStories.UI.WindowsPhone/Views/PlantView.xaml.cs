@@ -106,8 +106,8 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private void CreateOrUpdateTile()
-        {         
-            GSTileUtils.CreateOrUpdateTile(ViewModel);
+        {
+            GSMainProgramTileUtils.CreateOrUpdateTile(ViewModel);
         }
 
 
