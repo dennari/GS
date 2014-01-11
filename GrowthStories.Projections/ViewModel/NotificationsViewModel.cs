@@ -90,6 +90,7 @@ namespace Growthstories.UI.ViewModel
             : base(app)
         {
 
+            AppBarIsVisible = false;
             this._AppBarButtons.Add(
             new ButtonViewModel(null)
             {

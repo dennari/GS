@@ -31,27 +31,28 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand ItemTappedCommand { get; set; }
-
+        
 
         private IDisposable loadSubscription = Disposable.Empty;
         void LoadFriends()
         {
+            // currentgardens, really? -- JOJ
             this.loadSubscription = App.CurrentGardens()
-                       .Concat(App.FutureGardens())
-                       .Where(x => x.User.Id != App.User.Id)
-                       .DistinctUntilChanged()
-                       .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(x =>
-                       {
-                           _Friends.Add(x);
-
-                           this.ListenTo<AggregateDeleted>(x.UserId)
-                             .Subscribe(y =>
-                             {
-                                 _Friends.Remove(x);
-                             });
-                       });
+                .Concat(App.FutureGardens())
+                .Where(x => x.User.Id != App.User.Id)
+                .DistinctUntilChanged()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    _Friends.Add(x);
+                    this.ListenTo<AggregateDeleted>(x.UserId)
+                        .Subscribe(y =>
+                        {
+                            _Friends.Remove(x);
+                        });
+                });
         }
+
 
         protected ReactiveList<IGardenViewModel> _Friends;
         public IReadOnlyReactiveList<IGardenViewModel> Friends
@@ -97,9 +98,9 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IGardenViewModel>()
                 .Subscribe(x => this.SelectedFriend = x);
 
+            this.TrySearchUsersCommand = new ReactiveCommand();
             this.ItemTappedCommand = new ReactiveCommand(App.Router.CurrentViewModel.Select(x => x != this));
             this.ItemTappedCommand.Subscribe(_ => this.Navigate(this));
-
 
             this.App.Router.CurrentViewModel.Subscribe(x =>
             {
@@ -117,17 +118,29 @@ namespace Growthstories.UI.ViewModel
 
             this.UnFollowCommand = new ReactiveCommand();
 
-            /* 
-             This would end up sending a delEntity for the user being unfollowed to the server
-             definitely not the right thing to do
-             
-             this.UnFollowCommand
-              .RegisterAsyncTask((_) => App.HandleCommand(
-                    new DeleteAggregate(this.SelectedFriend.UserId)))
-              .Publish()
-              .Connect();
-            */ 
+            this.TrySearchUsersCommand.Subscribe(_ =>
+            {
+                if (Friends.Count >= 7)
+                {
+                    var pvm = new PopupViewModel()
+                    {
+                        Caption = "Can't follow more users",
+                        Message = "You can only follow 7 users at a time. Please remove some followed users before adding new users to follow.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK",
+                    };
+
+                    App.ShowPopup.Execute(pvm);
+
+                } else {
+                    App.Router.NavigateCommandFor<SearchUsersViewModel>().Execute(null);
+        
+                }
+            });
         }
+
+
+        public IReactiveCommand TrySearchUsersCommand;
 
         ReactiveList<IButtonViewModel> _MainViewButtons;
         private ReactiveList<IButtonViewModel> MainViewButtons
@@ -139,7 +152,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "add",
                         IconType = IconType.ADD,
-                        Command = App.Router.NavigateCommandFor<SearchUsersViewModel>()
+                        Command = TrySearchUsersCommand
                     }            
                 });
             }
