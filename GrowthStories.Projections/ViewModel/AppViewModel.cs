@@ -32,9 +32,6 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-
-
-
     public class AppViewModel : ReactiveObject, IGSAppViewModel
     {
 
@@ -50,8 +47,6 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _UrlPath, value);
             }
         }
-
-
 
 
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
@@ -194,6 +189,7 @@ namespace Growthstories.UI.ViewModel
 
             });
 
+            DeleteTileCommand = new ReactiveCommand();
             MyGardenCreatedCommand = new ReactiveCommand();
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
@@ -319,6 +315,7 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
 
+        public IReactiveCommand DeleteTileCommand { get; private set; }
 
 
         #endregion

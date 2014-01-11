@@ -34,18 +34,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(ISearchUsersViewModel vm)
         {
-            if (!SyncHttpClient.HasInternetConnection)
-            {
-                PopupViewModel pvm = new PopupViewModel()
-                {
-                    Caption = "No data connection available",
-                    Message = "Following users requires a data connection. Please enable a data connection and try again.",
-                    IsLeftButtonEnabled = true,
-                    DismissedCommand = vm.App.Router.NavigateBack,
-                    LeftButtonContent = "OK"
-                };
-                vm.App.ShowPopup.Execute(pvm);
-            } 
+           
         }
 
 
@@ -76,10 +65,29 @@ namespace Growthstories.UI.WindowsPhone
             UserSelector.SelectedItem = null;
         }
 
+
         private void TextBlock_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
 
         }
+
+
+        private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!SyncHttpClient.HasInternetConnection)
+            {
+                PopupViewModel pvm = new PopupViewModel()
+                {
+                    Caption = "No data connection available",
+                    Message = "Following users requires a data connection. Please enable a data connection and try again.",
+                    IsLeftButtonEnabled = true,
+                    DismissedCommand = ViewModel.App.Router.NavigateBack,
+                    LeftButtonContent = "OK"
+                };
+                ViewModel.App.ShowPopup.Execute(pvm);
+            } 
+        }
+
 
     }
 }

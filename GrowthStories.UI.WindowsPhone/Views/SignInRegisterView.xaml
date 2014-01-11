@@ -16,6 +16,7 @@
     <local:GSViewGrid 
         TopTitle="GROWTH STORIES"
 		Title="{Binding Title}" 
+        Loaded="GSViewGrid_Loaded"
 		>
         
 

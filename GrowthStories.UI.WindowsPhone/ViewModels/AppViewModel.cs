@@ -78,7 +78,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 }
                 catch { }
+            });
 
+            DeleteTileCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                GSTileUtils.DeleteTile((IPlantViewModel)x);
             });
 
         }

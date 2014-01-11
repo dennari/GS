@@ -52,6 +52,7 @@
         TopTitle="GROWTH STORIES"
         Title="follow user"
         Style="{StaticResource NoScroll}"
+        Loaded="GSViewGrid_Loaded"
         >
 
  

@@ -77,7 +77,7 @@ namespace Growthstories.UI.WindowsPhone
             resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(GSViewLocator));
             resolver.RegisterLazySingleton(() => resolver.GetService<GSViewLocator>(), typeof(IViewLocator));
 
-            GSRemoteLog.Host = "dennari-macbook.lan";
+            GSRemoteLog.Host = "192.168.0.51";
             GSRemoteLog.Port = 28777;
 
             resolver.Register(() => new GSRemoteLog(), typeof(ILogger));

@@ -74,6 +74,8 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShowPopup { get; }
         IReactiveCommand SynchronizeCommand { get; }
         IReactiveCommand UISyncFinished { get; }
+        IReactiveCommand DeleteTileCommand { get; }
+
 
         IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
         IPopupViewModel SyncPopup { get; }
@@ -203,6 +205,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
         IReactiveCommand DeleteCommand { get; }
+        IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
 
@@ -811,8 +814,7 @@ namespace Growthstories.UI.ViewModel
     {
         LeftButton,
         RightButton,
-        BackButton,
-        None
+        None            // we get this one with back button
     }
 
     public interface IGSRoutableViewModel : IRoutableViewModel, IGSViewModel

@@ -44,7 +44,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private readonly IGardenViewModel Vm;
-        /// </summary>
+        
         public GardenPivotViewModel(IGardenViewModel vm)
             : base(vm.App)
         {
