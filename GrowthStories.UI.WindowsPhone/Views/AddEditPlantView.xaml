@@ -141,7 +141,7 @@
                 </local:GSLabel>
                    
                 <!-- GENUS -->
-                <local:GSLabel Label="species">
+                <local:GSLabel Label="species" Margin="0,6,0,0">
                     <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
                                 local:BindingUtility.UpdateSourceOnChange="True"
                                 Margin="-12,0,-12,0"     
@@ -169,7 +169,7 @@
                     ItemsPanel="{StaticResource TagsPanelTemplate}"/>
                 -->
 
-                <local:GSLabel Label="watering schedule">
+            <local:GSLabel Label="watering schedule" Margin="0,6,0,0">
                         <local:GSToggleSwitch
                             IsChecked="{Binding IsWateringScheduleEnabled, Mode=TwoWay}"
                             Content="{Binding WateringSchedule}"
