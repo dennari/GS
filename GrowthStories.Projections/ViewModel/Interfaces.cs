@@ -130,7 +130,9 @@ namespace Growthstories.UI.ViewModel
 
         IUIPersistence UIPersistence { get; }
 
-        Task PossiblyAutoSync();
+        //Task PossiblyAutoSync();
+        void PossiblyAutoSync();
+        
     }
 
 

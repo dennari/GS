@@ -471,10 +471,9 @@ namespace Growthstories.UI.ViewModel
         // This method should be called whenever we detect changes we
         // would like to sync immediately, and also possibly periodically
         //
-        public async Task PossiblyAutoSync()
+        public async Task _PossiblyAutoSync()
         {
             
-            Logger.Debug("PossiblyAutoSync, count is " + AutoSyncCount);
             if (!HasDataConnection)
             {
                 return;
@@ -494,7 +493,16 @@ namespace Growthstories.UI.ViewModel
                     this.AutoSyncCount--;
                 }
             } 
-            
+           
+        }
+
+
+        public void PossiblyAutoSync()
+        {
+            // before triggering the actual autosync,
+            // wait for a few seconds for more important
+            // processing to finish
+            Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
         }
 
 
