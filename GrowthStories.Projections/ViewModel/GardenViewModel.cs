@@ -291,6 +291,8 @@ namespace Growthstories.UI.ViewModel
                     LeftButtonContent = "OK",
                 };
 
+                App.ShowPopup.Execute(pvm);
+
             } else {
                 App.Router
                     .NavigateCommandFor<IAddEditPlantViewModel>()
