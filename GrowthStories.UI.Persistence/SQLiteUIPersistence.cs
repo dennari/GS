@@ -164,11 +164,14 @@ namespace Growthstories.UI.Persistence
                 cmd.AddParameter(SQL.PlantId, state.PlantId);
                 cmd.AddParameter(SQL.Type, (int)state.Type);
 
+                Logger.Info("serializing payload for " + state.Id);
                 var payload = this.serializer.Serialize(state);
-
+                Logger.Info("serialized payload for " + state.Id);
+                
                 //var debug = Encoding.UTF8.GetString(payload);
 
                 cmd.AddParameter(SQL.Payload, payload);
+                Logger.Info("executing non-query for " + state.Id);
                 return cmd.ExecuteNonQuery(SQL.PersistAction);
             });
         }
@@ -489,7 +492,11 @@ namespace Growthstories.UI.Persistence
             }
             catch (Exception e)
             {
-                Logger.Debug("Storage threw exception {0}", e.GetType());
+                Logger.Debug("Storage threw exception {0}, {1}, {2}", e.GetType(), e.Message, e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Logger.Debug("storage inner exception", e.InnerException.GetType(), e.InnerException.Message, e.InnerException.StackTrace);
+                }
                 //if (!RecoverableException(e))
                 //    throw new StorageException(e.Message, e);
 

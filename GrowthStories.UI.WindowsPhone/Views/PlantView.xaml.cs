@@ -201,6 +201,11 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        private void ContentControl_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+
+        }
+
 
     }
 

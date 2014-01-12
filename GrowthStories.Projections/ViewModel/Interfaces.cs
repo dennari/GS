@@ -464,7 +464,7 @@ namespace Growthstories.UI.ViewModel
             string temp = PlantScheduler.NotificationText(Schedule.Interval.Value, this.Missed, Schedule.Type);
             this.MissedText = char.ToUpper(temp[0]) + temp.Substring(1);
 
-            this.WeekDay = ans.ToString("dddd");
+            this.WeekDay = SharedViewHelpers.FormatWeekDay(ans);
             this.Date = ans.ToString("d");
             this.Time = ans.ToString("t");
 

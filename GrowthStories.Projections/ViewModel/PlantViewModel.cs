@@ -541,7 +541,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        public string TodayWeekDay { get { return DateTimeOffset.Now.ToString("dddd"); } }
+        public string TodayWeekDay { get { return SharedViewHelpers.FormatWeekDay(DateTimeOffset.Now); } }
         public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }
 
         protected string _Name;

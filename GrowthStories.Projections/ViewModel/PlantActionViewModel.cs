@@ -140,6 +140,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+
         public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
         {
@@ -156,7 +158,7 @@ namespace Growthstories.UI.ViewModel
             {
                 this.Note = state.Note;
                 this.TimelineFirstLine = state.Note;
-                this.WeekDay = state.Created.ToString("dddd");
+                this.WeekDay = SharedViewHelpers.FormatWeekDay(state.Created);
                 this.Date = state.Created.ToString("d");
                 this.Time = state.Created.ToString("t");
                 this.PlantActionId = state.Id;
@@ -165,18 +167,13 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
-
-
-
-
             }
             else
             {
                 var now = DateTimeOffset.Now;
-                this.WeekDay = now.ToString("dddd");
+                this.WeekDay = SharedViewHelpers.FormatWeekDay(now);
                 this.Date = now.ToString("d");
                 this.Time = now.ToString("t");
-
 
             }
 

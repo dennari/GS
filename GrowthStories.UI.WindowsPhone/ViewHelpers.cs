@@ -25,7 +25,6 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
-
         private static Regex _hexColorMatchRegex = new Regex("^#?(?<a>[a-z0-9][a-z0-9])?(?<r>[a-z0-9][a-z0-9])(?<g>[a-z0-9][a-z0-9])(?<b>[a-z0-9][a-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Color GetColorFromHex(string hexColorString)
         {
