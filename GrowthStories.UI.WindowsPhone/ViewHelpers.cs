@@ -147,7 +147,7 @@ namespace Growthstories.UI.WindowsPhone
 
             var tile = GSTileUtils.GetShellTile(pvm);
             if (tile != null) {
-                GSTileUtils.UpdateTileAndInfo(pvm);
+                GSTileUtils.UpdateTileAndInfoAfterDelay(pvm);
 
             } else {
                 var info = GSTileUtils.CreateTileUpdateInfo(pvm);

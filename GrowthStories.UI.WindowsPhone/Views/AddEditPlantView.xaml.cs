@@ -32,6 +32,18 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
         }
 
+
+        private void GSTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            SIPHelper.SIPGotVisible(SIPPlaceHolder);
+        }
+
+        private void GSTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SIPHelper.SIPGotHidden(SIPPlaceHolder);
+        }
+
+
         /*
         private void TagBox_IconTapped(object sender, EventArgs e)
         {

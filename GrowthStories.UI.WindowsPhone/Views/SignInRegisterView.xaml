@@ -17,9 +17,9 @@
         TopTitle="GROWTH STORIES"
 		Title="{Binding Title}" 
         Loaded="GSViewGrid_Loaded"
+        Margin="0,0,0,72"
 		>
         
-
               <StackPanel>
 
                 <TextBlock 
@@ -42,6 +42,7 @@
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"
                         LostFocus="username_LostFocus"
+                        GotFocus="TextBox_GotFocus"
                         />
             </local:GSLabel>
 
@@ -59,6 +60,7 @@
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"
                         LostFocus="email_LostFocus"
+                        GotFocus="TextBox_GotFocus"
                         />
                 </local:GSLabel>
 
@@ -77,6 +79,7 @@
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"
                         LostFocus="password_LostFocus"
+                        GotFocus="TextBox_GotFocus"
                         />
                 </local:GSLabel>
 
@@ -96,6 +99,7 @@
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"
                         LostFocus="passwordConfirmation_LostFocus"
+                        GotFocus="TextBox_GotFocus"
                         />
                 </local:GSLabel>
 
@@ -122,6 +126,10 @@
                        FontSize="24" TextDecorations="Underline"
                       />
                 </Button>
+
+            <!-- placeholder to help with scrolling when SIP is open -->
+            <ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
+
             </StackPanel>
         
 

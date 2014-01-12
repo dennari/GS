@@ -126,23 +126,26 @@
     <local:GSViewGrid
         TopTitle="GROWTH STORIES"
 		Title="{Binding Title}"
+        Margin="0,0,0,72"
         >
 
-        <!--<local:GSViewGrid.Background>
+        <!-- 
+        <local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:GSViewGrid.Background>-->
-                
+        </local:GSViewGrid.Background> -->              
                       
             <StackPanel Grid.Row="1">
                 <!-- NAME -->
                 <local:GSLabel Label="name">
                     <local:GSTextBox Text="{Binding Name, Mode=TwoWay}" 
+                             GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus"
                             local:BindingUtility.UpdateSourceOnChange="True" Margin="-12,0,-12,0" />
                 </local:GSLabel>
                    
                 <!-- GENUS -->
                 <local:GSLabel Label="species" Margin="0,6,0,0">
-                    <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
+                <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
+                                GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus" 
                                 local:BindingUtility.UpdateSourceOnChange="True"
                                 Margin="-12,0,-12,0"     
                                      />
@@ -281,7 +284,11 @@
 
                         </c4f:Tile>
                     </local:GSLabel>
-                </StackPanel>
+
+            <!-- placeholder to help with scrolling when SIP is open -->
+            <ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
+
+        </StackPanel>
        
         <!--             
        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />

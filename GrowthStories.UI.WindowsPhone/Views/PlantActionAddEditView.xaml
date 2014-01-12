@@ -8,130 +8,130 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls" 
-    d:DataContext="{StaticResource PlantViewModelDesign}"
-    d:DesignHeight="800"
-    mc:Ignorable="d">
+	d:DataContext="{StaticResource PlantViewModelDesign}"
+	d:DesignHeight="800"
+	mc:Ignorable="d">
 
-    <local:PlantActionView ViewModel="{Binding}">
-        <local:PlantActionView.PhotoTemplate>
-            <DataTemplate>
-                <Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
-                    <Grid.Background>
-                        <ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
-                    </Grid.Background>
-                    <Button 
-                        Style="{StaticResource GSButtonStyle}"
-                        BorderThickness="3"
-                        Command="{Binding PhotoChooserCommand}"                
-                        >
-                        <TextBlock Text="select or snap a photo" Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
-                    </Button>
 
-                </Grid>
-            </DataTemplate>
-        </local:PlantActionView.PhotoTemplate>
-        <local:PlantActionView.MeasureTemplate>
-            <DataTemplate>
+	<local:GSViewGrid
+			TopTitle="GROWTH STORIES"
+			Title="{Binding Label}"
+			Background="{Binding Background}"
+			Margin="0,0,0,72"
+			>
 
-                <StackPanel>
+		<StackPanel>
 
-                    <local:GSLabel Label="dimension">
-                        <local:GSListPicker 
-				x:Name="MeasurementTypePicker"			
-				ExpansionMode="ExpansionAllowed"
-				ItemsSource="{Binding Options}"
-                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-				BorderBrush="{StaticResource GSBackgroundBrush}"
-                CacheMode="BitmapCache" Margin="0,12,0,12"
-				>
-                            <local:GSListPicker.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TitleWithUnit}" 
-								   Style="{StaticResource GSTextBoxOnTextBlockStyle}" />
-                                </DataTemplate>
-                            </local:GSListPicker.ItemTemplate>
-                        </local:GSListPicker>
-                    </local:GSLabel>
+			<StackPanel Margin="-12,25,-12,16">
+				<TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
+				<TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
+				<TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
+			</StackPanel>
 
-                    <local:GSLabel Label="value">
-                        <local:GSTextBox 
-                Hint=" " 
-				Text="{Binding SValue, Mode=TwoWay}" 
+			<local:PlantActionView ViewModel="{Binding}">
+				
+				<local:PlantActionView.PhotoTemplate>
+					<DataTemplate>
+						<Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
+							<Grid.Background>
+								<ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
+							</Grid.Background>
+							<Button 
+						Style="{StaticResource GSButtonStyle}"
+						BorderThickness="3"
+						Command="{Binding PhotoChooserCommand}">
+								<TextBlock Text="select or snap a photo" Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+							</Button>
+
+						</Grid>
+					</DataTemplate>
+				</local:PlantActionView.PhotoTemplate>
+				
+				<local:PlantActionView.MeasureTemplate>
+					<DataTemplate>
+
+						<StackPanel>
+
+							<local:GSLabel Label="dimension">
+								<local:GSListPicker 
+									x:Name="MeasurementTypePicker"			
+									ExpansionMode="ExpansionAllowed"
+									ItemsSource="{Binding Options}"
+									SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+									BorderBrush="{StaticResource GSBackgroundBrush}"
+									CacheMode="BitmapCache" Margin="0,12,0,12"
+									>
+								<local:GSListPicker.ItemTemplate>
+									<DataTemplate>
+											<TextBlock Text="{Binding TitleWithUnit}" 
+												Style="{StaticResource GSTextBoxOnTextBlockStyle}" />
+									</DataTemplate>
+								</local:GSListPicker.ItemTemplate>
+								</local:GSListPicker>
+							</local:GSLabel>
+
+							<local:GSLabel Label="value">
+								<local:GSTextBox 
+				                    Hint=" " 
+				                    Text="{Binding SValue, Mode=TwoWay}" 
+				                    c4fBinding:TextBinding.UpdateSourceOnChange="True"
+				                    InputScope="Number" 
+				                    Margin="-12,0,-12,12"
+				                    FontSize="90"
+				                    Padding="20,0,20,0"
+				                    HorizontalAlignment="Stretch"
+				                    TextAlignment="Right"
+				                    BorderThickness="4"
+				                    GotFocus="TextBox_GotFocus"
+				                    LostFocus="TextBox_LostFocus"
+				                    />
+							</local:GSLabel>
+
+							<local:GSLabel Label="note" />
+
+							<!--
+			BorderBrush="WhiteSmoke"
+				Foreground="WhiteSmoke"
+				Background="Transparent"
+				SelectionBackground="Transparent"
+				SelectionForeground="White"
+			-->
+						</StackPanel>
+					</DataTemplate>
+				</local:PlantActionView.MeasureTemplate>
+
+				<local:PlantActionView.Template>
+					<ControlTemplate TargetType="local:PlantActionView">
+
+						<ContentPresenter
+							Margin="0,0,0,0"	
+							DataContext="{Binding}"
+							Content="{Binding}" 
+							ContentTemplate="{TemplateBinding ContentTemplate}" 
+							Visibility="{TemplateBinding ContentVisibility}" 
+							HorizontalAlignment="Stretch">
+						</ContentPresenter>
+
+					</ControlTemplate>
+				</local:PlantActionView.Template>
+			</local:PlantActionView>
+
+			<local:GSChatTextBox
+				GotFocus="TextBox_GotFocus"
+				LostFocus="TextBox_LostFocus"	
+				Margin="0,0,0,0"
+				Padding="8,8,8,100"                                   
+				Hint="Enter comment / note"				
 				c4fBinding:TextBinding.UpdateSourceOnChange="True"
-                InputScope="Number" 
-                Margin="-12,0,-12,12"
-                FontSize="90"
-                Padding="20,0,20,0"
-                HorizontalAlignment="Stretch"
-                TextAlignment="Right"
-                BorderThickness="4"               
-                />
-                    </local:GSLabel>
-
-                    <local:GSLabel Label="note" />
-
-                    <!--
-            BorderBrush="WhiteSmoke"
-                Foreground="WhiteSmoke"
-                Background="Transparent"
-                SelectionBackground="Transparent"
-                SelectionForeground="White"
-            -->
-                </StackPanel>
-            </DataTemplate>
-        </local:PlantActionView.MeasureTemplate>
-        <local:PlantActionView.Template>
-            <ControlTemplate TargetType="local:PlantActionView">
-            <local:GSViewGrid
-            TopTitle="GROWTH STORIES"
-            Title="{Binding Label}"
-            Background="{TemplateBinding Background}"
-            >
-
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Margin="-12,25,-12,16" Grid.Row="0">
-                        <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding WeekDay}" FontWeight="Bold" Foreground="WhiteSmoke" />
-                        <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Date}" Foreground="WhiteSmoke" />
-                        <TextBlock Style="{StaticResource GSTextBlockStyle}" Text="{Binding Time}" Foreground="WhiteSmoke" />
-                    </StackPanel>
-
-                    <ContentPresenter
-								    Margin="0,0,0,0"
-								    Grid.Row="1"
-                                    DataContext="{Binding}"
-								    Content="{Binding}" 
-								    ContentTemplate="{TemplateBinding ContentTemplate}" 
-								    Visibility="{TemplateBinding ContentVisibility}" 
-								    HorizontalAlignment="Stretch">
-                    </ContentPresenter>
-
-                    <local:GSChatTextBox
-                                    Grid.Row="2"
-							        Margin="0,0,0,100"
-                                    Padding="8,8,8,100"                                   
-							        Hint="Enter comment / note"
-							        MinHeight="100"
-                                    c4fBinding:TextBinding.UpdateSourceOnChange="True"
-							        VerticalAlignment="Top"						
-							        Text="{Binding Note, Mode=TwoWay}" 		
-							        Visibility="{TemplateBinding NoteVisibility}" />
-
-                    <TextBlock Text="" Foreground="Transparent" Grid.Row="3" />
-
-                </Grid>
-
-            </local:GSViewGrid>
-            </ControlTemplate>
-        </local:PlantActionView.Template>
-    </local:PlantActionView>
-   
-
+				VerticalAlignment="Top"						
+				Text="{Binding Note, Mode=TwoWay}" 		
+				Visibility="{Binding NoteVisibility}" />
+            
+			<!-- placeholder to help with scrolling when SIP is open -->
+			<ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
+            
+		</StackPanel>
+		
+	</local:GSViewGrid>
 
 </local:PlantActionAddEditViewBase>

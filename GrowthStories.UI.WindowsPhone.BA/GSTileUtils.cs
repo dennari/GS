@@ -274,21 +274,21 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     u.WhenAnyValue(y => y.Missed)                
                         .Subscribe(_ =>
                         {
-                            UpdateTileAndInfo(x);
+                            UpdateTileAndInfoAfterDelay(x);
                         });
                 });
 
                 // watch for watering schedule enabled updates
                 x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
                 {
-                    UpdateTileAndInfo(x);
+                    UpdateTileAndInfoAfterDelay(x);
                 });
 
                 // also watch for added photos
                 x.WhenAnyValue(w => w.Actions.ItemsAdded)
                     .Subscribe(u =>
                 {
-                    UpdateTileAndInfo(x);
+                    UpdateTileAndInfoAfterDelay(x);
                 });
             });
 
@@ -475,8 +475,9 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static void UpdateTileAndInfo(IPlantViewModel pvm)
+        private static void UpdateTileAndInfo(IPlantViewModel pvm)
         {
+            
             var vm = (PlantViewModel)pvm;
  
             if (vm.State.IsDeleted)
@@ -497,6 +498,13 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             UpdateApplicationTile();
         }
+
+
+        public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
+        {
+            await Task.Delay(2 * 1000);
+            UpdateTileAndInfo(pvm);
+         }
 
 
         public static void DeleteTile(IPlantViewModel pvm)

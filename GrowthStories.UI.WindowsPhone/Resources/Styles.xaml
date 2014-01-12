@@ -350,7 +350,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                        <ScrollViewer Height="751" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                 <Grid Margin="24,20,24,24" HorizontalAlignment="Stretch">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -559,7 +559,12 @@
 		</Setter>
 	</Style>
     -->
-    
+
+    <Style x:Key="SIPPlaceHolderStyle" TargetType="ContentControl">
+        <Setter Property="Height" Value="400" />
+        <Setter Property="Visibility" Value="Collapsed" />
+     </Style>
+
     <Style x:Key="InputControlHeaderStyle" TargetType="ContentControl">
         <Setter Property="Foreground" Value="WhiteSmoke" />
         <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeNormal}"/>

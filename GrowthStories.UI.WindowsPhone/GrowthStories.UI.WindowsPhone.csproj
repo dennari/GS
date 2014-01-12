@@ -169,6 +169,7 @@
     <Compile Include="Controls\GSListPicker.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="ReactiveUIHelpers.cs" />
+    <Compile Include="SIPHelper.cs" />
     <Compile Include="ViewModels\ClientTestingViewModel..cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />

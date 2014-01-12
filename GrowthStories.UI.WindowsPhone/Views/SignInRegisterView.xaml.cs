@@ -17,6 +17,7 @@ using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class SignInRegisterViewBase : GSView<ISignInRegisterViewModel>
     {
 
@@ -45,22 +46,36 @@ namespace Growthstories.UI.WindowsPhone
 
         private void username_LostFocus(object sender, RoutedEventArgs e)
         {
+            TextBox_LostFocus();
             ViewModel.UsernameTouched = true;
         }
 
         private void email_LostFocus(object sender, RoutedEventArgs e)
         {
+            TextBox_LostFocus();
             ViewModel.EmailTouched = true;
         }
 
         private void password_LostFocus(object sender, RoutedEventArgs e)
         {
+            TextBox_LostFocus();
             ViewModel.PasswordTouched = true;
         }
 
         private void passwordConfirmation_LostFocus(object sender, RoutedEventArgs e)
         {
+            TextBox_LostFocus();
             ViewModel.PasswordConfirmationTouched = true;
+        }
+
+        private void TextBox_LostFocus()
+        {
+            SIPHelper.SIPGotHidden(SIPPlaceHolder);
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            SIPHelper.SIPGotVisible(SIPPlaceHolder);
         }
 
 
@@ -92,6 +107,7 @@ namespace Growthstories.UI.WindowsPhone
                 ViewModel.App.ShowPopup.Execute(pvm);
             } 
         }
+
 
     }
 
