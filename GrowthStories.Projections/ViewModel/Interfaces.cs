@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Growthstories.Domain;
+using System.Threading;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -128,6 +129,9 @@ namespace Growthstories.UI.ViewModel
         bool HasDataConnection { get; }
 
         IUIPersistence UIPersistence { get; }
+
+        Mutex SyncMutex { get; }
+
     }
 
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
@@ -484,43 +488,89 @@ namespace Growthstories.UI.ViewModel
             private set
             {
                 this.RaiseAndSetIfChanged(ref _Missed, value);
-                this.raisePropertyChanged("MissedNotification");
-                this.raisePropertyChanged("MissedLate");
-                this.raisePropertyChanged("MissedLateAndOwn");
-                this.raisePropertyChanged("Now");
+                UpdateMissedNotification();
+                UpdateMissedLate();
+                UpdateNow();
             }
         }
 
 
+        private void UpdateMissedNotification()
+        {
+            MissedNotification = GetMissedCount(Missed).ToString();
+        }
+
+
+        private string _MissedNotification;
         public string MissedNotification
         {
             get
             {
-                return GetMissedCount(Missed).ToString();
+                return _MissedNotification;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _MissedNotification, value);
             }
         }
 
+
+        public void UpdateNow()
+        {
+            Now = Missed > -WINDOW;
+        }
+
+        // Should this plant be watered now
+        private bool _Now;
         public bool Now
         {
             get
             {
-                return Missed > -WINDOW;
+                return _Now;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Now, value);
             }
         }
 
+
+        private void UpdateMissedLate()
+        {
+            MissedLate = Missed > WINDOW;
+        }
+
+
+        private bool _MissedLate;
         public bool MissedLate
         {
             get
             {
-                return Missed > WINDOW;
+                return _MissedLate;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _MissedLate, value);
+                this.UpdateMissedLateAndOwn();
             }
         }
 
+        private void UpdateMissedLateAndOwn()
+        {
+            MissedLateAndOwn = MissedLate && _OwnPlant;
+        }
+
+
+        private bool _MissedLateAndOwn;
         public bool MissedLateAndOwn
         {
             get
             {
-                return MissedLate && _OwnPlant;
+                return _MissedLate;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _MissedLateAndOwn, value);
             }
 
         }

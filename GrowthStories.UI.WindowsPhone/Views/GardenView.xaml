@@ -66,6 +66,7 @@
                     HorizontalContentAlignment="Stretch"
                     >
                     
+                    
                     <c4f:Tile
                         Background="Transparent"
                         toolkit:TiltEffect.SuppressTilt="True"

@@ -26,6 +26,7 @@ using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
 
+
 namespace Growthstories.UI.Persistence
 {
     public class SQLiteUIPersistence : IUIPersistence
