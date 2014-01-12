@@ -18,6 +18,8 @@ using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
 
+
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -200,16 +202,7 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    var plantActionView = (PlantActionView)sender;
-        //    //var plant = ViewModel.SelectedItem;
-        //    ViewModel.ActionTapped.Execute(plantActionView.ViewModel);
-        //}
     }
-
-
-
 
 
 }

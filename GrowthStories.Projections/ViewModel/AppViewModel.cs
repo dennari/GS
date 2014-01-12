@@ -161,12 +161,16 @@ namespace Growthstories.UI.ViewModel
         protected IKernel Kernel;
 
 
+        public virtual bool HasPayed()
+        {
+            return true; // should override this
+        }
+
+
         public AppViewModel()
         {
 
             this.Resolver = RxApp.MutableResolver;
-
-
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
@@ -194,6 +198,10 @@ namespace Growthstories.UI.ViewModel
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
+            IAPCommand = new ReactiveCommand();
+            AfterIAPCommand = new ReactiveCommand();
+
+
             InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
 
             var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
@@ -316,6 +324,10 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
 
         public IReactiveCommand DeleteTileCommand { get; private set; }
+
+        public IReactiveCommand IAPCommand { get; private set; }
+
+        public IReactiveCommand AfterIAPCommand { get; private set; }
 
 
         #endregion

@@ -13,6 +13,7 @@ using System.Globalization;
 using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Shell;
+using Microsoft.Phone.Scheduler;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -75,9 +76,66 @@ namespace Growthstories.UI.WindowsPhone
         }
     }
 
-   
 
-    public static class GSMainProgramTileUtils
+    public class BAUtils
+    {
+
+        public const string TASK_NAME = "tileupdate";
+
+
+        public static PeriodicTask CreateTask()
+        {
+            var task = new PeriodicTask(TASK_NAME);
+            task.Description = "Updates watering notifications for plant tiles";
+
+            return task;
+        }
+
+
+        public static void RegisterScheduledTask()
+        {
+
+            // If the task already exists and background agents are enabled for the
+            // application, we must remove the task and then add it again to update 
+            // the schedule.
+            ScheduledAction task = ScheduledActionService.Find(TASK_NAME);
+            if (task != null)
+            {
+                ScheduledActionService.Remove(TASK_NAME);
+            }
+
+            task = CreateTask();
+
+            try
+            {
+                ScheduledActionService.Add(task);
+            }
+
+            catch (InvalidOperationException exception)
+            {
+                if (exception.Message.Contains("BNS Error: The action is disabled"))
+                {
+                    // means that user has disabled background agents for this app
+                }
+                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
+                {
+                    // global count for scheduledactions is too large, user should disable
+                    // background agents for less cool applications
+                }
+
+            }
+            catch (SchedulerServiceException)
+            {
+                // unclear when this happens
+            }
+
+        }
+
+
+    }
+
+
+    public class GSMainProgramTileUtils
     {
 
 

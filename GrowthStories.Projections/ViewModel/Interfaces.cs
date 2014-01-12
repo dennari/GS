@@ -75,7 +75,10 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand SynchronizeCommand { get; }
         IReactiveCommand UISyncFinished { get; }
         IReactiveCommand DeleteTileCommand { get; }
+        IReactiveCommand IAPCommand { get; }
+        IReactiveCommand AfterIAPCommand { get; }            
 
+        bool HasPayed();
 
         IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
         IPopupViewModel SyncPopup { get; }
@@ -387,29 +390,6 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x.HasValue)
                 .Subscribe(x => this.ComputeNext());
 
-            Action<Task> repeatAction = null;
-            repeatAction = _ =>
-            {
-                // kludge to execute in the main thread
-                var kludge = new ReactiveCommand();
-                kludge
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x =>
-                    {
-                        this.ComputeNext();
-                    });
-                kludge.Execute(null);
-
-                // update quickly for debugging
-                Task.Delay(1000 * 10).ContinueWith
-                    (__ => repeatAction(__));
-
-                // update once in a minute
-                //Task.Delay(1000 * 60).ContinueWith
-                //    (__ => repeatAction(__));           
-            };
-
-            repeatAction(null);
         }
 
 
@@ -462,9 +442,8 @@ namespace Growthstories.UI.ViewModel
         {
             if (missed > WINDOW)
             {
-                //return (int)Math.Ceiling(missed) + 1;
-
-                return (int)(missed * 1000 + 1) % 100;
+                return (int)Math.Ceiling(missed) + 1;
+                //return (int)(missed * 1000 + 1) % 100;
             }
             return 0;
         }

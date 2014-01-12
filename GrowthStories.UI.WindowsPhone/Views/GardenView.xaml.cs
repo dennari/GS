@@ -17,6 +17,7 @@ using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class GardenViewBase : GSView<IGardenViewModel>
     {
 

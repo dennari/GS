@@ -910,7 +910,7 @@ namespace Growthstories.UI.ViewModel
             {
                 Caption = "Confirm delete",
                 Message = "Are you sure you wish to delete the plant "
-                        + pvm.Name
+                        + pvm.Name.ToUpper()
                         + "? This can't be undone.",
 
                 IsLeftButtonEnabled = true,

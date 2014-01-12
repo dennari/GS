@@ -11,6 +11,7 @@ using System.Threading;
 using Growthstories.Domain;
 using Growthstories.Core;
 using Microsoft.CSharp.RuntimeBinder;
+using System.Diagnostics;
 
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
@@ -129,12 +130,21 @@ namespace Growthstories.UI.Persistence
             try
             {
                 // why is the dynamic keyword there twice ?
+                Logger.Info("persisting " + aggregate.State.GetType().ToString());
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
+                Logger.Info("persisted " + aggregate.State.GetType().ToString());
             }
 
             catch (RuntimeBinderException)
             {
-
+                Logger.Warn(
+                    "RuntimeBinderException in SQLiteUIPersistence for " 
+                    + aggregate.State.GetType().ToString());
+                
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
             }
         }
 

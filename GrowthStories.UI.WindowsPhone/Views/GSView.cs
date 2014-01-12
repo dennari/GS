@@ -33,7 +33,7 @@ namespace Growthstories.UI.WindowsPhone
 
         public GSView()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+            this.SetBinding(ViewModelProperty, new Binding());
 
             // this is needed to prevent shitty page transitions for
             // pages with backgrounds, affecting LUMIA 520 and probably 
