@@ -33,7 +33,7 @@ namespace Growthstories.UI.WindowsPhone
 
         public GSView()
         {
-            this.SetBinding(ViewModelProperty, new Binding());
+            //this.SetBinding(ViewModelProperty, new Binding());
 
             // this is needed to prevent shitty page transitions for
             // pages with backgrounds, affecting LUMIA 520 and probably 
@@ -43,10 +43,12 @@ namespace Growthstories.UI.WindowsPhone
             // set Height = Double.NaN, which sets height to Auto
             //
             //  -- JOJ 22.12.2013
+            /*
             if ((int)Math.Round(Height) != 800)
             {
                 Height = 800;
             }
+            */
         }
 
 

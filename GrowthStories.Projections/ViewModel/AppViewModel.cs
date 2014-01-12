@@ -471,8 +471,9 @@ namespace Growthstories.UI.ViewModel
         // This method should be called whenever we detect changes we
         // would like to sync immediately, and also possibly periodically
         //
-        private async void PossiblyAutoSync()
+        public async Task PossiblyAutoSync()
         {
+            
             Logger.Debug("PossiblyAutoSync, count is " + AutoSyncCount);
             if (!HasDataConnection)
             {
@@ -484,15 +485,16 @@ namespace Growthstories.UI.ViewModel
                 try
                 {
                     var guid = Guid.NewGuid().ToString();
-                    Logger.Debug("Autosyncing (debugId: " + guid + ")");
+                    Logger.Info("Autosyncing (debugId: " + guid + ")");
                     this.AutoSyncCount++;
                     await this.SyncAll();
-                    Logger.Debug("Autosync finished (debugId: " + guid + ")");
+                    Logger.Info("Autosync finished (debugId: " + guid + ")");
 
                 } finally {
                     this.AutoSyncCount--;
                 }
-            }   
+            } 
+            
         }
 
 
@@ -917,21 +919,17 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
+
+
         // Do a synchronization cycle once
         // (1) pull -> (2) push -> (3) photo download
         //
-        // This method is thread-safe
         public async Task<ISyncInstance> Synchronize()
         {
-            try { SyncMutex.WaitOne(); }
-            catch (Exception ex) { Logger.Warn("Mutex exception", ex); };
-            try
+            using (var r = await SynchronizeLock.LockAsync())
             {
                 return await UnsafeSynchronize();
-            }
-            finally
-            {
-                SyncMutex.ReleaseMutex();
             }
         }
 
@@ -983,7 +981,7 @@ namespace Growthstories.UI.ViewModel
 
         //
         // ONLY FOR TESTING
-        // not necessarily thread safe, do not call from app code
+        // not necessarily safe, do not call from app code
         //
         public async Task<ISyncInstance> Push()
         {
@@ -1013,34 +1011,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-       
-        private Mutex _SyncMutex;
-        public Mutex SyncMutex
-        {
-            get
-            {
-                if (_SyncMutex == null)
-                {
-                    _SyncMutex = new Mutex(false, "GSSyncMutex");
-                }
-                return _SyncMutex;
-            }
-        }
+      
+        public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
 
-
-        
-        // Thread-safe synchronize
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
-            try { SyncMutex.WaitOne(); }
-            catch (Exception ex) { Logger.Warn("Mutex exception", ex); };
-            try
+            using (var release = await _SynchronizeLock.LockAsync())
             {
                 return await _UnsafeSynchronize(s);
-            }
-            finally
-            {
-                SyncMutex.ReleaseMutex();
             }
         }
 

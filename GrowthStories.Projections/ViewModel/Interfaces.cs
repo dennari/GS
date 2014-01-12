@@ -130,9 +130,9 @@ namespace Growthstories.UI.ViewModel
 
         IUIPersistence UIPersistence { get; }
 
-        Mutex SyncMutex { get; }
-
+        Task PossiblyAutoSync();
     }
+
 
     public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
     {
@@ -146,6 +146,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShowDetailsCommand { get; }
 
     }
+
 
     public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel, IControlsPageOrientation
     {

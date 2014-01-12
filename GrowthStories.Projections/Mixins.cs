@@ -8,9 +8,13 @@ using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
 using EventStore.Logging;
+using System.Threading;
+using Enough.Async;
+
 
 namespace Growthstories.UI
 {
+
     public static class Mixins
     {
 
@@ -18,26 +22,28 @@ namespace Growthstories.UI
 
 
         public static ReactiveCommand ToCommandWithSubscription(this IObservable<bool> This, 
-            Action<object> subscription, bool allowsConcurrentExecution = false, IScheduler scheduler = null)
+            Action<object> subscription, bool allowsConcurrentExecution = false, System.Reactive.Concurrency.IScheduler scheduler = null)
         {
             var cmd = new ReactiveCommand(This, allowsConcurrentExecution, scheduler);
             cmd.Subscribe(subscription);
             return cmd;
         }
 
+        //public static SemaphoreSlim SyncAllLock = new SemaphoreSlim(1);
+        public static Enough.Async.AsyncLock SyncAllLock = new Enough.Async.AsyncLock();
+
 
         public static async Task<Tuple<AllSyncResult, GSStatusCode?>>
             SyncAll(this IGSAppViewModel app, int maxRounds = 20)
         {
-            try { app.SyncMutex.WaitOne(); }
-            catch (Exception ex) { Logger.Warn("Mutex exception in SyncAll: " + ex.Message); };
-            try
+            var debugId = Guid.NewGuid().ToString();
+
+            using (var releaser = await SyncAllLock.LockAsync())
             {
-                return await UnsafeSyncAll(app, maxRounds);
-            }
-            finally
-            {
-                app.SyncMutex.ReleaseMutex();
+                Logger.Info("SyncAll starting, debugId: " + debugId);
+                var ret = await UnsafeSyncAll(app, maxRounds);
+                Logger.Info("SyncAll finished, debugId: " + debugId);
+                return ret;
             }
         }
 

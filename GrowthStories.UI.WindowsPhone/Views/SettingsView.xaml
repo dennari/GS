@@ -199,13 +199,16 @@
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Left"
                 Command="{Binding SynchronizeCommand}"
-                IsEnabled="{Binding CanSynchronize}"
                 toolkit:TiltEffect.IsTiltEnabled="True"
                 Padding="0,0,0,0"
                 Margin="-6,0,0,0"
                 >
                 <TextBlock Text="synchronize now" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White" />
             </Button>
+
+            <!--
+            IsEnabled="{Binding CanSynchronize}"
+                -->
 
             <TextBlock 
                 Style="{StaticResource GSTextBlockStyle}"
