@@ -46,6 +46,10 @@ using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
 
+#if WINDOWS_PHONE
+using Windows.Storage;
+#endif
+
 namespace SQLite
 {
     public class SQLiteException : Exception
@@ -153,10 +157,13 @@ namespace SQLite
             SQLite3.SetDirectory(/*temp directory type*/2, Windows.Storage.ApplicationData.Current.TemporaryFolder.Path);
 #endif
 
+
             Sqlite3DatabaseHandle handle;
 
 #if SILVERLIGHT || USE_CSHARP_SQLITE
             var r = SQLite3.Open(databasePath, out handle, (int)openFlags, IntPtr.Zero);
+
+
 #else
             // open using the byte[]
             // in the case where the path may include Unicode
@@ -175,6 +182,24 @@ namespace SQLite
             StoreDateTimeAsTicks = storeDateTimeAsTicks;
 
             BusyTimeout = TimeSpan.FromSeconds(0.1);
+
+#if SILVERLIGHT
+            // This is added to fix a bug where we get SQLiteException: CannotOpen seemingly at random.
+            // The cause seems to be that sqlite tries to create a temporary file but it's not allowed.
+            // https://github.com/praeclarum/sqlite-net/commit/07485b7cbfdee9c7eaf9f94bcd71af58efd51825
+            // http://www.sqlite.org/pragma.html#pragma_temp_store_directory
+            // https://github.com/praeclarum/sqlite-net/issues/78
+
+            //Execute("PRAGMA temp_store = memory;");
+
+            var task = ApplicationData.Current.LocalFolder.CreateFolderAsync("sqlite_tmp", CreationCollisionOption.OpenIfExists).AsTask();
+            task.Wait();
+            var folder = task.Result;
+            //var TempPath = Windows.Storage.ApplicationData.Current.LocalFolder;
+            var pragma = string.Format("PRAGMA temp_store_directory = '{0}';", folder.Path);
+            Execute(pragma);
+#endif
+
         }
 
         static SQLiteConnection()

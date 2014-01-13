@@ -212,5 +212,21 @@ namespace QuickTests
 
 
         }
+
+        [TestMethod]
+        public void TestDefaultExceptionString()
+        {
+            TcpClient client = null;
+            try
+            {
+                var a = client.SendTimeout;
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("Exception: {0}", e);
+
+            }
+        }
     }
 }

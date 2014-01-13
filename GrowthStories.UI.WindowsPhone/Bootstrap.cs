@@ -53,11 +53,12 @@ namespace Growthstories.UI.WindowsPhone
         protected override void SQLiteConnectionConfiguration()
         {
             SQLiteConnection conn = null;
+            string path = Path.Combine(ApplicationData.Current.LocalFolder.Path, "GS.sqlite");
             Func<SQLiteConnection> del = () =>
             {
                 if (conn == null)
                 {
-                    conn = new SQLiteConnection(Path.Combine(Path.Combine(ApplicationData.Current.LocalFolder.Path, "sample.sqlite")));
+                    conn = new SQLiteConnection(path, true);
                 }
                 return conn;
             };
@@ -76,122 +77,6 @@ namespace Growthstories.UI.WindowsPhone
         //        LogFactory.BuildLogger = type => new DebuggerLog(type);
         //}
 
-    }
-
-
-    class DebuggerLog : ILog
-    {
-        private Type type;
-
-        public DebuggerLog(Type type)
-        {
-            // TODO: Complete member initialization
-            this.type = type;
-        }
-
-        protected void WriteToConsole(string s)
-        {
-            System.Diagnostics.Debug.WriteLine(s);
-        }
-
-        protected string Tag(string m)
-        {
-            if (type.FullName.Contains("Growthstories") || type == typeof(SQLitePersistenceEngine))
-                return "[GS] " + m;
-            else
-                return m;
-        }
-
-        public void Verbose(string message, params object[] values)
-        {
-            try
-            {
-                WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-        }
-
-        public void Debug(string message, params object[] values)
-        {
-            try
-            {
-                WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-
-        }
-
-        public void Info(string message, params object[] values)
-        {
-
-            try
-            {
-                if (values.Length == 0)
-                    WriteToConsole(Tag(message));
-                else
-                    WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-
-        }
-
-
-        public void Warn(string message, params object[] values)
-        {
-            try
-            {
-                WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-        }
-
-
-        public void Error(string message, params object[] values)
-        {
-
-            try
-            {
-                WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-
-
-        }
-
-        public void Fatal(string message, params object[] values)
-        {
-
-            try
-            {
-                WriteToConsole(Tag(string.Format(message, values)));
-
-            }
-            catch (Exception)
-            {
-                WriteToConsole(Tag(message));
-            }
-
-        }
     }
 
 

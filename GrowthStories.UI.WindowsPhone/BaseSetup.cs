@@ -121,7 +121,9 @@ namespace Growthstories.UI.WindowsPhone
             //#if DEBUG
 
             // LOGGING SERVER is defined in App.xaml.cs for now
+            // For EventStore
             LogFactory.BuildLogger = type => new GSRemoteLog(type);
+            GSLogFactory.BuildLogger = type => new GSRemoteLog(type);
 
             //#endif
 

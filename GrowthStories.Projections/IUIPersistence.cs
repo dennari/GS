@@ -91,5 +91,8 @@ namespace Growthstories.UI
         {
             throw new NotImplementedException();
         }
+
+        public Core.IGSLog Logger { get; set; }
+
     }
 }

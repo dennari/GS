@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Resources;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Growthstories.UI.WindowsPhone.Resources;
-using System.Globalization;
 using ReactiveUI.Mobile;
 using BugSense;
 using BugSense.Core.Model;
 using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using Growthstories.UI.Services;
+using Growthstories.Domain;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 
@@ -89,6 +87,19 @@ namespace Growthstories.UI.WindowsPhone
 
             // register background agent
             ScheduledAgent.RegisterScheduledTask();
+
+
+
+            UnhandledException += (o, e) =>
+            {
+                // try to log the Exception
+                try
+                {
+                    this.Log().DebugExceptionExtended("Unhandled", e.ExceptionObject);
+                }
+                catch { }
+            };
+
         }
 
 
@@ -139,6 +150,7 @@ namespace Growthstories.UI.WindowsPhone
         {
         }
 
+        // This is never used, instead AutoSuspendApplication adds a similar handler in its constructor
         // Code to execute if a navigation fails
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
         {
@@ -150,14 +162,15 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         // Code to execute on Unhandled Exceptions
-        //private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
-        //{
-        //    if (Debugger.IsAttached)
-        //    {
-        //        // An unhandled exception has occurred; break into the debugger
-        //        Debugger.Break();
-        //    }
-        //}
+        // This is never used, instead AutoSuspendApplication adds a similar handler in its constructor
+        private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
+        {
+            if (Debugger.IsAttached)
+            {
+                // An unhandled exception has occurred; break into the debugger
+                Debugger.Break();
+            }
+        }
 
         #region Phone application initialization
 

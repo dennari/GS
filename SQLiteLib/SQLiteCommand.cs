@@ -24,6 +24,15 @@ namespace SQLite
     public partial class SQLiteCommand : IDisposable
     {
 
+
+        public Dictionary<string, object> Bindings
+        {
+            get
+            {
+                return _bindings.ToDictionary(x => x.Name, x => x.Value);
+            }
+        }
+
         public IEnumerable<T> ExecuteQuery<T>(string sql, Func<Sqlite3Statement, T> f)
         {
 

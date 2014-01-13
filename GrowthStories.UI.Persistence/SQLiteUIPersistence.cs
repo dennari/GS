@@ -29,7 +29,6 @@ namespace Growthstories.UI.Persistence
 {
     public class SQLiteUIPersistence : IUIPersistence
     {
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(SQLiteUIPersistence));
         private readonly ISQLiteConnectionFactory ConnectionFac;
         private readonly ISerialize serializer;
         private int initialized;
@@ -63,7 +62,7 @@ namespace Growthstories.UI.Persistence
             if (!disposing || this.disposed)
                 return;
 
-            Logger.Debug("Shutting down UI persistence");
+            this.Log().Debug("Shutting down UI persistence");
             this.disposed = true;
         }
 
@@ -72,7 +71,7 @@ namespace Growthstories.UI.Persistence
             if (Interlocked.Increment(ref this.initialized) > 1)
                 return;
 
-            Logger.Debug("Initializing UI persistence");
+            this.Log().Debug("Initializing UI persistence");
 
             foreach (var st in SQL.InitializeStorage.Split(';'))
             {
@@ -112,7 +111,7 @@ namespace Growthstories.UI.Persistence
 
         public virtual void Purge()
         {
-            Logger.Warn("Purging UI Persistence");
+            this.Log().Debug("Purging UI Persistence");
             foreach (var st in SQL.PurgeStorage.Split(';'))
             {
                 if (st.Length > 3 && st != String.Empty)
@@ -132,8 +131,9 @@ namespace Growthstories.UI.Persistence
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
             }
 
-            catch (RuntimeBinderException)
+            catch (RuntimeBinderException e)
             {
+                this.Log().Exception(e, "Save");
 
             }
         }
@@ -141,7 +141,7 @@ namespace Growthstories.UI.Persistence
 
         void Persist(IAggregateState state)
         {
-            
+
         }
 
         void Persist(PlantActionState state)
@@ -159,6 +159,7 @@ namespace Growthstories.UI.Persistence
                 //var debug = Encoding.UTF8.GetString(payload);
 
                 cmd.AddParameter(SQL.Payload, payload);
+
                 return cmd.ExecuteNonQuery(SQL.PersistAction);
             });
         }
@@ -175,7 +176,9 @@ namespace Growthstories.UI.Persistence
                 cmd.AddParameter(SQL.FertilizingScheduleId, a.FertilizingScheduleId);
                 cmd.AddParameter(SQL.Created, a.Created.Ticks);
                 cmd.AddParameter(SQL.Payload, this.serializer.Serialize(a));
-                return cmd.ExecuteNonQuery(SQL.PersistPlant);
+                var r = cmd.ExecuteNonQuery(SQL.PersistPlant);
+                //throw new Exception("Test");
+                return r;
             });
         }
 
@@ -451,41 +454,47 @@ namespace Growthstories.UI.Persistence
             catch (Exception e)
             {
 
-                Logger.Debug("StorageException: {0}", e.GetType());
+                this.Log().Exception(e, "ExecuteQuery");
+
                 throw;
             }
 
         }
 
-        protected virtual T ExecuteCommand<T>(Guid streamId, Func<SQLiteConnection, SQLiteCommand, T> command)
+        protected virtual T ExecuteCommand<T>(Guid streamId, Func<SQLiteConnection, SQLiteCommand, T> executor)
         {
             this.ThrowWhenDisposed();
+            SQLiteConnection connection = null;
+            SQLiteCommand command = null;
+            T results = default(T);
 
             try
             {
-                Logger.Verbose("UI Persistence: executing command");
-                T rowsAffected = default(T);
-                var Connection = ConnectionFac.GetConnection();
-                //Connection.RunInTransaction(() =>
-                //{
-                rowsAffected = command(Connection, Connection.CreateCommand(""));
-                //});
-
-
-                Logger.Verbose("UI Persistence: executed command, {0} rows affeted", rowsAffected);
-
-
-                return rowsAffected;
+                connection = ConnectionFac.GetConnection();
+                command = connection.CreateCommand("");
+                this.Log().Verbose("UI Persistence: executing command");
+                results = executor(connection, command);
+                this.Log().Verbose("UI Persistence: executed command, {0} rows affeted", results);
+                return results;
             }
             catch (Exception e)
             {
-                Logger.Debug("Storage threw exception {0}", e.GetType());
-                //if (!RecoverableException(e))
-                //    throw new StorageException(e.Message, e);
+                object payload = null;
+                if (command != null && command.Bindings.TryGetValue(SQL.Payload, out payload))
+                {
 
-                //Logger.Info(Messages.RecoverableExceptionCompletesScope);
-                //if (scope != null)
-                //   scope.Complete();
+                    string payloadString = string.Empty;
+                    byte[] payloadBytes = payload as byte[];
+                    if (payloadBytes != null)
+                        payloadString = Encoding.UTF8.GetString(payloadBytes, 0, Math.Min(payloadBytes.Length, 2 * 1024));
+
+                    this.Log().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
+
+
+                }
+                else
+                    this.Log().Exception(e, "ExecuteCommand");
+
 
                 throw;
             }
@@ -497,13 +506,12 @@ namespace Growthstories.UI.Persistence
                 return;
 
             var msg = "UI Persistence already disposed";
-            Logger.Warn(msg);
+            this.Log().Warn(msg);
             throw new ObjectDisposedException(msg);
         }
 
 
-
-
+        IGSLog IHasLogger.Logger { get; set; }
 
     }
 }

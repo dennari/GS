@@ -209,6 +209,20 @@ namespace Growthstories.UI.ViewModel
                 UISyncFinished.Execute(x);
             });
 
+            // we need to set these immediately to have the defaults in place when starting up
+            this.Router.CurrentViewModel
+             .OfType<IControlsAppBar>()
+             .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
+             .Switch()
+             .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
+
+            this.Router.CurrentViewModel
+                 .OfType<IControlsAppBar>()
+                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
+                 .Switch()
+                 .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
+
+
             this.SyncResults = syncResult;
 
             //LoadMainVM();
@@ -247,17 +261,6 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .Subscribe(x => this.UpdateMenuItems(x ?? new ReactiveList<IMenuItemViewModel>()));
 
-            this.Router.CurrentViewModel
-                .OfType<IControlsAppBar>()
-                .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
-                .Switch()
-                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
-
-            this.Router.CurrentViewModel
-                 .OfType<IControlsAppBar>()
-                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
-                 .Switch()
-                 .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
             this.Router.CurrentViewModel
                  .OfType<IControlsSystemTray>()

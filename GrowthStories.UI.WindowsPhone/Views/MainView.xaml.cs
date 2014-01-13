@@ -3,6 +3,8 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using GrowthStories.UI.WindowsPhone.BA;
+using Microsoft.Phone.Scheduler;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -35,47 +37,31 @@ namespace Growthstories.UI.WindowsPhone
             });
 
         }
-        //private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    var app = ViewModel.App as AppViewModel;
-        //    var uip = app.Kernel.Get<IUIPersistence>();
-        //}
 
-
-        //private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    ScheduledAgent.RegisterScheduledTask();
-        //    ScheduledActionService.LaunchForTest(ScheduledAgent.TASK_NAME, TimeSpan.FromSeconds(10));
-        //}
-
-
-        //private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    ScheduledAgent.RegisterScheduledTask();
-        //}
-
-
-        /*
-        private void FriendsSelector_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        private void CauseException(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            ViewModel.FriendsVM.RaisePropertyChanged("SelectedFriend");
+            e = null;
+            var a = e.Handled;
         }
-         */
+        private void UpdateTiles(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            //var app = ViewModel.App as AppViewModel;
+            //var uip = app.Kernel.Get<IUIPersistence>();
+        }
 
 
+        private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ScheduledAgent.RegisterScheduledTask();
+            ScheduledActionService.LaunchForTest(ScheduledAgent.TASK_NAME, TimeSpan.FromSeconds(10));
+        }
 
-        //private void FriendsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (e.AddedItems.Count == 0)
-        //        return;
-        //    var item = e.AddedItems[0];
-        //    if (item == null || !(item is IGardenViewModel))
-        //        return;
 
-        //    ViewModel.FriendsVM.FriendTapped.Execute(item);
+        private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ScheduledAgent.RegisterScheduledTask();
+        }
 
-        //    ((LongListSelector)sender).SelectedItem = null;
-        //}
 
 
 

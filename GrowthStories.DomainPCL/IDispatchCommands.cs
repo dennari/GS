@@ -27,7 +27,7 @@ namespace Growthstories.Domain
     }
 
 
-    public interface IUIPersistence
+    public interface IUIPersistence : IHasLogger
     {
 
         void Purge();

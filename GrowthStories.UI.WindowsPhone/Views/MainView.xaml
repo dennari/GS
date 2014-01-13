@@ -182,59 +182,36 @@
             
             <!-- TESTING -->
             
-            <!--<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
+            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                     <ScrollViewer>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
-                        <Button  Command="{Binding CreateLocalDataCommand}"
-                                 IsEnabled="{Binding CreateLocalDataCommand}"
-                                 >
-                            <TextBlock Text="Create local data"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                        <Button  Command="{Binding CreateRemoteDataCommand}">
-                            <TextBlock Text="Create remote data"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                        <Button  Command="{Binding PushRemoteUserCommand}">
-                            <TextBlock Text="Push remote user"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                        <Button  Command="{Binding ClearDBCommand}">
-                            <TextBlock Text="Clear db"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                        <Button  Command="{Binding SyncCommand}">
-                            <TextBlock Text="Sync"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                            <Button  Command="{Binding PushCommand}">
-                                <TextBlock Text="Push"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                        </Button>
-                            <Button  Command="{Binding RegisterCommand}">
-                            <TextBlock Text="Register"
-                                           FontSize="{StaticResource PhoneFontSizeMediumLarge}"
-                                           Foreground="{StaticResource PhoneForegroundBrush}"/>
-                            </Button>
+                        <Button  Command="{Binding CreateLocalDataCommand}" Content="Create local data"/>
 
-                            <Button Tap="UpdateTiles" Content="update tiles" />
+                        <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
 
-                            <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
+                        <Button  Command="{Binding PushRemoteUserCommand}" Content="Push remote user"/>
 
-                            <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
+                        <Button  Command="{Binding ClearDBCommand}" Content="Clear DB"/>
 
+                        <Button  Command="{Binding SyncCommand}" Content="Sync"/>
+
+                        <Button  Command="{Binding PushCommand}" Content="Push"/> 
+                            
+                        <Button  Command="{Binding RegisterCommand}" Content="Register"/>    
+
+                        <Button Tap="UpdateTiles" Content="update tiles" />
+
+                        <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
+
+                        <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
+
+                        <Button Tap="CauseException" Content="Cause Exception" />
 
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
-            </phone:PanoramaItem>-->
+            </phone:PanoramaItem>
             
             
         </phone:Panorama>

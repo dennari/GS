@@ -1,22 +1,18 @@
-﻿using EventStore.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Net.Sockets;
 using Windows.Networking.Sockets;
 using Windows.Networking;
 using Windows.Storage.Streams;
 using System.Diagnostics;
 using ReactiveUI;
+using Growthstories.Core;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
 
 
-    public class GSRemoteLog : ILog, ILogger
+    public class GSRemoteLog : IGSLog, ILogger
     {
         private readonly Type Type;
         public static int Port;
@@ -39,7 +35,8 @@ namespace Growthstories.UI.WindowsPhone
         private void Send(string level, string message, params object[] values)
         {
 
-            var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, string.Format(message, values), DateTime.Now, Type == null ? "#" : Type.Name);
+            string content = string.Format(message, values).Replace("\r\n", "\n");
+            var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             //Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);
 
             if (Debugger.IsAttached)
@@ -79,12 +76,28 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+
+
+        public void Exception(Exception e, string message = null, params object[] values)
+        {
+            if (message == null)
+                Send("info", "{0}", e.ToStringExtended());
+            else
+                Send("info", "{0}: {1}", string.Format(message, values), e.ToStringExtended());
+
+        }
+
         public void Write(string message, LogLevel logLevel)
         {
             if ((int)logLevel < (int)Level) return;
             Send("info", message);
         }
 
+        public void Write(string message, GSLogLevel logLevel)
+        {
+            if ((int)logLevel < (int)Level) return;
+            Send("info", message);
+        }
         public LogLevel Level { get; set; }
 
         public void Verbose(string message, params object[] values)
@@ -118,6 +131,23 @@ namespace Growthstories.UI.WindowsPhone
         public void Fatal(string message, params object[] values)
         {
             Send("fatal", message, values);
+        }
+
+
+
+
+
+
+        GSLogLevel IGSLog.Level
+        {
+            get
+            {
+                return (GSLogLevel)Level;
+            }
+            set
+            {
+                Level = (LogLevel)value;
+            }
         }
     }
 }

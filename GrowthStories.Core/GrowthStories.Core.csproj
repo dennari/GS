@@ -60,6 +60,7 @@
     <Compile Include="EventHandlerBase.cs" />
     <Compile Include="IAsyncDispatchCommits.cs" />
     <Compile Include="ICommandHandler.cs" />
+    <Compile Include="IGSLog.cs" />
     <Compile Include="IEventFactory.cs" />
     <Compile Include="IGSRepository.cs" />
     <Compile Include="IAggregateFactory.cs" />
