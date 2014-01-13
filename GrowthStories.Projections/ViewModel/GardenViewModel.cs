@@ -104,7 +104,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ShowDetailsCommand { get; protected set; }
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
-
+        public IReactiveCommand TryAddPlantCommand { get; private set; }
+        public IReactiveCommand IAPTeaserDismissedCommand { get; private set; }
 
         public IReactiveCommand MultiWateringCommand { get; private set; }
         public IReactiveCommand MultiDeleteCommand { get; private set; }
@@ -243,6 +244,75 @@ namespace Growthstories.UI.ViewModel
             //    return Disposable.Empty;
             // })
 
+            IAPTeaserDismissedCommand = new ReactiveCommand();
+            IAPTeaserDismissedCommand.Subscribe(x => HandleIAPTeaserDismissed((PopupResult)x));
+
+            TryAddPlantCommand = new ReactiveCommand();
+            TryAddPlantCommand.Subscribe(_ => TryAddPlant());
+
+            App.AfterIAPCommand.Subscribe(x => AfterIAP((bool)x));
+
+        }
+
+
+        protected void HandleIAPTeaserDismissed(PopupResult res)
+        {
+            if (res == PopupResult.LeftButton)
+            {
+                App.IAPCommand.Execute(null);
+            }
+        }
+
+
+        protected void TryAddPlant()
+        {
+            if (Plants.Count >= 3 && !App.HasPayed())
+            {
+                var pvm = new PopupViewModel()
+                {
+                    Caption = "Purchase",
+                    Message = "You are currently limited to 3 plants. Add 4 additional plants for only 4,95!",
+                    IsLeftButtonEnabled = true,
+                    IsRightButtonEnabled = true,
+                    LeftButtonContent = "Buy",
+                    RightButtonContent = "Not now",
+                    DismissedCommand = IAPTeaserDismissedCommand 
+                };
+
+                App.ShowPopup.Execute(pvm);
+
+            } else if (Plants.Count() >= 7) {
+
+                var pvm = new PopupViewModel()
+                {
+                    Caption = "Can't add more plants",
+                    Message = "You can have a total of 7 plants.",
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK",
+                };
+
+                App.ShowPopup.Execute(pvm);
+
+            } else {
+                App.Router
+                    .NavigateCommandFor<IAddEditPlantViewModel>()
+                    .Execute(null);
+
+            }
+        }
+
+
+        protected void AfterIAP(bool bought)
+        {
+            if (bought)
+            {
+                App.Router.
+                    NavigateCommandFor<IAddEditPlantViewModel>()
+                    .Execute(null);                
+            }
+
+            // else, user did not buy anything so
+            // we are not going to navigate anywhere
         }
 
 
@@ -318,8 +388,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
         private ButtonViewModel _AddPlantButton;
         public IButtonViewModel AddPlantButton
         {
@@ -330,7 +398,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "add",
                         IconType = IconType.ADD,
-                        Command = App.Router.NavigateCommandFor<IAddEditPlantViewModel>()
+                        Command = TryAddPlantCommand
                     };
                 return _AddPlantButton;
             }

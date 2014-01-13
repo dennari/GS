@@ -186,6 +186,7 @@
                 <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                     <ScrollViewer>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
+
                         <Button  Command="{Binding CreateLocalDataCommand}" Content="Create local data"/>
 
                         <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
@@ -208,6 +209,9 @@
 
                         <Button Tap="CauseException" Content="Cause Exception" />
 
+                         <Button Tap="ClearMockIAP"  Content="clear mock IAPs" />
+
+
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -215,7 +219,6 @@
             
             
         </phone:Panorama>
-
 
 
     </Grid>

@@ -24,7 +24,6 @@ using Growthstories.UI.Services;
 using GrowthStories.UI.WindowsPhone.BA;
 
 
-
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
@@ -55,7 +54,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
 
 
-
             InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
 
             Initialize();
@@ -66,6 +64,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 try
                 {
                     GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
+                    StartScheduleUpdater(x as IGardenViewModel);
                 }
                 catch { }
             });
@@ -75,12 +74,66 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 try
                 {
                     GSTileUtils.DeleteAllTiles();
-
                 }
                 catch { }
-
             });
 
+            DeleteTileCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                GSTileUtils.DeleteTile((IPlantViewModel)x);
+            });
+
+            IAPCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(async x => 
+            {
+                var ret = await GSIAP.ShopForBasicProduct();
+                AfterIAPCommand.Execute(ret);
+            });
+
+            GSIAP.PossiblySetupMockIAP();
+        }
+
+
+        protected void StartScheduleUpdater(IGardenViewModel gvm)
+        {
+            Action<Task> repeatAction = null;
+            repeatAction = _ =>
+            {
+                // kludge to execute in the main thread
+                var kludge = new ReactiveCommand();
+                kludge
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                    {
+                        RecalculateSchedules(gvm);
+                    });
+                kludge.Execute(null);
+
+                // update quickly for debugging
+                Task.Delay(1000 * 20).ContinueWith
+                    (__ => repeatAction(__));
+
+                // update once in a minute
+                //Task.Delay(1000 * 60).ContinueWith
+                //    (__ => repeatAction(__));           
+            };
+            repeatAction(null);
+        }
+
+
+        protected void RecalculateSchedules(IGardenViewModel gvm)
+        {
+
+            foreach (var plant in gvm.Plants)
+            {
+                if (plant.WateringScheduler != null)
+                {
+                     plant.WateringScheduler.ComputeNext();
+                }
+                if (plant.FertilizingScheduler != null)
+                {
+                    plant.FertilizingScheduler.ComputeNext();
+                }
+            }
         }
 
         protected override IKernel GetKernel()
@@ -100,6 +153,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
             return this.Kernel;
         }
+
+
+        public override bool HasPayed()
+        {
+            return GSIAP.HasPayedBasicProduct();
+        }
+
 
         private void Bootstrap()
         {
@@ -201,8 +261,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return base.PlantActionViewModelFactory(type, state);
         }
 
+
         protected override void ClearDB()
         {
+            // clear isolated storage containing tile update infos
+            GSTileUtils.ClearAllTileUpdateInfos();
+
             //base.ClearDB();
             var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
             if (db != null)

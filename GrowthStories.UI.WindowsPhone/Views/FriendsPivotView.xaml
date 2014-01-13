@@ -13,7 +13,7 @@
 	d:DataContext="{StaticResource FriendsPivotViewModelDesign}"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded">
         
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.jpg"/>

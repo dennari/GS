@@ -106,6 +106,7 @@
     <Compile Include="IHandles.cs" />
     <Compile Include="Services\AppUserService.cs" />
     <Compile Include="Services\GSViewLocator.cs" />
+    <Compile Include="SharedViewHelpers.cs" />
     <Compile Include="ViewModel\AppViewModel.cs" />
     <Compile Include="ViewModel\CommandViewModel.cs" />
     <Compile Include="ViewModel\NotificationsViewModel.cs" />

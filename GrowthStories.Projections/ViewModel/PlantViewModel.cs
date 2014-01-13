@@ -29,17 +29,12 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand WateringCommand { get; protected set; }
         public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
-        public IReactiveCommand GardenViewDeleteCommand { get; protected set; }
         public IReactiveCommand DeleteRequestedCommand { get; protected set; }
 
-
         public IReactiveCommand EditCommand { get; protected set; }
-
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
-
         public IReactiveCommand ResetAnimationsCommand { get; protected set; }
-
 
         //public IReactiveCommand FlickCommand { get; protected set; }
         //public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
@@ -228,23 +223,29 @@ namespace Growthstories.UI.ViewModel
 
             this.DeleteRequestedCommand = new ReactiveCommand();
             this.DeleteCommand = new ReactiveCommand();
-            this.GardenViewDeleteCommand = new ReactiveCommand();
-            
-            this.DeleteCommand.Subscribe(_ => 
-            {
-                    App.Router.NavigateBack.Execute(null);
-            });
 
+            // For some reason delete did not work always when
+            // the deletion was run in an async task, it works
+            // however inside subscribe.
+            //
+            // It is also probably a idea to have it inside subscribe,
+            // as we may exit the app right after the delete.
+            //
+            // This happens when we have reached the plant from a 
+            // secondary tile.
+            //
+            //   -- JOJ 11.1.2014
             this.DeleteCommand
-                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
-                .Publish()
-                .Connect();
-
-            // ( garden view version does not navigate back )
-            this.GardenViewDeleteCommand
-                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
-                .Publish()
-                .Connect();
+            .Subscribe(_ =>
+            {
+                this.App.DeleteTileCommand.Execute(this);
+                App.HandleCommand(new DeleteAggregate(this.Id, "plant"));
+            });
+            //this.DeleteCommand
+            //    .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
+            //    .Publish()
+            //    .Connect();
+            
 
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
@@ -305,18 +306,16 @@ namespace Growthstories.UI.ViewModel
                     .StartWith(state.Tags)
                     .Subscribe(x => this.Tags = new ReactiveList<string>(x));
 
-
                 this.Photo = state.Profilepicture;
 
-
                 this.App.FutureSchedules(state.Id)
-                    .Subscribe(x =>
-                    {
-                        if (x.Type == ScheduleType.WATERING)
-                            this.WateringSchedule = x;
-                        else
-                            this.FertilizingSchedule = x;
-                    });
+                .Subscribe(x =>
+                {
+                    if (x.Type == ScheduleType.WATERING)
+                        this.WateringSchedule = x;
+                    else
+                        this.FertilizingSchedule = x;
+                });
 
             }
 
@@ -380,6 +379,12 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
             {
                 AppBarMenuItems = __AppBarMenuItems;
+            });
+
+            DeleteRequestedCommand
+            .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                ShowDeleteConfirmation(this);
             });
 
         }
@@ -536,7 +541,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        public string TodayWeekDay { get { return DateTimeOffset.Now.ToString("dddd"); } }
+        public string TodayWeekDay { get { return SharedViewHelpers.FormatWeekDay(DateTimeOffset.Now); } }
         public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }
 
         protected string _Name;
@@ -821,7 +826,7 @@ namespace Growthstories.UI.ViewModel
                         new MenuItemViewModel(null)
                         {
                             Text = "delete",
-                            Command = DeleteCommand
+                            Command = DeleteRequestedCommand
                         }
                     );
                 
@@ -882,6 +887,41 @@ namespace Growthstories.UI.ViewModel
             get { return SupportedPageOrientation.PortraitOrLandscape; }
         }
 
+
+
+        public static void ShowDeleteConfirmation(IPlantViewModel pvm)
+        {
+            var dc = new ReactiveCommand();
+
+            dc.Subscribe(x =>
+            {
+                switch ((PopupResult)x)
+                {
+                    case PopupResult.LeftButton:
+                        pvm.DeleteCommand.Execute(null);
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+
+            var popupvm = new PopupViewModel()
+            {
+                Caption = "Confirm delete",
+                Message = "Are you sure you wish to delete the plant "
+                        + pvm.Name.ToUpper()
+                        + "? This can't be undone.",
+
+                IsLeftButtonEnabled = true,
+                IsRightButtonEnabled = true,
+                LeftButtonContent = "Yes",
+                RightButtonContent = "Cancel",
+                DismissedCommand = dc
+            };
+
+            pvm.App.ShowPopup.Execute(popupvm);
+        }
 
     }
 

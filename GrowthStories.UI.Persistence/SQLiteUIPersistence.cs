@@ -11,6 +11,7 @@ using System.Threading;
 using Growthstories.Domain;
 using Growthstories.Core;
 using Microsoft.CSharp.RuntimeBinder;
+using System.Diagnostics;
 
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
@@ -24,6 +25,7 @@ using Sqlite3Statement = Sqlite.Statement;
 using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
+
 
 namespace Growthstories.UI.Persistence
 {
@@ -128,20 +130,25 @@ namespace Growthstories.UI.Persistence
             try
             {
                 // why is the dynamic keyword there twice ?
+                this.Log().Info("persisting " + aggregate.State.GetType().ToString());
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
+                this.Log().Info("persisted " + aggregate.State.GetType().ToString());
             }
 
             catch (RuntimeBinderException e)
             {
-                this.Log().Exception(e, "Save");
+                this.Log().Exception(e, "RuntimeBinderException in SQLiteUIPersistence when persisting {0}",  aggregate.GetType().Name);
 
+                if (Debugger.IsAttached)               
+                    Debugger.Break();
             }
+        }
         }
 
 
         void Persist(IAggregateState state)
         {
-
+            
         }
 
         void Persist(PlantActionState state)
@@ -159,7 +166,6 @@ namespace Growthstories.UI.Persistence
                 //var debug = Encoding.UTF8.GetString(payload);
 
                 cmd.AddParameter(SQL.Payload, payload);
-
                 return cmd.ExecuteNonQuery(SQL.PersistAction);
             });
         }
@@ -474,7 +480,7 @@ namespace Growthstories.UI.Persistence
                 command = connection.CreateCommand("");
                 this.Log().Verbose("UI Persistence: executing command");
                 results = executor(connection, command);
-                this.Log().Verbose("UI Persistence: executed command, {0} rows affeted", results);
+                this.Log().Verbose("UI Persistence: executed command {1}, {0} rows affeted", results, command.CommandText);
                 return results;
             }
             catch (Exception e)
@@ -491,7 +497,7 @@ namespace Growthstories.UI.Persistence
                     this.Log().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
 
 
-                }
+            }
                 else
                     this.Log().Exception(e, "ExecuteCommand");
 

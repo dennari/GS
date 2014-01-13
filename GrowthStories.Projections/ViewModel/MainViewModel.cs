@@ -18,9 +18,6 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-
-
-
     [DataContract]
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
@@ -53,13 +50,11 @@ namespace Growthstories.UI.ViewModel
             this._Pages.Add(this.FriendsVM);
         }
 
+
         public MainViewModel(IGSAppViewModel app)
             : base(app)
         {
-
-
             LoadAsync();
-
         }
 
 
@@ -152,8 +147,6 @@ namespace Growthstories.UI.ViewModel
             this.RegisterCommand = new ReactiveCommand();
 
             this.RegisterCommand.Subscribe(_ => this.Navigate(new SignInRegisterViewModel(App)));
-
-
         }
 
         protected ObservableAsPropertyHelper<bool> _CreateLocalDataCommandIsExecuting;

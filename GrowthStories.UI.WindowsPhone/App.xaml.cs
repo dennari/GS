@@ -86,7 +86,8 @@ namespace Growthstories.UI.WindowsPhone
             ApplyGSAccentColor();
 
             // register background agent
-            ScheduledAgent.RegisterScheduledTask();
+
+            BAUtils.RegisterScheduledTask();
 
 
 

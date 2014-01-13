@@ -17,6 +17,7 @@ using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class SignInRegisterViewBase : GSView<ISignInRegisterViewModel>
     {
 
@@ -41,16 +42,57 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(ISignInRegisterViewModel vm)
         {
             base.OnViewModelChanged(vm);
+        }
 
-            if (!vm.App.HasDataConnection)
+        private void username_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox_LostFocus();
+            ViewModel.UsernameTouched = true;
+        }
+
+        private void email_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox_LostFocus();
+            ViewModel.EmailTouched = true;
+        }
+
+        private void password_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox_LostFocus();
+            ViewModel.PasswordTouched = true;
+        }
+
+        private void passwordConfirmation_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox_LostFocus();
+            ViewModel.PasswordConfirmationTouched = true;
+        }
+
+        private void TextBox_LostFocus()
+        {
+            SIPHelper.SIPGotHidden(SIPPlaceHolder);
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            SIPHelper.SIPGotVisible(SIPPlaceHolder);
+        }
+
+
+        private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModel.App.HasDataConnection)
             {
                 string msg;
 
-                if (vm.SignInMode) {
-                    msg = "Signing in requires a data connection. Please enable one in your phone settings and try again";
-                
-                } else {
-                    msg = "Signing up requires a data connection. Please enable one in your phone settings and try again";
+                if (ViewModel.SignInMode)
+                {
+                    msg = "Signing in requires a data connection. Please enable one in your phone's settings and try again";
+
+                }
+                else
+                {
+                    msg = "Registration requires a data connection. Please enable one in your phone's settings and try again";
 
                 }
 
@@ -59,32 +101,13 @@ namespace Growthstories.UI.WindowsPhone
                     Caption = "Data connection required",
                     Message = msg,
                     IsLeftButtonEnabled = true,
-                    DismissedCommand = vm.App.Router.NavigateBack,
+                    DismissedCommand = ViewModel.App.Router.NavigateBack,
                     LeftButtonContent = "OK"
                 };
-                vm.App.ShowPopup.Execute(pvm);
+                ViewModel.App.ShowPopup.Execute(pvm);
             } 
         }
 
-        private void username_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ViewModel.UsernameTouched = true;
-        }
-
-        private void email_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ViewModel.EmailTouched = true;
-        }
-
-        private void password_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ViewModel.PasswordTouched = true;
-        }
-
-        private void passwordConfirmation_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ViewModel.PasswordConfirmationTouched = true;
-        }
 
     }
 

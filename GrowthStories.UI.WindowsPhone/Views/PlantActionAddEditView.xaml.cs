@@ -12,13 +12,18 @@ using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Windows.Media;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
+
+
     public class PlantActionAddEditViewBase : GSView<IPlantActionViewModel>
     {
 
     }
+
 
     public partial class PlantActionAddEditView : PlantActionAddEditViewBase
     {
@@ -27,17 +32,28 @@ namespace Growthstories.UI.WindowsPhone
         public PlantActionAddEditView()
         {
             InitializeComponent();
-
-
         }
+
 
         protected override void OnViewModelChanged(IPlantActionViewModel vm)
         {
             base.OnViewModelChanged(vm);
-
-
         }
 
+        
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            //App.RootFrame.RenderTransform = new CompositeTransform();
+            SIPHelper.SIPGotVisible(SIPPlaceHolder);
+        }
+
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SIPHelper.SIPGotHidden(SIPPlaceHolder);
+        }
+
+        
 
     }
 }

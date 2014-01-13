@@ -27,6 +27,11 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
         }
 
+        private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.App.PossiblyAutoSync();
+        }
+
 
     }
 }

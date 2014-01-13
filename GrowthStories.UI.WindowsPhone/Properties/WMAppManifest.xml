@@ -16,11 +16,7 @@
     <Tasks>
       <DefaultTask Name="_default" NavigationPage="MainWindow.xaml" />
       <ExtendedTask Name="BackgroundTask">
-          <BackgroundServiceAgent 
-            Specifier="ScheduledTaskAgent" 
-            Name="Growth Stories Agent" 
-            Source="GrowthStories.UI.WindowsPhone.BA" 
-            Type="GrowthStories.UI.WindowsPhone.BA.ScheduledAgent" />
+        <BackgroundServiceAgent Specifier="ScheduledTaskAgent" Name="Growth Stories Agent" Source="GrowthStories.UI.WindowsPhone.BA" Type="GrowthStories.UI.WindowsPhone.BA.ScheduledAgent" />
       </ExtendedTask>
     </Tasks>
     <Tokens>
@@ -33,7 +29,7 @@
           <Message>
           </Message>
           <BackgroundColor>#931B80</BackgroundColor>
-          <HasLarge>false</HasLarge>
+          <HasLarge>True</HasLarge>
           <LargeContent1>
           </LargeContent1>
           <LargeContent2>

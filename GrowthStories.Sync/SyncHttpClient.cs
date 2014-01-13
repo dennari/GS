@@ -209,6 +209,7 @@ namespace Growthstories.Sync
             return Tuple.Create(r, s);
         }
 
+
         protected async Task<Tuple<HttpResponseMessage, string>> SendAndReadIfSuccess(HttpRequestMessage request)
         {
             var r = await SendAsync(request);

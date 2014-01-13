@@ -16,9 +16,13 @@ using Microsoft.Phone.Tasks;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
+using EventStore.Logging;
+
+
 
 namespace Growthstories.UI.WindowsPhone
 {
+
 
     public class PlantViewBase : GSView<IPlantViewModel>
     {
@@ -28,6 +32,9 @@ namespace Growthstories.UI.WindowsPhone
 
     public partial class PlantView : PlantViewBase
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
+
         
         public PlantView()
         {
@@ -48,6 +55,7 @@ namespace Growthstories.UI.WindowsPhone
         IDisposable PinCommandSubscription = Disposable.Empty;
         IDisposable ShareCommandSubscription = Disposable.Empty;
         IDisposable DeleteCommandSubscription = Disposable.Empty;
+        IDisposable DeleteRequestedCommandSubscription = Disposable.Empty;
 
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
@@ -58,10 +66,10 @@ namespace Growthstories.UI.WindowsPhone
             
             PinCommandSubscription = vm.PinCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                if (vm.HasTile == null) {
+                if (!vm.HasTile) {
                     CreateOrUpdateTile();
                 } else {
-                    DeleteTile();
+                    vm.App.DeleteTileCommand.Execute(vm);
                 }
             });
 
@@ -78,11 +86,11 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             DeleteCommandSubscription.Dispose();
-            DeleteCommandSubscription = vm.DeleteCommand
-                .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            DeleteCommandSubscription = vm.DeleteCommand.Subscribe(_ =>
             {
-                DeleteTile();
+                ViewModel.App.Router.NavigateBack.Execute(null);
             });
+            
         }
 
 
@@ -99,15 +107,9 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void DeleteTile()
-        {
-            GSTileUtils.DeleteTile(ViewModel);
-        }
-
-
         private void CreateOrUpdateTile()
-        {         
-            GSTileUtils.CreateOrUpdateTile(ViewModel);
+        {
+            GSMainProgramTileUtils.CreateOrUpdateTile(ViewModel);
         }
 
 
@@ -199,17 +201,13 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        private void ContentControl_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
 
-        //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    var plantActionView = (PlantActionView)sender;
-        //    //var plant = ViewModel.SelectedItem;
-        //    ViewModel.ActionTapped.Execute(plantActionView.ViewModel);
-        //}
+        }
+
+
     }
-
-
-
 
 
 }

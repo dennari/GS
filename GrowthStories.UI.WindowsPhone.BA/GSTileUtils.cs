@@ -35,11 +35,12 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
     public class TileUpdateInfo
     {
+
         [JsonProperty]
-        public DateTimeOffset Last { get; set; }
+        public DateTimeOffset? Last { get; set; }
         
         [JsonProperty]
-        public TimeSpan Interval { get; set; }
+        public TimeSpan? Interval { get; set; }
         
         [JsonProperty]
         public String UrlPathSegment { get; set; }
@@ -52,6 +53,14 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         [JsonProperty]
         public string Name { get; set; }
+
+
+        public TileUpdateInfo()
+        {
+            Interval = null;
+            Last = null;
+        }
+
     }
 
 
@@ -63,8 +72,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         public const string SETTINGS_KEY = "periodicTaskInfo";
         public const string SETTINGS_MUTEX = "GSSettingsMutex";
-     
+        public const string DELETE_MUTEX = "GSTileUtilsDeleteMutex";
 
+
+        public static string GetSettingsKey(IPlantViewModel pvm)
+        {
+            return SETTINGS_KEY + pvm.UrlPath;
+        }
+
+        
         public static string GetSettingsKey(TileUpdateInfo info)
         {
             return SETTINGS_KEY + info.UrlPath;
@@ -88,9 +104,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     settings.Remove(GetSettingsKey(info));
                     settings.Add(GetSettingsKey(info), s);
                     settings.Save();
-                }
-                finally
-                {
+                
+                } finally {
                     mutex.ReleaseMutex();
                 }
             }          
@@ -134,36 +149,116 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static void UpdateTile(IPlantViewModel pvm)
-        {
-            UpdateTile(pvm, false);
-        }
-
-
-        public static void CreateOrUpdateTile(IPlantViewModel pvm)
-        {
-            UpdateTile(pvm, true);
-        }
-
-
-        private static void UpdateTile(IPlantViewModel pvm, bool create)
-        {
-            var tile = GetShellTile(pvm);
-
-            if (tile != null || create)
-            {
-                TileUpdateInfo info = CreateTileUpdateInfo(pvm);
-                UpdateTile(info);
-                WriteTileUpdateInfo(info);
-            }
-        }
-
-
+        /**
+         * Update tiles based on TileUpdateInfos
+         * stored in IsolatedStorageSettings
+         */
         public static void UpdateTiles()
         {
             var pti = ReadTileUpdateInfos();
             UpdateTiles(pti);
+
+            UpdateApplicationTile();
         }
+
+
+        public static void UpdateApplicationTile()
+        {
+            var pti = ReadTileUpdateInfos();
+
+            uint maxCount = 0;
+
+            // if wideContent is set to null, the tile will retain the previous 
+            // setting, therefore this must be an empty string instead of null
+            string wideContent = ""; 
+            
+            double maxMissed = Double.MinValue;
+            string missedWc = null;
+            string nextWc = null;
+            long minTicksToAction = long.MaxValue;
+
+            foreach (var info in pti)
+            {
+                var data = GetTileData(info);
+
+                if (info.Last != null && info.Interval != null)
+                {
+                    var missed = PlantScheduler.CalculateMissed((DateTimeOffset)info.Last, (TimeSpan)info.Interval);
+
+                    if (missed > PlantScheduler.WINDOW)
+                    {
+                        if (missed > maxMissed)
+                        {
+                            maxMissed = missed;
+                            missedWc = wideContent = PlantScheduler.NotificationText(
+                                    (TimeSpan)info.Interval, missed, ScheduleType.WATERING, info.Name);
+                            maxCount = (uint)data.Count;
+                        }
+
+                    } else {
+
+                        var next = PlantScheduler.ComputeNext((DateTimeOffset)info.Last, (TimeSpan)info.Interval);
+
+                        var ticksToAction = next.Ticks;
+                        if (ticksToAction < minTicksToAction)
+                        {
+                            minTicksToAction = ticksToAction;
+                            var s = next.ToString("d");
+                            nextWc = info.Name.ToUpper() + " should be watered on " + s;
+                        }
+                    }
+
+                    // if watering is missed, we show a notification for the plant
+                    // whose watering has been missed relatively most (where Missed is highest)
+                    //
+                    // if no watering is missed, we show notification on which plant
+                    // should be watered next in absolute terms
+                    //
+                    //  -- JOJ 12.1.2014
+
+                    if (missedWc != null) {
+                        wideContent = missedWc;
+                    } else if (nextWc != null) {
+                        wideContent = nextWc;
+                    }
+
+                }
+            }
+
+            Color clr;
+            if (maxCount > 0) {
+                clr = new Color();
+                clr.A = 0xff;
+                clr.R = 0xfa;
+                clr.G = 0x68;
+                clr.B = 0x00;
+
+            } else {
+                clr = new Color();
+                clr.A = 0xff;
+                clr.R = 0x93;
+                clr.G = 0x1B;
+                clr.B = 0x80;
+            }
+
+            var td = new IconicTileData()
+            {
+                Title = "Growth Stories",
+                IconImage = new System.Uri("appdata:/Assets/Tiles/IconImage_03.png"),
+                SmallIconImage = new System.Uri("appdata:/Assets/Tiles/SmallIconImage_03.png"),
+                Count = (int)maxCount,
+
+                // according to documentation the widecontent does not do 
+                // automatic line wrapping but at least in my phone it does 
+                // -- JOJ 11.1.2014
+                WideContent1 = wideContent,
+                BackgroundColor = clr
+            };
+            
+            var appTile = ShellTile.ActiveTiles.First();
+            appTile.Update(td);
+        }
+
 
 
         public static void SubscribeForTileUpdates(IGardenViewModel garden)
@@ -179,25 +274,77 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     u.WhenAnyValue(y => y.Missed)                
                         .Subscribe(_ =>
                         {
-                            UpdateTile(x);
+                            UpdateTileAndInfoAfterDelay(x);
                         });
                 });
 
                 // watch for watering schedule enabled updates
                 x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
                 {
-                    UpdateTile(x);
+                    UpdateTileAndInfoAfterDelay(x);
                 });
 
                 // also watch for added photos
                 x.WhenAnyValue(w => w.Actions.ItemsAdded)
                     .Subscribe(u =>
                 {
-                    UpdateTile(x);
+                    UpdateTileAndInfoAfterDelay(x);
                 });
             });
+
+            garden.Plants.ItemsRemoved.Subscribe(x => ClearTileUpdateInfo(x));
+
         }
 
+        //
+        // To be called when database is cleared
+        //
+        public static void ClearAllTileUpdateInfos()
+        {
+            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+                    settings.Clear();
+                
+                } finally {
+                    mutex.ReleaseMutex();
+                }
+            }
+            UpdateTiles();
+        }
+
+
+        // 
+        // To be called whenever plants are removed
+        //
+        public static void ClearTileUpdateInfo(IPlantViewModel pvm)
+        {
+            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+                    if (settings.Contains(GetSettingsKey(pvm)))
+                    {
+                        settings.Remove(GetSettingsKey(pvm));
+                        settings.Save();
+                    }
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+            UpdateApplicationTile();
+        }
 
 
         public static ShellTile GetShellTile(IPlantViewModel pvm)
@@ -239,7 +386,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        private static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
+        public static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
         {
             var app = pvm.App as AppViewModel;
             return CreateTileUpdateInfo(pvm, FetchPhotoActions(pvm.Id, app));
@@ -301,7 +448,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             if (info.Interval != null && info.Last != null)
             {
-                var missed = PlantScheduler.CalculateMissed(info.Last, info.Interval);
+                var missed = PlantScheduler.CalculateMissed((DateTimeOffset)info.Last, (TimeSpan)info.Interval);
                 cnt = PlantScheduler.GetMissedCount(missed);
             }
 
@@ -316,18 +463,48 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        public static void UpdateTile(TileUpdateInfo info)
+        private static void UpdateTile(TileUpdateInfo info)
         {
             var tileData = GetTileData(info);
-
             var tile = GetShellTile(info.UrlPathSegment);
-            if (tile == null) {
-                ShellTile.Create(new Uri(info.UrlPath, UriKind.Relative), tileData, true);
-            
-            } else {
+
+            if (tile != null)
+            {
                 tile.Update(tileData);
             }
         }
+
+
+        private static void UpdateTileAndInfo(IPlantViewModel pvm)
+        {
+            
+            var vm = (PlantViewModel)pvm;
+ 
+            if (vm.State.IsDeleted)
+            {
+                ClearTileUpdateInfo(pvm);
+                UpdateApplicationTile();
+                return;
+            }
+
+            var tile = GetShellTile(pvm);
+            TileUpdateInfo info = CreateTileUpdateInfo(pvm);
+            WriteTileUpdateInfo(info);
+
+            if (tile != null)
+            {
+                UpdateTile(info);
+            }
+
+            UpdateApplicationTile();
+        }
+
+
+        public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
+        {
+            await Task.Delay(2 * 1000);
+            UpdateTileAndInfo(pvm);
+         }
 
 
         public static void DeleteTile(IPlantViewModel pvm)
@@ -352,75 +529,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
     }
-
-
-
-    /*
-    private static HashSet<PlantViewModel> GetPlantViewModels(IGSAppViewModel app, IUIPersistence pers)
-    {
-        var ret = new HashSet<PlantViewModel>();
-
-        if (app.User == null)
-        {
-            return ret;
-        }
-
-        var uid = app.User.Id;
-
-        foreach (var plant in pers.GetPlants(null, null, uid))
-        {
-            var wsvm = new ScheduleViewModel(plant.Item2, ScheduleType.WATERING, app);
-            var fsvm = new ScheduleViewModel(plant.Item3, ScheduleType.FERTILIZING, app);
-            var pvm = new PlantViewModel(plant.Item1, wsvm, fsvm, app);
-            ret.Add(pvm);
-        }
-        return ret;
-    }
-     */
-
-
-    /*
-    private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(IGSAppViewModel app, IUIPersistence uip)
-    {
-        var pvms = GSTileUtils.GetPlantViewModels(app, uip);
-        return CreateTileUpdateInfos(pvms, app, uip);
-    }
-    */
-
-
-    /*
-    private static HashSet<TileUpdateInfo> CreateTileUpdateInfos(HashSet<PlantViewModel> pvms, IGSAppViewModel app, IUIPersistence uip)
-    {
-        // little bit lame to have side effects in this method, could refactor
-        // -- JOJ 6.1.2014
-
-        var ret = new HashSet<TileUpdateInfo>();
-
-        foreach (var pvm in pvms)
-        {
-            var tile = GetShellTile(pvm);
-
-            if (tile != null)
-            {
-                if (pvm.State.IsDeleted)
-                {
-                    tile.Delete();
-                    
-                } else {
-                    var ti = CreateTileUpdateInfo(pvm, FetchActions(pvm.State.Id, uip, app));
-                    if (ti != null)
-                    {
-                        ret.Add(ti);
-                    }
-                    pvm.HasTile = true;
-                }
-            } else {
-                pvm.HasTile = false;
-            }
-        }
-        return ret;
-    }
-    */
 
 
 

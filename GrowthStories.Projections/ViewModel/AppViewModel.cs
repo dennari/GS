@@ -27,16 +27,19 @@ using System.Net.NetworkInformation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
+
+using EventStore.Logging;
+
 
 namespace Growthstories.UI.ViewModel
 {
 
 
-
-
-
     public class AppViewModel : ReactiveObject, IGSAppViewModel
     {
+
+        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(AppViewModel));
 
         private string _UrlPath;
         public string UrlPath
@@ -50,8 +53,6 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _UrlPath, value);
             }
         }
-
-
 
 
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
@@ -166,12 +167,16 @@ namespace Growthstories.UI.ViewModel
         protected IKernel Kernel;
 
 
+        public virtual bool HasPayed()
+        {
+            return true; // should override this
+        }
+
+
         public AppViewModel()
         {
 
             this.Resolver = RxApp.MutableResolver;
-
-
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
@@ -194,10 +199,15 @@ namespace Growthstories.UI.ViewModel
 
             });
 
+            DeleteTileCommand = new ReactiveCommand();
             MyGardenCreatedCommand = new ReactiveCommand();
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
+            IAPCommand = new ReactiveCommand();
+            AfterIAPCommand = new ReactiveCommand();
+
+
             InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
 
             var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
@@ -322,6 +332,11 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
 
+        public IReactiveCommand DeleteTileCommand { get; private set; }
+
+        public IReactiveCommand IAPCommand { get; private set; }
+
+        public IReactiveCommand AfterIAPCommand { get; private set; }
 
 
         #endregion
@@ -433,7 +448,65 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private int AutoSyncCount = 0;
 
+
+        private void SubscribeForAutoSync()
+        {
+            this.ListenTo<EventBase>().Subscribe(e =>
+            {
+                if (e.AggregateId == this.User.Id
+                    || e.AncestorId == this.User.Id
+                    || e.EntityId == this.User.Id
+                    || e.StreamAncestorId == this.User.Id
+                    || e.StreamEntityId == this.User.Id)
+                {
+                    // this is an async call, so it will not block
+                    PossiblyAutoSync();
+                }
+            });
+        }
+
+
+        //
+        // Autosync if there are not two or more unfinished autosyncs
+        //
+        // This method should be called whenever we detect changes we
+        // would like to sync immediately, and also possibly periodically
+        //
+        public async Task _PossiblyAutoSync()
+        {
+            
+            if (!HasDataConnection)
+            {
+                return;
+            }
+
+            if (AutoSyncCount < 2)
+            {
+                try
+                {
+                    var guid = Guid.NewGuid().ToString();
+                    Logger.Info("Autosyncing (debugId: " + guid + ")");
+                    this.AutoSyncCount++;
+                    await this.SyncAll();
+                    Logger.Info("Autosync finished (debugId: " + guid + ")");
+
+                } finally {
+                    this.AutoSyncCount--;
+                }
+            } 
+           
+        }
+
+
+        public void PossiblyAutoSync()
+        {
+            // before triggering the actual autosync,
+            // wait for a few seconds for more important
+            // processing to finish
+            Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
+        }
 
 
         //Task<T> RunTask<T>(Func<T> f)
@@ -640,6 +713,8 @@ namespace Growthstories.UI.ViewModel
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x => this.IsRegistered = true);
 
+                SubscribeForAutoSync();
+
                 return user;
             });
             return InitializeJob;
@@ -745,88 +820,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        /*
-        public async Task<RegisterResponse> Register(string username, string email, string password)
-        {
-
-            IAuthUser user = this.User;
-
-            if (user == null)
-            {
-                var u = this.Context.GetNewUserCommands();
-
-                foreach (var cmd in u.Item2)
-                {
-                    await this.HandleCommand(cmd);
-                }
-
-                user = u.Item1;
-            }
-
-            if (user == null)
-            {
-                throw new InvalidOperationException("Can't create new user");
-            }
-
-            if (user.IsRegistered())
-            {
-                return RegisterResponse.alreadyRegistered;
-            }
-
-            if (User.AccessToken == null)
-            {
-                try
-                {
-                    await Context.AuthorizeUser();
-                }
-                catch
-                {
-                    return RegisterResponse.connectionerror;
-                }
-            }
-
-            await this.HandleCommand(new MultiCommand(
-                new SetEmail(user.Id, email),
-                new SetUsername(user.Id, username),
-                new SetPassword(user.Id, password)
-            ));
-
-            var R = await this.PushAll();
-
-            if (R.Item1 == AllSyncResult.AllSynced)
-            {
-                this.IsRegistered = true;
-                return RegisterResponse.success;
-            }
-
-            else if (R.Item1 == AllSyncResult.SomeLeft)
-                return RegisterResponse.tryagain;
-            else if (R.Item1 == AllSyncResult.Error)
-                // BUG: this should only be returned when email is in use,
-                // not because of connection errors or other similar problems
-                return RegisterResponse.emailInUse;
-
-
-            //for (var i = 0; i < 3; i++)
-            //{
-
-            //    var empty = new PullStream[] { };
-            //    var s = new SyncInstance(
-            //       RequestFactory.CreatePullRequest(empty),
-            //       RequestFactory.CreatePushRequest(Model.State.SyncHead)
-            //    );
-
-            //    await _Synchronize(s);
-
-            //    if (s.PullResp == null || s.PullResp.StatusCode != GSStatusCode.OK)
-            //        return RegisterRespone.emailInUse;
-            //}
-
-            return RegisterResponse.success;
-        }
-        */
-
-
         public async Task<GSApp> SignOut(bool createUnregUser = true)
         {
             // Clear db
@@ -916,7 +909,6 @@ namespace Growthstories.UI.ViewModel
             // we pull followed user' plants
             await this.SyncAll();
 
-
             return SignInResponse.success;
         }
 
@@ -938,8 +930,22 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
 
+
+        // Do a synchronization cycle once
+        // (1) pull -> (2) push -> (3) photo download
+        //
         public async Task<ISyncInstance> Synchronize()
+        {
+            using (var r = await SynchronizeLock.LockAsync())
+            {
+                return await UnsafeSynchronize();
+            }
+        }
+
+
+        private async Task<ISyncInstance> UnsafeSynchronize()
         {
             // obtain access token if required
             if (User.AccessToken == null)
@@ -947,7 +953,6 @@ namespace Growthstories.UI.ViewModel
                 try
                 {
                     var authResponse = await Context.AuthorizeUser();
-
                 }
                 catch
                 {
@@ -984,6 +989,11 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+        //
+        // ONLY FOR TESTING
+        // not necessarily safe, do not call from app code
+        //
         public async Task<ISyncInstance> Push()
         {
             if (User.AccessToken == null)
@@ -1012,7 +1022,19 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+      
+        public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
+
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
+        {
+            using (var release = await _SynchronizeLock.LockAsync())
+            {
+                return await _UnsafeSynchronize(s);
+            }
+        }
+
+        
+        private async Task<ISyncInstance> _UnsafeSynchronize(ISyncInstance s)
         {
             bool handlePull = false;
             IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;

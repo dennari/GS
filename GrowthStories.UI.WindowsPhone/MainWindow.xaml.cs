@@ -170,9 +170,23 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (x.DismissedCommand != null)
                 {
-                    x.DismissedCommand.Execute(
-                        e1.Result == CustomMessageBoxResult.LeftButton ?
-                        PopupResult.LeftButton : PopupResult.RightButton);
+                    PopupResult res;
+                    switch (e1.Result)
+                    {
+                        case CustomMessageBoxResult.LeftButton:
+                            res = PopupResult.LeftButton;
+                            break;
+
+                        case CustomMessageBoxResult.RightButton:
+                            res = PopupResult.RightButton;
+                            break;
+
+                        default:
+                            res = PopupResult.None; 
+                            break;
+                    }
+
+                    x.DismissedCommand.Execute(res);
                 }
                 this.IsDialogShown = false;
             };

@@ -40,15 +40,14 @@
                                                   Command="{Binding EditCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
-                                <!--
+                                
                                 <toolkit:MenuItem Header="Delete" 
                                                   Opacity="1.0"
                                                   Background="WhiteSmoke"
                                                   Foreground="{StaticResource GSAccentBrush}"
-                                                  Command="{Binding GardenViewDeleteCommand}"
+                                                  Command="{Binding DeleteRequestedCommand}"
                                                   CommandParameter="{Binding}"
                                                   IsEnabled="{Binding HasWriteAccess}"/>
-                                -->
                             </toolkit:ContextMenu>
                         </toolkit:ContextMenuService.ContextMenu>
 
@@ -66,6 +65,7 @@
                     VerticalContentAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
                     >
+                    
                     
                     <c4f:Tile
                         Background="Transparent"

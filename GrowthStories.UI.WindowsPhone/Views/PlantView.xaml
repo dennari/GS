@@ -16,10 +16,13 @@
 
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
+            
             <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
+
                 <toolkit:ContextMenuService.ContextMenu >
-                    <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
-                                                 BorderBrush="Transparent" BorderThickness="0">
+                    <toolkit:ContextMenu IsZoomEnabled="False" 
+                        Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
+                        BorderBrush="Transparent" BorderThickness="0">
                         <toolkit:MenuItem Header="Edit" 
                             Background="WhiteSmoke"                           
                             Opacity="0.9"
@@ -36,25 +39,31 @@
                             IsEnabled="{Binding IsEditEnabled}"/>
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
+
                 <ContentPresenter 
 						DataContext="{Binding}"
                         Content="{Binding}" 
 						ContentTemplate="{TemplateBinding ContentTemplate}" 
 						Visibility="{TemplateBinding ContentVisibility}" 
-						HorizontalAlignment="Stretch"/>
-                <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Margin="0,0,0,12" >
-                    <StackPanel Orientation="Vertical" Width="110">
-                        <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-                        <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
-                        <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+						HorizontalAlignment="Stretch"
+                        />
+
+                <ContentControl toolkit:TiltEffect.IsTiltEnabled="True" Tap="ContentControl_Tap"
+                                HorizontalAlignment="Left" Padding="24,0,0,24" HorizontalContentAlignment="Left">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Vertical" Width="96">
+                            <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                            <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                            <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                        </StackPanel>
+                        <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                            <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                            <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                            <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                        </StackPanel>
                     </StackPanel>
-                    <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                        <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                        <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                        <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                    </StackPanel>
-                </StackPanel>
+                </ContentControl>
             </StackPanel>
         </ControlTemplate>
 
@@ -97,19 +106,20 @@
         
 
         <local:GSLongListSelector
+            
             x:Name="TimeLine" 
             ItemsSource="{Binding Actions}" 
             Grid.Row="1"
             ListHeader="{Binding}"
             VerticalAlignment="Stretch"
-            Margin="0,0,0,0"
-            
-            Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}"
-        >
+            Margin="-12,0,-12,0"
+            Padding="0,0,0,0"                        
+            Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}">
 
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
                     <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}">
+                        
                         <Grid Visibility="{Binding ShowFertilizingScheduler, Converter={StaticResource BooleanToVisibility}}">
                             <ContentControl                            
                                 DataContext="{Binding FertilizingScheduler}"
@@ -120,6 +130,8 @@
                             DataContext="{Binding WateringScheduler}"
                             Style="{StaticResource PlantNextAction}"/>
                         </Grid>
+                        
+                        <!--
                         <Canvas Height="54" Margin="0,0,0,24" >
                             <Line X1="0" X2="7" Y1="27" Y2="27" 
                         Canvas.ZIndex="0"
@@ -142,8 +154,10 @@
                                     <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
                                 </Line.Stroke>
                             </Line>
-                            <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
                         </Canvas>
+                        -->
+                        <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
+
                     </StackPanel>
                 </DataTemplate>
             </phone:LongListSelector.ListHeaderTemplate>

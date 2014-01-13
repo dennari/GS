@@ -35,7 +35,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             //this.SetBinding(ViewModelProperty, new Binding());
 
-            // this is needed to prevent shitty page transitions for
+            // this is needed to prevent shitty image resizing for
             // pages with backgrounds, affecting LUMIA 520 and probably 
             // other models
             //
@@ -47,6 +47,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = 800;
             }
+            
         }
 
 
@@ -57,7 +58,6 @@ namespace Growthstories.UI.WindowsPhone
             {
                 SetValue(ViewModelProperty, value);
             }
-
         }
 
 
