@@ -134,21 +134,19 @@ namespace Growthstories.UI.Persistence
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
                 this.Log().Info("persisted " + aggregate.State.GetType().ToString());
             }
-
             catch (RuntimeBinderException e)
             {
-                this.Log().Exception(e, "RuntimeBinderException in SQLiteUIPersistence when persisting {0}",  aggregate.GetType().Name);
+                this.Log().Exception(e, "RuntimeBinderException in SQLiteUIPersistence when persisting {0}", aggregate.GetType().Name);
 
-                if (Debugger.IsAttached)               
+                if (Debugger.IsAttached)
                     Debugger.Break();
             }
-        }
         }
 
 
         void Persist(IAggregateState state)
         {
-            
+
         }
 
         void Persist(PlantActionState state)
@@ -401,41 +399,6 @@ namespace Growthstories.UI.Persistence
             });
         }
 
-        //public IEnumerable<ScheduleState> GetSchedules(Guid? ScheduleId = null)
-        //{
-
-        //    var filters = new Dictionary<string, Guid?>(){
-        //            {"C.ScheduleId",ScheduleId}
-        //        }.Where(x => x.Value.HasValue).ToArray();
-
-        //    //if (filters.Length == 0)
-        //    //    throw new InvalidOperationException();
-        //    return this.ExecuteQuery(ScheduleId ?? default(Guid), query =>
-        //    {
-
-
-        //        var queryText = string.Format(@"SELECT U.*,C.Status FROM Schedules U LEFT JOIN Collaborators C ON (U.UserId = C.UserId)");
-        //        if (filters.Length > 0)
-        //        {
-        //            foreach (var x in filters)
-        //                query.AddParameter(@"@" + x.Key, x.Value);
-        //            queryText += string.Format(" WHERE ({0})",
-        //                string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
-        //        }
-        //        queryText += ";";
-
-
-
-        //        return query.ExecuteQuery<ScheduleState>(queryText, (stmt) =>
-        //        {
-        //            var u = Deserialize<ScheduleState>(stmt, (int)ScheduleIndex.Payload);
-        //            //u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)ScheduleIndex.Collaborator) > 0 ? true : false;
-        //            return u;
-        //        });
-        //    });
-        //}
-
-
 
         protected T Deserialize<T>(Sqlite3Statement stmt, int index) where T : class
         {
@@ -496,14 +459,20 @@ namespace Growthstories.UI.Persistence
 
                     this.Log().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
 
-
-            }
+                }
                 else
                     this.Log().Exception(e, "ExecuteCommand");
 
+                if (Debugger.IsAttached)
+                    Debugger.Break();
 
                 throw;
+
+
             }
+
+
+
         }
 
         private void ThrowWhenDisposed()

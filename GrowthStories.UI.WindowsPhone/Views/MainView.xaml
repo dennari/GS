@@ -201,7 +201,10 @@
                             
                         <Button  Command="{Binding RegisterCommand}" Content="Register"/>    
 
-                        <Button Tap="UpdateTiles" Content="update tiles" />
+                        
+                        <!--
+                        The event handler included only commented lines and I kind of deleted it - Ville
+                        <Button Tap="UpdateTiles" Content="update tiles" />-->
 
                         <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
 
