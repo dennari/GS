@@ -35,7 +35,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
-        
+
         public PlantView()
         {
             InitializeComponent();
@@ -44,7 +44,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = Double.NaN;
             }
-            
+
             if (ViewModel != null)
             {
                 OnViewModelChanged(ViewModel);
@@ -63,12 +63,15 @@ namespace Growthstories.UI.WindowsPhone
 
             PinCommandSubscription.Dispose();
             ViewModel.HasTile = GSTileUtils.GetShellTile(vm) != null;
-            
+
             PinCommandSubscription = vm.PinCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                if (!vm.HasTile) {
+                if (!vm.HasTile)
+                {
                     CreateOrUpdateTile();
-                } else {
+                }
+                else
+                {
                     vm.App.DeleteTileCommand.Execute(vm);
                 }
             });
@@ -79,9 +82,12 @@ namespace Growthstories.UI.WindowsPhone
                 Share(vm);
             });
 
-            if (vm.UserId == vm.App.User.Id) {
+            if (vm.UserId == vm.App.User.Id)
+            {
                 Margin = new Thickness(0, 0, 0, 72);
-            } else {
+            }
+            else
+            {
                 Margin = new Thickness(0, 0, 0, 0);
             }
 
@@ -90,7 +96,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewModel.App.Router.NavigateBack.Execute(null);
             });
-            
+
         }
 
 
@@ -100,7 +106,7 @@ namespace Growthstories.UI.WindowsPhone
 
             shareLinkTask.Title = "Story of " + vm.Name;
             shareLinkTask.LinkUri = new Uri(
-                "http://www.growthstories.com/plant/" + vm.UserId + "/" + vm.Id , UriKind.Absolute);
+                "http://www.growthstories.com/plant/" + vm.UserId + "/" + vm.Id, UriKind.Absolute);
             shareLinkTask.Message = "Check out how my plant " + vm.Name + " is doing!";
 
             shareLinkTask.Show();
@@ -117,9 +123,9 @@ namespace Growthstories.UI.WindowsPhone
         private static HashSet<object> LoadedSources = new HashSet<object>();
         private HashSet<object> AnimatedSources = new HashSet<object>();
 
-     
+
         private void ImageBrush_ImageOpened(object sender, RoutedEventArgs e)
-        {            
+        {
             var img = sender as System.Windows.Controls.Image;
 
             LoadedImages.Add(img);
@@ -170,14 +176,14 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Image_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
             var img = sender as System.Windows.Controls.Image;
             var b = GSViewUtils.FindParent<Button>(img);
 
             bool contains = LoadedImages.Contains(img);
             bool opaCheck = b.Opacity == 0.0;
             bool c2 = LoadedSources.Contains(img.Source);
-            
+
             // the longlist selector is lazy loading content all the time
             // and each the Image object is a new one 
             // 
@@ -194,8 +200,10 @@ namespace Growthstories.UI.WindowsPhone
                         b.Height = 220;
                         b.Opacity = 1.0;
                     }
-                
-                } else {
+
+                }
+                else
+                {
                     FadeInImage(img);
                 }
             }

@@ -33,7 +33,10 @@ namespace Growthstories.UI.WindowsPhone
 
         public GSView()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
+
+            // We don't want to set this as then we will have "two way" sync problems between ViewModel and DataContext
+            // so in XAML, just set ViewModel={..} and both ViewModel and DataContext will be set
+            // this.SetBinding(ViewModelProperty, new Binding());
 
             // this is needed to prevent shitty image resizing for
             // pages with backgrounds, affecting LUMIA 520 and probably 
@@ -47,7 +50,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = 800;
             }
-            
+
         }
 
 
@@ -79,11 +82,7 @@ namespace Growthstories.UI.WindowsPhone
 
         public void ViewModelChangeReport(object vm)
         {
-            //if (vm == null)
-            //    return;
-            //var v = vm as T;
-            //if (v == null)
-            //    return;
+
             if (vm != this.ViewModel) // this happens if set the ViewModel property in XAML
             {
                 this.ViewModel = vm as T; // this triggers another ViewModelChangeReport
@@ -142,12 +141,10 @@ namespace Growthstories.UI.WindowsPhone
     {
         public GSContentControl()
         {
-            //this.SetBinding(ViewModelProperty, new Binding());
-            //this.WhenAny()
+
         }
 
-        //public static readonly DependencyProperty ViewModelProperty =
-        //    DependencyProperty.Register("ViewModel", typeof(T), typeof(ContentControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(T), typeof(ContentControl), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
@@ -184,6 +181,12 @@ namespace Growthstories.UI.WindowsPhone
 
         public void ViewModelChangeReport(object vm)
         {
+
+            if (vm != this.ViewModel) // this happens if set the ViewModel property in XAML
+            {
+                this.ViewModel = vm as T; // this triggers another ViewModelChangeReport
+                return;
+            }
 
             this.OnViewModelChanged(vm as T);
         }
@@ -235,13 +238,13 @@ namespace Growthstories.UI.WindowsPhone
 
         public void ViewModelChangeReport(object vm)
         {
-            //if (vm == null)
-            //    return;
-            //var v = vm as T;
-            //if (v == null)
-            //    return;
-            //if (vm != this.ViewModel)
-            //    this.ViewModel = v;
+
+            if (vm != this.ViewModel) // this happens if set the ViewModel property in XAML
+            {
+                this.ViewModel = vm as T; // this triggers another ViewModelChangeReport
+                return;
+            }
+
             this.OnViewModelChanged(vm as T);
         }
 
