@@ -99,8 +99,8 @@ namespace Growthstories.UI.Services
             };
 
             return Tuple.Create(authUser, commands);
-
         }
+
 
         public Task<IAuthResponse> AuthorizeUser()
         {
@@ -113,11 +113,19 @@ namespace Growthstories.UI.Services
             return Task.Run(async () =>
             {
 
+                // Why is a function called AuthorizeUser first trying to synchronize
+                // and only then doing an actual authorization?
+                //
+                // Probably the purpose is to assure that email address changes have been pushed
+                // to the server. 
+                //
+                // -- JOJ 15.1.2014
+
                 var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
                 //int counter = 0;
                 ISyncPushResponse pushResp = await s.Push();
 
-                if (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW)
+                if (pushResp == null || (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW))
                 {
                     throw new InvalidOperationException("Can't synchronize user");
                 }

@@ -174,6 +174,9 @@
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\DesignViewModels.cs" />
     <Compile Include="ViewModels\Helpers.cs" />
+    <Compile Include="Views\Page1.xaml.cs">
+      <DependentUpon>Page1.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SignInRegisterView.xaml.cs">
       <DependentUpon>SignInRegisterView.xaml</DependentUpon>
     </Compile>
@@ -266,6 +269,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\Page1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SignInRegisterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -336,6 +343,11 @@
     <Content Include="Assets\Icons\ApplicationBar.Check.png" />
     <Content Include="Assets\Icons\ApplicationBar.Delete.png" />
     <Content Include="Assets\Icons\ApplicationBar.Select.png" />
+    <Content Include="Assets\Icons\arrow-right.png" />
+    <Content Include="Assets\Icons\arrow_down.png" />
+    <Content Include="Assets\Icons\arrow_up.png" />
+    <Content Include="Assets\Icons\IAP.jpg" />
+    <Content Include="Assets\Icons\IAP.png" />
     <Content Include="Assets\Icons\icon_air_humidity_appbar.png" />
     <Content Include="Assets\Icons\icon_co2_appbar.png" />
     <Content Include="Assets\Icons\icon_harvesting.png" />

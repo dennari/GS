@@ -778,6 +778,9 @@ namespace Growthstories.UI.ViewModel
     public interface IPlantMeasureViewModel : IPlantActionViewModel
     {
 
+        // References previous measurement of same type
+        //
+        IPlantMeasureViewModel PreviousMeasurement { get; set; }
 
     }
 
@@ -966,7 +969,10 @@ namespace Growthstories.UI.ViewModel
         SETTINGS,
         SIGNOUT,
         SIGNIN,
-        SIGNUP
+        SIGNUP,
+        ARROW_UP,
+        ARROW_DOWN,
+        ARROW_RIGHT,
     }
 
     public enum ApplicationBarMode

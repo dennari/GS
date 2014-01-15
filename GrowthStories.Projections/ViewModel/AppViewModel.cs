@@ -1276,6 +1276,25 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        /*
+        private Dictionary<MeasurementType,IPlantMeasureViewModel> _ActionsByMeasurementType;
+
+
+        private void SubscribeForPreviousActionInfos()
+        {
+    
+        }
+
+        private void HandleNewMeasurementAction(IPlantMeasureViewModel vm)
+        {
+            var last = _ActionsByMeasurementType[vm.MeasurementType];
+            if (last != null)
+            {
+                vm.PreviousMeasurement = last;
+            }
+            _ActionsByMeasurementType[vm.MeasurementType] = vm;
+        }
+        */ 
 
 
         public virtual IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null)
@@ -1289,8 +1308,6 @@ namespace Growthstories.UI.ViewModel
             {
                 return new PlantActionViewModel(type, this, state);
             }
-
-
         }
 
 
