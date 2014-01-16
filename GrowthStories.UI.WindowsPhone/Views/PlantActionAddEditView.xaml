@@ -246,16 +246,19 @@
 			</local:PlantActionView>
 
 			<local:GSChatTextBox
+                Tap="GSChatTextBox_Tap"
 				GotFocus="TextBox_GotFocus"
 				LostFocus="TextBox_LostFocus"	
 				Margin="0,0,0,0"
 				Padding="8,8,8,100"                                   
-				Hint="Enter comment / note"				
-				c4fBinding:TextBinding.UpdateSourceOnChange="True"
+				Hint="Enter comment / note"		
+                c4fBinding:TextBinding.UpdateSourceOnChange="True"
 				VerticalAlignment="Top"						
 				Text="{Binding Note, Mode=TwoWay}" 		
 				Visibility="{Binding NoteVisibility}" />
 
+            <ContentControl x:Name="SIPExtraPlaceHolder" Height="100" />
+            
 			<!-- placeholder to help with scrolling when SIP is open -->
 			<ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
 

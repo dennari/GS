@@ -54,6 +54,7 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+
         private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
         {
             // Little bit hacky, but simple and more efficient than
@@ -65,6 +66,22 @@ namespace Growthstories.UI.WindowsPhone
                 mvm.UpdatePreviousMeasurement();
             }
 
+        }
+
+
+        private void GSChatTextBox_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            // hack to prevent blank space above SIP
+            //
+            // the blank space does not appear if we are scrolled down 
+            // before touching the SIP, and this event handler catches 
+            // the event early enough to produce the same effect
+            //
+            // drawback is a little bit ugly transition to SIP mode
+            //
+            //  -- JOJ 16.1.2014
+            var sv = GSViewUtils.FindParent<ScrollViewer>((DependencyObject)sender);
+            sv.ScrollToVerticalOffset(800);
         }
 
         
