@@ -26,8 +26,8 @@ namespace Growthstories.UI.ViewModel
         public PlantActionType ActionType { get; protected set; }
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
-
         public IconType Icon { get; protected set; }
+
         
 
         private int _ActionIndex;
@@ -164,18 +164,20 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
-            }
-            else
-            {
+        
+            } else {
                 var now = DateTimeOffset.Now;
                 this.WeekDay = SharedViewHelpers.FormatWeekDay(now);
                 this.Date = now.ToString("d");
                 this.Time = now.ToString("t");
+                this.Created = now;
 
+                // I wonder if setting Created here is a problem,
+                // for some reason it has been avoided before
+                //   -- JOJ 16.1.2014
             }
 
             TimelineLinesSubscription = this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
-
 
             this.WhenAnyValue(x => x.UserId).Subscribe(x =>
             {
@@ -261,7 +263,6 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-
                 if (_AddCommand == null)
                 {
                     _AddCommand = new ReactiveCommand(this.CanExecute == null ? Observable.Return(true) : this.CanExecute, false);
@@ -271,7 +272,6 @@ namespace Growthstories.UI.ViewModel
 
                 }
                 return _AddCommand;
-
             }
         }
 
@@ -305,7 +305,6 @@ namespace Growthstories.UI.ViewModel
                     MeasurementType = this.MeasurementType
                 });
             }
-
         }
 
 
@@ -357,6 +356,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         protected MeasurementType _MeasurementType;
         public MeasurementType MeasurementType
         {
@@ -369,6 +369,7 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _MeasurementType, value);
             }
         }
+
 
         protected double? _Value;
         public double? Value
@@ -396,9 +397,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-
-
         IReactiveCommand _OpenZoomView = new ReactiveCommand();
         public IReactiveCommand OpenZoomView
         {
@@ -420,6 +418,21 @@ namespace Growthstories.UI.ViewModel
 
     public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
+
+
+        private IReactiveDerivedList<IPlantMeasureViewModel> _MeasurementActions;
+        public IReactiveDerivedList<IPlantMeasureViewModel> MeasurementActions
+        {
+            get 
+            {
+                return _MeasurementActions;
+            }
+
+            set 
+            {
+                this.RaiseAndSetIfChanged(ref _MeasurementActions, value);
+            }
+        }
 
 
         private IPlantMeasureViewModel _PreviousMeasurement;
@@ -453,7 +466,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
         private object _SelectedItem;
         public object SelectedItem
         {
@@ -482,12 +494,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        public override void AddCommandSubscription(object p)
-        {
-
-
-        }
+        public override void AddCommandSubscription(object p) {  }
 
 
         //public override IObservable<bool> CanExecute { get; protected set; }
@@ -508,7 +515,7 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.SValue, x => x)
                 .Where(x => double.TryParse(x, out dValue))
                 .Subscribe(x => this.Value = dValue);
-
+            PreviousMeasurement = null;
 
             this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
               .Select(x =>
@@ -538,38 +545,81 @@ namespace Growthstories.UI.ViewModel
 
             // dispose of the default content
             TimelineLinesSubscription.Dispose();
+            
 
             this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => 
             {
                 this.TimelineFirstLine = x == null ? null : x.TimelineTitle;
-                this.UpdateFirstTimeText();
+                UpdatePreviousMeasurement();
+                UpdateCountText(); // is not necessarily called by UpdatePreviousMeasurement
             });
 
             this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => 
             {
                 this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true);
-                UpdateTrendInfos();
             });
 
+            this.WhenAnyValue(x => x.PreviousMeasurement).Subscribe(_ =>
+            {
+                UpdateTrendInfos();
+                UpdateCountText();
+            });
+
+            this.WhenAnyValue(x => x.Value).Subscribe(x =>
+            {
+                this.UpdateTrendInfos();
+            });
 
             this.SelectedItem = defaultMeasurementType;
             this.SValue = state != null ? defaultMeasurementType.FormatValue(state.Value.Value) : string.Empty;
 
-            UpdateTrendIcon();
-            UpdateFirstTimeText();
+            UpdateCountText();
         }
 
 
+        // Update the trend info data based on 
+        // the current _PreviousMeasurement
+        //
         public void UpdateTrendInfos()
         {
+            UpdateShowTrendInfos();
             UpdateTrendIcon();
             UpdateChangePercentage();
         }
 
 
+        // Update the previous measurement
+        //
+        // This needs to be updated whenever one of the previous 
+        // measurements is deleted or modified. Alternatively we
+        // can just call this whenever the view is entered, which
+        // is how we are doing it for now.
+        //
+        //  -- JOJ 15.1.2014
+        public void UpdatePreviousMeasurement()
+        {
+            if (MeasurementActions != null)
+            {
+                var actions = MeasurementActions
+                    .Where(x => x.Created < this.Created && x.MeasurementType == MeasurementType)
+                    .OrderByDescending(x => x.Created);
+
+                CountForType = actions.Count();
+
+                if (actions.Count() > 0) {
+                    PreviousMeasurement = actions.First();
+
+                } else {
+                    PreviousMeasurement = null;
+
+                }
+            }
+        }
+
+
         private void UpdateTrendIcon()
         {
-            /*
+            
             if (PreviousMeasurement == null) {
                 TrendIcon = null;
             
@@ -583,8 +633,31 @@ namespace Growthstories.UI.ViewModel
                 TrendIcon = IconType.ARROW_RIGHT;
 
             }
-             */
-            TrendIcon = IconType.ARROW_DOWN;
+       }
+
+
+        private bool _ShowTrendInfos;
+        public bool ShowTrendInfos
+        {
+            get
+            {
+                return _ShowTrendInfos;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowTrendInfos, value);
+            }
+        }
+
+
+        private void UpdateShowTrendInfos()
+        {
+            if (PreviousMeasurement == null || !Value.HasValue)
+            {
+                ShowTrendInfos = false;
+                return;
+            }
+            ShowTrendInfos = true;
         }
 
 
@@ -602,35 +675,72 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public void UpdateFirstTimeText()
+        private int _CountForType;
+        public int CountForType
         {
-            if (this.MeasurementType == null)
+            get
             {
-                FirstTimeText = "";
-                return;
-            }
-
-            if (MeasurementTypeHelper.Options[this.MeasurementType] == null)
-            {
-                FirstTimeText = "";
-                return;
-            }
-
-            FirstTimeText 
-                = "first time you measured " 
-                + MeasurementTypeHelper.Options[this.MeasurementType].TimelineTitle;
-        }
-
-
-        private string _FirstTimeText = null;
-        public string FirstTimeText
-        {
-            get {
-                return _FirstTimeText;
+                return _CountForType;   
             }
 
             set {
-                this.RaiseAndSetIfChanged(ref _FirstTimeText, value);
+                this.RaiseAndSetIfChanged(ref _CountForType, value);
+            }
+
+        }
+
+
+        public void UpdateCountText()
+        {
+            if (MeasurementTypeHelper.Options[this.MeasurementType] == null)
+            {
+                //this.Log().Warn("BUG: MeasurementType is null");
+                CountText = "";
+                return;
+            }
+
+            CountText 
+                = Ordinal(CountForType + 1)
+                + " time you measured " 
+                + MeasurementTypeHelper.Options[this.MeasurementType].TimelineTitle;
+        }
+
+        
+        public static string Ordinal(int number)
+        {
+            const string TH = "th";
+            var s = number.ToString();
+
+            number %= 100;
+
+            if ((number >= 11) && (number <= 13))
+            {
+                return s + TH;
+            }
+
+            switch (number % 10)
+            {
+                case 1:
+                    return s + "st";
+                case 2:
+                    return s + "nd";
+                case 3:
+                    return s + "rd";
+                default:
+                    return s + TH;
+            }
+        }
+        
+
+        private string _CountText = null;
+        public string CountText
+        {
+            get {
+                return _CountText;
+            }
+
+            set {
+                this.RaiseAndSetIfChanged(ref _CountText, value);
             }
         }
 
@@ -642,15 +752,13 @@ namespace Growthstories.UI.ViewModel
                 return;
             }
 
-            double? pct = Value / PreviousMeasurement.Value * 100.0;
-            pct = 24.5;
+            double? pct = Value / PreviousMeasurement.Value * 100.0 - 100.0;
 
-            if (pct > 0)
-            {
-                ChangePercentage = "+" + string.Format("#.#", pct);
+            if (pct > 0) {
+                ChangePercentage = "+" + string.Format("{0:F1}", pct) + "%";
             
             } else {
-                ChangePercentage = string.Format("#.#", pct);
+                ChangePercentage = string.Format("{0:F1}", pct) + "%";
             }
         }
 
@@ -660,7 +768,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return ChangePercentage;
+                return _ChangePercentage;
             }
 
             set
@@ -673,9 +781,11 @@ namespace Growthstories.UI.ViewModel
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
-            this.Value = prop.Value;
-            this.SValue = prop.Value.Value.ToString("F1");
-
+            if (prop.Value != null && prop.Value.HasValue)
+            {
+                this.Value = prop.Value;
+                this.SValue = prop.Value.Value.ToString("F1");
+            }
         }
 
     }

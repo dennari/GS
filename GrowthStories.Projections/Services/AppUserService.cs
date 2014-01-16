@@ -116,10 +116,8 @@ namespace Growthstories.UI.Services
                 // Why is a function called AuthorizeUser first trying to synchronize
                 // and only then doing an actual authorization?
                 //
-                // Probably the purpose is to assure that email address changes have been pushed
-                // to the server. 
-                //
                 // -- JOJ 15.1.2014
+                //
 
                 var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
                 //int counter = 0;
@@ -137,7 +135,6 @@ namespace Growthstories.UI.Services
 
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
-
 
                 var authResponse = await AuthorizeUser(CurrentUser.Email, CurrentUser.Password);
                 if (authResponse.StatusCode != GSStatusCode.OK)

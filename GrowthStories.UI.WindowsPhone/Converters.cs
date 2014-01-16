@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media.Imaging;
 
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -74,10 +75,7 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.ARROW_UP,IconFolder+"arrow_up.png"},
             {IconType.ARROW_DOWN,IconFolder+"arrow_down.png"},
             {IconType.ARROW_RIGHT,IconFolder+"arrow_right.png"}
-
         };
-
-
 
 
         public static IDictionary<IconType, string> BigIcons = new Dictionary<IconType, string>()

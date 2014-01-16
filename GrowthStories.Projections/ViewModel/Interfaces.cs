@@ -781,6 +781,7 @@ namespace Growthstories.UI.ViewModel
         // References previous measurement of same type
         //
         IPlantMeasureViewModel PreviousMeasurement { get; set; }
+        IReactiveDerivedList<IPlantMeasureViewModel> MeasurementActions { get; set; }
 
     }
 

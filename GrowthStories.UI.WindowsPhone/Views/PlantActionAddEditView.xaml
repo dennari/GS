@@ -18,6 +18,7 @@
 
 
 	<local:GSViewGrid
+            Loaded="GSViewGrid_Loaded"
 			TopTitle="GROWTH STORIES"
 			Title="{Binding Label}"
 			Background="{Binding Background}"
@@ -94,7 +95,7 @@
 							</local:GSLabel>
                             -->
 
-                            <StackPanel Margin="0,0,0,0">
+                            <StackPanel Margin="0,0,0,6">
 
                                 <local:GSLabel Label="value" Margin="0,0,0,0">
 
@@ -107,6 +108,7 @@
 
                                         <TextBox 
                                             Text="{Binding SValue, Mode=TwoWay}" 
+                                            c4fBinding:TextBinding.UpdateSourceOnChange="True"
 						                    Style="{StaticResource GSTransparentTextBoxStyle}"
 						                    VerticalAlignment="Stretch"
                                             HorizontalAlignment="Stretch"
@@ -126,28 +128,32 @@
                                             GotFocus="TextBox_GotFocus"
 									        LostFocus="TextBox_LostFocus"
                                             />
+                                        
                                         <Image 
 						                    Margin="0,14,0,13"
 						                    Grid.Row="0"
 						                    Grid.Column="1"
                                             Source="{Binding TrendIcon, Converter={StaticResource IconTypeToIcon}}"
-                                            Visibility="{Binding TrendIcon, Converter={StaticResource NullToVisibility}}"
+                                            Visibility="{Binding ShowTrendInfos, Converter={StaticResource BooleanToVisibility}}"
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Right"
                                             Stretch="Uniform"
                                             Width="97"
 						                    />
 
-                                        <TextBlock Grid.Column="1"
-                                            Margin="0,12,0,0"
-                                            Text="{Binding FirstTimeText}"
-                                            HorizontalAlignment="Left"
-                                            TextWrapping="Wrap"
-                                            FontSize="16"
-                                            Width="105"
-                                            Foreground="White"
-                                        />
-
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Grid.Column="1"
+                                                Margin="0,12,0,0"
+                                                Visibility="{Binding ShowTrendInfos, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+                                                Text="{Binding CountText}"
+                                                HorizontalAlignment="Left"
+                                                TextWrapping="Wrap"
+                                                FontSize="16"
+                                                Width="105"
+                                                Foreground="White"
+                                                />
+                                        </StackPanel>
+                                        
                                     </Grid>
 
                                 </local:GSLabel>
@@ -162,41 +168,47 @@
                                 </Grid>
 
 
-                                <toolkit:WrapPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                <toolkit:WrapPanel Orientation="Horizontal" Margin="0,0,0,0" >
 
                                     <TextBlock 
+                                        Visibility="{Binding ShowTrendInfos, 
+                                        Converter={StaticResource BooleanToVisibility}}"
 						                FontSize="54" 
-						                Text="+24.5%"
+						                Text="{Binding ChangePercentage}"
 						                FontWeight="Bold"
-						                Margin="-6,0,0,0"
+						                Margin="-6,0,15,0"
 					                />
 
-                                    <ContentControl VerticalAlignment="Top">
+                                    <ContentControl 
+                                        VerticalAlignment="Top"
+                                        Visibility="{Binding PreviousMeasurement, 
+                                        Converter={StaticResource NullToVisibility}}"
+                                        >
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock 
 							                    FontSize="54" 
-                                                Margin="12,-3,0,0"
+                                                Margin="-3,-3,0,0"
 							                    Text="("
 							                    />
 
                                             <TextBlock 
 								                Margin="0,0,0,-12"
 							                FontSize="54" 
-							                Text="340.0"
+							                Text="{Binding PreviousMeasurement.SValue}"
 							                />
 
-                                            <StackPanel Orientation="Vertical" Margin="12,13,0,0">
+                                            <StackPanel Orientation="Vertical" Margin="12,12,0,0">
                                                 <TextBlock 
-									                FontSize="12" 
-									                Text="monday"
+									                FontSize="13" 
+									                Text="{Binding PreviousMeasurement.WeekDay}"
 								                />
                                                 <TextBlock 
-									                FontSize="12" 
-									                Text="5.9.2014"
+									                FontSize="13" 
+									                Text="{Binding PreviousMeasurement.Date}"
 									                />
                                                 <TextBlock 
-									                FontSize="12" 
-									                Text="14:24"
+									                FontSize="13" 
+									                Text="{Binding PreviousMeasurement.Time}"
 									                />
                                             </StackPanel>
 

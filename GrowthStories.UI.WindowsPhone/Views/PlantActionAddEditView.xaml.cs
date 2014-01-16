@@ -53,6 +53,20 @@ namespace Growthstories.UI.WindowsPhone
             SIPHelper.SIPGotHidden(SIPPlaceHolder);
         }
 
+
+        private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Little bit hacky, but simple and more efficient than
+            // listening to changes 
+            //
+            var mvm = ViewModel as PlantMeasureViewModel;
+            if (mvm != null)
+            {
+                mvm.UpdatePreviousMeasurement();
+            }
+
+        }
+
         
 
     }

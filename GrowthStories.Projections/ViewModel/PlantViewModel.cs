@@ -606,13 +606,29 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private void PrepareActionVM(IPlantActionViewModel vm)
+        {
+            vm.PlantId = this.Id;
+            vm.UserId = App.User.Id;
+            vm.ActionIndex = 0;
+
+            var ma = vm as IPlantMeasureViewModel;
+            if (ma != null)
+            {
+                var list = Actions.CreateDerivedCollection(u => u as IPlantMeasureViewModel, z => z.ActionType == PlantActionType.MEASURED);
+                ma.MeasurementActions = list;
+            }
+        }
+
+
         private IPlantActionViewModel CreateEmptyActionVM(PlantActionType type)
         {
             var vm = App.PlantActionViewModelFactory(type);
-            vm.PlantId = this.Id;
-            vm.UserId = App.User.Id;
+            PrepareActionVM(vm);
+
             return vm;
         }
+
 
         public IReactiveCommand _NavigateToEmptyActionCommand;
         public IReactiveCommand NavigateToEmptyActionCommand
@@ -669,13 +685,10 @@ namespace Growthstories.UI.ViewModel
                         var actionsPipe = App.CurrentPlantActions(this.State.Id)
                             .Concat(App.FuturePlantActions(this.State.Id));
 
-
                         actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                         {
-                            //_Actions.Add(x);
-                            x.PlantId = this.Id;
-                            x.UserId = this.UserId;
-                            x.ActionIndex = 0;
+
+                            PrepareActionVM(x);
                             _Actions.Insert(0, x);
 
                             foreach (var a in _Actions)
