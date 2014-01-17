@@ -1,14 +1,6 @@
-﻿using Growthstories.Domain.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ReactiveUI;
+﻿using System;
 using System.Reactive.Linq;
-using Growthstories.Domain.Entities;
-using Growthstories.Core;
-using System.Threading.Tasks;
-using System.ComponentModel;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -30,19 +22,25 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SynchronizeCommand { get; protected set; }
         //public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
+        private ObservableAsPropertyHelper<bool> _IsRegistered;
+        public bool IsRegistered
+        {
+            get
+            {
+                return _IsRegistered.Value;
+            }
+        }
 
-        private string _Email;
+
+        private ObservableAsPropertyHelper<string> _Email;
         public string Email
         {
             get
             {
-                return _Email;
-            }
-            private set
-            {
-                this.RaiseAndSetIfChanged(ref _Email, value);
+                return _Email.Value;
             }
         }
+
 
         private bool _CanSynchronize = true;
         public bool CanSynchronize
@@ -57,19 +55,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private bool _IsRegistered = false;
-        public bool IsRegistered
-        {
-            get
-            {
-                return _IsRegistered;
-            }
-
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _CanSynchronize, value);
-            }
-        }
 
         public SettingsViewModel(IGSAppViewModel app)
             : base(app)
@@ -82,12 +67,9 @@ namespace Growthstories.UI.ViewModel
                 IsEnabled = false,
 
             };
-            var hasUserAndIsRegistered = Observable.CombineLatest(
-                App.WhenAnyValue(x => x.User).Where(x => x != null),
-                App.WhenAnyValue(x => x.IsRegistered),
-                (x, y) => Tuple.Create(x, y)
-             );
-            var canSignOut = hasUserAndIsRegistered.Select(x => x.Item2 && x.Item1.AccessToken != null);
+
+            var isRegisteredObservable = App.WhenAnyValue(x => x.IsRegistered);
+
 
             //this.WarnCommand = new ReactiveCommand();
             //this.WarningDismissedCommand = new ReactiveCommand();
@@ -107,7 +89,11 @@ namespace Growthstories.UI.ViewModel
             this.SignUpCommand.Subscribe(x => this.Navigate(new SignInRegisterViewModel(App)));
 
 
-            this.LogOutWarning.AcceptedObservable.Subscribe(_ => App.SignOut().ContinueWith(__ => this.Navigate(new MainViewModel(App))));
+            this.LogOutWarning
+                .AcceptedObservable
+                .SelectMany(_ => App.SignOut())
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.Navigate(new MainViewModel(App)));
 
 
             this.SynchronizeCommand = new ReactiveCommand();
@@ -131,50 +117,37 @@ namespace Growthstories.UI.ViewModel
                 Command = SignUpCommand
             };
 
-            this.Email = App.User.Email;
-            this.ListenTo<InternalRegistered>()
-                .Select(x => x.Email)
-                .StartWith(App.User.Email)
-                .Subscribe(x =>
+            //this.ListenTo<InternalRegistered>()
+            //    .Select(x => x.Email)
+            //    .Subscribe(x =>
+            //        {
+            //            this.Email = x;
+            //        });
+
+
+            isRegisteredObservable
+                .Do(x =>
+                {
+
+                    this._AppBarButtons.Remove(this.SignUpButton);
+                    this._AppBarButtons.Remove(this.SignInButton);
+                    this._AppBarButtons.Remove(this.SignOutButton);
+
+                    if (x)
                     {
-                        this.Email = x;
-                    });
+                        this._AppBarButtons.Add(this.SignOutButton);
+                    }
+                    else
+                    {
+                        this._AppBarButtons.Add(this.SignInButton);
+                        this._AppBarButtons.Add(this.SignUpButton);
+                    }
 
-            /*
-            this.ListenTo<InternalRegistered>()
-                .Select(x)
-                .StartWith(App.User.Email)
-                .Subscribe(x =>
-                {
-                    this.Email = x;
-                });
-            */
+                })
+                .ToProperty(this, x => x.IsRegistered, out _IsRegistered);
 
-            hasUserAndIsRegistered
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-            {
-                this.IsRegistered = x.Item2;
 
-                this._AppBarButtons.Remove(this.SignUpButton);
-                this._AppBarButtons.Remove(this.SignInButton);
-                this._AppBarButtons.Remove(this.SignOutButton);
-
-                if (x.Item2)
-                {
-                    //if (x.Item2 && x.Item1.AccessToken != null) {
-                    //this.Email = x.Item1.Email;
-                    this._AppBarButtons.Add(this.SignOutButton);
-
-                }
-                else
-                {
-                    //this.Email = null;
-                    this._AppBarButtons.Add(this.SignInButton);
-                    this._AppBarButtons.Add(this.SignUpButton);
-                }
-
-            });
+            App.WhenAnyValue(x => x.User.Email).ToProperty(this, x => x.Email, out _Email);
 
             this.SharedByDefault = new ButtonViewModel()
             {

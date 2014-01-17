@@ -153,10 +153,10 @@
                     FontSize="24"
                     Text="Not signed in" 
                     Grid.Column="0" 
-                    Visibility="{Binding App.IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                    Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
 
             <StackPanel Grid.Column="0" Margin="0,0,0,36"
-                            Visibility="{Binding App.IsRegistered, Converter={StaticResource BooleanToVisibility}}">
+                            Visibility="{Binding IsRegistered, Converter={StaticResource BooleanToVisibility}}">
                 
                 <TextBlock 
                     Text="Signed in as" 
