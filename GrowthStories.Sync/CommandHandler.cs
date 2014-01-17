@@ -198,24 +198,25 @@ namespace Growthstories.Sync
         {
 
             derived = null;
-
-            var photo = cmd as CreatePlantAction;
-            if (photo != null && photo.Type == PlantActionType.PHOTOGRAPHED)
-            {
-                try
-                {
-                    var plant = (Plant)Repository.GetById(photo.PlantId);
-                    //if (plant.State.Profilepicture == null)
-                    //{
-                    derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
-                    {
-                        AncestorId = photo.AncestorId
-                    };
-                    return true;
-                    //}
-                }
-                catch { }
-            }
+            
+            //var photo = cmd as CreatePlantAction;
+            //if (photo != null && photo.Type == PlantActionType.PHOTOGRAPHED)
+            //{
+            //    try
+            //    {
+            //        var plant = (Plant)Repository.GetById(photo.PlantId);
+            //        //if (plant.State.Profilepicture == null)
+            //        //{
+            //        derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
+            //        {
+            //            AncestorId = photo.AncestorId
+            //        };
+            //        return true;
+            //        //}
+            //    }
+            //    catch { }
+            //}
+            
 
             var upload = cmd as CompletePhotoUpload;
             if (upload != null && upload.PlantActionId != default(Guid))

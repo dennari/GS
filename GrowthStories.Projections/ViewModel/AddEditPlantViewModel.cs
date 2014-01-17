@@ -416,8 +416,8 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
                 await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
                 await App.HandleCommand(new SetProfilepicture(plantId, this.Photo, plantActionId));
-
             }
+
             //this.Ta
             if (!this.TagSet.SetEquals(this.Tags))
             {

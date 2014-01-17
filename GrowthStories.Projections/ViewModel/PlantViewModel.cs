@@ -274,7 +274,18 @@ namespace Growthstories.UI.ViewModel
 
                 this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
                     .StartWith(state.Profilepicture)
-                    .Subscribe(x => this.Photo = x);
+                    .Subscribe(x => 
+                        {
+                            this.Photo = x;   
+                        });
+
+                this.WhenAnyValue(x => x.Photo).Subscribe(x =>
+                {
+                    foreach (var a in Actions.Where(z => z.ActionType == PlantActionType.PHOTOGRAPHED).AsEnumerable())
+                    {
+                        SetIsProfilePhoto((IPlantPhotographViewModel)a);
+                    }
+                });
 
                 if (state.Profilepicture == null && state.ProfilepictureActionId.HasValue)
                 {
@@ -284,8 +295,7 @@ namespace Growthstories.UI.ViewModel
                         this.Photo = x.Photo;
                     });
                 }
-
-
+                
                 this.ListenTo<MarkedPlantPublic>(this.State.Id)
                     .Subscribe(x => this.IsShared = true);
 
@@ -385,6 +395,15 @@ namespace Growthstories.UI.ViewModel
             .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
                 ShowDeleteConfirmation(this);
+            });
+
+
+            this.WhenAnyValue(x => x.Id).Subscribe(pid =>
+            {
+                foreach (var a in Actions)
+                {
+                    a.PlantId = pid;
+                }
             });
 
         }
@@ -618,6 +637,25 @@ namespace Growthstories.UI.ViewModel
             {
                 var list = Actions.CreateDerivedCollection(u => u as IPlantMeasureViewModel, z => z.ActionType == PlantActionType.MEASURED);
                 ma.MeasurementActions = list;
+            }
+
+            var pa = vm as IPlantPhotographViewModel;
+            SetIsProfilePhoto(pa); 
+        }
+
+
+        private void SetIsProfilePhoto(IPlantPhotographViewModel pa)
+        {
+            if (pa != null && Photo != null && pa.State != null && pa.State.Photo != null)
+            {
+                // hack, works for now
+                pa.IsProfilePhoto =
+                    (Photo.LocalUri != null && Photo.LocalUri == pa.State.Photo.LocalUri)
+                    || (Photo.RemoteUri != null && Photo.RemoteUri == pa.State.Photo.RemoteUri);
+            }
+            else if (pa != null)
+            {
+                pa.IsProfilePhoto = false;
             }
         }
 

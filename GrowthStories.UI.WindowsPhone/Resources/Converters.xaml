@@ -29,4 +29,8 @@
     <local:IconTypeToIconConverter x:Key="IconTypeToIcon"/>
     <local:IconTypeToIconUriConverter x:Key="IconTypeToIconUri"/>
     <local:CaseConverter x:Key="ToUpperOrLowerCase"/>
+
+    <local:BooleanToSpecialColorConverter x:Key="BooleanToSpecialColor"/>
+
+
 </ResourceDictionary>

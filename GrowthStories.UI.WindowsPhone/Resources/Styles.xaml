@@ -52,13 +52,12 @@
     <Color x:Key="GSBackgroundColor">#a0f5dae4</Color>
     <Color x:Key="GSForegroundColor">#ffffffff</Color>
 
-
+    <SolidColorBrush x:Key="GSPureWhiteBrush" Color="White" />
     <SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSInputColor}"/>
     <SolidColorBrush x:Key="GSFocusBorderBrush" Color="{StaticResource GSInputColor}"/>
     <SolidColorBrush x:Key="GSAccentBrush" Color="{StaticResource GSAccentColor}"/>
     <SolidColorBrush x:Key="GSBackgroundBrush" Color="{StaticResource GSBackgroundColor}"/>
-    <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}"/>
-
+    <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}" />
     <SolidColorBrush x:Key="GSWhiteBrush" Color="WhiteSmoke"/>
 
     <RadialGradientBrush x:Key="GSBackgroundGradient"

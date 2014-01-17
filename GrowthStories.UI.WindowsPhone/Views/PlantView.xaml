@@ -55,6 +55,14 @@
                                 Foreground="{StaticResource GSAccentBrush}"
                                 />
 
+                        <telerikPrimitives:RadContextMenuItem 
+                                Visibility="{Binding ShowSetAsProfilePicture, Converter={StaticResource BooleanToVisibility}}"
+                                Content="Set as profile picture" 
+                                Command="{Binding SetAsProfilePictureCommand}"
+                                CommandParameter="{Binding}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
                     </telerikPrimitives:RadContextMenu>
                 </telerikPrimitives:RadContextMenu.ContextMenu>
                 
@@ -222,15 +230,13 @@
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                                 
-                                
-                                
                             <Button 
                                 toolkit:TiltEffect.IsTiltEnabled="True"
-                                BorderBrush="WhiteSmoke"
+                                BorderBrush="{Binding IsProfilePhoto, Converter={StaticResource BooleanToSpecialColor}}"
                                 BorderThickness="3"    
                                 HorizontalAlignment="Stretch" 
                                 Style="{StaticResource GSButtonStyle}" 
-                                Margin="0,6,0,12" 
+                                Margin="0,0,0,12" 
                                 Command="{Binding PhotoTimelineTap}"
                                 Padding="0,0,0,0"
                                     >

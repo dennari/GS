@@ -791,6 +791,8 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand EditPhotoCommand { get; set; }
         IReactiveCommand PhotoTimelineTap { get; }
         IReactiveCommand PhotoChooserCommand { get; }
+   
+        bool IsProfilePhoto {get; set;}
     }
 
 

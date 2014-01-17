@@ -14,7 +14,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media.Imaging;
-
+using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -574,6 +574,38 @@ namespace Growthstories.UI.WindowsPhone
 
             return parameter == null ? v.ToUpperInvariant() : v.ToLowerInvariant();
 
+        }
+
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    //
+    // Return "whitesmoke" if false and gspink if true
+    // Used to highlight profile picture in timeline
+    //
+    public class BooleanToSpecialColorConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var bc = Application.Current.Resources["GSWhiteBrush"];
+            var sc = Application.Current.Resources["GSTextBoxBrush"];
+
+            if (value == null)
+                return bc;
+
+            var v = (bool)value;      
+
+            if (v) {
+                return sc;
+            } else {
+                return bc;
+            }
         }
 
 

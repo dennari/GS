@@ -274,6 +274,45 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        //
+        // Not exactly elegant to have this here
+        //
+        // Best option would be to populate context menu items
+        // based completely dynamically, but will not bother
+        // to refactor now.
+        //
+        //  -- JOJ 17.1.2014
+        //
+        private bool _ShowSetAsProfilePicture;
+        public bool ShowSetAsProfilePicture
+        {
+            get
+            {
+                return _ShowSetAsProfilePicture;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowSetAsProfilePicture, value);
+            }
+        }
+
+        public void UpdateShowSetAsProfilePicture()
+        {
+            var vm = this as IPlantPhotographViewModel;
+            if (vm == null)
+            {
+                ShowSetAsProfilePicture = false;
+
+            }
+            else
+            {
+                ShowSetAsProfilePicture = !vm.IsProfilePhoto;
+
+            }
+        }
+
+
+
         private ReactiveCommand _AddCommand;
         public override IReactiveCommand AddCommand
         {
@@ -811,11 +850,27 @@ namespace Growthstories.UI.ViewModel
     {
 
         bool _IsZoomViewOpen = false;
+        
         public bool IsZoomViewOpen
         {
             get { return _IsZoomViewOpen; }
             set { this.RaiseAndSetIfChanged(ref _IsZoomViewOpen, value); }
         }
+
+        private bool _IsProfilePhoto;
+        public bool IsProfilePhoto
+        {
+            get
+            {
+                return _IsProfilePhoto;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsProfilePhoto, value);
+            }
+        }
+
+        public IReactiveCommand SetAsProfilePictureCommand { get; protected set; }
 
         //public override IObservable<bool> CanExecute { get; protected set; }
 
@@ -842,6 +897,30 @@ namespace Growthstories.UI.ViewModel
 
             this.PhotoTimelineTap = new ReactiveCommand();
             this.PhotoChooserCommand = new ReactiveCommand();
+            this.SetAsProfilePictureCommand = new ReactiveCommand();
+            
+            this.WhenAnyValue(z => z.PlantId).Subscribe(u =>
+            {
+                if (u != null)
+                {
+                    this.ListenTo<ProfilepictureSet>((Guid)u).Subscribe(x =>
+                    {
+                        IsProfilePhoto = this.PlantActionId == x.PlantActionId;
+                    });
+                }
+            });
+
+        
+            this.SetAsProfilePictureCommand.Subscribe(_ =>
+            {
+                App.HandleCommand(new SetProfilepicture((Guid)PlantId, this.Photo, PlantActionId));
+            });
+
+            this.WhenAnyValue(x => x.IsProfilePhoto).Subscribe(_ =>
+            {
+                UpdateShowSetAsProfilePicture();
+            });
+
         }
 
 
@@ -873,6 +952,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PhotoTimelineTap { get; protected set; }
         public IReactiveCommand PhotoChooserCommand { get; protected set; }
 
+
+        
     }
 
 }
