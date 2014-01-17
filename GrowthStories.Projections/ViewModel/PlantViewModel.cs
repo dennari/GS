@@ -742,6 +742,7 @@ namespace Growthstories.UI.ViewModel
                               .Subscribe(y =>
                               {
                                   _Actions.Remove(x);
+                                  HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
                               });
 
                             var photo = x as IPlantPhotographViewModel;
@@ -756,13 +757,71 @@ namespace Growthstories.UI.ViewModel
                                     });
                             }
 
-                            //ScrollCommand.Execute(x);
+                            PossiblySetAsProfilePhoto(x as IPlantPhotographViewModel);
                         });
                     }
-
-
                 }
                 return _Actions;
+            }
+        }
+
+
+        private IPlantPhotographViewModel LatestPhoto()
+        {
+            var list = Actions
+                .Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED)
+                .OrderByDescending(x => x.Created)
+                .Take(1);
+
+            if (list.Count() == 1)
+            {
+                var action = list.First() as IPlantPhotographViewModel;
+                return action;
+            }
+            return null;
+        }
+
+
+        // Set the photo represented by the given viewmodel as profile photo,
+        // if there is no profile photo yet
+        //
+        // (Not necessarily stricly correct to have this in the ViewModel, but
+        //  will do for now)
+        private void PossiblySetAsProfilePhoto(IPlantPhotographViewModel vm)
+        {
+            if (vm == null || !OwnPlant)
+            {
+                return;
+            }
+            if (this.Photo == null)
+            {
+                App.HandleCommand(new SetProfilepicture((Guid)vm.PlantId, vm.Photo, vm.PlantActionId));
+            }
+        }
+
+
+        // Set latest photo as profile picture, if the given viewmodel represents
+        // a profile photo and any photos are left for this plant
+        //
+        // (Not necessarily stricly correct to have this in the ViewModel, but
+        //  will do for now)
+        private void HandlePossibleProfilePhotoRemove(IPlantPhotographViewModel vm)
+        {
+            if (vm == null || !OwnPlant)
+            {
+                return;
+            }
+
+            if (vm.IsProfilePhoto)
+            {
+                var latest = LatestPhoto();
+
+                if (latest != null) {
+                    App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.Photo, latest.PlantActionId));
+
+                } else {
+                    this.Photo = null;
+                }
             }
         }
 

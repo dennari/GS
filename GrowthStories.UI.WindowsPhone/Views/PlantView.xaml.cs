@@ -97,6 +97,18 @@ namespace Growthstories.UI.WindowsPhone
                 ViewModel.App.Router.NavigateBack.Execute(null);
             });
 
+            vm.Actions.ItemsAdded.Subscribe(x =>
+            {
+                try
+                {
+                    if (TimeLine.ItemsSource.Count > 2)
+                    {
+                        TimeLine.ScrollTo(x);
+                    }
+                }
+                catch { }
+            });
+
         }
 
 
