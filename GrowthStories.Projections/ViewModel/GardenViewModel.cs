@@ -216,9 +216,10 @@ namespace Growthstories.UI.ViewModel
                 .Select(x =>
                 {
                     var popup = MultiDeleteConfirmation(x.count);
+                    App.ShowPopup.Execute(popup);
                     return popup.AcceptedObservable.Take(1).Select(_ => x);
                 })
-                .Merge(1)
+                .Switch()
                 .Do(_ => MultiCommandInFlight = true)
                 .SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
                 .SelectMany(async x =>

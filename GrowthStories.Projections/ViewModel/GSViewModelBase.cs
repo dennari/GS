@@ -212,12 +212,13 @@ namespace Growthstories.UI.ViewModel
             AcceptedPredicate = x => x == PopupResult.LeftButton;
 
             DismissedObservable = Subject;
-            AcceptedObservable = DismissedObservable.Where(x => AcceptedPredicate(x));
+            AcceptedObservable = DismissedObservable.Where(x => AcceptedPredicate(x)).Do(x => this.Log().Info("Popup accepted: {0}", x));
         }
 
         public void Dismiss(PopupResult x)
         {
 
+            this.Log().Info("Popup dismissed: {0}", x);
             Subject.OnNext(x);
 
         }
