@@ -122,7 +122,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             PhotoChooserCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                Chooser.Show();
+                if (CanChooseNewPhoto)
+                {
+                    Chooser.Show();
+                }
             });
 
         }

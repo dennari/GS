@@ -870,6 +870,21 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        private bool _CanChooseNewPhoto;
+        public bool CanChooseNewPhoto
+        {
+            get
+            {
+                return _CanChooseNewPhoto;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _CanChooseNewPhoto, value);
+            }
+        }
+
+
         public IReactiveCommand SetAsProfilePictureCommand { get; protected set; }
 
         //public override IObservable<bool> CanExecute { get; protected set; }
@@ -877,6 +892,8 @@ namespace Growthstories.UI.ViewModel
         public PlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.PHOTOGRAPHED, app, state)
         {
+
+            CanChooseNewPhoto = true;
 
             if (state != null && state.Type != PlantActionType.PHOTOGRAPHED)
                 throw new InvalidCastException();
@@ -891,6 +908,7 @@ namespace Growthstories.UI.ViewModel
             if (state != null)
             {
                 this.Photo = state.Photo;
+                CanChooseNewPhoto = false;
             }
 
             this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);

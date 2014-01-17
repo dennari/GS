@@ -35,21 +35,25 @@
 
 			<local:PlantActionView ViewModel="{Binding}">
 
-				<local:PlantActionView.PhotoTemplate>
-					<DataTemplate>
-						<Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
-							<Grid.Background>
-								<ImageBrush Stretch="UniformToFill" ImageSource="{Binding PhotoSource}" />
-							</Grid.Background>
-							<Button 
-						Style="{StaticResource GSButtonStyle}"
-						BorderThickness="3"
-						Command="{Binding PhotoChooserCommand}">
-								<TextBlock Text="select or snap a photo" Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
-							</Button>
+                <local:PlantActionView.PhotoTemplate>
+                    <DataTemplate>
+                        <Button
+                            Margin="0,0,0,6"
+                            toolkit:TiltEffect.IsTiltEnabled="{Binding CanChooseNewPhoto}"    
+                            Style="{StaticResource GSButtonStyle}"
+						    BorderThickness="3"
+						    Command="{Binding PhotoChooserCommand}">
 
-						</Grid>
-					</DataTemplate>
+                            <Grid HorizontalAlignment="Stretch" Height="350" Margin="0,0,0,0">
+                                <TextBlock 
+                                    Grid.Row="0" Text="select or snap a photo" 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
+                                <Image Stretch="UniformToFill" Source="{Binding PhotoSource}" Grid.Row="0" />
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
 				</local:PlantActionView.PhotoTemplate>
 
 				<local:PlantActionView.MeasureTemplate>
