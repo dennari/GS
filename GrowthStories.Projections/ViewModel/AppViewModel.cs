@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommonDomain;
@@ -1178,23 +1179,50 @@ namespace Growthstories.UI.ViewModel
                     .Select(x => PlantActionViewModelFactory(x.AggregateState.Type, x.AggregateState));
         }
 
+        public IPlantViewModel GetSinglePlant(Guid plantId)
+        {
+            return PlantViewModelFactory(Observable.Start(() => UIPersistence.GetPlants(plantId, null, null).ToObservable(), RxApp.TaskpoolScheduler).Merge());
+        }
 
         public IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null)
         {
-            this.Log().Info("CurrentPlants: userId: {0}, plantId: {1}", userId, plantId);
-            var plants = Observable.Defer(() =>
-            {
-                this.Log().Info("CurrentPlants Task started");
-                return Task.Run(() => UIPersistence.GetPlants(plantId, null, userId).ToObservable());
-            })
-            .Do(x => this.Log().Info("CurrentPlants Task ended"))
-            .Where(x => !x.Item1.IsDeleted).Publish().RefCount();
-
             if (plantId != null)
-                return Observable.Return(PlantViewModelFactory(plants));
-            this.Log().Info("CurrentPlants: end");
+                return Return(GetSinglePlant(plantId.Value));
+            return Observable.Start(() => UIPersistence.GetPlants(null, null, userId).ToObservable(), RxApp.TaskpoolScheduler)
+                .Merge()
+                .Where(x => !x.Item1.IsDeleted)
+                .Select(x => PlantViewModelFactory(Observable.Return(x)));
+            //this.Log().Info("CurrentPlants: userId: {0}, plantId: {1}", userId, plantId);
+            //var plants = Observable.Defer(() =>
+            //{
+            //    this.Log().Info("CurrentPlants Task started");
+            //})
+            //.Do(x => this.Log().Info("CurrentPlants Task ended"))
+            //.Where(x => !x.Item1.IsDeleted).Publish().RefCount();
 
-            return plants.Select(x => PlantViewModelFactory(Observable.Return(x)));
+            //IObservable<IPlantViewModel> r = null;
+            //if (plantId != null)
+            //{
+            //    this.Log().Info("Returning single plant");
+            //    r = Return(PlantViewModelFactory(plants));
+            //}
+            //else
+            //{
+            //    r = plants.Select(x => PlantViewModelFactory(Observable.Return(x)));
+            //}
+            //this.Log().Info("CurrentPlants: end");
+
+            //return r;
+        }
+
+        public static IObservable<T> Return<T>(T value)
+        {
+            return Observable.Create<T>(o =>
+            {
+                o.OnNext(value);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
         }
 
         public IObservable<IPlantViewModel> FuturePlants(Guid userId)

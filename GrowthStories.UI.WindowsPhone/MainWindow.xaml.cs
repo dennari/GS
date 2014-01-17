@@ -1,14 +1,15 @@
-﻿using Growthstories.UI.ViewModel;
-using Microsoft.Phone.Controls;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using Growthstories.UI.ViewModel;
+using Microsoft.Phone.Controls;
+using ReactiveUI;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 
 namespace Growthstories.UI.WindowsPhone
@@ -222,7 +223,17 @@ namespace Growthstories.UI.WindowsPhone
             IPlantViewModel pvm = null;
             try
             {
-                pvm = ViewModel.CurrentPlants(plantId: plantId).Where(x => x != null).Take(1).FirstOrDefaultAsync().Wait();
+                //this.Log().Info("Loading plant"); 
+                this.Log().Info("Loading plant started");
+
+                var t = new Stopwatch();
+                t.Start();
+                //pvm = ViewModel.CurrentPlants(plantId: plantId).Where(x => x != null).Take(1)
+                //    .Do(x => this.Log().Info("CurrentPlants returned"))
+                //    .FirstOrDefaultAsync().Wait();
+                pvm = ViewModel.GetSinglePlant(plantId);
+                t.Stop();
+                this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);
 
             }
             catch (Exception e)

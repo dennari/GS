@@ -106,6 +106,7 @@ namespace Growthstories.UI.ViewModel
         IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null);
 
         IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null);
+        IPlantViewModel GetSinglePlant(Guid plantId);
         IObservable<IPlantViewModel> FuturePlants(Guid userId);
 
         IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null);
@@ -208,7 +209,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
-        IObservable<IPlantViewModel> WateringObservable { get; }
+        //IObservable<IPlantViewModel> WateringObservable { get; }
         IReactiveCommand DeleteCommand { get; }
         //IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
