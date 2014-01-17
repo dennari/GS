@@ -21,7 +21,7 @@
                 HorizontalAlignment="Left"
                 Margin="0,0,0,0"
                 toolkit:TiltEffect.IsTiltEnabled="True"
-                Padding="24,0,24,24"
+                Padding="24,12,24,12"
                 BorderThickness="0"
                 BorderBrush="Transparent"
                 IsEnabled="{Binding OwnAction}"
@@ -31,8 +31,37 @@
                 HorizontalContentAlignment="Stretch"
                 >
 
+                <telerikPrimitives:RadContextMenu.ContextMenu>
+                    <telerikPrimitives:RadContextMenu 
+                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
+                            IsFadeEnabled="False"
+                            IsZoomEnabled="False"
+                            Background="WhiteSmoke"
+                            Foreground="{StaticResource GSAccentBrush}">
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Edit" 
+                                Command="{Binding EditCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Delete" 
+                                Command="{Binding DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                    </telerikPrimitives:RadContextMenu>
+                </telerikPrimitives:RadContextMenu.ContextMenu>
+                
+
                 <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 
+                    <!--
                     <toolkit:ContextMenuService.ContextMenu>
                         <toolkit:ContextMenu IsZoomEnabled="False"
                             Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
@@ -49,11 +78,10 @@
                                 Background="WhiteSmoke"                           
                                 Opacity="0.9"
                                 Foreground="{StaticResource GSAccentBrush}"              
-                                Command="{Binding DeleteCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding IsEditEnabled}" />
+                                 />
                         </toolkit:ContextMenu>
                     </toolkit:ContextMenuService.ContextMenu>
+                    -->
 
                     <ContentPresenter 
 						    DataContext="{Binding}"
@@ -141,7 +169,7 @@
 
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
-                    <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}">
+                    <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}" Margin="0,0,0,-12">
                         
                         <Grid Visibility="{Binding ShowFertilizingScheduler, Converter={StaticResource BooleanToVisibility}}">
                             <ContentControl                            
@@ -244,6 +272,7 @@
                         </local:PlantActionView.PhotoTemplate>
                     </local:PlantActionView>
                 </DataTemplate>
+                
             </phone:LongListSelector.ItemTemplate>
 
 
