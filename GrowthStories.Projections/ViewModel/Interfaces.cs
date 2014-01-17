@@ -766,6 +766,7 @@ namespace Growthstories.UI.ViewModel
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
         int ActionIndex { get; set; }
+        bool OwnAction { get; set; }
 
     }
 

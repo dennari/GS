@@ -28,7 +28,22 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IconType Icon { get; protected set; }
 
-        
+
+        private bool _OwnAction;
+        public bool OwnAction
+        {
+            get
+            {
+                return _OwnAction;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _OwnAction, value);
+            }
+
+        }
+
 
         private int _ActionIndex;
         public int ActionIndex
@@ -146,6 +161,7 @@ namespace Growthstories.UI.ViewModel
             this.Icon = ActionTypeToIcon[type];
             this.Label = ActionTypeToLabel[type];
             this.State = state;
+
             //AddCommand.Subscribe(x =>
             //{
             //    App.Router.NavigateBack.Execute(null);

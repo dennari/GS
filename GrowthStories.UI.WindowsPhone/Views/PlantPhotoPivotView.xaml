@@ -20,9 +20,11 @@
     HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
     -->
 
-    <Grid   x:Name="LayoutRoot"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"      
+    <Grid   
+        x:Name="LayoutRoot"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch" 
+        Background="Black"
           >
 
         <Grid.RowDefinitions>

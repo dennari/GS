@@ -611,6 +611,7 @@ namespace Growthstories.UI.ViewModel
             vm.PlantId = this.Id;
             vm.UserId = App.User.Id;
             vm.ActionIndex = 0;
+            vm.OwnAction = OwnPlant;
 
             var ma = vm as IPlantMeasureViewModel;
             if (ma != null)

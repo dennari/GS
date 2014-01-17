@@ -24,6 +24,7 @@
                 Padding="24,0,24,24"
                 BorderThickness="0"
                 BorderBrush="Transparent"
+                IsEnabled="{Binding OwnAction}"
                 Command="{Binding EditCommand}"
                 CommandParameter="{Binding}"    
                 VerticalContentAlignment="Stretch"
@@ -32,8 +33,9 @@
 
                 <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 
-                    <toolkit:ContextMenuService.ContextMenu >
-                        <toolkit:ContextMenu IsZoomEnabled="False" 
+                    <toolkit:ContextMenuService.ContextMenu>
+                        <toolkit:ContextMenu IsZoomEnabled="False"
+                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
                             Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
                             BorderBrush="Transparent" BorderThickness="0">
                             <toolkit:MenuItem Header="Edit" 

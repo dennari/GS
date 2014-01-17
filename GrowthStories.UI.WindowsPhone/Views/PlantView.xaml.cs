@@ -219,8 +219,17 @@ namespace Growthstories.UI.WindowsPhone
             //
             //   -- JOJ 17.1.2014
 
-            var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
-            sb.Margin = new Thickness(0, 0, -10, 0);
+            try
+            {
+                if (TimeLine.ItemsSource.Count > 0)
+                {
+                    var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
+                    sb.Margin = new Thickness(0, 0, -10, 0);
+                }
+            
+            } catch {
+                
+            }
         }
 
 
