@@ -1,4 +1,9 @@
-﻿using EventStore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using EventStore;
 using EventStore.Persistence.SqlPersistence;
 using Growthstories.Core;
 using Growthstories.Domain;
@@ -8,11 +13,6 @@ using Growthstories.Sync;
 using Growthstories.UI.Persistence;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -448,10 +448,14 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Pipelinehook.Dispose();
 
-            ((ClientAppViewModel)App).ResetUI();
+            //((ClientAppViewModel)App).ResetUI();
 
-            App.Router.NavigateAndReset.Execute(new MainViewModel(App));
+            //App.Router.NavigateAndReset.Execute(new MainViewModel(App));
 
+            App.ShowPopup.Execute(new PopupViewModel()
+            {
+                Caption = "DB cleared, restart app"
+            });
         }
 
 

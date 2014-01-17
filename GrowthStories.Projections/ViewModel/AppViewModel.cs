@@ -363,12 +363,14 @@ namespace Growthstories.UI.ViewModel
             return null;
         }
 
-        public void ResetUI()
+        protected void ResetUI()
         {
             _myGarden = null;
             _myFriends = null;
             _myNotifications = null;
             _mySettings = null;
+
+            Router.NavigateAndReset.Execute(new MainViewModel(this));
         }
 
 
@@ -803,8 +805,7 @@ namespace Growthstories.UI.ViewModel
             Handler.ResetApp();
             this._Model = null;
 
-            // Reset UI
-            this.ResetUI();
+
 
             GSApp app = null;
 
@@ -819,6 +820,9 @@ namespace Growthstories.UI.ViewModel
                 app = (GSApp)Handler.Handle(new CreateGSApp());
                 this.Model = app;
             }
+
+            // Reset UI
+            this.ResetUI();
 
             this.SignedOut.Execute(null);
             return app;

@@ -1,16 +1,9 @@
-﻿using Growthstories.Domain.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ReactiveUI;
+﻿using System;
 using System.Reactive.Linq;
-using Growthstories.Domain.Entities;
-using Growthstories.Core;
-using System.Threading.Tasks;
 //using System.Security.Cryptography;
 //using System.Security.Crypto
 using EventStore.Logging;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -61,7 +54,7 @@ namespace Growthstories.UI.ViewModel
                 //throw x;
             });
 
-            this.Response = this.OKCommand.RegisterAsyncTask(async _ =>
+            var OKResponse = this.OKCommand.RegisterAsyncTask(async _ =>
             {
                 if (SignInMode)
                 {
@@ -74,10 +67,12 @@ namespace Growthstories.UI.ViewModel
                     return Tuple.Create(false, r, SignInResponse.invalidEmail);
                 }
             });
+            this.Response = OKResponse;
+            //OKResponse.Connect();
 
             this.Response.Subscribe(x =>
             {
-
+                App.ShowPopup.Execute(null);
                 if (IsSuccess(x))
                 {
                     //if (SignInMode)

@@ -80,20 +80,47 @@ namespace Growthstories.UI.ViewModel
             {
                 SignInRegisterViewModel svm = new SignInRegisterViewModel(App);
                 svm.SignInMode = true;
+                // after successfull signin we get back to mainviewmodel automatically
                 this.Navigate(svm);
             }
             );
 
             this.SignUpCommand = new ReactiveCommand();
             //this.SignUpCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
-            this.SignUpCommand.Subscribe(x => this.Navigate(new SignInRegisterViewModel(App)));
+            this.SignUpCommand.Subscribe(x =>
+            {
+                SignInRegisterViewModel svm = new SignInRegisterViewModel(App);
+                svm.SignInMode = false;
+                svm.Response.Where(y => y.Item2 == RegisterResponse.success).Take(1).Subscribe(y =>
+                {
+                    this.NavigateBack();
+                });
+                this.Navigate(svm);
+            });
 
 
-            this.LogOutWarning
+            var loggingOut = false;
+            var logoutObservable = this.LogOutWarning
                 .AcceptedObservable
-                .SelectMany(_ => App.SignOut())
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.Navigate(new MainViewModel(App)));
+                .SelectMany(async _ =>
+                {
+                    this.Log().Info("Logging out");
+                    loggingOut = true;
+                    App.ShowPopup.Execute(this.LogOutProgress);
+                    var r = await App.SignOut();
+                    App.ShowPopup.Execute(null);
+                    loggingOut = false;
+
+                    return r;
+
+
+                }).Publish();
+
+
+
+            logoutObservable.Connect();
+            //.ObserveOn(RxApp.MainThreadScheduler)
+            //.Subscribe(x => this.Navigate(new MainViewModel(App)));
 
 
             this.SynchronizeCommand = new ReactiveCommand();
@@ -147,7 +174,7 @@ namespace Growthstories.UI.ViewModel
                 .ToProperty(this, x => x.IsRegistered, out _IsRegistered);
 
 
-            App.WhenAnyValue(x => x.User.Email).ToProperty(this, x => x.Email, out _Email);
+            App.WhenAnyValue(x => x.User.Email).Where(_ => loggingOut == false).ToProperty(this, x => x.Email, out _Email);
 
             this.SharedByDefault = new ButtonViewModel()
             {
@@ -218,6 +245,26 @@ namespace Growthstories.UI.ViewModel
                     //_LogOutWarning.DismissedObservable.Subscribe(_ => )
                 }
                 return _LogOutWarning;
+            }
+        }
+
+        private IPopupViewModel _LogOutProgress;
+        private IPopupViewModel LogOutProgress
+        {
+            get
+            {
+                if (_LogOutProgress == null)
+                {
+                    _LogOutProgress = new ProgressPopupViewModel()
+                    {
+                        Caption = "Logging out",
+                        Message = "Please hold on",
+                        IsLeftButtonEnabled = false,
+                        IsRightButtonEnabled = false
+                    };
+                    //_LogOutProgress.DismissedObservable.Subscribe(_ => )
+                }
+                return _LogOutProgress;
             }
         }
 
