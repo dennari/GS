@@ -10,6 +10,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Core;
 
 
+
 namespace Growthstories.UI.ViewModel
 {
 
@@ -66,25 +67,16 @@ namespace Growthstories.UI.ViewModel
         {
             return (int)(o2.TicksToAction - this.TicksToAction);
         }
-
-        /*
-        public bool ShouldShow
-        {
-            get
-            {
-                return Number > -0.2;
-            }
-        }
-        */
-
+    
     }
+
 
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
     {
 
         private readonly IGardenViewModel Garden;
 
-
+      
 
         public NotificationsViewModel(IGardenViewModel garden, IGSAppViewModel app)
             : base(app)
@@ -103,79 +95,122 @@ namespace Growthstories.UI.ViewModel
             var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
 
             IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
-            currentAndFuturePlants
-                .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
-                .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
-                .Where(x => x.Item2 != null)
-                .SelectMany(x => x.Item2.WhenAnyValue(y => y.LastActionTime, y => Tuple.Create(x, y)))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-
-                    var plant = x.Item1.Item1;
-
-                    if (!x.Item1.Item3)
-                        TryRemove(plant.Id, NotificationType.WATERING_SCHEDULE);
-                    else
+            currentAndFuturePlants.Subscribe(plant =>
+            {   
+                // this forces the actions to load eagerly, 
+                // in order to get the notifications in the start
+                latestActions = plant.Actions;
+            
+                plant
+                    .WhenAnyValue(y => y.WateringScheduler)
+                    .Where(y => y != null)
+                    .Subscribe(z =>
                     {
-                        var notification = new Notification()
+                        z.WhenAnyValue(ws => ws.Missed).Subscribe(_ => 
                         {
-                            Name = plant.Name,
-                            Id = plant.Id,
-                            Type = NotificationType.WATERING_SCHEDULE,
-                            Number = x.Item1.Item2.Missed,
-                            Interval = x.Item1.Item2.Interval.Value
-                        };
+                            UpdateWateringNotification(plant);
+                        });
+                    });
 
-                        UpdateList(notification);
-                    }
-                });
+                plant
+                    .WhenAnyValue(y => y.FertilizingScheduler)
+                    .Where(y => y != null)
+                    .Subscribe(z =>
+                    {
+                        z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
+                        {
+                            UpdateFertilizingNotification(plant);
+                        });
+                    });
 
+                plant.WhenAnyValue(y => y.IsWateringScheduleEnabled).Subscribe(_ => UpdateWateringNotification(plant));
+                plant.WhenAnyValue(y => y.IsFertilizingScheduleEnabled).Subscribe(_ => UpdateFertilizingNotification(plant));
+            });
+
+
+            Garden.Plants.ItemsRemoved.Subscribe(pvm =>
+            {
+                TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
+                TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
+            });
+
+        
             //currentAndFuturePlants
-            //    .SelectMany(x => x.WhenAnyValue(y => y.IsWateringScheduleEnabled, y => Tuple.Create(x, y)))
-            //    .Where(x => !x.Item2)
+            //    .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
+            //    .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
+            //    .Where(x => x.Item2 != null)
+            //    .SelectMany(x => x.Item2.WhenAnyValue(y => y.LastActionTime, y => Tuple.Create(x, y)))
             //    .ObserveOn(RxApp.MainThreadScheduler)
             //    .Subscribe(x =>
             //    {
-            //        TryRemove(x.Item1.Id, NotificationType.WATERING_SCHEDULE);
 
-            //    });
+            //        var plant = x.Item1.Item1;
 
-
-            //{
-            //    var ws = x.WateringScheduler;
-            //    var fs = x.FertilizingScheduler;
-            //    x.WhenAnyValue(y => y.WateringScheduler.LastActionTime).Where(y => y != null).ObserveOn(RxApp.MainThreadScheduler).Subscribe(y =>
-            //    {
-
-            //        var notification = new Notification()
+            //        if (!x.Item1.Item3)
+            //            TryRemove(plant.Id, NotificationType.WATERING_SCHEDULE);
+            //        else
             //        {
-            //            Name = x.Name,
-            //            Id = x.Id,
-            //            Type = NotificationType.WATERING_SCHEDULE,
-            //            Number = ws.Missed
-            //        };
+            //            var notification = new Notification()
+            //            {
+            //                Name = plant.Name,
+            //                Id = plant.Id,
+            //                Type = NotificationType.WATERING_SCHEDULE,
+            //                Number = x.Item1.Item2.Missed,
+            //                Interval = x.Item1.Item2.Interval.Value
+            //            };
 
-            //        UpdateList(notification);
-
+            //            UpdateList(notification);
+            //        }
             //    });
-            //    x.WhenAnyValue(y => y.FertilizingScheduler.LastActionTime).Where(y => y != null).ObserveOn(RxApp.MainThreadScheduler).Subscribe(y =>
-            //    {
-
-            //        var notification = new Notification()
-            //        {
-            //            Name = x.Name,
-            //            Id = x.Id,
-            //            Type = NotificationType.FERTILIZING_SCHEDULE,
-            //            Number = ws.Missed
-            //        };
-
-            //        UpdateList(notification);
-
-            //    });
-            //});
-
         }
+
+        private void UpdateWateringNotification(IPlantViewModel pvm)
+        {
+            if (!pvm.IsWateringScheduleEnabled 
+                || pvm.WateringScheduler == null
+                || pvm.WateringScheduler.LastActionTime == null
+                )
+            {
+                TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
+            }
+            else
+            {
+                var wn = new Notification()
+                {
+                    Name = pvm.Name,
+                    Id = pvm.Id,
+                    Type = NotificationType.WATERING_SCHEDULE,
+                    Number = pvm.WateringScheduler.Missed,
+                    Interval = pvm.WateringScheduler.Interval.Value
+                };
+                UpdateList(wn);
+            }
+        }
+
+
+        private void UpdateFertilizingNotification(IPlantViewModel pvm)
+        {
+            if (!pvm.IsFertilizingScheduleEnabled 
+                || pvm.FertilizingScheduler == null 
+                || pvm.FertilizingScheduler.LastActionTime == null)
+            {
+                TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
+
+            }
+            else
+            {
+                var fn = new Notification()
+                {
+                    Name = pvm.Name,
+                    Id = pvm.Id,
+                    Type = NotificationType.FERTILIZING_SCHEDULE,
+                    Number = pvm.FertilizingScheduler.Missed,
+                    Interval = pvm.FertilizingScheduler.Interval.Value
+                };
+                UpdateList(fn);
+            }
+        }
+
 
         private void TryRemove(Guid id, NotificationType type)
         {
@@ -184,11 +219,32 @@ namespace Growthstories.UI.ViewModel
                 this.Notifications.Remove(found);
         }
 
+
+        private static int CompareNotifications(Notification x, Notification y)
+        {
+            if (x.TicksToAction > y.TicksToAction)
+            {
+                return -1;
+            }
+            else if (x.TicksToAction == y.TicksToAction)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+
+
         private void UpdateList(Notification notification)
         {
-
             TryRemove(notification.Id, notification.Type);
             Notifications.Add(notification);
+
+            Notifications.Sort(CompareNotifications);
+
             //var key = Tuple.Create(notification.Id, NotificationType.WATERING_SCHEDULE);
             //int? index = null;
             //if (NotificationsForPlant.TryGetValue(key, out index))
