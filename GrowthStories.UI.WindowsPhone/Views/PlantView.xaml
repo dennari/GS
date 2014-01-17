@@ -13,43 +13,54 @@
     mc:Ignorable="d">
 
  
-
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
-            
-            <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 
-                <toolkit:ContextMenuService.ContextMenu >
-                    <toolkit:ContextMenu IsZoomEnabled="False" 
-                        Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
-                        BorderBrush="Transparent" BorderThickness="0">
-                        <toolkit:MenuItem Header="Edit" 
-                            Background="WhiteSmoke"                           
-                            Opacity="0.9"
-                            Foreground="{StaticResource GSAccentBrush}"              
-                            Command="{Binding EditCommand}"
-                            CommandParameter="{Binding}"
-                            IsEnabled="{Binding IsEditEnabled}"/>
-                        <toolkit:MenuItem Header="Delete" 
-                            Background="WhiteSmoke"                           
-                            Opacity="0.9"
-                            Foreground="{StaticResource GSAccentBrush}"              
-                            Command="{Binding DeleteCommand}"
-                            CommandParameter="{Binding}"
-                            IsEnabled="{Binding IsEditEnabled}"/>
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
+            <Button
+                Style="{StaticResource GSButtonStyle}"
+                HorizontalAlignment="Left"
+                Margin="0,0,0,0"
+                toolkit:TiltEffect.IsTiltEnabled="True"
+                Padding="24,0,24,24"
+                BorderThickness="0"
+                BorderBrush="Transparent"
+                Command="{Binding EditCommand}"
+                CommandParameter="{Binding}"    
+                VerticalContentAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                >
 
-                <ContentPresenter 
-						DataContext="{Binding}"
-                        Content="{Binding}" 
-						ContentTemplate="{TemplateBinding ContentTemplate}" 
-						Visibility="{TemplateBinding ContentVisibility}" 
-						HorizontalAlignment="Stretch"
-                        />
+                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 
-                <ContentControl toolkit:TiltEffect.IsTiltEnabled="True" Tap="ContentControl_Tap"
-                                HorizontalAlignment="Left" Padding="24,0,0,24" HorizontalContentAlignment="Left">
+                    <toolkit:ContextMenuService.ContextMenu >
+                        <toolkit:ContextMenu IsZoomEnabled="False" 
+                            Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
+                            BorderBrush="Transparent" BorderThickness="0">
+                            <toolkit:MenuItem Header="Edit" 
+                                Background="WhiteSmoke"                           
+                                Opacity="0.9"
+                                Foreground="{StaticResource GSAccentBrush}"              
+                                Command="{Binding EditCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}" />
+                            <toolkit:MenuItem Header="Delete" 
+                                Background="WhiteSmoke"                           
+                                Opacity="0.9"
+                                Foreground="{StaticResource GSAccentBrush}"              
+                                Command="{Binding DeleteCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}" />
+                        </toolkit:ContextMenu>
+                    </toolkit:ContextMenuService.ContextMenu>
+
+                    <ContentPresenter 
+						    DataContext="{Binding}"
+                            Content="{Binding}" 
+						    ContentTemplate="{TemplateBinding ContentTemplate}" 
+						    Visibility="{TemplateBinding ContentVisibility}" 
+						    HorizontalAlignment="Stretch"
+                            />
+
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
                         <StackPanel Orientation="Vertical" Width="96">
                             <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
@@ -63,8 +74,17 @@
                             <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
                         </StackPanel>
                     </StackPanel>
+
+                <!--
+                <ContentControl toolkit:TiltEffect.IsTiltEnabled="True" HorizontalAlignment="Left" Padding="24,0,0,24" HorizontalContentAlignment="Left">
+                -->    
+          
+                <!--
                 </ContentControl>
-            </StackPanel>
+                -->
+                </StackPanel>
+            </Button>
+
         </ControlTemplate>
 
         <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
@@ -106,7 +126,8 @@
         
 
         <local:GSLongListSelector
-            
+            Loaded="TimeLine_Loaded"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
             x:Name="TimeLine" 
             ItemsSource="{Binding Actions}" 
             Grid.Row="1"
@@ -170,14 +191,16 @@
                         >         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
-                            <Button Height="0"
-                                Opacity="0.0"
+                                
+                                
+                                
+                            <Button 
                                 toolkit:TiltEffect.IsTiltEnabled="True"
                                 BorderBrush="WhiteSmoke"
                                 BorderThickness="3"    
                                 HorizontalAlignment="Stretch" 
                                 Style="{StaticResource GSButtonStyle}" 
-                                Margin="12,6,12,12" 
+                                Margin="0,6,0,12" 
                                 Command="{Binding PhotoTimelineTap}"
                                 Padding="0,0,0,0"
                                     >

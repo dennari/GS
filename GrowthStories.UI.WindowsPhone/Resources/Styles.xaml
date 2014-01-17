@@ -128,9 +128,7 @@
     </Style>
 
 
-    <!--
-    Background="#66fa6800"
-    -->
+
 
     <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
         <Setter Property="Template">

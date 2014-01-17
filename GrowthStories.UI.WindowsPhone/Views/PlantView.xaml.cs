@@ -17,7 +17,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
-
+using System.Windows.Controls.Primitives;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -209,10 +209,20 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        private void ContentControl_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
 
+        private void TimeLine_Loaded(object sender, RoutedEventArgs e)
+        {
+            // hack to hide the scrollbar from longlistselector
+            // needs to be done as it screws up alignment on the grid
+            //
+            // from http://stackoverflow.com/questions/18414498/hide-scrollbar-in-longlistselector
+            //
+            //   -- JOJ 17.1.2014
+
+            var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
+            sb.Margin = new Thickness(0, 0, -10, 0);
         }
+
 
 
     }
