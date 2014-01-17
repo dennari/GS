@@ -1,14 +1,14 @@
 
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using Growthstories.UI.Services;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
+using Growthstories.UI.Services;
+using ReactiveUI;
 
 
 namespace Growthstories.UI.ViewModel
@@ -514,7 +514,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _HasTile;
             }
-            set
+            protected set
             {
                 this.RaiseAndSetIfChanged(ref _HasTile, value);
             }

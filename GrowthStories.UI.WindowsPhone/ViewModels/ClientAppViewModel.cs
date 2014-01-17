@@ -1,4 +1,6 @@
 
+using System;
+using System.Reactive.Linq;
 using EventStore;
 using EventStore.Persistence;
 using Growthstories.Core;
@@ -9,8 +11,6 @@ using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.BA;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using System;
-using System.Reactive.Linq;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -189,7 +189,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             return new ClientPlantViewModel(
                stateObservable,
-                pvm => new TileHelper(pvm),
+                pvm => new TileHelper(pvm, this.User),
                 this
              );
         }

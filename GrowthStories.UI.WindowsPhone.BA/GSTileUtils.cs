@@ -1,34 +1,17 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Phone.Shell;
-using Growthstories.UI.ViewModel;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using System.ComponentModel;
-using Microsoft.Phone.Tasks;
-using System.Windows.Media.Animation;
-using System.Windows.Media;
-using Growthstories.Domain;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Newtonsoft.Json;
 using System.IO.IsolatedStorage;
-using System.Diagnostics;
-using ReactiveUI;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using Growthstories.Domain.Messaging;
 using Growthstories.UI.Services;
+using Growthstories.UI.ViewModel;
+using Microsoft.Phone.Shell;
+using Newtonsoft.Json;
+using ReactiveUI;
 
 namespace GrowthStories.UI.WindowsPhone.BA
 {
@@ -416,7 +399,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
             return info;
         }
 
-      
+
 
 
         public static CycleTileData GetTileData(TileUpdateInfo info)
@@ -490,7 +473,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
             if (t != null)
             {
                 t.Delete();
-                pvm.HasTile = false;
+                // the plant takes care of this itself
+                //pvm.HasTile = false;
             }
 
             // no need to update infos

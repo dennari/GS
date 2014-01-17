@@ -221,7 +221,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveList<string> Tags { get; }
         Photo Photo { get; }
         int? MissedCount { get; }
-        bool HasTile { get; set; }
+        bool HasTile { get; }
         bool IsShared { get; set; }
 
         bool IsFertilizingScheduleEnabled { get; }

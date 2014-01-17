@@ -1,20 +1,10 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
-using System.Reactive;
-using System.Reactive.Linq;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
+using System.Reactive.Linq;
+using Growthstories.Domain.Entities;
 using Growthstories.UI.ViewModel;
-using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Tasks;
+using ReactiveUI;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -40,24 +30,40 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        public ClientPlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, Func<IPlantViewModel, ITileHelper> tileHelperFactory, IGSAppViewModel app)
+        public ClientPlantViewModel(
+            IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable,
+            Func<IPlantViewModel, ITileHelper> tileHelperFactory,
+            IGSAppViewModel app)
             : base(stateObservable, app)
         {
 
-            TileHelperFactory = tileHelperFactory;
-            Init();
+            if (tileHelperFactory == null)
+                throw new ArgumentNullException("tileHelperFactory needs to be given.");
+            this.TileHelperFactory = tileHelperFactory;
 
-        }
-
-
-
-        private void Init()
-        {
+            this.HasTile = TileHelper.HasTile;
             PinCommand
-                .Select(_ => TileHelper.HasTile ? (Func<bool>)TileHelper.DeleteTile : (Func<bool>)TileHelper.CreateOrUpdateTile)
-                .Subscribe(x => x());
+                //.Select(_ => HasTile ? (Func<bool>)TileHelper.DeleteTile : (Func<bool>)TileHelper.CreateOrUpdateTile)
+                .Subscribe(_ =>
+                {
+                    if (HasTile)
+                    {
+                        TileHelper.DeleteTile();
+                        this.HasTile = false;
+                    }
+                    else
+                    {
+                        TileHelper.CreateOrUpdateTile();
+                        this.HasTile = true;
+                    }
+
+                });
             ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
+
+
+
+
 
 
         private void Share()
