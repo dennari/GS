@@ -26,19 +26,50 @@ namespace Growthstories.UI.ViewModel
 
         private void LoadPlants(IAuthUser u)
         {
-            App.CurrentPlants(u).Concat(App.FuturePlants(u)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+
+            // Load current plants
+            foreach (var p in App.CurrentPlants(u).ToEnumerable())
             {
-                x.PlantIndex = _Plants.Count();
+                var k = new ReactiveCommand();
+                k.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                {
+                    AddPlant(p);
+                });
+                k.Execute(null);
+            }
 
-                _Plants.Add(x);
-                this.ListenTo<AggregateDeleted>(x.Id)
-                   .Subscribe(y =>
-                   {
-                       _Plants.Remove(x);
-                   });
+            // Once the plants have really loaded, we can set IsLoaded to true
+            // ( There is probably a better way to make the assignment to run
+            //   in the UI thread )
+            //
+            var c = new ReactiveCommand();
+            c.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                IsLoaded = true;
             });
+            c.Execute(null);
 
+            // Subscribe for future plants
+            App.FuturePlants(u).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                AddPlant(x);
+            });
         }
+
+
+        private void AddPlant(IPlantViewModel vm)
+        {
+            vm.PlantIndex = _Plants.Count();
+
+            _Plants.Add(vm);
+            this.ListenTo<AggregateDeleted>(vm.Id)
+            .Subscribe(y =>
+            {
+                _Plants.Remove(vm);
+            });
+        }
+
+
 
         protected ReactiveList<IPlantViewModel> _Plants;
         public IReadOnlyReactiveList<IPlantViewModel> Plants
@@ -65,12 +96,25 @@ namespace Growthstories.UI.ViewModel
                     //{
                     //    Plants.Add(x);
                     //});
-
-
                 }
                 return _Plants;
             }
         }
+
+
+        private bool _IsLoaded;
+        public bool IsLoaded
+        {
+            get
+            {
+                return _IsLoaded;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsLoaded, value);
+            }
+        }
+
 
         protected string _Username;
         public string Username
@@ -141,6 +185,7 @@ namespace Growthstories.UI.ViewModel
             IGSAppViewModel app)
             : base(app)
         {
+            IsLoaded = false;
 
             if (state != null)
                 this.Init(state);

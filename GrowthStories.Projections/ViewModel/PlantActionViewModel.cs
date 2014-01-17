@@ -747,7 +747,7 @@ namespace Growthstories.UI.ViewModel
 
         public void UpdateCountText()
         {
-            if (MeasurementTypeHelper.Options[this.MeasurementType] == null)
+            if (!MeasurementTypeHelper.Options.ContainsKey(this.MeasurementType))
             {
                 //this.Log().Warn("BUG: MeasurementType is null");
                 CountText = "";

@@ -408,9 +408,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
-
-
+ 
         protected bool _OwnPlant;
         public bool OwnPlant
         {
