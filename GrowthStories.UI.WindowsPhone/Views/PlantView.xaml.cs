@@ -178,11 +178,9 @@ namespace Growthstories.UI.WindowsPhone
                 Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
             }
 
-            //if (b.Opacity == 0.0)
-            //{
             sb.Begin();
             b.Height = 220;
-            //}    
+            b.BorderThickness = new Thickness(3);
         }
 
 
@@ -211,8 +209,8 @@ namespace Growthstories.UI.WindowsPhone
                     {
                         b.Height = 220;
                         b.Opacity = 1.0;
+                        b.BorderThickness = new Thickness(3);
                     }
-
                 }
                 else
                 {

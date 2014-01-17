@@ -16,25 +16,13 @@
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
 
-            <Button
-                Style="{StaticResource GSButtonStyle}"
-                HorizontalAlignment="Left"
-                Margin="0,0,0,0"
-                toolkit:TiltEffect.IsTiltEnabled="True"
-                Padding="24,12,24,12"
-                BorderThickness="0"
-                BorderBrush="Transparent"
-                IsEnabled="{Binding OwnAction}"
-                Command="{Binding EditCommand}"
-                CommandParameter="{Binding}"    
-                VerticalContentAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                >
+            
+                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,12,24,12">
 
                 <telerikPrimitives:RadContextMenu.ContextMenu>
                     <telerikPrimitives:RadContextMenu 
                             Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
-                            IsFadeEnabled="False"
+                            IsFadeEnabled="True"
                             IsZoomEnabled="False"
                             Background="WhiteSmoke"
                             Foreground="{StaticResource GSAccentBrush}">
@@ -65,39 +53,29 @@
 
                     </telerikPrimitives:RadContextMenu>
                 </telerikPrimitives:RadContextMenu.ContextMenu>
-                
 
-                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
+                <ContentPresenter 
+						DataContext="{Binding}"
+                        Content="{Binding}" 
+						ContentTemplate="{TemplateBinding ContentTemplate}" 
+						Visibility="{TemplateBinding ContentVisibility}" 
+						HorizontalAlignment="Stretch"
+                        />
 
-                    <!--
-                    <toolkit:ContextMenuService.ContextMenu>
-                        <toolkit:ContextMenu IsZoomEnabled="False"
-                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
-                            Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
-                            BorderBrush="Transparent" BorderThickness="0">
-                            <toolkit:MenuItem Header="Edit" 
-                                Background="WhiteSmoke"                           
-                                Opacity="0.9"
-                                Foreground="{StaticResource GSAccentBrush}"              
-                                Command="{Binding EditCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding IsEditEnabled}" />
-                            <toolkit:MenuItem Header="Delete" 
-                                Background="WhiteSmoke"                           
-                                Opacity="0.9"
-                                Foreground="{StaticResource GSAccentBrush}"              
-                                 />
-                        </toolkit:ContextMenu>
-                    </toolkit:ContextMenuService.ContextMenu>
-                    -->
-
-                    <ContentPresenter 
-						    DataContext="{Binding}"
-                            Content="{Binding}" 
-						    ContentTemplate="{TemplateBinding ContentTemplate}" 
-						    Visibility="{TemplateBinding ContentVisibility}" 
-						    HorizontalAlignment="Stretch"
-                            />
+                    <Button
+                        Style="{StaticResource GSButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,0"
+                        toolkit:TiltEffect.IsTiltEnabled="True"
+                        Padding="0,0,0,0"
+                        BorderThickness="0"
+                        BorderBrush="Transparent"
+                        Command="{Binding EditCommand}"
+                        CommandParameter="{Binding}"    
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsEnabled="{Binding OwnAction}"
+                        >
 
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
                         <StackPanel Orientation="Vertical" Width="96">
@@ -113,15 +91,9 @@
                         </StackPanel>
                     </StackPanel>
 
-                <!--
-                <ContentControl toolkit:TiltEffect.IsTiltEnabled="True" HorizontalAlignment="Left" Padding="24,0,0,24" HorizontalContentAlignment="Left">
-                -->    
-          
-                <!--
-                </ContentControl>
-                -->
+                </Button>
+
                 </StackPanel>
-            </Button>
 
         </ControlTemplate>
 
@@ -230,26 +202,18 @@
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                                 
+                            <!-- BorderThickness is set to Non-Zero when actually loading -->
                             <Button 
                                 toolkit:TiltEffect.IsTiltEnabled="True"
                                 BorderBrush="{Binding IsProfilePhoto, Converter={StaticResource BooleanToSpecialColor}}"
-                                BorderThickness="3"    
-                                HorizontalAlignment="Stretch" 
-                                Style="{StaticResource GSButtonStyle}" 
-                                Margin="0,0,0,12" 
+                                BorderThickness="0"    
+                                HorizontalAlignment="Stretch"
+                                Style="{StaticResource GSWrapperButtonStyle}" 
+                                Margin="0,0,0,18" 
                                 Command="{Binding PhotoTimelineTap}"
                                 Padding="0,0,0,0"
+                                IsEnabled="True"
                                     >
-                                <!--
-                                <Button.Background>
-                                    <ImageBrush 
-                                        Stretch="UniformToFill" 
-                                        ImageSource="{Binding TimelinePhotoSource}"
-                                        ImageOpened="ImageBrush_ImageOpened"
-                                        />
-
-                                </Button.Background>
-                                -->
                                     <Image                                         
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
@@ -260,20 +224,6 @@
                                         />
                                 
                                 </Button>
-                               <!--<Grid>
-                                  <Image 
-                                    Height="220" 
-                                    Stretch="UniformToFill" 
-                                    HorizontalAlignment="Stretch" 
-                                    VerticalAlignment="Stretch" 
-                                    Margin="12,0" 
-                                    Source="{Binding TimelinePhotoSource}" />
-                                  <TextBlock 
-                                        Text="{Binding Photo.FileName}" 
-                                        VerticalAlignment="Top" 
-                                        FontSize="{StaticResource PhoneFontSizeSmall}"
-                                        TextWrapping="Wrap"/>
-                               </Grid>-->
                             </DataTemplate>
                         </local:PlantActionView.PhotoTemplate>
                     </local:PlantActionView>
