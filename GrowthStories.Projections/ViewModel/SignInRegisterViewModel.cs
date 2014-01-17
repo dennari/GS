@@ -8,9 +8,9 @@ using System.Reactive.Linq;
 using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using System.Threading.Tasks;
-//using System.Security.Cryptography;
-//using System.Security.Crypto
 using EventStore.Logging;
+using PWDTK_MOBILE_WP_8;
+
 
 namespace Growthstories.UI.ViewModel
 {
@@ -30,7 +30,6 @@ namespace Growthstories.UI.ViewModel
         public SignInRegisterViewModel(IGSAppViewModel app)
             : base(app)
         {
-
 
             var canExecute = this.WhenAnyValue(
                     x => x.Email,
@@ -61,12 +60,12 @@ namespace Growthstories.UI.ViewModel
             {
                 if (SignInMode)
                 {
-                    var r = await App.SignIn(this.Email, this.Password);
+                    var r = await App.SignIn(this.Email, HashedPassword());
                     return Tuple.Create(true, RegisterResponse.alreadyRegistered, r);
                 }
                 else
                 {
-                    var r = await App.Register(this.Username, this.Email, this.Password);
+                    var r = await App.Register(this.Username, this.Email, HashedPassword());
                     return Tuple.Create(false, r, SignInResponse.invalidEmail);
                 }
             });
@@ -154,6 +153,27 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "register" : "sign in");
             NavigateBack = true;
         }
+
+
+        private String HashedPassword()
+        {            
+            // we don't use a proper salt, as we don't have one
+            // easily available. we could use the user guid, but
+            // this would require first requesting the guid from
+            // the server with help of the email address
+            //
+            // we will not bother using salts here as salts are 
+            // mainly useful when the whole database is leaked,
+            // and we do separate hashing on the server
+            // 
+            var salt = "GSCRAZYSALTWHOA";
+            var sb = Encoding.UTF8.GetBytes(salt);
+
+            var bytes = PWDTK.PasswordToHash(sb, Password, 5000);
+
+            return Convert.ToBase64String(bytes);
+        }
+
 
 
         private ProgressPopupViewModel PPViewModel()

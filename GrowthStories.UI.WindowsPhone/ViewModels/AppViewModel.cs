@@ -264,8 +264,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         protected override void ClearDB()
         {
-            // clear isolated storage containing tile update infos
-            GSTileUtils.ClearAllTileUpdateInfos();
+            GSTileUtils.DeleteAllTiles();
 
             //base.ClearDB();
             var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;

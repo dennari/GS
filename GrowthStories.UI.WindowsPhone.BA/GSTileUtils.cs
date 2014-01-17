@@ -296,6 +296,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         }
 
+
         //
         // To be called when database is cleared
         //
@@ -522,10 +523,17 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         public static void DeleteAllTiles()
         {
+            int cnt = 0;
             foreach (var tile in ShellTile.ActiveTiles.AsEnumerable())
             {
-                tile.Delete();
+                // application tile is first 
+                if (cnt != 0)
+                {
+                    tile.Delete();
+                }
+                cnt++;
             }
+            ClearAllTileUpdateInfos();
         }
 
     }
