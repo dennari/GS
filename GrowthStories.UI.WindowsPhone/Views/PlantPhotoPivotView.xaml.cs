@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
+﻿using Growthstories.UI.ViewModel;
+using System;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public class PlantPhotoPivotViewBase : GSView<IPlantViewModel>
+    public class PlantPhotoPivotViewBase : GSView<IPhotoListViewModel>
     {
 
     }
@@ -24,7 +14,7 @@ namespace Growthstories.UI.WindowsPhone
     {
 
         public PlantPhotoPivotView()
-        {                        
+        {
             InitializeComponent();
 
             if (Height != Double.NaN)
@@ -33,6 +23,6 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        
+
     }
 }

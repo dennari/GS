@@ -1,6 +1,5 @@
 ﻿using Growthstories.Core;
 using Growthstories.Domain.Entities;
-using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
@@ -15,10 +14,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endif
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using ReactiveUI;
 using System.Collections.Generic;
 
@@ -67,7 +64,7 @@ namespace Growthstories.DomainTests
         [TestMethod]
         public void TestPushIncludesPublicEvents()
         {
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
@@ -83,7 +80,7 @@ namespace Growthstories.DomainTests
         [TestMethod]
         public void TestCreatedUserIsInPullRequest()
         {
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
@@ -97,7 +94,7 @@ namespace Growthstories.DomainTests
         [TestMethod]
         public void TestPushesOnlyOneAtATime()
         {
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var newName = "Jaakko";
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
@@ -129,7 +126,7 @@ namespace Growthstories.DomainTests
         [TestMethod]
         public void TestPushesOnlyOneAtATime2()
         {
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var newName = "Jaakko";
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
@@ -159,7 +156,7 @@ namespace Growthstories.DomainTests
         [TestMethod]
         public void TestWontPushPulled()
         {
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var newName = "Jaakko";
             var remoteName = "Jomppe";
 
@@ -260,7 +257,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var plantId = Guid.NewGuid();
             //var gardenId = Guid.NewGuid();
 
@@ -332,7 +329,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
 
@@ -376,7 +373,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
             var remoteName = "JeppeRemote";
@@ -429,7 +426,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
             var remoteName = "JeppeRemote";
@@ -483,7 +480,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
             var remoteName = "JeppeRemote";
@@ -551,7 +548,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
             var remoteName = "JeppeRemote";
@@ -620,7 +617,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             Guid localTarget = Guid.NewGuid();
             Guid remoteTarget = Guid.NewGuid();
             var remoteName = "JeppeRemote";
@@ -695,7 +692,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var plantId = Guid.NewGuid();
             var plantActionId = Guid.NewGuid();
 
@@ -740,7 +737,7 @@ namespace Growthstories.DomainTests
         {
 
             // ARRANGE
-            var u = App.Context.CurrentUser;
+            var u = App.User;
             var plantId = Guid.NewGuid();
             var plantActionId = Guid.NewGuid();
 

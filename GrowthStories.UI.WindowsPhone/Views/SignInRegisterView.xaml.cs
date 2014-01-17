@@ -79,34 +79,34 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (!ViewModel.App.HasDataConnection)
-            {
-                string msg;
+        //private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    if (!ViewModel.App.HasDataConnection)
+        //    {
+        //        string msg;
 
-                if (ViewModel.SignInMode)
-                {
-                    msg = "Signing in requires a data connection. Please enable one in your phone's settings and try again";
+        //        if (ViewModel.SignInMode)
+        //        {
+        //            msg = "Signing in requires a data connection. Please enable one in your phone's settings and try again";
 
-                }
-                else
-                {
-                    msg = "Registration requires a data connection. Please enable one in your phone's settings and try again";
+        //        }
+        //        else
+        //        {
+        //            msg = "Registration requires a data connection. Please enable one in your phone's settings and try again";
 
-                }
+        //        }
 
-                PopupViewModel pvm = new PopupViewModel()
-                {
-                    Caption = "Data connection required",
-                    Message = msg,
-                    IsLeftButtonEnabled = true,
-                    DismissedCommand = ViewModel.App.Router.NavigateBack,
-                    LeftButtonContent = "OK"
-                };
-                ViewModel.App.ShowPopup.Execute(pvm);
-            } 
-        }
+        //        PopupViewModel pvm = new PopupViewModel()
+        //        {
+        //            Caption = "Data connection required",
+        //            Message = msg,
+        //            IsLeftButtonEnabled = true,
+        //            DismissedCommand = ViewModel.App.Router.NavigateBack,
+        //            LeftButtonContent = "OK"
+        //        };
+        //        ViewModel.App.ShowPopup.Execute(pvm);
+        //    } 
+        //}
 
 
     }

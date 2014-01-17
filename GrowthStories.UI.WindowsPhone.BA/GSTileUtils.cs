@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using Growthstories.UI.Services;
 
 namespace GrowthStories.UI.WindowsPhone.BA
 {
@@ -38,10 +39,10 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         [JsonProperty]
         public DateTimeOffset? Last { get; set; }
-        
+
         [JsonProperty]
         public TimeSpan? Interval { get; set; }
-        
+
         [JsonProperty]
         public String UrlPathSegment { get; set; }
 
@@ -64,8 +65,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
     }
 
 
- 
-     
+
+
     public class GSTileUtils
     {
 
@@ -80,7 +81,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
             return SETTINGS_KEY + pvm.UrlPath;
         }
 
-        
+
         public static string GetSettingsKey(TileUpdateInfo info)
         {
             return SETTINGS_KEY + info.UrlPath;
@@ -92,7 +93,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
             using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
             {
 
-                try { mutex.WaitOne();}
+                try { mutex.WaitOne(); }
                 catch { } // catch exceptions associated with abandoned mutexes
 
                 try
@@ -104,11 +105,13 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     settings.Remove(GetSettingsKey(info));
                     settings.Add(GetSettingsKey(info), s);
                     settings.Save();
-                
-                } finally {
+
+                }
+                finally
+                {
                     mutex.ReleaseMutex();
                 }
-            }          
+            }
         }
 
 
@@ -143,7 +146,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 {
                     mutex.ReleaseMutex();
                 }
-            } 
+            }
 
             return ret;
         }
@@ -170,8 +173,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             // if wideContent is set to null, the tile will retain the previous 
             // setting, therefore this must be an empty string instead of null
-            string wideContent = ""; 
-            
+            string wideContent = "";
+
             double maxMissed = Double.MinValue;
             string missedWc = null;
             string nextWc = null;
@@ -195,7 +198,9 @@ namespace GrowthStories.UI.WindowsPhone.BA
                             maxCount = (uint)data.Count;
                         }
 
-                    } else {
+                    }
+                    else
+                    {
 
                         var next = PlantScheduler.ComputeNext((DateTimeOffset)info.Last, (TimeSpan)info.Interval);
 
@@ -216,9 +221,12 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     //
                     //  -- JOJ 12.1.2014
 
-                    if (missedWc != null) {
+                    if (missedWc != null)
+                    {
                         wideContent = missedWc;
-                    } else if (nextWc != null) {
+                    }
+                    else if (nextWc != null)
+                    {
                         wideContent = nextWc;
                     }
 
@@ -226,14 +234,17 @@ namespace GrowthStories.UI.WindowsPhone.BA
             }
 
             Color clr;
-            if (maxCount > 0) {
+            if (maxCount > 0)
+            {
                 clr = new Color();
                 clr.A = 0xff;
                 clr.R = 0xfa;
                 clr.G = 0x68;
                 clr.B = 0x00;
 
-            } else {
+            }
+            else
+            {
                 clr = new Color();
                 clr.A = 0xff;
                 clr.R = 0x93;
@@ -254,7 +265,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 WideContent1 = wideContent,
                 BackgroundColor = clr
             };
-            
+
             var appTile = ShellTile.ActiveTiles.First();
             appTile.Update(td);
         }
@@ -265,13 +276,13 @@ namespace GrowthStories.UI.WindowsPhone.BA
         {
             // subscribe to changes of each watering scheduler
 
-            garden.Plants.ItemsAdded            
-                .Subscribe(x => 
+            garden.Plants.ItemsAdded
+                .Subscribe(x =>
             {
                 //  watch for watering scheduler updates
                 x.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
                 {
-                    u.WhenAnyValue(y => y.Missed)                
+                    u.WhenAnyValue(y => y.Missed)
                         .Subscribe(_ =>
                         {
                             UpdateTileAndInfoAfterDelay(x);
@@ -310,8 +321,10 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 {
                     var settings = IsolatedStorageSettings.ApplicationSettings;
                     settings.Clear();
-                
-                } finally {
+
+                }
+                finally
+                {
                     mutex.ReleaseMutex();
                 }
             }
@@ -355,25 +368,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         public static ShellTile GetShellTile(string urlPathSegment)
         {
-            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment)); 
-        }
-
-
-        public static List<PlantActionViewModel> FetchPhotoActions(Guid plantId, IGSAppViewModel app)
-        {
-            var ret = new List<PlantActionViewModel>();
-            var uip = app.UIPersistence;
-
-            foreach (var state in uip.GetPhotoActions(plantId))
-            {
-                if (state.Type == PlantActionType.PHOTOGRAPHED)
-                {
-                    var avm = new PlantPhotographViewModel(app, state);
-                    ret.Add(avm);
-                }
-            }
-
-            return ret;
+            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));
         }
 
 
@@ -388,17 +383,10 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         public static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
         {
-            var app = pvm.App as AppViewModel;
-            return CreateTileUpdateInfo(pvm, FetchPhotoActions(pvm.Id, app));
-        }
-
-
-        private static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm, IEnumerable<IPlantActionViewModel> list)
-        {            
             TileUpdateInfo info = new TileUpdateInfo();
 
-            if (pvm.WateringSchedule != null 
-                && pvm.WateringScheduler != null 
+            if (pvm.WateringSchedule != null
+                && pvm.WateringScheduler != null
                 && pvm.IsWateringScheduleEnabled
                 && pvm.WateringScheduler.Interval != null
                 && pvm.WateringScheduler.LastActionTime != null)
@@ -411,25 +399,12 @@ namespace GrowthStories.UI.WindowsPhone.BA
             info.UrlPath = pvm.UrlPath;
             info.Name = pvm.Name;
 
-            var photoUris = new List<Uri>();
+            var photoUris = pvm.Actions
+                .Where(x => x.Photo != null && x.Photo.LocalUri != null)
+                .Select(x => new Uri(x.Photo.LocalUri))
+                .Take(9)
+                .ToList();
 
-            foreach (var action in list)
-            {
-                var p = action.Photo;
-                if (p != null)
-                {
-                    if (p.LocalUri != null)
-                    {
-                        photoUris.Add(new Uri(p.LocalUri));
-
-                        // up to 9 images allowed for cycletile
-                        if (photoUris.Count == 9)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
 
             if (photoUris.Count == 0)
             {
@@ -440,6 +415,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             return info;
         }
+
+      
 
 
         public static CycleTileData GetTileData(TileUpdateInfo info)
@@ -477,9 +454,9 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         private static void UpdateTileAndInfo(IPlantViewModel pvm)
         {
-            
+
             var vm = (PlantViewModel)pvm;
- 
+
             if (vm.State.IsDeleted)
             {
                 ClearTileUpdateInfo(pvm);
@@ -504,7 +481,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
         {
             await Task.Delay(2 * 1000);
             UpdateTileAndInfo(pvm);
-         }
+        }
 
 
         public static void DeleteTile(IPlantViewModel pvm)

@@ -22,7 +22,6 @@ namespace Growthstories.UI.ViewModel
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
-        private Task<bool> InitializeTask;
 
         private async Task LoadAsync()
         {

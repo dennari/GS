@@ -15,7 +15,7 @@ using EventStore.Logging;
 namespace Growthstories.UI.ViewModel
 {
 
-    
+
     public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel
     {
 
@@ -26,6 +26,10 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SwitchModeCommand { get; protected set; }
         public IObservable<Tuple<bool, RegisterResponse, SignInResponse>> Response { get; protected set; }
 
+        public static bool IsSuccess(Tuple<bool, RegisterResponse, SignInResponse> x)
+        {
+            return x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
+        }
 
         public SignInRegisterViewModel(IGSAppViewModel app)
             : base(app)
@@ -73,65 +77,17 @@ namespace Growthstories.UI.ViewModel
 
             this.Response.Subscribe(x =>
             {
-                App.ShowPopup.Execute(null);
-                bool IsSuccess = x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
-    
-                string msg = null;
-                string caption = null;
-                
-                if (!SignInMode)
+
+                if (IsSuccess(x))
                 {
-                    caption = "Could not register";
-                    switch (x.Item2)
-                    {
-                        case RegisterResponse.connectionerror:
-                            msg = "We could could not create an account for you, because we could not reach the Growth Stories servers. Please try again later.";
-                            break;
-
-                        case RegisterResponse.emailInUse:
-                            msg = "Could not create a new account for you, because the email address you provided is already in use.";
-                            break;
-
-                        case RegisterResponse.usernameInUse:
-                            msg = "Could not create a new account for you, because the username you provided is already in use.";
-                            break;
-                    }
-
-                } else {
-                    caption = "Could not sign you in";
-                    switch (x.Item3)
-                    {
-                        case SignInResponse.connectionerror:
-                            msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
-                            break;
-
-                        case SignInResponse.invalidEmail:
-                            msg = "The email address was incorrect. Please check your input and try again.";
-                            break;
-
-                        case SignInResponse.invalidPassword:
-                            msg = "The password was incorrect. Please check your input and try again.";
-                            break;
-                    }
+                    //if (SignInMode)
+                    //    App.Router.NavigateAndReset.Execute(new MainViewModel(App));
+                    //if (!SignInMode && NavigateBack)
+                    //    App.Router.NavigateBack.Execute(null);
                 }
-
-                if (msg != null)
+                else
                 {
-                    var pvm = new PopupViewModel()
-                    {
-                        Caption = caption,
-                        Message = msg,
-                        LeftButtonContent = "OK"
-                    };
-                    App.ShowPopup.Execute(pvm);
-                }
-                 
-                if (IsSuccess)
-                {
-                    if (SignInMode)
-                        App.Router.NavigateAndReset.Execute(new MainViewModel(App));
-                    if (!SignInMode && NavigateBack)
-                        App.Router.NavigateBack.Execute(null);
+                    App.ShowPopup.Execute(GetPopup(x));
                 }
             });
 
@@ -152,7 +108,59 @@ namespace Growthstories.UI.ViewModel
               });
 
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "register" : "sign in");
-            NavigateBack = true;
+            // NavigateBack = true;
+        }
+
+        private IPopupViewModel GetPopup(Tuple<bool, RegisterResponse, SignInResponse> x)
+        {
+            string msg = null;
+            string caption = null;
+
+            if (!SignInMode)
+            {
+                caption = "Could not register";
+                switch (x.Item2)
+                {
+                    case RegisterResponse.connectionerror:
+                        msg = "We could could not create an account for you, because we could not reach the Growth Stories servers. Please try again later.";
+                        break;
+
+                    case RegisterResponse.emailInUse:
+                        msg = "Could not create a new account for you, because the email address you provided is already in use.";
+                        break;
+
+                    case RegisterResponse.usernameInUse:
+                        msg = "Could not create a new account for you, because the username you provided is already in use.";
+                        break;
+                }
+
+            }
+            else
+            {
+                caption = "Could not sign you in";
+                switch (x.Item3)
+                {
+                    case SignInResponse.connectionerror:
+                        msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
+                        break;
+
+                    case SignInResponse.invalidEmail:
+                        msg = "The email address was incorrect. Please check your input and try again.";
+                        break;
+
+                    case SignInResponse.invalidPassword:
+                        msg = "The password was incorrect. Please check your input and try again.";
+                        break;
+                }
+            }
+
+            return new PopupViewModel()
+                 {
+                     Caption = caption,
+                     Message = msg,
+                     LeftButtonContent = "OK"
+                 };
+
         }
 
 
@@ -165,8 +173,10 @@ namespace Growthstories.UI.ViewModel
                     Caption = "Signing in",
                     ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data."
                 };
-            
-            } else {
+
+            }
+            else
+            {
                 return new ProgressPopupViewModel()
                 {
                     Caption = "Registering",
@@ -182,7 +192,6 @@ namespace Growthstories.UI.ViewModel
         //}
 
 
-        public bool NavigateBack { get; set; }
 
         bool EmailCheck(string email)
         {
@@ -199,7 +208,7 @@ namespace Growthstories.UI.ViewModel
             return p != null && p.Length >= 6 && (SignInMode || p == pc);
         }
 
-    
+
         public bool _UsernameTouched;
         public bool UsernameTouched
         {
@@ -218,12 +227,12 @@ namespace Growthstories.UI.ViewModel
         public bool _EmailTouched;
         public bool EmailTouched
         {
-            get 
+            get
             {
                 return _EmailTouched;
             }
 
-            set 
+            set
             {
                 this.RaiseAndSetIfChanged(ref _EmailTouched, value);
                 this.raisePropertyChanged("EmailComplaint");
@@ -287,9 +296,9 @@ namespace Growthstories.UI.ViewModel
 
         public string EmailComplaint
         {
-            get 
-            {  
-                if(!EmailTouched)
+            get
+            {
+                if (!EmailTouched)
                 {
                     return null;
                 }

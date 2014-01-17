@@ -129,7 +129,7 @@
             VerticalContentAlignment="Stretch"
 		    x:Name="Content"
 		    Router="{Binding Router}"
-            AppVM="{Binding ViewModel}"
+            AppVM="{Binding}"
             Transition="{StaticResource GSTurnStile}">
 	
         </local:AGSRoutedViewHost>

@@ -1,14 +1,9 @@
-﻿using CommonDomain;
-using Growthstories.Core;
+﻿using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Growthstories.Domain
 {
@@ -34,12 +29,21 @@ namespace Growthstories.Domain
 
         void Initialize();
 
-        PlantActionState GetLatestWatering(Guid? PlantId);
+        void ReInitialize();
+        //PlantActionState GetLatestWatering(Guid? PlantId);
 
-        IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null);
+        IEnumerable<PlantActionState> GetActions(
+            Guid? PlantActionId = null,
+            Guid? PlantId = null,
+            Guid? UserId = null,
+            PlantActionType? type = null,
+            int? limit = null,
+            bool? isOrderAsc = null
+            );
+
         IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
         IEnumerable<UserState> GetUsers(Guid? UserId = null);
-        IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null);
+        //IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null);
 
         //IEnumerable<ScheduleState> GetSchedules(Guid PlantId);
 

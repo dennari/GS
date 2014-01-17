@@ -1,34 +1,43 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
 using System;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
+using Growthstories.Core;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
 
     public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
     {
-        public IGSAppViewModel App { get; protected set; }
+        protected readonly IGSAppViewModel App;
 
         public GSViewModelBase(IGSAppViewModel app)
         {
+
+            if (app == null)
+                throw new ArgumentNullException("App cannot be null");
+
             this.App = app;
         }
 
-        protected void SendCommand(IAggregateCommand cmd, bool GoBack = false)
+        protected async Task<IGSAggregate> SendCommand(IAggregateCommand cmd, bool GoBack = false)
         {
-            App.HandleCommand(cmd);
+            var r = await App.HandleCommand(cmd);
             if (GoBack)
-                App.Router.NavigateBack.Execute(null);
+                NavigateBack();
+            return r;
         }
 
         protected void Navigate(IRoutableViewModel vm)
         {
             App.Router.Navigate.Execute(vm);
+        }
+
+        protected void NavigateBack()
+        {
+            App.Router.NavigateBack.Execute(null);
         }
 
         protected IObservable<T> ListenTo<T>(Guid id = default(Guid)) where T : IEvent
@@ -110,7 +119,6 @@ namespace Growthstories.UI.ViewModel
 
         public MenuItemViewModel(IGSAppViewModel app)
         {
-
         }
 
         public MenuItemViewModel()
@@ -185,17 +193,41 @@ namespace Growthstories.UI.ViewModel
 
 
 
-    public class PopupViewModel : IPopupViewModel
+    public class PopupViewModel : ReactiveObject, IPopupViewModel
     {
+        private readonly Subject<PopupResult> Subject = new Subject<PopupResult>();
+        private readonly Func<PopupResult, bool> AcceptedPredicate;
 
+        public PopupViewModel(Func<PopupResult, bool> acceptedPredicate)
+            : this()
+        {
+            AcceptedPredicate = acceptedPredicate;
+        }
         public PopupViewModel()
         {
             IsLeftButtonEnabled = true;
             IsRightButtonEnabled = false;
             Type = PopupType.BASIC;
+            //DismissedObservable = DismissedCommand.OfType<PopupResult>();
+            AcceptedPredicate = x => x == PopupResult.LeftButton;
+
+            DismissedObservable = Subject;
+            AcceptedObservable = DismissedObservable.Where(x => AcceptedPredicate(x));
         }
 
-        public IReactiveCommand DismissedCommand { get; set; }
+        public void Dismiss(PopupResult x)
+        {
+
+            Subject.OnNext(x);
+
+        }
+
+
+
+        public IObservable<PopupResult> DismissedObservable { get; private set; }
+
+        public IObservable<PopupResult> AcceptedObservable { get; private set; }
+
 
         public string Caption { get; set; }
 
@@ -211,7 +243,7 @@ namespace Growthstories.UI.ViewModel
 
         public bool IsFullScreen { get; set; }
 
-        public PopupType Type { get; set; }
+        public PopupType Type { get; protected set; }
 
         public string ProgressMessage { get; set; }
     }

@@ -3,8 +3,6 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Growthstories.UI
 {
@@ -63,10 +61,6 @@ namespace Growthstories.UI
         }
 
 
-        public IEnumerable<PlantState> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
-        {
-            throw new NotImplementedException();
-        }
 
 
         public IEnumerable<UserState> GetUsers(Guid? UserId = null)
@@ -81,10 +75,7 @@ namespace Growthstories.UI
         }
 
 
-        IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> IUIPersistence.GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
-        {
-            throw new NotImplementedException();
-        }
+
 
 
         public void Initialize()
@@ -94,5 +85,22 @@ namespace Growthstories.UI
 
         public Core.IGSLog Logger { get; set; }
 
+
+
+        public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null, PlantActionType? type = null, int? limit = null, bool? isOrderAsc = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void ReInitialize()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -70,7 +70,7 @@ namespace Growthstories.DomainTests
 
 
             await App.Context.AuthorizeUser();
-            //Ctx = App.Context.CurrentUser;
+            //Ctx = App.User;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);
@@ -108,7 +108,7 @@ namespace Growthstories.DomainTests
             var regPassword = "kulli";
 
             var R = await App.Register(regName, regEmail, regPassword);
-            //Ctx = App.Context.CurrentUser;
+            //Ctx = App.User;
             Assert.AreEqual(RegisterResponse.success, R);
 
             Assert.IsNotNullOrEmpty(App.User.AccessToken);
@@ -156,7 +156,7 @@ namespace Growthstories.DomainTests
             var regPassword = "kulli";
 
             var R = await restartedApp.Register(regName, regEmail, regPassword);
-            //Ctx = restartedApp.Context.CurrentUser;
+            //Ctx = restartedApp.User;
             Assert.AreEqual(RegisterResponse.success, R);
 
             Assert.IsNotNullOrEmpty(restartedApp.User.AccessToken);

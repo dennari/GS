@@ -9,7 +9,6 @@
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    d:DataContext="{StaticResource ListUsersViewModelDesign}"
     mc:Ignorable="d" Width="480" Height="800">
 
 
@@ -52,7 +51,6 @@
         TopTitle="GROWTH STORIES"
         Title="follow user"
         Style="{StaticResource NoScroll}"
-        Loaded="GSViewGrid_Loaded"
         >
 
  
@@ -60,7 +58,6 @@
 
             <local:GSTextBox
                     x:Name="UserListBox"
-                    KeyUp="UserListBox_KeyUp"             
                     BorderThickness="3" Margin="-12,0,-12,12"
                     
               />

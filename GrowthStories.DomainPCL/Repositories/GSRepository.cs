@@ -4,13 +4,10 @@ using CommonDomain.Persistence;
 using EventStore;
 using EventStore.Persistence;
 using Growthstories.Core;
-using Growthstories.Domain.Entities;
-using Growthstories.Sync;
 using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 //using System.Threading.Tasks;
 
 namespace Growthstories.Domain
@@ -26,8 +23,33 @@ namespace Growthstories.Domain
         private readonly IStoreEvents eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
-        private readonly IUIPersistence UIPersistence;
-        private IPersistSyncStreams Persistence;
+
+
+        private bool isPersistenceInitialized;
+        private readonly IPersistSyncStreams _Persistence;
+        private IPersistSyncStreams Persistence
+        {
+            get
+            {
+                if (!isPersistenceInitialized)
+                    _Persistence.Initialize();
+                return _Persistence;
+
+            }
+        }
+
+        private bool isUIPersistenceInitialized;
+        private readonly IUIPersistence _UIPersistence;
+        private IUIPersistence UIPersistence
+        {
+            get
+            {
+                if (!isUIPersistenceInitialized)
+                    _UIPersistence.Initialize();
+                return _UIPersistence;
+
+            }
+        }
 
 
         public GSRepository(
@@ -42,8 +64,8 @@ namespace Growthstories.Domain
             this.eventStore = eventStore;
             this.conflictDetector = conflictDetector;
             this.factory = factory;
-            this.UIPersistence = uipersistence;
-            this.Persistence = persistence;
+            this._UIPersistence = uipersistence;
+            this._Persistence = persistence;
 
         }
 

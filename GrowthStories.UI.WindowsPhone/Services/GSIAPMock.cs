@@ -5,27 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Growthstories.UI.ViewModel;
-
-#if DEBUG
 using MockIAPLib;
-using Store = MockIAPLib;
-#else
-using Windows.ApplicationModel.Store;
-#endif
+using Growthstories.Core;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
 
 
-    class GSIAP
+    public class GSIAPMock : IIAPService
     {
 
         public const string BASIC_PRODUCT_ID = "gsbasic";
 
 
-        public static void PossiblySetupMockIAP()
+        public GSIAPMock()
         {
-            #if DEBUG
+
             MockIAP.Init();
 
             MockIAP.RunInMockMode(true);
@@ -38,19 +34,18 @@ namespace Growthstories.UI.WindowsPhone
                 ImageUri = new Uri("/Assets/Icons/IAP.png", UriKind.Relative),
                 ProductId = BASIC_PRODUCT_ID,
                 ProductType = Windows.ApplicationModel.Store.ProductType.Durable,
-                Keywords = new string[] {},
+                Keywords = new string[] { },
                 FormattedPrice = "4.95",
                 Tag = string.Empty
             };
             MockIAP.AddProductListing(BASIC_PRODUCT_ID, p);
-            #endif
         }
 
 
         /**
          * Return true if user has payed for the basic GS IAP product
          */
-        public static bool HasPayedBasicProduct()
+        public bool HasPaidBasicProduct()
         {
             foreach (var license in CurrentApp.LicenseInformation.ProductLicenses.Values)
             {
@@ -66,17 +61,20 @@ namespace Growthstories.UI.WindowsPhone
         /*
          * Go shopping in the Windows Store for the basic GS IAP product 
          */
-        public async static Task<bool> ShopForBasicProduct()
+        public async Task<bool> ShopForBasicProduct()
         {
-            try {
+            try
+            {
                 await CurrentApp.RequestProductPurchaseAsync(BASIC_PRODUCT_ID, false);
 
-            } catch (Exception ex) {
+            }
+            catch (Exception)
+            {
                 // thrown when user does not buy the product
                 // ( navigates back etc. )
             }
 
-            return HasPayedBasicProduct();
+            return HasPaidBasicProduct();
         }
 
 

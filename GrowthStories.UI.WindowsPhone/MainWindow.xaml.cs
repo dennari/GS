@@ -1,24 +1,15 @@
-﻿using System;
+﻿using Growthstories.UI.ViewModel;
+using Microsoft.Phone.Controls;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.ComponentModel;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using BindableApplicationBar;
-using ReactiveUI;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Windows.Data;
-using Growthstories.UI.ViewModel;
-using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
-using System.Threading.Tasks;
-using Growthstories.Sync;
-using Telerik;
-using Telerik.Windows.Controls;
+using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -29,13 +20,14 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
-    public partial class MainWindow : MainWindowBase
+    public partial class MainWindow : MainWindowBase, IEnableLogger
     {
 
         //private Task<IAuthUser> InitializeTask;
 
         public MainWindow()
         {
+            this.Log().Info("MainWindow constructor");
             InitializeComponent();
 
         }
@@ -54,14 +46,6 @@ namespace Growthstories.UI.WindowsPhone
                     Popup.Dismiss();
                 }
 
-                // we already have a subscription to popup.dismiss, which
-                // will take care of calling the dismissedcommand
-                // this would create another execution for the dismissedcommand,
-                // which can create problems
-                //   -- JOJ 3.12.2014
-                //if (PopupVm != null && PopupVm.DismissedCommand != null)
-                //    PopupVm.DismissedCommand.Execute(result);
-                return;
             }
         }
 
@@ -168,32 +152,33 @@ namespace Growthstories.UI.WindowsPhone
 
             popup.Dismissed += (s1, e1) =>
             {
-                if (x.DismissedCommand != null)
+
+                PopupResult res;
+                switch (e1.Result)
                 {
-                    PopupResult res;
-                    switch (e1.Result)
-                    {
-                        case CustomMessageBoxResult.LeftButton:
-                            res = PopupResult.LeftButton;
-                            break;
+                    case CustomMessageBoxResult.LeftButton:
+                        res = PopupResult.LeftButton;
+                        break;
 
-                        case CustomMessageBoxResult.RightButton:
-                            res = PopupResult.RightButton;
-                            break;
+                    case CustomMessageBoxResult.RightButton:
+                        res = PopupResult.RightButton;
+                        break;
 
-                        default:
-                            res = PopupResult.None; 
-                            break;
-                    }
-
-                    x.DismissedCommand.Execute(res);
+                    default:
+                        res = PopupResult.None;
+                        break;
                 }
+                this.Log().Info("Popup dismissed: {0}", res);
+
+                x.Dismiss(res);
                 this.IsDialogShown = false;
             };
 
             this.IsDialogShown = true;
             this.PopupVm = x;
             this.Popup = popup;
+            this.Log().Info("Popup \"{0}\" shown", popup.Caption ?? string.Empty);
+
             popup.Show();
         }
 
@@ -208,21 +193,19 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
+            this.Log().Info("OnNavigatedTo");
             IDictionary<string, string> qs = this.NavigationContext.QueryString;
-            Exception ee = null;
-            if (qs.Count > 0)
-                try
-                {
-                    this.NavigateWithDeepLink(qs);
-                    return;
-                }
-                catch (Exception E)
-                {
-                    ee = E;
-                }
 
-            if (ee != null || this.ViewModel.Router.NavigationStack.Count == 0)
+            Guid plantId = default(Guid);
+
+            if (qs.ContainsKey("id") && Guid.TryParse(qs["id"], out plantId))
+            {
+                this.NavigateWithDeepLink(plantId);
+                return;
+            }
+
+
+            if (this.ViewModel.Router.NavigationStack.Count == 0)
             {
 
                 ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
@@ -230,57 +213,27 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         private IDisposable PlantNavigationSubscription = Disposable.Empty;
-        protected void NavigateWithDeepLink(IDictionary<string, string> qs)
+        protected void NavigateWithDeepLink(Guid plantId)
         {
 
-            var id = Guid.Parse(qs["id"]);
-            IAuthUser user = ViewModel.User;
-            if (user == null)
+
+            // this should actually return immediately
+            this.Log().Info("Navigated from tile");
+            IPlantViewModel pvm = null;
+            try
             {
-                ViewModel.Initialize().Wait();
-                user = ViewModel.User;
+                pvm = ViewModel.CurrentPlants(plantId: plantId).Where(x => x != null).Take(1).FirstOrDefaultAsync().Wait();
+
             }
-            var garden = new GardenViewModel(user, ViewModel);
-            var pivot = new GardenPivotViewModel(garden);
-
-            //var x = garden.Plants.BeforeItemsAdded.Where(y => y.Id == id).Take(1).ObserveOn(RxApp.MainThreadScheduler).Wait();
-            //pivot.SelectedItem = x;
-            this.ViewModel.Router.Navigate.Execute(pivot);
-
-            PlantNavigationSubscription.Dispose();
-            PlantNavigationSubscription = garden.Plants.ItemsAdded.Where(x => x.Id == id).Take(1).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            catch (Exception e)
             {
-                if (x.Id == id)
-                {
-                    pivot.SelectedItem = x;
 
-                }
-            });
+            }
 
 
-            //var user = ViewModel.Initialize().Wait()
-            //var garden = new GardenPivotViewModel(this.ViewModel.Resolver.GetService<IGardenViewModel>());
-            //var plantTask = Task.Run(async () => await garden.Plants.ItemsAdded
-            //        .Where(x => x.Id == id)
-            //        .Take(1));
-            //var plant = plantTask.Wait();
-            //garden.SelectedItem = plant;
-            //Task.Run(async () =>
-            //{
-
-            //    var user = await 
-            //    var garden = new GardenPivotViewModel(this.ViewModel.Resolver.GetService<IGardenViewModel>());
-
-            //    ViewModel.CurrentPlants(user).Subscribe(
-
-            //     );
-
-            //    //.Subscribe();
+            this.ViewModel.Router.Navigate.Execute(pvm);
 
 
-            //    this.ViewModel.Router.Navigate.Execute(garden);
-
-            //}).Wait();
 
         }
 
@@ -331,7 +284,6 @@ namespace Growthstories.UI.WindowsPhone
             //}
 
         }
-
 
     }
 }

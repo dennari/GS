@@ -1,23 +1,12 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Sync;
-using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using ReactiveUI;
-using System.Windows.Media.Imaging;
-using Growthstories.Domain.Messaging;
-//using Telerik.Windows.Controls;
+﻿using System;
 using System.Windows.Media;
-using Telerik.Windows.Controls;
+using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
+using ReactiveUI;
+using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
-
 
     public class ClientYAxisShitViewModel : YAxisShitViewModel
     {

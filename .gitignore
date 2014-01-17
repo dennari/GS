@@ -120,7 +120,7 @@ App_Data/*.ldf
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-GrowthStories.UI.WindowsPhone/Assets/Bg
+#GrowthStories.UI.WindowsPhone/Assets/Bg
 GrowthStories.UI.WindowsPhone/Assets/icons_all
 GrowthStories.UI.WindowsPhone/Assets/light
 GrowthStories.UI.WindowsPhone/PerfLogs/

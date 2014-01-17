@@ -1,11 +1,11 @@
-﻿using System;
-using System.Net.Sockets;
-using Windows.Networking.Sockets;
-using Windows.Networking;
-using Windows.Storage.Streams;
-using System.Diagnostics;
+﻿using Growthstories.Core;
 using ReactiveUI;
-using Growthstories.Core;
+using System;
+using System.Diagnostics;
+using System.Net.Sockets;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Storage.Streams;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -19,11 +19,12 @@ namespace Growthstories.UI.WindowsPhone
         public static string Host;
         private readonly string StreamName = "GSStream";
         private readonly string NodeName = "GSNode";
-        private readonly int TimeOut = 500;
+        private readonly int TimeOut = 2500;
 
         private readonly static StreamSocket Socket = new StreamSocket();
         private static DataWriter Writer;
-        private static bool Try = true;
+        private static int Tried = 0;
+        private static int MaxTries = 10;
         private static bool IsConnected = false;
 
         public GSRemoteLog(Type type = null)
@@ -43,13 +44,14 @@ namespace Growthstories.UI.WindowsPhone
             {
                 System.Diagnostics.Debug.WriteLine(msg);
             }
-            lock (Socket)
+            if (Tried < MaxTries)
             {
-                if (Try)
+                lock (Socket)
                 {
+
                     try
                     {
-                        if (!IsConnected)
+                        if (!IsConnected || Socket.Information.RemoteHostName == null)
                         {
                             Socket.Control.KeepAlive = true;
                             Socket.ConnectAsync(new HostName(Host), Port.ToString()).AsTask().Wait(TimeOut);
@@ -62,7 +64,7 @@ namespace Growthstories.UI.WindowsPhone
                     }
                     catch (Exception e)
                     {
-                        Try = false;
+                        Tried++;
                         if (Debugger.IsAttached)
                         {
                             System.Diagnostics.Debug.WriteLine("Couldn't connect remote-logger: {0}", e);
@@ -134,7 +136,15 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private static GSRemoteLog _Instance;
 
+        public static GSRemoteLog Instance
+        {
+            get
+            {
+                return _Instance ?? (_Instance = new GSRemoteLog());
+            }
+        }
 
 
 
@@ -147,6 +157,61 @@ namespace Growthstories.UI.WindowsPhone
             set
             {
                 Level = (LogLevel)value;
+            }
+        }
+    }
+
+    public class GSNullLog : IGSLog, ILogger
+    {
+
+        public void Exception(Exception e, string message = null, params object[] values)
+        {
+        }
+
+        public void Write(string message, GSLogLevel logLevel)
+        {
+        }
+
+        public GSLogLevel Level { get; set; }
+
+
+        public void Debug(string message, params object[] values)
+        {
+        }
+
+        public void Error(string message, params object[] values)
+        {
+        }
+
+        public void Fatal(string message, params object[] values)
+        {
+        }
+
+        public void Info(string message, params object[] values)
+        {
+        }
+
+        public void Verbose(string message, params object[] values)
+        {
+        }
+
+        public void Warn(string message, params object[] values)
+        {
+        }
+
+        public void Write(string message, LogLevel logLevel)
+        {
+        }
+
+        LogLevel ILogger.Level { get; set; }
+
+        private static GSNullLog _Instance;
+
+        public static GSNullLog Instance
+        {
+            get
+            {
+                return _Instance ?? (_Instance = new GSNullLog());
             }
         }
     }

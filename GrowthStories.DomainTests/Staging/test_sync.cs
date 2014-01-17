@@ -60,7 +60,7 @@ namespace Growthstories.DomainTests
 
             WaitForTask(HttpClient.SendAsync(HttpClient.CreateClearDBRequest()));
             WaitForTask(App.Context.AuthorizeUser());
-            //Ctx = App.Context.CurrentUser;
+            //Ctx = App.User;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);
@@ -232,7 +232,7 @@ namespace Growthstories.DomainTests
         //    var remoteComment = (PlantActionCreated)originalRemoteEvents[5];
 
         //    this.App = new TestAppViewModel(Kernel);
-        //    this.Ctx = App.Context.CurrentUser;
+        //    this.Ctx = App.User;
         //    Assert.IsNotNull(Ctx);
         //    Assert.IsNotNullOrEmpty(Ctx.Username);
 

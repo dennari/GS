@@ -32,8 +32,8 @@ namespace Growthstories.UI.WindowsPhone
 
     public partial class PlantView : PlantViewBase
     {
-
-        private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
+        // maybe just use the viewmodel's Log() extension method?
+        //private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
 
         public PlantView()
@@ -45,78 +45,24 @@ namespace Growthstories.UI.WindowsPhone
                 Height = Double.NaN;
             }
 
-            if (ViewModel != null)
-            {
-                OnViewModelChanged(ViewModel);
-            }
         }
 
 
-        IDisposable PinCommandSubscription = Disposable.Empty;
-        IDisposable ShareCommandSubscription = Disposable.Empty;
-        IDisposable DeleteCommandSubscription = Disposable.Empty;
-        IDisposable DeleteRequestedCommandSubscription = Disposable.Empty;
 
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
 
-            PinCommandSubscription.Dispose();
-            ViewModel.HasTile = GSTileUtils.GetShellTile(vm) != null;
 
-            PinCommandSubscription = vm.PinCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
-            {
-                if (!vm.HasTile)
-                {
-                    CreateOrUpdateTile();
-                }
-                else
-                {
-                    vm.App.DeleteTileCommand.Execute(vm);
-                }
-            });
 
-            ShareCommandSubscription.Dispose();
-            ShareCommandSubscription = vm.ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
-            {
-                Share(vm);
-            });
+            //Margin = new Thickness(0, 0, 0, vm.IsOwn ? 72 : 0);
 
-            if (vm.UserId == vm.App.User.Id)
-            {
-                Margin = new Thickness(0, 0, 0, 72);
-            }
-            else
-            {
-                Margin = new Thickness(0, 0, 0, 0);
-            }
 
-            DeleteCommandSubscription.Dispose();
-            DeleteCommandSubscription = vm.DeleteCommand.Subscribe(_ =>
-            {
-                ViewModel.App.Router.NavigateBack.Execute(null);
-            });
 
         }
 
 
-        private void Share(IPlantViewModel vm)
-        {
-            ShareLinkTask shareLinkTask = new ShareLinkTask();
 
-            shareLinkTask.Title = "Story of " + vm.Name;
-            shareLinkTask.LinkUri = new Uri(
-                "http://www.growthstories.com/plant/" + vm.UserId + "/" + vm.Id, UriKind.Absolute);
-            shareLinkTask.Message = "Check out how my plant " + vm.Name + " is doing!";
-
-            shareLinkTask.Show();
-        }
-
-
-        private void CreateOrUpdateTile()
-        {
-            GSMainProgramTileUtils.CreateOrUpdateTile(ViewModel);
-        }
 
 
         private static HashSet<object> LoadedImages = new HashSet<object>();

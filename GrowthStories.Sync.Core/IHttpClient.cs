@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Growthstories.Core;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
@@ -11,6 +8,8 @@ namespace Growthstories.Sync
     {
 
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
+
+        IAuthToken AuthToken { get; set; }
         //Task<string> SendAndGetBodyAsync(HttpRequestMessage request);
     }
 

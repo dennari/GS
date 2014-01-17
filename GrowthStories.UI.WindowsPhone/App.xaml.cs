@@ -1,19 +1,13 @@
-﻿using System;
+﻿using Growthstories.UI.WindowsPhone.Resources;
+using Microsoft.Phone.Shell;
+using Ninject;
+using ReactiveUI;
+using ReactiveUI.Mobile;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
-using Microsoft.Phone.Shell;
-using Growthstories.UI.WindowsPhone.Resources;
-using ReactiveUI.Mobile;
-using BugSense;
-using BugSense.Core.Model;
-using ReactiveUI;
-using Growthstories.UI.WindowsPhone.ViewModels;
-using Growthstories.UI.Services;
-using Growthstories.Domain;
-using System.Windows.Media;
-using GrowthStories.UI.WindowsPhone.BA;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -59,47 +53,25 @@ namespace Growthstories.UI.WindowsPhone
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
 
-            //RxApp.MutableResolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));
-
-            //var host = RxApp.DependencyResolver.GetService<ISuspensionHost>();
-            //host.SetupDefaultSuspendResume();
-
-            // BugSense
-            // modified when updating to bugsense library 3.6 -- JOJ 30.12.2013
-            BugSenseHandler.Instance.InitAndStartSession(new ExceptionManager(Current), "e73c0669");
-            BugSenseHandler.Instance.HandleWhileDebugging = true;
-
-            var resolver = RxApp.MutableResolver;
-            //resolver.Register(() => new AppViewModel(), typeof(IApplicationRootState));
-            resolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(resolver.GetService<ISuspensionDriver>());
-            resolver.RegisterLazySingleton(() => new GSViewLocator(), typeof(GSViewLocator));
-            resolver.RegisterLazySingleton(() => resolver.GetService<GSViewLocator>(), typeof(IViewLocator));
-
-            GSRemoteLog.Host = "dennari-macbook.lan";
-            GSRemoteLog.Port = 28777;
-
-            resolver.Register(() => new GSRemoteLog(), typeof(ILogger));
-
-            this.ViewModel = new AppViewModel();
-            resolver.RegisterConstant(ViewModel, typeof(IApplicationRootState));
-
-            ApplyGSAccentColor();
-
-            // register background agent
-
-            BAUtils.RegisterScheduledTask();
 
 
+            //////////////////////////////////
+            //// INITIAL STARTING POINT //////
+            //////////////////////////////////
 
-            UnhandledException += (o, e) =>
-            {
-                // try to log the Exception
-                try
-                {
-                    this.Log().DebugExceptionExtended("Unhandled", e.ExceptionObject);
-                }
-                catch { }
-            };
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var kernel = new StandardKernel(Bootstrap.GetModule(this));
+            var kernelElapsed = stopwatch.Elapsed;
+            this.Log().Info("Kernel creation: {0}", kernelElapsed.Milliseconds);
+            stopwatch.Restart();
+            this.ViewModel = kernel.Get<IApplicationRootState>();
+            var appVmElapsed = stopwatch.Elapsed;
+            this.Log().Info("ApplicationViewModel creation: {0}", appVmElapsed.Milliseconds);
+
+            stopwatch.Stop();
+
+
 
         }
 
@@ -109,23 +81,7 @@ namespace Growthstories.UI.WindowsPhone
         // Described in:
         //    http://stackoverflow.com/questions/14537071/windows-phone-8-change-accent-and-theme-colour
         //
-        private void ApplyGSAccentColor()
-        {
-            try
-            {
-                Resources.Remove("PhoneAccentColor");
-                Resources.Add("PhoneAccentColor", Application.Current.Resources["GSAccentColor"]);
 
-                var ab = (SolidColorBrush)Resources["PhoneAccentBrush"];
-                var ac = (Color)Resources["PhoneAccentColor"];
-                ab.Color = ac;
-
-            }
-            catch
-            {
-                Debugger.Break();
-            }
-        }
 
         // Code to execute when the application is launching (eg, from Start)
         // This code will not execute when the application is reactivated

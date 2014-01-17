@@ -1,10 +1,5 @@
-﻿using Growthstories.UI.ViewModel;
-using ReactiveUI;
+﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Growthstories.UI.Services
 {
@@ -13,7 +8,11 @@ namespace Growthstories.UI.Services
 
         public Func<object, Type> ViewModelToViewModelInterfaceFunc { get; set; }
 
-
+        private static GSViewLocator _Instance;
+        public static GSViewLocator Instance
+        {
+            get { return _Instance ?? (_Instance = new GSViewLocator()); }
+        }
         public GSViewLocator()
         {
 

@@ -1,16 +1,14 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using Growthstories.UI.Services;
 using ReactiveUI;
-using System.Reactive.Linq;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 
 
 namespace Growthstories.UI.ViewModel
@@ -21,27 +19,26 @@ namespace Growthstories.UI.ViewModel
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
-
+        #region COMMANDS
         public IObservable<IPlantActionViewModel> PlantActionStream { get; protected set; }
 
         public IReactiveCommand ShareCommand { get; protected set; }
         public IReactiveCommand TryShareCommand { get; protected set; }
         public IReactiveCommand WateringCommand { get; protected set; }
+        public IObservable<IPlantViewModel> WateringObservable { get; protected set; }
+
         public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
-        public IReactiveCommand DeleteRequestedCommand { get; protected set; }
+        public IObservable<IPlantViewModel> DeleteObservable { get; protected set; }
+
 
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
         public IReactiveCommand ResetAnimationsCommand { get; protected set; }
 
-        //public IReactiveCommand FlickCommand { get; protected set; }
-        //public IReactiveCommand PlantActionDetailsCommand { get; protected set; }
-        //public IReactiveCommand PlantActionPivotCommand { get; protected set; }
-        //public IReactiveCommand ActionTapped { get; protected set; }
-        public IPlantActionViewModel SelectedItem { get; set; }
-        public PlantActionType? Filter { get; set; }
+        #endregion
+
 
 
         private Guid _Id;
@@ -74,7 +71,6 @@ namespace Growthstories.UI.ViewModel
 
 
         public PlantState State { get; protected set; }
-        //public IGardenViewModel Garden { get; protected set; }
 
 
 
@@ -91,7 +87,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        
+
         private bool _IsWateringScheduleEnabled;
         public bool IsWateringScheduleEnabled
         {
@@ -103,7 +99,7 @@ namespace Growthstories.UI.ViewModel
             {
                 this.RaiseAndSetIfChanged(ref _IsWateringScheduleEnabled, value);
                 this.raisePropertyChanged("ShowWateringScheduler");
-                this.ShowTileNotification = IsWateringScheduleEnabled 
+                this.ShowTileNotification = IsWateringScheduleEnabled
                     && WateringScheduler != null && WateringScheduler.MissedLateAndOwn;
             }
         }
@@ -124,90 +120,97 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public bool OwnPlant { get; protected set; }
 
-        public PlantViewModel()
-            : base(null)
+
+        private bool _HasWriteAccess;
+        public bool HasWriteAccess
         {
-
+            get
+            {
+                return _HasWriteAccess;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _HasWriteAccess, value);
+            }
         }
- 
 
-        public PlantViewModel(PlantState state, IGSAppViewModel app)
+
+
+        public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
         {
 
+
+            if (stateObservable == null)
+                throw new ArgumentNullException("StateObservable cannot be null");
+
+            stateObservable.Take(1).Subscribe(x => this.Init(x));
+
             this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
+            this.WateringScheduler = new PlantScheduler(WateringSchedule, OwnPlant) { Icon = IconType.WATER };
+            var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
+            this.WateringCommand = emptyWatering.AddCommand;
+            this.WateringObservable = emptyWatering.AsyncAddObservable.Select(_ => this);
+
+
+
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
             ResetAnimationsCommand = new ReactiveCommand();
-            var afterShareSyncCommand = new ReactiveCommand();
-            var syncResults = afterShareSyncCommand.RegisterAsyncTask(async (_) => await App.SyncAll());
-            syncResults.Subscribe(x =>
-            {
-                if (x.Item1 == AllSyncResult.AllSynced)
-                    this.ShareCommand.Execute(null);
-            });
 
-            this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+            this.TryShareCommand = new ReactiveCommand();
+            TryShareCommand.Where(_ => App.EnsureDataConnection()).Subscribe(_ =>
             {
-                if (!App.HasDataConnection)
+
+
+                if (App.User.IsRegistered)
                 {
-                     PopupViewModel pvm = new PopupViewModel()
-                    {
-                        Caption = "Data connection required",
-                        Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
-                        IsLeftButtonEnabled = true,
-                        LeftButtonContent = "OK"
-                    };
-                    App.ShowPopup.Execute(pvm);
-                    return;
-                }
-
-                if (App.User.IsRegistered) {
                     this.ShareCommand.Execute(null);
-                
-                } else {
+
+                }
+                else
+                {
                     var svm = new SignInRegisterViewModel(App)
                     {
-                        SignInMode = false,
-                        NavigateBack = true
+                        SignInMode = false
                     };
-                    svm.Response.Subscribe(x =>
-                    {
-                        if ((!x.Item1 && x.Item2 == RegisterResponse.success) || (x.Item1 && x.Item3 == SignInResponse.success))
+                    svm.Response
+                        .Where(x => SignInRegisterViewModel.IsSuccess(x))
+                        .Take(1)
+                        .Subscribe(x =>
                         {
-                            // sync
-                            afterShareSyncCommand.Execute(null);
-                        }
-                    });
+                            this.NavigateBack();
+                            this.ShareCommand.Execute(null);
+                        });
+
                     this.Navigate(svm);
                 }
             });
 
+            var canShare = Observable.CombineLatest(
+                     this.WhenAnyValue(x => x.IsShared),
+                     App.WhenAnyValue(x => x.IsRegistered),
+                     (a, b) => a && b);
+            this.ShareCommand = new ReactiveCommand(canShare);
 
-            if (app != null)
-            {
-                var canShare = Observable.CombineLatest(
-                    this.WhenAnyValue(x => x.IsShared),
-                    App.WhenAnyValue(x => x.IsRegistered),
-                    (a, b) => a && b);
-                this.ShareCommand = new ReactiveCommand(canShare);
+            Observable.CombineLatest(
+                this.WhenAnyValue(x => x.UserId),
+                App.WhenAnyValue(x => x.User),
+                (a, b) => Tuple.Create(a, b)
+              ).Subscribe(x =>
+              {
+                  this.HasWriteAccess = x.Item2 != null && x.Item1 == x.Item2.Id;
+              });
 
-                Observable.CombineLatest(
-                    this.WhenAnyValue(x => x.UserId),
-                    App.WhenAnyValue(x => x.User),
-                    (a, b) => Tuple.Create(a, b)
-                  ).Subscribe(x =>
-                  {
-                      this.HasWriteAccess = x.Item2 != null && x.Item1 == x.Item2.Id;
-                  });
-            }
 
-            this.WateringCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
-            {
-                var vm = CreateEmptyActionVM(PlantActionType.WATERED);
-                vm.AddCommand.Execute(null);
-            });
+
+
+            this.DeleteCommand = new ReactiveCommand();
+            var obs = this.DeleteCommand.RegisterAsyncTask(_ => SendCommand(new DeleteAggregate(this.Id, "plant"))).Publish();
+            this.DeleteObservable = obs.Select(_ => this);
+            obs.Connect();
 
             this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
             {
@@ -221,117 +224,15 @@ namespace Growthstories.UI.ViewModel
                 //vm.AddCommand.Execute(null);
             });
 
-            this.DeleteRequestedCommand = new ReactiveCommand();
-            this.DeleteCommand = new ReactiveCommand();
-
-            // For some reason delete did not work always when
-            // the deletion was run in an async task, it works
-            // however inside subscribe.
-            //
-            // It is also probably a idea to have it inside subscribe,
-            // as we may exit the app right after the delete.
-            //
-            // This happens when we have reached the plant from a 
-            // secondary tile.
-            //
-            //   -- JOJ 11.1.2014
-            this.DeleteCommand
-            .Subscribe(_ =>
-            {
-                this.App.DeleteTileCommand.Execute(this);
-                App.HandleCommand(new DeleteAggregate(this.Id, "plant"));
-            });
-            //this.DeleteCommand
-            //    .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.Id, "plant")))
-            //    .Publish()
-            //    .Connect();
-            
 
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
 
-            if (state != null)
-            {
-
-                this.State = state;
-                this.Id = state.Id;
-                this.UserId = state.UserId;
-                this.IsShared = state.Public;
-                this.IsFertilizingScheduleEnabled = state.IsFertilizingScheduleEnabled;
-                this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
-
-                this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
-                    .StartWith(state.Name)
-                    .Subscribe(x =>
-                    {
-                        this.Name = x;
-                    });
-
-                this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
-                    .StartWith(state.Species)
-                    .Subscribe(x => this.Species = x);
-
-                this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
-                    .StartWith(state.Profilepicture)
-                    .Subscribe(x => this.Photo = x);
-
-                if (state.Profilepicture == null && state.ProfilepictureActionId.HasValue)
-                {
-                    var photoId = state.ProfilepictureActionId.Value;
-                    this.Actions.ItemsAdded.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == photoId).Take(1).Subscribe(x =>
-                    {
-                        this.Photo = x.Photo;
-                    });
-                }
 
 
-                this.ListenTo<MarkedPlantPublic>(this.State.Id)
-                    .Subscribe(x => this.IsShared = true);
-
-                this.ListenTo<MarkedPlantPrivate>(this.State.Id)
-                    .Subscribe(x => this.IsShared = false);
-
-                this.ListenTo<ScheduleToggled>(this.State.Id)
-                    .Subscribe(x =>
-                    {
-                        if (x.Type == ScheduleType.WATERING)
-                            this.IsWateringScheduleEnabled = x.IsEnabled;
-                        else
-                            this.IsFertilizingScheduleEnabled = x.IsEnabled;
-
-                    });
-
-                this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
-                    .StartWith(state.Tags)
-                    .Subscribe(x => this.Tags = new ReactiveList<string>(x));
-
-                this.Photo = state.Profilepicture;
-
-                this.App.FutureSchedules(state.Id)
-                .Subscribe(x =>
-                {
-                    if (x.Type == ScheduleType.WATERING)
-                        this.WateringSchedule = x;
-                    else
-                        this.FertilizingSchedule = x;
-                });
-
-            }
-
-            // we need these right away for tile notifications (specially with the WP start screen tiles)
-            this.WateringScheduler = new PlantScheduler(WateringSchedule, OwnPlant) { Icon = IconType.WATER };
-            if (state != null)
-            {
-                var latest = App.UIPersistence.GetLatestWatering(state.Id);
-                if (latest != null)
-                {
-                    this.WateringScheduler.LastActionTime = latest.Created;
-                }
-            }
-            
             var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
-            
+
             actionsAccessed.SelectMany(_ =>
             {
 
@@ -371,9 +272,9 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
-            .Subscribe(x => 
+            .Subscribe(x =>
             {
-                this.MissedCount = (int?)x;   
+                this.MissedCount = (int?)x;
             });
 
             this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
@@ -381,72 +282,101 @@ namespace Growthstories.UI.ViewModel
                 AppBarMenuItems = __AppBarMenuItems;
             });
 
-            DeleteRequestedCommand
-            .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            this.WhenAnyValue(x => x.IsWateringScheduleEnabled, x => x.WateringScheduler, (x, y) => x && y != null)
+                .ToProperty(this, x => x.ShowWateringScheduler, out _ShowWateringScheduler);
+
+            this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled, x => x.FertilizingScheduler, (x, y) => x && y != null)
+                .ToProperty(this, x => x.ShowFertilizingScheduler, out _ShowFertilizingScheduler);
+
+
+
+
+        }
+
+
+
+        private void Init(Tuple<PlantState, ScheduleState, ScheduleState> stateTuple)
+        {
+
+            var state = stateTuple.Item1;
+
+            this.State = state;
+            this.Id = state.Id;
+            this.UserId = state.UserId;
+            this.IsShared = state.Public;
+            this.WateringSchedule = stateTuple.Item2 != null ? new ScheduleViewModel(stateTuple.Item2, ScheduleType.WATERING, App) : null;
+            this.FertilizingSchedule = stateTuple.Item3 != null ? new ScheduleViewModel(stateTuple.Item3, ScheduleType.FERTILIZING, App) : null;
+            this.IsFertilizingScheduleEnabled = state.IsFertilizingScheduleEnabled;
+            this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
+
+
+            this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
+                .StartWith(state.Name)
+                .Subscribe(x =>
+                {
+                    this.Name = x;
+                });
+
+            this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
+                .StartWith(state.Species)
+                .Subscribe(x => this.Species = x);
+
+            this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
+                .StartWith(state.Profilepicture)
+                .Subscribe(x => this.Photo = x);
+
+            if (state.Profilepicture == null && state.ProfilepictureActionId.HasValue)
             {
-                ShowDeleteConfirmation(this);
+                var photoId = state.ProfilepictureActionId.Value;
+                this.Actions.ItemsAdded.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == photoId).Take(1).Subscribe(x =>
+                {
+                    this.Photo = x.Photo;
+                });
+            }
+
+
+            this.ListenTo<MarkedPlantPublic>(this.State.Id)
+                .Subscribe(x => this.IsShared = true);
+
+            this.ListenTo<MarkedPlantPrivate>(this.State.Id)
+                .Subscribe(x => this.IsShared = false);
+
+            this.ListenTo<ScheduleToggled>(this.State.Id)
+                .Subscribe(x =>
+                {
+                    if (x.Type == ScheduleType.WATERING)
+                        this.IsWateringScheduleEnabled = x.IsEnabled;
+                    else
+                        this.IsFertilizingScheduleEnabled = x.IsEnabled;
+
+                });
+
+            this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
+                .StartWith(state.Tags)
+                .Subscribe(x => this.Tags = new ReactiveList<string>(x));
+
+            this.Photo = state.Profilepicture;
+
+            this.App.FutureSchedules(state.Id)
+            .Subscribe(x =>
+            {
+                if (x.Type == ScheduleType.WATERING)
+                    this.WateringSchedule = x;
+                else
+                    this.FertilizingSchedule = x;
             });
 
+
+            // we need these right away for tile notifications (specially with the WP start screen tiles)
+            //if (state != null)
+            //{
+            //    var latest = App.UIPersistence.GetLatestWatering(state.Id);
+            //    if (latest != null)
+            //    {
+            //        this.WateringScheduler.LastActionTime = latest.Created;
+            //    }
+            //}
         }
-
-
-
-
-        protected bool _OwnPlant;
-        public bool OwnPlant
-        {
-            get
-            {
-                return _OwnPlant;
-            }
-        }
-
-        private bool _HasWriteAccess;
-        public bool HasWriteAccess
-        {
-            get
-            {
-                return _HasWriteAccess;
-            }
-            protected set
-            {
-                this.RaiseAndSetIfChanged(ref _HasWriteAccess, value);
-            }
-        }
-
-
-
-        public PlantViewModel(PlantState state, IScheduleViewModel wateringSchedule, IScheduleViewModel fertilizingSchedule, IGSAppViewModel app)
-            : this(state, app)
-        {
-            //this.WateringSchedule = wateringSchedule;
-            //this.FertilizingSchedule = fertilizingSchedule;
-            if (state != null)
-                _OwnPlant = app.User.Id == state.UserId;
-
-            if (wateringSchedule != null)
-            {
-
-                this.WateringSchedule = wateringSchedule;
-
-
-                //this.WateringScheduler = new PlantScheduler(wateringSchedule)
-                //{
-                //    IconType = IconType.WATER
-                //};
-            }
-            if (fertilizingSchedule != null)
-            {
-                //using (this.SuppressChangeNotifications())
-                //{
-                this.FertilizingSchedule = fertilizingSchedule;
-                //}
-
-                //this.FertilizingScheduler = new PlantScheduler(fertilizingSchedule);
-            }
-
-        }
-
 
 
         protected IScheduleViewModel _WateringSchedule;
@@ -503,10 +433,9 @@ namespace Growthstories.UI.ViewModel
             {
                 return _WateringScheduler;
             }
-            private set 
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _WateringScheduler, value);
-                this.raisePropertyChanged("ShowWateringScheduler");
             }
         }
 
@@ -517,29 +446,31 @@ namespace Growthstories.UI.ViewModel
             {
                 return _FertilizingScheduler;
             }
-            private set 
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _FertilizingScheduler, value);
-                this.raisePropertyChanged("ShowFertilizingScheduler");
             }
         }
 
 
+        private ObservableAsPropertyHelper<bool> _ShowFertilizingScheduler;
         public bool ShowFertilizingScheduler
         {
             get
             {
-                return FertilizingScheduler != null && IsFertilizingScheduleEnabled;
+                return _ShowFertilizingScheduler.Value;
             }
         }
 
+        private ObservableAsPropertyHelper<bool> _ShowWateringScheduler;
         public bool ShowWateringScheduler
         {
-            get 
+            get
             {
-                return WateringScheduler != null && IsWateringScheduleEnabled;
+                return _ShowWateringScheduler.Value;
             }
         }
+
 
         public string TodayWeekDay { get { return SharedViewHelpers.FormatWeekDay(DateTimeOffset.Now); } }
         public string TodayDate { get { return DateTimeOffset.Now.ToString("d"); } }
@@ -565,7 +496,8 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return (int) (new DateTime().Ticks % 10000);
+                // what's this? -Ville
+                return (int)(new DateTime().Ticks % 10000);
                 //return _MissedCount;
             }
 
@@ -698,9 +630,7 @@ namespace Growthstories.UI.ViewModel
                                 photo.PhotoTimelineTap
                                     .Subscribe(_ =>
                                     {
-                                        this.Filter = PlantActionType.PHOTOGRAPHED;
-                                        this.SelectedItem = photo;
-                                        this.Navigate(this);
+                                        this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
                                     });
                             }
 
@@ -819,17 +749,30 @@ namespace Growthstories.UI.ViewModel
                         },                                              
                                         
                     };
-                
-               
-                    ret.Add
-                    (
-                        new MenuItemViewModel(null)
+
+
+                ret.Add
+                (
+                    new MenuItemViewModel(null)
+                    {
+                        Text = "delete",
+                        Command = Observable.Return(true).ToCommandWithSubscription(_ =>
                         {
-                            Text = "delete",
-                            Command = DeleteRequestedCommand
-                        }
-                    );
-                
+                            var popup = DeleteConfirmation();
+                            popup.DismissedObservable
+                                .Where(x => x == PopupResult.LeftButton)
+                                .Take(1)
+                                .Subscribe(__ =>
+                                {
+                                    this.DeleteCommand.Execute(null);
+                                    this.NavigateBack();
+
+                                });
+                            App.ShowPopup.Execute(popup);
+                        })
+                    }
+                );
+
 
                 ret.Add
                 (
@@ -889,40 +832,128 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public static void ShowDeleteConfirmation(IPlantViewModel pvm)
+        public IPopupViewModel DeleteConfirmation()
         {
-            var dc = new ReactiveCommand();
-
-            dc.Subscribe(x =>
-            {
-                switch ((PopupResult)x)
-                {
-                    case PopupResult.LeftButton:
-                        pvm.DeleteCommand.Execute(null);
-                        break;
-
-                    default:
-                        break;
-                }
-            });
-
-            var popupvm = new PopupViewModel()
+            return new PopupViewModel()
             {
                 Caption = "Confirm delete",
                 Message = "Are you sure you wish to delete the plant "
-                        + pvm.Name.ToUpper()
+                        + Name.ToUpper()
                         + "? This can't be undone.",
 
                 IsLeftButtonEnabled = true,
                 IsRightButtonEnabled = true,
                 LeftButtonContent = "Yes",
-                RightButtonContent = "Cancel",
-                DismissedCommand = dc
+                RightButtonContent = "Cancel"
             };
-
-            pvm.App.ShowPopup.Execute(popupvm);
         }
 
+
+
+    }
+
+
+    public class EmptyPlantViewModel : IPlantViewModel
+    {
+
+        private static EmptyPlantViewModel _Instance;
+
+        public static EmptyPlantViewModel Instance
+        {
+            get
+            {
+                return _Instance ?? (_Instance = new EmptyPlantViewModel());
+            }
+        }
+
+        public Guid Id { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public string Name { get; set; }
+
+        public string Species { get; set; }
+
+        public IReactiveCommand PinCommand { get; set; }
+
+        public IReactiveCommand ShareCommand { get; set; }
+
+        public IReactiveCommand ScrollCommand { get; set; }
+
+        public IReactiveCommand WateringCommand { get; set; }
+
+        public IObservable<IPlantViewModel> WateringObservable { get; set; }
+
+        public IReactiveCommand DeleteCommand { get; set; }
+
+        public IReactiveCommand NavigateToEmptyActionCommand { get; set; }
+
+        public IReactiveCommand ShowActionList { get; set; }
+
+        public IReactiveCommand ResetAnimationsCommand { get; set; }
+
+        public IReactiveList<string> Tags { get; set; }
+
+        public Photo Photo { get; set; }
+
+        public int? MissedCount { get; set; }
+
+        public bool HasTile { get; set; }
+
+        public bool IsShared { get; set; }
+
+        public bool IsFertilizingScheduleEnabled { get; set; }
+
+        public bool IsWateringScheduleEnabled { get; set; }
+
+        public IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; set; }
+
+        public IPlantActionViewModel SelectedItem { get; set; }
+
+        public IScheduleViewModel WateringSchedule { get; set; }
+
+        public IScheduleViewModel FertilizingSchedule { get; set; }
+
+        public IYAxisShitViewModel Chart { get; set; }
+
+        public PlantScheduler WateringScheduler { get; set; }
+
+        public PlantScheduler FertilizingScheduler { get; set; }
+
+        public string TodayWeekDay { get; set; }
+
+        public string TodayDate { get; set; }
+
+        public int PlantIndex { get; set; }
+
+        public string UrlPath { get; set; }
+
+        public string UrlPathSegment { get; set; }
+
+        public IScreen HostScreen { get; set; }
+
+        public IObservable<IObservedChange<object, object>> Changing { get; set; }
+
+        public IObservable<IObservedChange<object, object>> Changed { get; set; }
+
+        public IDisposable SuppressChangeNotifications()
+        {
+            return Disposable.Empty;
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        public event PropertyChangingEventHandler PropertyChanging;
+
+        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons { get; set; }
+
+        public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems { get; set; }
+
+        public ApplicationBarMode AppBarMode { get; set; }
+
+        public bool AppBarIsVisible { get; set; }
+
+        public SupportedPageOrientation SupportedOrientations { get; set; }
     }
 
 

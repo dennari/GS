@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ReactiveUI;
-using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
-
 
 
     public class YAxisShitViewModel : RoutableViewModel, IYAxisShitViewModel
@@ -27,7 +23,7 @@ namespace Growthstories.UI.ViewModel
             this.Minimum = double.MinValue;
             this.Maximum = double.MaxValue;
 
-            this.AppBarButtons = this.EnabledSeries.CreateDerivedCollection(x =>
+            var enabledButtons = this.EnabledSeries.CreateDerivedCollection(x =>
             {
 
                 return new ButtonViewModel()
@@ -39,6 +35,7 @@ namespace Growthstories.UI.ViewModel
 
             });
 
+            var allDisabledButtons = new ReactiveList<IButtonViewModel>();
 
             var allActions = PlantVM.Actions;
             //var allActions = CreateFakeData();
@@ -56,6 +53,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     if (y >= 2)
                     {
+
                         var tuple = new Tuple<MeasurementType, IReadOnlyReactiveList<IPlantMeasureViewModel>>(x.Key, series);
                         var match = this.EnabledSeries.FirstOrDefault(z => z.Item1 == x.Key);
                         if (match == null)
@@ -76,7 +74,13 @@ namespace Growthstories.UI.ViewModel
                     }
                 });
 
-
+                allDisabledButtons.Add(new ButtonViewModel()
+                {
+                    IconType = x.Value.Icon,
+                    Command = new ReactiveCommand(Observable.Return(false)),
+                    CommandParameter = x.Key,
+                    IsEnabled = false
+                });
 
 
             }
@@ -90,6 +94,14 @@ namespace Growthstories.UI.ViewModel
                         SetSeries(z, match.Item2);
                 });
 
+
+            this.EnabledSeries.CountChanged.StartWith(this.EnabledSeries.Count).Subscribe(x =>
+            {
+                if (x > 0)
+                    this.AppBarButtons = enabledButtons;
+                else
+                    this.AppBarButtons = allDisabledButtons;
+            });
         }
 
         protected virtual void SetSeries(MeasurementType type, IReadOnlyReactiveList<IPlantMeasureViewModel> series)

@@ -34,10 +34,8 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"          
 			x:Name="Actions" 
-			ItemsSource="{Binding Actions, 
-                Converter={StaticResource PlantActionFilter}, 
-                ConverterParameter=Photo}"
-            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+			ItemsSource="{Binding Photos}"
+            SelectedItem="{Binding Selected, Mode=TwoWay}"
 			Title=""
             >          
 

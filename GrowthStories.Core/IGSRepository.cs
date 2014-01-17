@@ -1,9 +1,4 @@
-﻿using CommonDomain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Growthstories.Core
 {
@@ -15,6 +10,8 @@ namespace Growthstories.Core
         void Save(IGSAggregate aggregate);
         void Save(IGSAggregate[] aggregates);
         int GetGlobalCommitSequence();
+
+        void ClearCaches();
 
     }
 

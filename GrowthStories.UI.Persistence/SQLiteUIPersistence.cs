@@ -1,6 +1,4 @@
-﻿using EventStore.Logging;
-using EventStore.Serialization;
-using Growthstories.Domain.Messaging;
+﻿using EventStore.Serialization;
 using Growthstories.Domain.Entities;
 using SQLite;
 using System;
@@ -18,11 +16,8 @@ using Sqlite3 = Community.CsharpSqlite.Sqlite3;
 using Sqlite3DatabaseHandle = Community.CsharpSqlite.Sqlite3.sqlite3;
 using Sqlite3Statement = Community.CsharpSqlite.Sqlite3.Vdbe;
 #elif USE_WP8_NATIVE_SQLITE
-using Sqlite3 = Sqlite.Sqlite3;
-using Sqlite3DatabaseHandle = Sqlite.Database;
 using Sqlite3Statement = Sqlite.Statement;
 #else
-using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
 
@@ -64,7 +59,7 @@ namespace Growthstories.UI.Persistence
             if (!disposing || this.disposed)
                 return;
 
-            this.Log().Debug("Shutting down UI persistence");
+            this.GSLog().Debug("Shutting down UI persistence");
             this.disposed = true;
         }
 
@@ -73,7 +68,7 @@ namespace Growthstories.UI.Persistence
             if (Interlocked.Increment(ref this.initialized) > 1)
                 return;
 
-            this.Log().Debug("Initializing UI persistence");
+            this.GSLog().Debug("Initializing UI persistence");
 
             foreach (var st in SQL.InitializeStorage.Split(';'))
             {
@@ -113,7 +108,7 @@ namespace Growthstories.UI.Persistence
 
         public virtual void Purge()
         {
-            this.Log().Debug("Purging UI Persistence");
+            this.GSLog().Debug("Purging UI Persistence");
             foreach (var st in SQL.PurgeStorage.Split(';'))
             {
                 if (st.Length > 3 && st != String.Empty)
@@ -130,13 +125,13 @@ namespace Growthstories.UI.Persistence
             try
             {
                 // why is the dynamic keyword there twice ?
-                this.Log().Info("persisting " + aggregate.State.GetType().ToString());
+                this.GSLog().Info("persisting " + aggregate.State.GetType().ToString());
                 ((dynamic)this).Persist(((dynamic)aggregate).State);
-                this.Log().Info("persisted " + aggregate.State.GetType().ToString());
+                this.GSLog().Info("persisted " + aggregate.State.GetType().ToString());
             }
             catch (RuntimeBinderException e)
             {
-                this.Log().Exception(e, "RuntimeBinderException in SQLiteUIPersistence when persisting {0}", aggregate.GetType().Name);
+                this.GSLog().Exception(e, "RuntimeBinderException in SQLiteUIPersistence when persisting {0}", aggregate.GetType().Name);
 
                 if (Debugger.IsAttached)
                     Debugger.Break();
@@ -255,67 +250,29 @@ namespace Growthstories.UI.Persistence
         }
 
 
-        public PlantActionState GetLatestWatering(Guid? PlantId)
+        public IEnumerable<PlantActionState> GetActions(
+            Guid? PlantActionId = null,
+            Guid? PlantId = null,
+            Guid? UserId = null,
+            PlantActionType? type = null,
+            int? limit = null,
+            bool? isOrderAsc = null
+            )
         {
-            var filters = new Dictionary<string, Guid?>(){
-                    {"PlantId",PlantId}
-                }.Where(x => x.Value.HasValue).ToArray();
 
-            if (filters.Length == 0)
-                throw new InvalidOperationException();
-
-            var list = this.ExecuteQuery(PlantId ?? default(Guid), query =>
-            {
-                foreach (var x in filters)
-                    query.AddParameter(@"@" + x.Key, x.Value);
-
-                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0}) ORDER BY Created DESC LIMIT 1;",
-                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
-
-                var res = query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
-                return res;
-            });
-
-            if (list.Count() == 0)
-            {
-                return null;
-            }
-
-            return list.First();
-        }
-
-
-        public IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null)
-        {
 
             var filters = new Dictionary<string, object>(){
-                    {"PlantId",PlantId},
-                    {"Type",(int)PlantActionType.PHOTOGRAPHED}
-            }.ToArray();
-
-            if (filters.Length == 0)
-                throw new InvalidOperationException();
-            return this.ExecuteQuery(PlantId ?? default(Guid), query =>
-            {
-                foreach (var x in filters)
-                    query.AddParameter(@"@" + x.Key, x.Value);
-
-                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0});",
-                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
-
-                return query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
-            });
-        }
-
-
-        public IEnumerable<PlantActionState> GetActions(Guid? PlantActionId = null, Guid? PlantId = null, Guid? UserId = null)
-        {
-
-            var filters = new Dictionary<string, Guid?>(){
                     {"PlantActionId",PlantActionId},
                     {"PlantId",PlantId},
-                    {"UserId",UserId}
-                }.Where(x => x.Value.HasValue).ToArray();
+                    {"UserId",UserId},
+                    {"Type",type}
+                }
+                .Select(x =>
+                {
+                    return new { Key = x.Key, Value = x.Value != null ? x.Value.ToString() : null };
+                })
+                .Where(x => x.Value != null)
+                .ToArray();
 
             if (filters.Length == 0)
                 throw new InvalidOperationException();
@@ -324,9 +281,11 @@ namespace Growthstories.UI.Persistence
                 foreach (var x in filters)
                     query.AddParameter(@"@" + x.Key, x.Value);
 
-                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0});",
-                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
-
+                var queryText = string.Format(@"SELECT * FROM Actions WHERE ({0}) ORDER BY Created {2} LIMIT {1};",
+                    string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))),
+                    Math.Min(limit ?? 100, 100),
+                    isOrderAsc.HasValue && !isOrderAsc.Value ? "DESC" : "");
+                this.GSLog().Info("GetActions: {0}", queryText);
                 return query.ExecuteQuery<PlantActionState>(queryText, (stmt) => Deserialize<PlantActionState>(stmt, (int)ActionIndex.Payload));
             });
         }
@@ -341,7 +300,7 @@ namespace Growthstories.UI.Persistence
                 }.Where(x => x.Value.HasValue).ToArray();
 
             if (filters.Length == 0)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("GetPlants: no filters");
             return this.ExecuteQuery(PlantId ?? default(Guid), query =>
             {
 
@@ -352,6 +311,7 @@ namespace Growthstories.UI.Persistence
                     LEFT JOIN Schedules SW ON P.WateringScheduleId = SW.ScheduleId 
                     LEFT JOIN Schedules SF ON P.FertilizingScheduleId = SF.ScheduleId 
                     WHERE ({0}) ;", string.Join(" AND ", filters.Select(x => string.Format(@"(P.{0} = @{0})", x.Key))));
+                this.GSLog().Info("GetPlants: {0}", queryText);
 
                 return query.ExecuteQuery(queryText, (stmt) =>
                 {
@@ -389,6 +349,7 @@ namespace Growthstories.UI.Persistence
                 queryText += ";";
 
 
+                this.GSLog().Info("GetUsers: {0}", queryText);
 
                 return query.ExecuteQuery<UserState>(queryText, (stmt) =>
                 {
@@ -415,16 +376,26 @@ namespace Growthstories.UI.Persistence
         protected virtual IEnumerable<T> ExecuteQuery<T>(Guid streamId, Func<SQLiteCommand, IEnumerable<T>> query)
         {
             this.ThrowWhenDisposed();
+            SQLiteConnection connection = null;
+            SQLiteCommand command = null;
+            IEnumerable<T> results = null;
 
             try
             {
-                return query(ConnectionFac.GetConnection().CreateCommand(""));
+                connection = ConnectionFac.GetConnection();
+                command = connection.CreateCommand("");
+                this.GSLog().Verbose("UI Persistence: executing query");
+                results = query(command);
+                this.GSLog().Verbose("UI Persistence: executed query");
+                return results;
+
             }
             catch (Exception e)
             {
 
-                this.Log().Exception(e, "ExecuteQuery");
-
+                this.GSLog().Exception(e, "ExecuteQuery");
+                if (Debugger.IsAttached)
+                    Debugger.Break();
                 throw;
             }
 
@@ -441,9 +412,9 @@ namespace Growthstories.UI.Persistence
             {
                 connection = ConnectionFac.GetConnection();
                 command = connection.CreateCommand("");
-                this.Log().Verbose("UI Persistence: executing command");
+                this.GSLog().Verbose("UI Persistence: executing command");
                 results = executor(connection, command);
-                this.Log().Verbose("UI Persistence: executed command {1}, {0} rows affeted", results, command.CommandText);
+                this.GSLog().Verbose("UI Persistence: executed command {1}, {0} rows affeted", results, command.CommandText);
                 return results;
             }
             catch (Exception e)
@@ -457,11 +428,11 @@ namespace Growthstories.UI.Persistence
                     if (payloadBytes != null)
                         payloadString = Encoding.UTF8.GetString(payloadBytes, 0, Math.Min(payloadBytes.Length, 2 * 1024));
 
-                    this.Log().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
+                    this.GSLog().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
 
                 }
                 else
-                    this.Log().Exception(e, "ExecuteCommand");
+                    this.GSLog().Exception(e, "ExecuteCommand");
 
                 if (Debugger.IsAttached)
                     Debugger.Break();
@@ -481,7 +452,7 @@ namespace Growthstories.UI.Persistence
                 return;
 
             var msg = "UI Persistence already disposed";
-            this.Log().Warn(msg);
+            this.GSLog().Warn(msg);
             throw new ObjectDisposedException(msg);
         }
 

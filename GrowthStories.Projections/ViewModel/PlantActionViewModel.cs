@@ -28,7 +28,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand DeleteCommand { get; protected set; }
 
         public IconType Icon { get; protected set; }
-        
+
 
         private int _ActionIndex;
         public int ActionIndex
@@ -209,7 +209,7 @@ namespace Growthstories.UI.ViewModel
                 case PlantActionType.DECEASED:
                     kind = "deceased";
                     break;
-                
+
                 case PlantActionType.FERTILIZED:
                     kind = "fertilizing";
                     break;
@@ -269,8 +269,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     _AddCommand = new ReactiveCommand(this.CanExecute == null ? Observable.Return(true) : this.CanExecute, false);
                     _AddCommand.Subscribe(this.AddCommandSubscription);
-                    this.AsyncAddObservable = _AddCommand.RegisterAsyncTask(AsyncAddCommand);
-                    this.AsyncAddObservable.Publish().Connect();
+                    var obs = _AddCommand.RegisterAsyncTask(AsyncAddCommand).Publish();
+                    this.AsyncAddObservable = obs.Select(_ => this);
+                    obs.Connect();
 
                 }
                 return _AddCommand;
@@ -416,7 +417,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IObservable<IGSAggregate> AsyncAddObservable { get; protected set; }
+        public IObservable<IPlantActionViewModel> AsyncAddObservable { get; protected set; }
     }
 
 

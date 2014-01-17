@@ -1,45 +1,27 @@
 
-using ReactiveUI;
-using System.Linq;
-
 using System;
 using System.Collections.Generic;
-using Ninject;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain;
-using Growthstories.Core;
-using Growthstories.Sync;
-using Growthstories.Domain.Messaging;
-using System.Threading.Tasks;
-using Growthstories.UI.Services;
-using CommonDomain;
 using System.Diagnostics;
-
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Concurrency;
-using System.Reactive.Threading.Tasks;
-using System.Reactive.Disposables;
-using EventStore.Persistence;
+using System.Linq;
 using System.Net.NetworkInformation;
-
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading;
-
-using EventStore.Logging;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using CommonDomain;
+using Growthstories.Core;
+using Growthstories.Domain;
+using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
+using ReactiveUI;
 
 
 namespace Growthstories.UI.ViewModel
 {
 
 
-    public class AppViewModel : ReactiveObject, IGSAppViewModel
+    public class AppViewModel : ReactiveObject, IGSAppViewModel, IEnableLogger
     {
 
-        private static readonly ILog Logger = LogFactory.BuildLogger(typeof(AppViewModel));
 
         private string _UrlPath;
         public string UrlPath
@@ -89,57 +71,6 @@ namespace Growthstories.UI.ViewModel
 
         public IMessageBus Bus { get; protected set; }
 
-        public bool IsInDesignMode
-        {
-            get
-            {
-                return DebugDesignSwitch ? true : DesignModeDetector.IsInDesignMode();
-            }
-        }
-
-        IRoutingState _Router;
-        public IRoutingState Router
-        {
-            get
-            {
-                if (_Router == null)
-                {
-                    _Router = new RoutingState();
-                }
-                return _Router;
-            }
-        }
-
-        IEndpoint _Endpoint;
-        public IEndpoint Endpoint
-        {
-            get { return _Endpoint ?? (_Endpoint = Kernel.Get<IEndpoint>()); }
-        }
-
-        protected IDispatchCommands _Handler;
-        protected IDispatchCommands Handler
-        {
-            get { return _Handler ?? (_Handler = Kernel.Get<IDispatchCommands>()); }
-        }
-
-        protected IGSRepository _Repository;
-        protected IGSRepository Repository
-        {
-            get { return _Repository ?? (_Repository = Kernel.Get<IGSRepository>()); }
-        }
-
-        protected ITransportEvents _Transporter;
-        protected ITransportEvents Transporter
-        {
-            get { return _Transporter ?? (_Transporter = Kernel.Get<ITransportEvents>()); }
-        }
-
-        protected IUIPersistence _UIPersistence;
-        public IUIPersistence UIPersistence
-        {
-            get { return _UIPersistence ?? (_UIPersistence = Kernel.Get<IUIPersistence>()); }
-        }
-
 
         public IDictionary<Guid, PullStream> SyncStreams
         {
@@ -151,20 +82,28 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        IUserService _Context = null;
-        public IUserService Context
+        private bool isUIPersistenceInitialized = false;
+        private readonly IUIPersistence _UIPersistence;
+        protected IUIPersistence UIPersistence
         {
-            get { return _Context ?? (_Context = Kernel.Get<IUserService>()); }
+            get
+            {
+                if (!isUIPersistenceInitialized)
+                {
+                    _UIPersistence.Initialize();
+                    isUIPersistenceInitialized = true;
+                }
+                return _UIPersistence;
+
+            }
         }
+
 
         public Guid GardenId { get; set; }
 
 
-        private bool DebugDesignSwitch = false;
-
         public IMutableDependencyResolver Resolver { get; protected set; }
 
-        protected IKernel Kernel;
 
 
         public virtual bool HasPayed()
@@ -172,11 +111,39 @@ namespace Growthstories.UI.ViewModel
             return true; // should override this
         }
 
+        public IRoutingState Router { get { return _Router; } }
 
-        public AppViewModel()
+        private readonly IUserService Context;
+        private readonly IDispatchCommands Handler;
+        protected readonly IGSRepository Repository;
+        private readonly ITransportEvents Transporter;
+        private readonly IIAPService IIAPService;
+        private readonly IRequestFactory RequestFactory;
+        private readonly IRoutingState _Router;
+
+        public AppViewModel(
+            IMutableDependencyResolver resolver,
+            IUserService context,
+            IDispatchCommands handler,
+            IGSRepository repository,
+            ITransportEvents transporter,
+            IUIPersistence uiPersistence,
+            IIAPService iiapService,
+            IRequestFactory requestFactory,
+            IRoutingState router,
+            IMessageBus bus
+         )
         {
-
-            this.Resolver = RxApp.MutableResolver;
+            this.Context = context;
+            this.Handler = handler;
+            this.Repository = repository;
+            this.Transporter = transporter;
+            this._UIPersistence = uiPersistence;
+            this.IIAPService = iiapService;
+            this.RequestFactory = requestFactory;
+            this._Router = router;
+            this.Resolver = resolver;
+            this.Bus = bus;
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
@@ -204,11 +171,6 @@ namespace Growthstories.UI.ViewModel
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
-            IAPCommand = new ReactiveCommand();
-            AfterIAPCommand = new ReactiveCommand();
-
-
-            InitializeJobStarted.Take(1).Subscribe(_ => Bootstrap());
 
             var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
 
@@ -220,72 +182,86 @@ namespace Growthstories.UI.ViewModel
             });
 
             // we need to set these immediately to have the defaults in place when starting up
-            this.Router.CurrentViewModel
-             .OfType<IControlsAppBar>()
-             .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
-             .Switch()
-             .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
-
-            this.Router.CurrentViewModel
-                 .OfType<IControlsAppBar>()
-                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
-                 .Switch()
-                 .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
 
             this.SyncResults = syncResult;
 
-            //LoadMainVM();
+            Bootstrap();
         }
+
+
 
         private void Bootstrap()
         {
 
             var resolver = Resolver;
 
-            resolver.RegisterConstant(this, typeof(IScreen));
-            resolver.RegisterConstant(this.Router, typeof(IRoutingState));
+            var vmChanged = this.Router.CurrentViewModel.DistinctUntilChanged();
 
-            this.Router.CurrentViewModel
+            vmChanged
+               .OfType<IControlsAppBar>()
+               .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
+               .Switch()
+               .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
+
+            vmChanged
+                 .OfType<IControlsAppBar>()
+                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
+                 .Switch()
+                 .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
+
+
+            vmChanged
                 .Select(x =>
                 {
+                    //this.Log().Info("VM changed MAINBUTTONS");
                     var xx = x as IHasAppBarButtons;
                     if (xx != null)
                         return xx.WhenAnyValue(y => y.AppBarButtons);
+                    //return null;
                     return Observable.Return(new ReactiveList<IButtonViewModel>());
                 })
                 .Switch()
                 .Throttle(TimeSpan.FromMilliseconds(200))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => this.UpdateAppBar(x ?? new ReactiveList<IButtonViewModel>()));
+                .DistinctUntilChanged()
+                .Do(x =>
+                {
+                    //this.Log().Info("from throttle MAINBUTTONS changed, count={0}, text={1}", x.Count, string.Join(",", x.Select(y => y.Text)));
+                })
+                .ToProperty(this, x => x.AppBarButtons, out _AppBarButtons);
+            //.Subscribe(x => this.UpdateAppBar(x ?? ));
 
+            //this.WhenAnyValue(x => x.AppBarButtons).Where(x => x != null).Subscribe(x => this.Log().Info("AppViewModel MAINBUTTONS changed, count={0}", x.Count));
 
-            this.Router.CurrentViewModel
+            vmChanged
                 .Select(x =>
                 {
                     var xx = x as IHasMenuItems;
                     if (xx != null)
                         return xx.WhenAnyValue(y => y.AppBarMenuItems);
+                    //return null;
                     return Observable.Return(new ReactiveList<IMenuItemViewModel>());
                 })
                 .Switch()
-                .Subscribe(x => this.UpdateMenuItems(x ?? new ReactiveList<IMenuItemViewModel>()));
+                .Throttle(TimeSpan.FromMilliseconds(200))
+                .DistinctUntilChanged()
+                .ToProperty(this, x => x.AppBarMenuItems, out _AppBarMenuItems);
 
 
-            this.Router.CurrentViewModel
+
+            vmChanged
                  .OfType<IControlsSystemTray>()
                  .Select(x => x.WhenAny(y => y.SystemTrayIsVisible, y => y.GetValue()).StartWith(x.SystemTrayIsVisible))
                  .Switch()
                  .ToProperty(this, x => x.SystemTrayIsVisible, out this._SystemTrayIsVisible, false);
 
-            this.Router.CurrentViewModel
+            vmChanged
                  .OfType<IControlsProgressIndicator>()
                  .Select(x => x.WhenAny(y => y.ProgressIndicatorIsVisible, y => y.GetValue()).StartWith(x.ProgressIndicatorIsVisible))
                  .Switch().ObserveOn(RxApp.MainThreadScheduler)
                  .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true, RxApp.MainThreadScheduler);
 
-            this.Router.CurrentViewModel
-                //.OfType<IControlsPageOrientation>()
+            vmChanged
                 .Select(x =>
                 {
                     var xx = x as IControlsPageOrientation;
@@ -296,25 +272,27 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            this.Router.CurrentViewModel
-                //.OfType<IControlsPageOrientation>()
-                .Select(x =>
-                {
-                    var xx = x as IControlsBackButton;
-                    if (xx != null)
-                        return xx.WhenAnyValue(y => y.CanGoBack);
-                    return Observable.Return(true);
-                })
-                .Switch()
-                .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
+            //vmChanged
+            //    .Select(x =>
+            //    {
+            //        var xx = x as IControlsBackButton;
+            //        if (xx != null)
+            //            return xx.WhenAnyValue(y => y.CanGoBack);
+            //        return Observable.Return(true);
+            //    })
+            //    .Switch()
+            //    .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
 
-            resolver.Register(() => ResetSupport(() => new GardenViewModel(null, this)), typeof(IGardenViewModel));
+            resolver.Register(() => ResetSupport(() =>
+            {
+                return new GardenViewModel(this.WhenAnyValue(x => x.User), true, this, IIAPService);
+            }), typeof(IGardenViewModel));
+
             resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
             resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
             resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
 
-            resolver.RegisterLazySingleton(() => new AboutViewModel(this), typeof(IAboutViewModel));
-            resolver.RegisterLazySingleton(() => new SearchUsersViewModel(Transporter, this), typeof(SearchUsersViewModel));
+
         }
 
         #region COMMANDS
@@ -333,10 +311,6 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
 
         public IReactiveCommand DeleteTileCommand { get; private set; }
-
-        public IReactiveCommand IAPCommand { get; private set; }
-
-        public IReactiveCommand AfterIAPCommand { get; private set; }
 
 
         #endregion
@@ -439,14 +413,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private ObservableAsPropertyHelper<bool> _CanGoBack;
-        public bool CanGoBack
-        {
-            get
-            {
-                return _CanGoBack.Value;
-            }
-        }
+        //private ObservableAsPropertyHelper<bool> _CanGoBack;
+        //public bool CanGoBack
+        //{
+        //    get
+        //    {
+        //        return _CanGoBack.Value;
+        //    }
+        //}
 
         private int AutoSyncCount = 0;
 
@@ -476,7 +450,7 @@ namespace Growthstories.UI.ViewModel
         //
         public async Task _PossiblyAutoSync()
         {
-            
+
             if (!HasDataConnection)
             {
                 return;
@@ -487,16 +461,18 @@ namespace Growthstories.UI.ViewModel
                 try
                 {
                     var guid = Guid.NewGuid().ToString();
-                    Logger.Info("Autosyncing (debugId: " + guid + ")");
+                    this.Log().Info("Autosyncing (debugId: " + guid + ")");
                     this.AutoSyncCount++;
                     await this.SyncAll();
-                    Logger.Info("Autosync finished (debugId: " + guid + ")");
+                    this.Log().Info("Autosync finished (debugId: " + guid + ")");
 
-                } finally {
+                }
+                finally
+                {
                     this.AutoSyncCount--;
                 }
-            } 
-           
+            }
+
         }
 
 
@@ -607,10 +583,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        protected virtual IKernel GetKernel()
-        {
-            return this.Kernel;
-        }
 
         protected Task<IAuthUser> InitializeJob;
         public Task<IAuthUser> Initialize()
@@ -626,12 +598,12 @@ namespace Growthstories.UI.ViewModel
 
                 InitializeJobStarted.Execute(null);
 
-                var kernel = GetKernel();
-                var persistence = kernel.Get<IPersistSyncStreams>();
-                persistence.Initialize();
+                //var kernel = Kernel;
+                //var persistence = kernel.Get<IPersistSyncStreams>();
+                //persistence.Initialize();
 
-                var uiPersistence = kernel.Get<IUIPersistence>();
-                uiPersistence.Initialize();
+                //var uiPersistence = kernel.Get<IUIPersistence>();
+                //uiPersistence.Initialize();
 
                 try
                 {
@@ -919,16 +891,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private ISynchronizerService SyncService;
 
-        private IRequestFactory _RequestFactory;
-        private IRequestFactory RequestFactory
-        {
-            get
-            {
-                return _RequestFactory ?? (_RequestFactory = Kernel.Get<IRequestFactory>());
-            }
-        }
+
 
         public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
 
@@ -1022,7 +986,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-      
+
         public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
 
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
@@ -1033,7 +997,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        
+
         private async Task<ISyncInstance> _UnsafeSynchronize(ISyncInstance s)
         {
             bool handlePull = false;
@@ -1139,7 +1103,7 @@ namespace Growthstories.UI.ViewModel
 
 
         IObservable<IGardenViewModel> _Gardens;
-        public IObservable<IGardenViewModel> FutureGardens(IAuthUser user = null)
+        public IObservable<IGardenViewModel> FutureGardens(Guid? userId = null)
         {
 
             if (_Gardens == null)
@@ -1156,42 +1120,44 @@ namespace Growthstories.UI.ViewModel
                         return x.Item1.AggregateId == x.Item2.AggregateId;
                     })
                     .DistinctUntilChanged()
-                    .Select(x => new GardenViewModel(x.Item2.AggregateState, this));
+                    .Select(x => new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this));
             }
 
-            if (user != null)
-                return _Gardens.Where(x => x.User.Id == user.Id);
+            if (userId != null)
+                return _Gardens.Where(x => x.User.Id == userId);
             return _Gardens;
         }
 
 
-        public IObservable<IGardenViewModel> CurrentGardens(IAuthUser user = null)
+        public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
         {
             //Func<Guid?, IEnumerable<UserState>> f = UIPersistence.GetUsers;
 
             //var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            Guid? id = null;
-            if (user != null)
-                id = user.Id;
 
-            var current = UIPersistence.GetUsers(id)
+            var current = UIPersistence.GetUsers(userId)
                 .ToObservable()
-                .Where(x => x.Id != this.User.Id && !x.IsDeleted)
-                .Select(x => new GardenViewModel(x, this));
+                .Where(x => !x.IsDeleted)
+                .Select(x => new GardenViewModel(Observable.Return(x), false, this));
 
             return current;
         }
 
 
-        public IObservable<IPlantActionViewModel> CurrentPlantActions(Guid plantId, Guid? PlantActionId = null)
+        public IObservable<IPlantActionViewModel> CurrentPlantActions(
+            Guid PlantId,
+            PlantActionType? type = null,
+            int? limit = null,
+            bool? isOrderAsc = null
+            )
         {
 
             //Func<Guid?, Guid?, Guid?, IEnumerable<PlantActionState>> f = UIPersistence.GetActions;
 
             //var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
 
-            var current = UIPersistence.GetActions(PlantActionId, plantId, null)
+            var current = UIPersistence.GetActions(PlantId: PlantId, type: type, limit: limit, isOrderAsc: isOrderAsc)
                 .ToObservable()
                 .Where(x => !x.IsDeleted)
                 .Select(x => PlantActionViewModelFactory(x.Type, x));
@@ -1209,25 +1175,41 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public IObservable<IPlantViewModel> CurrentPlants(IAuthUser user, Guid? plantId = null)
+        public IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null)
         {
-            var current = UIPersistence.GetPlants(plantId, null, user.Id)
-                .ToObservable()
-                .Where(x => !x.Item1.IsDeleted)
-                .Select(x =>
-                {
-                    var p = new PlantViewModel(x.Item1,
-                        x.Item2 != null ? new ScheduleViewModel(x.Item2, ScheduleType.WATERING, this) : null,
-                        x.Item3 != null ? new ScheduleViewModel(x.Item3, ScheduleType.FERTILIZING, this) : null,
-                        this);
+            this.Log().Info("CurrentPlants: userId: {0}, plantId: {1}", userId, plantId);
+            var plants = Observable.Defer(() =>
+            {
+                this.Log().Info("CurrentPlants Task started");
+                return Task.Run(() => UIPersistence.GetPlants(plantId, null, userId).ToObservable());
+            })
+            .Do(x => this.Log().Info("CurrentPlants Task ended"))
+            .Where(x => !x.Item1.IsDeleted).Publish().RefCount();
 
-                    return p;
-                });
+            if (plantId != null)
+                return Observable.Return(PlantViewModelFactory(plants));
+            this.Log().Info("CurrentPlants: end");
 
-            return current;
+            return plants.Select(x => PlantViewModelFactory(Observable.Return(x)));
+        }
+
+        public IObservable<IPlantViewModel> FuturePlants(Guid userId)
+        {
+            return Bus.Listen<IEvent>()
+               .OfType<PlantCreated>()
+               .Where(x =>
+               {
+                   return x.UserId == userId;
+               })
+               .Select(x => PlantViewModelFactory(Observable.Return(Tuple.Create(x.AggregateState, (ScheduleState)null, (ScheduleState)null))));
         }
 
 
+
+        protected virtual IPlantViewModel PlantViewModelFactory(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable)
+        {
+            return new PlantViewModel(stateObservable, this);
+        }
 
         IObservable<Tuple<ScheduleCreated, ScheduleSet>> _Schedules;
         public IObservable<IScheduleViewModel> FutureSchedules(Guid plantId)
@@ -1263,17 +1245,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        public IObservable<IPlantViewModel> FuturePlants(IAuthUser user)
-        {
-            return Bus.Listen<IEvent>()
-               .OfType<PlantCreated>()
-               .Where(x =>
-               {
-                   return x.UserId == user.Id;
-               })
-               .Select(x => new PlantViewModel(x.AggregateState, null, null, this));
-        }
 
 
 
@@ -1329,54 +1300,22 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private IDisposable ButtonsAddSubscription = Disposable.Empty;
-        private IDisposable ButtonsRemoveSubscription = Disposable.Empty;
-
-        private void UpdateAppBar(IReadOnlyReactiveList<IButtonViewModel> x)
-        {
-
-            if (x == null)
-                return;
-
-            this._AppBarButtons.RemoveRange(0, this._AppBarButtons.Count);
-
-            this._AppBarButtons.AddRange(x);
-            ButtonsAddSubscription.Dispose();
-            ButtonsRemoveSubscription.Dispose();
-            ButtonsAddSubscription = x.ItemsAdded.Subscribe(y =>
-            {
-                this._AppBarButtons.Add(y);
-            });
-            ButtonsRemoveSubscription = x.ItemsRemoved.Subscribe(y =>
-            {
-                this._AppBarButtons.Remove(y);
-            });
-
-
-        }
-
-        private void UpdateMenuItems(IReadOnlyReactiveList<IMenuItemViewModel> x)
-        {
-            if (x == null)
-                return;
-            this._AppBarMenuItems.RemoveRange(0, this._AppBarMenuItems.Count);
-            this._AppBarMenuItems.AddRange(x);
-        }
-
-
-        protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
+        private ObservableAsPropertyHelper<IReadOnlyReactiveList<IButtonViewModel>> _AppBarButtons;
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
-                return _AppBarButtons;
+                return _AppBarButtons.Value;
             }
         }
 
-        protected ReactiveList<IMenuItemViewModel> _AppBarMenuItems = new ReactiveList<IMenuItemViewModel>();
+        private ObservableAsPropertyHelper<IReadOnlyReactiveList<IMenuItemViewModel>> _AppBarMenuItems;
         public IReadOnlyReactiveList<IMenuItemViewModel> AppBarMenuItems
         {
-            get { return _AppBarMenuItems; }
+            get
+            {
+                return _AppBarMenuItems.Value;
+            }
         }
 
 
@@ -1424,6 +1363,28 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return NetworkInterface.GetIsNetworkAvailable();
+            }
+        }
+
+        public bool EnsureDataConnection()
+        {
+            if (!HasDataConnection)
+                ShowPopup.Execute(DataConnectionNotification);
+            return HasDataConnection;
+        }
+
+        private IPopupViewModel _DataConnectionNotification;
+        private IPopupViewModel DataConnectionNotification
+        {
+            get
+            {
+                return _DataConnectionNotification ?? (_DataConnectionNotification = new PopupViewModel()
+                {
+                    Caption = "Data connection required",
+                    Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK"
+                });
             }
         }
 

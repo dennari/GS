@@ -11,7 +11,7 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
 
-using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.AppViewModel;
+using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {

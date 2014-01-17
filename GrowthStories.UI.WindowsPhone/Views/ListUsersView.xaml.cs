@@ -34,7 +34,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(ISearchUsersViewModel vm)
         {
-           
+
         }
 
 
@@ -48,12 +48,6 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void UserListBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            this.ViewModel.Search = UserListBox.Text;
-            this.ViewModel.SearchCommand.Execute(UserListBox.Text);
-        }
-
         private void UserSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
@@ -63,29 +57,6 @@ namespace Growthstories.UI.WindowsPhone
 
             ViewModel.UserSelectedCommand.Execute(item);
             UserSelector.SelectedItem = null;
-        }
-
-
-        private void TextBlock_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-
-        }
-
-
-        private void GSViewGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (!SyncHttpClient.HasInternetConnection)
-            {
-                PopupViewModel pvm = new PopupViewModel()
-                {
-                    Caption = "No data connection available",
-                    Message = "Following users requires a data connection. Please enable a data connection and try again.",
-                    IsLeftButtonEnabled = true,
-                    DismissedCommand = ViewModel.App.Router.NavigateBack,
-                    LeftButtonContent = "OK"
-                };
-                ViewModel.App.ShowPopup.Execute(pvm);
-            } 
         }
 
 

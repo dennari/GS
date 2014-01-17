@@ -1,15 +1,12 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
-using System.Reactive.Linq;
-using System.Reactive;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
@@ -271,14 +268,7 @@ namespace Growthstories.UI.ViewModel
             return string.IsNullOrWhiteSpace(species) ? name.ToUpper() : string.Format("{0} ({1})", name.ToUpper(), species.ToUpper()); ;
         }
 
-        private ObservableAsPropertyHelper<string> _PlantTitle;
-        public string PlantTitle
-        {
-            get
-            {
-                return this._PlantTitle.Value;
-            }
-        }
+
 
         protected string _Name;
         public string Name
@@ -357,11 +347,8 @@ namespace Growthstories.UI.ViewModel
 
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
 
-            // why is the plantviewmodel instantiated with a null AppViewModel?
-            //   -- JOJ 5.1.2014
 
-            IPlantViewModel current = Current == null ? new PlantViewModel(null, null) : Current;
-            IPlantViewModel R = Current == null ? null : Current;
+            IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
 
             if (this.Current == null)
             {
@@ -410,7 +397,7 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SetWateringSchedule(plantId, r.Id));
             }
 
-            if (this.Photo != null && current.Photo != this.Photo && current.Actions.Count == 0)
+            if (this.Photo != null && current.Photo != this.Photo)
             {
                 var plantActionId = Guid.NewGuid();
                 await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });

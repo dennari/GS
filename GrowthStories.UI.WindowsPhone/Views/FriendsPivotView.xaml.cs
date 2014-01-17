@@ -29,7 +29,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.App.PossiblyAutoSync();
+            //ViewModel.App.PossiblyAutoSync();
         }
 
 

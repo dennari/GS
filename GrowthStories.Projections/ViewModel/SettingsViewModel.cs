@@ -94,8 +94,8 @@ namespace Growthstories.UI.ViewModel
 
             this.SignInCommand = new ReactiveCommand();
             //this.SignInCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
-            this.SignInCommand.Subscribe(x => 
-            { 
+            this.SignInCommand.Subscribe(x =>
+            {
                 SignInRegisterViewModel svm = new SignInRegisterViewModel(App);
                 svm.SignInMode = true;
                 this.Navigate(svm);
@@ -106,30 +106,9 @@ namespace Growthstories.UI.ViewModel
             //this.SignUpCommand = new ReactiveCommand(hasUserAndIsRegistered.Select(x => !x.Item2));
             this.SignUpCommand.Subscribe(x => this.Navigate(new SignInRegisterViewModel(App)));
 
-            //this.SignOutCommand = new ReactiveCommand(canSignOut);
-            this.SignOutCommand = new ReactiveCommand();
 
-            this.SignOutCommand.Where(x => x == null).Subscribe(_ => App.ShowPopup.Execute(this.LogOutWarning));
-            var logOutResult = this.SignOutCommand.RegisterAsyncTask(async (x) =>
-            {
-                try
-                {
-                    if (x != null)
-                    {
-                        PopupResult r = (PopupResult)x;
-                        if (r == PopupResult.LeftButton)
-                        {
-                            return await App.SignOut();
-                        }
-                    }
-                }
+            this.LogOutWarning.AcceptedObservable.Subscribe(_ => App.SignOut().ContinueWith(__ => this.Navigate(new MainViewModel(App))));
 
-                catch {} // what exceptions are we expecting here?
-                
-                return null;
-            });
-
-            logOutResult.Where(x => x != null).Subscribe(_ => this.Navigate(new MainViewModel(App)));
 
             this.SynchronizeCommand = new ReactiveCommand();
 
@@ -143,7 +122,7 @@ namespace Growthstories.UI.ViewModel
             {
                 Text = "sign out",
                 IconType = IconType.SIGNOUT,
-                Command = SignOutCommand
+                Command = Observable.Return(true).ToCommandWithSubscription(_ => App.ShowPopup.Execute(this.LogOutWarning))
             };
             this.SignUpButton = new ButtonViewModel()
             {
@@ -156,7 +135,7 @@ namespace Growthstories.UI.ViewModel
             this.ListenTo<InternalRegistered>()
                 .Select(x => x.Email)
                 .StartWith(App.User.Email)
-                .Subscribe(x => 
+                .Subscribe(x =>
                     {
                         this.Email = x;
                     });
@@ -181,12 +160,15 @@ namespace Growthstories.UI.ViewModel
                 this._AppBarButtons.Remove(this.SignInButton);
                 this._AppBarButtons.Remove(this.SignOutButton);
 
-                if (x.Item2) {
-                //if (x.Item2 && x.Item1.AccessToken != null) {
+                if (x.Item2)
+                {
+                    //if (x.Item2 && x.Item1.AccessToken != null) {
                     //this.Email = x.Item1.Email;
                     this._AppBarButtons.Add(this.SignOutButton);
-                
-                } else {
+
+                }
+                else
+                {
                     //this.Email = null;
                     this._AppBarButtons.Add(this.SignInButton);
                     this._AppBarButtons.Add(this.SignUpButton);
@@ -211,8 +193,10 @@ namespace Growthstories.UI.ViewModel
                         LeftButtonContent = "OK"
                     };
                     App.ShowPopup.Execute(pvm);
-                
-                } else {
+
+                }
+                else
+                {
                     this.CanSynchronize = false;
                     App.SynchronizeCommand.Execute(null);
 
@@ -244,7 +228,6 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        private Sync.AllSyncResult _SyncResult;
 
         private IPopupViewModel _LogOutWarning;
         private IPopupViewModel LogOutWarning
@@ -258,8 +241,8 @@ namespace Growthstories.UI.ViewModel
                         Caption = "Confirmation",
                         Message = "Are you sure you wish to sign out?",
                         LeftButtonContent = "yes",
-                        DismissedCommand = this.SignOutCommand
                     };
+                    //_LogOutWarning.DismissedObservable.Subscribe(_ => )
                 }
                 return _LogOutWarning;
             }

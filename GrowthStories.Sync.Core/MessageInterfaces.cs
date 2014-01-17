@@ -65,22 +65,6 @@ namespace Growthstories.Sync
         IAuthToken AuthToken { get; }
     }
 
-    public interface IAuthToken
-    {
-        string AccessToken { get; set; }
-        int ExpiresIn { get; set; }
-        string RefreshToken { get; set; }
-    }
-
-    public interface IAuthUser : IAuthToken, IMemento
-    {
-        string Username { get; }
-        string Password { get; }
-        string Email { get; }
-        Guid GardenId { get; }
-        bool IsCollaborator { get; }
-        bool IsRegistered { get; }
-    }
 
 
     public sealed class PullStream
@@ -258,7 +242,7 @@ namespace Growthstories.Sync
 
     //}
 
-   
+
     public enum RegisterStatus
     {
         OK,
@@ -270,7 +254,7 @@ namespace Growthstories.Sync
     public class APIRegisterResponse
     {
         [JsonProperty(PropertyName = "registerStatus", Required = Required.Always)]
-        public RegisterStatus RegisterStatus {get; set;}
+        public RegisterStatus RegisterStatus { get; set; }
 
         [JsonIgnore]
         public HttpStatusCode HttpStatus;
@@ -337,7 +321,7 @@ namespace Growthstories.Sync
         [JsonIgnore]
         public string FriendlyPlantCount
         {
-            get 
+            get
             {
                 return PlantCount + " plants";
             }

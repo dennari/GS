@@ -1,48 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Growthstories.UI.ViewModel;
-using Microsoft.Phone.Tasks;
-using Growthstories.Sync;
+﻿using EventStore;
+using EventStore.Persistence.SqlPersistence;
+using Growthstories.Core;
 using Growthstories.Domain;
-using Growthstories.UI;
-using System.Windows.Media.Imaging;
-using System.IO;
-using Windows.Storage.Streams;
-using Growthstories.UI.WindowsPhone;
-using Microsoft.Phone.Controls;
-using System.Windows.Controls;
-using System.Windows.Media;
-using ReactiveUI;
-using System.Reactive.Linq;
-using System.Reactive;
-
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
-using System.Linq.Expressions;
-using Ninject;
-using Growthstories.Core;
-using EventStore;
-using EventStore.Persistence;
-using EventStore.Persistence.SqlPersistence;
+using Growthstories.Sync;
 using Growthstories.UI.Persistence;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
     public sealed class ClientTestingViewModel : TestingViewModel
     {
-        private readonly IKernel Kernel;
         private readonly IDispatchCommands Handler;
+        private SQLitePersistenceEngine Store;
+        private SQLiteUIPersistence UIStore;
+        private GSRepository Repo;
+        private OptimisticPipelineHook Pipelinehook;
+        private ITranslateEvents Translator;
+        private ITransportEvents Transporter;
+        private IHttpClient HttpClient;
+        private IJsonFactory Serializer;
 
-        public ClientTestingViewModel(IKernel kernel, IGSAppViewModel app)
+        public ClientTestingViewModel(
+            SQLitePersistenceEngine store,
+            SQLiteUIPersistence uiStore,
+            GSRepository repo,
+            OptimisticPipelineHook pipelinehook,
+            IDispatchCommands handler,
+            ITranslateEvents translator,
+            ITransportEvents transporter,
+            IHttpClient httpclient,
+            IJsonFactory serializer,
+            IGSAppViewModel app)
             : base(app)
         {
 
-            this.Kernel = kernel;
-            this.Handler = Kernel.Get<IDispatchCommands>();
+            this.Handler = handler;
+            this.Store = store;
+            this.UIStore = uiStore;
+            this.Repo = repo;
+            this.Pipelinehook = pipelinehook;
+            this.Translator = translator;
+            this.Transporter = transporter;
+            this.HttpClient = httpclient;
+            this.Serializer = serializer;
 
             this.CreateRemoteDataCommand.Subscribe(x => this.CreateRemoteTestData());
             this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData())).Publish().Connect();
@@ -129,7 +138,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 Handler.Handle(
                         new CreatePlantAction(
                             Guid.NewGuid(),
-                            App.Context.CurrentUser.Id,
+                            App.User.Id,
                             localPlant.AggregateId,
                             PlantActionType.COMMENTED,
                             "Hello local world " + i));
@@ -292,7 +301,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             var remoteUser = CreateUserFromName(name);
 
-            var pushResp = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+            var pushResp = await Transporter.PushAsync(new HttpPushRequest(Serializer)
             {
                 Streams = new[] { new StreamSegment(remoteUser.AggregateId, remoteUser) },
                 ClientDatabaseId = Guid.NewGuid(),
@@ -386,7 +395,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             ISyncPushResponse R = null;
             foreach (var e in events)
             {
-                R = await Transporter.PushAsync(new HttpPushRequest(Get<IJsonFactory>())
+                R = await Transporter.PushAsync(new HttpPushRequest(Serializer)
                 {
                     Streams = new IStreamSegment[] { new StreamSegment(e.AggregateId, e) },
                     ClientDatabaseId = Guid.NewGuid(),
@@ -430,44 +439,23 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public void ClearDB()
         {
 
-            //base.ClearDB();
-            var db = Kernel.Get<IPersistSyncStreams>() as SQLitePersistenceEngine;
-            if (db != null)
-                db.ReInitialize();
-            var db2 = Kernel.Get<IUIPersistence>() as SQLiteUIPersistence;
-            if (db2 != null)
-                db2.ReInitialize();
 
-            var repo = Kernel.Get<IGSRepository>() as GSRepository;
-            if (repo != null)
-            {
-                repo.ClearCaches();
-            }
-            var pipelineHook = Kernel.Get<OptimisticPipelineHook>();
-            pipelineHook.Dispose();
+            Store.ReInitialize();
 
-            ((AppViewModel)App).ResetUI();
+            UIStore.ReInitialize();
+
+            Repo.ClearCaches();
+
+            Pipelinehook.Dispose();
+
+            ((ClientAppViewModel)App).ResetUI();
 
             App.Router.NavigateAndReset.Execute(new MainViewModel(App));
 
         }
 
-        public T Get<T>() { return Kernel.Get<T>(); }
-        //public IMessageBus Handler { get { return Get<IMessageBus>(); } }
 
 
-        public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
-        //public IStoreSyncHeads SyncStore { get { return Get<IStoreSyncHeads>(); } }
-        public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
 
-        public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
-        public ITranslateEvents Translator { get { return Get<ITranslateEvents>(); } }
-        //public string toJSON(object o) { return Get<IJsonFactory>().Serialize(o); }
-        // public IGSRepository Repository { get { return Get<IGSRepository>(); } }
-        // public GSEventStore EventStore { get { return (GSEventStore)Get<IStoreEvents>(); } }
-
-        // public IUserService UserService { get { return Get<IUserService>(); } }
-
-        public SyncHttpClient HttpClient { get { return (SyncHttpClient)Kernel.Get<IHttpClient>(); } }
     }
 }

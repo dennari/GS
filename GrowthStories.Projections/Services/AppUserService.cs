@@ -1,19 +1,11 @@
-﻿using CommonDomain;
-using Growthstories.Core;
+﻿using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
-using EventStore.Persistence;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.Services
 {
@@ -22,23 +14,17 @@ namespace Growthstories.UI.Services
     {
         //private User u;
 
-        private readonly ISynchronizerService SyncService;
         private readonly ITransportEvents Transporter;
         private readonly IDispatchCommands Handler;
-        private IRequestFactory RequestFactory;
 
         public AppUserService(
-            ISynchronizerService syncService,
             ITransportEvents transporter,
-            IRequestFactory requestFactory,
             IDispatchCommands handler
             )
         {
 
             this.Transporter = transporter;
-            this.SyncService = syncService;
             this.Handler = handler;
-            this.RequestFactory = requestFactory;
         }
 
 
@@ -58,7 +44,7 @@ namespace Growthstories.UI.Services
                     Debugger.Break();
                 }
             }
-            
+
             if (user.AccessToken != null)
             {
                 Transporter.AuthToken = user;
@@ -78,7 +64,7 @@ namespace Growthstories.UI.Services
             // -- JOJ 4.1.2014
             //
 
-            var u = new CreateUser(userId, AuthUser.UnregUsername, "unregpassword", 
+            var u = new CreateUser(userId, AuthUser.UnregUsername, "unregpassword",
                 string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
             commands[0] = u;
             commands[1] = new CreateGarden(gardenId, userId);
@@ -113,19 +99,19 @@ namespace Growthstories.UI.Services
             return Task.Run(async () =>
             {
 
-                var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
+                //var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
                 //int counter = 0;
-                ISyncPushResponse pushResp = await s.Push();
+                //ISyncPushResponse pushResp = await s.Push();
 
-                if (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW)
-                {
-                    throw new InvalidOperationException("Can't synchronize user");
-                }
+                //if (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW)
+                //{
+                //    throw new InvalidOperationException("Can't synchronize user");
+                //}
 
-                if (pushResp.StatusCode == GSStatusCode.OK)
-                {
-                    Handler.Handle(new Push(s));
-                }
+                //if (pushResp.StatusCode == GSStatusCode.OK)
+                //{
+                //    Handler.Handle(new Push(s));
+                //}
 
                 //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
                 //    throw new InvalidOperationException("Can't auth user");
@@ -134,7 +120,7 @@ namespace Growthstories.UI.Services
                 var authResponse = await AuthorizeUser(CurrentUser.Email, CurrentUser.Password);
                 if (authResponse.StatusCode != GSStatusCode.OK)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(string.Format("Unable to Authorize user, statuscode {0}", authResponse.StatusCode));
                 }
 
                 _CurrentUser.AccessToken = authResponse.AuthToken.AccessToken;
@@ -160,7 +146,7 @@ namespace Growthstories.UI.Services
                 Handler.Handle(new SetAuthToken(authResponse.AuthToken));
                 Transporter.AuthToken = authResponse.AuthToken;
             }
-            
+
             return authResponse;
         }
 

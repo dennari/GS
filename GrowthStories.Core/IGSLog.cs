@@ -34,7 +34,7 @@ namespace Growthstories.Core
 
     public static class LogMixins
     {
-        public static IGSLog Log<T>(this T This) where T : IHasLogger
+        public static IGSLog GSLog<T>(this T This) where T : IHasLogger
         {
             if (This.Logger == null)
                 This.Logger = GSLogFactory.BuildLogger(typeof(T));

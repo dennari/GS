@@ -28,6 +28,16 @@ namespace QuickTests
 
         }
 
+        public static IObservable<T> DumpDo<T>(this IObservable<T> source, string name = "sequence")
+        {
+
+            return source.Do(
+                i => Out("{0}-->{1} @ {2}", name, i, NowTime()),
+                ex => Out("{0} failed-->{1} @ {2}", name, ex.Message, NowTime()),
+                () => Out("{0} completed @ {1}", name, NowTime()));
+
+        }
+
         public static void Out(this string format, params object[] args)
         {
             Console.WriteLine(format, args);
@@ -116,6 +126,31 @@ namespace QuickTests
             using (var handle = s.Dump("range"))
             {
                 s.Wait();
+            }
+
+
+        }
+
+        [Test]
+        public void TestSelectMany2()
+        {
+
+            int[][] a = new[] { new[] { 1, 2, 3 }, new[] { 1, 2, 3 } };
+
+            var s = a.ToObservable().DumpDo("outer");
+
+            var ss = Observable.Concat(s.Select(x =>
+            {
+                return x.ToObservable().DumpDo("inner");
+
+            }));
+            //var ss = s.Select(x => x.ToObservable()).Merge();
+
+
+
+            using (var handle = ss.Dump("concat"))
+            {
+                //ss.Wait();
             }
 
 
