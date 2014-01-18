@@ -10,6 +10,7 @@ namespace Growthstories.Sync
 {
     public interface IRequestFactory
     {
+        Tuple<IEvent, SyncHead> GetNextPushEvent(SyncHead currentSyncHead);
         ISyncPushRequest CreatePushRequest(SyncHead syncHead);
         ISyncPushRequest CreateUserSyncRequest(Guid userId);
         ISyncPullRequest CreatePullRequest(ICollection<PullStream> streams);

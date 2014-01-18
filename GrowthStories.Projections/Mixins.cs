@@ -48,8 +48,10 @@ namespace Growthstories.UI
         }
 
 
-        private static async Task<Tuple<AllSyncResult, GSStatusCode?>> 
-            UnsafeSyncAll(this IGSAppViewModel app, int maxRounds = 20)
+        // Run multiple synchronization sequences, until everything is pushed
+        // or until a maximum amount of sequences is reached
+        //
+        private static async Task<Tuple<AllSyncResult, GSStatusCode?>> UnsafeSyncAll(this IGSAppViewModel app, int maxRounds = 20)
         {
             int counter = 0;
             ISyncInstance R = null;
@@ -72,9 +74,10 @@ namespace Growthstories.UI
                     return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
                 }
             }
-
             return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
         }
+
+
 
 
         //

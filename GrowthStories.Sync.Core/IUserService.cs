@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
+
     public interface IUserService
     {
         IAuthUser CurrentUser { get; }

@@ -25,6 +25,7 @@ namespace Growthstories.Sync
         private readonly ITransportEvents Transporter;
         private readonly IPhotoHandler FileOpener;
 
+
         public RequestFactory(
             ITranslateEvents translator,
             ITransportEvents transporter,
@@ -43,7 +44,6 @@ namespace Growthstories.Sync
 
         public ISyncPushRequest CreatePushRequest(SyncHead currentSyncHead)
         {
-
 
             var nextEvent = GetNextPushEvent(currentSyncHead);
 
@@ -82,7 +82,7 @@ namespace Growthstories.Sync
         }
 
 
-        private Tuple<IEvent, SyncHead> GetNextPushEvent(SyncHead currentSyncHead)
+        public Tuple<IEvent, SyncHead> GetNextPushEvent(SyncHead currentSyncHead)
         {
 
             if (currentSyncHead == null)
