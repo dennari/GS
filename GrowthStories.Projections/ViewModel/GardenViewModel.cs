@@ -36,9 +36,19 @@ namespace Growthstories.UI.ViewModel
         private void LoadPlants(IAuthUser u)
         {
             PlantsLoaded = true;
-            var plantStream = App.CurrentPlants(u.Id).Concat(App.FuturePlants(u.Id)).Publish().RefCount();
+            var current = App.CurrentPlants(u.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Do(_ => { }, () =>
+                {
+                    this.IsLoaded = true;
+                })
+                .Publish().RefCount();
 
-            plantStream.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+
+
+            var plantStream = current.Concat(App.FuturePlants(u.Id));
+
+            plantStream.Subscribe(x =>
             {
 
                 x.PlantIndex = _Plants.Count();
@@ -47,15 +57,14 @@ namespace Growthstories.UI.ViewModel
                 this.ListenTo<AggregateDeleted>(x.Id)
                    .Subscribe(y =>
                    {
-                IsLoaded = true;
+                       _Plants.Remove(x);
                    });
+
+
+
+
             });
-        }
 
-
-        private void AddPlant(IPlantViewModel vm)
-        {
-            vm.PlantIndex = _Plants.Count();
 
             plantStream.SelectMany(x => x.DeleteObservable).Subscribe(x =>
             {
@@ -64,7 +73,9 @@ namespace Growthstories.UI.ViewModel
             });
 
 
+
         }
+
 
 
 
@@ -85,7 +96,10 @@ namespace Growthstories.UI.ViewModel
                         this.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadPlants(x));
                     }
 
-
+                }
+                return _Plants;
+            }
+        }
 
 
         private bool _IsLoaded;
@@ -94,7 +108,7 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _IsLoaded;
-                }
+            }
             set
             {
                 this.RaiseAndSetIfChanged(ref _IsLoaded, value);
@@ -223,12 +237,12 @@ namespace Growthstories.UI.ViewModel
 
                 .SelectMany(async x =>
             {
-                    this.Log().Info("MultiWatering {0}/{1} started", x.i + 1, x.of);
-                    await App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), UserId, x.el.Id, PlantActionType.WATERED, null));
-                    this.Log().Info("MultiWatering {0}/{1} ended", x.i + 1, x.of);
+                this.Log().Info("MultiWatering {0}/{1} started", x.i + 1, x.of);
+                await App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), UserId, x.el.Id, PlantActionType.WATERED, null));
+                this.Log().Info("MultiWatering {0}/{1} ended", x.i + 1, x.of);
 
-                    return x;
-                })
+                return x;
+            })
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
@@ -237,7 +251,7 @@ namespace Growthstories.UI.ViewModel
                         MultiCommandInFlight = false;
                         this.IsPlantSelectionEnabled = false;
 
-                }
+                    }
                 });
 
 
@@ -276,11 +290,11 @@ namespace Growthstories.UI.ViewModel
                 {
                     if (x.i + 1 == x.of)
                     {
-                this.IsPlantSelectionEnabled = false;
+                        this.IsPlantSelectionEnabled = false;
                         MultiCommandInFlight = false;
 
                     }
-            });
+                });
 
 
             var notInProgressAndSelected = this.IsNotInProgress.CombineLatest(this.SelectedPlants.CountChanged, (x, y) => x && y > 0);
@@ -294,7 +308,7 @@ namespace Growthstories.UI.ViewModel
             App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
             {
                 if (this.IsPlantSelectionEnabled)
-            {
+                {
                     x.Cancel = true;
                     this.IsPlantSelectionEnabled = false;
                 }
@@ -332,7 +346,7 @@ namespace Growthstories.UI.ViewModel
         public bool MultiCommandInFlight
         {
             get
-        {
+            {
                 return _MultiCommandInFlight;
             }
             private set
@@ -355,10 +369,23 @@ namespace Growthstories.UI.ViewModel
                     IsLeftButtonEnabled = true,
                     IsRightButtonEnabled = true,
                     LeftButtonContent = "Buy",
-                    RightButtonContent = "Not now",
-                    DismissedCommand = IAPTeaserDismissedCommand 
+                    RightButtonContent = "Not now"
                 };
-                pvm.AcceptedObservable.Subscribe(_ => IAP.ShopForBasicProduct().ContinueWith(x => AfterIAP(x.Result)));
+                pvm.AcceptedObservable
+                    .Take(1)
+                    .SelectMany(async _ =>
+                    {
+                        var r = await IAP.ShopForBasicProduct();
+                        return r;
+                    })
+                    .Subscribe(AfterIAP);
+
+                pvm.DismissedObservable
+                   .Take(1)
+                   .Where(x => x != PopupResult.LeftButton)
+                   .Select(x => new object())
+                   .Subscribe(IAPTeaserDismissedCommand.Execute);
+
 
                 App.ShowPopup.Execute(pvm);
 
@@ -379,8 +406,8 @@ namespace Growthstories.UI.ViewModel
             }
             else
             {
-                //AfterIAP(true);
-                this.Navigate(App.EditPlantViewModelFactory(null));
+                AfterIAP(true);
+
 
             }
         }
@@ -388,8 +415,8 @@ namespace Growthstories.UI.ViewModel
 
         protected void AfterIAP(bool bought)
         {
-
-
+            if (bought)
+                this.Navigate(App.EditPlantViewModelFactory(null));
             // else, user did not buy anything so
             // we are not going to navigate anywhere
         }
@@ -469,9 +496,9 @@ namespace Growthstories.UI.ViewModel
                     {
                         currentTileModeDefaultButtons = x > 0 ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
                         if (!IsPlantSelectionEnabled)
-            {
+                        {
                             this.AppBarButtons = currentTileModeDefaultButtons;
-            }
+                        }
                     });
 
                 //.Do(x => prevCount = x).Where(x => (x > 1 && prevCount <= 1) || ()
@@ -479,14 +506,14 @@ namespace Growthstories.UI.ViewModel
                   .Subscribe(x =>
                   {
                       if (x)
-            {
+                      {
                           this.Log().Info("PlantSelectionMode enabled");
                           this.AppBarButtons = TileModeMultiCommandButtons;
                           AppBarMode = ApplicationBarMode.DEFAULT;
 
-            }
-            else
-            {
+                      }
+                      else
+                      {
                           this.Log().Info("PlantSelectionMode disabled");
                           AppBarMode = ApplicationBarMode.MINIMIZED;
                           this.AppBarButtons = currentTileModeDefaultButtons;

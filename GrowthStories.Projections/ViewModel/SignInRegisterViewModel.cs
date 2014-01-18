@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Growthstories.Domain.Entities;
-using Growthstories.Core;
-using System.Threading.Tasks;
+using System.Text;
 using EventStore.Logging;
 using PWDTK_MOBILE_WP_8;
 using ReactiveUI;
@@ -11,7 +9,7 @@ using ReactiveUI;
 namespace Growthstories.UI.ViewModel
 {
 
-    
+
     public class SignInRegisterViewModel : RoutableViewModel, ISignInRegisterViewModel
     {
 
@@ -149,49 +147,49 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-    
+
         private IPopupViewModel GetPopup(Tuple<bool, RegisterResponse, SignInResponse> x)
         {
-                string msg = null;
-                string caption = null;
-                
-                if (!SignInMode)
+            string msg = null;
+            string caption = null;
+
+            if (!SignInMode)
+            {
+                caption = "Could not register";
+                switch (x.Item2)
                 {
-                    caption = "Could not register";
-                    switch (x.Item2)
-                    {
-                        case RegisterResponse.connectionerror:
-                            msg = "We could could not create an account for you, because we could not reach the Growth Stories servers. Please try again later.";
-                            break;
+                    case RegisterResponse.connectionerror:
+                        msg = "We could could not create an account for you, because we could not reach the Growth Stories servers. Please try again later.";
+                        break;
 
-                        case RegisterResponse.emailInUse:
-                            msg = "Could not create a new account for you, because the email address you provided is already in use.";
-                            break;
+                    case RegisterResponse.emailInUse:
+                        msg = "Could not create a new account for you, because the email address you provided is already in use.";
+                        break;
 
-                        case RegisterResponse.usernameInUse:
-                            msg = "Could not create a new account for you, because the username you provided is already in use.";
-                            break;
-                    }
+                    case RegisterResponse.usernameInUse:
+                        msg = "Could not create a new account for you, because the username you provided is already in use.";
+                        break;
+                }
 
             }
             else
             {
-                    caption = "Could not sign you in";
-                    switch (x.Item3)
-                    {
-                        case SignInResponse.connectionerror:
-                            msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
-                            break;
+                caption = "Could not sign you in";
+                switch (x.Item3)
+                {
+                    case SignInResponse.connectionerror:
+                        msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
+                        break;
 
-                        case SignInResponse.invalidEmail:
-                            msg = "The email address was incorrect. Please check your input and try again.";
-                            break;
+                    case SignInResponse.invalidEmail:
+                        msg = "The email address was incorrect. Please check your input and try again.";
+                        break;
 
-                        case SignInResponse.invalidPassword:
-                            msg = "The password was incorrect. Please check your input and try again.";
-                            break;
-                    }
+                    case SignInResponse.invalidPassword:
+                        msg = "The password was incorrect. Please check your input and try again.";
+                        break;
                 }
+            }
 
             return new PopupViewModel()
                     {
@@ -204,7 +202,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private String HashedPassword()
-        {            
+        {
             // we don't use a proper salt, as we don't have one
             // easily available. we could use the user guid, but
             // this would require first requesting the guid from
@@ -233,7 +231,7 @@ namespace Growthstories.UI.ViewModel
                     Caption = "Signing in",
                     ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data."
                 };
-            
+
             }
             else
             {
@@ -268,7 +266,7 @@ namespace Growthstories.UI.ViewModel
             return p != null && p.Length >= 6 && (SignInMode || p == pc);
         }
 
-    
+
         public bool _UsernameTouched;
         public bool UsernameTouched
         {
@@ -287,12 +285,12 @@ namespace Growthstories.UI.ViewModel
         public bool _EmailTouched;
         public bool EmailTouched
         {
-            get 
+            get
             {
                 return _EmailTouched;
             }
 
-            set 
+            set
             {
                 this.RaiseAndSetIfChanged(ref _EmailTouched, value);
                 this.raisePropertyChanged("EmailComplaint");
@@ -356,8 +354,8 @@ namespace Growthstories.UI.ViewModel
 
         public string EmailComplaint
         {
-            get 
-            {  
+            get
+            {
                 if (!EmailTouched)
                 {
                     return null;

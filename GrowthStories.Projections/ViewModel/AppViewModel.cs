@@ -96,7 +96,7 @@ namespace Growthstories.UI.ViewModel
                 }
                 return _UIPersistence;
 
-        }
+            }
         }
 
 
@@ -296,8 +296,8 @@ namespace Growthstories.UI.ViewModel
 
             resolver.Register(() => ResetSupport(() =>
                 {
-                return new GardenViewModel(this.WhenAnyValue(x => x.User), true, this, IIAPService);
-            }), typeof(IGardenViewModel));
+                    return new GardenViewModel(this.WhenAnyValue(x => x.User), true, this, IIAPService);
+                }), typeof(IGardenViewModel));
 
             resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
             resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
@@ -495,8 +495,8 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.AutoSyncCount--;
                 }
-            } 
-           
+            }
+
         }
 
 
@@ -512,8 +512,8 @@ namespace Growthstories.UI.ViewModel
             // processing to finish
             if (AutoSyncCount < 2)
             {
-            Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
-        }
+                Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
+            }
         }
 
 
@@ -745,9 +745,9 @@ namespace Growthstories.UI.ViewModel
             }
 
             if (await PrepareAuthorizedUser() != GSStatusCode.OK)
-                {
-                    return RegisterResponse.connectionerror;
-                }
+            {
+                return RegisterResponse.connectionerror;
+            }
 
             // make sure stuff is synchronized before registering, so
             // that there will be no sync conflict after the registration
@@ -937,7 +937,7 @@ namespace Growthstories.UI.ViewModel
         public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
 
 
-      
+
 
 
         // Special push for creating user
@@ -966,8 +966,8 @@ namespace Growthstories.UI.ViewModel
         //
         public async Task<GSStatusCode> PrepareAuthorizedUser()
         {
-         
-            
+
+
             // if we have not yet pushed the CreateUser event,
             // do that before obtaining auth token
             var res = RequestFactory.GetNextPushEvent(Model.State.SyncHead);
@@ -979,7 +979,7 @@ namespace Growthstories.UI.ViewModel
                 if (s.Status != SyncStatus.OK)
                 {
                     // this should not happen
-                    Logger.Warn("failed to push CreateUser for user id " + App.User.Id);
+                    this.Log().Warn("failed to push CreateUser for user id " + App.User.Id);
                     return GSStatusCode.FAIL;
                 }
             }
@@ -1012,9 +1012,9 @@ namespace Growthstories.UI.ViewModel
         {
             var code = await PrepareAuthorizedUser();
             if (code != GSStatusCode.OK)
-                {
-                    return new SyncInstance(SyncStatus.AUTH_ERROR);
-                }
+            {
+                return new SyncInstance(SyncStatus.AUTH_ERROR);
+            }
 
             var syncStreams = Model.State.SyncStreams.ToArray();
             var s = new SyncInstance
@@ -1041,7 +1041,7 @@ namespace Growthstories.UI.ViewModel
 
         public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
 
-      
+
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
             using (var release = await _SynchronizeLock.LockAsync())
@@ -1050,7 +1050,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        
+
         private async Task<ISyncInstance> _UnsafeSynchronize(ISyncInstance s)
         {
             bool handlePull = false;
@@ -1079,7 +1079,7 @@ namespace Growthstories.UI.ViewModel
                     // should handle this better, but this will do for now 
                     if (pullResp.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
                     {
-                        User.AccessToken = null;    
+                        User.AccessToken = null;
                     }
                     s.Status = SyncStatus.PULL_ERROR;
                     return s;
@@ -1239,7 +1239,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         public IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null)
-                {
+        {
             if (plantId != null)
                 return Return(GetSinglePlant(plantId.Value));
             return Observable.Start(() => UIPersistence.GetPlants(null, null, userId).ToObservable(), RxApp.TaskpoolScheduler)
@@ -1276,7 +1276,7 @@ namespace Growthstories.UI.ViewModel
                 o.OnNext(value);
                 o.OnCompleted();
                 return Disposable.Empty;
-                });
+            });
         }
 
         public IObservable<IPlantViewModel> FuturePlants(Guid userId)
