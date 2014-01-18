@@ -1,21 +1,8 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Domain;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Reactive.Threading.Tasks;
-using Growthstories.Core;
+using Growthstories.Domain.Entities;
+using ReactiveUI;
 //using EventStore.Logging;
-using CommonDomain;
-using System.Collections;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -38,7 +25,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
+        public const string ACTIONLIST_ID = "actionlist";
 
 
         public IReadOnlyReactiveList<IButtonViewModel> PlantActions { get; private set; }
@@ -54,7 +41,7 @@ namespace Growthstories.UI.ViewModel
             NavigateToSelected.OfType<PlantActionType>().Subscribe(x =>
             {
                 if (this.Plant != null)
-                    this.Plant.NavigateToEmptyActionCommand.Execute(x);
+                    this.Plant.NavigateToEmptyActionCommand.Execute(Tuple.Create(x, ACTIONLIST_ID));
             });
 
             foreach (var o in PlantActionViewModel.ActionTypeToLabel)

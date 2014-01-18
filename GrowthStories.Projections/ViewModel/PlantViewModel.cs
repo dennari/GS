@@ -37,6 +37,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PinCommand { get; protected set; }
         public IReactiveCommand ScrollCommand { get; protected set; }
         public IReactiveCommand ResetAnimationsCommand { get; protected set; }
+        public IReactiveCommand ShowActionList { get; protected set; }
+
 
         #endregion
 
@@ -146,6 +148,21 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private IPlantActionListViewModel _PlantActionList;
+        protected IPlantActionListViewModel PlantActionList
+        {
+            get
+            {
+                if (_PlantActionList == null)
+                {
+                    _PlantActionList = new PlantActionListViewModel(null, App)
+                    {
+                        Plant = this
+                    };
+                }
+                return _PlantActionList;
+            }
+        }
 
 
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
@@ -177,6 +194,7 @@ namespace Growthstories.UI.ViewModel
             this.PinCommand = new ReactiveCommand();
             this.ScrollCommand = new ReactiveCommand();
             this.TryShareCommand = new ReactiveCommand();
+            this.ShowActionList = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList));
 
 
             this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
@@ -643,7 +661,21 @@ namespace Growthstories.UI.ViewModel
                     _NavigateToEmptyActionCommand.OfType<PlantActionType>().Subscribe(x =>
                     {
                         var vm = CreateEmptyActionVM(x);
+
                         vm.AddCommand.Take(1).Subscribe(_ => App.Router.NavigateBack.Execute(null));
+
+                        this.Navigate(vm);
+                    });
+                    // the request came from the action picker
+                    _NavigateToEmptyActionCommand.OfType<Tuple<PlantActionType, string>>().Where(x => x.Item2 == PlantActionListViewModel.ACTIONLIST_ID).Subscribe(x =>
+                    {
+                        var vm = CreateEmptyActionVM(x.Item1);
+                        // remove one from the stack
+                        var stack = App.Router.NavigationStack;
+                        stack.RemoveAt(stack.Count - 1);
+
+                        vm.AddCommand.Take(1).Subscribe(_ => App.Router.NavigateBack.Execute(null));
+
                         this.Navigate(vm);
                     });
                 }
@@ -767,15 +799,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        private IReactiveCommand _ShowActionList;
-        public IReactiveCommand ShowActionList
-        {
-            get
-            {
-                return _ShowActionList ?? (_ShowActionList = new ReactiveCommand());
-            }
-
-        }
 
 
 

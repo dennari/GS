@@ -1,19 +1,8 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
 using System;
 using System.Reactive.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Reactive.Disposables;
-using System.ComponentModel;
+using Growthstories.Core;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -58,23 +47,24 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.SelectedPlant = x);
 
             // when current plant wants to show the action list, show it
-            this.WhenAnyValue(x => x.SelectedPlant)
-                .Where(x => x != null)
-                .Select(x => x.ShowActionList as IObservable<object>)
-                .Switch()
-                .Subscribe(_ =>
-                {
-                    this.PlantActionList.Plant = this.SelectedPlant;
-                    // switch back to default when any of the plantactions are clicked
-                    //this.SelectedPlant
-                    //    .NavigateToEmptyActionCommand
-                    //    .Take(1)
-                    //    .Subscribe(x => this.InnerViewModel = null);
-                    //this.NavigateInterface = typeof(IPlantActionListViewModel);
+            // moved actionlist to a regular page
+            //this.WhenAnyValue(x => x.SelectedPlant)
+            //    .Where(x => x != null)
+            //    .Select(x => x.ShowActionList as IObservable<object>)
+            //    .Switch()
+            //    .Subscribe(_ =>
+            //    {
+            //        this.PlantActionList.Plant = this.SelectedPlant;
+            //        // switch back to default when any of the plantactions are clicked
+            //        //this.SelectedPlant
+            //        //    .NavigateToEmptyActionCommand
+            //        //    .Take(1)
+            //        //    .Subscribe(x => this.InnerViewModel = null);
+            //        //this.NavigateInterface = typeof(IPlantActionListViewModel);
 
-                    this.SelectedPage = this.PlantActionList; // this makes the buttons and stuff to reflect the settings of the list
-                    this.InnerViewModel = this.PlantActionList;
-                });
+            //        this.SelectedPage = this.PlantActionList; // this makes the buttons and stuff to reflect the settings of the list
+            //        this.InnerViewModel = this.PlantActionList;
+            //    });
 
             // when an action is selected on the action list, show default content
             //this.PlantActionList.NavigateToSelected.Subscribe(_ => this.InnerViewModel = null);
@@ -101,15 +91,15 @@ namespace Growthstories.UI.ViewModel
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
                 });
 
-            App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
-            {
-                if (this.InnerViewModel == this.PlantActionList)
-                {
-                    x.Cancel = true;
-                    this.InnerViewModel = null;
-                    this.SelectedPage = this.SelectedPlant;
-                }
-            });
+            //App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
+            //{
+            //    if (this.InnerViewModel == this.PlantActionList)
+            //    {
+            //        x.Cancel = true;
+            //        this.InnerViewModel = null;
+            //        this.SelectedPage = this.SelectedPlant;
+            //    }
+            //});
 
 
         }
