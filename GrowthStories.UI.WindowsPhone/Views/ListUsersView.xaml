@@ -67,7 +67,7 @@
             -->
 
             <StackPanel
-                Visibility="{Binding App.ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
+                Visibility="{Binding ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
                 <TextBlock
                     Style="{StaticResource GSPlaceholderTextBlockStyle}"
                     Text="Searching..." 
@@ -80,7 +80,7 @@
             </StackPanel>
 
 
-            <StackPanel Visibility="{Binding App.ProgressIndicatorIsVisible, 
+            <StackPanel Visibility="{Binding ProgressIndicatorIsVisible, 
                     Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
 
                 <StackPanel

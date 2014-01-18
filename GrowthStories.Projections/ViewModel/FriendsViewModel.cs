@@ -1,12 +1,8 @@
-﻿using ReactiveUI;
-using System;
-using System.Reactive.Linq;
+﻿using System;
 using System.Reactive.Disposables;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
 using Growthstories.Domain.Messaging;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -31,7 +27,7 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand ItemTappedCommand { get; set; }
-        
+
 
         private IDisposable loadSubscription = Disposable.Empty;
         void LoadFriends()
@@ -132,9 +128,11 @@ namespace Growthstories.UI.ViewModel
 
                     App.ShowPopup.Execute(pvm);
 
-                } else {
-                    App.Router.NavigateCommandFor<SearchUsersViewModel>().Execute(null);
-        
+                }
+                else
+                {
+                    App.Router.NavigateCommandFor<ISearchUsersViewModel>().Execute(null);
+
                 }
             });
         }
@@ -163,7 +161,8 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _GardenButtons ?? (_GardenButtons = new ReactiveList<IButtonViewModel>() {
+                return _GardenButtons ?? (_GardenButtons = new ReactiveList<IButtonViewModel>()
+                {
                     /*
                     new ButtonViewModel(null)
                     {

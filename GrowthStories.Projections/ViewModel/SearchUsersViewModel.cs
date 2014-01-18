@@ -28,7 +28,29 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SearchCommand { get; private set; }
         public IReactiveCommand UserSelectedCommand { get; private set; }
 
-        public IPopupViewModel NoConnectionAlert { get; private set; }
+        private IPopupViewModel _NoConnectionAlert;
+        public IPopupViewModel NoConnectionAlert
+        {
+            get
+            {
+                if (_NoConnectionAlert == null)
+                {
+
+
+                    _NoConnectionAlert = new PopupViewModel()
+                    {
+                        Caption = "No data connection available",
+                        Message = "Following users requires a data connection. Please enable a data connection and try again.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+                    _NoConnectionAlert.DismissedObservable.Take(1).Select(_ => new object()).Subscribe(App.Router.NavigateBack.Execute);
+
+                }
+                return _NoConnectionAlert;
+
+            }
+        }
 
 
         private bool _InProgress;
@@ -113,6 +135,7 @@ namespace Growthstories.UI.ViewModel
 
             var input = SearchCommand
                 .OfType<string>()
+                .Do(x => this.Search = x)
                 .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length >= 2)
                 .Throttle(TimeSpan.FromMilliseconds(400))
                 .DistinctUntilChanged();

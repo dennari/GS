@@ -342,7 +342,10 @@
         </Style>
 
         <Style TargetType="local:GSViewGrid">
-            <Setter Property="Template">
+            <Setter Property="Title" Value=""/>
+            <Setter Property="TopTitle" Value=""/>
+
+        <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="local:GSViewGrid">
                         <Grid Background="{TemplateBinding Background}" HorizontalAlignment="Stretch">
@@ -387,7 +390,10 @@
 
         
         <Style TargetType="local:GSViewGrid" x:Key="NoScroll">
-            <Setter Property="Template">
+        
+         <Setter Property="Title" Value=""/>
+        <Setter Property="TopTitle" Value=""/>
+        <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="local:GSViewGrid">
                         <Grid Background="{TemplateBinding Background}">

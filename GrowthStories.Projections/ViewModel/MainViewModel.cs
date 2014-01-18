@@ -1,18 +1,9 @@
 
-using Growthstories.Core;
-using Growthstories.Domain;
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -25,6 +16,9 @@ namespace Growthstories.UI.ViewModel
 
         private async Task LoadAsync()
         {
+
+            // it's important to get these through the resolver for ui-reset support
+
             GardenVM = await Task.Run(() => App.Resolver.GetService<IGardenViewModel>());
             this._Pages.Add(this.GardenVM);
             this.SelectedPage = this.GardenVM;

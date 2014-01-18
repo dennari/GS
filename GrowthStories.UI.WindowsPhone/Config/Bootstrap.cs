@@ -126,11 +126,13 @@ namespace Growthstories.UI.WindowsPhone
             Bind<TestingViewModel>().To<ClientTestingViewModel>().InSingletonScope();
             Bind<IAboutViewModel>().To<AboutViewModel>().InSingletonScope();
             Bind<ISearchUsersViewModel>().To<SearchUsersViewModel>().InSingletonScope();
+            Bind<FriendsViewModel>().To<FriendsViewModel>().InSingletonScope();
 
 
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IApplicationRootState)), typeof(IApplicationRootState));
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(ISearchUsersViewModel)), typeof(ISearchUsersViewModel));
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IAboutViewModel)), typeof(IAboutViewModel));
+            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(FriendsViewModel)), typeof(FriendsViewModel));
             RxUIResolver.Register(() =>
             {
                 return KernelInstance.GetService(typeof(IAddEditPlantViewModel));

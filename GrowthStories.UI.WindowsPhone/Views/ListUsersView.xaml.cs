@@ -1,18 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
-using System.Windows.Input;
 using Growthstories.Sync;
-using System.Reactive.Disposables;
-using System.Net.NetworkInformation;
+using Growthstories.UI.ViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -46,6 +35,12 @@ namespace Growthstories.UI.WindowsPhone
             this.Focus();
 
         }
+
+        private void UserListBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            this.ViewModel.SearchCommand.Execute(UserListBox.Text);
+        }
+
 
 
         private void UserSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
