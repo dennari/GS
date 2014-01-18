@@ -38,6 +38,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void UserListBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            this.ViewModel.Search = UserListBox.Text;
             this.ViewModel.SearchCommand.Execute(UserListBox.Text);
         }
 

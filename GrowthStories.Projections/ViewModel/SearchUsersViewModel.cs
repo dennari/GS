@@ -135,7 +135,6 @@ namespace Growthstories.UI.ViewModel
 
             var input = SearchCommand
                 .OfType<string>()
-                .Do(x => this.Search = x)
                 .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length >= 2)
                 .Throttle(TimeSpan.FromMilliseconds(400))
                 .DistinctUntilChanged();
@@ -150,7 +149,7 @@ namespace Growthstories.UI.ViewModel
                 .Publish()
                 .RefCount();
 
-            input.Subscribe(_ => ProgressIndicatorIsVisible = true);
+            input.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => ProgressIndicatorIsVisible = true);
 
             results.Subscribe(x =>
             {

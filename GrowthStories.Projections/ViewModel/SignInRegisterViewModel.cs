@@ -106,6 +106,48 @@ namespace Growthstories.UI.ViewModel
             // NavigateBack = true;
         }
 
+
+
+        private IPopupViewModel _NoConnectionAlert;
+        public IPopupViewModel NoConnectionAlert
+        {
+            get
+            {
+                if (_NoConnectionAlert == null)
+                {
+
+
+                    var signInMsg = "Signing in requires a data connection. Please enable one in your phone's settings and try again";
+
+
+                    var registerMsg = "Registration requires a data connection. Please enable one in your phone's settings and try again";
+
+                    var popup = new PopupViewModel()
+                    {
+                        Caption = "No data connection available",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+
+
+                    popup.DismissedObservable.Take(1).Select(_ => new object()).Subscribe(App.Router.NavigateBack.Execute);
+
+                    this.WhenAnyValue(x => x.SignInMode).Subscribe(x =>
+                    {
+                        popup.Message = x ? signInMsg : registerMsg;
+                    });
+
+                    _NoConnectionAlert = popup;
+
+
+                }
+                return _NoConnectionAlert;
+
+            }
+        }
+
+
+
         private IPopupViewModel GetPopup(Tuple<bool, RegisterResponse, SignInResponse> x)
         {
             string msg = null;
@@ -551,7 +593,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        public IPopupViewModel NoConnectionAlert { get; private set; }
 
     }
 

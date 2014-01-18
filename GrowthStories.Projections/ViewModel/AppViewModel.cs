@@ -943,6 +943,14 @@ namespace Growthstories.UI.ViewModel
         private async Task<ISyncInstance> UnsafeSynchronize()
         {
             // obtain access token if required
+
+
+
+            if (Model.State.SyncHead.GlobalCommitSequence == 0) // user not created
+            {
+                await this.Push();
+            }
+
             if (User.AccessToken == null)
             {
                 try
@@ -991,17 +999,17 @@ namespace Growthstories.UI.ViewModel
         //
         public async Task<ISyncInstance> Push()
         {
-            if (User.AccessToken == null)
-            {
-                try
-                {
-                    var authResponse = await Context.AuthorizeUser();
-                }
-                catch
-                {
-                    return null;
-                }
-            }
+            //if (User.AccessToken == null)
+            //{
+            //    try
+            //    {
+            //        var authResponse = await Context.AuthorizeUser();
+            //    }
+            //    catch
+            //    {
+            //        return null;
+            //    }
+            //}
 
             var s = new SyncInstance(
                 RequestFactory.CreatePullRequest(null),

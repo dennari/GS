@@ -59,7 +59,7 @@
             <local:GSTextBox
                     x:Name="UserListBox"
                     BorderThickness="3" Margin="-12,0,-12,12"
-                    
+                    KeyUp="UserListBox_KeyUp"
               />
             <!--
             ActionIcon="/Assets/Icons/appbar.add.png"
