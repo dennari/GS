@@ -550,6 +550,9 @@ namespace Growthstories.UI.ViewModel
                 });
             }
         }
+
+        public IPopupViewModel NoConnectionAlert { get; private set; }
+
     }
 
 

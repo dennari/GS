@@ -157,7 +157,7 @@ namespace Growthstories.UI.ViewModel
 
     }
 
-    public interface ISearchUsersViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray
+    public interface ISearchUsersViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray, IRequiresNetworkConnection
     {
         IReadOnlyReactiveList<RemoteUser> List { get; }
         IReactiveCommand SearchCommand { get; }
@@ -315,7 +315,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray, IHasAppBarButtons
+    public interface ISignInRegisterViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray, IHasAppBarButtons, IRequiresNetworkConnection
     {
         bool IsRegistered { get; }
         //bool NavigateBack { get; set; }
@@ -429,6 +429,11 @@ namespace Growthstories.UI.ViewModel
     public interface IHasAppBarButtons
     {
         IReadOnlyReactiveList<IButtonViewModel> AppBarButtons { get; }
+    }
+
+    public interface IRequiresNetworkConnection
+    {
+        IPopupViewModel NoConnectionAlert { get; }
     }
 
     public interface IHasMenuItems

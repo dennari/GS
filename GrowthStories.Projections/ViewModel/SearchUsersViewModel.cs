@@ -1,22 +1,13 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Domain;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Threading.Tasks;
-using Growthstories.Core;
 //using EventStore.Logging;
-using CommonDomain;
-using System.Collections;
 using EventStore.Logging;
+using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -37,6 +28,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SearchCommand { get; private set; }
         public IReactiveCommand UserSelectedCommand { get; private set; }
 
+        public IPopupViewModel NoConnectionAlert { get; private set; }
 
 
         private bool _InProgress;

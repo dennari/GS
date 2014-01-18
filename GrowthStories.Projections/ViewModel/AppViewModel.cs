@@ -251,13 +251,24 @@ namespace Growthstories.UI.ViewModel
 
             vmChanged
                  .OfType<IControlsSystemTray>()
-                 .Select(x => x.WhenAny(y => y.SystemTrayIsVisible, y => y.GetValue()).StartWith(x.SystemTrayIsVisible))
+                 .Select(x => x.WhenAnyValue(y => y.SystemTrayIsVisible))
                  .Switch()
                  .ToProperty(this, x => x.SystemTrayIsVisible, out this._SystemTrayIsVisible, false);
 
             vmChanged
+               .OfType<IRequiresNetworkConnection>()
+               .Select(x => x.WhenAnyValue(y => y.NoConnectionAlert))
+               .Switch()
+               .Subscribe(x =>
+               {
+                   if (!this.HasDataConnection)
+                       this.ShowPopup.Execute(x ?? this.DefaultNoConnectionAlert);
+               });
+
+
+            vmChanged
                  .OfType<IControlsProgressIndicator>()
-                 .Select(x => x.WhenAny(y => y.ProgressIndicatorIsVisible, y => y.GetValue()).StartWith(x.ProgressIndicatorIsVisible))
+                 .Select(x => x.WhenAnyValue(y => y.ProgressIndicatorIsVisible))
                  .Switch().ObserveOn(RxApp.MainThreadScheduler)
                  .ToProperty(this, x => x.ProgressIndicatorIsVisible, out this._ProgressIndicatorIsVisible, true, RxApp.MainThreadScheduler);
 
@@ -266,7 +277,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     var xx = x as IControlsPageOrientation;
                     if (xx != null)
-                        return xx.WhenAny(y => y.SupportedOrientations, y => y.GetValue()).StartWith(xx.SupportedOrientations);
+                        return xx.WhenAnyValue(y => y.SupportedOrientations);
                     return Observable.Return(SupportedPageOrientation.Portrait);
                 })
                 .Switch()
@@ -325,6 +336,25 @@ namespace Growthstories.UI.ViewModel
                 return _SyncPopup;
             }
         }
+
+        private IPopupViewModel _DefaultNoConnectionAlert;
+        public IPopupViewModel DefaultNoConnectionAlert
+        {
+            get
+            {
+                if (_DefaultNoConnectionAlert == null)
+                {
+                    _DefaultNoConnectionAlert = new PopupViewModel()
+                    {
+                        IsLeftButtonEnabled = true,
+                        Caption = "The feature you are requesting requires connectivity."
+                    };
+                }
+                return _DefaultNoConnectionAlert;
+            }
+        }
+
+
 
         private object _myGarden;
         private object _myFriends;
