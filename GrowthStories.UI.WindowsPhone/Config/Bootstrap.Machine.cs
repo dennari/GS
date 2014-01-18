@@ -1,4 +1,7 @@
 ﻿
+using EventStore.Logging;
+using Growthstories.Core;
+using ReactiveUI;
 namespace Growthstories.UI.WindowsPhone
 {
     public class BootstrapMachine : Bootstrap

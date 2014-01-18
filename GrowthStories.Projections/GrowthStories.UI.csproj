@@ -110,6 +110,7 @@
     <Compile Include="SharedViewHelpers.cs" />
     <Compile Include="ViewModel\AppViewModel.cs" />
     <Compile Include="ViewModel\CommandViewModel.cs" />
+    <Compile Include="ViewModel\PlantSingularViewModel.cs" />
     <Compile Include="ViewModel\NotificationsViewModel.cs" />
     <Compile Include="ViewModel\PhotoListViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />

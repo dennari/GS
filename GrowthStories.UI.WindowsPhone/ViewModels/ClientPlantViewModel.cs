@@ -41,23 +41,32 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 throw new ArgumentNullException("tileHelperFactory needs to be given.");
             this.TileHelperFactory = tileHelperFactory;
 
-            this.HasTile = TileHelper.HasTile;
+            TileHelper.WhenAnyValue(x => x.HasTile).Subscribe(x => this.HasTile = x);
             PinCommand
-                //.Select(_ => HasTile ? (Func<bool>)TileHelper.DeleteTile : (Func<bool>)TileHelper.CreateOrUpdateTile)
                 .Subscribe(_ =>
                 {
                     if (HasTile)
                     {
                         TileHelper.DeleteTile();
-                        this.HasTile = false;
                     }
                     else
                     {
                         TileHelper.CreateOrUpdateTile();
-                        this.HasTile = true;
                     }
 
                 });
+
+            DeleteObservable
+               .Subscribe(_ =>
+               {
+                   if (HasTile)
+                   {
+                       TileHelper.DeleteTile();
+                   }
+
+               });
+
+
             ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
 

@@ -98,7 +98,7 @@
             Text="Add actions for this plant by using the application bar at the bottom." 
             Margin="12,0,0,0"
             Width="400"
-            Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}"
+            Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
             toolkit:SlideInEffect.LineIndex="1"
                 />
 
@@ -118,7 +118,7 @@
 
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
-                    <StackPanel Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}">
+                    <StackPanel Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}">
                         
                         <Grid Visibility="{Binding ShowFertilizingScheduler, Converter={StaticResource BooleanToVisibility}}">
                             <ContentControl                            

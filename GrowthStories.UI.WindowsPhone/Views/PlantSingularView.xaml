@@ -1,0 +1,42 @@
+﻿<local:PlantSingularViewBase
+	x:Class="Growthstories.UI.WindowsPhone.PlantSingularView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+    xmlns:reactive="clr-namespace:ReactiveUI.Xaml;assembly=ReactiveUI.Xaml"
+    d:DesignHeight="800"
+    mc:Ignorable="d">
+
+    <reactive:ViewModelViewHost 
+        ViewModel="{Binding InnerViewModel}"
+        
+        VerticalContentAlignment="Stretch"
+        HorizontalContentAlignment="Stretch"
+        >
+        <reactive:ViewModelViewHost.DefaultContent>
+
+            <local:GSViewGrid
+                TopTitle="GROWTH STORIES"
+                Title="{Binding Plant.Name}"
+                >
+                <local:GSViewGrid.Background>
+                    <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
+                </local:GSViewGrid.Background>
+
+
+                <local:PlantView 
+                    ViewModel="{Binding Plant}" 
+                    Margin="0,0,0,0" 
+                    VerticalAlignment="Stretch" />
+
+
+            </local:GSViewGrid>
+        </reactive:ViewModelViewHost.DefaultContent>
+    </reactive:ViewModelViewHost>
+
+
+</local:PlantSingularViewBase>

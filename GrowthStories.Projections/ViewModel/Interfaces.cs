@@ -70,7 +70,6 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShowPopup { get; }
         IReactiveCommand SynchronizeCommand { get; }
         IReactiveCommand UISyncFinished { get; }
-        IReactiveCommand DeleteTileCommand { get; }
         IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
         IPopupViewModel SyncPopup { get; }
         IAuthUser User { get; }
@@ -209,7 +208,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
-        //IObservable<IPlantViewModel> WateringObservable { get; }
+        IObservable<IPlantViewModel> DeleteObservable { get; }
         IReactiveCommand DeleteCommand { get; }
         //IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
@@ -243,6 +242,13 @@ namespace Growthstories.UI.ViewModel
         int PlantIndex { get; set; }
 
     }
+
+
+    public interface IPlantSingularViewModel : IGSRoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation
+    {
+        IPlantViewModel Plant { get; }
+    }
+
 
 
     public interface IPhotoListViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsPageOrientation

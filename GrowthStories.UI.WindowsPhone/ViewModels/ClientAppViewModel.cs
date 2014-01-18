@@ -82,16 +82,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 catch { }
             });
 
-            MyGardenCreatedCommand.Subscribe(x =>
-            {
-                try
-                {
-                    //GSTileUtils.SubscribeForTileUpdates(x as IGardenViewModel);
-                    //StartScheduleUpdater(x as IGardenViewModel);
-                }
-                catch { }
-            });
-
+   
             SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
                 try
@@ -101,10 +92,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 catch { }
             });
 
-            DeleteTileCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
-            {
-                GSTileUtils.DeleteTile((IPlantViewModel)x);
-            });
 
             //IAPCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(async x => 
             //{

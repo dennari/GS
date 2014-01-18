@@ -232,8 +232,18 @@ namespace Growthstories.UI.WindowsPhone
                 //    .Do(x => this.Log().Info("CurrentPlants returned"))
                 //    .FirstOrDefaultAsync().Wait();
                 pvm = ViewModel.GetSinglePlant(plantId);
+                var a = pvm.Actions; // just to start loading
                 t.Stop();
                 this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);
+
+                pvm.DeleteObservable.Take(1).Subscribe(x =>
+                {
+                    // get back from plantview, into "nothing"
+                    this.ViewModel.Router.NavigateBack.Execute(null);
+                    // exit app
+                    this.ViewModel.Router.NavigateBack.Execute(null);
+
+                });
 
             }
             catch (Exception e)
@@ -242,7 +252,9 @@ namespace Growthstories.UI.WindowsPhone
             }
 
 
-            this.ViewModel.Router.Navigate.Execute(pvm);
+
+
+            this.ViewModel.Router.Navigate.Execute(new PlantSingularViewModel(pvm, ViewModel));
 
 
 

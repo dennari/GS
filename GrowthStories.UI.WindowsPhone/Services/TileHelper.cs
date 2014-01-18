@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Growthstories.Core;
 using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Shell;
-
+using ReactiveUI;
 namespace Growthstories.UI.WindowsPhone
 {
-    class TileHelper : ITileHelper
+    class TileHelper : ReactiveObject, ITileHelper
     {
         private readonly IPlantViewModel Vm;
         private readonly IAuthUser AppUser;
@@ -16,6 +17,10 @@ namespace Growthstories.UI.WindowsPhone
             this.Vm = vm;
             // this is optional and used only for optimization
             this.AppUser = appUser;
+
+            vm.WhenAnyValue(x => x.Id).Where(x => x != default(Guid))
+                .Take(1).Subscribe(x => this.HasTile = Current != null);
+
         }
         public bool CreateOrUpdateTile()
         {
@@ -33,6 +38,7 @@ namespace Growthstories.UI.WindowsPhone
 
             }
             _Current = null;
+            HasTile = true;
             return true;
 
         }
@@ -41,6 +47,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             GSTileUtils.DeleteTile(Vm);
             _Current = null;
+            HasTile = false;
             return true;
         }
 
@@ -48,14 +55,18 @@ namespace Growthstories.UI.WindowsPhone
         private ShellTile Current { get { return _Current ?? (_Current = GSTileUtils.GetShellTile(Vm)); } }
 
 
+        private bool _HasTile;
         public bool HasTile
         {
             get
             {
-                if (AppUser != null && AppUser.Id != Vm.UserId)
-                    return false;
-                return Current != null;
+                return _HasTile;
+            }
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref _HasTile, value);
             }
         }
+
     }
 }

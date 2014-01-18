@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Diagnostics;
+using System.Windows.Media;
 using BugSense;
 using BugSense.Core.Model;
 using Growthstories.Domain;
@@ -9,9 +12,6 @@ using Growthstories.UI.WindowsPhone.ViewModels;
 using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using System;
-using System.Diagnostics;
-using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -149,7 +149,7 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new SettingsView(), typeof(IViewFor<ISettingsViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new AboutView(), typeof(IViewFor<IAboutViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new AddPlantView(), typeof(IViewFor<IAddEditPlantViewModel>));
-            RxUIResolver.RegisterLazySingleton(() => new PlantView(), typeof(IViewFor<IPlantViewModel>));
+            RxUIResolver.RegisterLazySingleton(() => new PlantSingularView(), typeof(IViewFor<IPlantSingularViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new PlantActionAddEditView(), typeof(IViewFor<IPlantActionViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
@@ -184,6 +184,8 @@ namespace Growthstories.UI.WindowsPhone
                     return typeof(IGardenViewModel);
                 if (T is IPlantViewModel)
                     return typeof(IPlantViewModel);
+                if (T is IPlantSingularViewModel)
+                    return typeof(IPlantSingularViewModel);
                 if (T is IFriendsViewModel)
                     return typeof(IFriendsViewModel);
                 if (T is IPlantActionListViewModel)

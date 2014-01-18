@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -30,11 +31,14 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private HashSet<IPlantViewModel> MultiDeleteList = new HashSet<IPlantViewModel>();
 
         private void LoadPlants(IAuthUser u)
         {
             PlantsLoaded = true;
-            App.CurrentPlants(u.Id).Concat(App.FuturePlants(u.Id)).ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            var plantStream = App.CurrentPlants(u.Id).Concat(App.FuturePlants(u.Id)).Publish().RefCount();
+
+            plantStream.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
 
                 x.PlantIndex = _Plants.Count();
@@ -46,6 +50,13 @@ namespace Growthstories.UI.ViewModel
                        _Plants.Remove(x);
                    });
             });
+
+            plantStream.SelectMany(x => x.DeleteObservable).Subscribe(x =>
+            {
+                if (!MultiDeleteList.Contains(x))
+                    this.NavigateBack();
+            });
+
 
         }
 
@@ -186,9 +197,11 @@ namespace Growthstories.UI.ViewModel
             this.MultiWateringCommand = new ReactiveCommand(this.IsNotInProgress);
             this.MultiWateringCommand
                 .Select(_ => new { list = _SelectedPlants, count = _SelectedPlants.Count })
+
                 .Where(x => x.count > 0)
                 .Do(_ => MultiCommandInFlight = true)
                 .SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
+
                 .SelectMany(async x =>
                 {
                     this.Log().Info("MultiWatering {0}/{1} started", x.i + 1, x.of);
@@ -209,6 +222,8 @@ namespace Growthstories.UI.ViewModel
                 });
 
 
+
+
             this.MultiDeleteCommand = new ReactiveCommand(this.IsNotInProgress);
             this.MultiDeleteCommand
                 .Select(_ => new { list = _SelectedPlants, count = _SelectedPlants.Count })
@@ -220,13 +235,21 @@ namespace Growthstories.UI.ViewModel
                     return popup.AcceptedObservable.Take(1).Select(_ => x);
                 })
                 .Switch()
-                .Do(_ => MultiCommandInFlight = true)
+                .Do(_ =>
+                {
+                    MultiCommandInFlight = true;
+                    this.MultiDeleteList = new HashSet<IPlantViewModel>(_.list);
+                })
                 .SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
                 .SelectMany(async x =>
                 {
                     this.Log().Info("MultiDelete {0}/{1} started", x.i + 1, x.of);
-                    await App.HandleCommand(new DeleteAggregate(x.el.Id, "plant"));
+                    //await App.HandleCommand(new DeleteAggregate(x.el.Id, "plant"));
+
+                    x.el.DeleteCommand.Execute(null);
+                    await x.el.DeleteObservable.Take(1);
                     this.Log().Info("MultiDelete {0}/{1} ended", x.i + 1, x.of);
+
                     return x;
                 })
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -258,7 +281,11 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
-            stateObservable.Where(x => x != null).Take(1).Subscribe(x =>
+            stateObservable
+                .Where(x => x != null)
+                .Take(1)
+                //.ObserveOn(isOwn ? RxApp.MainThreadScheduler : System.Reactive.Concurrency.ImmediateScheduler.Instance)
+                .Subscribe(x =>
             {
                 Init(x, isOwn);
 

@@ -1,13 +1,13 @@
 
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
+using Growthstories.Sync;
+using ReactiveUI;
 
 
 namespace Growthstories.UI.ViewModel
@@ -70,13 +70,13 @@ namespace Growthstories.UI.ViewModel
 
             var garden = app.Resolver.GetService<IGardenViewModel>();
             this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-                garden.Plants.Where(x => x.WateringSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x =>
+                garden.Plants.Where(x => x.WateringSchedule != null && x.WateringSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x =>
                 {
                     return Tuple.Create(x, x.WateringSchedule);
                 })
             );
             this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-             garden.Plants.Where(x => x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
+             garden.Plants.Where(x => x.FertilizingSchedule != null && x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
            );
 
 

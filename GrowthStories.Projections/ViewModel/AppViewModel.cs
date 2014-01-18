@@ -167,8 +167,7 @@ namespace Growthstories.UI.ViewModel
 
             });
 
-            DeleteTileCommand = new ReactiveCommand();
-            MyGardenCreatedCommand = new ReactiveCommand();
+
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
@@ -297,7 +296,6 @@ namespace Growthstories.UI.ViewModel
         }
 
         #region COMMANDS
-        public IReactiveCommand MyGardenCreatedCommand { get; private set; }
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SynchronizeCommand { get; private set; }
         public IReactiveCommand UISyncFinished { get; private set; }
@@ -311,7 +309,6 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
 
-        public IReactiveCommand DeleteTileCommand { get; private set; }
 
 
         #endregion
@@ -340,7 +337,6 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_myGarden == null)
                     _myGarden = factory();
-                MyGardenCreatedCommand.Execute(_myGarden);
                 return _myGarden;
             }
             if (typeof(T) == typeof(FriendsViewModel))
@@ -439,7 +435,7 @@ namespace Growthstories.UI.ViewModel
                     || e.StreamEntityId == this.User.Id)
                 {
                     // this is an async call, so it will not block
-                    PossiblyAutoSync();
+                    //PossiblyAutoSync();
                 }
             });
         }
@@ -1136,17 +1132,13 @@ namespace Growthstories.UI.ViewModel
 
         public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
         {
-            //Func<Guid?, IEnumerable<UserState>> f = UIPersistence.GetUsers;
 
-            //var af = f.ToAsync(RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-
-            var current = UIPersistence.GetUsers(userId)
+            return UIPersistence.GetUsers(userId)
                 .ToObservable()
                 .Where(x => !x.IsDeleted)
                 .Select(x => new GardenViewModel(Observable.Return(x), false, this));
 
-            return current;
+
         }
 
 
@@ -1181,7 +1173,11 @@ namespace Growthstories.UI.ViewModel
 
         public IPlantViewModel GetSinglePlant(Guid plantId)
         {
-            return PlantViewModelFactory(Observable.Start(() => UIPersistence.GetPlants(plantId, null, null).ToObservable(), RxApp.TaskpoolScheduler).Merge());
+            return PlantViewModelFactory(Observable.Start(() => UIPersistence
+                .GetPlants(plantId, null, null)
+                .ToObservable()
+                .Where(x => !x.Item1.IsDeleted)
+                , RxApp.TaskpoolScheduler).Merge());
         }
 
         public IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null)

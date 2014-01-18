@@ -1,11 +1,7 @@
-﻿using Growthstories.Sync;
-using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -27,7 +23,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-                var currentPageChanged = this.WhenAny(x => x.SelectedPage, x => x.GetValue());
+                var currentPageChanged = this.WhenAnyValue(x => x.SelectedPage).Where(x => x != null);
 
 
                 //this.ObservableForProperty(x => x.CurrentPage.)
@@ -35,25 +31,25 @@ namespace Growthstories.UI.ViewModel
 
                 currentPageChanged
                     .OfType<IHasAppBarButtons>()
-                    .Select(x => x.WhenAny(y => y.AppBarButtons, y => y.GetValue()).StartWith(x.AppBarButtons))
+                    .Select(x => x.WhenAnyValue(y => y.AppBarButtons))
                     .Switch()
-                    .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons, (IReadOnlyReactiveList<IButtonViewModel>)(new ReactiveList<IButtonViewModel>()));
+                    .ToProperty(this, x => x.AppBarButtons, out this._AppBarButtons);
 
                 currentPageChanged
                     .OfType<IHasMenuItems>()
-                    .Select(x => x.WhenAny(y => y.AppBarMenuItems, y => y.GetValue()).StartWith(x.AppBarMenuItems))
+                    .Select(x => x.WhenAnyValue(y => y.AppBarMenuItems))
                     .Switch()
-                    .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems, (IReadOnlyReactiveList<IMenuItemViewModel>)(new ReactiveList<IMenuItemViewModel>()));
+                    .ToProperty(this, x => x.AppBarMenuItems, out this._AppBarMenuItems);
 
                 currentPageChanged
                     .OfType<IControlsAppBar>()
-                    .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
+                    .Select(x => x.WhenAnyValue(y => y.AppBarMode))
                     .Switch()
                     .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.DEFAULT);
 
                 currentPageChanged
                      .OfType<IControlsAppBar>()
-                     .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
+                     .Select(x => x.WhenAnyValue(y => y.AppBarIsVisible))
                      .Switch()
                      .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarVisibility, true);
 
