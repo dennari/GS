@@ -9,8 +9,9 @@
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives"
-    xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" 
+	xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
+	xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     xmlns:toolkitPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
@@ -23,33 +24,42 @@
 
             <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}">
 
-                    <toolkit:ContextMenuService.ContextMenu>
-                            <toolkit:ContextMenu IsZoomEnabled="False" Background="Transparent" 
-                                                 BorderBrush="Transparent" BorderThickness="0" Padding="48,48,48,48">
-                                <toolkit:MenuItem Header="Water"
-                                                  Background="WhiteSmoke"
-                                                  Opacity="1.0"
-                                                  Foreground="{StaticResource GSAccentBrush}"
-                                                  Command="{Binding WateringCommand}"
-                                                  CommandParameter="{Binding}"
-                                                  IsEnabled="{Binding HasWriteAccess}"/>
-                                <toolkit:MenuItem Header="Edit" 
-                                                  Opacity="1.0"
-                                                  Background="WhiteSmoke"
-                                                  Foreground="{StaticResource GSAccentBrush}"
-                                                  Command="{Binding EditCommand}"
-                                                  CommandParameter="{Binding}"
-                                                  IsEnabled="{Binding HasWriteAccess}"/>
-                                
-                                <toolkit:MenuItem Header="Delete" 
-                                                  Opacity="1.0"
-                                                  Background="WhiteSmoke"
-                                                  Foreground="{StaticResource GSAccentBrush}"
-                                                  Command="{Binding DeleteRequestedCommand}"
-                                                  CommandParameter="{Binding}"
-                                                  IsEnabled="{Binding HasWriteAccess}"/>
-                            </toolkit:ContextMenu>
-                        </toolkit:ContextMenuService.ContextMenu>
+                <telerikPrimitives:RadContextMenu.ContextMenu>
+                    
+                    <telerikPrimitives:RadContextMenu 
+                            Visibility="{Binding OwnPlant, Converter={StaticResource BooleanToVisibility}}"
+                            IsFadeEnabled="True"
+                            IsZoomEnabled="False"
+                            Background="WhiteSmoke"
+                            Foreground="{StaticResource GSAccentBrush}">
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Water"
+                                Command="{Binding WateringCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding HasWriteAccess}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Edit" 
+                                Command="{Binding EditCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding HasWriteAccess}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Delete" 
+                                Command="{Binding DeleteRequestedCommand}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding HasWriteAccess}"    
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                    </telerikPrimitives:RadContextMenu>
+                </telerikPrimitives:RadContextMenu.ContextMenu>
+                
 
                 <Button
                     HorizontalAlignment="Left"
@@ -265,6 +275,14 @@
         </Style>
 
 
+        <!--
+        <Style x:Key="DefaultIndicatorAnimation">
+
+            <Style x:Key="DefaultIndicatorAnimation" TargetType="telerikPrimitivesBusyIndicator:BusyIndicatorAnimation">
+
+        </Style>
+        -->
+
     </UserControl.Resources>
 
 
@@ -273,39 +291,73 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-        <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}}">
-            <TextBlock 
-            Style="{StaticResource GSPlaceholderTextBlockStyle}"
-            Text="You don't have any plants yet." 
-            FontWeight="Bold"
-            Margin="6,0,0,24"
-            Width="400"
-            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
-            />
+        <telerikPrimitives:RadBusyIndicator 
+            Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+            ContentPosition="Right"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            IsRunning="True"
+            AnimationStyle="AnimationStyle7"
+            Foreground="WhiteSmoke"
+            Margin="12,24,0,0"
+            >
+            <telerikPrimitives:RadBusyIndicator.RenderTransform> 
+                <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
+            </telerikPrimitives:RadBusyIndicator.RenderTransform>
+                 
+            <telerikPrimitives:RadBusyIndicator.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock 
+                    VerticalAlignment="Center"
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Loading plants..." 
+                    FontSize="14"
+                    FontWeight="Normal"
+                    Margin="8,-4,0,0"
+                    Width="200"
+                    Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+                </DataTemplate>
+            </telerikPrimitives:RadBusyIndicator.ContentTemplate>
+        </telerikPrimitives:RadBusyIndicator>
 
-            <TextBlock 
-            Style="{StaticResource GSPlaceholderTextBlockStyle}"
-            Text="Add your first plant by using the application bar at the bottom." 
-            VerticalAlignment="Top" Grid.Row="1" Margin="6,0,0,0"
-            Width="400"
-            FontSize="24"
-            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
-        />
-        </StackPanel>
+        <StackPanel Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}}">
 
-        <StackPanel Visibility="{Binding OwnGarden, 
-            Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+            <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock 
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="You don't have any plants yet." 
+                    HorizontalAlignment="Left"
+                    FontWeight="Bold"
+                    Margin="12,0,0,24"
+                    Width="400"
+                    Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+
+                <TextBlock 
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Add your first plant by using the application bar at the bottom." 
+                    VerticalAlignment="Top" Grid.Row="1" Margin="12,0,0,0"
+                    Width="400"
+                    FontSize="24"
+                    Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+                <TextBlock 
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="This user has no shared plants." 
+                    HorizontalAlignment="Left"
+                    FontWeight="Bold"
+                    Margin="12,0,0,24"
+                    Width="400"
+                    Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+                    />
+            </StackPanel>
             
-            <TextBlock 
-            Style="{StaticResource GSPlaceholderTextBlockStyle}"
-            Text="This user has no shared plants." 
-            FontWeight="Bold"
-            Margin="-24,0,0,24"
-            Width="400"
-            Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
-            />            
         </StackPanel>
-
 
         <toolkit:LongListMultiSelector
 		    x:Name="PlantsSelector"

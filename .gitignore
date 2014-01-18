@@ -129,3 +129,6 @@ GrowthStories.UI.WindowsPhone/PerfLogs/
 
 backend
 /ARM
+
+/GrowthStories.UI.WindowsPhone/Views/Page1.xaml
+/GrowthStories.UI.WindowsPhone/Views/Page1.xaml.cs

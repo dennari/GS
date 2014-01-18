@@ -14,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -70,10 +71,11 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.SETTINGS,IconFolder+"appbar.settings.png"},
             {IconType.SIGNIN,IconFolder+"appbar.door.enter.png"},
             {IconType.SIGNOUT,IconFolder+"appbar.door.leave.png"},
-            {IconType.SIGNUP,IconFolder+"appbar.signup.png"}
+            {IconType.SIGNUP,IconFolder+"appbar.signup.png"},
+            {IconType.ARROW_UP,IconFolder+"arrow_up.png"},
+            {IconType.ARROW_DOWN,IconFolder+"arrow_down.png"},
+            {IconType.ARROW_RIGHT,IconFolder+"arrow_right.png"}
         };
-
-
 
 
         public static IDictionary<IconType, string> BigIcons = new Dictionary<IconType, string>()
@@ -93,7 +95,10 @@ namespace Growthstories.UI.WindowsPhone
             {IconType.POLLINATION,"/Assets/Icons/icon_pollination.png"},
             {IconType.SPROUTING,"/Assets/Icons/icon_sprouting.png"},
             {IconType.HARVESTING,IconFolder+"icon_harvesting.png"},
-            {IconType.PRUNING,IconFolder+"icon_pruning.png"}
+            {IconType.PRUNING,IconFolder+"icon_pruning.png"},
+            {IconType.ARROW_UP,IconFolder+"arrow_up.png"},
+            {IconType.ARROW_DOWN,IconFolder+"arrow_down.png"},
+            {IconType.ARROW_RIGHT,IconFolder+"arrow_right.png"}
         };
 
     }
@@ -569,6 +574,38 @@ namespace Growthstories.UI.WindowsPhone
 
             return parameter == null ? v.ToUpperInvariant() : v.ToLowerInvariant();
 
+        }
+
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    //
+    // Return "whitesmoke" if false and gspink if true
+    // Used to highlight profile picture in timeline
+    //
+    public class BooleanToSpecialColorConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var bc = Application.Current.Resources["GSWhiteBrush"];
+            var sc = Application.Current.Resources["GSTextBoxBrush"];
+
+            if (value == null)
+                return bc;
+
+            var v = (bool)value;      
+
+            if (v) {
+                return sc;
+            } else {
+                return bc;
+            }
         }
 
 

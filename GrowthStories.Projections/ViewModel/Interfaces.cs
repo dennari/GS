@@ -395,6 +395,7 @@ namespace Growthstories.UI.ViewModel
         string TimelineFirstLine { get; }
         string TimelineSecondLine { get; }
         int ActionIndex { get; set; }
+        bool OwnAction { get; set; }
 
         IObservable<IPlantActionViewModel> AsyncAddObservable { get; }
 
@@ -410,6 +411,10 @@ namespace Growthstories.UI.ViewModel
     public interface IPlantMeasureViewModel : IPlantActionViewModel
     {
 
+        // References previous measurement of same type
+        //
+        IPlantMeasureViewModel PreviousMeasurement { get; set; }
+        IReactiveDerivedList<IPlantMeasureViewModel> MeasurementActions { get; set; }
 
     }
 
@@ -418,6 +423,8 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand EditPhotoCommand { get; set; }
         IReactiveCommand PhotoTimelineTap { get; }
         IReactiveCommand PhotoChooserCommand { get; }
+   
+        bool IsProfilePhoto {get; set;}
     }
 
 
@@ -611,7 +618,10 @@ namespace Growthstories.UI.ViewModel
         SETTINGS,
         SIGNOUT,
         SIGNIN,
-        SIGNUP
+        SIGNUP,
+        ARROW_UP,
+        ARROW_DOWN,
+        ARROW_RIGHT,
     }
 
     public enum ApplicationBarMode

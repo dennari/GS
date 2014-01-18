@@ -7,6 +7,9 @@
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" 
+	xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
+	xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     x:Class="Growthstories.UI.WindowsPhone.SignInRegisterView"
     d:DataContext="{StaticResource SignInRegisterViewModelDesign}"
     mc:Ignorable="d">
@@ -71,9 +74,10 @@
             />
 
             <local:GSLabel Label="Password">
-                    <PasswordBox
-                        x:Name="password"
+                <telerikPrimitives:RadPasswordBox
+                        PeekButtonVisibility="Collapsed"
                         Style="{StaticResource GSPasswordStyle}"
+                        x:Name="password"
                         Password="{Binding Password, Mode=TwoWay}" 
                         Margin="-12,0"
                         c4fBinding:TextBinding.UpdateSourceOnChange="True"
@@ -91,7 +95,8 @@
 
             <local:GSLabel Label="Password confirmation" 
                     Visibility="{Binding SignInMode, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
-                    <PasswordBox
+                    <telerikPrimitives:RadPasswordBox
+                        PeekButtonVisibility="Collapsed"
                         x:Name="passwordConfirmation"
                         Style="{StaticResource GSPasswordStyle}"
                         Password="{Binding PasswordConfirmation, Mode=TwoWay}" 

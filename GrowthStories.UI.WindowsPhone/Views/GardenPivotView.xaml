@@ -39,6 +39,7 @@
 			    Title="{Binding Username}"
                 Foreground="White"
                 FontFamily="{StaticResource GSPageTitleFont}"
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
                     >
 
                     <phone:Pivot.TitleTemplate>

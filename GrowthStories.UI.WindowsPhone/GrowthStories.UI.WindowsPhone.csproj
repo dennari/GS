@@ -344,6 +344,11 @@
     <Content Include="Assets\Icons\ApplicationBar.Check.png" />
     <Content Include="Assets\Icons\ApplicationBar.Delete.png" />
     <Content Include="Assets\Icons\ApplicationBar.Select.png" />
+    <Content Include="Assets\Icons\arrow_down.png" />
+    <Content Include="Assets\Icons\arrow_right.png" />
+    <Content Include="Assets\Icons\arrow_up.png" />
+    <Content Include="Assets\Icons\IAP.jpg" />
+    <Content Include="Assets\Icons\IAP.png" />
     <Content Include="Assets\Icons\icon_air_humidity_appbar.png" />
     <Content Include="Assets\Icons\icon_co2_appbar.png" />
     <Content Include="Assets\Icons\icon_harvesting.png" />
@@ -365,7 +370,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\AppManifest.xml" />
+    <None Include="Properties\AppManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>

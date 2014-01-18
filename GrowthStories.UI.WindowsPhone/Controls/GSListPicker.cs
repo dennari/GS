@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -146,6 +147,8 @@ namespace Growthstories.UI.WindowsPhone
             //}
         }
     }
+
+
 
     public class GSTextBox : PhoneTextBox
     {

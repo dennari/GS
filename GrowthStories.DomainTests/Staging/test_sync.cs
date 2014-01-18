@@ -59,8 +59,8 @@ namespace Growthstories.DomainTests
 
 
             WaitForTask(HttpClient.SendAsync(HttpClient.CreateClearDBRequest()));
-            WaitForTask(App.Context.AuthorizeUser());
-            //Ctx = App.User;
+            WaitForTask(App.PrepareAuthorizedUser());
+            //Ctx = App.Context.CurrentUser;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);

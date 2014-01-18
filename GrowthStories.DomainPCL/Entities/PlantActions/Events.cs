@@ -355,6 +355,11 @@ namespace Growthstories.Domain.Messaging
             D.PropertyName = "note";
             D.PropertyValue = this.Note;
 
+            if (D.PropertyValue == null)
+            {
+                D.PropertyValue = "";
+            }
+
             D.EntityType = PlantActionPropertySet.ValidTypes
                 .Where(x => x.Value == this.Type)
                 .Select(x => x.Key)

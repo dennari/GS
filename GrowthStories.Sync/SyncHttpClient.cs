@@ -16,6 +16,8 @@ using Growthstories.Core;
 
 namespace Growthstories.Sync
 {
+
+
     public class SyncHttpClient : IHttpClient, ITransportEvents
     {
         HttpClient Client;
@@ -205,6 +207,7 @@ namespace Growthstories.Sync
                 Logger.Error(e.ToString());
                 //throw e;
             }
+            
 
             Logger.Info("[RESPONSEBODY]\n{0}", s);
             return Tuple.Create(r, s);

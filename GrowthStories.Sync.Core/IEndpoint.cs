@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+
 namespace Growthstories.Sync
 {
     public interface IEndpoint
@@ -71,19 +72,22 @@ namespace Growthstories.Sync
 
         public Uri UserListUri(string username)
         {
-            return new Uri(BaseUri, string.Format("/api/user/list?prefix={0}", username));
+            return new Uri(BaseUri, string.Format("/api/user/list?prefix={0}", Uri.EscapeDataString(username)));
         }
 
         public Uri UserInfoUri(string email)
         {
-            return new Uri(BaseUri, string.Format("/api/user/email/{0}", email));
+            return new Uri(BaseUri, string.Format("/api/user/email/{0}", Uri.EscapeDataString(email)));
         }
 
         public Uri RegisterUri(string username, string email, string password)
         {
             return new Uri(BaseUri, string.Format(
                "/api/register?username={0}&email={1}&password={2}", 
-               username, email, password));
+               Uri.EscapeDataString(username), 
+               Uri.EscapeDataString(email),
+               Uri.EscapeDataString(password)
+            ));
         }
 
         public Uri PhotoUploadUri

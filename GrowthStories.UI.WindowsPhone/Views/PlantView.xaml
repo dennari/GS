@@ -13,32 +13,46 @@
     mc:Ignorable="d">
 
  
-
     <local:PlantViewBase.Resources>
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             
-            <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}">
 
-                <toolkit:ContextMenuService.ContextMenu >
-                    <toolkit:ContextMenu IsZoomEnabled="False" 
-                        Background="Transparent" Margin="0,0,0,0" Padding="48,48,48,48"
-                        BorderBrush="Transparent" BorderThickness="0">
-                        <toolkit:MenuItem Header="Edit" 
+                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,12,24,12">
+
+                <telerikPrimitives:RadContextMenu.ContextMenu>
+                    <telerikPrimitives:RadContextMenu 
+                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
+                            IsFadeEnabled="True"
+                            IsZoomEnabled="False"
                             Background="WhiteSmoke"                           
-                            Opacity="0.9"
-                            Foreground="{StaticResource GSAccentBrush}"              
+                            Foreground="{StaticResource GSAccentBrush}">
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Edit" 
                             Command="{Binding EditCommand}"
                             CommandParameter="{Binding}"
-                            IsEnabled="{Binding IsEditEnabled}"/>
-                        <toolkit:MenuItem Header="Delete" 
-                            Background="WhiteSmoke"                           
-                            Opacity="0.9"
+                                IsEnabled="{Binding IsEditEnabled}"
                             Foreground="{StaticResource GSAccentBrush}"              
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Delete" 
                             Command="{Binding DeleteCommand}"
                             CommandParameter="{Binding}"
-                            IsEnabled="{Binding IsEditEnabled}"/>
-                    </toolkit:ContextMenu>
-                </toolkit:ContextMenuService.ContextMenu>
+                                IsEnabled="{Binding IsEditEnabled}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Visibility="{Binding ShowSetAsProfilePicture, Converter={StaticResource BooleanToVisibility}}"
+                                Content="Set as profile picture" 
+                                Command="{Binding SetAsProfilePictureCommand}"
+                                CommandParameter="{Binding}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                    </telerikPrimitives:RadContextMenu>
+                </telerikPrimitives:RadContextMenu.ContextMenu>
 
                 <ContentPresenter 
 						DataContext="{Binding}"
@@ -48,8 +62,21 @@
 						HorizontalAlignment="Stretch"
                         />
 
-                <ContentControl toolkit:TiltEffect.IsTiltEnabled="True" Tap="ContentControl_Tap"
-                                HorizontalAlignment="Left" Padding="24,0,0,24" HorizontalContentAlignment="Left">
+                    <Button
+                        Style="{StaticResource GSButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,0"
+                        toolkit:TiltEffect.IsTiltEnabled="True"
+                        Padding="0,0,0,0"
+                        BorderThickness="0"
+                        BorderBrush="Transparent"
+                        Command="{Binding EditCommand}"
+                        CommandParameter="{Binding}"    
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsEnabled="{Binding OwnAction}"
+                        >
+
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
                         <StackPanel Orientation="Vertical" Width="96">
                             <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
@@ -63,8 +90,11 @@
                             <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                </ContentControl>
+
+                </Button>
+
             </StackPanel>
+
         </ControlTemplate>
 
         <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
@@ -106,7 +136,8 @@
         
 
         <local:GSLongListSelector
-            
+            Loaded="TimeLine_Loaded"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
             x:Name="TimeLine" 
             ItemsSource="{Binding Actions}" 
             Grid.Row="1"
@@ -170,27 +201,19 @@
                         >         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
-                            <Button Height="0"
-                                Opacity="0.0"
+                                
+                            <!-- BorderThickness is set to Non-Zero when actually loading -->
+                            <Button 
                                 toolkit:TiltEffect.IsTiltEnabled="True"
-                                BorderBrush="WhiteSmoke"
-                                BorderThickness="3"    
+                                BorderBrush="{Binding IsProfilePhoto, Converter={StaticResource BooleanToSpecialColor}}"
+                                BorderThickness="0"    
                                 HorizontalAlignment="Stretch" 
-                                Style="{StaticResource GSButtonStyle}" 
-                                Margin="12,6,12,12" 
+                                Style="{StaticResource GSWrapperButtonStyle}" 
+                                Margin="0,0,0,18" 
                                 Command="{Binding PhotoTimelineTap}"
                                 Padding="0,0,0,0"
+                                IsEnabled="True"
                                     >
-                                <!--
-                                <Button.Background>
-                                    <ImageBrush 
-                                        Stretch="UniformToFill" 
-                                        ImageSource="{Binding TimelinePhotoSource}"
-                                        ImageOpened="ImageBrush_ImageOpened"
-                                        />
-
-                                </Button.Background>
-                                -->
                                     <Image                                         
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
@@ -201,24 +224,11 @@
                                         />
                                 
                                 </Button>
-                               <!--<Grid>
-                                  <Image 
-                                    Height="220" 
-                                    Stretch="UniformToFill" 
-                                    HorizontalAlignment="Stretch" 
-                                    VerticalAlignment="Stretch" 
-                                    Margin="12,0" 
-                                    Source="{Binding TimelinePhotoSource}" />
-                                  <TextBlock 
-                                        Text="{Binding Photo.FileName}" 
-                                        VerticalAlignment="Top" 
-                                        FontSize="{StaticResource PhoneFontSizeSmall}"
-                                        TextWrapping="Wrap"/>
-                               </Grid>-->
                             </DataTemplate>
                         </local:PlantActionView.PhotoTemplate>
                     </local:PlantActionView>
                 </DataTemplate>
+                
             </phone:LongListSelector.ItemTemplate>
 
 

@@ -96,7 +96,7 @@ namespace Growthstories.UI.ViewModel
                 }
                 return _UIPersistence;
 
-            }
+        }
         }
 
 
@@ -295,7 +295,7 @@ namespace Growthstories.UI.ViewModel
             //    .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
 
             resolver.Register(() => ResetSupport(() =>
-            {
+                {
                 return new GardenViewModel(this.WhenAnyValue(x => x.User), true, this, IIAPService);
             }), typeof(IGardenViewModel));
 
@@ -452,6 +452,7 @@ namespace Growthstories.UI.ViewModel
         //}
 
         private int AutoSyncCount = 0;
+        private bool AutoSyncEnabled = true;
 
 
         private void SubscribeForAutoSync()
@@ -479,12 +480,6 @@ namespace Growthstories.UI.ViewModel
         //
         public async Task _PossiblyAutoSync()
         {
-
-            if (!HasDataConnection)
-            {
-                return;
-            }
-
             if (AutoSyncCount < 2)
             {
                 try
@@ -500,17 +495,25 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.AutoSyncCount--;
                 }
-            }
-
+            } 
+           
         }
 
 
         public void PossiblyAutoSync()
         {
+            if (!HasDataConnection || !AutoSyncEnabled)
+            {
+                return;
+            }
+
             // before triggering the actual autosync,
             // wait for a few seconds for more important
             // processing to finish
+            if (AutoSyncCount < 2)
+            {
             Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
+        }
         }
 
 
@@ -741,17 +744,10 @@ namespace Growthstories.UI.ViewModel
                 return RegisterResponse.alreadyRegistered;
             }
 
-            if (User.AccessToken == null)
-            {
-                try
-                {
-                    await Context.AuthorizeUser();
-                }
-                catch
+            if (await PrepareAuthorizedUser() != GSStatusCode.OK)
                 {
                     return RegisterResponse.connectionerror;
                 }
-            }
 
             // make sure stuff is synchronized before registering, so
             // that there will be no sync conflict after the registration
@@ -858,6 +854,20 @@ namespace Growthstories.UI.ViewModel
 
         public async Task<SignInResponse> SignIn(string email, string password)
         {
+            try
+            {
+                AutoSyncEnabled = false;
+                return await _SignIn(email, password);
+            }
+            finally
+            {
+                AutoSyncEnabled = true;
+            }
+        }
+
+
+        private async Task<SignInResponse> _SignIn(string email, string password)
+        {
             IAuthResponse authResponse = null;
             RemoteUser u = null;
 
@@ -885,7 +895,6 @@ namespace Growthstories.UI.ViewModel
                 }
 
                 u = await Transporter.UserInfoAsync(email);
-
             }
             catch
             {
@@ -928,9 +937,65 @@ namespace Growthstories.UI.ViewModel
         public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
 
 
-        // Do a synchronization cycle once
-        // (1) pull -> (2) push -> (3) photo download
+      
+
+
+        // Special push for creating user
         //
+        private async Task<ISyncInstance> PushCreateUser()
+        {
+            var s = new SyncInstance
+            (
+               RequestFactory.CreatePullRequest(null),
+               RequestFactory.CreatePushRequest(Model.State.SyncHead),
+               new IPhotoUploadRequest[0],
+               null
+            );
+
+            return await this._Synchronize(s);
+        }
+
+
+
+        // Tries to prepare an authorized user
+        //
+        //  - Pushes UserCreated if necessary
+        //  - Obtains AuthToken if necessary
+        //  
+        //  ( May add later auth check with server,)
+        //
+        public async Task<GSStatusCode> PrepareAuthorizedUser()
+        {
+         
+            
+            // if we have not yet pushed the CreateUser event,
+            // do that before obtaining auth token
+            var res = RequestFactory.GetNextPushEvent(Model.State.SyncHead);
+
+            if (res.Item1 is UserCreated)
+            {
+                var s = await PushCreateUser();
+
+                if (s.Status != SyncStatus.OK)
+                {
+                    // this should not happen
+                    Logger.Warn("failed to push CreateUser for user id " + App.User.Id);
+                    return GSStatusCode.FAIL;
+                }
+            }
+
+            if (User.AccessToken == null)
+            {
+                var authResponse = await Context.AuthorizeUser();
+                return authResponse.StatusCode;
+            }
+
+            return GSStatusCode.OK;
+        }
+
+
+        // Despite the lock, only SyncAll should call this function
+        // (except for unit tests)
         public async Task<ISyncInstance> Synchronize()
         {
             using (var r = await SynchronizeLock.LockAsync())
@@ -940,36 +1005,18 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        // Do a synchronization cycle once
+        // (1) pull -> (2) push -> (3) photo download
+        //
         private async Task<ISyncInstance> UnsafeSynchronize()
         {
-            // obtain access token if required
-
-
-
-            if (Model.State.SyncHead.GlobalCommitSequence == 0) // user not created
-            {
-                await this.Push();
-            }
-
-            if (User.AccessToken == null)
-            {
-                try
-                {
-                    var authResponse = await Context.AuthorizeUser();
-                }
-                catch
+            var code = await PrepareAuthorizedUser();
+            if (code != GSStatusCode.OK)
                 {
                     return new SyncInstance(SyncStatus.AUTH_ERROR);
                 }
-            }
-
-            // TODO: what if auth token is expired?
-            // (this would also have to be considered for other 
-            //  requests, so probably should look at a general way to 
-            //  implement this)
 
             var syncStreams = Model.State.SyncStreams.ToArray();
-
             var s = new SyncInstance
             (
                 RequestFactory.CreatePullRequest(syncStreams),
@@ -978,7 +1025,7 @@ namespace Growthstories.UI.ViewModel
                 null
             );
 
-            // ?? pullrequest should really never be empty
+            // pullrequest should really never be empty
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
             {
                 if (Debugger.IsAttached)
@@ -992,42 +1039,9 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        //
-        // ONLY FOR TESTING
-        // not necessarily safe, do not call from app code
-        //
-        public async Task<ISyncInstance> Push()
-        {
-            //if (User.AccessToken == null)
-            //{
-            //    try
-            //    {
-            //        var authResponse = await Context.AuthorizeUser();
-            //    }
-            //    catch
-            //    {
-            //        return null;
-            //    }
-            //}
-
-            var s = new SyncInstance(
-                RequestFactory.CreatePullRequest(null),
-                RequestFactory.CreatePushRequest(Model.State.SyncHead),
-                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
-                null
-            );
-
-            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
-                return null;
-
-            return await _Synchronize(s);
-        }
-
-
-
         public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
 
+      
         protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
         {
             using (var release = await _SynchronizeLock.LockAsync())
@@ -1036,7 +1050,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
+        
         private async Task<ISyncInstance> _UnsafeSynchronize(ISyncInstance s)
         {
             bool handlePull = false;
@@ -1061,6 +1075,12 @@ namespace Growthstories.UI.ViewModel
 
                 if (pullResp == null || pullResp.StatusCode != GSStatusCode.OK)
                 {
+                    // this suggests access token has expired, next sync will use new one
+                    // should handle this better, but this will do for now 
+                    if (pullResp.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
+                    {
+                        User.AccessToken = null;    
+                    }
                     s.Status = SyncStatus.PULL_ERROR;
                     return s;
                 }
@@ -1219,7 +1239,7 @@ namespace Growthstories.UI.ViewModel
         }
 
         public IObservable<IPlantViewModel> CurrentPlants(Guid? userId = null, Guid? plantId = null)
-        {
+                {
             if (plantId != null)
                 return Return(GetSinglePlant(plantId.Value));
             return Observable.Start(() => UIPersistence.GetPlants(null, null, userId).ToObservable(), RxApp.TaskpoolScheduler)
@@ -1256,7 +1276,7 @@ namespace Growthstories.UI.ViewModel
                 o.OnNext(value);
                 o.OnCompleted();
                 return Disposable.Empty;
-            });
+                });
         }
 
         public IObservable<IPlantViewModel> FuturePlants(Guid userId)
@@ -1326,20 +1346,8 @@ namespace Growthstories.UI.ViewModel
             {
                 return new PlantActionViewModel(type, this, state);
             }
-
-
         }
 
-
-
-        //public IPlantViewModel PlantFactory(Guid id)
-        //{
-        //    return new PlantViewModel(
-        //     ((Plant)Kernel.Get<IGSRepository>().GetById(id)).State,
-        //     this
-        //    );
-
-        //}
 
         protected ObservableAsPropertyHelper<bool> _AppBarIsVisible;
         public bool AppBarIsVisible
@@ -1459,6 +1467,36 @@ namespace Growthstories.UI.ViewModel
         {
             get { return this; }
         }
+
+
+
+
+
+        //
+        // ONLY FOR TESTING
+        // not necessarily safe, do not call from app code
+        //
+        public async Task<ISyncInstance> Push()
+        {
+
+            if (await PrepareAuthorizedUser() != GSStatusCode.OK)
+            {
+                return null;
+            }
+
+            var s = new SyncInstance(
+                RequestFactory.CreatePullRequest(null),
+                RequestFactory.CreatePushRequest(Model.State.SyncHead),
+                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
+                null
+            );
+
+            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
+                return null;
+
+            return await _Synchronize(s);
+        }
+
 
 
     }

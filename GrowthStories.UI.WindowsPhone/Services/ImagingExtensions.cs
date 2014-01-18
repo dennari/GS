@@ -12,6 +12,11 @@ using Windows.Storage;
 using Microsoft.Xna.Framework.Media.PhoneExtensions;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using System.Windows.Media.Imaging;
+using Microsoft.Phone.Tasks;
+using ReactiveUI;
+using System.Reactive.Linq;
+using System.Reactive;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -74,16 +79,11 @@ namespace Growthstories.UI.WindowsPhone
         public static async Task<Photo> SavePhotoToLocalStorageAsync(this Stream image)
         {
             //string savedPath = null;
+            
 
             var photo = new Photo();
-            if (image != null && image.Length > 0)
+            if (image != null)
             {
-
-                //var filenameBase = "gsphoto_" + DateTime.UtcNow.Ticks.ToString();
-                //savedPath = ,IMG_FOLDER + @"\" + filenameBase + @".jpg";
-                photo.FileName = "gsphoto_" + DateTime.UtcNow.Ticks.ToString() + ".jpg";
-                photo.LocalUri = WP8PhotoHandler.GetImagePath(photo.FileName);
-                //photo.LocalUri = URI_SCHEME + URI_SEPARATOR + IMG_FOLDER + URI_SEPARATOR + photo.FileName;
 
                 uint maxBytes = (uint)(1.5 * 1024 * 1024); // 0.5 megabytes
                 int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
@@ -93,12 +93,17 @@ namespace Growthstories.UI.WindowsPhone
                 try
                 {
                     scaled = await image.ScaleAsync(maxPixels, maxSize, maxBytes);
-
                 }
                 catch // throws for example if photo's dimensions can't be read
                 {
                     return null;
                 }
+
+                //var filenameBase = "gsphoto_" + DateTime.UtcNow.Ticks.ToString();
+                //savedPath = ,IMG_FOLDER + @"\" + filenameBase + @".jpg";
+                photo.FileName = "gsphoto_" + DateTime.UtcNow.Ticks.ToString() + ".jpg";
+                photo.LocalUri = WP8PhotoHandler.GetImagePath(photo.FileName);
+                //photo.LocalUri = URI_SCHEME + URI_SEPARATOR + IMG_FOLDER + URI_SEPARATOR + photo.FileName;
 
                 photo.Width = (uint)scaled.Item2.Width;
                 photo.Height = (uint)scaled.Item2.Height;
@@ -131,37 +136,56 @@ namespace Growthstories.UI.WindowsPhone
 
         public static async Task<Tuple<Stream, Size>> ScaleAsync(this Stream image, int maxPixels, Size maxSize, uint maxBytes)
         {
+    
+            BitmapImage img = new BitmapImage();
+            img.CreateOptions = BitmapCreateOptions.DelayCreation;
+            img.SetSource(image);
 
-            double w, h;
-            long s;
+            var size = new Size(img.PixelWidth, img.PixelHeight);
 
-            using (var source = new StreamImageSource(image, ImageFormat.Jpeg))
+            var saveSize = size;
+            if (size.Width * size.Height > maxPixels)
             {
-                var info = await source.GetInfoAsync();
-
-                w = info.ImageSize.Width;
-                h = info.ImageSize.Height;
-                s = image.Length;
-
-                if (w * h > maxPixels)
-                {
-                    var compactedSize = CalculateSize(info.ImageSize, maxSize, maxPixels);
-
-                    var resizeConfiguration = new AutoResizeConfiguration(maxBytes, compactedSize,
-                        new Size(0, 0), AutoResizeMode.Automatic, 0, ColorSpace.Yuv420);
-
-
-                    var buffer = await Nokia.Graphics.Imaging.JpegTools.AutoResizeAsync(image.ToBuffer(), resizeConfiguration);
-
-                    return Tuple.Create(buffer.AsStream(), compactedSize);
-
-                }
-                else
-                {
-                    return Tuple.Create(image, info.ImageSize);
-                }
+                saveSize = CalculateSize(size, maxSize, maxPixels);    
             }
 
+            WriteableBitmap wBitmap = new WriteableBitmap(img);
+            MemoryStream ms = new MemoryStream();
+            wBitmap.SaveJpeg(ms, (int)saveSize.Width, (int)saveSize.Height, 0, 100);
+            return Tuple.Create((System.IO.Stream)ms, saveSize);
+
+
+            //double w, h;
+            //long s;
+
+            //var info = new ImageProviderInfo();
+            //info.ImageSize.Height = 20;
+
+            //return new Tuple(ms, 
+
+            //using (var source = new StreamImageSource(image, ImageFormat.Undefined))
+            //{
+            //    var info = await source.GetInfoAsync();
+                
+            //    w = info.ImageSize.Width;
+            //    h = info.ImageSize.Height;
+            //    s = image.Length;
+
+            //    if (w * h > maxPixels && source.ImageFormat == ImageFormat.Jpeg)
+            //    {
+            //        var compactedSize = CalculateSize(info.ImageSize, maxSize, maxPixels);
+
+            //        var resizeConfiguration = new AutoResizeConfiguration(maxBytes, compactedSize,
+            //            new Size(0, 0), AutoResizeMode.Automatic, 0, ColorSpace.Yuv420);
+
+            //        var buffer = await Nokia.Graphics.Imaging.JpegTools.AutoResizeAsync(image.ToBuffer(), resizeConfiguration);
+
+            //        return Tuple.Create(buffer.AsStream(), compactedSize, source.ImageFormat);
+                
+            //    } else {
+            //        return Tuple.Create(image, info.ImageSize, source.ImageFormat);
+            //    }
+            //}
 
 
 
@@ -288,6 +312,9 @@ namespace Growthstories.UI.WindowsPhone
             return pathParts[pathParts.Length - 1];
         }
 
+
+
+       
 
     }
 }

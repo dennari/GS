@@ -17,7 +17,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
-
+using System.Windows.Controls.Primitives;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -58,6 +58,18 @@ namespace Growthstories.UI.WindowsPhone
             //Margin = new Thickness(0, 0, 0, vm.IsOwn ? 72 : 0);
 
 
+
+            vm.Actions.ItemsAdded.Subscribe(x =>
+            {
+                try
+                {
+                    if (TimeLine.ItemsSource.Count > 2)
+                    {
+                        TimeLine.ScrollTo(x);
+                    }
+                }
+                catch { }
+            });
 
         }
 
@@ -112,11 +124,9 @@ namespace Growthstories.UI.WindowsPhone
                 Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
             }
 
-            //if (b.Opacity == 0.0)
-            //{
             sb.Begin();
             b.Height = 220;
-            //}    
+            b.BorderThickness = new Thickness(3);
         }
 
 
@@ -145,8 +155,8 @@ namespace Growthstories.UI.WindowsPhone
                     {
                         b.Height = 220;
                         b.Opacity = 1.0;
+                        b.BorderThickness = new Thickness(3);
                     }
-
                 }
                 else
                 {
@@ -155,10 +165,29 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        private void ContentControl_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
 
+        private void TimeLine_Loaded(object sender, RoutedEventArgs e)
+        {
+            // hack to hide the scrollbar from longlistselector
+            // needs to be done as it screws up alignment on the grid
+            //
+            // from http://stackoverflow.com/questions/18414498/hide-scrollbar-in-longlistselector
+            //
+            //   -- JOJ 17.1.2014
+
+            try
+            {
+                if (TimeLine.ItemsSource.Count > 0)
+                {
+                    var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
+                    sb.Margin = new Thickness(0, 0, -10, 0);
+                }
+            
+            } catch {
+                
+            }
         }
+
 
 
     }

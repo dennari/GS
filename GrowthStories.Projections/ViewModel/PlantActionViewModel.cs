@@ -26,8 +26,23 @@ namespace Growthstories.UI.ViewModel
         public PlantActionType ActionType { get; protected set; }
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
-
         public IconType Icon { get; protected set; }
+        
+
+        private bool _OwnAction;
+        public bool OwnAction
+        {
+            get
+            {
+                return _OwnAction;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _OwnAction, value);
+            }
+
+        }
 
 
         private int _ActionIndex;
@@ -139,9 +154,6 @@ namespace Growthstories.UI.ViewModel
         protected IDisposable DeleteCommandSubscription = Disposable.Empty;
 
 
-
-
-
         public PlantActionViewModel(PlantActionType type, IGSAppViewModel app, PlantActionState state = null)
             : base(app)
         {
@@ -149,6 +161,7 @@ namespace Growthstories.UI.ViewModel
             this.Icon = ActionTypeToIcon[type];
             this.Label = ActionTypeToLabel[type];
             this.State = state;
+
             //AddCommand.Subscribe(x =>
             //{
             //    App.Router.NavigateBack.Execute(null);
@@ -167,18 +180,20 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
-            }
-            else
-            {
+        
+            } else {
                 var now = DateTimeOffset.Now;
                 this.WeekDay = SharedViewHelpers.FormatWeekDay(now);
                 this.Date = now.ToString("d");
                 this.Time = now.ToString("t");
+                this.Created = now;
 
+                // I wonder if setting Created here is a problem,
+                // for some reason it has been avoided before
+                //   -- JOJ 16.1.2014
             }
 
             TimelineLinesSubscription = this.WhenAnyValue(x => x.Note).Subscribe(x => this.TimelineFirstLine = x);
-
 
             this.WhenAnyValue(x => x.UserId).Subscribe(x =>
             {
@@ -209,7 +224,7 @@ namespace Growthstories.UI.ViewModel
                 case PlantActionType.DECEASED:
                     kind = "deceased";
                     break;
-
+                
                 case PlantActionType.FERTILIZED:
                     kind = "fertilizing";
                     break;
@@ -259,12 +274,50 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        //
+        // Not exactly elegant to have this here
+        //
+        // Best option would be to populate context menu items
+        // based completely dynamically, but will not bother
+        // to refactor now.
+        //
+        //  -- JOJ 17.1.2014
+        //
+        private bool _ShowSetAsProfilePicture;
+        public bool ShowSetAsProfilePicture
+        {
+            get
+            {
+                return _ShowSetAsProfilePicture;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowSetAsProfilePicture, value);
+            }
+        }
+
+        public void UpdateShowSetAsProfilePicture()
+        {
+            var vm = this as IPlantPhotographViewModel;
+            if (vm == null)
+            {
+                ShowSetAsProfilePicture = false;
+
+            }
+            else
+            {
+                ShowSetAsProfilePicture = !vm.IsProfilePhoto;
+
+            }
+        }
+
+
+
         private ReactiveCommand _AddCommand;
         public override IReactiveCommand AddCommand
         {
             get
             {
-
                 if (_AddCommand == null)
                 {
                     _AddCommand = new ReactiveCommand(this.CanExecute == null ? Observable.Return(true) : this.CanExecute, false);
@@ -275,7 +328,6 @@ namespace Growthstories.UI.ViewModel
 
                 }
                 return _AddCommand;
-
             }
         }
 
@@ -309,7 +361,6 @@ namespace Growthstories.UI.ViewModel
                     MeasurementType = this.MeasurementType
                 });
             }
-
         }
 
 
@@ -361,6 +412,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         protected MeasurementType _MeasurementType;
         public MeasurementType MeasurementType
         {
@@ -373,6 +425,7 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _MeasurementType, value);
             }
         }
+
 
         protected double? _Value;
         public double? Value
@@ -400,9 +453,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-
-
         IReactiveCommand _OpenZoomView = new ReactiveCommand();
         public IReactiveCommand OpenZoomView
         {
@@ -425,6 +475,36 @@ namespace Growthstories.UI.ViewModel
     public class PlantMeasureViewModel : PlantActionViewModel, IPlantMeasureViewModel
     {
 
+
+        private IReactiveDerivedList<IPlantMeasureViewModel> _MeasurementActions;
+        public IReactiveDerivedList<IPlantMeasureViewModel> MeasurementActions
+        {
+            get 
+            {
+                return _MeasurementActions;
+            }
+
+            set 
+            {
+                this.RaiseAndSetIfChanged(ref _MeasurementActions, value);
+            }
+        }
+
+
+        private IPlantMeasureViewModel _PreviousMeasurement;
+        public IPlantMeasureViewModel PreviousMeasurement
+        {
+            get
+            {
+                return _PreviousMeasurement;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PreviousMeasurement, value);
+            }
+        }
+
+
         public IList<MeasurementTypeHelper> _Options;
         public IList<MeasurementTypeHelper> Options
         {
@@ -440,7 +520,6 @@ namespace Growthstories.UI.ViewModel
                 return _SelectedMeasurementType.Value;
             }
         }
-
 
 
         private object _SelectedItem;
@@ -471,12 +550,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        public override void AddCommandSubscription(object p)
-        {
-
-
-        }
+        public override void AddCommandSubscription(object p) {  }
 
 
         //public override IObservable<bool> CanExecute { get; protected set; }
@@ -493,13 +567,11 @@ namespace Growthstories.UI.ViewModel
             //    .OfType<MeasurementTypeHelper>()
             //    .ToProperty(this, x => x.Series, out _Series, state != null ? MeasurementTypes.FirstOrDefault(x => x.Type == state.MeasurementType) : MeasurementTypes[0]);
 
-
-
             double dValue = 0;
             this.WhenAnyValue(x => x.SValue, x => x)
                 .Where(x => double.TryParse(x, out dValue))
                 .Subscribe(x => this.Value = dValue);
-
+            PreviousMeasurement = null;
 
             this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
               .Select(x =>
@@ -530,45 +602,291 @@ namespace Growthstories.UI.ViewModel
             // dispose of the default content
             TimelineLinesSubscription.Dispose();
 
-            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => this.TimelineFirstLine = x == null ? null : x.TimelineTitle);
-            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true));
 
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => 
+            {
+                this.TimelineFirstLine = x == null ? null : x.TimelineTitle;
+                UpdatePreviousMeasurement();
+                UpdateCountText(); // is not necessarily called by UpdatePreviousMeasurement
+            });
+
+            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => 
+            {
+                this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true);
+            });
+
+            this.WhenAnyValue(x => x.PreviousMeasurement).Subscribe(_ =>
+            {
+                UpdateTrendInfos();
+                UpdateCountText();
+            });
+
+            this.WhenAnyValue(x => x.Value).Subscribe(x =>
+            {
+                this.UpdateTrendInfos();
+            });
 
             this.SelectedItem = defaultMeasurementType;
             this.SValue = state != null ? defaultMeasurementType.FormatValue(state.Value.Value) : string.Empty;
 
+            UpdateCountText();
+        }
 
 
+        // Update the trend info data based on 
+        // the current _PreviousMeasurement
+        //
+        public void UpdateTrendInfos()
+        {
+            UpdateShowTrendInfos();
+            UpdateTrendIcon();
+            UpdateChangePercentage();
+        }
 
 
+        // Update the previous measurement
+        //
+        // This needs to be updated whenever one of the previous 
+        // measurements is deleted or modified. Alternatively we
+        // can just call this whenever the view is entered, which
+        // is how we are doing it for now.
+        //
+        //  -- JOJ 15.1.2014
+        public void UpdatePreviousMeasurement()
+        {
+            if (MeasurementActions != null)
+            {
+                var actions = MeasurementActions
+                    .Where(x => x.Created < this.Created && x.MeasurementType == MeasurementType)
+                    .OrderByDescending(x => x.Created);
+
+                CountForType = actions.Count();
+
+                if (actions.Count() > 0) {
+                    PreviousMeasurement = actions.First();
+
+                } else {
+                    PreviousMeasurement = null;
+
+                }
+            }
+        }
+
+
+        private void UpdateTrendIcon()
+        {
+            
+            if (PreviousMeasurement == null) {
+                TrendIcon = null;
+            
+            } else if (PreviousMeasurement.Value > Value) {
+                TrendIcon = IconType.ARROW_DOWN;
+
+            } else if (PreviousMeasurement.Value < Value) {
+                TrendIcon = IconType.ARROW_UP;
+
+            } else {
+                TrendIcon = IconType.ARROW_RIGHT;
+
+            }
+       }
+
+
+        private bool _ShowTrendInfos;
+        public bool ShowTrendInfos
+        {
+            get
+            {
+                return _ShowTrendInfos;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowTrendInfos, value);
+            }
+        }
+
+
+        private void UpdateShowTrendInfos()
+        {
+            if (PreviousMeasurement == null || !Value.HasValue)
+            {
+                ShowTrendInfos = false;
+                return;
+            }
+            ShowTrendInfos = true;
+        }
+
+
+        private IconType? _TrendIcon = null;
+        public IconType? TrendIcon
+        {
+            get
+            {
+                return _TrendIcon;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _TrendIcon, value);
+            }
+        }
+
+
+        private int _CountForType;
+        public int CountForType
+        {
+            get
+            {
+                return _CountForType;   
+            }
+
+            set {
+                this.RaiseAndSetIfChanged(ref _CountForType, value);
+            }
 
         }
 
+
+        public void UpdateCountText()
+        {
+            if (!MeasurementTypeHelper.Options.ContainsKey(this.MeasurementType))
+            {
+                //this.Log().Warn("BUG: MeasurementType is null");
+                CountText = "";
+                return;
+            }
+
+            CountText 
+                = Ordinal(CountForType + 1)
+                + " time you measured " 
+                + MeasurementTypeHelper.Options[this.MeasurementType].TimelineTitle;
+        }
+
+        
+        public static string Ordinal(int number)
+        {
+            const string TH = "th";
+            var s = number.ToString();
+
+            number %= 100;
+
+            if ((number >= 11) && (number <= 13))
+            {
+                return s + TH;
+            }
+
+            switch (number % 10)
+            {
+                case 1:
+                    return s + "st";
+                case 2:
+                    return s + "nd";
+                case 3:
+                    return s + "rd";
+                default:
+                    return s + TH;
+            }
+        }
+        
+
+        private string _CountText = null;
+        public string CountText
+        {
+            get {
+                return _CountText;
+            }
+
+            set {
+                this.RaiseAndSetIfChanged(ref _CountText, value);
+            }
+        }
+
+
+        private void UpdateChangePercentage()
+        {
+            if (PreviousMeasurement == null)
+            {
+                return;
+            }
+
+            double? pct = Value / PreviousMeasurement.Value * 100.0 - 100.0;
+
+            if (pct > 0) {
+                ChangePercentage = "+" + string.Format("{0:F1}", pct) + "%";
+
+            } else {
+                ChangePercentage = string.Format("{0:F1}", pct) + "%";
+            }
+        }
+
+
+        private string _ChangePercentage;
+        public string ChangePercentage
+        {
+            get
+            {
+                return _ChangePercentage;
+        }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ChangePercentage, value);
+            }
+        }
 
 
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
+            if (prop.Value != null && prop.Value.HasValue)
+            {
             this.Value = prop.Value;
             this.SValue = prop.Value.Value.ToString("F1");
-
+        }
         }
 
     }
-
-
-
 
 
     public class PlantPhotographViewModel : PlantActionViewModel, IPlantPhotographViewModel
     {
 
         bool _IsZoomViewOpen = false;
+        
         public bool IsZoomViewOpen
         {
             get { return _IsZoomViewOpen; }
             set { this.RaiseAndSetIfChanged(ref _IsZoomViewOpen, value); }
         }
+
+        private bool _IsProfilePhoto;
+        public bool IsProfilePhoto
+        {
+            get
+            {
+                return _IsProfilePhoto;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _IsProfilePhoto, value);
+            }
+        }
+
+
+        private bool _CanChooseNewPhoto;
+        public bool CanChooseNewPhoto
+        {
+            get
+            {
+                return _CanChooseNewPhoto;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _CanChooseNewPhoto, value);
+            }
+        }
+
+
+        public IReactiveCommand SetAsProfilePictureCommand { get; protected set; }
 
         //public override IObservable<bool> CanExecute { get; protected set; }
 
@@ -576,12 +894,11 @@ namespace Growthstories.UI.ViewModel
             : base(PlantActionType.PHOTOGRAPHED, app, state)
         {
 
+            CanChooseNewPhoto = true;
+
             if (state != null && state.Type != PlantActionType.PHOTOGRAPHED)
                 throw new InvalidCastException();
             this.Icon = IconType.PHOTO;
-
-
-
 
             this.CanExecute = Observable.CombineLatest(
                 this.WhenAnyValue(x => x.Photo),
@@ -592,12 +909,37 @@ namespace Growthstories.UI.ViewModel
             if (state != null)
             {
                 this.Photo = state.Photo;
+                CanChooseNewPhoto = false;
             }
 
             this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
 
             this.PhotoTimelineTap = new ReactiveCommand();
             this.PhotoChooserCommand = new ReactiveCommand();
+            this.SetAsProfilePictureCommand = new ReactiveCommand();
+            
+            this.WhenAnyValue(z => z.PlantId).Subscribe(u =>
+            {
+                if (u != null)
+                {
+                    this.ListenTo<ProfilepictureSet>((Guid)u).Subscribe(x =>
+                    {
+                        IsProfilePhoto = this.PlantActionId == x.PlantActionId;
+                    });
+                }
+            });
+
+        
+            this.SetAsProfilePictureCommand.Subscribe(_ =>
+            {
+                App.HandleCommand(new SetProfilepicture((Guid)PlantId, this.Photo, PlantActionId));
+            });
+
+            this.WhenAnyValue(x => x.IsProfilePhoto).Subscribe(_ =>
+            {
+                UpdateShowSetAsProfilePicture();
+            });
+
         }
 
 
@@ -605,6 +947,7 @@ namespace Growthstories.UI.ViewModel
         {
             //this.SendCommand(new Photograph(this.State.EntityId, this.State.PlantId, this.Note, this.Path), true);
         }
+
 
         protected override async Task<IGSAggregate> AsyncAddCommand(object _)
         {
@@ -614,7 +957,6 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SchedulePhotoUpload(this.Photo, action.Id));
             }
             return action;
-
         }
 
 
@@ -629,6 +971,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PhotoTimelineTap { get; protected set; }
         public IReactiveCommand PhotoChooserCommand { get; protected set; }
 
+
+        
     }
 
 }

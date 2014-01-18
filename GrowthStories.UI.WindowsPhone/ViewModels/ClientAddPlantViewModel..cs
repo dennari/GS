@@ -174,15 +174,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
-
         async Task t_Completed(object sender, PhotoResult e)
         {
-            //throw new NotImplementedException();
-            var image = e.ChosenPhoto;
-            if (e.TaskResult == TaskResult.OK && image.CanRead && image.Length > 0)
+            var res = await ViewHelpers.HandlePhotoChooserCompleted(e, App.ShowPopup);
+            if (res != null)
             {
-                this.ProfilePictureButtonText = "";
-                this.Photo = await image.SavePhotoToLocalStorageAsync();
+                Photo = res;
             }
         }
 

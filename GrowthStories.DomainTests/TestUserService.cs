@@ -45,7 +45,6 @@ namespace Growthstories.DomainTests
                 ExpiresIn = 23
             };
             return Tuple.Create(authUser, new IAggregateCommand[0]);
-
         }
 
 
@@ -57,6 +56,7 @@ namespace Growthstories.DomainTests
                 StatusCode = GSStatusCode.OK
             });
         }
+
 
         public Task<IAuthResponse> AuthorizeUser(string email, string password)
         {

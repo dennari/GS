@@ -68,9 +68,8 @@ namespace Growthstories.DomainTests
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
             //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
 
-
-            await App.Context.AuthorizeUser();
-            //Ctx = App.User;
+            await App.PrepareAuthorizedUser();
+            //Ctx = App.Context.CurrentUser;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
             Assert.IsNotNullOrEmpty(Ctx.RefreshToken);

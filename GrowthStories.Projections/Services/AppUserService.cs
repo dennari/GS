@@ -12,17 +12,16 @@ namespace Growthstories.UI.Services
 
     public class AppUserService : IUserService
     {
-        //private User u;
 
         private readonly ITransportEvents Transporter;
         private readonly IDispatchCommands Handler;
+
 
         public AppUserService(
             ITransportEvents transporter,
             IDispatchCommands handler
             )
         {
-
             this.Transporter = transporter;
             this.Handler = handler;
         }
@@ -44,7 +43,7 @@ namespace Growthstories.UI.Services
                     Debugger.Break();
                 }
             }
-
+            
             if (user.AccessToken != null)
             {
                 Transporter.AuthToken = user;
@@ -56,6 +55,7 @@ namespace Growthstories.UI.Services
         {
             var userId = Guid.NewGuid();
             var gardenId = Guid.NewGuid();
+            var password = Guid.NewGuid().ToString();
 
             var commands = new IAggregateCommand[4];
 
@@ -64,7 +64,7 @@ namespace Growthstories.UI.Services
             // -- JOJ 4.1.2014
             //
 
-            var u = new CreateUser(userId, AuthUser.UnregUsername, "unregpassword",
+            var u = new CreateUser(userId, AuthUser.UnregUsername, password, 
                 string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
             commands[0] = u;
             commands[1] = new CreateGarden(gardenId, userId);
@@ -85,12 +85,16 @@ namespace Growthstories.UI.Services
             };
 
             return Tuple.Create(authUser, commands);
-
         }
 
+
+        // Tries to obtain authorization token for user
+        // this will not anymore create (push) a new user
+        // 
+        // See AppViewModel.TryGetAuthorized()
+        //
         public Task<IAuthResponse> AuthorizeUser()
         {
-
             if (CurrentUser == null)
             {
                 throw new InvalidOperationException("CurrentUser has to be set before authorizing.");
@@ -98,29 +102,11 @@ namespace Growthstories.UI.Services
 
             return Task.Run(async () =>
             {
-
-                //var s = SyncService.Synchronize(RequestFactory.CreatePullRequest(null), RequestFactory.CreateUserSyncRequest(CurrentUser.Id));
-                //int counter = 0;
-                //ISyncPushResponse pushResp = await s.Push();
-
-                //if (pushResp.StatusCode != GSStatusCode.OK && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW)
-                //{
-                //    throw new InvalidOperationException("Can't synchronize user");
-                //}
-
-                //if (pushResp.StatusCode == GSStatusCode.OK)
-                //{
-                //    Handler.Handle(new Push(s));
-                //}
-
-                //if (pushReq.Streams.Count > 1 || pushReq.Streams.First().StreamId != AuthUser.Id)
-                //    throw new InvalidOperationException("Can't auth user");
-
-
                 var authResponse = await AuthorizeUser(CurrentUser.Email, CurrentUser.Password);
+
                 if (authResponse.StatusCode != GSStatusCode.OK)
                 {
-                    throw new InvalidOperationException(string.Format("Unable to Authorize user, statuscode {0}", authResponse.StatusCode));
+                    return authResponse;
                 }
 
                 _CurrentUser.AccessToken = authResponse.AuthToken.AccessToken;
@@ -130,10 +116,8 @@ namespace Growthstories.UI.Services
                 Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
                 Transporter.AuthToken = authResponse.AuthToken;
-                //u.State.Apply(new AuthTokenSet(new SetAuthToken(u.Id, authResponse.AuthToken)));
                 return authResponse;
             });
-
         }
 
 
@@ -146,21 +130,10 @@ namespace Growthstories.UI.Services
                 Handler.Handle(new SetAuthToken(authResponse.AuthToken));
                 Transporter.AuthToken = authResponse.AuthToken;
             }
-
+            
             return authResponse;
         }
 
-
-        //public Task TryAuth()
-        //{
-        //    return Task.Run(async () =>
-        //    {
-        //        var auth = await AuthService.GetAuthToken(CurrentUser.Username, CurrentUser.Password);
-
-        //        u.State.Apply(new AuthTokenSet(new SetAuthToken(u.Id, auth)));
-
-        //    });
-        //}
     }
 }
 
