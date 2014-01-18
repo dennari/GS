@@ -118,9 +118,12 @@ namespace Growthstories.UI.WindowsPhone
                 Resources.Add("PhoneAccentColor", Application.Current.Resources["GSAccentColor"]);
 
                 var ab = (SolidColorBrush)Resources["PhoneAccentBrush"];
+
                 var ac = (Color)Resources["PhoneAccentColor"];
                 ab.Color = ac;
 
+                var ebb = (SolidColorBrush)Resources["PhoneTextBoxEditBorderBrush"];
+                ebb.Color = ac;
             }
             catch
             {
