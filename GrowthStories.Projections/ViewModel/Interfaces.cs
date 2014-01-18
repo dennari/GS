@@ -241,6 +241,8 @@ namespace Growthstories.UI.ViewModel
 
         int PlantIndex { get; set; }
 
+        bool HasWriteAccess { get; }
+
     }
 
 
@@ -256,7 +258,6 @@ namespace Growthstories.UI.ViewModel
         IList<IPlantPhotographViewModel> Photos { get; }
 
         IPlantPhotographViewModel Selected { get; }
-
 
     }
 

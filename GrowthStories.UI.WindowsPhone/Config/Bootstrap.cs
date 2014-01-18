@@ -107,15 +107,14 @@ namespace Growthstories.UI.WindowsPhone
         {
             if (DesignModeDetector.IsInDesignMode())
                 return new BootstrapDesign();
-#if DEBUG
+
             Type machine = Type.GetType("Growthstories.UI.WindowsPhone.BootstrapMachine", false);
             if (machine != null)
+            {
                 return (INinjectModule)Activator.CreateInstance(machine, app);
-
-            return new Bootstrap(app);
-#endif
+            }
+            
             return new BootstrapProduction(app);
-
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
 using ReactiveUI;
+using Growthstories.Domain.Messaging;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -144,14 +145,7 @@ namespace Growthstories.UI.ViewModel
                 Command = SignUpCommand
             };
 
-            //this.ListenTo<InternalRegistered>()
-            //    .Select(x => x.Email)
-            //    .Subscribe(x =>
-            //        {
-            //            this.Email = x;
-            //        });
-
-
+            
             isRegisteredObservable
                 .Do(x =>
                 {
@@ -172,7 +166,6 @@ namespace Growthstories.UI.ViewModel
 
                 })
                 .ToProperty(this, x => x.IsRegistered, out _IsRegistered);
-
 
             App.WhenAnyValue(x => x.User.Email).Where(_ => loggingOut == false).ToProperty(this, x => x.Email, out _Email);
 

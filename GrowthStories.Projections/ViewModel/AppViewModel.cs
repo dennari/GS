@@ -962,7 +962,7 @@ namespace Growthstories.UI.ViewModel
         //  - Pushes UserCreated if necessary
         //  - Obtains AuthToken if necessary
         //  
-        //  ( May add later auth check with server,)
+        //  ( May add later auth check with server)
         //
         public async Task<GSStatusCode> PrepareAuthorizedUser()
         {

@@ -267,9 +267,9 @@ namespace Growthstories.UI.ViewModel
 
                 this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
                 .Subscribe(x =>
-           {
-               this.MissedCount = (int?)x;
-           });
+                {
+                    this.MissedCount = (int?)x;
+                });
 
                 this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
                 {
@@ -401,12 +401,10 @@ namespace Growthstories.UI.ViewModel
                   .Concat(App.FuturePlantActions(this.State.Id));
 
 
-                actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
-                //_Actions.Add(x);
-                x.PlantId = this.Id;
-                x.UserId = this.UserId;
-                x.ActionIndex = 0;
+            
+                PrepareActionVM(x); 
                 _Actions.Insert(0, x);
 
                 foreach (var a in Actions)
@@ -415,7 +413,6 @@ namespace Growthstories.UI.ViewModel
                 }
 
                 x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
-                //x.DeleteCommand.Subscribe(_ => _Actions.Remove(x));
 
                 this.ListenTo<AggregateDeleted>(x.PlantActionId)
                   .Subscribe(y =>
@@ -619,9 +616,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                // what's this? -Ville
-                return (int)(new DateTime().Ticks % 10000);
-                //return _MissedCount;
+                return _MissedCount;
             }
 
             protected set
@@ -664,7 +659,10 @@ namespace Growthstories.UI.ViewModel
         private void PrepareActionVM(IPlantActionViewModel vm)
         {
             vm.PlantId = this.Id;
-            vm.UserId = AppUser != null ? AppUser.Id : default(Guid);
+            vm.UserId = this.UserId;
+
+            // ???? we want the user id of the user who owns the plant/action, what was this?
+            //vm.UserId = AppUser != null ? AppUser.Id : default(Guid);
             vm.ActionIndex = 0;
             vm.OwnAction = HasWriteAccess;
 
@@ -1040,6 +1038,8 @@ namespace Growthstories.UI.ViewModel
                 return _Instance ?? (_Instance = new EmptyPlantViewModel());
             }
         }
+
+        public bool HasWriteAccess { get; set; }
 
         public Guid Id { get; set; }
 

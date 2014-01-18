@@ -49,15 +49,16 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
 
+            if (vm.HasWriteAccess)
+            {
+                Margin = new Thickness(0, 0, 0, 72);
 
-
-            //Margin = new Thickness(0, 0, 0, vm.IsOwn ? 72 : 0);
-
-
+            } else {
+                Margin = new Thickness(0, 0, 0, 0);
+            }
 
             vm.Actions.ItemsAdded.Subscribe(x =>
             {
