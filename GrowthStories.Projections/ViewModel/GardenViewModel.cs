@@ -46,7 +46,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            var plantStream = current.Concat(App.FuturePlants(u.Id));
+            var plantStream = current.Concat(App.FuturePlants(u.Id)).ObserveOn(RxApp.MainThreadScheduler);
 
             plantStream.Subscribe(x =>
             {

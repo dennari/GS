@@ -315,7 +315,7 @@
                     FontWeight="Normal"
                     Margin="8,-4,0,0"
                     Width="200"
-                    Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
+                    x:Name="loading-plants-text"                    
                     />
                 </DataTemplate>
             </telerikPrimitives:RadBusyIndicator.ContentTemplate>
@@ -331,6 +331,8 @@
                     FontWeight="Bold"
                     Margin="12,0,0,24"
                     Width="400"
+                    x:Name="no_plants_yet_text"
+                    
                     Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
 
@@ -341,6 +343,8 @@
                     VerticalAlignment="Top" Grid.Row="1" Margin="12,0,0,0"
                     Width="400"
                     FontSize="24"
+                    x:Name="add_your_first_text"
+                    
                     Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
             </StackPanel>
@@ -353,6 +357,7 @@
                     FontWeight="Bold"
                     Margin="12,0,0,24"
                     Width="400"
+                    x:Name="no_shared_plants_text"
                     Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
             </StackPanel>
