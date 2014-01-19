@@ -96,6 +96,8 @@ namespace Growthstories.UI.WindowsPhone
                 var ac = (Color)PhoneApp.Resources["PhoneAccentColor"];
                 ab.Color = ac;
 
+                var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
+                ebb.Color = ac;
             }
             catch
             {
@@ -113,7 +115,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return (INinjectModule)Activator.CreateInstance(machine, app);
             }
-            
+
             return new BootstrapProduction(app);
         }
 
