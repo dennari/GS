@@ -205,21 +205,20 @@ namespace Growthstories.Domain.Messaging
     public class SetLocation : PlantCommand
     {
 
-        public float latitude;
-        public float longitude;
+        public GSLocation Location;
+
 
         public SetLocation() { }
 
-        public SetLocation(Guid plantId, float latitude, float longitude)
+        public SetLocation(Guid plantId, GSLocation location)
             : base(plantId)
         {
-            this.latitude = latitude;
-            this.longitude = longitude;
+            this.Location = location;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Set location for plant {0} to ({1},{2}).", AggregateId, latitude, longitude);
+            return string.Format(@"Set location for plant {0}", AggregateId);
         }
 
     }

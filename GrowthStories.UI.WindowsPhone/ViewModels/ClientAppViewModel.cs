@@ -14,6 +14,7 @@ using ReactiveUI.Mobile;
 using Windows.Devices.Geolocation;
 using System.Threading.Tasks;
 
+
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
@@ -152,17 +153,54 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         //}
 
 
-        public override async Task<Tuple<float, float>> GetLocation()
+        public override async Task<GSLocation> DoGetLocation()
+        {
+            var pvm = new ProgressPopupViewModel()
+            {
+                Caption = "Getting location",
+                ProgressMessage = "Please wait while Growth Stories figures out your location",
+                IsLeftButtonEnabled = false,
+            };
+
+            App.ShowPopup.Execute(pvm);
+
+            // make sure the popup is visible at least for a while
+            // so user definitely knows that we are getting a location
+            await Task.Delay(1000);
+
+            GSLocation location;
+            try
+            {
+                location = await _DoGetLocation();
+                App.ShowPopup.Execute(null);
+                return location;
+            }
+            catch (Exception e)
+            {
+                var popup = new PopupViewModel()
+                {
+                    Caption = "Could not get location",
+                    Message = "We could not figure out your location right know. Please try again later",
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK"
+                };
+                App.ShowPopup.Execute(popup);
+                return null;
+            }
+        }
+        
+
+        private async Task<GSLocation> _DoGetLocation()
         {
             try
             {
                 var gl = new Geolocator();
                 gl.DesiredAccuracyInMeters = 50;
                 var pos = await gl.GetGeopositionAsync(
-                    maximumAge: TimeSpan.FromMinutes(5), timeout: TimeSpan.FromSeconds(30));
-                
-                return Tuple.Create((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);                
-            }
+                    maximumAge: TimeSpan.FromMinutes(5), timeout: TimeSpan.FromSeconds(15));
+
+                return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);
+             }
 
             catch (Exception ex)
             {
@@ -175,7 +213,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
-        public void UpdatePhoneLocationServicesEnabled()
+        public override void UpdatePhoneLocationServicesEnabled()
         {
             // we need to try to get location to find out whether
             // location services are enabled

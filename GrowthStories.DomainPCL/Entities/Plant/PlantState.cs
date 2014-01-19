@@ -15,6 +15,8 @@ namespace Growthstories.Domain.Entities
 
     public sealed class PlantState : AggregateState<PlantCreated>
     {
+
+
         [JsonProperty]
         public bool Public { get; private set; }
 
@@ -41,13 +43,10 @@ namespace Growthstories.Domain.Entities
         public Photo Profilepicture { get; private set; }
         [JsonProperty]
         public Guid? ProfilepictureActionId { get; private set; }
-
-        [JsonProperty]
-        public float Longitude { get; private set; }
         
         [JsonProperty]
-        public float Latitude { get; private set; }
-
+        public GSLocation Location { get; private set; }
+        
 
         public PlantState()
         {
@@ -131,9 +130,9 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(LocationSet @event)
         {
-            Latitude = @event.latitude;
-            Longitude = @event.longitude;
+            Location = @event.Location;
         }
+
 
     }
 }

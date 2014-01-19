@@ -61,6 +61,7 @@ namespace Growthstories.UI.ViewModel
         connectionerror
     }
 
+
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         //bool CanGoBack { get; }
@@ -129,9 +130,13 @@ namespace Growthstories.UI.ViewModel
         //Task PossiblyAutoSync();
         void PossiblyAutoSync();
 
-        Task<Tuple<float, float>> GetLocation();
+        Task<GSLocation> GetLocation();
 
-        UserState GetUserState();
+        bool GSLocationServicesEnabled { get; }
+
+        void UpdatePhoneLocationServicesEnabled();
+
+        GSLocation LastLocation { get; }
 
     }
 
@@ -249,8 +254,7 @@ namespace Growthstories.UI.ViewModel
 
         bool HasWriteAccess { get; }
 
-        string Latitude { get; }
-        string Longitude { get; }
+        GSLocation Location { get; }
 
     }
 

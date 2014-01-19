@@ -354,6 +354,7 @@
     <Content Include="Assets\Icons\icon_harvesting.png" />
     <Content Include="Assets\Icons\icon_ph2_appbar.png" />
     <Content Include="Assets\Icons\icon_pruning.png" />
+    <Content Include="Assets\Icons\icon_refresh.png" />
     <Content Include="Assets\Icons\icon_soil_humidity_appbar.png" />
     <Content Include="Assets\Icons\NoImage.png" />
     <Content Include="Assets\Icons\NoImageNoText.png" />

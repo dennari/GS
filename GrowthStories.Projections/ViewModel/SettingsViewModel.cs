@@ -95,9 +95,9 @@ namespace Growthstories.UI.ViewModel
             // delete location infos for all plants
             foreach (var p in Plants)
             {
-                if (p.Latitude != null || p.Longitude != null)
+                if (p.Location != null)
                 {
-                    var cmd = new SetLocation(p.Id, 0, 0);
+                    var cmd = new SetLocation(p.Id, null);
                     await App.HandleCommand(cmd);
                 }
             }
@@ -106,46 +106,23 @@ namespace Growthstories.UI.ViewModel
 
         public async void EnableLocationServices()
         {
-            var pvm = new ProgressPopupViewModel()
+            var location = await App.GetLocation();
+            if (location != null)
             {
-                Caption = "Getting location",
-                ProgressMessage = "Please wait while Growth Stories figures out your location",
-                IsLeftButtonEnabled = false,
-            };
+                // mark location acquisition as enabled
+                await App.HandleCommand(new SetLocationEnabled(App.User.Id, true));
 
-            // make sure the popup is visible at least for a while
-            // so user definitely knows that we are getting a location
-            await Task.Delay(1000);
-
-            App.ShowPopup.Execute(pvm);
-            Tuple<float, float> location;
-            try
-            {
-                location = await App.GetLocation();
-
-            } catch (Exception e) {
-                var popup = new PopupViewModel()
+                // share location info for all current plants
+                foreach (var p in Plants)
                 {
-                    Caption = "Could not get location",
-                    Message = "We could not figure out your location right know. Please try again later",
-                    IsLeftButtonEnabled = true,
-                    LeftButtonContent = "OK"
-                };
-                App.ShowPopup.Execute(null);
-                return;
+                    var cmd = new SetLocation(p.Id, location);
+                    await App.HandleCommand(cmd);
+                }
+            
+            } else {
+                // revert toggle switch if unable to get location
+                GSLocationServicesEnabled = false;
             }
-
-            // mark location acquisition as enabled
-            await App.HandleCommand(new SetLocationEnabled(App.User.Id, true));
-            App.ShowPopup.Execute(null);
-
-            // share location info for all current plants
-            foreach (var p in Plants)
-            {
-                var cmd = new SetLocation(p.Id, location.Item1, location.Item2);
-                await App.HandleCommand(cmd);
-            }
-
         }
 
 
@@ -232,7 +209,6 @@ namespace Growthstories.UI.ViewModel
                 Command = SignUpCommand
             };
 
-            
             isRegisteredObservable
                 .Do(x =>
                 {
@@ -311,61 +287,26 @@ namespace Growthstories.UI.ViewModel
             
             // there was no obvious other way to get this info from a user
             // aggregate, other than obtaining one
-            SetGSLocationServicesEnabledWithoutTriggering(App.GetUserState().LocationEnabled);
-            this.ListenTo<LocationEnabledSet>(App.User.Id).Subscribe(x =>
-            {
-                SetGSLocationServicesEnabledWithoutTriggering(x.LocationEnabled);
-            });
+            SetGSLocationServicesEnabled(App.GSLocationServicesEnabled);
+            App.WhenAnyValue(x => x.GSLocationServicesEnabled)
+                .Subscribe(x => SetGSLocationServicesEnabled(x));
 
             App.Router.CurrentViewModel
-            .Subscribe(vm => 
+                .Where(vm => vm == this)
+                .Subscribe(_ => 
             {
-                if (vm == this)
-                {
-                    this.PhoneLocationServicesEnabled = App.PhoneLocationServicesEnabled;
-                    
-                    //_ToggleSubscription =
-                    //this.WhenAnyValue(x => x.GSLocationServicesEnabled).Subscribe(x =>
-                    //{
-                    //    LocationServicesEnabledUpdated();
-                    //});
-                }
-                else
-                {
-                    if (_ToggleSubscription != null)
-                    {
-                        _ToggleSubscription.Dispose();
-                    }
-                }
+                App.UpdatePhoneLocationServicesEnabled();
             });
-        }
-
-        public bool AllowTriggering = false;
-
-        private AsyncLock _ToggleLock = new AsyncLock();
-
-        // Set essentially the toggle swith position without
-        // triggering and update for the setting
-        public void SetGSLocationServicesEnabledWithoutTriggering(bool enabled)
-        {
-            GSLocationServicesEnabled = enabled;
         }
 
         private IDisposable _ToggleSubscription;
 
+        public bool AllowTriggering = false;
 
-        //public void ToggleLocationServicesEnabled()
-        //{
-        //    if (GSLocationServicesEnabled)
-        //    {
-        //        PossiblyDisableLocationServices();
-        //    }
-            
-        //    else
-        //    {
-        //        EnableLocationServices();
-        //    }
-        //}
+        public void SetGSLocationServicesEnabled(bool enabled)
+        {
+            GSLocationServicesEnabled = enabled;
+        }
 
         public void LocationServicesEnabledUpdated()
         {
@@ -388,7 +329,7 @@ namespace Growthstories.UI.ViewModel
 
         public void PossiblyDisableLocationServices()
         {
-            SetGSLocationServicesEnabledWithoutTriggering(false);
+            SetGSLocationServicesEnabled(false);
 
             var pvm = new PopupViewModel()
             {
@@ -412,7 +353,7 @@ namespace Growthstories.UI.ViewModel
                 if (res != PopupResult.LeftButton)
                 {
                     // undo toggle
-                    SetGSLocationServicesEnabledWithoutTriggering(true);
+                    SetGSLocationServicesEnabled(true);
                 }
             });
 

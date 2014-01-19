@@ -188,6 +188,11 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new PhotoUploadCompleted(command));
         }
 
+        public void Handle(AcquireLocation command)
+        {
+            RaiseEvent(new LocationAcquired(command));
+        }
+
         //public void Handle(CompletePhotoDownload command)
         //{
         //    RaiseEvent(new PhotoDownloadCompleted(command));

@@ -14,7 +14,6 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-
     public class AddEditPlantViewModel : CommandViewModel, IAddEditPlantViewModel
     {
 
@@ -28,7 +27,6 @@ namespace Growthstories.UI.ViewModel
         public AddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
             : base(app)
         {
-
 
             if (current != null)
             {
@@ -46,13 +44,18 @@ namespace Growthstories.UI.ViewModel
                 this.FertilizingSchedule = current.FertilizingSchedule;
                 this.IsWateringScheduleEnabled = current.IsWateringScheduleEnabled;
                 this.IsFertilizingScheduleEnabled = current.IsFertilizingScheduleEnabled;
-
-            }
-            else
-            {
+                this.Location = current.Location;
+            
+            } else {
                 this.Title = "new plant";
                 this.TagSet = new HashSet<string>();
                 this.Tags = new ReactiveList<string>();
+
+                if (App.PhoneLocationServicesEnabled && App.GSLocationServicesEnabled)
+                {
+                    this.Location = App.LastLocation;
+                }
+
             }
             if (this.WateringSchedule == null)
                 this.WateringSchedule = new ScheduleViewModel(null, ScheduleType.WATERING, app);
@@ -81,6 +84,17 @@ namespace Growthstories.UI.ViewModel
 
 
             ChooseProfilePictureCommand = new ReactiveCommand();
+            UpdateLocationCommand = new ReactiveCommand();
+
+            UpdateLocationCommand.Subscribe(async x =>
+            {
+                var loc = await App.GetLocation();
+                if (loc != null)
+                {
+                    Location = loc;
+                }
+            });
+
             //ChooseWateringSchedule = new ReactiveCommand();
             //ChooseWateringSchedule.Subscribe(_ => App.Router.Navigate.Execute(this.WateringSchedule));
             //ChooseFertilizingSchedule = new ReactiveCommand();
@@ -111,6 +125,11 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x)
                 .Subscribe(_ => this.Navigate(this.FertilizingSchedule));
 
+            UpdateShowLocation();
+
+            App.WhenAnyValue(x => x.PhoneLocationServicesEnabled).Subscribe(_ => UpdateShowLocation());
+            App.WhenAnyValue(x => x.GSLocationServicesEnabled).Subscribe(_ => UpdateShowLocation());
+            this.WhenAnyValue(x => x.Location).Subscribe(_ => UpdateShowLocation());
 
             this.CanExecute = Observable.Merge(
                     this.Changed,
@@ -119,8 +138,30 @@ namespace Growthstories.UI.ViewModel
                 .Select(_ => this.IsValid());
 
             this.AddCommand.RegisterAsyncTask((_) => this.AddTask()).Publish().Connect();
+        }
 
 
+        private bool _ShowLocation;
+        public bool ShowLocation
+        {
+            get
+            {
+                return _ShowLocation;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowLocation, value);
+            }
+        }
+
+        private void UpdateShowLocation()
+        {
+            var b1 = App.PhoneLocationServicesEnabled;
+            var b2 = App.GSLocationServicesEnabled;
+            var b3 = Location != null;
+
+            ShowLocation = App.PhoneLocationServicesEnabled && App.GSLocationServicesEnabled && Location != null;
         }
 
         protected bool AnyChange()
@@ -158,8 +199,14 @@ namespace Growthstories.UI.ViewModel
             {
                 changes++;
             }
+            if (Current.Location != Location)
+            {
+                changes++;
+            }
+
             return changes > 0;
         }
+
 
         protected bool IsValid()
         {
@@ -168,7 +215,6 @@ namespace Growthstories.UI.ViewModel
                 valid++;
             if (!string.IsNullOrWhiteSpace(Species))
                 valid++;
-
 
             if (valid < 2)
                 return false;
@@ -179,6 +225,7 @@ namespace Growthstories.UI.ViewModel
             return true;
         }
 
+        public IReactiveCommand UpdateLocationCommand { get; protected set; }
 
         public IReactiveCommand ChooseProfilePictureCommand { get; protected set; }
 
@@ -246,6 +293,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        private GSLocation _GSLocation;
+        public GSLocation Location
+        {
+            get
+            {
+                return _GSLocation;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _GSLocation, value);
+            }
+        }
 
 
         protected string _ProfilePictureButtonText = "select";
@@ -340,13 +400,8 @@ namespace Growthstories.UI.ViewModel
 
         public async Task<Guid> AddTask()
         {
-            //IEntityCommand cmd = null;
-
-
-
 
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
-
 
             IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
 
@@ -405,21 +460,25 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SetProfilepicture(plantId, this.Photo, plantActionId));
             }
 
-            //this.Ta
             if (!this.TagSet.SetEquals(this.Tags))
             {
                 await App.HandleCommand(new SetTags(plantId, new HashSet<string>(this.Tags)));
             }
+
+            if (this.Location != null && current.Location != this.Location)
+            {
+                await App.HandleCommand(new SetLocation(plantId, this.Location));
+            }
+
             if (this.App.Router.NavigationStack.Count > 1)
                 this.App.Router.NavigateBack.Execute(null);
             return plantId;
         }
 
-
-
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
         }
+
     }
 }

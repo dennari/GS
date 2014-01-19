@@ -376,23 +376,19 @@ namespace Growthstories.Domain.Messaging
     {
 
         [JsonProperty]
-        public float latitude;
-
-        [JsonProperty]
-        public float longitude;
+        public GSLocation Location;
 
         public LocationSet() { }
 
 
         public LocationSet(SetLocation cmd) : base(cmd)
         {
-            this.latitude = cmd.latitude;
-            this.longitude = cmd.longitude;
+            this.Location = cmd.Location;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Location set for plant {0} to ({1},{2})", AggregateId, latitude, longitude);
+            return string.Format(@"Location set for plant {0}", this.AggregateId);
         }
 
 
@@ -403,9 +399,18 @@ namespace Growthstories.Domain.Messaging
             D.EntityType = DTOType.plant;
             D.PropertyName = "location";
             D.PropertyValue = new JObject();
-            D.PropertyValue["latitude"] = this.latitude;
-            D.PropertyValue["longitude"] = this.longitude;
 
+            if (this.Location != null)
+            {
+                D.PropertyValue["latitude"] = this.Location.latitude;
+                D.PropertyValue["longitude"] = this.Location.longitude;
+            }
+            else
+            {
+                D.PropertyValue["latitude"] = 0.0;
+                D.PropertyValue["longitude"] = 0.0;
+            }
+            
             base.FillDTO(D);
         }
 
@@ -418,10 +423,9 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentException();
             }
-            
-            this.latitude = 0;
-            this.longitude = 0;
-            
+
+            this.Location = null;
+
             try {
                 if (D.PropertyValue != null)
                 {
@@ -429,8 +433,9 @@ namespace Growthstories.Domain.Messaging
                 
                     if (val != null && val.HasValues)
                     {
-                        this.latitude = val["latitude"].ToObject<float>();
-                        this.longitude = val["longitude"].ToObject<float>();
+                        var la = val["latitude"].ToObject<float>();
+                        var lo = val["longitude"].ToObject<float>();
+                        this.Location = new GSLocation(la, lo);
                     }
                 }
             } catch { }

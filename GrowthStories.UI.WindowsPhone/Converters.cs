@@ -584,6 +584,57 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
+
+    //
+    // Return "whitesmoke" if false and gspink if true
+    // Used to highlight profile picture in timeline
+    //
+    public class LocationToFriendlyLatitudeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+                return "Not available";
+
+            var val = (GSLocation)value;
+            if (val == null)
+            {
+                return "Not available";
+            }
+            return val.FriendlyLatitude();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public class LocationToFriendlyLongitudeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+                return "Not available";
+
+            var val = (GSLocation)value;
+            if (val == null)
+            {
+                return "Not available";
+            }
+            return val.FriendlyLongitude();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
+
     //
     // Return "whitesmoke" if false and gspink if true
     // Used to highlight profile picture in timeline

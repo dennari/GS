@@ -150,7 +150,7 @@
                     Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
                 Style="{StaticResource GSTextBlockStyle}"
                 Foreground="WhiteSmoke"
-                Margin="0,0,0,48"
+                Margin="0,6,0,48"
                 FontSize="24"
                 HorizontalAlignment="Stretch"
                 Text="Location services have been disabled on your phone. If you wish to share the locations of your plants, you will need to enable location services in your phone's settings."

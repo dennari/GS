@@ -172,6 +172,86 @@
                     ItemsPanel="{StaticResource TagsPanelTemplate}"/>
                 -->
 
+            <local:GSLabel 
+                Visibility="{Binding ShowLocation, Converter={StaticResource BooleanToVisibility}}"
+                Label="location" 
+                Margin="0,6,0,0" >
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                      
+                    <StackPanel Margin="0,18,0,0" Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock 
+                                Style="{StaticResource GSTextBlockStyle}"
+                                Foreground="WhiteSmoke"
+                                Margin="0,0,0,0"
+                                FontSize="24"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Stretch"
+                                Text="Latitude"
+                                />
+
+                            <TextBlock 
+                                Style="{StaticResource GSTextBlockStyle}"
+                                Foreground="WhiteSmoke"
+                                Margin="12,0,0,0"
+                                FontSize="24"
+                                FontWeight="Normal"
+                                HorizontalAlignment="Stretch"
+                                Text="{Binding Location, Converter={StaticResource LocationToFriendlyLatitude}}"
+                                />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock 
+                                Style="{StaticResource GSTextBlockStyle}"
+                                Foreground="WhiteSmoke"
+                                Margin="0,0,0,32"
+                                FontSize="24"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Stretch"
+                                Text="Longitude"
+                                />
+                            <TextBlock 
+                                Style="{StaticResource GSTextBlockStyle}"
+                                Foreground="WhiteSmoke"
+                                Margin="12,0,0,32"
+                                FontSize="24"
+                                FontWeight="Normal"
+                                HorizontalAlignment="Stretch"
+                                Text="{Binding Location, Converter={StaticResource LocationToFriendlyLongitude}}"
+                                />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" Margin="0,18,0,0" VerticalAlignment="Top">
+                        <Button 
+                        Command="{Binding UpdateLocationCommand}"
+                        Height="70" Width="70" Style="{StaticResource GSRoundButtonStyle}" Grid.Column="1" BorderThickness="3" BorderBrush="White">
+                            <Image Source="/Assets/Icons/icon_refresh.png" Stretch="Uniform"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!--
+                    <Grid VerticalAlignment="Top" Margin="0,14,0,0" HorizontalAlignment="Right" Grid.Column="1">
+                        <Image Source="/Assets/Icons/basecircle.png" /> 
+                    </Grid>
+                    -->
+                </Grid>
+                <!--
+                <local:GSToggleSwitch
+                            IsChecked="{Binding IsWateringScheduleEnabled, Mode=TwoWay}"
+                            Content="{Binding WateringSchedule}"
+                            ContentTemplate="{StaticResource ScheduleTemplate}"
+                            VerticalContentAlignment="Center"
+                            Margin="-12,0,-12,-12"
+                            />
+                -->
+            </local:GSLabel>
+
             <local:GSLabel Label="watering schedule" Margin="0,6,0,0">
                         <local:GSToggleSwitch
                             IsChecked="{Binding IsWateringScheduleEnabled, Mode=TwoWay}"

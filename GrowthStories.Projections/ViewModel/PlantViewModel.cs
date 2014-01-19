@@ -284,62 +284,17 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
-        private string _Latitude;
-        public string Latitude
+        private GSLocation _Location;
+        public GSLocation Location
         {
             get
             {
-                return _Latitude;
+                return _Location;
             }
             set
             {
-                this.RaiseAndSetIfChanged(ref _Latitude, value);
+                this.RaiseAndSetIfChanged(ref _Location, value);
             }
-        }
-
-        private string _Longitude;
-        public string Longitude
-        {
-            get
-            {
-                return _Longitude;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _Longitude, value);
-            }
-        }
-
-
-        private void InitializeLocation(PlantState state)
-        {
-            UpdateLocation(state.Latitude, state.Longitude);
-            SubscribeForLocationUpdates();
-        }
-
-
-        private void UpdateLocation(float latitude, float longitude)
-        {
-            if (latitude == 0 || longitude == 0)
-            {
-                Latitude = null;
-                Longitude = null;
-
-            } else {
-                Latitude = GeoAngle.FromDouble(latitude).ToString();
-                Longitude = GeoAngle.FromDouble(longitude).ToString();
-
-            }
-        }
-
-
-        private void SubscribeForLocationUpdates()
-        {
-            this.ListenTo<LocationSet>(this.Id).Subscribe(e =>
-            {
-                UpdateLocation(e.latitude, e.longitude);                
-            });
         }
 
 
@@ -360,8 +315,6 @@ namespace Growthstories.UI.ViewModel
             this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
 
             this.HasWriteAccess = state.UserId == appUser.Id;
-
-
 
             AppBarButtons = HasWriteAccess ? GetOwnerButtons() : GetFollowerButtons();
             if (HasWriteAccess)
@@ -422,6 +375,14 @@ namespace Growthstories.UI.ViewModel
             this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
                 .StartWith(state.Tags)
                 .Subscribe(x => this.Tags = new ReactiveList<string>(x));
+
+            this.ListenTo<LocationSet>(this.State.Id)
+                .Select(x => x.Location)
+                .StartWith(state.Location)
+                .Subscribe(x =>
+            {;
+                Location = x;
+            });
 
             this.Photo = state.Profilepicture;
 
@@ -486,8 +447,6 @@ namespace Growthstories.UI.ViewModel
             {
                 a.PlantId = state.Id;
             }
-
-            InitializeLocation(state);
         }
 
 
@@ -1112,7 +1071,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
     }
 
 
@@ -1120,6 +1078,7 @@ namespace Growthstories.UI.ViewModel
     {
 
 
+        public GSLocation Location { get; set; }
 
         private static EmptyPlantViewModel _Instance;
 

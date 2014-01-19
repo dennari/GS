@@ -18,8 +18,6 @@ namespace Growthstories.Domain.Entities
     public sealed class AuthUser : IAuthUser
     {
 
-        public bool LocationEnabled {get; set;}
-
         public const string UnregUsername = "UnregUser";
         public const string UnregEmailPrefix = "GSUnregUserEmail_";
 
@@ -91,6 +89,9 @@ namespace Growthstories.Domain.Entities
         public IAuthUser User { get { return _User; } }
 
         public SyncHead SyncHead { get; protected set; }
+
+        public GSLocation LastLocation { get; set; }
+
 
         public GSAppState()
             : base()
@@ -259,6 +260,10 @@ namespace Growthstories.Domain.Entities
             this._User.GardenId = @event.GardenId;
         }
 
+        public void Apply(LocationAcquired @event)
+        {
+            this.LastLocation = @event.Location;
+        }
 
     }
 }
