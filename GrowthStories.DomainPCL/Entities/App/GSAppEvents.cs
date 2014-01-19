@@ -56,6 +56,21 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+    public sealed class LocationAcquired : GSAppEvent
+    {
+
+        [JsonProperty]
+        public GSLocation Location { get; private set; }
+
+        private LocationAcquired() { }
+
+         public LocationAcquired(AcquireLocation cmd)
+            : base(cmd)
+        {
+            this.Location = cmd.Location;
+        }
+    }
+
 
     public sealed class InternalRegistered : GSAppEvent
     {

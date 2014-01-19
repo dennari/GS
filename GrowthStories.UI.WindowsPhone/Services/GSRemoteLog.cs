@@ -36,6 +36,17 @@ namespace Growthstories.UI.WindowsPhone
         private void Send(string level, string message, params object[] values)
         {
 
+            // useful to do this check before a heavy string operation
+            if (Tried >= MaxTries)
+            {
+                return;
+            }
+
+            if (this.Type != null &&  this.Type.Name != null && this.Type.Name.Equals("JsonSerializer"))
+            {
+                return;
+            }
+
             string content = string.Format(message, values).Replace("\r\n", "\n");
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             //Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);

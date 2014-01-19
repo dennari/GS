@@ -15,13 +15,13 @@ using Growthstories.UI.Services;
 namespace Growthstories.UI.ViewModel
 {
 
+
     public enum NotificationType
     {
 
         WATERING_SCHEDULE,
         FERTILIZING_SCHEDULE,
     }
-
 
     public sealed class Notification : IComparable<Notification>
     {

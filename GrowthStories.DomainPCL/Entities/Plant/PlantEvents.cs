@@ -369,9 +369,83 @@ namespace Growthstories.Domain.Messaging
 
             base.FromDTO(D);
         }
-
     }
 
+    [DTOObject(DTOType.setProperty)]
+    public class LocationSet : EventBase
+    {
+
+        [JsonProperty]
+        public GSLocation Location;
+
+        public LocationSet() { }
+
+
+        public LocationSet(SetLocation cmd) : base(cmd)
+        {
+            this.Location = cmd.Location;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Location set for plant {0}", this.AggregateId);
+        }
+
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+
+            D.EntityType = DTOType.plant;
+            D.PropertyName = "location";
+            D.PropertyValue = new JObject();
+
+            if (this.Location != null)
+            {
+                D.PropertyValue["latitude"] = this.Location.latitude;
+                D.PropertyValue["longitude"] = this.Location.longitude;
+            }
+            else
+            {
+                D.PropertyValue["latitude"] = 0.0;
+                D.PropertyValue["longitude"] = 0.0;
+            }
+            
+            base.FillDTO(D);
+        }
+
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+
+            if (D.EntityType != DTOType.plant || (D.PropertyName != "location"))
+            {
+                throw new ArgumentException();
+            }
+
+            this.Location = null;
+
+            try {
+                if (D.PropertyValue != null)
+                {
+                    var val = (JObject)D.PropertyValue;
+                
+                    if (val != null && val.HasValues)
+                    {
+                        var la = val["latitude"].ToObject<float>();
+                        var lo = val["longitude"].ToObject<float>();
+                        this.Location = new GSLocation(la, lo);
+                    }
+                }
+            } catch { }
+
+            base.FromDTO(D);
+        }
+
+
+
+    }
 
 
     public class TagsSet : EventBase
@@ -394,6 +468,7 @@ namespace Growthstories.Domain.Messaging
         }
 
     }
+
 
     [DTOObject(DTOType.setProperty)]
     public class NameSet : EventBase

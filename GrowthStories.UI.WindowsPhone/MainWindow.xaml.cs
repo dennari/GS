@@ -205,10 +205,13 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
+            // this seems to the only working place were we can trigger
+            // something whenever an app is brought to foreground, since
+            // the usual events somehow don't work
+            ViewModel.UpdatePhoneLocationServicesEnabled();
 
             if (this.ViewModel.Router.NavigationStack.Count == 0)
             {
-
                 ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
             }
         }

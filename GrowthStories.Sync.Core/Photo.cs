@@ -28,8 +28,8 @@ namespace Growthstories.Sync
         PhotoOrientation Orientation { get; }
         DimensionsType DimensionsType { get; }
         string Uri { get; }
-
     }
+
 
 
     public sealed class Photo : IPhoto

@@ -22,7 +22,8 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<SetProfilepicture>,
         ICommandHandler<MarkPlantPublic>,
         ICommandHandler<MarkPlantPrivate>,
-        ICommandHandler<ToggleSchedule>
+        ICommandHandler<ToggleSchedule>,
+        ICommandHandler<SetLocation>
     {
         public Plant()
         {
@@ -98,6 +99,12 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new ProfilepictureSet(command));
         }
+
+        public void Handle(SetLocation command)
+        {
+            RaiseEvent(new LocationSet(command));
+        }
+
     }
 
 }

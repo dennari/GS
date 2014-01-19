@@ -47,6 +47,31 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        public static Enough.Async.AsyncLock LocationLock = new Enough.Async.AsyncLock();
+
+
+
+        public async Task<GSLocation> GetLocation()
+        {
+            using (var res = await LocationLock.LockAsync())
+            {
+                var loc = await DoGetLocation();
+                if (loc != null)
+                {
+                    this.Handler.Handle(new AcquireLocation(loc));
+                }
+                return loc;
+            }
+        }
+
+
+        public virtual Task<GSLocation> DoGetLocation()
+        {
+            throw new NotImplementedException();
+        }
+
+
         public T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null)
             where T : IAggregateCommand
         {
@@ -95,7 +120,6 @@ namespace Growthstories.UI.ViewModel
                     isUIPersistenceInitialized = true;
                 }
                 return _UIPersistence;
-
             }
         }
 
@@ -301,8 +325,7 @@ namespace Growthstories.UI.ViewModel
 
             resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
             resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
-            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
-
+            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this, (_myGarden as IGardenViewModel).Plants)), typeof(ISettingsViewModel));
 
         }
 
@@ -719,6 +742,34 @@ namespace Growthstories.UI.ViewModel
 
                 SubscribeForAutoSync();
 
+                kludge = new ReactiveCommand();
+                kludge
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+                {
+                    var us = GetUserState(user.Id);
+                    if (us != null)
+                    {
+                        this.GSLocationServicesEnabled = us.LocationEnabled;
+                    }
+                    else
+                    {
+                        this.GSLocationServicesEnabled = false;
+                    }
+                });
+                kludge.Execute(null);
+                
+                this.ListenTo<LocationEnabledSet>(user.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => 
+                        this.GSLocationServicesEnabled = x.LocationEnabled
+                        );
+
+                this.LastLocation = app.State.LastLocation;
+                this.ListenTo<LocationAcquired>(app.State.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => this.LastLocation = x.Location);
+
                 return user;
             });
             return InitializeJob;
@@ -794,6 +845,20 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private bool _GSLocationServicesEnabled;
+        public bool GSLocationServicesEnabled
+        {
+            get
+            {
+                return _GSLocationServicesEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _GSLocationServicesEnabled, value);
+            }
+        }
+
+
 
         private async Task EnsureUserInitialized()
         {
@@ -827,8 +892,6 @@ namespace Growthstories.UI.ViewModel
             this.ClearDB();
             Handler.ResetApp();
             this._Model = null;
-
-
 
             GSApp app = null;
 
@@ -992,6 +1055,7 @@ namespace Growthstories.UI.ViewModel
 
             return GSStatusCode.OK;
         }
+
 
 
         // Despite the lock, only SyncAll should call this function
@@ -1188,15 +1252,33 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private UserState GetUserState(Guid userId)
+        {
+            var search = UIPersistence.GetUsers(null).Where(x => x.Id == userId);
+            if (search.Count() > 0)
+            {
+                return search.First();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        //public UserState GetUserState()
+        //{
+        //    var search = UIPersistence.GetUsers(null).Where(x => x.Id == App.User.Id);
+        //    return search.First();
+        //}
+
+
         public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
         {
-
             return UIPersistence.GetUsers(userId)
                 .ToObservable()
                 .Where(x => !x.IsDeleted)
                 .Select(x => new GardenViewModel(Observable.Return(x), false, this));
-
-
         }
 
 
@@ -1422,9 +1504,7 @@ namespace Growthstories.UI.ViewModel
         public virtual IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
             throw new NotImplementedException();
-
         }
-
 
         public virtual IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)
         {
@@ -1468,8 +1548,33 @@ namespace Growthstories.UI.ViewModel
             get { return this; }
         }
 
+        private GSLocation _LastLocation;
+        public GSLocation LastLocation
+        {
+            get
+            {
+                return _LastLocation;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _LastLocation, value);
+            }
+        }
 
 
+        private bool _PhoneLocationServicesEnabled;
+        public bool PhoneLocationServicesEnabled
+        {
+            get
+            {
+                return _PhoneLocationServicesEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PhoneLocationServicesEnabled, value);
+            }
+        }
 
 
         //
@@ -1498,6 +1603,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public virtual void UpdatePhoneLocationServicesEnabled()
+        {
+            throw new NotImplementedException();
+        }
 
     }
 

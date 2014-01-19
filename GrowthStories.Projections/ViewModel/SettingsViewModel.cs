@@ -2,6 +2,8 @@
 using System.Reactive.Linq;
 using ReactiveUI;
 using Growthstories.Domain.Messaging;
+using System.Threading.Tasks;
+using Enough.Async;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -19,11 +21,12 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SignOutCommand { get; protected set; }
         public IReactiveCommand SignInCommand { get; protected set; }
         public IReactiveCommand SignUpCommand { get; protected set; }
-
+       
         public IReactiveCommand SynchronizeCommand { get; protected set; }
         //public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
         private ObservableAsPropertyHelper<bool> _IsRegistered;
+
         public bool IsRegistered
         {
             get
@@ -57,16 +60,84 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public SettingsViewModel(IGSAppViewModel app)
+        private bool _GSLocationServicesEnabled;
+        public bool GSLocationServicesEnabled
+        {
+            get
+            {
+                return _GSLocationServicesEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _GSLocationServicesEnabled, value);
+            }
+        }
+
+
+        private bool _PhoneLocationServicesEnabled;
+        public bool PhoneLocationServicesEnabled
+        {
+            get {
+                return _PhoneLocationServicesEnabled;
+            }
+
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PhoneLocationServicesEnabled, value);
+            }
+        }
+
+
+        private async void DisableGSLocationServices()
+        {
+            await App.HandleCommand(new SetLocationEnabled(App.User.Id, false));
+
+            // delete location infos for all plants
+            foreach (var p in Plants)
+            {
+                if (p.Location != null)
+                {
+                    var cmd = new SetLocation(p.Id, null);
+                    await App.HandleCommand(cmd);
+                }
+            }
+        }
+
+
+        public async void EnableLocationServices()
+        {
+            var location = await App.GetLocation();
+            if (location != null)
+            {
+                // mark location acquisition as enabled
+                await App.HandleCommand(new SetLocationEnabled(App.User.Id, true));
+
+                // share location info for all current plants
+                foreach (var p in Plants)
+                {
+                    var cmd = new SetLocation(p.Id, location);
+                    await App.HandleCommand(cmd);
+                }
+            
+            } else {
+                // revert toggle switch if unable to get location
+                GSLocationServicesEnabled = false;
+            }
+        }
+
+
+        private IReadOnlyReactiveList<IPlantViewModel> Plants;
+        public SettingsViewModel(IGSAppViewModel app, IReadOnlyReactiveList<IPlantViewModel> plants)
             : base(app)
         {
+
+            this.Plants = plants;
 
             this.NavigateToAbout = app.Router.NavigateCommandFor<IAboutViewModel>();
 
             this.LocationServices = new ButtonViewModel()
             {
                 IsEnabled = false,
-
             };
 
             var isRegisteredObservable = App.WhenAnyValue(x => x.IsRegistered);
@@ -113,16 +184,9 @@ namespace Growthstories.UI.ViewModel
                     loggingOut = false;
 
                     return r;
-
-
                 }).Publish();
 
-
-
             logoutObservable.Connect();
-            //.ObserveOn(RxApp.MainThreadScheduler)
-            //.Subscribe(x => this.Navigate(new MainViewModel(App)));
-
 
             this.SynchronizeCommand = new ReactiveCommand();
 
@@ -145,7 +209,6 @@ namespace Growthstories.UI.ViewModel
                 Command = SignUpCommand
             };
 
-            
             isRegisteredObservable
                 .Do(x =>
                 {
@@ -219,6 +282,82 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
+            App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
+                .Subscribe(x => this.PhoneLocationServicesEnabled = x);
+            
+            // there was no obvious other way to get this info from a user
+            // aggregate, other than obtaining one
+            SetGSLocationServicesEnabled(App.GSLocationServicesEnabled);
+            App.WhenAnyValue(x => x.GSLocationServicesEnabled)
+                .Subscribe(x => SetGSLocationServicesEnabled(x));
+
+            App.Router.CurrentViewModel
+                .Where(vm => vm == this)
+                .Subscribe(_ => 
+            {
+                App.UpdatePhoneLocationServicesEnabled();
+            });
+        }
+
+        private IDisposable _ToggleSubscription;
+
+        public bool AllowTriggering = false;
+
+        public void SetGSLocationServicesEnabled(bool enabled)
+        {
+            GSLocationServicesEnabled = enabled;
+        }
+
+        public void LocationServicesEnabledUpdated()
+        {
+            if (!AllowTriggering)
+            {
+                return;
+            }
+            AllowTriggering = false;
+
+            if (GSLocationServicesEnabled)
+            {
+                EnableLocationServices();
+            }
+            else
+            {
+                PossiblyDisableLocationServices();
+            }
+        }
+
+
+        public void PossiblyDisableLocationServices()
+        {
+            SetGSLocationServicesEnabled(false);
+
+            var pvm = new PopupViewModel()
+            {
+                Caption = "Are you sure?",
+                Message = "Changing this settings will remove location data for all your plants.",
+                LeftButtonContent = "Yes",
+                RightButtonContent = "Cancel",
+                IsLeftButtonEnabled = true,
+                IsRightButtonEnabled = true,
+            };
+
+            pvm.AcceptedObservable.Subscribe(_ =>
+            {
+                DisableGSLocationServices();
+            });
+
+            pvm.DismissedObservable.Subscribe(x =>
+            {
+                var res = (PopupResult)x;
+
+                if (res != PopupResult.LeftButton)
+                {
+                    // undo toggle
+                    SetGSLocationServicesEnabled(true);
+                }
+            });
+
+            App.ShowPopup.Execute(pvm); 
         }
 
 
@@ -251,11 +390,10 @@ namespace Growthstories.UI.ViewModel
                     _LogOutProgress = new ProgressPopupViewModel()
                     {
                         Caption = "Logging out",
-                        Message = "Please hold on",
+                        ProgressMessage = "Please hold on",
                         IsLeftButtonEnabled = false,
                         IsRightButtonEnabled = false
                     };
-                    //_LogOutProgress.DismissedObservable.Subscribe(_ => )
                 }
                 return _LogOutProgress;
             }

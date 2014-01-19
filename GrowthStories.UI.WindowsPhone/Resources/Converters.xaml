@@ -32,5 +32,9 @@
 
     <local:BooleanToSpecialColorConverter x:Key="BooleanToSpecialColor"/>
 
+    <local:LocationToFriendlyLatitudeConverter x:Key="LocationToFriendlyLatitude"/>
+    <local:LocationToFriendlyLongitudeConverter x:Key="LocationToFriendlyLongitude"/>
+
+
 
 </ResourceDictionary>

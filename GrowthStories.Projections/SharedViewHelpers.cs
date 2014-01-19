@@ -18,11 +18,6 @@ namespace Growthstories.UI
             }
             return offset.DayOfWeek.ToString().ToLower();
         }
-
-
-
-
-
     }
 
     

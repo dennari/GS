@@ -227,6 +227,19 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public class SetLocationEnabled : AggregateCommand<User>
+    {
+
+        public bool LocationEnabled { get; private set; }
+
+        public SetLocationEnabled(Guid userId, bool enabled)
+            : base(userId)
+        {
+            this.LocationEnabled = enabled;
+        }
+    }
+
+
     #endregion
 
 }

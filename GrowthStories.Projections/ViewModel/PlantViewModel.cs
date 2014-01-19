@@ -16,7 +16,6 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
@@ -41,7 +40,6 @@ namespace Growthstories.UI.ViewModel
 
 
         #endregion
-
 
 
         private Guid _Id;
@@ -282,24 +280,22 @@ namespace Growthstories.UI.ViewModel
                 this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled, x => x.FertilizingScheduler, (x, y) => x && y != null)
                     .ToProperty(this, x => x.ShowFertilizingScheduler, out _ShowFertilizingScheduler);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
             });
-
 
         }
 
+        private GSLocation _Location;
+        public GSLocation Location
+        {
+            get
+            {
+                return _Location;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Location, value);
+            }
+        }
 
 
         private void Init(Tuple<PlantState, ScheduleState, ScheduleState> stateTuple, IAuthUser appUser)
@@ -319,8 +315,6 @@ namespace Growthstories.UI.ViewModel
             this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
 
             this.HasWriteAccess = state.UserId == appUser.Id;
-
-
 
             AppBarButtons = HasWriteAccess ? GetOwnerButtons() : GetFollowerButtons();
             if (HasWriteAccess)
@@ -382,6 +376,14 @@ namespace Growthstories.UI.ViewModel
                 .StartWith(state.Tags)
                 .Subscribe(x => this.Tags = new ReactiveList<string>(x));
 
+            this.ListenTo<LocationSet>(this.State.Id)
+                .Select(x => x.Location)
+                .StartWith(state.Location)
+                .Subscribe(x =>
+            {;
+                Location = x;
+            });
+
             this.Photo = state.Profilepicture;
 
             this.App.FutureSchedules(state.Id)
@@ -433,8 +435,6 @@ namespace Growthstories.UI.ViewModel
                         });
                 }
 
-
-
                 ScrollCommand.Execute(x);
             });
             });
@@ -442,17 +442,65 @@ namespace Growthstories.UI.ViewModel
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
             this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
 
-
-
-            this.WhenAnyValue(x => x.Id).Subscribe(pid =>
+            // maybe not necessary
+            foreach (var a in Actions)
             {
-                foreach (var a in Actions)
-                {
-                    a.PlantId = pid;
-                }
-            });
-
+                a.PlantId = state.Id;
+            }
         }
+
+
+
+           //this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+           // {
+           //     if (!App.HasDataConnection)
+           //     {
+           //         PopupViewModel pvm = new PopupViewModel()
+           //         {
+           //             Caption = "Data connection required",
+           //             Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
+           //             IsLeftButtonEnabled = true,
+           //             LeftButtonContent = "OK"
+           //         };
+           //         App.ShowPopup.Execute(pvm);
+           //         return;
+           //     }
+
+
+           //     if (App.User.IsRegistered)
+           //     {
+           //         this.ShareCommand.Execute(null);
+                
+           //     } else {
+ 
+           //         var svm = new SignInRegisterViewModel(App)
+           //         {
+           //             SignInMode = false,
+           //         };
+
+           //         svm.Response.Subscribe(x =>
+           //         {
+           //             if (!x.Item1 && x.Item2 == RegisterResponse.success)
+           //             {
+           //                 var pvm = new ProgressPopupViewModel()
+           //                 {
+           //                     Caption = "Preparing for sharing",
+           //                     Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+           //                 };
+
+           //                 App.ShowPopup.Execute(pvm);
+           //                 var res = await App.SyncAll();
+           //                 App.ShowPopup.Execute(null);
+           //             }
+           //         });
+           //         this.Navigate(svm);
+           //     }
+           // });
+
+
+
+
+
 
 
 
@@ -511,6 +559,7 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _WateringSchedule, value);
             }
         }
+
 
         protected IScheduleViewModel _FertilizingSchedule;
         public IScheduleViewModel FertilizingSchedule
@@ -1022,12 +1071,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
     }
 
 
     public class EmptyPlantViewModel : IPlantViewModel
     {
+
+
+        public GSLocation Location { get; set; }
 
         private static EmptyPlantViewModel _Instance;
 
@@ -1048,6 +1099,10 @@ namespace Growthstories.UI.ViewModel
         public string Name { get; set; }
 
         public string Species { get; set; }
+
+        public string Latitude { get; set; }
+
+        public string Longitude { get; set; }
 
         public IReactiveCommand PinCommand { get; set; }
 

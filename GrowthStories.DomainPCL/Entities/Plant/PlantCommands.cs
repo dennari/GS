@@ -183,6 +183,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+
     public class SetTags : PlantCommand
     {
         public HashSet<string> Tags { get; private set; }
@@ -197,6 +198,27 @@ namespace Growthstories.Domain.Messaging
         public override string ToString()
         {
             return string.Format(@"Set tags for plant {0}.", AggregateId);
+        }
+    }
+
+
+    public class SetLocation : PlantCommand
+    {
+
+        public GSLocation Location;
+
+
+        public SetLocation() { }
+
+        public SetLocation(Guid plantId, GSLocation location)
+            : base(plantId)
+        {
+            this.Location = location;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"Set location for plant {0}", AggregateId);
         }
 
     }

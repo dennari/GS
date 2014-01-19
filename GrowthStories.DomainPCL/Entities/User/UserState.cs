@@ -90,7 +90,13 @@ namespace Growthstories.Domain.Entities
         [JsonProperty]
         public bool IsCollaborator { get; set; }
 
+        // added JsonProperty here -- JOJ
+        [JsonProperty]
         public bool IsRegistered { get; set; }
+
+        [JsonProperty]
+        public bool LocationEnabled { get; set; }
+
 
         public UserState() { }
 
@@ -239,6 +245,12 @@ namespace Growthstories.Domain.Entities
             }
 
             this.Schedules[scheduleState.Id] = scheduleState;
+        }
+
+
+        public void Apply(LocationEnabledSet @event)
+        {
+            this.LocationEnabled = @event.LocationEnabled;
         }
 
 

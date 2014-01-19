@@ -32,6 +32,17 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+    public class AcquireLocation : AggregateCommand<GSApp>
+    {
+        public readonly GSLocation Location;
+
+        public AcquireLocation(GSLocation lo) : base(GSAppState.GSAppId)
+        {
+            this.Location = lo;
+        }
+    }
+
+   
     public sealed class InternalRegisterAppUser : AggregateCommand<GSApp>
     {
         public readonly Guid UserId;

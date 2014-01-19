@@ -61,6 +61,7 @@ namespace Growthstories.UI.ViewModel
         connectionerror
     }
 
+
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         //bool CanGoBack { get; }
@@ -80,6 +81,8 @@ namespace Growthstories.UI.ViewModel
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         IDictionary<Guid, PullStream> SyncStreams { get; }
+
+        bool PhoneLocationServicesEnabled { get; }
 
         Task<IAuthUser> Initialize();
         Task<RegisterResponse> Register(string username, string email, string password);
@@ -126,6 +129,14 @@ namespace Growthstories.UI.ViewModel
 
         //Task PossiblyAutoSync();
         void PossiblyAutoSync();
+
+        Task<GSLocation> GetLocation();
+
+        bool GSLocationServicesEnabled { get; }
+
+        void UpdatePhoneLocationServicesEnabled();
+
+        GSLocation LastLocation { get; }
 
     }
 
@@ -242,6 +253,8 @@ namespace Growthstories.UI.ViewModel
         int PlantIndex { get; set; }
 
         bool HasWriteAccess { get; }
+
+        GSLocation Location { get; }
 
     }
 

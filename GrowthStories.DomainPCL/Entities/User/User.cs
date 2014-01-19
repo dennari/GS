@@ -30,7 +30,8 @@ namespace Growthstories.Domain.Entities
         ICommandHandler<CreateSchedule>,
         ICommandHandler<AddPlant>,
         ICommandHandler<CreateGarden>,
-        ICommandHandler<MarkGardenPublic>
+        ICommandHandler<MarkGardenPublic>,
+        ICommandHandler<SetLocationEnabled>
     {
 
 
@@ -42,7 +43,6 @@ namespace Growthstories.Domain.Entities
         public void Handle(AddPlant command)
         {
             RaiseEvent(new PlantAdded(command));
-
         }
 
         public override void Handle(IDeleteCommand cmd)
@@ -116,6 +116,12 @@ namespace Growthstories.Domain.Entities
         {
             RaiseEvent(new GardenAdded(command));
         }
+
+        public void Handle(SetLocationEnabled command)
+        {
+            RaiseEvent(new LocationEnabledSet(command));
+        }
+
     }
 
 }

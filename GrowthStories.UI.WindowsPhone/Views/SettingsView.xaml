@@ -9,139 +9,39 @@
     x:Class="Growthstories.UI.WindowsPhone.SettingsView"    
     mc:Ignorable="d"
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
-    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls">
 
-    >
-
-    <local:SettingsViewBase.Resources>
-        <!--<DataTemplate x:Key="SwitchTemplate">
-            <Grid Margin="0,0,0,10" Width="340">
+    
+        <UserControl.Resources>
+            <DataTemplate x:Key="LocationEnabledTemplate">
+                        <Grid Margin="0,0,0,10" Width="340">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock 
-                        Text="Off" 
-                        Grid.Column="0" 
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
-                <TextBlock 
-                        Text="On" 
-                        Grid.Column="0" 
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
-               
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="SignInSwitchTemplate">
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="330"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-              
-            </Grid>
-        </DataTemplate>-->
-    </local:SettingsViewBase.Resources>
+                    Margin="0,0,0,-6"
+                    Text="Off" 
+                    Grid.Column="0"
+                    Visibility="{Binding GSLocationServicesEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
+                
+                    <TextBlock 
+                    Margin="0,0,0,-6"
+                    Text="On" 
+                    Grid.Column="0" 
+                    Visibility="{Binding GSLocationServicesEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                
+                        </Grid>
+                </DataTemplate>
+         </UserControl.Resources>
 
-
-
+    
     <local:GSViewGrid 
         TopTitle="GROWTH STORIES"
 		Title="settings">	
     
         <StackPanel>
-            <!--
-            <local:GSLabel Label="Account">
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="330"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-               
-                <TextBlock 
-                        Style="{StaticResource GSTextBlockStyle}"
-                        Foreground="WhiteSmoke"
-                        Margin="0,12,0,36"
-                        FontSize="24"
-                        Text="Not signed in" 
-                        Grid.Column="0" 
-                        Visibility="{Binding Email, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"/>
-                </Grid>
-
-            </local:GSLabel>
-            -->
-
-            <!--            
-            <Button 
-                Margin="0,0,0,20"
-                Content="moro"
-                    BorderThickness="3"
-                    BorderBrush="WhiteSmoke"
-                    >
-                <Button.Template>
-                    <ControlTemplate>
-                        <Border BorderThickness="3"
-                                BorderBrush="WhiteSmoke">
-                            <ContentPresenter />
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-            
-            <Button
-                    HorizontalAlignment="Left"
-                    Margin="-12,-12,-12,-12"
-                    toolkit:TiltEffect.IsTiltEnabled="True"
-                    Padding="0,0,0,0"
-                    BorderThickness="3"
-                    BorderBrush="WhiteSmoke"
-                    Tap="Button_Tap"
-                    CommandParameter="{Binding}"    
-                    Width="214"
-                    Height="214"
-                    VerticalContentAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    >
-
-                <c4f:Tile
-                        toolkit:TiltEffect.SuppressTilt="True"
-                        toolkit:TiltEffect.IsTiltEnabled="False"
-                            
-                    Name="thetile"
-                        Margin="0,0,0,0"
-                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
-                                >
-
-                    <Grid>
-                        <Canvas>
-                            
-                            <Image
-                            Width="186"    
-                            Source="/Assets/Icons/NoImage.png" 
-                            Stretch="Fill"
-                            ImageOpened="Img_ImageOpened"
-                            >
-                                <Image.RenderTransform>
-                                    <CompositeTransform/>
-                                </Image.RenderTransform>
-                            </Image>
-                            
-                        </Canvas>
-                        <c4f:TileNotification
-                        HorizontalAlignment="Left"
-                            Padding="18,0"
-                            Background="{StaticResource GSAccentBrush}"
-                            Content="{Binding WateringScheduler.MissedNotification}"
-                            Visibility="{Binding WateringScheduler.MissedLateAndOwn, 
-                               Converter={StaticResource BooleanToVisibility}, FallbackValue=Collapsed}" 
-                        />
-
-                     
-                    </Grid>
-                </c4f:Tile>
-
-            </Button>
-            -->
+      
             
             <TextBlock Text="account" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White"
                        Margin="0,0,0,12" />
@@ -221,17 +121,21 @@
                 />
 
 
-            <!--<local:GSLabel Label="Share plant locations">
+            <TextBlock Text="share plant locations" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White"
+                       Margin="0,0,0,0" />
+
                 <local:GSToggleSwitch
-                            IsChecked="{Binding LocationServices.IsEnabled, Mode=TwoWay}"                                                       
-                            Content="{Binding LocationServices}"
-                            ContentTemplate="{StaticResource SwitchTemplate}"
-                            VerticalContentAlignment="Center"
-                            Margin="-12,0,-12,-12"
-                            />
-            </local:GSLabel>
+                    Visibility="{Binding PhoneLocationServicesEnabled, Converter={StaticResource BooleanToVisibility}}"                    
+                    IsChecked="{Binding GSLocationServicesEnabled, Mode=TwoWay}"
+                    Tap="GSToggleSwitch_Tap"
+                    Content="{Binding}"
+                    ContentTemplate="{StaticResource LocationEnabledTemplate}"
+                    VerticalContentAlignment="Center"
+                    Margin="-12,-6,-12,-12"
+                />
 
             <TextBlock 
+                Visibility="{Binding PhoneLocationServicesEnabled, Converter={StaticResource BooleanToVisibility}}" 
                 Style="{StaticResource GSTextBlockStyle}"
                 Foreground="WhiteSmoke"
                 Margin="0,-6,0,48"
@@ -239,7 +143,20 @@
                 HorizontalAlignment="Stretch"
                 Text="Sharing the location of your plants helps others to figure out where different species can be grown."
                 TextWrapping="Wrap"
-                />-->
+                />
+
+            <TextBlock 
+                Visibility="{Binding PhoneLocationServicesEnabled, 
+                    Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+                Style="{StaticResource GSTextBlockStyle}"
+                Foreground="WhiteSmoke"
+                Margin="0,6,0,48"
+                FontSize="24"
+                HorizontalAlignment="Stretch"
+                Text="Location services have been disabled on your phone. If you wish to share the locations of your plants, you will need to enable location services in your phone's settings."
+                TextWrapping="Wrap"
+                />
+
 
             <!--
             <local:GSLabel Label="Share new plants by default">

@@ -90,6 +90,9 @@ namespace Growthstories.Domain.Entities
 
         public SyncHead SyncHead { get; protected set; }
 
+        public GSLocation LastLocation { get; set; }
+
+
         public GSAppState()
             : base()
         {
@@ -257,6 +260,10 @@ namespace Growthstories.Domain.Entities
             this._User.GardenId = @event.GardenId;
         }
 
+        public void Apply(LocationAcquired @event)
+        {
+            this.LastLocation = @event.Location;
+        }
 
     }
 }
