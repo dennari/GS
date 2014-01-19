@@ -81,6 +81,8 @@ namespace Growthstories.UI.ViewModel
 
         IDictionary<Guid, PullStream> SyncStreams { get; }
 
+        bool PhoneLocationServicesEnabled { get; }
+
         Task<IAuthUser> Initialize();
         Task<RegisterResponse> Register(string username, string email, string password);
         Task<SignInResponse> SignIn(string email, string password);
@@ -126,6 +128,10 @@ namespace Growthstories.UI.ViewModel
 
         //Task PossiblyAutoSync();
         void PossiblyAutoSync();
+
+        Task<Tuple<float, float>> GetLocation();
+
+        UserState GetUserState();
 
     }
 
@@ -242,6 +248,9 @@ namespace Growthstories.UI.ViewModel
         int PlantIndex { get; set; }
 
         bool HasWriteAccess { get; }
+
+        string Latitude { get; }
+        string Longitude { get; }
 
     }
 

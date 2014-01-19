@@ -506,7 +506,57 @@ namespace Growthstories.Domain.Messaging
 
 
         public UserState AggregateState { get; set; }
+    }
 
+
+
+    [DTOObject(DTOType.setProperty)]
+    public sealed class LocationEnabledSet : EventBase, IAggregateEvent<UserState>
+    {
+
+        [JsonProperty]
+        public bool LocationEnabled { get; private set; }
+
+        private LocationEnabledSet() { }
+
+        public LocationEnabledSet(SetLocationEnabled cmd)
+            : base(cmd)
+        {
+            LocationEnabled = cmd.LocationEnabled;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(@"User {0} set location enabled to {1}.", this.AggregateId, LocationEnabled);
+        }
+
+
+        public override void FillDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            D.EntityType = DTOType.user;
+            D.PropertyName = "locationEnabled";
+            D.PropertyValue = LocationEnabled;
+            base.FillDTO(D);
+
+            D.StreamAncestor = null;
+            D.AncestorId = null;
+        }
+
+
+        public override void FromDTO(IEventDTO Dto)
+        {
+            var D = (ISetPropertyDTO)Dto;
+            if (D.EntityType != DTOType.user || D.PropertyName != "locationEnabled")
+                throw new ArgumentException();
+
+            this.LocationEnabled = D.PropertyValue;
+            base.FromDTO(D);
+        }
+
+
+        public UserState AggregateState { get; set; }
+    
     }
 
 

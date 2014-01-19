@@ -12,6 +12,7 @@ using System.Text;
 
 namespace Growthstories.Domain.Entities
 {
+
     public sealed class PlantState : AggregateState<PlantCreated>
     {
         [JsonProperty]
@@ -41,7 +42,11 @@ namespace Growthstories.Domain.Entities
         [JsonProperty]
         public Guid? ProfilepictureActionId { get; private set; }
 
-
+        [JsonProperty]
+        public float Longitude { get; private set; }
+        
+        [JsonProperty]
+        public float Latitude { get; private set; }
 
 
         public PlantState()
@@ -113,13 +118,21 @@ namespace Growthstories.Domain.Entities
         {
             this.Tags = @event.Tags.ToList();
         }
+
         public void Apply(NameSet @event)
         {
             this.Name = @event.Name;
         }
+
         public void Apply(SpeciesSet @event)
         {
             this.Species = @event.Species;
+        }
+
+        public void Apply(LocationSet @event)
+        {
+            Latitude = @event.latitude;
+            Longitude = @event.longitude;
         }
 
     }

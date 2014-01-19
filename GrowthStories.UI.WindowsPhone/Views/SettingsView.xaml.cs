@@ -18,10 +18,12 @@ using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class SettingsViewBase : GSView<ISettingsViewModel>
     {
 
     }
+
 
     public partial class SettingsView : SettingsViewBase
     {
@@ -35,6 +37,22 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.OnViewModelChanged(vm);
         }
+
+
+        private void GSToggleSwitch_Checked(object sender, RoutedEventArgs e)
+        {
+          
+        }
+
+        
+        private void GSToggleSwitch_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var vm = ViewModel as SettingsViewModel;
+            vm.AllowTriggering = true;
+            //vm.ToggleLocationServicesEnabled();
+            vm.LocationServicesEnabledUpdated();
+        }
+        
 
         //    IDisposable WarnSubscription = Disposable.Empty;
         //    protected override void OnViewModelChanged(ISettingsViewModel vm)

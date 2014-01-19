@@ -11,7 +11,8 @@ using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.BA;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-
+using Windows.Devices.Geolocation;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -100,6 +101,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             //});
 
             //GSIAP.PossiblySetupMockIAP();
+
+            UpdatePhoneLocationServicesEnabled();
         }
 
 
@@ -149,7 +152,66 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         //}
 
 
+        public override async Task<Tuple<float, float>> GetLocation()
+        {
+            try
+            {
+                var gl = new Geolocator();
+                gl.DesiredAccuracyInMeters = 50;
+                var pos = await gl.GetGeopositionAsync(
+                    maximumAge: TimeSpan.FromMinutes(5), timeout: TimeSpan.FromSeconds(30));
+                
+                return Tuple.Create((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);                
+            }
 
+            catch (Exception ex)
+            {
+                if ((uint)ex.HResult == 0x80004004)
+                {
+                    throw new Exception("User has disabled location services");
+                }
+                throw ex;
+            }
+        }
+
+
+        public void UpdatePhoneLocationServicesEnabled()
+        {
+            // we need to try to get location to find out whether
+            // location services are enabled
+            
+            var gl = new Geolocator();
+            if (gl.LocationStatus == PositionStatus.Disabled)
+            {
+                PhoneLocationServicesEnabled = false;
+            } else {
+                PhoneLocationServicesEnabled = true;
+            }
+
+            /*
+            geolocator.LocationStatus
+            try
+            {
+                
+
+                Geolocator geolocator = new Geolocator();
+                
+                geolocator.DesiredAccuracyInMeters = 5000;
+                var pos = await geolocator.GetGeopositionAsync(maximumAge: TimeSpan.FromDays(99), timeout: TimeSpan.FromSeconds(10));
+                PhoneLocationServicesEnabled = true;
+            
+            }
+            catch (Exception ex)
+            {
+                if ((uint)ex.HResult == 0x80004004)
+                {
+                    // the application does not have the right capability 
+                    // or the location master switch is off
+                    PhoneLocationServicesEnabled = false;
+                }
+            }
+            */
+        }
 
         public bool NavigatingBack { get; set; }
 
@@ -187,14 +249,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             // clear isolated storage containing tile update infos
             GSTileUtils.ClearAllTileUpdateInfos();
 
-
             Store.ReInitialize();
             UIPersistence.ReInitialize();
             Repository.ClearCaches();
             Hook.Dispose();
-
-
-
         }
 
 

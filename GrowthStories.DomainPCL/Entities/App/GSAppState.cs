@@ -18,6 +18,8 @@ namespace Growthstories.Domain.Entities
     public sealed class AuthUser : IAuthUser
     {
 
+        public bool LocationEnabled {get; set;}
+
         public const string UnregUsername = "UnregUser";
         public const string UnregEmailPrefix = "GSUnregUserEmail_";
 

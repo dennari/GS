@@ -614,7 +614,11 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "Settings",
                         IconType = IconType.SETTINGS,
-                        Command = Observable.Return(true).ToCommandWithSubscription((_) => this.Navigate(new SettingsViewModel(App)))
+                        Command = Observable.Return(true).ToCommandWithSubscription((_) => 
+                        {
+                            var svm =  (ISettingsViewModel)App.Resolver.GetService(typeof(ISettingsViewModel));
+                            this.Navigate(svm);
+                        })
                     };
                 return _SettingsButton;
             }

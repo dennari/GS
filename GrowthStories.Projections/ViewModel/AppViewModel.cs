@@ -47,6 +47,12 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public virtual async Task<Tuple<float, float>> GetLocation()
+        {
+            throw new NotImplementedException();
+        }
+
+
         public T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null)
             where T : IAggregateCommand
         {
@@ -301,9 +307,7 @@ namespace Growthstories.UI.ViewModel
 
             resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
             resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
-            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this)), typeof(ISettingsViewModel));
-
-
+            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this, (_myGarden as IGardenViewModel).Plants)), typeof(ISettingsViewModel));
         }
 
         #region COMMANDS
@@ -1188,15 +1192,19 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public UserState GetUserState()
+        {
+            var search = UIPersistence.GetUsers(null).Where(x => x.Id == App.User.Id);
+            return search.First();
+        }
+
+
         public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
         {
-
             return UIPersistence.GetUsers(userId)
                 .ToObservable()
                 .Where(x => !x.IsDeleted)
                 .Select(x => new GardenViewModel(Observable.Return(x), false, this));
-
-
         }
 
 
@@ -1422,9 +1430,7 @@ namespace Growthstories.UI.ViewModel
         public virtual IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
             throw new NotImplementedException();
-
         }
-
 
         public virtual IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)
         {
@@ -1469,7 +1475,18 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
+        private bool _PhoneLocationServicesEnabled;
+        public bool PhoneLocationServicesEnabled
+        {
+            get
+            {
+                return _PhoneLocationServicesEnabled;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PhoneLocationServicesEnabled, value);
+            }
+        }
 
 
         //

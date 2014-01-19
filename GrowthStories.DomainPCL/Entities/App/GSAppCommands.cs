@@ -32,6 +32,7 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+   
     public sealed class InternalRegisterAppUser : AggregateCommand<GSApp>
     {
         public readonly Guid UserId;
