@@ -138,6 +138,7 @@ namespace Growthstories.UI.ViewModel
 
         GSLocation LastLocation { get; }
 
+        IEnumerable<Guid> GetCurrentFollowers(Guid userId);
     }
 
 

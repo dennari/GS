@@ -73,7 +73,6 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-
         }
 
 
@@ -324,11 +323,8 @@ namespace Growthstories.UI.ViewModel
 
 
             });
-
-
-
-
         }
+
 
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {

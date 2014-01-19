@@ -1252,6 +1252,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public IEnumerable<Guid> GetCurrentFollowers(Guid userId)
+        {
+            return GetUserState(userId).Friends.Keys.AsEnumerable();
+        }
+
+
         private UserState GetUserState(Guid userId)
         {
             var search = UIPersistence.GetUsers(null).Where(x => x.Id == userId);
