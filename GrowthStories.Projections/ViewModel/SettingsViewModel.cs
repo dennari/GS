@@ -237,7 +237,14 @@ namespace Growthstories.UI.ViewModel
                 })
                 .ToProperty(this, x => x.IsRegistered, out _IsRegistered);
 
-            App.WhenAnyValue(x => x.User.Email).Where(_ => loggingOut == false).ToProperty(this, x => x.Email, out _Email);
+            Observable.Merge(
+                App.WhenAnyValue(x => x.User, x => x != null ? x.Email : null)
+                    .Where(x => loggingOut == false && x != null),
+                this.ListenTo<InternalRegistered>().Select(x => x.Email)
+            )
+            .ToProperty(this, x => x.Email, out _Email);
+
+
 
             this.SharedByDefault = new ButtonViewModel()
             {

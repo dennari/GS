@@ -437,6 +437,20 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private string _UserEmail;
+        public string UserEmail
+        {
+            get
+            {
+                return _UserEmail;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UserEmail, value);
+            }
+        }
+
+
         private bool _IsRegistered;
         public bool IsRegistered
         {
@@ -697,6 +711,7 @@ namespace Growthstories.UI.ViewModel
 
                 this.Model = app;
                 this.User = user;
+                this.UserEmail = user.Email;
 
                 // did not now how to execute code
                 // in the RxApp.MainThreadScheduler
