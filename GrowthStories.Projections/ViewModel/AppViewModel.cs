@@ -307,25 +307,6 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
-            //vmChanged
-            //    .Select(x =>
-            //    {
-            //        var xx = x as IControlsBackButton;
-            //        if (xx != null)
-            //            return xx.WhenAnyValue(y => y.CanGoBack);
-            //        return Observable.Return(true);
-            //    })
-            //    .Switch()
-            //    .ToProperty(this, x => x.CanGoBack, out this._CanGoBack, true);
-
-            resolver.Register(() => ResetSupport(() =>
-                {
-                    return new GardenViewModel(this.WhenAnyValue(x => x.User), true, this, IIAPService);
-                }), typeof(IGardenViewModel));
-
-            resolver.Register(() => ResetSupport(() => new FriendsViewModel(this)), typeof(FriendsViewModel));
-            resolver.Register(() => ResetSupport(() => new NotificationsViewModel(_myGarden as IGardenViewModel, this)), typeof(INotificationsViewModel));
-            resolver.Register(() => ResetSupport(() => new SettingsViewModel(this, (_myGarden as IGardenViewModel).Plants)), typeof(ISettingsViewModel));
 
         }
 
@@ -379,48 +360,52 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        private object _myGarden;
-        private object _myFriends;
-        private object _myNotifications;
-        private object _mySettings;
 
-        protected object ResetSupport<T>(Func<T> factory) where T : class
+
+        private IGardenViewModel _MyGarden;
+        public IGardenViewModel MyGarden
         {
-            if (typeof(T) == typeof(GardenViewModel))
+            get
             {
-                if (_myGarden == null)
-                    _myGarden = factory();
-                return _myGarden;
+                return _MyGarden;
             }
-            if (typeof(T) == typeof(FriendsViewModel))
+            private set
             {
-                if (_myFriends == null)
-                    _myFriends = factory();
-                return _myFriends;
+                this.RaiseAndSetIfChanged(ref _MyGarden, value);
             }
-            if (typeof(T) == typeof(NotificationsViewModel))
-            {
-                if (_myNotifications == null)
-                    _myNotifications = factory();
-                return _myNotifications;
-            }
-            if (typeof(T) == typeof(SettingsViewModel))
-            {
-                if (_mySettings == null)
-                    _mySettings = factory();
-                return _mySettings;
-            }
-            return null;
         }
 
-        protected void ResetUI()
-        {
-            _myGarden = null;
-            _myFriends = null;
-            _myNotifications = null;
-            _mySettings = null;
 
-            Router.NavigateAndReset.Execute(new MainViewModel(this));
+        public IMainViewModel CreateMainViewModel()
+        {
+
+            var scheduler = RxApp.TaskpoolScheduler;
+            var settings = Observable.Start(() => new SettingsViewModel(this), scheduler);
+            var add = Observable.Start(() => this.EditPlantViewModelFactory(null), scheduler);
+
+            var gardenObs = Observable.Start(() =>
+            {
+                return new GardenViewModel(
+                        this.WhenAnyValue(x => x.User),
+                        true,
+                        this,
+                        IIAPService,
+                        settings,
+                        add
+                    );
+            }
+            , scheduler).ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            {
+                this.MyGarden = x;
+            });
+
+            //myGarden.ObserveOn()
+            //var gardenObs = this.WhenAnyValue(x => x.MyGarden).Where(x => x != null);
+
+            var notifications = Observable.Start(() => new NotificationsViewModel(gardenObs, this), scheduler);
+            var friends = Observable.Start(() => new FriendsViewModel(this), scheduler);
+
+            return new MainViewModel(gardenObs, notifications, friends, this);
         }
 
 
@@ -758,10 +743,10 @@ namespace Growthstories.UI.ViewModel
                     }
                 });
                 kludge.Execute(null);
-                
+
                 this.ListenTo<LocationEnabledSet>(user.Id)
                     .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => 
+                    .Subscribe(x =>
                         this.GSLocationServicesEnabled = x.LocationEnabled
                         );
 
@@ -899,6 +884,7 @@ namespace Growthstories.UI.ViewModel
             {
                 await this.Initialize();
                 app = this.Model;
+                Router.NavigateAndReset.Execute(CreateMainViewModel());
 
             }
             else
@@ -907,8 +893,7 @@ namespace Growthstories.UI.ViewModel
                 this.Model = app;
             }
 
-            // Reset UI
-            this.ResetUI();
+
 
             this.SignedOut.Execute(null);
             return app;
@@ -983,6 +968,8 @@ namespace Growthstories.UI.ViewModel
             await this.SyncAll();
             // we pull followed user' plants
             await this.SyncAll();
+
+            Router.NavigateAndReset.Execute(CreateMainViewModel());
 
             return SignInResponse.success;
         }
@@ -1277,7 +1264,7 @@ namespace Growthstories.UI.ViewModel
         {
             return UIPersistence.GetUsers(userId)
                 .ToObservable()
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && (User == null || User.Id != x.Id))
                 .Select(x => new GardenViewModel(Observable.Return(x), false, this));
         }
 

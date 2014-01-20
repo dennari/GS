@@ -166,6 +166,8 @@ namespace Growthstories.UI.ViewModel
         public Guid UserId { get; protected set; }
 
         private readonly IIAPService IAP;
+        private readonly IObservable<ISettingsViewModel> SettingObservable;
+        private readonly IObservable<IAddEditPlantViewModel> AddPlantViewModelObservable;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -174,7 +176,10 @@ namespace Growthstories.UI.ViewModel
             IObservable<IAuthUser> stateObservable,
             bool isOwn,
             IGSAppViewModel app,
-            IIAPService iap = null)
+            IIAPService iap = null,
+            IObservable<ISettingsViewModel> settings = null,
+            IObservable<IAddEditPlantViewModel> addPlant = null
+            )
             : base(app)
         {
             IsLoaded = false;
@@ -183,7 +188,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+            this.SettingObservable = settings;
+            this.AddPlantViewModelObservable = addPlant;
             this.IAP = iap;
             //this.Id = iid;
 
@@ -317,7 +323,6 @@ namespace Growthstories.UI.ViewModel
             stateObservable
                 .Where(x => x != null)
                 .Take(1)
-                //.ObserveOn(isOwn ? RxApp.MainThreadScheduler : System.Reactive.Concurrency.ImmediateScheduler.Instance)
                 .Subscribe(x =>
             {
                 Init(x, isOwn);
@@ -416,7 +421,10 @@ namespace Growthstories.UI.ViewModel
         protected void AfterIAP(bool bought)
         {
             if (bought)
-                this.Navigate(App.EditPlantViewModelFactory(null));
+            {
+                this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
+
+            }
             // else, user did not buy anything so
             // we are not going to navigate anywhere
         }
@@ -523,7 +531,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+                this.SettingObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
+                this.AddPlantViewModelObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.AddPlantViewModel = x);
 
 
 
@@ -532,6 +541,33 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
+        private ISettingsViewModel _SettingsViewModel;
+        public ISettingsViewModel SettingsViewModel
+        {
+            get
+            {
+                return _SettingsViewModel;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SettingsViewModel, value);
+            }
+        }
+
+
+        private IAddEditPlantViewModel _AddPlantViewModel;
+        public IAddEditPlantViewModel AddPlantViewModel
+        {
+            get
+            {
+                return _AddPlantViewModel;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AddPlantViewModel, value);
+            }
+        }
 
 
 
@@ -614,10 +650,15 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "Settings",
                         IconType = IconType.SETTINGS,
-                        Command = Observable.Return(true).ToCommandWithSubscription((_) => 
+                        Command = Observable.Return(true).ToCommandWithSubscription((_) =>
                         {
-                            var svm =  (ISettingsViewModel)App.Resolver.GetService(typeof(ISettingsViewModel));
-                            this.Navigate(svm);
+                            //var svm = (ISettingsViewModel)App.Resolver.GetService(typeof(ISettingsViewModel));
+                            this.WhenAnyValue(x => x.SettingsViewModel).Take(1).Subscribe(x =>
+                            {
+                                x.Plants = this.Plants;
+                                this.Navigate(x);
+                            });
+                            //this.Navigate(svm);
                         })
                     };
                 return _SettingsButton;

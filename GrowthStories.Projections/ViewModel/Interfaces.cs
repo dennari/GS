@@ -97,6 +97,8 @@ namespace Growthstories.UI.ViewModel
         //IObservable<IPlantViewModel> Plants { get; }
         //IObservable<IPlantActionViewModel> PlantActions(Guid guid);
 
+        IMainViewModel CreateMainViewModel();
+
         IReactiveCommand BackKeyPressedCommand { get; }
         IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
         IObservable<IPlantActionViewModel> CurrentPlantActions(
@@ -313,6 +315,7 @@ namespace Growthstories.UI.ViewModel
     public interface ISettingsViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray, IHasAppBarButtons
     {
 
+        IReadOnlyReactiveList<IPlantViewModel> Plants { get; set; }
         IButtonViewModel LocationServices { get; }
         IButtonViewModel SharedByDefault { get; }
         IReactiveCommand NavigateToAbout { get; }
@@ -437,8 +440,8 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand EditPhotoCommand { get; set; }
         IReactiveCommand PhotoTimelineTap { get; }
         IReactiveCommand PhotoChooserCommand { get; }
-   
-        bool IsProfilePhoto {get; set;}
+
+        bool IsProfilePhoto { get; set; }
     }
 
 

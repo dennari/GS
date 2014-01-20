@@ -35,7 +35,6 @@ namespace Growthstories.UI.ViewModel
             // currentgardens, really? -- JOJ
             this.loadSubscription = App.CurrentGardens()
                 .Concat(App.FutureGardens())
-                .Where(x => x.User.Id != App.User.Id)
                 .DistinctUntilChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>

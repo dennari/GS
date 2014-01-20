@@ -212,7 +212,7 @@ namespace Growthstories.UI.WindowsPhone
 
             if (this.ViewModel.Router.NavigationStack.Count == 0)
             {
-                ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
+                ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
             }
         }
 

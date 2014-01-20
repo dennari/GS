@@ -107,11 +107,18 @@
                 Header="my garden" 
                 x:Name="mygardenItem"
                 Style="{StaticResource GSPanoramaItemStyle}">
-                <local:GardenView ViewModel="{Binding GardenVM}" x:Name="GardenView"/>
+                <Grid Visibility="{Binding GardenVM, Converter={StaticResource NullToVisibility}}">
+                <local:GardenView 
+                    ViewModel="{Binding GardenVM}"                                        
+                    x:Name="GardenView"/>
+                </Grid>
             </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->
-            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
-                <Grid x:Name="ContentPanel2" Margin="0,0" DataContext="{Binding NotificationsVM}">
+            <phone:PanoramaItem                                 
+                Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
+                <Grid x:Name="ContentPanel2" Margin="0,0" 
+                      
+                      DataContext="{Binding NotificationsVM}">
                     
                     <TextBlock 
                         HorizontalAlignment="Left"
@@ -132,12 +139,16 @@
                 </Grid>
             </phone:PanoramaItem>
             <!-- FRIENDS -->
-            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="following" x:Name="friendsItem">
+            <phone:PanoramaItem 
+                Style="{StaticResource GSPanoramaItemStyle}"         
+                Header="following" x:Name="friendsItem">
                 <!--
                 <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
                     -->
 
-                <Grid DataContext="{Binding FriendsVM}">
+                <Grid DataContext="{Binding FriendsVM}" 
+                                       
+                      >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
