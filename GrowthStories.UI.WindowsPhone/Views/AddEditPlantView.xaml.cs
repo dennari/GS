@@ -30,6 +30,11 @@ namespace Growthstories.UI.WindowsPhone
         public AddPlantView()
         {
             InitializeComponent();
+            this.TabItems = new List<Control>()
+            {
+                this.NameTextBox,
+                this.SpeciesTextBox
+            };
         }
 
 
