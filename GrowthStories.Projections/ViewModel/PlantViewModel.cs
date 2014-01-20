@@ -149,7 +149,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        
+
         private IPlantActionListViewModel _PlantActionList;
         protected IPlantActionListViewModel PlantActionList
         {
@@ -445,7 +445,7 @@ namespace Growthstories.UI.ViewModel
                     {
                         HandleAction(a);
                     });
-                  
+
 
                 var actionsPipe = App.FuturePlantActions(this.State.Id);
                 //var actionsPipe = current.Concat(App.FuturePlantActions(this.State.Id));
@@ -458,13 +458,78 @@ namespace Growthstories.UI.ViewModel
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
             this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
+
+
+
+            if (HasWriteAccess)
+            {
+
+                TryShareCommand.Where(_ => App.EnsureDataConnection()).Subscribe(_ =>
+                {
+
+
+                    if (appUser.IsRegistered)
+                    {
+                        this.ShareCommand.Execute(null);
+
+                    }
+                    else
+                    {
+                        var svm = new SignInRegisterViewModel(App)
+                        {
+                            SignInMode = false
+                        };
+                        svm.Response
+                            .Where(x => SignInRegisterViewModel.IsSuccess(x))
+                            .Take(1)
+                            .Do(x =>
+                            {
+                                var pvm = new ProgressPopupViewModel()
+                                {
+                                    Caption = "Preparing for sharing",
+                                    Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+                                };
+
+                                App.ShowPopup.Execute(pvm);
+                            })
+                            .SelectMany(async x =>
+                            {
+
+                                var r = await App.SyncAll();
+                                return r;
+
+                            })
+                            .ObserveOn(RxApp.MainThreadScheduler)
+                            .Subscribe(x =>
+                            {
+
+                                App.ShowPopup.Execute(null);
+                                this.NavigateBack();
+                                this.ShareCommand.Execute(null);
+                            });
+
+                        this.Navigate(svm);
+                    }
+                });
+
+            }
+
+
+
+
+
+
+
+
+
         }
 
 
         private bool _ShowPlaceHolder;
         public bool ShowPlaceHolder
         {
-            get {
+            get
+            {
                 return _ShowPlaceHolder;
             }
             set
@@ -489,7 +554,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return;
             }
-            
+
             App.NotifiedOnBadConnection = true;
 
             PopupViewModel pvm;
@@ -499,29 +564,31 @@ namespace Growthstories.UI.ViewModel
                 pvm = new PopupViewModel()
                 {
                     Caption = "No data connection",
-                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection.", 
+                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection.",
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
-            } else {
+            }
+            else
+            {
                 this.Log().Info("images failed to load because of broken data connection");
 
                 pvm = new PopupViewModel()
                 {
                     Caption = "Failed to load images",
-                    Message = "Some photos of followed user's plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.", 
+                    Message = "Some photos of followed user's plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.",
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
             }
-            
+
             App.ShowPopup.Execute(pvm);
         }
 
 
         private void HandleAction(IPlantActionViewModel x)
         {
-            PrepareActionVM(x); 
+            PrepareActionVM(x);
             _Actions.Insert(0, x);
 
             foreach (var a in Actions)
@@ -608,33 +675,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        //    TryShareCommand.Where(_ => App.EnsureDataConnection()).Subscribe(_ =>
-        //    {
 
-
-        //        if (appUser.IsRegistered)
-        //    {
-        //            this.ShareCommand.Execute(null);
-
-        //    }
-        //        else
-        //        {
-        //            var svm = new SignInRegisterViewModel(App)
-        //    {
-        //                SignInMode = false
-        //            };
-        //            svm.Response
-        //                .Where(x => SignInRegisterViewModel.IsSuccess(x))
-        //                .Take(1)
-        //                .Subscribe(x =>
-        //{
-        //                    this.NavigateBack();
-        //                    this.ShareCommand.Execute(null);
-        //                });
-
-        //            this.Navigate(svm);
-        //        }
-        //    });
 
 
         //    this.Log().Info("Init ends");
