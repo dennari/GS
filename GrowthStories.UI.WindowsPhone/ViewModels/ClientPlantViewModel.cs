@@ -43,6 +43,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.TileHelperFactory = tileHelperFactory;
 
             TileHelper.WhenAnyValue(x => x.HasTile).Subscribe(x => this.HasTile = x);
+
+            //this.WhenAnyValue(x => x.HasTile).Where(x => x).Subscribe(_ => TileHelper.SubscribeToUpdates());
+
             PinCommand
                 .Subscribe(_ =>
                 {
@@ -60,17 +63,17 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.WhenAnyValue(x => x.Id)
                 .Where(x => x != default(Guid))
                 .SelectMany(x => this.ListenTo<AggregateDeleted>(x).Take(1))
-                .Where(_ => HasTile)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
                     TileHelper.DeleteTile();
+                    //TileHelper.
                 });
 
 
 
 
-          ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
+            ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
 
 

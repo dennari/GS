@@ -51,6 +51,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                    IUIPersistence uiPersistence,
                    IPersistSyncStreams store,
                    IIAPService iiapService,
+                   IScheduleService scheduler,
                    IRequestFactory requestFactory,
                    IRoutingState router,
                     IMessageBus bus,
@@ -64,6 +65,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             transporter,
             uiPersistence,
             iiapService,
+            scheduler,
             requestFactory,
             router,
             bus
@@ -95,62 +97,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             });
 
 
-            //IAPCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(async x => 
-            //{
-            //    var ret = await GSIAP.ShopForBasicProduct();
-            //    AfterIAPCommand.Execute(ret);
-            //});
-
-            //GSIAP.PossiblySetupMockIAP();
-
             UpdatePhoneLocationServicesEnabled();
         }
 
 
 
 
-        //protected void StartScheduleUpdater(IGardenViewModel gvm)
-        //{
-        //    Action<Task> repeatAction = null;
-        //    repeatAction = _ =>
-        //    {
-        //        // kludge to execute in the main thread
-        //        var kludge = new ReactiveCommand();
-        //        kludge
-        //            .ObserveOn(RxApp.MainThreadScheduler)
-        //            .Subscribe(x =>
-        //            {
-        //                RecalculateSchedules(gvm);
-        //            });
-        //        kludge.Execute(null);
 
-        //        // update quickly for debugging
-        //        Task.Delay(1000 * 20).ContinueWith
-        //            (__ => repeatAction(__));
-
-        //        // update once in a minute
-        //        //Task.Delay(1000 * 60).ContinueWith
-        //        //    (__ => repeatAction(__));           
-        //    };
-        //    repeatAction(null);
-        //}
-
-
-        //protected void RecalculateSchedules(IGardenViewModel gvm)
-        //{
-
-        //    foreach (var plant in gvm.Plants)
-        //    {
-        //        if (plant.WateringScheduler != null)
-        //        {
-        //            plant.WateringScheduler.ComputeNext();
-        //        }
-        //        if (plant.FertilizingScheduler != null)
-        //        {
-        //            plant.FertilizingScheduler.ComputeNext();
-        //        }
-        //    }
-        //}
 
 
         public override async Task<GSLocation> DoGetLocation()

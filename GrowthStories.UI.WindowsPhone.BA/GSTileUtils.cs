@@ -291,6 +291,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
+
         //
         // To be called when database is cleared
         //

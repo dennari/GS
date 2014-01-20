@@ -12,6 +12,7 @@ using Growthstories.Domain.Services;
 using Growthstories.Sync;
 using Growthstories.UI.Persistence;
 using Growthstories.UI.Services;
+using Growthstories.UI.ViewModel;
 using Ninject;
 using Ninject.Modules;
 using ReactiveUI;
@@ -59,6 +60,9 @@ namespace Growthstories.UI.WindowsPhone
         protected virtual void AppConfiguration()
         {
             Bind<IIAPService>().To<GSIAPMock>().InSingletonScope();
+            Bind<IScheduleService>().To<GardenScheduler>()
+                .InSingletonScope()
+                .WithConstructorArgument(new TimeSpan(0, 0, 10));
 
         }
 

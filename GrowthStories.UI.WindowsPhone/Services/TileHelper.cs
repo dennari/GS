@@ -11,6 +11,7 @@ namespace Growthstories.UI.WindowsPhone
     {
         private readonly IPlantViewModel Vm;
         private readonly IAuthUser AppUser;
+        IDisposable UpdateSubscription;
 
         public TileHelper(IPlantViewModel vm, IAuthUser appUser = null)
         {
@@ -18,8 +19,20 @@ namespace Growthstories.UI.WindowsPhone
             // this is optional and used only for optimization
             this.AppUser = appUser;
 
+
+            UpdateSubscription = SubscribeToUpdates();
+
+            //this.WhenAnyValue(x => x.HasTile).Skip(1).Subscribe(x =>
+            //{
+            //    if (x)
+            //    else
+            //        UpdateSubscription.Dispose();
+            //});
+
             vm.WhenAnyValue(x => x.Id).Where(x => x != default(Guid))
                 .Take(1).Subscribe(x => this.HasTile = Current != null);
+
+
 
         }
         public bool CreateOrUpdateTile()
@@ -45,7 +58,10 @@ namespace Growthstories.UI.WindowsPhone
 
         public bool DeleteTile()
         {
-            GSTileUtils.DeleteTile(Vm);
+            if (HasTile)
+                GSTileUtils.DeleteTile(Vm);
+            GSTileUtils.ClearTileUpdateInfo(Vm);
+            UpdateSubscription.Dispose();
             _Current = null;
             HasTile = false;
             return true;
@@ -68,5 +84,17 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+
+
+        private IDisposable SubscribeToUpdates()
+        {
+            return Vm.WhenAny(
+                z => z.WateringScheduler.Missed,
+                z => z.IsWateringScheduleEnabled,
+                z => z.Actions.ItemsAdded,
+                (a, b, c) => true
+                )
+            .Subscribe(_ => GSTileUtils.UpdateTileAndInfoAfterDelay(Vm));
+        }
     }
 }

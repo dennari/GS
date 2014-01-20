@@ -3,10 +3,63 @@ using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
 namespace Growthstories.UI.Services
 {
+
+
+    public class GardenScheduler : IScheduleService, IHasLogger
+    {
+        private readonly TimeSpan UpdateInterval;
+
+        private IGardenViewModel garden;
+        private readonly IObservable<long> Timer;
+
+        public GardenScheduler(TimeSpan updateInterval)
+        {
+            this.UpdateInterval = updateInterval;
+
+            this.Timer = Observable.Interval(updateInterval, RxApp.TaskpoolScheduler);
+
+            this.Timer.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => RecalculateSchedules());
+        }
+
+        public IDisposable ScheduleGarden(IGardenViewModel x)
+        {
+
+            this.garden = x;
+            return Disposable.Empty;
+        }
+
+
+        protected void RecalculateSchedules()
+        {
+            if (garden == null || garden.Plants == null)
+                return;
+            foreach (var plant in garden.Plants)
+            {
+                if (plant.WateringScheduler != null)
+                {
+                    this.GSLog().Info("Recomputing watering schedule for plant {0}", plant.Name);
+                    plant.WateringScheduler.ComputeNext();
+                }
+                if (plant.FertilizingScheduler != null)
+                {
+                    plant.FertilizingScheduler.ComputeNext();
+                }
+            }
+
+        }
+
+        public IGSLog Logger { get; set; }
+
+    }
+
+
+
+
     public sealed class PlantScheduler : ReactiveObject
     {
         public readonly IScheduleViewModel Schedule;

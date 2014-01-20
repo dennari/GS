@@ -197,6 +197,12 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand PageChangedCommand { get; }
     }
 
+    public interface IScheduleService
+    {
+
+        IDisposable ScheduleGarden(IGardenViewModel x);
+    }
+
 
     public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator
     {
@@ -293,6 +299,7 @@ namespace Growthstories.UI.ViewModel
         bool DeleteTile();
 
         bool HasTile { get; }
+
 
     }
 

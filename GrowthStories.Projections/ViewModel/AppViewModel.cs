@@ -143,6 +143,7 @@ namespace Growthstories.UI.ViewModel
         protected readonly IGSRepository Repository;
         private readonly ITransportEvents Transporter;
         private readonly IIAPService IIAPService;
+        private readonly IScheduleService Scheduler;
         private readonly IRequestFactory RequestFactory;
         private readonly IRoutingState _Router;
 
@@ -154,6 +155,7 @@ namespace Growthstories.UI.ViewModel
             ITransportEvents transporter,
             IUIPersistence uiPersistence,
             IIAPService iiapService,
+            IScheduleService scheduler,
             IRequestFactory requestFactory,
             IRoutingState router,
             IMessageBus bus
@@ -169,6 +171,7 @@ namespace Growthstories.UI.ViewModel
             this._Router = router;
             this.Resolver = resolver;
             this.Bus = bus;
+            this.Scheduler = scheduler;
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
@@ -213,7 +216,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public bool NotifiedOnBadConnection {get; set; }
+        public bool NotifiedOnBadConnection { get; set; }
 
 
         private void Bootstrap()
@@ -308,6 +311,11 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .ToProperty(this, x => x.SupportedOrientations, out this._SupportedOrientations, SupportedPageOrientation.Portrait);
 
+
+
+            this.WhenAnyValue(x => x.MyGarden)
+                .Where(x => x != null)
+                .Subscribe(x => Scheduler.ScheduleGarden(x));
 
         }
 
@@ -1616,6 +1624,10 @@ namespace Growthstories.UI.ViewModel
         {
             throw new NotImplementedException();
         }
+
+
+
+
 
     }
 
