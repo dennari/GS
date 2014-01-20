@@ -15,73 +15,79 @@
     mc:Ignorable="d">
 
 
-    <Grid>
-
-
+    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True">
 
         <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}" Grid.Row="0">
+            
+            <telerikPrimitives:RadContextMenu.ContextMenu >
 
-        <telerikPrimitives:RadContextMenu.ContextMenu>
-
-            <telerikPrimitives:RadContextMenu 
-                            Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
-                            IsFadeEnabled="True"
-                            IsZoomEnabled="False"
-                            Background="WhiteSmoke"
-                            Foreground="{StaticResource GSAccentBrush}">
-
-                <telerikPrimitives:RadContextMenuItem 
-                                Content="Water"
-                                Command="{Binding WateringCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                <telerikPrimitives:RadContextMenu
+                        Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
+                        IsFadeEnabled="True"
+                        IsZoomEnabled="False"
+                        Background="WhiteSmoke"
+                        Foreground="{StaticResource GSAccentBrush}">
 
                 <telerikPrimitives:RadContextMenuItem 
-                                Content="Edit" 
-                                Command="{Binding EditCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                        Content="Water"
+                        Command="{Binding WateringCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
 
                 <telerikPrimitives:RadContextMenuItem 
-                                Content="Delete" 
-                                Command="{Binding DeleteRequestedCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"    
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                        Content="Edit" 
+                        Command="{Binding EditCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
+
+                <telerikPrimitives:RadContextMenuItem 
+                        Content="Delete" 
+                        Command="{Binding DeleteRequestedCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"    
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
 
             </telerikPrimitives:RadContextMenu>
         </telerikPrimitives:RadContextMenu.ContextMenu>
 
-     
-        <Button 
-                    HorizontalAlignment="Left"
-                    Margin="-12,-12,-12,-12"
-                    toolkit:TiltEffect.IsTiltEnabled="True"
-                    Padding="0,0,0,0"
-                    BorderThickness="3"
-                    BorderBrush="WhiteSmoke"
-                    Tap="Button_Tap"
-                    CommandParameter="{Binding}"    
-                    Width="210"
-                    Height="210"
-                    VerticalContentAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    >
+<!--
+            Click="Button_Click"
+            Tap="Button_Tap"
+-->
+            
+            <Button 
+            IsHitTestVisible="True"
+ 
+            IsEnabled="True"        
+            HorizontalAlignment="Left"
+            Margin="-12,-12,-12,-12"
+            toolkit:TiltEffect.IsTiltEnabled="True"
+            Padding="0,0,0,0"
+            BorderThickness="3"
+            BorderBrush="WhiteSmoke"
+            Width="210"
+            Height="210"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            >
 
                 <Grid>
+                    <!--
+                    Command="{Binding ShowDetailsCommand}"
+                    -->
 
-                <c4f:Tile
+                    <c4f:Tile 
                     Grid.Row="0"
                     Background="Transparent"
-                    toolkit:TiltEffect.SuppressTilt="True"
-                    toolkit:TiltEffect.IsTiltEnabled="False"
                     Name="thetile"
                     Margin="0,0,0,0"
+                    toolkit:TiltEffect.IsTiltEnabled="False"
+                    toolkit:TiltEffect.SuppressTilt="True"
                     c4fBinding:FrameworkElementBinding.ClipToBounds="True">
 
                 <Grid>
@@ -111,7 +117,7 @@
                         </EventTrigger>
                     </Grid.Triggers>
 
-                    <Canvas Visibility="{Binding Loaded, Converter={StaticResource BooleanToVisibility}}">
+                    <Canvas>
 
                             <Image
                             

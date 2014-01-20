@@ -263,8 +263,7 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IPlantViewModel>()
                 .Subscribe(x =>
                 {
-                    //var pivot = new GardenPivotViewModel(x, Plants, state, App);
-                    //this.SelectedItem = x;
+                    this.Log().Info("showdetailscommand: navigating to " + x.Name);
                     this.PivotVM.SelectedItem = x;
                     App.Router.Navigate.Execute(this.PivotVM);
                 });

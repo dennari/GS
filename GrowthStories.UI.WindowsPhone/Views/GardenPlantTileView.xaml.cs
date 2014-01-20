@@ -159,10 +159,23 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Button_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
+            ViewModel.Log().Info("GardenPlantTileView: button tapped" + ViewModel.Name);
+
             if (ViewModel != null)
             {
                 ViewModel.ShowDetailsCommand.Execute(ViewModel);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Log().Info("GardenPlantTileView: button click" + ViewModel.Name);
+
+        }
+
+        private void RadContextMenu_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            ViewModel.Log().Info("GardenPlantTileView: radcontextmenu tap" + ViewModel.Name);
         }
 
     }
