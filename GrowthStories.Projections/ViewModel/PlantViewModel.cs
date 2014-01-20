@@ -41,7 +41,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ScrollCommand { get; protected set; }
         public IReactiveCommand ResetAnimationsCommand { get; protected set; }
         public IReactiveCommand ShowActionList { get; protected set; }
-        public IReactiveCommand ShowDetailsCommand { get; protected set; }
+        public IReactiveCommand ShowDetailsCommand { get; set; }
 
         #endregion
 
@@ -214,14 +214,14 @@ namespace Growthstories.UI.ViewModel
             this.ShowActionList = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList));
 
 
-            this.ShowDetailsCommand = new ReactiveCommand();
-            this.ShowDetailsCommand
-                .Subscribe(x =>
-                {
-                    var g = App.MyGarden as GardenViewModel;
-                    g.PivotVM.SelectedItem = this;
-                    App.Router.Navigate.Execute(g.PivotVM);
-                });
+            //this.ShowDetailsCommand = new ReactiveCommand();
+            //this.ShowDetailsCommand
+            //    .Subscribe(x =>
+            //    {
+            //        var g = App.MyGarden as GardenViewModel;
+            //        g.PivotVM.SelectedItem = this;
+            //        App.Router.Navigate.Execute(g.PivotVM);
+            //    });
 
 
             this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
@@ -425,7 +425,14 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.WhenAnyValue(x => x.Loaded).Subscribe(_ => UpdateShowPlaceHolder());
-            this.WhenAnyValue(x => x.Photo).Subscribe(_ => UpdateShowPlaceHolder());
+            this.WhenAnyValue(x => x.Photo).Subscribe(x =>
+            {
+                if (x != null)
+                {
+                    Loaded = true; // having found a profile picture is enough "loaded"
+                }
+                UpdateShowPlaceHolder();
+            });
 
             this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Subscribe(__ =>
             {
@@ -538,6 +545,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         private void UpdateShowPlaceHolder()
         {
             ShowPlaceHolder = this.Photo == null && Loaded;
@@ -547,48 +555,22 @@ namespace Growthstories.UI.ViewModel
         // Notify the viewmodel that the UI failed to
         // download an image
         //
-        //
         public void NotifyImageDownloadFailed()
         {
-            if (App.NotifiedOnBadConnection)
+            if (!HasWriteAccess)
             {
-                return;
-            }
-
-            App.NotifiedOnBadConnection = true;
-
-            PopupViewModel pvm;
-            if (App.HasDataConnection)
-            {
-                this.Log().Info("images failed to load because of broken data connection");
-                pvm = new PopupViewModel()
-                {
-                    Caption = "No data connection",
-                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection.",
-                    IsLeftButtonEnabled = true,
-                    LeftButtonContent = "OK"
-                };
+                App.NotifyImageDownloadFailed();
             }
             else
             {
-                this.Log().Info("images failed to load because of broken data connection");
-
-                pvm = new PopupViewModel()
-                {
-                    Caption = "Failed to load images",
-                    Message = "Some photos of followed user's plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.",
-                    IsLeftButtonEnabled = true,
-                    LeftButtonContent = "OK"
-                };
+                this.Log().Warn("image open failed for non-followed user");
             }
-
-            App.ShowPopup.Execute(pvm);
         }
 
 
         private void HandleAction(IPlantActionViewModel x)
         {
-            PrepareActionVM(x);
+            PrepareActionVM(x); 
             _Actions.Insert(0, x);
 
             foreach (var a in Actions)

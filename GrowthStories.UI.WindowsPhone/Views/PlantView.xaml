@@ -17,7 +17,7 @@
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             
 
-                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,12,24,12">
+                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,0,24,12">
 
                 <telerikPrimitives:RadContextMenu.ContextMenu>
                     <telerikPrimitives:RadContextMenu 
@@ -201,29 +201,7 @@
                         >         
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
-                                
-                            <!-- BorderThickness is set to Non-Zero when actually loading -->
-                            <Button 
-                                toolkit:TiltEffect.IsTiltEnabled="True"
-                                BorderBrush="{Binding IsProfilePhoto, Converter={StaticResource BooleanToSpecialColor}}"
-                                BorderThickness="0"    
-                                HorizontalAlignment="Stretch" 
-                                Style="{StaticResource GSWrapperButtonStyle}" 
-                                Margin="0,0,0,18" 
-                                Command="{Binding PhotoTimelineTap}"
-                                Padding="0,0,0,0"
-                                IsEnabled="True"
-                                    >
-                                    <Image                                         
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Stretch="UniformToFill" 
-                                        Source="{Binding TimelinePhotoSource}"
-                                        ImageOpened="ImageBrush_ImageOpened"
-                                        Loaded="Image_Loaded"
-                                        />
-                                
-                                </Button>
+                                <local:TimelinePhotoView ViewModel="{Binding}" />
                             </DataTemplate>
                         </local:PlantActionView.PhotoTemplate>
                     </local:PlantActionView>

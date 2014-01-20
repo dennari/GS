@@ -232,6 +232,9 @@
     <Compile Include="Views\ScheduleView.xaml.cs">
       <DependentUpon>ScheduleView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\TimelinePhotoView.xaml.cs">
+      <DependentUpon>TimelinePhotoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\YAxisShitView.xaml.cs">
       <DependentUpon>YAxisShitView.xaml</DependentUpon>
     </Compile>
@@ -324,6 +327,10 @@
     <Page Include="Views\ScheduleView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\TimelinePhotoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\YAxisShitView.xaml">
       <Generator>MSBuild:Compile</Generator>

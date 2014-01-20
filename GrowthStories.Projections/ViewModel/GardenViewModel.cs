@@ -35,66 +35,83 @@ namespace Growthstories.UI.ViewModel
         private HashSet<IPlantViewModel> SelfDeleteList = new HashSet<IPlantViewModel>();
 
 
+        private void IntroducePlant(IPlantViewModel x)
+        {
+            x.PlantIndex = _Plants.Count();
+            x.ShowDetailsCommand = this.ShowDetailsCommand;
+
+            _Plants.Add(x);
+
+            x.DeleteRequestedCommand.OfType<DeleteRequestOrigin>().Where(y => y == DeleteRequestOrigin.SELF).Subscribe(y =>
+            {
+                this.SelfDeleteList.Add(x);
+            });
+
+
+            this.ListenTo<AggregateDeleted>(x.Id)
+               .Take(1)
+               .Subscribe(_ =>
+               {
+                   if (_Plants.Count == 1)
+                   {
+                       Plants = new ReactiveList<IPlantViewModel>();
+                       //Selecte
+                   }
+                   else
+                       _Plants.Remove(x);
+                   if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
+                       this.NavigateBack();
+                   //deleteSubscription.Dispose();
+               });
+        }
+
         private void LoadPlants(IAuthUser u)
         {
+
             PlantsLoaded = true;
             var current = App.CurrentPlants(u.Id)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Do(_ => { }, () =>
                 {
-                    this.IsLoaded = true;
+                    SubscribeForNestedIsLoaded();
+                    //this.IsLoaded = true;
                 })
-                .Publish().RefCount();
-
-
-
-            var plantStream = current.Concat(App.FuturePlants(u.Id)).ObserveOn(RxApp.MainThreadScheduler);
-
-            plantStream.Subscribe(x =>
-            {
-
-                x.PlantIndex = _Plants.Count();
-
-                _Plants.Add(x);
-
-
-                x.DeleteRequestedCommand.OfType<DeleteRequestOrigin>().Where(y => y == DeleteRequestOrigin.SELF).Subscribe(y =>
-                {
-                    this.SelfDeleteList.Add(x);
-                });
-
-
-                this.ListenTo<AggregateDeleted>(x.Id)
-                   .Take(1)
-                   .Subscribe(_ =>
-                   {
-                       if (_Plants.Count == 1)
-                       {
-                           Plants = new ReactiveList<IPlantViewModel>();
-                           //Selecte
-                       }
-                       else
-                           _Plants.Remove(x);
-                       if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
-                           this.NavigateBack();
-                       //deleteSubscription.Dispose();
-                   });
-
-
-
-
-            });
-
-
-            //plantStream.SelectMany(x => x.DeleteObservable).Subscribe(x =>
-            //{
-
-            //});
-
-
+                .Subscribe(x => IntroducePlant(x));
+            
+            var plantStream = App.FuturePlants(u.Id).ObserveOn(RxApp.MainThreadScheduler);
+            plantStream.Subscribe(x => IntroducePlant(x));
         }
 
 
+        private void SubscribeForNestedIsLoaded()
+        {
+            if (Plants.Count() == 0)
+            {
+                IsLoaded = true;
+            }
+            
+            Plants.ToObservable().Subscribe(x =>
+            {
+                x.WhenAnyValue(z => z.Loaded).Subscribe(loaded =>
+                {
+                    if (loaded)
+                    {
+                        this.Log().Info("Loaded plant " + x.Id);
+                        UpdateIsLoaded();    
+                    }
+                });
+            });
+        }
+
+
+        private void UpdateIsLoaded()
+        {
+            IsLoaded = Plants.Where(x => !x.Loaded).Count() == 0;
+            if (IsLoaded)
+            {
+                this.Log().Info("Garden and its plants are loaded");
+            }
+        }
 
 
         protected ReactiveList<IPlantViewModel> _Plants;
@@ -246,8 +263,7 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IPlantViewModel>()
                 .Subscribe(x =>
                 {
-                    //var pivot = new GardenPivotViewModel(x, Plants, state, App);
-                    //this.SelectedItem = x;
+                    this.Log().Info("showdetailscommand: navigating to " + x.Name);
                     this.PivotVM.SelectedItem = x;
                     App.Router.Navigate.Execute(this.PivotVM);
                 });

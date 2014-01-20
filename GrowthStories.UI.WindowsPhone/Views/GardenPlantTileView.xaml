@@ -12,72 +12,83 @@
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
-  
     mc:Ignorable="d">
 
-    <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}">
 
-        <telerikPrimitives:RadContextMenu.ContextMenu>
+    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True">
 
-            <telerikPrimitives:RadContextMenu 
-                            Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
-                            IsFadeEnabled="True"
-                            IsZoomEnabled="False"
-                            Background="WhiteSmoke"
-                            Foreground="{StaticResource GSAccentBrush}">
+        <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}" Grid.Row="0">
+            
+            <telerikPrimitives:RadContextMenu.ContextMenu >
 
-                <telerikPrimitives:RadContextMenuItem 
-                                Content="Water"
-                                Command="{Binding WateringCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                <telerikPrimitives:RadContextMenu
+                        Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
+                        IsFadeEnabled="True"
+                        IsZoomEnabled="False"
+                        Background="WhiteSmoke"
+                        Foreground="{StaticResource GSAccentBrush}">
 
                 <telerikPrimitives:RadContextMenuItem 
-                                Content="Edit" 
-                                Command="{Binding EditCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                        Content="Water"
+                        Command="{Binding WateringCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
 
                 <telerikPrimitives:RadContextMenuItem 
-                                Content="Delete" 
-                                Command="{Binding DeleteRequestedCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding HasWriteAccess}"    
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
+                        Content="Edit" 
+                        Command="{Binding EditCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
+
+                <telerikPrimitives:RadContextMenuItem 
+                        Content="Delete" 
+                        Command="{Binding DeleteRequestedCommand}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding HasWriteAccess}"    
+                        Foreground="{StaticResource GSAccentBrush}"
+                        />
 
             </telerikPrimitives:RadContextMenu>
         </telerikPrimitives:RadContextMenu.ContextMenu>
 
+<!--
+            Click="Button_Click"
+            Tap="Button_Tap"
+-->
+            
+            <Button 
+            IsHitTestVisible="True"
+ 
+            IsEnabled="True"        
+            HorizontalAlignment="Left"
+            Margin="-12,-12,-12,-12"
+            toolkit:TiltEffect.IsTiltEnabled="True"
+            Padding="0,0,0,0"
+            BorderThickness="3"
+            BorderBrush="WhiteSmoke"
+            Width="210"
+            Height="210"
+            VerticalContentAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            >
 
-        <Button 
-                    HorizontalAlignment="Left"
-                    Margin="-12,-12,-12,-12"
-                    toolkit:TiltEffect.IsTiltEnabled="True"
-                    Padding="0,0,0,0"
-                    BorderThickness="3"
-                    BorderBrush="WhiteSmoke"
-                    Tap="Button_Tap"
-                    CommandParameter="{Binding}"    
-                    Width="210"
-                    Height="210"
-                    VerticalContentAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    >
+                <Grid>
+                    <!--
+                    Command="{Binding ShowDetailsCommand}"
+                    -->
 
-
-            <c4f:Tile
-                        Background="Transparent"
-                        toolkit:TiltEffect.SuppressTilt="True"
-                        toolkit:TiltEffect.IsTiltEnabled="False"
-                        Name="thetile"
-                        Margin="0,0,0,0"
-                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
-                                >
+                    <c4f:Tile 
+                    Grid.Row="0"
+                    Background="Transparent"
+                    Name="thetile"
+                    Margin="0,0,0,0"
+                    toolkit:TiltEffect.IsTiltEnabled="False"
+                    toolkit:TiltEffect.SuppressTilt="True"
+                    c4fBinding:FrameworkElementBinding.ClipToBounds="True">
 
                 <Grid>
                     <Grid.Triggers>
@@ -106,8 +117,10 @@
                         </EventTrigger>
                     </Grid.Triggers>
 
-                    <Canvas Visibility="{Binding Loaded, Converter={StaticResource BooleanToVisibility}}">
-                        <Image
+                    <Canvas>
+
+                            <Image
+                            
                             x:Name="Img"
                             Width="396" Height="396"
 	        		        Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
@@ -131,6 +144,7 @@
                                 <CompositeTransform/>
                             </Image.RenderTransform>
                         </Image>
+                        
                     </Canvas>
                     <c4f:TileNotification
                         HorizontalAlignment="Left"
@@ -144,8 +158,25 @@
                 </Grid>
             </c4f:Tile>
 
-        </Button>
+                    <TextBlock 
+                    Grid.Row="0"
+                    Visibility="Collapsed"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    TextAlignment="Center"                       
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    FontSize="24"
+                    Padding="24"
+                    Foreground="WhiteSmoke"
+                    Text="could not load photo"  
+                    FontWeight="Normal"
+                    Margin="0,0,0,0"
+                    TextWrapping="Wrap"
+                    x:Name="LoadingFailed" />
 
+                </Grid>
+
+           </Button>
 
         <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
@@ -166,5 +197,44 @@
             />
 
     </StackPanel>
+
+        <telerikPrimitives:RadBusyIndicator 
+            Grid.Row="0"
+            x:Name="LoadingPhoto"
+            Visibility="Collapsed"
+            ContentPosition="Bottom"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            IsRunning="True"
+            AnimationStyle="AnimationStyle7"
+            Foreground="WhiteSmoke"
+            Margin="0,0,0,0"
+            Width="130" 
+            Height="130"
+            >
+            
+            <!-- consider the scale when adjusting width above -->
+            <telerikPrimitives:RadBusyIndicator.RenderTransform>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </telerikPrimitives:RadBusyIndicator.RenderTransform>
+
+            <telerikPrimitives:RadBusyIndicator.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock 
+                    VerticalAlignment="Center"
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="loading plant" 
+                    FontSize="14"
+                    FontWeight="Normal"
+                    Margin="0,0,0,0"
+                    />
+                </DataTemplate>
+            </telerikPrimitives:RadBusyIndicator.ContentTemplate>
+        </telerikPrimitives:RadBusyIndicator>
+
+    </Grid>
+
 
 </local:GardenPlantTileViewBase>

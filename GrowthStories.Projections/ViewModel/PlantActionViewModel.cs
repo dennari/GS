@@ -871,6 +871,21 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        // Notify the viewmodel that the UI failed to
+        // download an image
+        //
+        public void NotifyImageDownloadFailed()
+        {
+            if (!OwnAction)
+            {
+                App.NotifyImageDownloadFailed();
+            }
+            else
+            {
+                this.Log().Warn("image open failed for non-followed user");
+            }
+        }
+
 
         private bool _CanChooseNewPhoto;
         public bool CanChooseNewPhoto
