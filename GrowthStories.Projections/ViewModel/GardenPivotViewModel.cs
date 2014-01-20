@@ -18,8 +18,8 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ShowDetailsCommand { get; private set; }
 
 
-        private IRoutableViewModel _InnerViewModel;
-        public IRoutableViewModel InnerViewModel
+        private IGSViewModel _InnerViewModel;
+        public IGSViewModel InnerViewModel
         {
             get
             {
@@ -44,11 +44,18 @@ namespace Growthstories.UI.ViewModel
             this.WhenAny(x => x.SelectedPage, x => x.GetValue())
                 .Where(x => x != null)
                 .OfType<IPlantViewModel>()
-                .Subscribe(x => this.SelectedPlant = x);
+                .Subscribe(x =>
+                {
+                    this.SelectedPlant = x;
+                    this.Log().Info("SelectedPlant changed to {0}", x.Name);
+                });
 
             vm.WhenAnyValue(x => x.Plants)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Do(x => this.SelectedItem = null)
+                .Do(x =>
+                {
+                    this.SelectedItem = null;
+                })
                 .ToProperty(this, x => x.Plants, out _Plants);
 
             // when current plant wants to show the action list, show it

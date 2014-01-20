@@ -31,7 +31,9 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {
-            base.OnViewModelChanged(vm);
+            //base.OnViewModelChanged(vm);
+            //vm.Log().Info("GardenPivotView: OnViewModelChanged");
+
         }
 
 

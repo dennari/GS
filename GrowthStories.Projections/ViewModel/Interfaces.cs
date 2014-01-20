@@ -161,11 +161,15 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShowDetailsCommand { get; }
     }
 
+    public interface IHasInnerViewModel : IGSRoutableViewModel
+    {
+        IGSViewModel InnerViewModel { get; }
 
-    public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel, IControlsPageOrientation
+    }
+
+    public interface IGardenPivotViewModel : IGardenViewModel, IMultipageViewModel, IControlsPageOrientation, IHasInnerViewModel
     {
         IPlantViewModel SelectedPlant { get; }
-        IRoutableViewModel InnerViewModel { get; }
         //Type NavigateInterface { get; }
     }
 
