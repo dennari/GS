@@ -10,27 +10,24 @@
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-    xmlns:reactive="clr-namespace:ReactiveUI.Xaml;assembly=ReactiveUI.Xaml"
     mc:Ignorable="d">
 
 
-    
 
-
-    <reactive:ViewModelViewHost 
-        ViewModel="{Binding InnerViewModel}"
-        
+    <local:GSMultiViewHost
+        ViewModel="{Binding}"
+        x:Name="ViewHost"
         VerticalContentAlignment="Stretch"
         HorizontalContentAlignment="Stretch"
         >
-        <reactive:ViewModelViewHost.DefaultContent>
+        <local:GSMultiViewHost.DefaultContent>
             <Grid x:Name="LayoutRoot" Margin="0,0,0,0">
                 <Grid.Background>
                     <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
                 </Grid.Background>
 
 
-                <phone:Pivot 
+               <phone:Pivot 
                 Loaded="Plants_Loaded"    
                 LoadedPivotItem="Plants_LoadedPivotItem"
 			    x:Name="Plants" 
@@ -78,6 +75,6 @@
 
 
             </Grid>
-        </reactive:ViewModelViewHost.DefaultContent>
-    </reactive:ViewModelViewHost>
+        </local:GSMultiViewHost.DefaultContent>
+    </local:GSMultiViewHost>
 </local:GardenPivotViewBase>

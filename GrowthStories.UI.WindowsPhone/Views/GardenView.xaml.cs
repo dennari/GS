@@ -81,11 +81,13 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ImgOpened(sender, true);
 
-            } else {
+            }
+            else
+            {
 
 
             }
-            
+
             var vm = (PlantViewModel)ViewModel.Plants.First();
             var b1 = vm.ShowPlaceHolder;
             var b2 = vm.Loaded;

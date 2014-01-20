@@ -12,6 +12,10 @@ using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
 
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
+using System.Windows.Controls;
+using System.Reactive.Subjects;
+using System.Reactive;
+using System.Reactive.Disposables;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -133,7 +137,105 @@ namespace Growthstories.UI.WindowsPhone
         }
     }
 
+    /// <summary>
+    /// This content control will automatically load the View associated with
+    /// the ViewModel property and display it. This control is very useful
+    /// inside a DataTemplate to display the View associated with a ViewModel.
+    /// </summary>
+    public class GSMultiViewHost : ContentControl, IReportViewModelChange
+    {
+        /// <summary>
+        /// The ViewModel to display
+        /// </summary>
+        public IHasInnerViewModel ViewModel
+        {
+            get { return (IHasInnerViewModel)GetValue(ViewModelProperty); }
+            set { SetValue(ViewModelProperty, value); }
+        }
+        public static readonly DependencyProperty ViewModelProperty =
+            DependencyProperty.Register("ViewModel", typeof(IHasInnerViewModel), typeof(GSMultiViewHost), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
 
+
+        /// <summary>
+        /// If no ViewModel is displayed, this content (i.e. a control) will be displayed.
+        /// </summary>
+        public FrameworkElement DefaultContent
+        {
+            get { return (FrameworkElement)GetValue(DefaultContentProperty); }
+            set { SetValue(DefaultContentProperty, value); }
+        }
+        public static readonly DependencyProperty DefaultContentProperty =
+            DependencyProperty.Register("DefaultContent", typeof(FrameworkElement), typeof(GSMultiViewHost), new PropertyMetadata(null, OnDefaultContentChanged));
+
+        private static void OnDefaultContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var This = (GSMultiViewHost)d;
+            var v = (FrameworkElement)e.NewValue;
+            if (This.DefaultContent != v)
+                This.DefaultContent = v;
+
+            if (This.Content == null)
+                This.Content = v;
+        }
+
+
+        public void ViewModelChangeReport(object vm)
+        {
+
+            if (vm != this.ViewModel) // this happens if set the ViewModel property in XAML
+            {
+                this.ViewModel = vm as IHasInnerViewModel; // this triggers another ViewModelChangeReport
+                return;
+            }
+
+            this.OnViewModelChanged(vm as IHasInnerViewModel);
+        }
+
+        private IDisposable subscription = Disposable.Empty;
+        protected virtual void OnViewModelChanged(IHasInnerViewModel vm)
+        {
+
+            subscription.Dispose();
+            subscription = vm.WhenAnyValue(x => x.InnerViewModel).Subscribe(x =>
+            {
+                if (x == null)
+                {
+                    Content = null;
+                    Content = DefaultContent;
+                    return;
+                }
+
+                var view = ViewLocator.ResolveView(x, null);
+
+                if (view == null)
+                {
+                    throw new Exception(String.Format("Couldn't find view for '{0}'.", x));
+                }
+
+                view.ViewModel = x;
+                Content = view;
+            });
+
+        }
+
+        private IViewLocator ViewLocator;
+
+        public GSMultiViewHost()
+        {
+
+            ViewLocator = ReactiveUI.ViewLocator.Current;
+            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch;
+            VerticalContentAlignment = System.Windows.VerticalAlignment.Stretch;
+            //Content = DefaultContent;
+
+
+        }
+
+        //protected override 
+
+
+
+    }
 
 }
 

@@ -126,8 +126,20 @@
         </Setter>
     </Style>
 
-
-
+    <Style TargetType="local:GSMultiViewHost">
+        <!--<Setter Property="Content" Value="{TemplateBinding DefaultContent}"/>-->
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="local:GSMultiViewHost">
+              <ContentPresenter
+                      Content="{TemplateBinding Content}"
+                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </ControlTemplate>
+          </Setter.Value>
+    </Setter>
+    </Style>
 
     <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
         <Setter Property="Template">
