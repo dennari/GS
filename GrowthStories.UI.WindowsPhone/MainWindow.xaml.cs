@@ -131,6 +131,7 @@ namespace Growthstories.UI.WindowsPhone
         IPopupViewModel PopupVm;
         private void ShowPopup(IPopupViewModel x)
         {
+
             var popup = new CustomMessageBox()
             {
                 Caption = x.Caption,
@@ -152,10 +153,8 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             popup.ApplyTemplate();
-
             popup.Dismissed += (s1, e1) =>
             {
-
                 PopupResult res;
                 switch (e1.Result)
                 {
