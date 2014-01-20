@@ -12,6 +12,7 @@ using Growthstories.UI.WindowsPhone.ViewModels;
 using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
+using System.Windows;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -42,7 +43,8 @@ namespace Growthstories.UI.WindowsPhone
             ViewConfiguration();
 
 
-            BugSenseHandler.Instance.InitAndStartSession(new ExceptionManager(PhoneApp), BUGSENSE_TOKEN);
+            var excMgr = new ExceptionManager((Application)PhoneApp);
+            BugSenseHandler.Instance.InitAndStartSession(excMgr, BUGSENSE_TOKEN);
             BugSenseHandler.Instance.HandleWhileDebugging = true;
 
 

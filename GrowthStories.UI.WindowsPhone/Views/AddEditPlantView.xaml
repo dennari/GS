@@ -138,13 +138,15 @@
                 <!-- NAME -->
                 <local:GSLabel Label="name">
                     <local:GSTextBox Text="{Binding Name, Mode=TwoWay}" 
-                             GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus"
+                            x:Name="NameTextBox"
+                            GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus"
                             local:BindingUtility.UpdateSourceOnChange="True" Margin="-12,0,-12,0" />
                 </local:GSLabel>
                    
                 <!-- GENUS -->
                 <local:GSLabel Label="species" Margin="0,6,0,0">
                 <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
+                                x:Name="SpeciesTextBox"
                                 GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus" 
                                 local:BindingUtility.UpdateSourceOnChange="True"
                                 Margin="-12,0,-12,0"     

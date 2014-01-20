@@ -55,7 +55,7 @@ namespace Growthstories.UI.WindowsPhone
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
 
-           
+
 
             //////////////////////////////////
             //// INITIAL STARTING POINT //////
