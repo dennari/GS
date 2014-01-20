@@ -18,6 +18,7 @@ using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Imaging;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -34,8 +35,6 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
-        public static bool Complained = false;
-
 
         public GardenPlantTileView()
         {
@@ -46,10 +45,8 @@ namespace Growthstories.UI.WindowsPhone
         private IDisposable subscription;
 
 
-
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
-
             if (subscription != null)
             {
                 subscription.Dispose();
@@ -59,17 +56,42 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (x)
                 {
-                    ViewModel.Log().Info("plant loading ready, loading placeholder for " + ViewModel.Name);
+                    ViewModel.Log().Info("fading in placeholder for " + ViewModel.Name);
                     FadeIn();
-                }
-                else
-                {
-                    ViewModel.Log().Info("plant loading ready (does have profile picture) for " + ViewModel.Name);
                 }
             });
 
+            vm.WhenAnyValue(x => x.Loaded).Subscribe(x =>
+            {
+                if (Opened)
+                {
+                    ViewModel.Log().Info("plant loading ready, fading in plant " + ViewModel.Name);
+                    FadeIn();
+                }
+            });
+
+            ViewHelpers.ResetImage(Img);
+            if (!ViewModel.HasWriteAccess)
+            {
+                ViewModel.Log().Info("showing loading for garden plant tile " + ViewModel.Name);
+                LoadingPhoto.Visibility = Visibility.Visible;
+            }
         }
-        
+
+
+        public static void ResetImage(Image i)
+        {
+            i.CacheMode = null;
+            var bitmapImage = i.Source as BitmapImage;
+           
+            if (bitmapImage != null)
+            {
+                bitmapImage.UriSource = null;
+                i.Source = null;
+            }
+        }
+
+        private bool Opened = false;
 
 
         // Real image (no placeholder) has been opened
@@ -78,7 +100,11 @@ namespace Growthstories.UI.WindowsPhone
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
             ViewModel.Log().Info("image opened event for " + ViewModel.Name);
-            FadeIn();
+            Opened = true;
+            if (ViewModel.Loaded)
+            {
+                FadeIn();
+            }
         }
 
 
@@ -87,9 +113,12 @@ namespace Growthstories.UI.WindowsPhone
         //
         private void FadeIn()
         {
+            LoadingFailed.Visibility = Visibility.Collapsed;
+            LoadingPhoto.Opacity = 0.0;
+
             DoubleAnimation wa = new DoubleAnimation();
             wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
-            wa.BeginTime = TimeSpan.FromSeconds(0.1);
+            wa.BeginTime = TimeSpan.FromSeconds(0.2); 
             wa.From = 0;
             wa.To = 1.0;
             wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
@@ -115,9 +144,9 @@ namespace Growthstories.UI.WindowsPhone
         private void Img_ImageFailed(object sender, RoutedEventArgs e)
         {
             ViewModel.Log().Info("image failed to load for " + ViewModel.Name);
-
             ViewModel.NotifyImageDownloadFailed();
             FadeIn();
+            LoadingFailed.Visibility = Visibility.Visible;
         }
 
 
@@ -125,14 +154,11 @@ namespace Growthstories.UI.WindowsPhone
         {
             if (ViewModel != null)
             {
-                ViewModel.ShowDetailsCommand.Execute(null);
+                ViewModel.ShowDetailsCommand.Execute(ViewModel);
             }
         }
 
     }
-
-
-      
 
 
 }

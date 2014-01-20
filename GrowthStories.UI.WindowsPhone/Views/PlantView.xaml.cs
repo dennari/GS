@@ -48,7 +48,6 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
 
@@ -73,99 +72,6 @@ namespace Growthstories.UI.WindowsPhone
             });
 
         }
-
-
-
-
-
-        private static HashSet<object> LoadedImages = new HashSet<object>();
-        private static HashSet<object> LoadedSources = new HashSet<object>();
-        private HashSet<object> AnimatedSources = new HashSet<object>();
-
-
-        private void ImageBrush_ImageOpened(object sender, RoutedEventArgs e)
-        {
-            var img = sender as System.Windows.Controls.Image;
-
-            LoadedImages.Add(img);
-            LoadedSources.Add(img.Source);
-
-            FadeInImage(img);
-        }
-
-
-        private void FadeInImage(Image img)
-        {
-            AnimatedSources.Add(img.Source);
-            /*
-            var ha = new DoubleAnimation();
-            ha.Duration = new Duration(TimeSpan.FromSeconds(0.7));
-            ha.From = 0;
-            ha.To = 220;
-            ha.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
-            */
-            var oa = new DoubleAnimation();
-            oa.Duration = new Duration(TimeSpan.FromSeconds(0.7));
-            oa.From = 0.0;
-            oa.To = 1.0;
-            oa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
-
-            Storyboard sb = new Storyboard();
-            sb.Children.Add(oa);
-            //sb.Children.Add(ha);
-
-            var b = GSViewUtils.FindParent<Button>(img);
-
-            if (b != null)
-            {
-                //Storyboard.SetTarget(ha, b);
-                //Storyboard.SetTargetProperty(ha, new PropertyPath("Height"));
-
-                Storyboard.SetTarget(oa, b);
-                Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
-            }
-
-            sb.Begin();
-            b.Height = 220;
-            b.BorderThickness = new Thickness(3);
-        }
-
-
-        private void Image_Loaded(object sender, RoutedEventArgs e)
-        {
-
-            var img = sender as System.Windows.Controls.Image;
-            var b = GSViewUtils.FindParent<Button>(img);
-
-            bool contains = LoadedImages.Contains(img);
-            bool opaCheck = b.Opacity == 0.0;
-            bool c2 = LoadedSources.Contains(img.Source);
-
-            // the longlist selector is lazy loading content all the time
-            // and each the Image object is a new one 
-            // 
-            // we get the ImageOpened event only once during application running for each source
-            // we get the ImageLoaded event each time the long list selector is doing some lazy
-            //   loading
-            //
-            if (!LoadedImages.Contains(img) && LoadedSources.Contains(img.Source))
-            {
-                if (AnimatedSources.Contains(img.Source))
-                {
-                    if ((int)b.Height != 220)
-                    {
-                        b.Height = 220;
-                        b.Opacity = 1.0;
-                        b.BorderThickness = new Thickness(3);
-                    }
-                }
-                else
-                {
-                    FadeInImage(img);
-                }
-            }
-        }
-
 
         private void TimeLine_Loaded(object sender, RoutedEventArgs e)
         {

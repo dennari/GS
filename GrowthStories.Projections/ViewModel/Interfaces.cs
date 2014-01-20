@@ -143,6 +143,8 @@ namespace Growthstories.UI.ViewModel
 
         IEnumerable<Guid> GetCurrentFollowers(Guid userId);
 
+        void NotifyImageDownloadFailed();
+
         bool NotifiedOnBadConnection { get; set; }
     }
 
@@ -229,13 +231,13 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
-        IReactiveCommand ShowDetailsCommand { get; }
+        IReactiveCommand ShowDetailsCommand { get; set; }
         IReactiveCommand ResetAnimationsCommand { get; }
 
         //IReactiveCommand ActionTapped { get; }
         //IReactiveCommand AddActionCommand(PlantActionType type);
         IReactiveList<string> Tags { get; }
-        Photo Photo { get; }
+        Photo Photo { get; set; }
         int? MissedCount { get; }
         bool HasTile { get; }
         bool IsShared { get; set; }
@@ -444,6 +446,7 @@ namespace Growthstories.UI.ViewModel
 
     }
 
+
     public interface IPlantPhotographViewModel : IPlantActionViewModel
     {
         //IReactiveCommand EditPhotoCommand { get; set; }
@@ -451,6 +454,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand PhotoChooserCommand { get; }
 
         bool IsProfilePhoto { get; set; }
+        void NotifyImageDownloadFailed();
     }
 
 
