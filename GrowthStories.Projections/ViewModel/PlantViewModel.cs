@@ -204,7 +204,10 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            var obs = this.DeleteCommand.RegisterAsyncTask(_ => SendCommand(new DeleteAggregate(this.Id, "plant"))).Publish();
+            var obs = this.DeleteCommand.RegisterAsyncTask(_ =>
+            {
+                return SendCommand(new DeleteAggregate(this.Id, "plant"));
+            }).Publish();
             obs.Connect();
 
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
@@ -570,7 +573,7 @@ namespace Growthstories.UI.ViewModel
 
         private void HandleAction(IPlantActionViewModel x)
         {
-            PrepareActionVM(x); 
+            PrepareActionVM(x);
             _Actions.Insert(0, x);
 
             foreach (var a in Actions)

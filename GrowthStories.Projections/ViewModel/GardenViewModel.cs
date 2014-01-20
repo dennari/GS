@@ -47,22 +47,6 @@ namespace Growthstories.UI.ViewModel
                 this.SelfDeleteList.Add(x);
             });
 
-
-            this.ListenTo<AggregateDeleted>(x.Id)
-               .Take(1)
-               .Subscribe(_ =>
-               {
-                   if (_Plants.Count == 1)
-                   {
-                       Plants = new ReactiveList<IPlantViewModel>();
-                       //Selecte
-                   }
-                   else
-                       _Plants.Remove(x);
-                   if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
-                       this.NavigateBack();
-                   //deleteSubscription.Dispose();
-               });
         }
 
         private void LoadPlants(IAuthUser u)
@@ -77,7 +61,7 @@ namespace Growthstories.UI.ViewModel
                     //this.IsLoaded = true;
                 })
                 .Subscribe(x => IntroducePlant(x));
-            
+
             var plantStream = App.FuturePlants(u.Id).ObserveOn(RxApp.MainThreadScheduler);
             plantStream.Subscribe(x => IntroducePlant(x));
         }
@@ -89,7 +73,7 @@ namespace Growthstories.UI.ViewModel
             {
                 IsLoaded = true;
             }
-            
+
             Plants.ToObservable().Subscribe(x =>
             {
                 x.WhenAnyValue(z => z.Loaded).Subscribe(loaded =>
@@ -97,7 +81,7 @@ namespace Growthstories.UI.ViewModel
                     if (loaded)
                     {
                         this.Log().Info("Loaded plant " + x.Id);
-                        UpdateIsLoaded();    
+                        UpdateIsLoaded();
                     }
                 });
             });
@@ -560,6 +544,23 @@ namespace Growthstories.UI.ViewModel
                   });
 
 
+                this.ListenTo<AggregateDeleted>()
+                   .Where(x => x.Kind == "plant")
+                   .Select(x => this.Plants.FirstOrDefault(y => y.Id == x.AggregateId))
+                   .Where(x => x != null)
+                   .Subscribe(x =>
+                   {
+                       if (_Plants.Count == 1)
+                       {
+                           Plants = new ReactiveList<IPlantViewModel>();
+                           //Selecte
+                       }
+                       else
+                           _Plants.Remove(x);
+                       if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
+                           this.NavigateBack();
+                       //deleteSubscription.Dispose();
+                   });
 
 
                 this.SettingObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
