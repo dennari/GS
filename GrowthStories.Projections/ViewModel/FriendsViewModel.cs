@@ -51,7 +51,6 @@ namespace Growthstories.UI.ViewModel
         {
             App.CurrentGardens()
                 .Concat(App.FutureGardens())
-                .Where(x => x.User.Id != App.User.Id)
                 .DistinctUntilChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>

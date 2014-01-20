@@ -1,8 +1,8 @@
 
 using System;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
@@ -13,41 +13,47 @@ namespace Growthstories.UI.ViewModel
     public class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
-
-        private async Task LoadAsync()
+        private bool _AllLoaded;
+        public bool AllLoaded
         {
-
-            // it's important to get these through the resolver for ui-reset support
-
-            GardenVM = await Task.Run(() => App.Resolver.GetService<IGardenViewModel>());
-            this._Pages.Add(this.GardenVM);
-            this.SelectedPage = this.GardenVM;
-
-            NotificationsVM = await Task.Run(() => App.Resolver.GetService<INotificationsViewModel>());
-            this._Pages.Add(this.NotificationsVM);
-
-            FriendsVM = await Task.Run(() => App.Resolver.GetService<FriendsViewModel>());
-            this._Pages.Add(this.FriendsVM);
-        }
-
-        private void Load()
-        {
-            this.GardenVM = App.Resolver.GetService<IGardenViewModel>();
-            this._Pages.Add(this.GardenVM);
-            this.SelectedPage = this.GardenVM;
-
-            this.NotificationsVM = App.Resolver.GetService<INotificationsViewModel>();
-            this._Pages.Add(this.NotificationsVM);
-
-            this.FriendsVM = App.Resolver.GetService<FriendsViewModel>();
-            this._Pages.Add(this.FriendsVM);
+            get
+            {
+                return _AllLoaded;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AllLoaded, value);
+            }
         }
 
 
-        public MainViewModel(IGSAppViewModel app)
+        public MainViewModel(
+            IObservable<IGardenViewModel> myGarden,
+            IObservable<INotificationsViewModel> notifications,
+            IObservable<FriendsViewModel> friends,
+            IGSAppViewModel app)
             : base(app)
         {
-            LoadAsync();
+            myGarden.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            {
+                this.GardenVM = x;
+                this._Pages.Add(x);
+                this.SelectedPage = x;
+            }).Select(x => new Unit()).Take(1)
+            .Concat(notifications.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            {
+                this.NotificationsVM = x;
+                this._Pages.Add(x);
+            }).Select(x => new Unit()).Take(1))
+            .Concat(friends.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            {
+                this.FriendsVM = x;
+                this._Pages.Add(x);
+            }).Select(x => new Unit()).Take(1))
+            .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => { }, () =>
+            {
+                AllLoaded = true;
+            });
         }
 
 

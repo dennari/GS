@@ -54,10 +54,21 @@ namespace Growthstories.UI.ViewModel
                 x.PlantIndex = _Plants.Count();
 
                 _Plants.Add(x);
+
+
                 this.ListenTo<AggregateDeleted>(x.Id)
-                   .Subscribe(y =>
+                   .Take(1)
+                   .Subscribe(_ =>
                    {
-                       _Plants.Remove(x);
+                       if (_Plants.Count == 1) {
+                           Plants = new ReactiveList<IPlantViewModel>();
+                            //Selecte
+                       }
+                       else
+                           _Plants.Remove(x);
+                       if (!MultiDeleteList.Contains(x))
+                           this.NavigateBack();
+                       //deleteSubscription.Dispose();
                    });
 
 
@@ -66,11 +77,10 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            plantStream.SelectMany(x => x.DeleteObservable).Subscribe(x =>
-            {
-                if (!MultiDeleteList.Contains(x))
-                    this.NavigateBack();
-            });
+            //plantStream.SelectMany(x => x.DeleteObservable).Subscribe(x =>
+            //{
+
+            //});
 
 
         }
@@ -97,6 +107,11 @@ namespace Growthstories.UI.ViewModel
 
                 }
                 return _Plants;
+            }
+            private set
+            {
+                // we reset this if all the plants in the garden get deleted
+                this.RaiseAndSetIfChanged(ref _Plants, (ReactiveList<IPlantViewModel>)value);
             }
         }
 
@@ -165,6 +180,8 @@ namespace Growthstories.UI.ViewModel
         public Guid UserId { get; protected set; }
 
         private readonly IIAPService IAP;
+        private readonly IObservable<ISettingsViewModel> SettingObservable;
+        private readonly IObservable<IAddEditPlantViewModel> AddPlantViewModelObservable;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -173,7 +190,10 @@ namespace Growthstories.UI.ViewModel
             IObservable<IAuthUser> stateObservable,
             bool isOwn,
             IGSAppViewModel app,
-            IIAPService iap = null)
+            IIAPService iap = null,
+            IObservable<ISettingsViewModel> settings = null,
+            IObservable<IAddEditPlantViewModel> addPlant = null
+            )
             : base(app)
         {
             IsLoaded = false;
@@ -182,7 +202,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+            this.SettingObservable = settings;
+            this.AddPlantViewModelObservable = addPlant;
             this.IAP = iap;
             //this.Id = iid;
 
@@ -232,25 +253,23 @@ namespace Growthstories.UI.ViewModel
 
                 .Where(x => x.count > 0)
                 .Do(_ => MultiCommandInFlight = true)
-                .SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
+                //.SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
 
-                .SelectMany(async x =>
-            {
-                this.Log().Info("MultiWatering {0}/{1} started", x.i + 1, x.of);
-                await App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), UserId, x.el.Id, PlantActionType.WATERED, null));
-                this.Log().Info("MultiWatering {0}/{1} ended", x.i + 1, x.of);
+                .SelectMany(x =>
+                {
+                    this.Log().Info("MultiWatering started");
+                    return x.list.ToObservable().SelectMany(y => App.HandleCommand(new CreatePlantAction(Guid.NewGuid(), UserId, y.Id, PlantActionType.WATERED, null)))
+                    .Aggregate(0, (c, y) => c++);
 
-                return x;
-            })
+
+                })
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
-                    if (x.i + 1 == x.of)
-                    {
-                        MultiCommandInFlight = false;
-                        this.IsPlantSelectionEnabled = false;
+                    this.Log().Info("MultiWatering ended");
+                    MultiCommandInFlight = false;
+                    this.IsPlantSelectionEnabled = false;
 
-                    }
                 });
 
 
@@ -272,27 +291,30 @@ namespace Growthstories.UI.ViewModel
                     MultiCommandInFlight = true;
                     this.MultiDeleteList = new HashSet<IPlantViewModel>(_.list);
                 })
-                .SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
-                .SelectMany(async x =>
+                //.SelectMany(x => x.list.ToObservable().Select((y, i) => new { el = y, i = i, of = x.count }))
+                .SelectMany(x =>
                 {
-                    this.Log().Info("MultiDelete {0}/{1} started", x.i + 1, x.of);
+                    this.Log().Info("MultiDelete started");
                     //await App.HandleCommand(new DeleteAggregate(x.el.Id, "plant"));
 
-                    x.el.DeleteCommand.Execute(null);
-                    await x.el.DeleteObservable.Take(1);
-                    this.Log().Info("MultiDelete {0}/{1} ended", x.i + 1, x.of);
-
-                    return x;
+                    //x.el.DeleteCommand.Execute(null);
+                    //return this.ListenTo<AggregateDeleted>(x.el.Id).Take(1).Select(_ => x);
+                    //foreach(var plant in x.)
+                    //return x;
+                    return Observable.Merge(x.list.Select(y =>
+                    {
+                        y.DeleteCommand.Execute(null);
+                        return this.ListenTo<AggregateDeleted>(y.Id).Take(1);
+                    })).Aggregate(0, (c, y) => c++);
+                    //return Observable.Concat()
                 })
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
+                .Subscribe(_ =>
                 {
-                    if (x.i + 1 == x.of)
-                    {
-                        this.IsPlantSelectionEnabled = false;
-                        MultiCommandInFlight = false;
+                    this.IsPlantSelectionEnabled = false;
+                    MultiCommandInFlight = false;
+                    this.Log().Info("MultiDelete ended");
 
-                    }
                 });
 
 
@@ -316,7 +338,6 @@ namespace Growthstories.UI.ViewModel
             stateObservable
                 .Where(x => x != null)
                 .Take(1)
-                //.ObserveOn(isOwn ? RxApp.MainThreadScheduler : System.Reactive.Concurrency.ImmediateScheduler.Instance)
                 .Subscribe(x =>
             {
                 Init(x, isOwn);
@@ -410,7 +431,10 @@ namespace Growthstories.UI.ViewModel
         protected void AfterIAP(bool bought)
         {
             if (bought)
-                this.Navigate(App.EditPlantViewModelFactory(null));
+            {
+                this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
+
+            }
             // else, user did not buy anything so
             // we are not going to navigate anywhere
         }
@@ -517,7 +541,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+                this.SettingObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
+                this.AddPlantViewModelObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.AddPlantViewModel = x);
 
 
 
@@ -526,6 +551,33 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+
+        private ISettingsViewModel _SettingsViewModel;
+        public ISettingsViewModel SettingsViewModel
+        {
+            get
+            {
+                return _SettingsViewModel;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SettingsViewModel, value);
+            }
+        }
+
+
+        private IAddEditPlantViewModel _AddPlantViewModel;
+        public IAddEditPlantViewModel AddPlantViewModel
+        {
+            get
+            {
+                return _AddPlantViewModel;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AddPlantViewModel, value);
+            }
+        }
 
 
 
@@ -608,10 +660,15 @@ namespace Growthstories.UI.ViewModel
                     {
                         Text = "Settings",
                         IconType = IconType.SETTINGS,
-                        Command = Observable.Return(true).ToCommandWithSubscription((_) => 
+                        Command = Observable.Return(true).ToCommandWithSubscription((_) =>
                         {
-                            var svm =  (ISettingsViewModel)App.Resolver.GetService(typeof(ISettingsViewModel));
-                            this.Navigate(svm);
+                            //var svm = (ISettingsViewModel)App.Resolver.GetService(typeof(ISettingsViewModel));
+                            this.WhenAnyValue(x => x.SettingsViewModel).Take(1).Subscribe(x =>
+                            {
+                                x.Plants = this.Plants;
+                                this.Navigate(x);
+                            });
+                            //this.Navigate(svm);
                         })
                     };
                 return _SettingsButton;

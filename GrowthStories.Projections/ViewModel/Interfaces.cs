@@ -65,6 +65,7 @@ namespace Growthstories.UI.ViewModel
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         //bool CanGoBack { get; }
+        IGardenViewModel MyGarden { get; }
         bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
@@ -96,6 +97,8 @@ namespace Growthstories.UI.ViewModel
         //IObservable<IGardenViewModel> Gardens { get; }
         //IObservable<IPlantViewModel> Plants { get; }
         //IObservable<IPlantActionViewModel> PlantActions(Guid guid);
+
+        IMainViewModel CreateMainViewModel();
 
         IReactiveCommand BackKeyPressedCommand { get; }
         IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
@@ -154,7 +157,6 @@ namespace Growthstories.UI.ViewModel
         string Username { get; }
 
         IReactiveCommand ShowDetailsCommand { get; }
-        IGardenPivotViewModel PivotVM { get; }
     }
 
 
@@ -222,9 +224,9 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
-        IObservable<IPlantViewModel> DeleteObservable { get; }
+        //IObservable<IPlantViewModel> DeleteObservable { get; }
         IReactiveCommand DeleteCommand { get; }
-        //IReactiveCommand DeleteRequestedCommand { get; }
+        IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
         IReactiveCommand ShowDetailsCommand { get; }
@@ -322,6 +324,7 @@ namespace Growthstories.UI.ViewModel
     public interface ISettingsViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsSystemTray, IHasAppBarButtons
     {
 
+        IReadOnlyReactiveList<IPlantViewModel> Plants { get; set; }
         IButtonViewModel LocationServices { get; }
         IButtonViewModel SharedByDefault { get; }
         IReactiveCommand NavigateToAbout { get; }
@@ -446,8 +449,8 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand EditPhotoCommand { get; set; }
         IReactiveCommand PhotoTimelineTap { get; }
         IReactiveCommand PhotoChooserCommand { get; }
-   
-        bool IsProfilePhoto {get; set;}
+
+        bool IsProfilePhoto { get; set; }
     }
 
 

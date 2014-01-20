@@ -1,14 +1,10 @@
-﻿using ReactiveUI;
-using System;
-using System.Reactive.Linq;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
 using Growthstories.Domain.Messaging;
-using Growthstories.Domain.Entities;
-using Growthstories.Core;
 using Growthstories.UI.Services;
+using ReactiveUI;
 
 
 
@@ -68,18 +64,30 @@ namespace Growthstories.UI.ViewModel
         {
             return (int)(o2.TicksToAction - this.TicksToAction);
         }
-    
+
     }
 
 
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
     {
 
-        private readonly IGardenViewModel Garden;
+        private IGardenViewModel _Garden;
+        private IGardenViewModel Garden
+        {
+            get
+            {
+                return _Garden;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Garden, value);
+            }
+        }
 
-      
 
-        public NotificationsViewModel(IGardenViewModel garden, IGSAppViewModel app)
+
+
+        public NotificationsViewModel(IObservable<IGardenViewModel> garden, IGSAppViewModel app)
             : base(app)
         {
 
@@ -91,51 +99,52 @@ namespace Growthstories.UI.ViewModel
                 Command = this.HostScreen.Router.NavigateCommandFor<IAddEditPlantViewModel>()
             });
 
-            this.Garden = garden;
-
-            var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
-
-            IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
-            currentAndFuturePlants.Subscribe(plant =>
-            {   
-                // this forces the actions to load eagerly, 
-                // in order to get the notifications in the start
-                latestActions = plant.Actions;
-            
-                plant
-                    .WhenAnyValue(y => y.WateringScheduler)
-                    .Where(y => y != null)
-                    .Subscribe(z =>
-                    {
-                        z.WhenAnyValue(ws => ws.Missed).Subscribe(_ => 
-                        {
-                            UpdateWateringNotification(plant);
-                        });
-                    });
-
-                plant
-                    .WhenAnyValue(y => y.FertilizingScheduler)
-                    .Where(y => y != null)
-                    .Subscribe(z =>
-                    {
-                        z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
-                        {
-                            UpdateFertilizingNotification(plant);
-                        });
-                    });
-
-                plant.WhenAnyValue(y => y.IsWateringScheduleEnabled).Subscribe(_ => UpdateWateringNotification(plant));
-                plant.WhenAnyValue(y => y.IsFertilizingScheduleEnabled).Subscribe(_ => UpdateFertilizingNotification(plant));
-            });
-
-
-            Garden.Plants.ItemsRemoved.Subscribe(pvm =>
+            garden.Subscribe(x =>
             {
-                TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
-                TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
-            });
+                Garden = x;
+                var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
 
-        
+                IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
+                currentAndFuturePlants.Subscribe(plant =>
+                {
+                    // this forces the actions to load eagerly, 
+                    // in order to get the notifications in the start
+                    latestActions = plant.Actions;
+
+                    plant
+                        .WhenAnyValue(y => y.WateringScheduler)
+                        .Where(y => y != null)
+                        .Subscribe(z =>
+                        {
+                            z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
+                            {
+                                UpdateWateringNotification(plant);
+                            });
+                        });
+
+                    plant
+                        .WhenAnyValue(y => y.FertilizingScheduler)
+                        .Where(y => y != null)
+                        .Subscribe(z =>
+                        {
+                            z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
+                            {
+                                UpdateFertilizingNotification(plant);
+                            });
+                        });
+
+                    plant.WhenAnyValue(y => y.IsWateringScheduleEnabled).Subscribe(_ => UpdateWateringNotification(plant));
+                    plant.WhenAnyValue(y => y.IsFertilizingScheduleEnabled).Subscribe(_ => UpdateFertilizingNotification(plant));
+                });
+
+
+                Garden.Plants.ItemsRemoved.Subscribe(pvm =>
+                {
+                    TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
+                    TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
+                });
+
+            });
             //currentAndFuturePlants
             //    .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
             //    .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
@@ -167,7 +176,7 @@ namespace Growthstories.UI.ViewModel
 
         private void UpdateWateringNotification(IPlantViewModel pvm)
         {
-            if (!pvm.IsWateringScheduleEnabled 
+            if (!pvm.IsWateringScheduleEnabled
                 || pvm.WateringScheduler == null
                 || pvm.WateringScheduler.LastActionTime == null
                 )
@@ -191,8 +200,8 @@ namespace Growthstories.UI.ViewModel
 
         private void UpdateFertilizingNotification(IPlantViewModel pvm)
         {
-            if (!pvm.IsFertilizingScheduleEnabled 
-                || pvm.FertilizingScheduler == null 
+            if (!pvm.IsFertilizingScheduleEnabled
+                || pvm.FertilizingScheduler == null
                 || pvm.FertilizingScheduler.LastActionTime == null)
             {
                 TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);

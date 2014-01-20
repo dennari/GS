@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
-using ReactiveUI;
 using Growthstories.Domain.Messaging;
-using System.Threading.Tasks;
-using Enough.Async;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -21,7 +19,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SignOutCommand { get; protected set; }
         public IReactiveCommand SignInCommand { get; protected set; }
         public IReactiveCommand SignUpCommand { get; protected set; }
-       
+
         public IReactiveCommand SynchronizeCommand { get; protected set; }
         //public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
@@ -77,7 +75,8 @@ namespace Growthstories.UI.ViewModel
         private bool _PhoneLocationServicesEnabled;
         public bool PhoneLocationServicesEnabled
         {
-            get {
+            get
+            {
                 return _PhoneLocationServicesEnabled;
             }
 
@@ -118,20 +117,28 @@ namespace Growthstories.UI.ViewModel
                     var cmd = new SetLocation(p.Id, location);
                     await App.HandleCommand(cmd);
                 }
-            
-            } else {
+
+            }
+            else
+            {
                 // revert toggle switch if unable to get location
                 GSLocationServicesEnabled = false;
             }
         }
 
+        // I made this public so that we can construct the settingsviewmodel in the AppViewModel and then let the garden
+        // set the plans before navigation - Ville
+        public IReadOnlyReactiveList<IPlantViewModel> Plants
+        {
+            get;
+            set;
+        }
 
-        private IReadOnlyReactiveList<IPlantViewModel> Plants;
-        public SettingsViewModel(IGSAppViewModel app, IReadOnlyReactiveList<IPlantViewModel> plants)
+        public SettingsViewModel(IGSAppViewModel app)
             : base(app)
         {
 
-            this.Plants = plants;
+            //this.Plants = plants;
 
             this.NavigateToAbout = app.Router.NavigateCommandFor<IAboutViewModel>();
 
@@ -284,7 +291,7 @@ namespace Growthstories.UI.ViewModel
 
             App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);
-            
+
             // there was no obvious other way to get this info from a user
             // aggregate, other than obtaining one
             SetGSLocationServicesEnabled(App.GSLocationServicesEnabled);
@@ -293,7 +300,7 @@ namespace Growthstories.UI.ViewModel
 
             App.Router.CurrentViewModel
                 .Where(vm => vm == this)
-                .Subscribe(_ => 
+                .Subscribe(_ =>
             {
                 App.UpdatePhoneLocationServicesEnabled();
             });
@@ -357,7 +364,7 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
-            App.ShowPopup.Execute(pvm); 
+            App.ShowPopup.Execute(pvm);
         }
 
 

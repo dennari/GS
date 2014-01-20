@@ -1,27 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Growthstories.UI.ViewModel;
-using Microsoft.Phone.Tasks;
-using Growthstories.Sync;
-using Growthstories.Domain;
-using Growthstories.UI;
-using System.Windows.Media.Imaging;
-using System.IO;
-using Windows.Storage.Streams;
-using Growthstories.UI.WindowsPhone;
-using Microsoft.Phone.Controls;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Growthstories.Sync;
+using Growthstories.UI.ViewModel;
+using Microsoft.Phone.Controls;
+using Microsoft.Phone.Tasks;
 using ReactiveUI;
-using System.Reactive.Linq;
-using System.Reactive;
 
-using Growthstories.Domain.Entities;
-using Growthstories.Domain.Messaging;
-using System.Linq.Expressions;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -42,8 +30,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public ClientAddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
-            : base(app, current)
+
+        public ClientAddEditPlantViewModel(IGSAppViewModel app, IObservable<IGardenViewModel> gardenObservable, IPlantViewModel current = null)
+            : base(app, gardenObservable, current)
         {
 
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());

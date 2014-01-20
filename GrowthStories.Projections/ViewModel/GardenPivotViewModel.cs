@@ -46,6 +46,11 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IPlantViewModel>()
                 .Subscribe(x => this.SelectedPlant = x);
 
+            vm.WhenAnyValue(x => x.Plants)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Do(x => this.SelectedItem = null)
+                .ToProperty(this, x => x.Plants, out _Plants);
+
             // when current plant wants to show the action list, show it
             // moved actionlist to a regular page
             //this.WhenAnyValue(x => x.SelectedPlant)
@@ -137,10 +142,15 @@ namespace Growthstories.UI.ViewModel
             get { return Vm.User; }
         }
 
+        private ObservableAsPropertyHelper<IReadOnlyReactiveList<IPlantViewModel>> _Plants;
         public IReadOnlyReactiveList<IPlantViewModel> Plants
         {
-            get { return Vm.Plants; }
+            get
+            {
+                return _Plants.Value;
+            }
         }
+
 
         public string Username
         {

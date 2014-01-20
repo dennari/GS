@@ -24,7 +24,12 @@ namespace Growthstories.UI.ViewModel
         public IPlantViewModel Current { get; protected set; }
         protected readonly HashSet<string> TagSet;
 
-        public AddEditPlantViewModel(IGSAppViewModel app, IPlantViewModel current = null)
+        public AddEditPlantViewModel(
+            IGSAppViewModel app,
+
+            IObservable<IGardenViewModel> gardenObservable,
+
+            IPlantViewModel current = null)
             : base(app)
         {
 
@@ -45,8 +50,10 @@ namespace Growthstories.UI.ViewModel
                 this.IsWateringScheduleEnabled = current.IsWateringScheduleEnabled;
                 this.IsFertilizingScheduleEnabled = current.IsFertilizingScheduleEnabled;
                 this.Location = current.Location;
-            
-            } else {
+
+            }
+            else
+            {
                 this.Title = "new plant";
                 this.TagSet = new HashSet<string>();
                 this.Tags = new ReactiveList<string>();
@@ -70,17 +77,20 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled).ToProperty(schedule, x => x.IsEnabled, out schedule._IsEnabled, this.IsFertilizingScheduleEnabled);
 
 
+            gardenObservable.Take(1).ObserveOn(RxApp.MainThreadScheduler).Subscribe(garden =>
+            {
 
-            var garden = app.Resolver.GetService<IGardenViewModel>();
-            this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-                garden.Plants.Where(x => x.WateringSchedule != null && x.WateringSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x =>
-                {
-                    return Tuple.Create(x, x.WateringSchedule);
-                })
-            );
-            this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-             garden.Plants.Where(x => x.FertilizingSchedule != null && x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
-           );
+                this.WateringSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
+                    garden.Plants.Where(x => x.WateringSchedule != null && x.WateringSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x =>
+                    {
+                        return Tuple.Create(x, x.WateringSchedule);
+                    })
+                );
+
+                this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
+                 garden.Plants.Where(x => x.FertilizingSchedule != null && x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
+               );
+            });
 
 
             ChooseProfilePictureCommand = new ReactiveCommand();

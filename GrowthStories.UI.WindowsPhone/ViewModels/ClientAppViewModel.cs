@@ -1,6 +1,7 @@
 
 using System;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using EventStore;
 using EventStore.Persistence;
 using Growthstories.Core;
@@ -12,7 +13,6 @@ using GrowthStories.UI.WindowsPhone.BA;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Devices.Geolocation;
-using System.Threading.Tasks;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -84,7 +84,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 catch { }
             });
 
-   
+
             SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
                 try
@@ -188,7 +188,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return null;
             }
         }
-        
+
 
         private async Task<GSLocation> _DoGetLocation()
         {
@@ -200,7 +200,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     maximumAge: TimeSpan.FromMinutes(5), timeout: TimeSpan.FromSeconds(15));
 
                 return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);
-             }
+            }
 
             catch (Exception ex)
             {
@@ -217,12 +217,14 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             // we need to try to get location to find out whether
             // location services are enabled
-            
+
             var gl = new Geolocator();
             if (gl.LocationStatus == PositionStatus.Disabled)
             {
                 PhoneLocationServicesEnabled = false;
-            } else {
+            }
+            else
+            {
                 PhoneLocationServicesEnabled = true;
             }
 
@@ -256,7 +258,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
-            return new ClientAddEditPlantViewModel(this, pvm);
+            return new ClientAddEditPlantViewModel(this, this.WhenAnyValue(x => x.MyGarden).Where(x => x != null), pvm);
         }
 
         public override IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)

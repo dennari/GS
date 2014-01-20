@@ -117,6 +117,7 @@ namespace Growthstories.UI.WindowsPhone
             ViewModel.Log().Info("image failed to load for " + ViewModel.Name);
 
             ViewModel.NotifyImageDownloadFailed();
+            FadeIn();
         }
 
 

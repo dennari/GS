@@ -211,11 +211,13 @@ namespace Growthstories.UI.ViewModel
 
             this.ShowDetailsCommand = new ReactiveCommand();
             this.ShowDetailsCommand
+                .OfType<IPlantViewModel>()
                 .Subscribe(x =>
                 {
-                    var g = App.MyGarden as GardenViewModel;
-                    g.PivotVM.SelectedItem = this;
-                    App.Router.Navigate.Execute(g.PivotVM);
+
+                    //var gvm = (IGardenViewModel)App.Resolver.GetService(typeof(IGardenViewModel));
+                    //gvm.PivotVM.SelectedItem = this;
+                    //App.Router.Navigate.Execute(gvm.PivotVM);
                 });
 
 
@@ -431,6 +433,7 @@ namespace Growthstories.UI.ViewModel
                     .Do(
                     a => { },
 
+<<<<<<< HEAD
                     () =>
                     {
                         this.Loaded = true;
@@ -443,16 +446,77 @@ namespace Growthstories.UI.ViewModel
                   
 
                 var actionsPipe = App.FuturePlantActions(this.State.Id);
+
                 //var actionsPipe = current.Concat(App.FuturePlantActions(this.State.Id));
                 actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
                     HandleAction(x);
-                });
+=======
+                actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                {
 
+                    PrepareActionVM(x);
+                    _Actions.Insert(0, x);
+
+                    foreach (var a in Actions)
+                    {
+                        a.ActionIndex++;
+                    }
+
+                    x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+
+                    this.ListenTo<AggregateDeleted>(x.PlantActionId)
+                      .Subscribe(y =>
+                    {
+                        _Actions.Remove(x);
+                        HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+                    });
+
+                    var photo = x as IPlantPhotographViewModel;
+                    if (photo != null)
+                    {
+                        PossiblySetAsProfilePhoto(photo);
+
+                        photo.PhotoTimelineTap
+                            .Subscribe(_ =>
+                            {
+                                this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
+                            });
+                    }
+
+                    ScrollCommand.Execute(x);
+>>>>>>> e824e87fa3478b0bfd90b9ad9edab7d680a25597
+                });
             });
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
             this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
+
+            /*
+            foreach (var a in Actions)
+            {
+                // maybe not necessary
+                a.PlantId = state.Id;
+
+                var pvm = a as IPlantPhotographViewModel;
+                if (pvm != null && pvm.PlantActionId == state.ProfilepictureActionId)
+                {
+                    Photo = pvm.Photo;
+                }
+            }
+            */
+
+            // for animations to run smoothly we need to be sure that the profile
+            // picture has been set to the viewmodel before settings this variable 
+            //
+            // this essentially informs UI logic that loading has been finished
+            // to the point where Photo contains the correct profile picture if
+            // there is one
+            //
+            // (state.ProfilePictureActionId may contain a reference to a
+            // previous profile picture that has been deleted)
+            //
+            // (state.ProfilePicture seems to be usually null)
         }
 
 
@@ -494,7 +558,7 @@ namespace Growthstories.UI.ViewModel
                 pvm = new PopupViewModel()
                 {
                     Caption = "No data connection",
-                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection.", 
+                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection." 
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
@@ -504,7 +568,7 @@ namespace Growthstories.UI.ViewModel
                 pvm = new PopupViewModel()
                 {
                     Caption = "Failed to load images",
-                    Message = "Some photos of followed user's plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.", 
+                    Message = "Some images of followed users failed to load. This may be cased by an invalid data connection. Growth Stories will try to load them later.", 
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
@@ -1187,11 +1251,6 @@ namespace Growthstories.UI.ViewModel
 
         public GSLocation Location { get; set; }
 
-        public void NotifyImageDownloadFailed()
-        {
-
-        }
-
         private static EmptyPlantViewModel _Instance;
 
         public static EmptyPlantViewModel Instance
@@ -1223,8 +1282,6 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ScrollCommand { get; set; }
 
         public IReactiveCommand WateringCommand { get; set; }
-
-        public IReactiveCommand ShowDetailsCommand { get; set; }
 
         public IObservable<IPlantViewModel> WateringObservable { get; set; }
 

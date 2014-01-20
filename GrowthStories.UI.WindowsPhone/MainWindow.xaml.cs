@@ -7,6 +7,8 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using Growthstories.Core;
+using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
 using ReactiveUI;
@@ -212,7 +214,7 @@ namespace Growthstories.UI.WindowsPhone
 
             if (this.ViewModel.Router.NavigationStack.Count == 0)
             {
-                ViewModel.Router.Navigate.Execute(new MainViewModel(this.ViewModel));
+                ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
             }
         }
 
@@ -239,7 +241,7 @@ namespace Growthstories.UI.WindowsPhone
                 t.Stop();
                 this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);
 
-                pvm.DeleteObservable.Take(1).Subscribe(x =>
+                ViewModel.Bus.Listen<IEvent>().OfType<AggregateDeleted>().Where(x => x.AggregateId == plantId).Take(1).Subscribe(x =>
                 {
                     // get back from plantview, into "nothing"
                     this.ViewModel.Router.NavigateBack.Execute(null);
