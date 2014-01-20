@@ -75,14 +75,14 @@ namespace Growthstories.UI.WindowsPhone
                     ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
                     FadeIn();
                 }
-            });
 
+                if (!ViewModel.HasWriteAccess)
+                {
+                    ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
+                    LoadingPhoto.Visibility = Visibility.Visible;
+                }
+            });
             
-            if (!ViewModel.HasWriteAccess)
-            {
-                ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
-                LoadingPhoto.Visibility = Visibility.Visible;
-            }
         }
 
 

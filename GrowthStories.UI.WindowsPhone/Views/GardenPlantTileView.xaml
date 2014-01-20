@@ -22,7 +22,7 @@
             <telerikPrimitives:RadContextMenu.ContextMenu >
 
                 <telerikPrimitives:RadContextMenu
-                        Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
+                        IsEnabled="{Binding HasWriteAccess}"
                         IsFadeEnabled="True"
                         IsZoomEnabled="False"
                         Background="WhiteSmoke"
