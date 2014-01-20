@@ -29,8 +29,7 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand PhotoCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
-        public IObservable<IPlantViewModel> DeleteObservable { get; protected set; }
-
+        public IReactiveCommand DeleteRequestedCommand { get; private set; }
 
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand PinCommand { get; protected set; }
@@ -183,8 +182,22 @@ namespace Growthstories.UI.ViewModel
                 (a, b) => a && b);
             this.ShareCommand = new ReactiveCommand(canShare);
             this.DeleteCommand = new ReactiveCommand();
+            this.DeleteRequestedCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+                        {
+                            var popup = DeleteConfirmation();
+                            popup.DismissedObservable
+                                .Where(x => x == PopupResult.LeftButton)
+                                .Take(1)
+                                .Subscribe(__ =>
+                                {
+                                    this.DeleteCommand.Execute(null);
+                                });
+                            App.ShowPopup.Execute(popup);
+                        });
+
+
+
             var obs = this.DeleteCommand.RegisterAsyncTask(_ => SendCommand(new DeleteAggregate(this.Id, "plant"))).Publish();
-            this.DeleteObservable = obs.Select(_ => this);
             obs.Connect();
 
             this.EditCommand = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(App.EditPlantViewModelFactory(this)));
@@ -380,7 +393,8 @@ namespace Growthstories.UI.ViewModel
                 .Select(x => x.Location)
                 .StartWith(state.Location)
                 .Subscribe(x =>
-            {;
+            {
+                ;
                 Location = x;
             });
 
@@ -403,40 +417,40 @@ namespace Growthstories.UI.ViewModel
                   .Concat(App.FuturePlantActions(this.State.Id));
 
 
-            actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
-            {
-            
-                PrepareActionVM(x); 
-                _Actions.Insert(0, x);
-
-                foreach (var a in Actions)
+                actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
-                    a.ActionIndex++;
-                }
 
-                x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+                    PrepareActionVM(x);
+                    _Actions.Insert(0, x);
 
-                this.ListenTo<AggregateDeleted>(x.PlantActionId)
-                  .Subscribe(y =>
-                {
-                    _Actions.Remove(x);
-                    HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+                    foreach (var a in Actions)
+                    {
+                        a.ActionIndex++;
+                    }
+
+                    x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+
+                    this.ListenTo<AggregateDeleted>(x.PlantActionId)
+                      .Subscribe(y =>
+                    {
+                        _Actions.Remove(x);
+                        HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+                    });
+
+                    var photo = x as IPlantPhotographViewModel;
+                    if (photo != null)
+                    {
+                        PossiblySetAsProfilePhoto(photo);
+
+                        photo.PhotoTimelineTap
+                            .Subscribe(_ =>
+                            {
+                                this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
+                            });
+                    }
+
+                    ScrollCommand.Execute(x);
                 });
-
-                var photo = x as IPlantPhotographViewModel;
-                if (photo != null)
-                {
-                    PossiblySetAsProfilePhoto(photo);
-
-                    photo.PhotoTimelineTap
-                        .Subscribe(_ =>
-                        {
-                            this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
-                        });
-                }
-
-                ScrollCommand.Execute(x);
-            });
             });
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
@@ -451,51 +465,51 @@ namespace Growthstories.UI.ViewModel
 
 
 
-           //this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
-           // {
-           //     if (!App.HasDataConnection)
-           //     {
-           //         PopupViewModel pvm = new PopupViewModel()
-           //         {
-           //             Caption = "Data connection required",
-           //             Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
-           //             IsLeftButtonEnabled = true,
-           //             LeftButtonContent = "OK"
-           //         };
-           //         App.ShowPopup.Execute(pvm);
-           //         return;
-           //     }
+        //this.TryShareCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
+        // {
+        //     if (!App.HasDataConnection)
+        //     {
+        //         PopupViewModel pvm = new PopupViewModel()
+        //         {
+        //             Caption = "Data connection required",
+        //             Message = "Sharing requires a data connection. Please enable one in your phone's settings and try again.",
+        //             IsLeftButtonEnabled = true,
+        //             LeftButtonContent = "OK"
+        //         };
+        //         App.ShowPopup.Execute(pvm);
+        //         return;
+        //     }
 
 
-           //     if (App.User.IsRegistered)
-           //     {
-           //         this.ShareCommand.Execute(null);
-                
-           //     } else {
- 
-           //         var svm = new SignInRegisterViewModel(App)
-           //         {
-           //             SignInMode = false,
-           //         };
+        //     if (App.User.IsRegistered)
+        //     {
+        //         this.ShareCommand.Execute(null);
 
-           //         svm.Response.Subscribe(x =>
-           //         {
-           //             if (!x.Item1 && x.Item2 == RegisterResponse.success)
-           //             {
-           //                 var pvm = new ProgressPopupViewModel()
-           //                 {
-           //                     Caption = "Preparing for sharing",
-           //                     Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
-           //                 };
+        //     } else {
 
-           //                 App.ShowPopup.Execute(pvm);
-           //                 var res = await App.SyncAll();
-           //                 App.ShowPopup.Execute(null);
-           //             }
-           //         });
-           //         this.Navigate(svm);
-           //     }
-           // });
+        //         var svm = new SignInRegisterViewModel(App)
+        //         {
+        //             SignInMode = false,
+        //         };
+
+        //         svm.Response.Subscribe(x =>
+        //         {
+        //             if (!x.Item1 && x.Item2 == RegisterResponse.success)
+        //             {
+        //                 var pvm = new ProgressPopupViewModel()
+        //                 {
+        //                     Caption = "Preparing for sharing",
+        //                     Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+        //                 };
+
+        //                 App.ShowPopup.Execute(pvm);
+        //                 var res = await App.SyncAll();
+        //                 App.ShowPopup.Execute(null);
+        //             }
+        //         });
+        //         this.Navigate(svm);
+        //     }
+        // });
 
 
 
@@ -986,18 +1000,7 @@ namespace Growthstories.UI.ViewModel
                         new MenuItemViewModel(null)
                         {
                             Text = "delete",
-                        Command = Observable.Return(true).ToCommandWithSubscription(_ =>
-                        {
-                            var popup = DeleteConfirmation();
-                            popup.DismissedObservable
-                                .Where(x => x == PopupResult.LeftButton)
-                                .Take(1)
-                                .Subscribe(__ =>
-                                {
-                                    this.DeleteCommand.Execute(null);
-                                });
-                            App.ShowPopup.Execute(popup);
-                        })
+                        Command = DeleteRequestedCommand
                     },
                   new MenuItemViewModel(null)
                         {
@@ -1069,6 +1072,7 @@ namespace Growthstories.UI.ViewModel
                 RightButtonContent = "Cancel"
             };
         }
+
 
 
     }
@@ -1187,6 +1191,9 @@ namespace Growthstories.UI.ViewModel
 
 
         public IObservable<IPlantViewModel> DeleteObservable { get; set; }
+
+
+        public IReactiveCommand DeleteRequestedCommand { get; set; }
     }
 
 

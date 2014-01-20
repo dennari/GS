@@ -2,6 +2,7 @@
 using System;
 using System.Reactive.Linq;
 using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Tasks;
 using ReactiveUI;
@@ -56,18 +57,20 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 });
 
-            DeleteObservable
-               .Subscribe(_ =>
-               {
-                   if (HasTile)
-                   {
-                       TileHelper.DeleteTile();
-                   }
+            this.WhenAnyValue(x => x.Id)
+                .Where(x => x != default(Guid))
+                .SelectMany(x => this.ListenTo<AggregateDeleted>(x).Take(1))
+                .Where(_ => HasTile)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    TileHelper.DeleteTile();
+                });
 
-               });
 
 
-            ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
+
+          ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
 
 

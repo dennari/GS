@@ -65,6 +65,7 @@ namespace Growthstories.UI.ViewModel
     public interface IGSAppViewModel : IGSRoutableViewModel, IScreen, IHasAppBarButtons, IHasMenuItems, IControlsAppBar
     {
         //bool CanGoBack { get; }
+        IGardenViewModel MyGarden { get; }
         bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
@@ -221,9 +222,9 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
-        IObservable<IPlantViewModel> DeleteObservable { get; }
+        //IObservable<IPlantViewModel> DeleteObservable { get; }
         IReactiveCommand DeleteCommand { get; }
-        //IReactiveCommand DeleteRequestedCommand { get; }
+        IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
 
