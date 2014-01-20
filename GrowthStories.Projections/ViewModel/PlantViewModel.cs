@@ -15,7 +15,12 @@ using ReactiveUI;
 namespace Growthstories.UI.ViewModel
 {
 
-
+    public enum DeleteRequestOrigin
+    {
+        UNKNOWN,
+        PARENT,
+        SELF
+    }
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
@@ -1100,7 +1105,8 @@ namespace Growthstories.UI.ViewModel
                         new MenuItemViewModel(null)
                         {
                             Text = "delete",
-                        Command = DeleteRequestedCommand
+                            Command = DeleteRequestedCommand,
+                            CommandParameter = DeleteRequestOrigin.SELF
                     },
                   new MenuItemViewModel(null)
                         {
