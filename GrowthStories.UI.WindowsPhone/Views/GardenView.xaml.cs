@@ -48,6 +48,8 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
 
+
+
         }
 
 

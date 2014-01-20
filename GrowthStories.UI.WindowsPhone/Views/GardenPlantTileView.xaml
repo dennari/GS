@@ -12,10 +12,14 @@
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
     xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
-  
     mc:Ignorable="d">
 
-    <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}">
+
+    <Grid>
+
+
+
+        <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}" Grid.Row="0">
 
         <telerikPrimitives:RadContextMenu.ContextMenu>
 
@@ -53,7 +57,7 @@
             </telerikPrimitives:RadContextMenu>
         </telerikPrimitives:RadContextMenu.ContextMenu>
 
-
+     
         <Button 
                     HorizontalAlignment="Left"
                     Margin="-12,-12,-12,-12"
@@ -69,15 +73,16 @@
                     HorizontalContentAlignment="Stretch"
                     >
 
+                <Grid>
 
-            <c4f:Tile
-                        Background="Transparent"
-                        toolkit:TiltEffect.SuppressTilt="True"
-                        toolkit:TiltEffect.IsTiltEnabled="False"
-                        Name="thetile"
-                        Margin="0,0,0,0"
-                        c4fBinding:FrameworkElementBinding.ClipToBounds="True"
-                                >
+                <c4f:Tile
+                    Grid.Row="0"
+                    Background="Transparent"
+                    toolkit:TiltEffect.SuppressTilt="True"
+                    toolkit:TiltEffect.IsTiltEnabled="False"
+                    Name="thetile"
+                    Margin="0,0,0,0"
+                    c4fBinding:FrameworkElementBinding.ClipToBounds="True">
 
                 <Grid>
                     <Grid.Triggers>
@@ -107,7 +112,9 @@
                     </Grid.Triggers>
 
                     <Canvas Visibility="{Binding Loaded, Converter={StaticResource BooleanToVisibility}}">
-                        <Image
+
+                            <Image
+                            
                             x:Name="Img"
                             Width="396" Height="396"
 	        		        Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
@@ -131,6 +138,7 @@
                                 <CompositeTransform/>
                             </Image.RenderTransform>
                         </Image>
+                        
                     </Canvas>
                     <c4f:TileNotification
                         HorizontalAlignment="Left"
@@ -144,8 +152,25 @@
                 </Grid>
             </c4f:Tile>
 
-        </Button>
+                    <TextBlock 
+                    Grid.Row="0"
+                    Visibility="Collapsed"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    TextAlignment="Center"                       
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    FontSize="24"
+                    Padding="24"
+                    Foreground="WhiteSmoke"
+                    Text="could not load photo"  
+                    FontWeight="Normal"
+                    Margin="0,0,0,0"
+                    TextWrapping="Wrap"
+                    x:Name="LoadingFailed" />
 
+                </Grid>
+
+           </Button>
 
         <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
@@ -166,5 +191,44 @@
             />
 
     </StackPanel>
+
+        <telerikPrimitives:RadBusyIndicator 
+            Grid.Row="0"
+            x:Name="LoadingPhoto"
+            Visibility="Collapsed"
+            ContentPosition="Bottom"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            IsRunning="True"
+            AnimationStyle="AnimationStyle7"
+            Foreground="WhiteSmoke"
+            Margin="0,0,0,0"
+            Width="130" 
+            Height="130"
+            >
+            
+            <!-- consider the scale when adjusting width above -->
+            <telerikPrimitives:RadBusyIndicator.RenderTransform>
+                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+            </telerikPrimitives:RadBusyIndicator.RenderTransform>
+
+            <telerikPrimitives:RadBusyIndicator.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock 
+                    VerticalAlignment="Center"
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="loading plant" 
+                    FontSize="14"
+                    FontWeight="Normal"
+                    Margin="0,0,0,0"
+                    />
+                </DataTemplate>
+            </telerikPrimitives:RadBusyIndicator.ContentTemplate>
+        </telerikPrimitives:RadBusyIndicator>
+
+    </Grid>
+
 
 </local:GardenPlantTileViewBase>

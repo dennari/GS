@@ -30,7 +30,7 @@
 
                 <local:PlantView 
                     ViewModel="{Binding Plant}" 
-                    Margin="0,0,0,0" 
+                    Margin="0,12,0,0" 
                     VerticalAlignment="Stretch" />
 
 

@@ -18,6 +18,7 @@ using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Imaging;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -34,21 +35,23 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
-        public static bool Complained = false;
-
 
         public GardenPlantTileView()
         {
             InitializeComponent();
+            Img.CacheMode = null;
         }
 
 
         private IDisposable subscription;
-
+        private bool reset = false;
 
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
+            ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
+            ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
+            ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
 
             if (subscription != null)
             {
@@ -59,17 +62,43 @@ namespace Growthstories.UI.WindowsPhone
             {
                 if (x)
                 {
-                    ViewModel.Log().Info("plant loading ready, loading placeholder for " + ViewModel.Name);
+                    ViewModel.Log().Info("GardenPlantTileView: fading in placeholder for " + ViewModel.Name);
                     FadeIn();
-                }
-                else
-                {
-                    ViewModel.Log().Info("plant loading ready (does have profile picture) for " + ViewModel.Name);
                 }
             });
 
+            
+            vm.WhenAnyValue(x => x.Loaded).Subscribe(x =>
+            {
+                if (Opened)
+                {
+                    ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
+                    FadeIn();
+                }
+            });
+
+            
+            if (!ViewModel.HasWriteAccess)
+            {
+                ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
+                LoadingPhoto.Visibility = Visibility.Visible;
+            }
         }
-        
+
+
+        private void ResetImage(Image i)
+        {
+            ViewModel.Log().Info("GardenPlantTileView: resetting image");
+            var bitmapImage = i.Source as BitmapImage;
+           
+            if (bitmapImage != null)
+            {
+                bitmapImage.UriSource = null;
+                i.Source = null;
+            }
+        }
+
+        private bool Opened = false;
 
 
         // Real image (no placeholder) has been opened
@@ -77,8 +106,12 @@ namespace Growthstories.UI.WindowsPhone
         //
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("image opened event for " + ViewModel.Name);
-            FadeIn();
+            ViewModel.Log().Info("GardenPlantTileView: image opened event for " + ViewModel.Name);
+            Opened = true;
+            if (ViewModel.Loaded)
+            {
+                FadeIn();
+            }
         }
 
 
@@ -87,9 +120,12 @@ namespace Growthstories.UI.WindowsPhone
         //
         private void FadeIn()
         {
+            LoadingFailed.Visibility = Visibility.Collapsed;
+            LoadingPhoto.Opacity = 0.0;
+
             DoubleAnimation wa = new DoubleAnimation();
             wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
-            wa.BeginTime = TimeSpan.FromSeconds(0.1);
+            wa.BeginTime = TimeSpan.FromSeconds(0.2); 
             wa.From = 0;
             wa.To = 1.0;
             wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
@@ -102,22 +138,22 @@ namespace Growthstories.UI.WindowsPhone
 
             if (panel.Opacity == 0)
             {
-                ViewModel.Log().Info("starting fadein for " + ViewModel.Name);
+                ViewModel.Log().Info("GardenPlantTileView: starting fadein for " + ViewModel.Name);
                 sb.Begin();
             }
             else
             {
-                ViewModel.Log().Info("skipping fadein for " + ViewModel.Name);
+                ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
         }
 
 
         private void Img_ImageFailed(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("image failed to load for " + ViewModel.Name);
-
+            ViewModel.Log().Info("GardenPlantTileView: image failed to load for " + ViewModel.Name);
             ViewModel.NotifyImageDownloadFailed();
             FadeIn();
+            LoadingFailed.Visibility = Visibility.Visible;
         }
 
 
@@ -125,14 +161,11 @@ namespace Growthstories.UI.WindowsPhone
         {
             if (ViewModel != null)
             {
-                ViewModel.ShowDetailsCommand.Execute(null);
+                ViewModel.ShowDetailsCommand.Execute(ViewModel);
             }
         }
 
     }
-
-
-      
 
 
 }

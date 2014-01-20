@@ -17,7 +17,9 @@ using Microsoft.Phone.Scheduler;
 using Microsoft.Phone.Tasks;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
-
+using System.Windows.Media.Imaging;
+using Microsoft.Phone.Controls;
+using System.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -56,7 +58,17 @@ namespace Growthstories.UI.WindowsPhone
             return GetColorFromHex(This);
         }
 
-
+        
+        public static void ResetImage(Image i)
+        {
+            i.CacheMode = null;
+            var bitmapImage = i.Source as BitmapImage;
+            if (bitmapImage != null)
+            {
+                bitmapImage.UriSource = null;
+                i.Source = null;
+            }
+        }
 
         public static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {

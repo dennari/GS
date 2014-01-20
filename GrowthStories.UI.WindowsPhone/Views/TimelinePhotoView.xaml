@@ -1,0 +1,91 @@
+﻿<local:TimelinePhotoViewBase 
+    x:Class="Growthstories.UI.WindowsPhone.TimelinePhotoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
+    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
+    xmlns:c4f="clr-namespace:Coding4Fun.Toolkit.Controls;assembly=Coding4Fun.Toolkit.Controls"
+    xmlns:c4fBinding="clr-namespace:Coding4Fun.Toolkit.Controls.Binding;assembly=Coding4Fun.Toolkit.Controls"
+    mc:Ignorable="d"
+  >
+
+    <!-- BorderThickness is set to Non-Zero when actually loading -->
+    <Button Background="Transparent"
+        x:Name="ButtonControl"
+        toolkit:TiltEffect.IsTiltEnabled="True"
+        BorderBrush="{Binding IsProfilePhoto, Converter={StaticResource BooleanToSpecialColor}}"
+        BorderThickness="3"    
+        HorizontalAlignment="Stretch" 
+        Style="{StaticResource GSWrapperButtonStyle}" 
+        Margin="0,0,0,18" 
+        Command="{Binding PhotoTimelineTap}"
+        Padding="0,0,0,0"
+        IsEnabled="True"
+        Height="220"
+        >
+        
+        <Grid>
+
+            <telerikPrimitives:RadBusyIndicator 
+            x:Name="LoadingPhoto"
+            Visibility="Visible"
+            ContentPosition="Right"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            IsRunning="True"
+            AnimationStyle="AnimationStyle7"
+            Foreground="WhiteSmoke"
+            Margin="0,0,0,0"
+            >
+                <telerikPrimitives:RadBusyIndicator.RenderTransform>
+                    <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
+                </telerikPrimitives:RadBusyIndicator.RenderTransform>
+
+                <telerikPrimitives:RadBusyIndicator.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock 
+                    VerticalAlignment="Center"
+                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                    Text="Loading photo..." 
+                    FontSize="14"
+                    FontWeight="Normal"
+                    Margin="8,-4,0,0"
+                    />
+                    </DataTemplate>
+                </telerikPrimitives:RadBusyIndicator.ContentTemplate>
+            </telerikPrimitives:RadBusyIndicator>
+
+            <TextBlock 
+                Visibility="Collapsed"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                FontSize="{StaticResource PhoneFontSizeSmall}"
+                Text="Could not load photo"  
+                FontWeight="Normal"
+                Margin="0,0,0,0"
+                Width="200"
+                x:Name="LoadingFailed" />
+
+            <Image  
+                x:Name="ImageControl"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Stretch="UniformToFill" 
+                Source="{Binding TimelinePhotoSource}"
+                ImageOpened="Img_ImageOpened"
+                Loaded="Img_Loaded" 
+                Unloaded="Img_Unloaded"
+                ImageFailed="Img_ImageFailed"
+            />
+
+        </Grid>
+        
+        
+    </Button>
+
+</local:TimelinePhotoViewBase>

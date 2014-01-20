@@ -27,6 +27,7 @@ namespace Growthstories.UI.WindowsPhone
         private static int MaxTries = 10;
         private static bool IsConnected = false;
 
+
         public GSRemoteLog(Type type = null)
         {
             this.Type = type;
@@ -36,13 +37,33 @@ namespace Growthstories.UI.WindowsPhone
         private void Send(string level, string message, params object[] values)
         {
 
-            // useful to do this check before a heavy string operation
+            // useful to do this check before doing heavy string operations
             if (Tried >= MaxTries)
             {
                 return;
             }
 
-            if (this.Type != null &&  this.Type.Name != null && this.Type.Name.Equals("JsonSerializer"))
+            // todo: filtering based on ignore list in bootstrap.machine.cs
+            if (this.Type != null &&  this.Type.Name != null)
+            {
+                switch (Type.Name)
+                {
+                    case "JsonSerializer":
+                    case "OptimisticEventStream":
+                    case "OptimisticPipelineHook":
+                    case "SQLiteUIPersistence":
+                    case "SQLitePersistenceEngine":
+                    case "OptimisticEventStore":
+                    case "SynchronousDispatchScheduler":
+                        return;
+                }
+            }
+
+            if (message.StartsWith("ReactiveObject") 
+                || message.StartsWith("MemoizingMRUCache") 
+                || message.StartsWith("MessageBus")
+                || message.StartsWith("ObservableAsPropertyHelper")
+                || message.StartsWith("LogHost"))
             {
                 return;
             }
@@ -51,10 +72,11 @@ namespace Growthstories.UI.WindowsPhone
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             //Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);
 
-            if (Debugger.IsAttached)
-            {
-                System.Diagnostics.Debug.WriteLine(msg);
-            }
+            //if (Debugger.IsAttached)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(msg);
+            //}
+
             if (Tried < MaxTries)
             {
                 lock (Socket)
