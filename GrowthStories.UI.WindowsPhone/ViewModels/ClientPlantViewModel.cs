@@ -49,7 +49,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             PinCommand
                 .Subscribe(_ =>
                 {
-                    if (HasTile)
+                    if (TileHelper.HasTile)
                     {
                         TileHelper.DeleteTile();
                     }
