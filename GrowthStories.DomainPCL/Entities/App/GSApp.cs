@@ -70,16 +70,17 @@ namespace Growthstories.Domain.Entities
                 RaiseEvent(new SyncStreamCreated(e.Target, PullStreamType.USER));
         }
 
+
         public void Handle(UnFollowed e)
         {
-
-            if (this.State.SyncStreamDict.ContainsKey(e.Target))
-                RaiseEvent(new SyncStreamDeleted(e.Target));
-            // also delete the plant-streams
-            var streamIds = this.State.SyncStreams.Where(x => x.AncestorId == e.Target).Select(x => x.StreamId).ToArray();
-            foreach (var id in streamIds)
-                RaiseEvent(new SyncStreamDeleted(id));
+            //if (this.State.SyncStreamDict.ContainsKey(e.Target))
+            //    RaiseEvent(new SyncStreamDeleted(e.Target));
+            //// also delete the plant-streams
+            //var streamIds = this.State.SyncStreams.Where(x => x.AncestorId == e.Target).Select(x => x.StreamId).ToArray();
+            //foreach (var id in streamIds)
+            //    RaiseEvent(new SyncStreamDeleted(id));
         }
+
 
         public void Handle(DeleteAggregate e)
         {

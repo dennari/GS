@@ -158,6 +158,9 @@
     </Compile>
     <Compile Include="Config\BaseSetup.cs" />
     <Compile Include="Config\Bootstrap.Production.cs" />
+    <Compile Include="Views\GardenPlantTileView.xaml.cs">
+      <DependentUpon>GardenPlantTileView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\BindingUtility.cs" />
     <Compile Include="Config\Bootstrap.cs" />
     <Compile Include="Controls\AGSRoutedViewHost.cs" />
@@ -250,6 +253,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="Views\GardenPlantTileView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\DesignData.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

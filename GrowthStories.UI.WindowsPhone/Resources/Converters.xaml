@@ -35,6 +35,7 @@
     <local:LocationToFriendlyLatitudeConverter x:Key="LocationToFriendlyLatitude"/>
     <local:LocationToFriendlyLongitudeConverter x:Key="LocationToFriendlyLongitude"/>
 
+    <local:BooleanToPlaceHolderImageSourceConverter x:Key="BooleanToPlaceHolderImageSource"/>
 
 
 </ResourceDictionary>

@@ -403,8 +403,6 @@ namespace Growthstories.UI.ViewModel
             else
             {
                 AfterIAP(true);
-
-
             }
         }
 

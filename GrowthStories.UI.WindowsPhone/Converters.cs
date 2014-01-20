@@ -287,10 +287,46 @@ namespace Growthstories.UI.WindowsPhone
         {
             throw new NotImplementedException();
         }
+    }
+
+
+
+    public class BooleanToPlaceHolderImageSourceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter,
+           System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+                return null;
+
+            try
+            {
+                var bval = (bool)value;
+                if (bval)
+                {
+                    BitmapImage tn = new BitmapImage();
+                    tn.SetSource(Application.GetResourceStream(
+                        new Uri(@"Assets/Icons/NoImage.png", UriKind.Relative)).Stream);
+                    return tn;
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        public object ConvertBack(object value, Type targetType, object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
 
 
     }
-
+    
 
     public class PhotoToImageSourceConverter : IValueConverter
     {

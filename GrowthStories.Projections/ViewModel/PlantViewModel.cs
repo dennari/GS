@@ -37,7 +37,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ScrollCommand { get; protected set; }
         public IReactiveCommand ResetAnimationsCommand { get; protected set; }
         public IReactiveCommand ShowActionList { get; protected set; }
-
+        public IReactiveCommand ShowDetailsCommand { get; protected set; }
 
         #endregion
 
@@ -145,6 +145,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        
         private IPlantActionListViewModel _PlantActionList;
         protected IPlantActionListViewModel PlantActionList
         {
@@ -165,7 +166,8 @@ namespace Growthstories.UI.ViewModel
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
         {
-
+            Loaded = false;
+            ShowPlaceHolder = false;
 
             if (stateObservable == null)
                 throw new ArgumentNullException("StateObservable cannot be null");
@@ -192,6 +194,18 @@ namespace Growthstories.UI.ViewModel
             this.ScrollCommand = new ReactiveCommand();
             this.TryShareCommand = new ReactiveCommand();
             this.ShowActionList = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList));
+
+
+            this.ShowDetailsCommand = new ReactiveCommand();
+            this.ShowDetailsCommand
+                .OfType<IPlantViewModel>()
+                .Subscribe(x =>
+                {
+
+                    //var gvm = (IGardenViewModel)App.Resolver.GetService(typeof(IGardenViewModel));
+                    //gvm.PivotVM.SelectedItem = this;
+                    //App.Router.Navigate.Execute(gvm.PivotVM);
+                });
 
 
             this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
@@ -335,9 +349,9 @@ namespace Growthstories.UI.ViewModel
             this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
                 .StartWith(state.Profilepicture)
                 .Subscribe(x =>
-                    {
-                        this.Photo = x;
-                    });
+                {
+                    this.Photo = x;
+                });
 
             this.WhenAnyValue(x => x.Photo).Subscribe(x =>
             {
@@ -384,8 +398,6 @@ namespace Growthstories.UI.ViewModel
                 Location = x;
             });
 
-            this.Photo = state.Profilepicture;
-
             this.App.FutureSchedules(state.Id)
             .Subscribe(x =>
             {
@@ -395,58 +407,159 @@ namespace Growthstories.UI.ViewModel
                     this.FertilizingSchedule = x;
             });
 
+            this.WhenAnyValue(x => x.Loaded).Subscribe(_ => UpdateShowPlaceHolder());
+            this.WhenAnyValue(x => x.Photo).Subscribe(_ => UpdateShowPlaceHolder());
 
             this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Subscribe(__ =>
             {
 
-                var actionsPipe = App.CurrentPlantActions(this.State.Id)
-                  .Concat(App.FuturePlantActions(this.State.Id));
+                var current = App.CurrentPlantActions(this.State.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
 
+                    .Do(
+                    a => { },
 
-            actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
-            {
-            
-                PrepareActionVM(x); 
-                _Actions.Insert(0, x);
+                    () =>
+                    {
+                        this.Loaded = true;
+                    })
 
-                foreach (var a in Actions)
+                    .Subscribe(a =>
+                    {
+                        HandleAction(a);
+                    });
+                  
+
+                var actionsPipe = App.FuturePlantActions(this.State.Id);
+
+                //var actionsPipe = current.Concat(App.FuturePlantActions(this.State.Id));
+                actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
-                    a.ActionIndex++;
-                }
-
-                x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
-
-                this.ListenTo<AggregateDeleted>(x.PlantActionId)
-                  .Subscribe(y =>
-                {
-                    _Actions.Remove(x);
-                    HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+                    HandleAction(x);
                 });
-
-                var photo = x as IPlantPhotographViewModel;
-                if (photo != null)
-                {
-                    PossiblySetAsProfilePhoto(photo);
-
-                    photo.PhotoTimelineTap
-                        .Subscribe(_ =>
-                        {
-                            this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
-                        });
-                }
-
-                ScrollCommand.Execute(x);
-            });
             });
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
             this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
 
-            // maybe not necessary
+            /*
             foreach (var a in Actions)
             {
+                // maybe not necessary
                 a.PlantId = state.Id;
+
+                var pvm = a as IPlantPhotographViewModel;
+                if (pvm != null && pvm.PlantActionId == state.ProfilepictureActionId)
+                {
+                    Photo = pvm.Photo;
+                }
             }
+            */
+
+            // for animations to run smoothly we need to be sure that the profile
+            // picture has been set to the viewmodel before settings this variable 
+            //
+            // this essentially informs UI logic that loading has been finished
+            // to the point where Photo contains the correct profile picture if
+            // there is one
+            //
+            // (state.ProfilePictureActionId may contain a reference to a
+            // previous profile picture that has been deleted)
+            //
+            // (state.ProfilePicture seems to be usually null)
+        }
+
+
+        private bool _ShowPlaceHolder;
+        public bool ShowPlaceHolder
+        {
+            get {
+                return _ShowPlaceHolder;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ShowPlaceHolder, value);
+            }
+        }
+
+        private void UpdateShowPlaceHolder()
+        {
+            ShowPlaceHolder = this.Photo == null && Loaded;
+        }
+
+
+        // Notify the viewmodel that the UI failed to
+        // download an image
+        //
+        //
+        public void NotifyImageDownloadFailed()
+        {
+            if (App.NotifiedOnBadConnection)
+            {
+                return;
+            }
+            
+            App.NotifiedOnBadConnection = true;
+
+            PopupViewModel pvm;
+            if (App.HasDataConnection)
+            {
+                this.Log().Info("images failed to load because of broken data connection");
+                pvm = new PopupViewModel()
+                {
+                    Caption = "No data connection",
+                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection." 
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK"
+                };
+            } else {
+                this.Log().Info("images failed to load because of broken data connection");
+
+                pvm = new PopupViewModel()
+                {
+                    Caption = "Failed to load images",
+                    Message = "Some images of followed users failed to load. This may be cased by an invalid data connection. Growth Stories will try to load them later.", 
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK"
+                };
+            }
+            
+            App.ShowPopup.Execute(pvm);
+        }
+
+
+        private void HandleAction(IPlantActionViewModel x)
+        {
+            PrepareActionVM(x); 
+            _Actions.Insert(0, x);
+
+            foreach (var a in Actions)
+            {
+                a.ActionIndex++;
+            }
+
+            x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+
+            this.ListenTo<AggregateDeleted>(x.PlantActionId)
+                .Subscribe(y =>
+            {
+                _Actions.Remove(x);
+                HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+            });
+
+            var photo = x as IPlantPhotographViewModel;
+            if (photo != null)
+            {
+                PossiblySetAsProfilePhoto(photo);
+
+                photo.PhotoTimelineTap
+                    .Subscribe(_ =>
+                    {
+                        this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
+                    });
+            }
+
+            ScrollCommand.Execute(x);
         }
 
 
@@ -646,6 +759,21 @@ namespace Growthstories.UI.ViewModel
 
         protected string _Name;
         public string Name { get { return _Name; } protected set { this.RaiseAndSetIfChanged(ref _Name, value); } }
+
+
+        private bool _Loaded;
+        public bool Loaded
+        {
+            get
+            {
+                return _Loaded;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Loaded, value);
+            }
+        }
+
 
         protected Photo _Photo;
         public Photo Photo
@@ -1077,6 +1205,9 @@ namespace Growthstories.UI.ViewModel
     public class EmptyPlantViewModel : IPlantViewModel
     {
 
+        public bool Loaded { get; set; }
+
+        public bool ShowPlaceHolder { get; set; }
 
         public GSLocation Location { get; set; }
 

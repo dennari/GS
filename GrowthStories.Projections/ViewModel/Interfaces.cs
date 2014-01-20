@@ -139,6 +139,8 @@ namespace Growthstories.UI.ViewModel
         GSLocation LastLocation { get; }
 
         IEnumerable<Guid> GetCurrentFollowers(Guid userId);
+
+        bool NotifiedOnBadConnection { get; set; }
     }
 
 
@@ -152,7 +154,7 @@ namespace Growthstories.UI.ViewModel
         string Username { get; }
 
         IReactiveCommand ShowDetailsCommand { get; }
-
+        IGardenPivotViewModel PivotVM { get; }
     }
 
 
@@ -225,7 +227,7 @@ namespace Growthstories.UI.ViewModel
         //IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
-
+        IReactiveCommand ShowDetailsCommand { get; }
         IReactiveCommand ResetAnimationsCommand { get; }
 
         //IReactiveCommand ActionTapped { get; }
@@ -256,6 +258,12 @@ namespace Growthstories.UI.ViewModel
         bool HasWriteAccess { get; }
 
         GSLocation Location { get; }
+
+        bool Loaded { get; }
+
+        bool ShowPlaceHolder { get; }
+
+        void NotifyImageDownloadFailed();
 
     }
 

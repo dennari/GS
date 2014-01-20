@@ -14,6 +14,8 @@ using System.Windows.Data;
 using EventStore.Logging;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
+using Growthstories.Core;
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -27,9 +29,7 @@ namespace Growthstories.UI.WindowsPhone
     public partial class GardenView : GardenViewBase
     {
 
-
         private static ILog Logger = LogFactory.BuildLogger(typeof(GardenView));
-
 
 
         public GardenView()
@@ -47,14 +47,13 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
-            var a = "a";
+
         }
 
 
         public void handleDelete(PlantViewModel pvm)
         {
             //PlantView.DeleteTile(pvm);
-
             //MessageBoxResult res = MessageBox.Show("Are you sure you wish to delete the plant " + pvm.Name + "?");
         }
 
@@ -65,16 +64,49 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-
-
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
+            Logger.Info("ImageOpened " + sender.ToString());
             ImgOpened(sender, false);
         }
 
+
         private void Img_PlaceHolderImageOpened(object sender, RoutedEventArgs e)
         {
+            var pvm = GetViewModel(sender);
+
+            if (pvm.Loaded)
+            {
+                ImgOpened(sender, true);
+
+            } else {
+
+
+            }
+            
+            var vm = (PlantViewModel)ViewModel.Plants.First();
+            var b1 = vm.ShowPlaceHolder;
+            var b2 = vm.Loaded;
+            var photo = vm.Photo;
+
             ImgOpened(sender, true);
+        }
+
+
+        private void Img_ImageFailed(object sender, RoutedEventArgs e)
+        {
+            Logger.Debug("ImageDebug");
+            Logger.Info("ImageFailedDebug " + sender.ToString());
+        }
+
+
+        private PlantViewModel GetViewModel(object sender)
+        {
+            var img = sender as System.Windows.Controls.Image;
+            var c4fTile = GSViewUtils.FindParent<Button>(img);
+            var button = GSViewUtils.FindParent<Button>(c4fTile);
+
+            return button.CommandParameter as PlantViewModel;
         }
 
 
@@ -84,7 +116,7 @@ namespace Growthstories.UI.WindowsPhone
             var img = sender as System.Windows.Controls.Image;
 
             DoubleAnimation wa = new DoubleAnimation();
-            wa.Duration = new Duration(TimeSpan.FromSeconds(0.8));
+            wa.Duration = new Duration(TimeSpan.FromSeconds(1.5));
             wa.BeginTime = TimeSpan.FromSeconds(0.5);
             wa.From = 0;
             wa.To = 1.0;
@@ -120,7 +152,6 @@ namespace Growthstories.UI.WindowsPhone
             // ( double comparison against zero should be ok )
             if (sp.Opacity == 0)
             {
-
                 sb.Begin();
             }
         }
@@ -132,27 +163,12 @@ namespace Growthstories.UI.WindowsPhone
             // so we are doing it this way
             //   -- JOJ 5.12.2014
 
-            // var button = sender as Button;
-            //var button = sender as Button;
-
-            // var t = new ScaleTransform();
-            // t.ScaleX = 1.5;
-            // t.ScaleY = 1.5;
-
-            // button.RenderTransform = t;
-            /*
-            TurnstileTransition trans = new TurnstileTransition();
-
-            TransitionService.SetNavigationOutTransition(
-             */
-
             var btn = sender as Button;
             if (ViewModel != null)
             {
                 ViewModel.ShowDetailsCommand.Execute(btn.CommandParameter);
             }
         }
-
 
 
     }

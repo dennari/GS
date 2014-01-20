@@ -207,12 +207,13 @@ namespace Growthstories.UI.ViewModel
 
             // we need to set these immediately to have the defaults in place when starting up
 
-
             this.SyncResults = syncResult;
 
             Bootstrap();
         }
 
+
+        public bool NotifiedOnBadConnection = false;
 
 
         private void Bootstrap()

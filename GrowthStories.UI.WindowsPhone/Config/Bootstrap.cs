@@ -13,6 +13,7 @@ using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -128,7 +129,6 @@ namespace Growthstories.UI.WindowsPhone
             Bind<IAboutViewModel>().To<AboutViewModel>().InSingletonScope();
             Bind<ISearchUsersViewModel>().To<SearchUsersViewModel>().InSingletonScope();
             Bind<FriendsViewModel>().To<FriendsViewModel>().InSingletonScope();
-
 
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IApplicationRootState)), typeof(IApplicationRootState));
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(ISearchUsersViewModel)), typeof(ISearchUsersViewModel));
