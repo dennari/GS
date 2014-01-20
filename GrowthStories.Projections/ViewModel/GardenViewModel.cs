@@ -32,6 +32,8 @@ namespace Growthstories.UI.ViewModel
         }
 
         private HashSet<IPlantViewModel> MultiDeleteList = new HashSet<IPlantViewModel>();
+        private HashSet<IPlantViewModel> SelfDeleteList = new HashSet<IPlantViewModel>();
+
 
         private void LoadPlants(IAuthUser u)
         {
@@ -56,17 +58,24 @@ namespace Growthstories.UI.ViewModel
                 _Plants.Add(x);
 
 
+                x.DeleteRequestedCommand.OfType<DeleteRequestOrigin>().Where(y => y == DeleteRequestOrigin.SELF).Subscribe(y =>
+                {
+                    this.SelfDeleteList.Add(x);
+                });
+
+
                 this.ListenTo<AggregateDeleted>(x.Id)
                    .Take(1)
                    .Subscribe(_ =>
                    {
-                       if (_Plants.Count == 1) {
+                       if (_Plants.Count == 1)
+                       {
                            Plants = new ReactiveList<IPlantViewModel>();
-                            //Selecte
+                           //Selecte
                        }
                        else
                            _Plants.Remove(x);
-                       if (!MultiDeleteList.Contains(x))
+                       if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
                            this.NavigateBack();
                        //deleteSubscription.Dispose();
                    });
@@ -438,7 +447,8 @@ namespace Growthstories.UI.ViewModel
         {
             if (bought)
             {
-                this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
+                //this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
+                this.Navigate(App.EditPlantViewModelFactory(null));
 
             }
             // else, user did not buy anything so
