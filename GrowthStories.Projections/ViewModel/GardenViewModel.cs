@@ -160,7 +160,6 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand GetPlantCommand { get; protected set; }
 
         public IReactiveCommand TryAddPlantCommand { get; private set; }
-        public IReactiveCommand IAPTeaserDismissedCommand { get; private set; }
 
         public IReactiveCommand MultiWateringCommand { get; private set; }
         public IReactiveCommand MultiDeleteCommand { get; private set; }
@@ -397,6 +396,7 @@ namespace Growthstories.UI.ViewModel
                     LeftButtonContent = "Buy",
                     RightButtonContent = "Not now"
                 };
+
                 pvm.AcceptedObservable
                     .Take(1)
                     .SelectMany(async _ =>
@@ -406,11 +406,6 @@ namespace Growthstories.UI.ViewModel
                     })
                     .Subscribe(AfterIAP);
 
-                pvm.DismissedObservable
-                   .Take(1)
-                   .Where(x => x != PopupResult.LeftButton)
-                   .Select(x => new object())
-                   .Subscribe(IAPTeaserDismissedCommand.Execute);
 
 
                 App.ShowPopup.Execute(pvm);

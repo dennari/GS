@@ -108,9 +108,10 @@
                 x:Name="mygardenItem"
                 Style="{StaticResource GSPanoramaItemStyle}">
                 <Grid Visibility="{Binding GardenVM, Converter={StaticResource NullToVisibility}}">
-                <local:GardenView 
-                    ViewModel="{Binding GardenVM}"                                        
-                    x:Name="GardenView"/>
+                    <local:GardenView 
+                        DataContext="{Binding GardenVM}"
+                        ViewModel="{Binding GardenVM}"                                        
+                        x:Name="GardenView"/>
                 </Grid>
             </phone:PanoramaItem>
             <!-- NOTIFICATIONS -->

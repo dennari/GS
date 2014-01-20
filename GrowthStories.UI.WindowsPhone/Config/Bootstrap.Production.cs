@@ -1,4 +1,5 @@
 ﻿
+using Growthstories.Core;
 namespace Growthstories.UI.WindowsPhone
 {
     public class BootstrapProduction : Bootstrap
@@ -15,6 +16,12 @@ namespace Growthstories.UI.WindowsPhone
         public BootstrapProduction(App app)
             : base(app)
         {
+
+        }
+
+        protected override void AppConfiguration()
+        {
+            Bind<IIAPService>().To<GSIAP>().InSingletonScope();
 
         }
 
