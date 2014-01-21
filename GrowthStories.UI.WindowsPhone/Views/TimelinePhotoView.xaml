@@ -72,6 +72,7 @@
                 x:Name="LoadingFailed" />
 
             <Image  
+                Opacity="0.0"
                 x:Name="ImageControl"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"

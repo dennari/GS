@@ -834,8 +834,13 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public bool RegisterCancelRequested { get; set; }
+
+
         public async Task<RegisterResponse> Register(string username, string email, string password)
         {
+            RegisterCancelRequested = false;
+
             await EnsureUserInitialized();
 
             if (IsRegistered)
@@ -855,6 +860,11 @@ namespace Growthstories.UI.ViewModel
             {
                 if (Debugger.IsAttached) { Debugger.Break(); }
                 return RegisterResponse.connectionerror;
+            }
+
+            if (RegisterCancelRequested)
+            {
+                return RegisterResponse.canceled;
             }
 
             APIRegisterResponse resp = await Transporter.RegisterAsync(username, email, password);
@@ -977,6 +987,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
         private async Task<SignInResponse> _SignIn(string email, string password)
         {
             IAuthResponse authResponse = null;
@@ -1025,15 +1036,19 @@ namespace Growthstories.UI.ViewModel
 
             Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
 
-            // we pull our _own_ user stream, get info on the plants and the followed users
-            await this.SyncAll();
-            // we pull our _own_ plant streams, we pull followed users' streams and get info on followed users' plants
-            await this.SyncAll();
-            // we pull followed user' plants
-            await this.SyncAll();
+            // (1) we pull our _own_ user stream, get info on the plants and the followed users
+            // (2) we pull our _own_ plant streams, we pull followed users' streams and get info on followed users' plants
+            // (3) we pull followed user' plants
+            for (int i = 0; i < 3; i++)
+            {
+                var res = (await this.SyncAll()).Item1;
+                if (res == AllSyncResult.Error)
+                {
+                    return SignInResponse.messCreated;
+                }
+            }
 
             Router.NavigateAndReset.Execute(CreateMainViewModel());
-
             return SignInResponse.success;
         }
 

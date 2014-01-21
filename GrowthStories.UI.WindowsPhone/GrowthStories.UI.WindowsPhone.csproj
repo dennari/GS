@@ -158,6 +158,7 @@
     </Compile>
     <Compile Include="Config\BaseSetup.cs" />
     <Compile Include="Config\Bootstrap.Production.cs" />
+    <Compile Include="Controls\GSCustomMessageBox.cs" />
     <Compile Include="Views\GardenPlantTileView.xaml.cs">
       <DependentUpon>GardenPlantTileView.xaml</DependentUpon>
     </Compile>

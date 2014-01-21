@@ -43,6 +43,7 @@ namespace Growthstories.UI.ViewModel
 
     public enum RegisterResponse
     {
+        canceled,
         alreadyRegistered,
         emailInUse,
         success,
@@ -58,7 +59,8 @@ namespace Growthstories.UI.ViewModel
         invalidPassword,
         tryagain,
         success,
-        connectionerror
+        connectionerror,
+        messCreated,
     }
 
 
@@ -146,6 +148,9 @@ namespace Growthstories.UI.ViewModel
         void NotifyImageDownloadFailed();
 
         bool NotifiedOnBadConnection { get; set; }
+
+        bool RegisterCancelRequested { get; set; }
+
     }
 
 
@@ -516,7 +521,6 @@ namespace Growthstories.UI.ViewModel
         IObservable<PopupResult> DismissedObservable { get; }
         IObservable<PopupResult> AcceptedObservable { get; }
 
-
         string Caption { get; }
         string Message { get; }
         string LeftButtonContent { get; }
@@ -526,6 +530,7 @@ namespace Growthstories.UI.ViewModel
         bool IsFullScreen { get; }
         PopupType Type { get; }
         string ProgressMessage { get; }
+        bool BackKeyEnabled { get; }
     }
 
     public enum PopupType

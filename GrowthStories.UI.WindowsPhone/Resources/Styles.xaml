@@ -126,20 +126,8 @@
         </Setter>
     </Style>
 
-    <Style TargetType="local:GSMultiViewHost">
-        <!--<Setter Property="Content" Value="{TemplateBinding DefaultContent}"/>-->
-        <Setter Property="Template">
-          <Setter.Value>
-            <ControlTemplate TargetType="local:GSMultiViewHost">
-              <ContentPresenter
-                      Content="{TemplateBinding Content}"
-                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-            </ControlTemplate>
-          </Setter.Value>
-    </Setter>
-    </Style>
+
+
 
     <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
         <Setter Property="Template">
@@ -285,7 +273,7 @@
             -->
         </Style>
     
-        <Style TargetType="PasswordBox" x:Key="GSPasswordStyle">
+        <Style TargetType="telerikPrimitives:RadPasswordBox" x:Key="GSPasswordStyle">
             <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}" />
             <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>           
@@ -528,6 +516,7 @@
                                     <VisualState x:Name="Normal"/>
                                     <VisualState x:Name="MouseOver"/>
                                     <VisualState x:Name="Pressed">
+                                        <!--
                                         <Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentContainer">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneButtonBasePressedForegroundBrush}"/>
@@ -536,6 +525,7 @@
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneAccentBrush}"/>
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
+                                        -->
                                     </VisualState>
                                     <VisualState x:Name="Disabled">
                                         <Storyboard>

@@ -143,7 +143,8 @@ namespace Growthstories.UI.WindowsPhone
                 IsFullScreen = x.IsFullScreen,
                 Foreground = PopupForeground,
                 Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
-                BorderBrush = PopupForeground
+                BorderBrush = PopupForeground,
+                BackKeyEnabled = x.BackKeyEnabled
             };
 
             var pc = PopupContent(x);
@@ -269,6 +270,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
+            
             base.OnBackKeyPress(e);
 
             if (IsDialogShown)

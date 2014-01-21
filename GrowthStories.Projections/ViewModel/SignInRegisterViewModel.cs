@@ -83,6 +83,11 @@ namespace Growthstories.UI.ViewModel
                 else
                 {
                     App.ShowPopup.Execute(GetPopup(x));
+                    if (x.Item3 == SignInResponse.messCreated)
+                    {
+                        this.Log().Info("signing out after messy signin");
+                        App.SignOut();
+                    }
                 }
             });
 
@@ -116,10 +121,7 @@ namespace Growthstories.UI.ViewModel
                 if (_NoConnectionAlert == null)
                 {
 
-
                     var signInMsg = "Signing in requires a data connection. Please enable one in your phone's settings and try again";
-
-
                     var registerMsg = "Registration requires a data connection. Please enable one in your phone's settings and try again";
 
                     var popup = new PopupViewModel()
@@ -128,7 +130,6 @@ namespace Growthstories.UI.ViewModel
                         IsLeftButtonEnabled = true,
                         LeftButtonContent = "OK"
                     };
-
 
                     popup.DismissedObservable.Take(1).Select(_ => new object()).Subscribe(App.Router.NavigateBack.Execute);
 
@@ -155,6 +156,7 @@ namespace Growthstories.UI.ViewModel
 
             if (!SignInMode)
             {
+
                 caption = "Could not register";
                 switch (x.Item2)
                 {
@@ -168,6 +170,11 @@ namespace Growthstories.UI.ViewModel
 
                     case RegisterResponse.usernameInUse:
                         msg = "Could not create a new account for you, because the username you provided is already in use.";
+                        break;
+
+                    case RegisterResponse.canceled:
+                        caption = "Registration canceled";
+                        msg = "Registration was canceled";
                         break;
                 }
 
@@ -187,6 +194,10 @@ namespace Growthstories.UI.ViewModel
 
                     case SignInResponse.invalidPassword:
                         msg = "The password was incorrect. Please check your input and try again.";
+                        break;
+
+                    case SignInResponse.messCreated:
+                        msg = "We could not sign you in, because we could not could not obtain all data from the Growth Stories servers. Please try again later.";
                         break;
                 }
             }
@@ -226,20 +237,27 @@ namespace Growthstories.UI.ViewModel
         {
             if (SignInMode)
             {
-                return new ProgressPopupViewModel()
+                var pvm = new ProgressPopupViewModel()
                 {
                     Caption = "Signing in",
-                    ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data."
+                    ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data.",
+                    BackKeyEnabled = false
                 };
-
-            }
-            else
-            {
-                return new ProgressPopupViewModel()
+                return pvm;
+            
+            } else {
+                var pvm = new ProgressPopupViewModel()
                 {
                     Caption = "Registering",
-                    ProgressMessage = "Please wait while Growth Stories creates you a new account."
+                    ProgressMessage = "Please wait while Growth Stories creates you a new account.",
                 };
+                pvm.DismissedObservable.Subscribe(_ =>
+                {
+                    // if dismissed fires only after registration 
+                    // it is already too late and this is ignored
+                    App.RegisterCancelRequested = true;
+                });
+                return pvm;
             }
         }
 
