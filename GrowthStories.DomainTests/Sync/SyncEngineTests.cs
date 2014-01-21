@@ -718,7 +718,7 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new SchedulePhotoUpload(photo, plantActionId)));
 
 
-            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState.PhotoUploads.Values.Single());
+            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState._PhotoUploads.Values.Single());
 
 
             var R = TestUtils.WaitForTask(App.Synchronize());
@@ -726,7 +726,7 @@ namespace Growthstories.DomainTests
 
             Assert.IsNotNull(R.PhotoUploadRequests);
 
-            Assert.AreEqual(0, AppState.PhotoUploads.Count);
+            Assert.AreEqual(0, AppState._PhotoUploads.Count);
 
 
         }
@@ -809,7 +809,7 @@ namespace Growthstories.DomainTests
             var R = TestUtils.WaitForTask(App.Synchronize());
 
 
-            Assert.AreEqual(0, AppState.PhotoDownloads.Count);
+            Assert.AreEqual(0, AppState._PhotoDownloads.Count);
 
             var PhotoAction = (PlantAction)Repository.GetById(plantActionId);
 

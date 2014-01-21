@@ -73,9 +73,9 @@ namespace Growthstories.UI.ViewModel
         string AppName { get; }
         IMessageBus Bus { get; }
         IReactiveCommand ShowPopup { get; }
-        IReactiveCommand SynchronizeCommand { get; }
-        IReactiveCommand UISyncFinished { get; }
-        IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
+        //IReactiveCommand SynchronizeCommand { get; }
+        //IReactiveCommand UISyncFinished { get; }
+        //IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; }
         IPopupViewModel SyncPopup { get; }
         IAuthUser User { get; }
         //IDictionary<IconType, Uri> IconUri { get; }
@@ -92,8 +92,8 @@ namespace Growthstories.UI.ViewModel
         Task<RegisterResponse> Register(string username, string email, string password);
         Task<SignInResponse> SignIn(string email, string password);
         Task<GSApp> SignOut(bool createUnregUser = true);
-        Task<ISyncInstance> Synchronize();
-        Task<ISyncInstance> Push();
+        Task<Tuple<AllSyncResult, GSStatusCode?>> Synchronize();
+        //Task<ISyncInstance> Push();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);
         Task<IGSAggregate> HandleCommand(MultiCommand x);
         //IObservable<IUserViewModel> Users();
@@ -134,7 +134,7 @@ namespace Growthstories.UI.ViewModel
         //IUIPersistence UIPersistence { get; }
 
         //Task PossiblyAutoSync();
-        void PossiblyAutoSync();
+        //void PossiblyAutoSync();
 
         Task<GSLocation> GetLocation();
 

@@ -43,11 +43,31 @@ namespace Growthstories.UI.Services
                     Debugger.Break();
                 }
             }
-            
+
             if (user.AccessToken != null)
             {
                 Transporter.AuthToken = user;
             }
+        }
+
+        public void ClearAuthorization()
+        {
+            if (CurrentUser == null)
+                return;
+
+            CurrentUser = new AuthUser()
+            {
+                Id = CurrentUser.Id,
+                GardenId = CurrentUser.GardenId,
+                Username = CurrentUser.Username,
+                Password = CurrentUser.Password,
+                Email = CurrentUser.Email,
+                IsRegistered = CurrentUser.IsRegistered,
+                IsCollaborator = CurrentUser.IsCollaborator
+            };
+
+            Transporter.AuthToken = null;
+
         }
 
 
@@ -64,7 +84,7 @@ namespace Growthstories.UI.Services
             // -- JOJ 4.1.2014
             //
 
-            var u = new CreateUser(userId, AuthUser.UnregUsername, password, 
+            var u = new CreateUser(userId, AuthUser.UnregUsername, password,
                 string.Format("{0}{1}@growthstories.com", AuthUser.UnregEmailPrefix, Guid.NewGuid()));
             commands[0] = u;
             commands[1] = new CreateGarden(gardenId, userId);
@@ -130,7 +150,7 @@ namespace Growthstories.UI.Services
                 Handler.Handle(new SetAuthToken(authResponse.AuthToken));
                 Transporter.AuthToken = authResponse.AuthToken;
             }
-            
+
             return authResponse;
         }
 

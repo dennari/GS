@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reactive.Disposables;
@@ -144,6 +143,7 @@ namespace Growthstories.UI.ViewModel
         private readonly ITransportEvents Transporter;
         private readonly IIAPService IIAPService;
         private readonly IScheduleService Scheduler;
+        private readonly ISynchronizer Synchronizer;
         private readonly IRequestFactory RequestFactory;
         private readonly IRoutingState _Router;
 
@@ -156,6 +156,7 @@ namespace Growthstories.UI.ViewModel
             IUIPersistence uiPersistence,
             IIAPService iiapService,
             IScheduleService scheduler,
+            ISynchronizer synchronizer,
             IRequestFactory requestFactory,
             IRoutingState router,
             IMessageBus bus
@@ -172,14 +173,13 @@ namespace Growthstories.UI.ViewModel
             this.Resolver = resolver;
             this.Bus = bus;
             this.Scheduler = scheduler;
+            this.Synchronizer = synchronizer;
 
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
             // COMMANDS
             SetDismissPopupAllowed = new ReactiveCommand();
             ShowPopup = new ReactiveCommand();
-            SynchronizeCommand = Observable.Return(true).ToCommandWithSubscription(_ => ShowPopup.Execute(this.SyncPopup));
-            UISyncFinished = new ReactiveCommand();
             PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
             {
 
@@ -195,23 +195,10 @@ namespace Growthstories.UI.ViewModel
 
             });
 
-
             BackKeyPressedCommand = new ReactiveCommand();
             InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
 
-            var syncResult = this.SynchronizeCommand.RegisterAsyncTask(async (_) => await this.SyncAll());
-
-            syncResult.Subscribe(x =>
-            {
-                //this.CanSynchronize = true;
-                App.ShowPopup.Execute(null);
-                UISyncFinished.Execute(x);
-            });
-
-            // we need to set these immediately to have the defaults in place when starting up
-
-            this.SyncResults = syncResult;
 
             Bootstrap();
         }
@@ -354,6 +341,8 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.MyGarden)
                 .Where(x => x != null)
                 .Subscribe(x => Scheduler.ScheduleGarden(x));
+
+            this.WhenAnyValue(x => x.Model).Where(x => x != null).Subscribe(x => Synchronizer.SubscribeForAutoSync(x.State));
 
         }
 
@@ -510,86 +499,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        //private ObservableAsPropertyHelper<bool> _CanGoBack;
-        //public bool CanGoBack
-        //{
-        //    get
-        //    {
-        //        return _CanGoBack.Value;
-        //    }
-        //}
-
-        private int AutoSyncCount = 0;
-        private bool AutoSyncEnabled = true;
-
-
-        private void SubscribeForAutoSync()
-        {
-            this.ListenTo<EventBase>().Subscribe(e =>
-            {
-                if (e.AggregateId == this.User.Id
-                    || e.AncestorId == this.User.Id
-                    || e.EntityId == this.User.Id
-                    || e.StreamAncestorId == this.User.Id
-                    || e.StreamEntityId == this.User.Id)
-                {
-                    // this is an async call, so it will not block
-                    //PossiblyAutoSync();
-                }
-            });
-        }
-
-
-        // Autosync if there are not two or more unfinished autosyncs
-        //
-        // This method should be called whenever we detect changes we
-        // would like to sync immediately, and also possibly periodically
-        //
-        public async Task _PossiblyAutoSync()
-        {
-            if (AutoSyncCount < 2)
-            {
-                try
-                {
-                    var guid = Guid.NewGuid().ToString();
-                    this.Log().Info("Autosyncing (debugId: " + guid + ")");
-                    this.AutoSyncCount++;
-                    await this.SyncAll();
-                    this.Log().Info("Autosync finished (debugId: " + guid + ")");
-
-                }
-                finally
-                {
-                    this.AutoSyncCount--;
-                }
-            }
-
-        }
-
-
-        public void PossiblyAutoSync()
-        {
-            if (!HasDataConnection || !AutoSyncEnabled)
-            {
-                return;
-            }
-
-            // before triggering the actual autosync,
-            // wait for a few seconds for more important
-            // processing to finish
-            if (AutoSyncCount < 2)
-            {
-                Task.Delay(1000 * 5).ContinueWith(__ => _PossiblyAutoSync());
-            }
-        }
-
-
-        //Task<T> RunTask<T>(Func<T> f)
-        //{
-        //    var t = Task.Run(f);
-        //    //t.ConfigureAwait(false);
-        //    return t;
-        //}
 
         Task<IGSAggregate> CurrentHandleJob;
         public Task<IGSAggregate> HandleCommand(IAggregateCommand x)
@@ -785,7 +694,7 @@ namespace Growthstories.UI.ViewModel
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x => this.IsRegistered = true);
 
-                SubscribeForAutoSync();
+                //SubscribeForAutoSync();
 
                 kludge = new ReactiveCommand();
                 kludge
@@ -857,7 +766,7 @@ namespace Growthstories.UI.ViewModel
                 return RegisterResponse.alreadyRegistered;
             }
 
-            if (await PrepareAuthorizedUser() != GSStatusCode.OK)
+            if (await this.Synchronizer.PrepareAuthorizedUser(Model.State.SyncHead) != GSStatusCode.OK)
             {
                 if (RegisterCancelRequested)
                 {
@@ -869,7 +778,7 @@ namespace Growthstories.UI.ViewModel
 
             // make sure stuff is synchronized before registering, so
             // that there will be no sync conflict after the registration
-            var asr = await this.SyncAll();
+            var asr = await this.Synchronizer.SyncAll(Model.State);
             if (asr.Item1 != AllSyncResult.AllSynced)
             {
                 if (RegisterCancelRequested)
@@ -1020,18 +929,12 @@ namespace Growthstories.UI.ViewModel
             // signin so we better make signins are synchronous
             using (var res = await SignInLock.LockAsync())
             {
-                try
-                {
-                    // note that an autosync may already be in progress
-                    // we are dealing with that with a separate lock inside
-                    // _SignIn(...)
-                    AutoSyncEnabled = false;
-                    return await _SignIn(email, password);
-                }
-                finally
-                {
-                    AutoSyncEnabled = true;
-                }
+
+                // note that an autosync may already be in progress
+                // we are dealing with that with a separate lock inside
+                // _SignIn(...)
+                return await _SignIn(email, password);
+
             }
         }
 
@@ -1053,7 +956,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     return SignInResponse.canceled;
                 }
-        
+
                 // server returns 401 when user is not found
                 if (authResponse.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
                 {
@@ -1084,8 +987,10 @@ namespace Growthstories.UI.ViewModel
             try
             {
 
+                //var empty = Disposable.Empty;
                 // do not go here while any sync operation is in progress
-                using (var res = await _SynchronizeLock.LockAsync())
+                //using (var res = await _SynchronizeLock.LockAsync())
+                using (var res = Disposable.Empty)
                 {
                     // now we don't want the user to cancel the popup
                     // and allow for backward navigation instead
@@ -1103,7 +1008,7 @@ namespace Growthstories.UI.ViewModel
                     Context.SetupCurrentUser(this.User);
 
                     Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
-                } 
+                }
                 // important: the upcoming SyncAll operations must 
                 // not be inside the above using block, as the asynclocks
                 /// are not re-entrant 
@@ -1113,7 +1018,7 @@ namespace Growthstories.UI.ViewModel
                 // (3) we pull followed user' plants
                 for (int i = 0; i < 3; i++)
                 {
-                    var res = (await this.SyncAll()).Item1;
+                    var res = (await this.Synchronizer.SyncAll(Model.State)).Item1;
                     if (res == AllSyncResult.Error)
                     {
                         return SignInResponse.messCreated;
@@ -1137,235 +1042,32 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-
-
-        public static Enough.Async.AsyncLock SynchronizeLock = new Enough.Async.AsyncLock();
-
-
-
-
-
-        // Special push for creating user
-        //
-        private async Task<ISyncInstance> PushCreateUser()
+        private Task<ISyncInstance> PushCreateUser()
         {
-            var s = new SyncInstance
-            (
-               RequestFactory.CreatePullRequest(null),
-               RequestFactory.CreatePushRequest(Model.State.SyncHead),
-               new IPhotoUploadRequest[0],
-               null
-            );
-
-            return await this._Synchronize(s);
+            throw new NotImplementedException();
         }
-
-
-
-        // Tries to prepare an authorized user
-        //
-        //  - Pushes UserCreated if necessary
-        //  - Obtains AuthToken if necessary
-        //  
-        //  ( May add later auth check with server)
-        //
-        public async Task<GSStatusCode> PrepareAuthorizedUser()
-        {
-
-
-            // if we have not yet pushed the CreateUser event,
-            // do that before obtaining auth token
-            var res = RequestFactory.GetNextPushEvent(Model.State.SyncHead);
-
-            if (res.Item1 is UserCreated)
-            {
-                var s = await PushCreateUser();
-
-                if (s.Status != SyncStatus.OK)
-                {
-                    // this should not happen
-                    this.Log().Warn("failed to push CreateUser for user id " + App.User.Id);
-                    return GSStatusCode.FAIL;
-                }
-            }
-
-            if (User.AccessToken == null)
-            {
-                var authResponse = await Context.AuthorizeUser();
-                return authResponse.StatusCode;
-            }
-
-            return GSStatusCode.OK;
-        }
-
-
 
         // Despite the lock, only SyncAll should call this function
         // (except for unit tests)
-        public async Task<ISyncInstance> Synchronize()
+        public Task<Tuple<AllSyncResult, GSStatusCode?>> Synchronize()
         {
-            using (var r = await SynchronizeLock.LockAsync())
+            if (!HasDataConnection)
             {
-                return await UnsafeSynchronize();
+                PopupViewModel pvm = new PopupViewModel()
+                {
+                    Caption = "Data connection required",
+                    Message = "Synchronizing requires a data connection. Please enable one in your phone's settings and try again.",
+                    IsLeftButtonEnabled = true,
+                    LeftButtonContent = "OK"
+                };
+
+                ShowPopup.Execute(pvm);
+                return null;
             }
+            return this.Synchronizer.SyncAll(Model.State);
         }
 
 
-        // Do a synchronization cycle once
-        // (1) pull -> (2) push -> (3) photo download
-        //
-        private async Task<ISyncInstance> UnsafeSynchronize()
-        {
-            var code = await PrepareAuthorizedUser();
-            if (code != GSStatusCode.OK)
-            {
-                return new SyncInstance(SyncStatus.AUTH_ERROR);
-            }
-
-            var syncStreams = Model.State.SyncStreams.ToArray();
-            var s = new SyncInstance
-            (
-                RequestFactory.CreatePullRequest(syncStreams),
-                RequestFactory.CreatePushRequest(Model.State.SyncHead),
-                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
-                null
-            );
-
-            // pullrequest should really never be empty
-            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
-            {
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
-                return new SyncInstance(SyncStatus.PULL_EMPTY_ERROR);
-            }
-
-            return await _Synchronize(s);
-        }
-
-
-        public static Enough.Async.AsyncLock _SynchronizeLock = new Enough.Async.AsyncLock();
-
-
-        protected async Task<ISyncInstance> _Synchronize(ISyncInstance s)
-        {
-            using (var release = await _SynchronizeLock.LockAsync())
-            {
-                return await _UnsafeSynchronize(s);
-            }
-        }
-
-
-        private async Task<ISyncInstance> _UnsafeSynchronize(ISyncInstance s)
-        {
-            bool handlePull = false;
-            IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;
-
-            if (!s.PullReq.IsEmpty)
-            {
-                var pullResp = await s.Pull();
-                if (pullResp != null
-                    && pullResp.StatusCode == GSStatusCode.OK
-                    && pullResp.Streams != null
-                    && pullResp.Streams.Count > 0)
-                {
-                    Handler.AttachAggregates(pullResp);
-                    handlePull = true;
-                    if (s.PushReq.IsEmpty)
-                    {
-                        Handler.Handle(new Pull(s));
-                        downloadRequests = Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray();
-                    }
-                }
-
-                if (pullResp == null || pullResp.StatusCode != GSStatusCode.OK)
-                {
-                    // this suggests access token has expired, next sync will use new one
-                    // should handle this better, but this will do for now 
-                    if (pullResp.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
-                    {
-                        User.AccessToken = null;
-                    }
-                    s.Status = SyncStatus.PULL_ERROR;
-                    return s;
-                }
-            }
-
-
-            if (!s.PushReq.IsEmpty)
-            {
-                if (handlePull)
-                {
-                    try
-                    {
-                        s.Merge();
-                    }
-                    catch
-                    {
-                        if (Debugger.IsAttached) { Debugger.Break(); };
-                        s.Status = SyncStatus.MERGE_ERROR;
-                        return s;
-                    }
-                }
-
-                var pushResp = await s.Push();
-                if (pushResp != null && pushResp.StatusCode == GSStatusCode.OK)
-                {
-                    if (handlePull)
-                    {
-                        Handler.Handle(new Pull(s));
-                        downloadRequests = Model.State.PhotoDownloads.Values.Select(x => RequestFactory.CreatePhotoDownloadRequest(x)).ToArray();
-                    }
-                    Handler.Handle(new Push(s));
-                }
-
-                if (pushResp == null || (pushResp.StatusCode != GSStatusCode.OK
-                    && pushResp.StatusCode != GSStatusCode.VERSION_TOO_LOW))
-                {
-                    s.Status = SyncStatus.PUSH_ERROR;
-                    return s;
-                }
-            }
-
-            if (s.PhotoUploadRequests.Length > 0)
-            {
-                var responses = await s.UploadPhotos();
-                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoUpload(x) { AncestorId = User.Id }).ToArray();
-                if (successes.Length > 0)
-                    Handler.Handle(new StreamSegment(Model.State.Id, successes));
-
-                foreach (var resp in responses)
-                {
-                    if (resp.StatusCode != GSStatusCode.OK)
-                    {
-                        s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
-                        return s;
-                    }
-                }
-            }
-
-            if (downloadRequests.Length > 0)
-            {
-                var responses = await s.DownloadPhotos(downloadRequests);
-                var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK).Select(x => new CompletePhotoDownload(x.Photo)).ToArray();
-                if (successes.Length > 0)
-                    Handler.Handle(new StreamSegment(Model.State.Id, successes));
-
-                foreach (var resp in responses)
-                {
-                    if (resp.StatusCode != GSStatusCode.OK)
-                    {
-                        s.Status = SyncStatus.PHOTODOWNLOAD_ERROR;
-                        return s;
-                    }
-                }
-            }
-            s.Status = SyncStatus.OK;
-
-            return s;
-        }
 
 
         IObservable<IGardenViewModel> _Gardens;
@@ -1386,10 +1088,10 @@ namespace Growthstories.UI.ViewModel
                         return x.Item1.AggregateId == x.Item2.AggregateId;
                     })
                     .DistinctUntilChanged()
-                    .Select(x => 
+                    .Select(x =>
                         {
                             this.Log().Info("instantiating new gardenviewmodel");
-                            return new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this);   
+                            return new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this);
                         });
             }
 
@@ -1749,30 +1451,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        //
-        // ONLY FOR TESTING
-        // not necessarily safe, do not call from app code
-        //
-        public async Task<ISyncInstance> Push()
-        {
 
-            if (await PrepareAuthorizedUser() != GSStatusCode.OK)
-            {
-                return null;
-            }
-
-            var s = new SyncInstance(
-                RequestFactory.CreatePullRequest(null),
-                RequestFactory.CreatePushRequest(Model.State.SyncHead),
-                Model.State.PhotoUploads.Values.Select(x => RequestFactory.CreatePhotoUploadRequest(x)).ToArray(),
-                null
-            );
-
-            if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
-                return null;
-
-            return await _Synchronize(s);
-        }
 
 
         public virtual void UpdatePhoneLocationServicesEnabled()

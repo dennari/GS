@@ -24,15 +24,15 @@ namespace Growthstories.Domain.Entities
         public string Username { get; set; }
 
         private string _Password;
-        public string Password 
-        { 
-            get 
+        public string Password
+        {
+            get
             {
                 return _Password;
             }
             set
             {
-                if (value == null || value.Length == 0) 
+                if (value == null || value.Length == 0)
                 {
                     if (Debugger.IsAttached)
                     {
@@ -71,9 +71,25 @@ namespace Growthstories.Domain.Entities
 
         public readonly IDictionary<Guid, PullStream> SyncStreamDict = new Dictionary<Guid, PullStream>();
 
-        public readonly IDictionary<string, Tuple<Photo, Guid>> PhotoUploads = new Dictionary<string, Tuple<Photo, Guid>>();
+        private readonly IDictionary<string, Tuple<Photo, Guid>> _PhotoUploads = new Dictionary<string, Tuple<Photo, Guid>>();
 
-        public readonly IDictionary<string, Photo> PhotoDownloads = new Dictionary<string, Photo>();
+        private readonly IDictionary<string, Photo> _PhotoDownloads = new Dictionary<string, Photo>();
+
+        public IDictionary<string, Tuple<Photo, Guid>> PhotoUploads
+        {
+            get
+            {
+                return _PhotoUploads;
+            }
+        }
+
+        public IDictionary<string, Photo> PhotoDownloads
+        {
+            get
+            {
+                return _PhotoDownloads;
+            }
+        }
 
 
         public IEnumerable<PullStream> SyncStreams
@@ -156,26 +172,26 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PhotoUploadScheduled @event)
         {
-            PhotoUploads[@event.Photo.LocalFullPath] = Tuple.Create(@event.Photo, @event.PlantActionId);
+            _PhotoUploads[@event.Photo.LocalFullPath] = Tuple.Create(@event.Photo, @event.PlantActionId);
         }
 
         public void Apply(PhotoUploadCompleted @event)
         {
-            PhotoUploads.Remove(@event.Photo.LocalFullPath);
+            _PhotoUploads.Remove(@event.Photo.LocalFullPath);
         }
 
         public void Apply(PhotoDownloadScheduled @event)
         {
             if (@event.Photo.BlobKey == null)
                 throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
-            PhotoDownloads[@event.Photo.BlobKey] = @event.Photo;
+            _PhotoDownloads[@event.Photo.BlobKey] = @event.Photo;
         }
 
         public void Apply(PhotoDownloadCompleted @event)
         {
             if (@event.Photo.BlobKey == null)
                 throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
-            PhotoDownloads.Remove(@event.Photo.BlobKey);
+            _PhotoDownloads.Remove(@event.Photo.BlobKey);
         }
 
 

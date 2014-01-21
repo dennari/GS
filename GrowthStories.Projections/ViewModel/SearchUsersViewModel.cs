@@ -164,9 +164,9 @@ namespace Growthstories.UI.ViewModel
                     var followed = App.GetCurrentPYFs();
 
                     var filtered = x.Users.Where(y =>
-                        !followed.Contains(y.AggregateId) 
-                        && y.Garden != null 
-                        && y.Garden.Plants != null 
+                        !followed.Contains(y.AggregateId)
+                        && y.Garden != null
+                        && y.Garden.Plants != null
                         && y.Garden.Plants.Count > 0
                         ).ToArray();
 
@@ -206,7 +206,7 @@ namespace Growthstories.UI.ViewModel
 
 
             UserSelectedCommand.Subscribe(_ => App.ShowPopup.Execute(pp));
-       
+
 
             this.SyncResults = UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
@@ -225,19 +225,19 @@ namespace Growthstories.UI.ViewModel
                     {
                         await App.HandleCommand(new BecomeFollower(App.User.Id, x.AggregateId));
                     }
-            
+
                     Logger.Info("Before SyncAll");
 
                     // (1) we get the user stream AND info on the plants
                     // (2) now we get the plants too
                     // (3) as we have the push filtering problem,
                     //     it is good to do one extra sync just to be sure
-                    var syncResult = await App.SyncAll();
+
 
                     AllSyncResult? syncRes = null;
                     for (int i = 0; i < 3; i++)
                     {
-                        syncRes = (await App.SyncAll()).Item1;
+                        syncRes = (await App.Synchronize()).Item1;
                         if (syncRes == AllSyncResult.Error)
                         {
                             // stop on error, so we don't need to wait for 
@@ -266,8 +266,8 @@ namespace Growthstories.UI.ViewModel
                             App.ShowPopup.Execute(pvm);
                         }
                     }
-                    
-                    return syncResult;
+
+                    return syncRes;
                 });
 
             this.SyncResults.Publish().Connect();
@@ -313,7 +313,7 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; private set; }
+        public IObservable<AllSyncResult?> SyncResults { get; private set; }
     }
 
 

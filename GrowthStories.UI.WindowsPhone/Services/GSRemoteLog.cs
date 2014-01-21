@@ -1,8 +1,8 @@
-﻿using Growthstories.Core;
-using ReactiveUI;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using Growthstories.Core;
+using ReactiveUI;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
@@ -20,6 +20,7 @@ namespace Growthstories.UI.WindowsPhone
         private readonly string StreamName = "GSStream";
         private readonly string NodeName = "GSNode";
         private readonly int TimeOut = 2500;
+        private Func<Type, string, bool> Filter;
 
         private readonly static StreamSocket Socket = new StreamSocket();
         private static DataWriter Writer;
@@ -28,10 +29,10 @@ namespace Growthstories.UI.WindowsPhone
         private static bool IsConnected = false;
 
 
-        public GSRemoteLog(Type type = null)
+        public GSRemoteLog(Type type = null, Func<Type, string, bool> filter = null)
         {
             this.Type = type;
-
+            this.Filter = filter;
         }
 
         private void Send(string level, string message, params object[] values)
@@ -43,30 +44,10 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
-            // todo: filtering based on ignore list in bootstrap.machine.cs
-            if (this.Type != null &&  this.Type.Name != null)
-            {
-                switch (Type.Name)
-                {
-                    case "JsonSerializer":
-                    case "OptimisticEventStream":
-                    case "OptimisticPipelineHook":
-                    //case "SQLiteUIPersistence":
-                    case "SQLitePersistenceEngine":
-                    case "OptimisticEventStore":
-                    case "SynchronousDispatchScheduler":
-                        return;
-                }
-            }
 
-            if (message.StartsWith("ReactiveObject") 
-                || message.StartsWith("MemoizingMRUCache") 
-                || message.StartsWith("MessageBus")
-                || message.StartsWith("ObservableAsPropertyHelper")
-                || message.StartsWith("LogHost"))
-            {
+            if (Filter != null && !Filter(Type, message))
                 return;
-            }
+
 
             string content = string.Format(message, values).Replace("\r\n", "\n");
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);

@@ -52,6 +52,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                    IPersistSyncStreams store,
                    IIAPService iiapService,
                    IScheduleService scheduler,
+                     ISynchronizer synchronizer,
                    IRequestFactory requestFactory,
                    IRoutingState router,
                     IMessageBus bus,
@@ -66,6 +67,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             uiPersistence,
             iiapService,
             scheduler,
+            synchronizer,
             requestFactory,
             router,
             bus

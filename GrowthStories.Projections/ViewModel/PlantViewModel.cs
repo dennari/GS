@@ -505,7 +505,7 @@ namespace Growthstories.UI.ViewModel
                             .SelectMany(async x =>
                             {
 
-                                var r = await App.SyncAll();
+                                var r = await App.Synchronize();
                                 return r;
 
                             })

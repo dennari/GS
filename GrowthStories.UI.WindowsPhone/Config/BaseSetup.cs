@@ -64,6 +64,8 @@ namespace Growthstories.UI.WindowsPhone
                 .InSingletonScope()
                 .WithConstructorArgument(new TimeSpan(0, 0, 10));
 
+            Bind<ISynchronizer>().To<NonAutoSyncingSynchronizer>();
+
         }
 
 

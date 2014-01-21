@@ -105,5 +105,11 @@ namespace Growthstories.Sync
         {
             throw new NotImplementedException();
         }
+
+
+        public void ClearAuthorization()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

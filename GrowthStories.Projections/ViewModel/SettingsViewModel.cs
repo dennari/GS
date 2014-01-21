@@ -254,38 +254,19 @@ namespace Growthstories.UI.ViewModel
                 IsEnabled = false,
             };
 
+
+            this.SynchronizeCommand.CanExecuteObservable.Subscribe(x => this.CanSynchronize = x);
+
             this.SynchronizeCommand.Subscribe(x =>
             {
-                if (!App.HasDataConnection)
-                {
-                    PopupViewModel pvm = new PopupViewModel()
-                    {
-                        Caption = "Data connection required",
-                        Message = "Synchronizing requires a data connection. Please enable one in your phone's settings and try again.",
-                        IsLeftButtonEnabled = true,
-                        LeftButtonContent = "OK"
-                    };
-                    App.ShowPopup.Execute(pvm);
 
-                }
-                else
-                {
-                    this.CanSynchronize = false;
-                    App.SynchronizeCommand.Execute(null);
-
-                }
             });
 
-            App.SyncResults.Subscribe((x) =>
+            this.SynchronizeCommand.RegisterAsyncTask(async (_) =>
             {
-                //_SyncResult = x.Item1;
-                this.CanSynchronize = true;
-            });
-
-            App.UISyncFinished.Subscribe(x =>
-            {
-                var res = x as Tuple<Sync.AllSyncResult, Sync.GSStatusCode?>;
-
+                var res = await App.Synchronize();
+                if (res == null)
+                    return;
                 if (res.Item1 == Sync.AllSyncResult.Error)
                 {
                     PopupViewModel pvm = new PopupViewModel()
@@ -297,7 +278,9 @@ namespace Growthstories.UI.ViewModel
                     };
                     App.ShowPopup.Execute(pvm);
                 }
-            });
+            }).Publish().Connect();
+
+
 
             App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);

@@ -57,7 +57,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.CreateLocalDataCommand.RegisterAsyncTask(o => Task.Run(() => CreateLocalTestData())).Publish().Connect();
             this.PushRemoteUserCommand.RegisterAsyncTask(o => PushRemoteUser()).Publish().Connect();
             this.SyncCommand.RegisterAsyncTask(_ => SyncAll()).Publish().Connect();
-            this.PushCommand.RegisterAsyncTask(_ => PushAll()).Publish().Connect();
+            //this.PushCommand.RegisterAsyncTask(_ => PushAll()).Publish().Connect();
 
             this.ClearDBCommand.Subscribe(_ => this.ClearDB());
 
@@ -65,31 +65,28 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         private async Task<bool> SyncAll()
         {
-            int maxRounds = 100;
             int counter = 0;
-            ISyncInstance R = null;
-            while (counter < maxRounds)
+            var R = await App.Synchronize();
+            if (R == null || R.Item1 == AllSyncResult.AllSynced)
             {
-                R = await App.Synchronize();
-                if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
-                    return true;
+                return true;
             }
             return false;
         }
 
-        private async Task<bool> PushAll()
-        {
-            int maxRounds = 100;
-            int counter = 0;
-            ISyncInstance R = null;
-            while (counter < maxRounds)
-            {
-                R = await App.Push();
-                if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
-                    return true;
-            }
-            return false;
-        }
+        //private async Task<bool> PushAll()
+        //{
+        //    int maxRounds = 100;
+        //    int counter = 0;
+        //    ISyncInstance R = null;
+        //    while (counter < maxRounds)
+        //    {
+        //        R = await App.Push();
+        //        if (R == null || R.PushReq.IsEmpty || R.PushResp.StatusCode != GSStatusCode.OK)
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
         public void CreateLocalTestData()
         {

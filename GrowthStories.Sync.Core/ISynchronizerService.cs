@@ -1,5 +1,6 @@
 ﻿
 
+using CommonDomain;
 using Growthstories.Core;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,12 @@ namespace Growthstories.Sync
 
     }
 
-    public interface IGSAppState
+    public interface IGSAppState : IMemento
     {
         IEnumerable<PullStream> SyncStreams { get; }
+        SyncHead SyncHead { get; }
+        IDictionary<string, Tuple<Photo, Guid>> PhotoUploads { get; }
+        IDictionary<string, Photo> PhotoDownloads { get; }
         IAuthUser User { get; }
     }
 
@@ -47,15 +51,15 @@ namespace Growthstories.Sync
         AUTH_ERROR,
         PULL_EMPTY_ERROR
     }
-    
+
 
     public interface ISyncInstance
     {
-        
+
         /*IAuthResponse AuthResp { get; }*/
 
         SyncStatus Status { get; set; }
-        GSStatusCode Code {get; set; }
+        GSStatusCode Code { get; set; }
 
         ISyncPullRequest PullReq { get; }
         ISyncPushRequest PushReq { get; }
@@ -74,9 +78,11 @@ namespace Growthstories.Sync
 
     }
 
-    public interface ISynchronizerService
+    public interface ISynchronizer
     {
-        ISyncInstance Synchronize(ISyncPullRequest aPullReq, ISyncPushRequest aPushReq);
+        Task<Tuple<AllSyncResult, GSStatusCode?>> SyncAll(IGSAppState appState, int maxRounds = 20);
+        Task<GSStatusCode> PrepareAuthorizedUser(SyncHead head);
+        IDisposable SubscribeForAutoSync(IGSAppState appState);
 
     }
 
