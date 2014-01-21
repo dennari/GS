@@ -8,7 +8,10 @@
     xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-	xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core" 
+	xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
+	xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
     mc:Ignorable="d" Width="480" Height="800">
 
 
@@ -56,16 +59,28 @@
  
         <StackPanel Grid.Row="0">
 
+            <Grid Height="130" Margin="0,-40,0,0">
+                <telerikPrimitives:RadTextBox 
+                    ClearButtonVisibility="Collapsed"
+                    VerticalAlignment="Bottom"
+                        x:Name="UserListBox" 
+                    Margin="-12,0,-12,12"
+                    KeyUp="UserListBox_KeyUp"
+                    BorderBrush="{StaticResource GSBackgroundBrush}"
+                    Foreground="{StaticResource GSTextBoxBrush}"
+                    Background="{StaticResource GSBackgroundBrush}"
+                />
+            </Grid>
+            <!--
             <local:GSTextBox
                     x:Name="UserListBox"
                     BorderThickness="3" Margin="-12,0,-12,12"
                     KeyUp="UserListBox_KeyUp"
               />
+                -->
+            
+          
             <!--
-            ActionIcon="/Assets/Icons/appbar.add.png"
-                    ActionIconTapped="UserListBox_IconTapped"
-            -->
-
             <StackPanel
                 Visibility="{Binding ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
                 <TextBlock
@@ -78,13 +93,28 @@
                   />
                 <ProgressBar IsIndeterminate="True" IsEnabled="True" Foreground="White" />
             </StackPanel>
+            -->
+
+            <ScrollViewer>
+                <StackPanel x:Name="ContentPanel" Margin="0,0,0,0">
+                    <phone:LongListSelector 
+                        x:Name="UserSelector"
+                        ItemsSource="{Binding List}" 
+                        ItemTemplate="{StaticResource ListUsersTemplate}"
+                        SelectionChanged="UserSelector_SelectionChanged"
+                        Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
+                            />
+                </StackPanel>
+            </ScrollViewer>
 
 
             <StackPanel Visibility="{Binding ProgressIndicatorIsVisible, 
                     Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
 
                 <StackPanel
-                    Visibility="{Binding ValidSearch, Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+                    Visibility="{Binding ValidSearch, 
+                    Converter={StaticResource BooleanToVisibility}, 
+                    ConverterParameter=invert}">
                     <TextBlock
                     Style="{StaticResource GSPlaceholderTextBlockStyle}"
                     Text="Please enter the username of the user you would like to follow" 
@@ -96,7 +126,6 @@
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding ValidSearch, Converter={StaticResource BooleanToVisibility}}">
-
                     <StackPanel Visibility="{Binding SearchFinished, Converter={StaticResource BooleanToVisibility}}">
 
                         <StackPanel Visibility="{Binding NotReachable, Converter={StaticResource BooleanToVisibility}}">
@@ -142,24 +171,10 @@
                             </StackPanel>
                         </ContentControl>
 
-                        <ScrollViewer>
-                            <StackPanel x:Name="ContentPanel" Margin="0,0,0,0">
-                                <phone:LongListSelector 
-                        x:Name="UserSelector"
-                        ItemsSource="{Binding List}" 
-                        ItemTemplate="{StaticResource ListUsersTemplate}"
-                        SelectionChanged="UserSelector_SelectionChanged"
-                        Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
-                            />
-                            </StackPanel>
-                        </ScrollViewer>
+                    </StackPanel> <!-- searchfinished-->
+                </StackPanel> <!-- validsearch -->
 
-                    </StackPanel>
-
-                </StackPanel>
-
-
-            </StackPanel>
+            </StackPanel> <!-- progressindicatorisvisible -->
 
         </StackPanel>
 

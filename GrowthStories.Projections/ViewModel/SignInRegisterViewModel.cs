@@ -4,6 +4,7 @@ using System.Text;
 using EventStore.Logging;
 using PWDTK_MOBILE_WP_8;
 using ReactiveUI;
+using System.Text.RegularExpressions;
 
 
 namespace Growthstories.UI.ViewModel
@@ -163,6 +164,14 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        // from        
+        // http://stackoverflow.com/questions/16167983/best-regular-expression-for-email-validation-in-c-sharp
+        //
+        public static bool ValidEmail(string email)
+        {
+            return Regex.IsMatch(email.ToLower(), @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z");
+        }
+
 
         private IPopupViewModel GetPopup(Tuple<bool, RegisterResponse, SignInResponse> x)
         {
@@ -314,7 +323,7 @@ namespace Growthstories.UI.ViewModel
 
         bool EmailCheck(string email)
         {
-            return email != null && email.Length > 4;
+            return email != null && ValidEmail(email);
         }
 
         bool UsernameCheck(string username)

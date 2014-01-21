@@ -21,7 +21,7 @@
         BorderThickness="3"    
         HorizontalAlignment="Stretch" 
         Style="{StaticResource GSWrapperButtonStyle}" 
-        Margin="0,0,0,18" 
+        Margin="0,6,0,18" 
         Command="{Binding PhotoTimelineTap}"
         Padding="0,0,0,0"
         IsEnabled="True"

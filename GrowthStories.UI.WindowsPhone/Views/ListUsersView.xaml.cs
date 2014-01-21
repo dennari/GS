@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
+using ReactiveUI;
+using Telerik.Windows.Controls.PhoneTextBox;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -23,6 +25,20 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(ISearchUsersViewModel vm)
         {
+
+            var box = UserListBox;
+
+            vm.WhenAnyValue(x => x.ProgressIndicatorIsVisible).Subscribe(x =>
+            {
+                if (x)
+                {
+                    UserListBox.ChangeValidationState(ValidationState.Validating, "Searching for users");
+                }
+                else
+                {
+                    UserListBox.ChangeValidationState(ValidationState.NotValidated, "");
+                }
+            });
 
         }
 
