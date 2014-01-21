@@ -186,14 +186,9 @@ namespace Growthstories.UI.Persistence
             this.ExecuteCommand(a.Id, (connection, cmd) =>
             {
                 var payload = this.serializer.Serialize(a);
-                this.GSLog().Info("serializing userstate, friends is {0}", a.Friends);
-                if (a.Friends != null)
-                {
-                    this.GSLog().Info("serializing userstate, friends is {0}", a.Friends.Count());
-                }
                 
-                this.GSLog().Info("serialized userstate: {0}", 
-                    System.Text.Encoding.UTF8.GetString(payload, 0, payload.Length));
+                //this.GSLog().Info("serialized userstate: {0}", 
+                //    System.Text.Encoding.UTF8.GetString(payload, 0, payload.Length));
 
                 cmd.AddParameter(SQL.UserId, a.Id);
                 cmd.AddParameter(SQL.GardenId, a.GardenId);
@@ -387,7 +382,7 @@ namespace Growthstories.UI.Persistence
             if (bytes == null || bytes.Length == 0)
                 return null;
 
-            this.GSLog().Info("deserialized something: {0}", System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+            //this.GSLog().Info("deserialized something: {0}", System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length));
             return serializer.Deserialize<T>(bytes);
         }
 
