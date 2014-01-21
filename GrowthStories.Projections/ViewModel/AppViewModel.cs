@@ -850,6 +850,11 @@ namespace Growthstories.UI.ViewModel
 
             if (await PrepareAuthorizedUser() != GSStatusCode.OK)
             {
+                if (RegisterCancelRequested)
+                {
+                    return RegisterResponse.canceled;
+                }
+                this.Log().Info("registration: connection error when trying to authorize");
                 return RegisterResponse.connectionerror;
             }
 
@@ -858,7 +863,11 @@ namespace Growthstories.UI.ViewModel
             var asr = await this.SyncAll();
             if (asr.Item1 != AllSyncResult.AllSynced)
             {
-                if (Debugger.IsAttached) { Debugger.Break(); }
+                if (RegisterCancelRequested)
+                {
+                    return RegisterResponse.canceled;
+                }
+                this.Log().Info("registration: authorize worked but sync failed");
                 return RegisterResponse.connectionerror;
             }
 
@@ -869,11 +878,23 @@ namespace Growthstories.UI.ViewModel
 
             APIRegisterResponse resp = await Transporter.RegisterAsync(username, email, password);
 
+            // this is a little bit messy as we don't know 
+            // whether the request went through to the server
+            // luckily this is quite a rare situation
             if (resp.HttpStatus != System.Net.HttpStatusCode.OK)
             {
+                if (RegisterCancelRequested)
+                {
+                    return RegisterResponse.canceled;
+                }
                 // could of course be also internal server error
                 // etc but for users we present these as connection errors
                 return RegisterResponse.connectionerror;
+            }
+
+            if (resp.RegisterStatus != RegisterStatus.OK && RegisterCancelRequested)
+            {
+                return RegisterResponse.canceled;
             }
 
             if (resp.RegisterStatus == RegisterStatus.EMAIL_EXISTS)

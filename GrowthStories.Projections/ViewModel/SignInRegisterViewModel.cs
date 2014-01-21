@@ -174,7 +174,7 @@ namespace Growthstories.UI.ViewModel
 
                     case RegisterResponse.canceled:
                         caption = "Registration canceled";
-                        msg = "Registration was canceled";
+                        msg = "Registration was canceled. You can submit the registration form again anytime.";
                         break;
                 }
 
