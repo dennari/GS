@@ -172,7 +172,10 @@ namespace Growthstories.UI.ViewModel
                 svm.SignInMode = false;
                 svm.Response.Where(y => y.Item2 == RegisterResponse.success).Take(1).Subscribe(y =>
                 {
-                    this.NavigateBack();
+                    if (App.Router.NavigationStack.Count > 0)
+                    {
+                        this.NavigateBack();
+                    }
                 });
                 this.Navigate(svm);
             });
@@ -404,9 +407,10 @@ namespace Growthstories.UI.ViewModel
                     _LogOutProgress = new ProgressPopupViewModel()
                     {
                         Caption = "Logging out",
-                        ProgressMessage = "Please hold on",
+                        ProgressMessage = "Please wait while Growth Stories is cleaning up",
                         IsLeftButtonEnabled = false,
-                        IsRightButtonEnabled = false
+                        IsRightButtonEnabled = false,
+                        DismissOnBackButton = false
                     };
                 }
                 return _LogOutProgress;

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 //using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using EventStore.Logging;
 
 namespace Growthstories.Core
 {
@@ -38,6 +39,9 @@ namespace Growthstories.Core
 
     public sealed class StreamSegment : IStreamSegment
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(StreamSegment));
+
         private readonly SortedDictionary<int, IMessage> Messages = new SortedDictionary<int, IMessage>();
 
         public Guid AggregateId { get; private set; }
@@ -116,8 +120,11 @@ namespace Growthstories.Core
         private void Add(IEvent e)
         {
             if (AggregateVersion != e.AggregateVersion - 1)
+            {
+                Logger.Warn("Event entityId: {0} aggregateId: {1} was out of sequence, current version: {2}, received version: {3}, ({4})",
+                    e.EntityId, e.AggregateId, e.AggregateVersion, AggregateVersion, e.ToString());
                 throw new ArgumentException("Can't add event out of sequence");
-
+            }
             AggregateVersion = e.AggregateVersion;
             Messages[e.AggregateVersion] = e;
         }

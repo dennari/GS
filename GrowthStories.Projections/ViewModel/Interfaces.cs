@@ -55,6 +55,7 @@ namespace Growthstories.UI.ViewModel
 
     public enum SignInResponse
     {
+        canceled,
         invalidEmail,
         invalidPassword,
         tryagain,
@@ -143,14 +144,17 @@ namespace Growthstories.UI.ViewModel
 
         GSLocation LastLocation { get; }
 
-        IEnumerable<Guid> GetCurrentFollowers(Guid userId);
+        IEnumerable<Guid> GetCurrentPYFs();
 
         void NotifyImageDownloadFailed();
 
         bool NotifiedOnBadConnection { get; set; }
 
         bool RegisterCancelRequested { get; set; }
+        bool SignInCancelRequested { get; set; }
 
+
+        IReactiveCommand SetDismissPopupAllowed { get; }
     }
 
 
@@ -530,7 +534,15 @@ namespace Growthstories.UI.ViewModel
         bool IsFullScreen { get; }
         PopupType Type { get; }
         string ProgressMessage { get; }
-        bool BackKeyEnabled { get; }
+
+        // Should popup be dismissed on back button 
+        // 
+        // true: dismiss popup normally on back button press
+        // false: do not dismiss popup on back button, allow back 
+        //   navigation (or anything else that hooks to the backbutton) 
+        //   to trigger
+        //
+        bool DismissOnBackButton { get; }
     }
 
     public enum PopupType

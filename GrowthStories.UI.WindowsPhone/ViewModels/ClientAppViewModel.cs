@@ -101,18 +101,15 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
-
-
-
-
-
+        // ( could also be in AppViewModel )
         public override async Task<GSLocation> DoGetLocation()
         {
             var pvm = new ProgressPopupViewModel()
             {
                 Caption = "Getting location",
-                ProgressMessage = "Please wait while Growth Stories figures out your location",
-                IsLeftButtonEnabled = false,
+                ProgressMessage = "Growth Stories is determining your location.",
+                //IsLeftButtonEnabled = true,
+                //LeftButtonContent = "Do in background",
             };
 
             App.ShowPopup.Execute(pvm);
@@ -181,14 +178,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 PhoneLocationServicesEnabled = true;
             }
 
+            // 
             /*
             geolocator.LocationStatus
             try
             {
-                
-
-                Geolocator geolocator = new Geolocator();
-                
+                Geolocator geolocator = new Geolocator();    
                 geolocator.DesiredAccuracyInMeters = 5000;
                 var pos = await geolocator.GetGeopositionAsync(maximumAge: TimeSpan.FromDays(99), timeout: TimeSpan.FromSeconds(10));
                 PhoneLocationServicesEnabled = true;

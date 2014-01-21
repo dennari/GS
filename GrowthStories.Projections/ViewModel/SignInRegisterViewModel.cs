@@ -25,6 +25,8 @@ namespace Growthstories.UI.ViewModel
             return x.Item1 ? x.Item3 == SignInResponse.success : x.Item2 == RegisterResponse.success;
         }
 
+        private bool OperationFinished;
+
         public SignInRegisterViewModel(IGSAppViewModel app)
             : base(app)
         {
@@ -49,30 +51,32 @@ namespace Growthstories.UI.ViewModel
                 App.ShowPopup.Execute(PPViewModel());
             });
 
-            this.OKCommand.ThrownExceptions.Subscribe(x =>
-            {
-                //throw x;
-            });
-
             var OKResponse = this.OKCommand.RegisterAsyncTask(async _ =>
             {
+                OperationFinished = false;
                 if (SignInMode)
                 {
                     var r = await App.SignIn(this.Email, HashedPassword());
+                    OperationFinished = true;
                     return Tuple.Create(true, RegisterResponse.alreadyRegistered, r);
                 }
                 else
                 {
                     var r = await App.Register(this.Username, this.Email, HashedPassword());
+                    OperationFinished = true;
                     return Tuple.Create(false, r, SignInResponse.invalidEmail);
                 }
             });
             this.Response = OKResponse;
-            //OKResponse.Connect();
 
             this.Response.Subscribe(x =>
             {
-                App.ShowPopup.Execute(null);
+                if (SignInMode && !App.SignInCancelRequested
+                    || !SignInMode && !App.RegisterCancelRequested)
+                {
+                    App.ShowPopup.Execute(null);
+                }
+                
                 if (IsSuccess(x))
                 {
                     //if (SignInMode)
@@ -82,7 +86,12 @@ namespace Growthstories.UI.ViewModel
                 }
                 else
                 {
-                    App.ShowPopup.Execute(GetPopup(x));
+                    var p = GetPopup(x);
+                    if (p != null)
+                    {
+                        App.ShowPopup.Execute(p);
+                    }
+
                     if (x.Item3 == SignInResponse.messCreated)
                     {
                         this.Log().Info("signing out after messy signin");
@@ -131,8 +140,14 @@ namespace Growthstories.UI.ViewModel
                         LeftButtonContent = "OK"
                     };
 
-                    popup.DismissedObservable.Take(1).Select(_ => new object()).Subscribe(App.Router.NavigateBack.Execute);
-
+                    popup.DismissedObservable.Take(1).Select(_ => new object()).Subscribe(_ =>
+                    {
+                        if (App.Router.NavigationStack.Count > 0)
+                        {
+                            App.Router.NavigateBack.Execute(null);
+                        }
+                    });
+                
                     this.WhenAnyValue(x => x.SignInMode).Subscribe(x =>
                     {
                         popup.Message = x ? signInMsg : registerMsg;
@@ -173,9 +188,8 @@ namespace Growthstories.UI.ViewModel
                         break;
 
                     case RegisterResponse.canceled:
-                        caption = "Registration canceled";
-                        msg = "Registration was canceled. You can submit the registration form again anytime.";
-                        break;
+                        this.Log().Info("Register() returned registration canceled");
+                        return null;
                 }
 
             }
@@ -184,6 +198,11 @@ namespace Growthstories.UI.ViewModel
                 caption = "Could not sign you in";
                 switch (x.Item3)
                 {
+                    case SignInResponse.canceled:
+                        // are are showing this right away
+                        this.Log().Info("SignIn() returned signin canceled");
+                        return null;
+
                     case SignInResponse.connectionerror:
                         msg = "We could not sign you in, because we could not reach the Growth Stories servers. Please try again later.";
                         break;
@@ -202,13 +221,14 @@ namespace Growthstories.UI.ViewModel
                 }
             }
 
-            return new PopupViewModel()
-                    {
-                        Caption = caption,
-                        Message = msg,
-                        LeftButtonContent = "OK"
-                    };
+            var pvm = new PopupViewModel()
+            {
+                Caption = caption,
+                Message = msg,
+                LeftButtonContent = "OK"
+            };
 
+            return pvm;
         }
 
 
@@ -232,7 +252,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
         private ProgressPopupViewModel PPViewModel()
         {
             if (SignInMode)
@@ -240,9 +259,28 @@ namespace Growthstories.UI.ViewModel
                 var pvm = new ProgressPopupViewModel()
                 {
                     Caption = "Signing in",
-                    ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data.",
-                    BackKeyEnabled = false
+                    ProgressMessage = "Please wait while Growth Stories signs you in and downloads your data."
+                    // dismissal of dialog on back button should only happen
+                    // once we cannot cancel anymore
+                    // DismissOnBackButton = false
                 };
+
+                pvm.DismissedObservable.Subscribe(_ =>
+                {
+                    App.SignInCancelRequested = true;
+                    if (!OperationFinished)
+                    {
+                        var p = new PopupViewModel()
+                        {
+                            Caption = "Signin canceled",
+                            Message = "You were not signed in. You can submit the form again anytime.",
+                            IsLeftButtonEnabled = true,
+                            LeftButtonContent = "OK"
+                        };
+                        App.ShowPopup.Execute(p);
+                    }
+                });
+
                 return pvm;
             
             } else {
@@ -256,17 +294,22 @@ namespace Growthstories.UI.ViewModel
                     // if dismissed fires only after registration 
                     // it is already too late and this is ignored
                     App.RegisterCancelRequested = true;
+
+                    if (!OperationFinished)
+                    {
+                        var p = new PopupViewModel()
+                        {
+                            Caption = "Registration canceled",
+                            Message = "We did not create an account for you. You can submit the form again anytime.",
+                            IsLeftButtonEnabled = true,
+                            LeftButtonContent = "OK"
+                        };
+                        App.ShowPopup.Execute(p);
+                    }
                 });
                 return pvm;
             }
         }
-
-        //public static string GetHashCode(string p)
-        //{
-        //    var a = new SHA256Managed();
-        //    return Convert.ToBase64String(a.ComputeHash(new System.Text.UTF8Encoding().GetBytes(p)));
-        //}
-
 
 
         bool EmailCheck(string email)

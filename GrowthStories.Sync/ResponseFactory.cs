@@ -66,7 +66,7 @@ namespace Growthstories.Sync
                                 return x.Stream;
 
                             } catch {
-                                if (Debugger.IsAttached) { Debugger.Break(); }
+                                Logger.Info("skipping out-of-sequence stream {0} {1}", x.Stream.StreamId, x.Stream.AncestorId); 
 
                             }
                             // TODO/JOJ: is empty try catch and returning null a good idea?

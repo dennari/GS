@@ -209,8 +209,6 @@
                     />
             </StackPanel>
             
-        </StackPanel>
-
         <toolkit:LongListMultiSelector
 		    x:Name="PlantsSelector"
 		    ItemsSource="{Binding Plants}"
@@ -224,6 +222,8 @@
             BorderBrush="{StaticResource GSAccentBrush}"
             Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
         />
+
+        </StackPanel>
 
     </Grid>
 

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventStore.Logging;
 
 namespace Growthstories.Domain.Entities
 {
@@ -33,6 +34,8 @@ namespace Growthstories.Domain.Entities
 
     public class UserState : AggregateState<UserCreated>, IAuthUser
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(UserState));
 
         public static readonly Guid UnregUserId = Guid.NewGuid();//new Guid("11000000-0000-0000-0000-000000000011");
         public static readonly Guid UnregUserGardenId = Guid.NewGuid();//new Guid("11100000-0000-0000-0000-000000000111");
@@ -146,6 +149,7 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(BecameFollower @event)
         {
+            Logger.Info("adding new follower {0} for user {1}", Id, @event.Target);
             this.Friends[@event.Target] = true;
         }
 

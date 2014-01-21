@@ -185,6 +185,16 @@ namespace Growthstories.UI.Persistence
         {
             this.ExecuteCommand(a.Id, (connection, cmd) =>
             {
+                var payload = this.serializer.Serialize(a);
+                this.GSLog().Info("serializing userstate, friends is {0}", a.Friends);
+                if (a.Friends != null)
+                {
+                    this.GSLog().Info("serializing userstate, friends is {0}", a.Friends.Count());
+                }
+                
+                this.GSLog().Info("serialized userstate: {0}", 
+                    System.Text.Encoding.UTF8.GetString(payload, 0, payload.Length));
+
                 cmd.AddParameter(SQL.UserId, a.Id);
                 cmd.AddParameter(SQL.GardenId, a.GardenId);
                 cmd.AddParameter(SQL.Username, a.Username);
@@ -337,7 +347,6 @@ namespace Growthstories.UI.Persistence
             return this.ExecuteQuery(UserId ?? default(Guid), query =>
             {
 
-
                 var queryText = string.Format(@"SELECT U.*,C.Status FROM Users U LEFT JOIN Collaborators C ON (U.UserId = C.UserId)");
                 if (filters.Length > 0)
                 {
@@ -353,8 +362,17 @@ namespace Growthstories.UI.Persistence
 
                 return query.ExecuteQuery<UserState>(queryText, (stmt) =>
                 {
+                    
+                    
                     var u = Deserialize<UserState>(stmt, (int)UserIndex.Payload);
                     u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)UserIndex.Collaborator) > 0 ? true : false;
+                    
+                    this.GSLog().Info("unserialized user friends is {0}", u.Friends);
+                    if (u.Friends != null)
+                    {
+                        this.GSLog().Info("unserialized user friends count is {0}", u.Friends.Count());
+                    }
+                    
                     return u;
                 });
             });
@@ -363,13 +381,14 @@ namespace Growthstories.UI.Persistence
 
         protected T Deserialize<T>(Sqlite3Statement stmt, int index) where T : class
         {
-
             var bytes = SQLite3.ColumnByteArray(stmt, index);
+
             // var debug = Encoding.UTF8.GetString(bytes);
             if (bytes == null || bytes.Length == 0)
                 return null;
-            return serializer.Deserialize<T>(bytes);
 
+            this.GSLog().Info("deserialized something: {0}", System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+            return serializer.Deserialize<T>(bytes);
         }
 
 

@@ -46,15 +46,24 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand ItemTappedCommand { get; set; }
 
        
-
         private void LoadFollowedUser(Guid user)
         {
-            App.CurrentGardens()
-            .Where(x => x.User.Id == user)
+            App.CurrentGardens().Concat(App.FutureGardens())
+            .DistinctUntilChanged()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(x =>
-            {
-                _Friends.Add(x);
+            {            
+                x.WhenAnyValue(z => z.UserId).StartWith(x.UserId).Subscribe(z =>
+                {
+                    if (z == user)
+                    {
+                        this.Log().Info("adding friend garden {0} {0}", x.UserId, x.Username);
+                        if (!_Friends.Contains(x))
+                        {
+                            _Friends.Add(x);
+                        }
+                    }
+                });
             });
         }
 
@@ -85,8 +94,13 @@ namespace Growthstories.UI.ViewModel
         private IDisposable loadSubscription = Disposable.Empty;
         void LoadFriends()
         {
+            if (App.User == null)
+            {
+                this.Log().Info("App.User is null" + App.User.Id);
+            }
+            this.Log().Info("loading friends for " + App.User.Id);
 
-            App.GetCurrentFollowers(App.User.Id)
+            App.GetCurrentPYFs()
                 .ToObservable()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
@@ -106,8 +120,6 @@ namespace Growthstories.UI.ViewModel
             {
                 RemoveFollowedUser(x.Target);
             });
-
-
 
             //// currentgardens, really? -- JOJ
             //this.loadSubscription = App.CurrentGardens()
@@ -140,7 +152,6 @@ namespace Growthstories.UI.ViewModel
                     _Friends = new ReactiveList<IGardenViewModel>();
                     App.WhenAnyValue(x => x.User).Subscribe(x =>
                     {
-
                         if (x == null)
                         {
                             this.loadSubscription.Dispose();
@@ -155,8 +166,6 @@ namespace Growthstories.UI.ViewModel
                         }
 
                     });
-
-
                 }
                 return _Friends;
             }
@@ -218,7 +227,10 @@ namespace Growthstories.UI.ViewModel
             {
                 this.Log().Info("unfollowing user " + this.SelectedFriend.UserId);
                 await App.HandleCommand(new UnFollow(App.User.Id, this.SelectedFriend.UserId));
-                this.NavigateBack();
+                if (App.Router.NavigationStack.Count > 0)
+                {
+                    this.NavigateBack();
+                }
             });
         }
 

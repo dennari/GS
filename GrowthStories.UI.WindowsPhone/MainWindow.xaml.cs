@@ -41,6 +41,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void DismissPopup(PopupResult result = PopupResult.None)
         {
+
             if (IsDialogShown)
             {
                 IsDialogShown = false;
@@ -53,9 +54,11 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         IDisposable ShowPopupSubscription = Disposable.Empty;
+        IDisposable SetDismissPopupAllowedSubscription = Disposable.Empty;
+        
+
         protected override void OnViewModelChanged(AppViewModel vm)
         {
-
             ShowPopupSubscription.Dispose();
             ShowPopupSubscription = vm.ShowPopup
               .ObserveOn(RxApp.MainThreadScheduler)
@@ -68,6 +71,20 @@ namespace Growthstories.UI.WindowsPhone
                       this.DismissPopup();
               });
 
+            SetDismissPopupAllowedSubscription.Dispose();
+            SetDismissPopupAllowedSubscription = vm.SetDismissPopupAllowed
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .OfType<bool>()
+                .Subscribe(x =>
+                {
+                    SetDismissPopupAllowed(x);
+                });
+        }
+
+
+        public void SetDismissPopupAllowed(bool allowed)
+        {
+            Popup.DismissOnBackButton = allowed;
         }
 
 
@@ -127,12 +144,12 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        CustomMessageBox Popup;
+        GSCustomMessageBox Popup;
         IPopupViewModel PopupVm;
         private void ShowPopup(IPopupViewModel x)
         {
 
-            var popup = new CustomMessageBox()
+            var popup = new GSCustomMessageBox()
             {
                 Caption = x.Caption,
                 Message = x.Message,
@@ -144,7 +161,7 @@ namespace Growthstories.UI.WindowsPhone
                 Foreground = PopupForeground,
                 Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
                 BorderBrush = PopupForeground,
-                //BackKeyEnabled = x.BackKeyEnabled
+                DismissOnBackButton = x.DismissOnBackButton,
             };
 
             var pc = PopupContent(x);
@@ -256,14 +273,9 @@ namespace Growthstories.UI.WindowsPhone
 
             }
 
-
-
-
             this.ViewModel.Router.Navigate.Execute(new PlantSingularViewModel(pvm, ViewModel));
-
-
-
         }
+
 
         private bool IsDialogShown;
 
@@ -273,15 +285,22 @@ namespace Growthstories.UI.WindowsPhone
             
             base.OnBackKeyPress(e);
 
-            if (IsDialogShown)
+            if (Popup != null)
+            {
+                this.Log().Info("backbutton pressed, dismissOnBackButton is " + Popup.DismissOnBackButton);
+            }
+            
+            if (IsDialogShown && Popup != null && Popup.DismissOnBackButton)
             {
                 // popups have their own subscription to the backkeypress,
                 // so there is no need to call this here
-                // we still need to cancel the event though
+                // we still need to cancel the event though for reactiveUI
+                //
                 //  -- JOJ 3.1.2014
                 // DismissPopup(PopupResult.BackButton);
-
                 e.Cancel = true;
+                this.Log().Info("dialog is shown, canceling ");
+
                 return;
             }
 
@@ -297,8 +316,9 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             e.Cancel = true;
-
             ViewModel.NavigatingBack = true;
+
+            this.Log().Info("navigating back");
             ViewModel.Router.NavigateBack.Execute(null);
         }
 

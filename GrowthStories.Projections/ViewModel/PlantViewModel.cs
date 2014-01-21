@@ -514,7 +514,10 @@ namespace Growthstories.UI.ViewModel
                             {
 
                                 App.ShowPopup.Execute(null);
-                                this.NavigateBack();
+                                if (App.Router.NavigationStack.Count > 0)
+                                {
+                                    this.NavigateBack();
+                                }
                                 this.ShareCommand.Execute(null);
                             });
 

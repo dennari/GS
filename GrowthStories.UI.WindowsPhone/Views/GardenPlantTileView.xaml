@@ -198,6 +198,10 @@
 
     </StackPanel>
 
+
+        <StackPanel Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
+        <StackPanel Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"> 
+        
         <telerikPrimitives:RadBusyIndicator 
             Grid.Row="0"
             x:Name="LoadingPhoto"
@@ -233,7 +237,9 @@
                 </DataTemplate>
             </telerikPrimitives:RadBusyIndicator.ContentTemplate>
         </telerikPrimitives:RadBusyIndicator>
-
+        </StackPanel>
+        </StackPanel>
+        
     </Grid>
 
 

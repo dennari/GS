@@ -176,6 +176,7 @@ namespace Growthstories.UI.ViewModel
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
             // COMMANDS
+            SetDismissPopupAllowed = new ReactiveCommand();
             ShowPopup = new ReactiveCommand();
             SynchronizeCommand = Observable.Return(true).ToCommandWithSubscription(_ => ShowPopup.Execute(this.SyncPopup));
             UISyncFinished = new ReactiveCommand();
@@ -260,7 +261,6 @@ namespace Growthstories.UI.ViewModel
 
         private void Bootstrap()
         {
-
             var resolver = Resolver;
 
             var vmChanged = this.Router.CurrentViewModel.DistinctUntilChanged();
@@ -332,7 +332,6 @@ namespace Growthstories.UI.ViewModel
                        this.ShowPopup.Execute(x ?? this.DefaultNoConnectionAlert);
                });
 
-
             vmChanged
                  .OfType<IControlsProgressIndicator>()
                  .Select(x => x.WhenAnyValue(y => y.ProgressIndicatorIsVisible))
@@ -360,6 +359,8 @@ namespace Growthstories.UI.ViewModel
 
         #region COMMANDS
         public IReactiveCommand ShowPopup { get; private set; }
+        public IReactiveCommand SetDismissPopupAllowed { get; private set; }
+
         public IReactiveCommand SynchronizeCommand { get; private set; }
         public IReactiveCommand UISyncFinished { get; private set; }
         public IReactiveCommand SignedOut { get; private set; }
@@ -405,9 +406,6 @@ namespace Growthstories.UI.ViewModel
                 return _DefaultNoConnectionAlert;
             }
         }
-
-
-
 
 
         private IGardenViewModel _MyGarden;
@@ -542,7 +540,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        //
         // Autosync if there are not two or more unfinished autosyncs
         //
         // This method should be called whenever we detect changes we
@@ -837,7 +834,19 @@ namespace Growthstories.UI.ViewModel
         public bool RegisterCancelRequested { get; set; }
 
 
+        private Enough.Async.AsyncLock RegisterLock = new Enough.Async.AsyncLock();
+
+
         public async Task<RegisterResponse> Register(string username, string email, string password)
+        {
+            using (var res = await RegisterLock.LockAsync())
+            {
+                return await _Register(username, email, password);
+            }
+        }
+
+
+        private async Task<RegisterResponse> _Register(string username, string email, string password)
         {
             RegisterCancelRequested = false;
 
@@ -876,6 +885,15 @@ namespace Growthstories.UI.ViewModel
                 return RegisterResponse.canceled;
             }
 
+            SetDismissPopupAllowed.Execute(false);
+            var ret = await _FinishRegistration(username, email, password);
+            SetDismissPopupAllowed.Execute(true);
+            return ret;
+        }
+
+
+        private async Task<RegisterResponse> _FinishRegistration(string username, string email, string password)
+        {
             APIRegisterResponse resp = await Transporter.RegisterAsync(username, email, password);
 
             // this is a little bit messy as we don't know 
@@ -994,30 +1012,48 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private Enough.Async.AsyncLock SignInLock = new Enough.Async.AsyncLock();
+
         public async Task<SignInResponse> SignIn(string email, string password)
         {
-            try
+            // user can press signin, dismiss popup and press 
+            // signin so we better make signins are synchronous
+            using (var res = await SignInLock.LockAsync())
             {
-                AutoSyncEnabled = false;
-                return await _SignIn(email, password);
-            }
-            finally
-            {
-                AutoSyncEnabled = true;
+                try
+                {
+                    // note that an autosync may already be in progress
+                    // we are dealing with that with a separate lock inside
+                    // _SignIn(...)
+                    AutoSyncEnabled = false;
+                    return await _SignIn(email, password);
+                }
+                finally
+                {
+                    AutoSyncEnabled = true;
+                }
             }
         }
 
 
+        public bool SignInCancelRequested { get; set; }
+
 
         private async Task<SignInResponse> _SignIn(string email, string password)
         {
+            SignInCancelRequested = false;
+
             IAuthResponse authResponse = null;
             RemoteUser u = null;
 
             try
             {
                 authResponse = await Context.AuthorizeUser(email, password);
-
+                if (SignInCancelRequested)
+                {
+                    return SignInResponse.canceled;
+                }
+        
                 // server returns 401 when user is not found
                 if (authResponse.StatusCode == GSStatusCode.AUTHENTICATION_REQUIRED)
                 {
@@ -1045,32 +1081,53 @@ namespace Growthstories.UI.ViewModel
                 return SignInResponse.connectionerror;
             }
 
-            var app = await SignOut(false);
-
-            Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
-            Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
-            Handler.Handle(new SetAuthToken(authResponse.AuthToken));
-
-            this.User = app.State.User;
-            this.IsRegistered = true;
-            Context.SetupCurrentUser(this.User);
-
-            Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
-
-            // (1) we pull our _own_ user stream, get info on the plants and the followed users
-            // (2) we pull our _own_ plant streams, we pull followed users' streams and get info on followed users' plants
-            // (3) we pull followed user' plants
-            for (int i = 0; i < 3; i++)
+            try
             {
-                var res = (await this.SyncAll()).Item1;
-                if (res == AllSyncResult.Error)
+
+                // do not go here while any sync operation is in progress
+                using (var res = await _SynchronizeLock.LockAsync())
                 {
-                    return SignInResponse.messCreated;
+                    // now we don't want the user to cancel the popup
+                    // and allow for backward navigation instead
+                    // with back button
+                    SetDismissPopupAllowed.Execute(false);
+
+                    var app = await SignOut(false);
+
+                    Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
+                    Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
+                    Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+
+                    this.User = app.State.User;
+                    this.IsRegistered = true;
+                    Context.SetupCurrentUser(this.User);
+
+                    Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
+                } 
+                // important: the upcoming SyncAll operations must 
+                // not be inside the above using block, as the asynclocks
+                /// are not re-entrant 
+
+                // (1) we pull our _own_ user stream, get info on the plants and the followed users
+                // (2) we pull our _own_ plant streams, we pull followed users' streams and get info on followed users' plants
+                // (3) we pull followed user' plants
+                for (int i = 0; i < 3; i++)
+                {
+                    var res = (await this.SyncAll()).Item1;
+                    if (res == AllSyncResult.Error)
+                    {
+                        return SignInResponse.messCreated;
+                    }
                 }
+
+                Router.NavigateAndReset.Execute(CreateMainViewModel());
+                return SignInResponse.success;
+            }
+            finally
+            {
+                SetDismissPopupAllowed.Execute(true);
             }
 
-            Router.NavigateAndReset.Execute(CreateMainViewModel());
-            return SignInResponse.success;
         }
 
 
@@ -1329,7 +1386,11 @@ namespace Growthstories.UI.ViewModel
                         return x.Item1.AggregateId == x.Item2.AggregateId;
                     })
                     .DistinctUntilChanged()
-                    .Select(x => new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this));
+                    .Select(x => 
+                        {
+                            this.Log().Info("instantiating new gardenviewmodel");
+                            return new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this);   
+                        });
             }
 
             if (userId != null)
@@ -1338,12 +1399,31 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public IEnumerable<Guid> GetCurrentFollowers(Guid userId)
+        // Return GUIDs to the users 
+        // currently App.User is currently following 
+        //
+        public IEnumerable<Guid> GetCurrentPYFs()
         {
-            return GetUserState(userId).Friends.Keys.AsEnumerable();
+            var us = GetUserState(App.User.Id);
+            if (us == null)
+            {
+                this.Log().Warn("userstate was null");
+                return new List<Guid>();
+            }
+            var friends = us.Friends;
+            if (friends == null)
+            {
+                this.Log().Warn("userstate.Friends is null");
+                return new List<Guid>();
+            }
+
+            var ret = friends.Keys.AsEnumerable();
+            return ret;
         }
 
 
+        // Get UserState for given user 
+        //
         private UserState GetUserState(Guid userId)
         {
             var search = UIPersistence.GetUsers(null).Where(x => x.Id == userId);

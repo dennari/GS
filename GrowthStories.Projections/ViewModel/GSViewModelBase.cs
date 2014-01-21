@@ -207,7 +207,7 @@ namespace Growthstories.UI.ViewModel
 
         public PopupViewModel()
         {
-            BackKeyEnabled = true;
+            DismissOnBackButton = true;
             IsLeftButtonEnabled = true;
             IsRightButtonEnabled = false;
             Type = PopupType.BASIC;
@@ -243,7 +243,7 @@ namespace Growthstories.UI.ViewModel
 
         public bool IsRightButtonEnabled { get; set; }
 
-        public bool BackKeyEnabled { get; set; }
+        public bool DismissOnBackButton { get; set; }
 
         public bool IsFullScreen { get; set; }
 

@@ -51,7 +51,7 @@ namespace Growthstories.UI.WindowsPhone
                     case "JsonSerializer":
                     case "OptimisticEventStream":
                     case "OptimisticPipelineHook":
-                    case "SQLiteUIPersistence":
+                    //case "SQLiteUIPersistence":
                     case "SQLitePersistenceEngine":
                     case "OptimisticEventStore":
                     case "SynchronousDispatchScheduler":

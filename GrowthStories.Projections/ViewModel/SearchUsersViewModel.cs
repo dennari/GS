@@ -161,7 +161,7 @@ namespace Growthstories.UI.ViewModel
                 if (x.Users != null && x.Users.Count > 0)
                 {
 
-                    var followed = App.GetCurrentFollowers(App.User.Id);
+                    var followed = App.GetCurrentPYFs();
 
                     var filtered = x.Users.Where(y =>
                         !followed.Contains(y.AggregateId) 
@@ -221,7 +221,7 @@ namespace Growthstories.UI.ViewModel
                     Logger.Info("Before BecomeFollower");
 
                     // do not add the same followed user twice
-                    if (!App.GetCurrentFollowers(App.User.Id).Contains(x.AggregateId))
+                    if (!App.GetCurrentPYFs().Contains(x.AggregateId))
                     {
                         await App.HandleCommand(new BecomeFollower(App.User.Id, x.AggregateId));
                     }

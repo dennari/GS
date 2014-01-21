@@ -349,8 +349,6 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x =>
             {
                 Init(x, isOwn);
-
-
             });
         }
 

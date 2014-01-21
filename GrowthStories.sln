@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Growthstories.Tests", "Tests\Growthstories.Tests.csproj", "{66CEED54-2A26-4FC2-AA33-8CB44B10E185}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.DomainTests", "GrowthStories.DomainTests\GrowthStories.DomainTests.csproj", "{6BB57385-307B-4433-BB9F-27E062876D4B}"
@@ -83,6 +81,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.WindowsPhone.BA", "GrowthStories.UI.WindowsPhone.BA\GrowthStories.UI.WindowsPhone.BA.csproj", "{EC6EBFAB-E3D5-431F-AE04-66665289724B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockIAPLib", "..\MockIAPLib\MockIAPLib.csproj", "{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Phone.Controls.Toolkit.WP8", "..\wptoolkit\Microsoft.Phone.Controls.Toolkit.WP8\Microsoft.Phone.Controls.Toolkit.WP8.csproj", "{486642F0-AB94-4F28-B49C-106CA3134239}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -2463,6 +2463,86 @@ Global
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|Mixed Platforms.Build.0 = Release|x86
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|x86.ActiveCfg = Release|x86
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|x86.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|ARM.ActiveCfg = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|ARM.Build.0 = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|x86.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug Phone Device|x86.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|ARM.ActiveCfg = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|ARM.Build.0 = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|x86.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug PhoneApp|x86.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|ARM.ActiveCfg = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|ARM.Build.0 = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|x86.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug StoreApp|x86.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|ARM.ActiveCfg = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|ARM.Build.0 = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|x86.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Debug|x86.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|Any CPU.ActiveCfg = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|Any CPU.Build.0 = Debug|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|ARM.ActiveCfg = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|ARM.Build.0 = Debug|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|Mixed Platforms.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|Mixed Platforms.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|x86.ActiveCfg = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Design|x86.Build.0 = Debug|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|ARM.ActiveCfg = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|ARM.Build.0 = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|Mixed Platforms.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|Mixed Platforms.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|x86.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Netflix|x86.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|ARM.ActiveCfg = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|ARM.Build.0 = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|Mixed Platforms.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|Mixed Platforms.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|x86.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.QuickTest|x86.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|ARM.ActiveCfg = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|ARM.Build.0 = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|Mixed Platforms.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|x86.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.Release|x86.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|Any CPU.ActiveCfg = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|Any CPU.Build.0 = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|ARM.ActiveCfg = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|ARM.Build.0 = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|Mixed Platforms.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|Mixed Platforms.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|x86.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.ReleaseARM|x86.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|ARM.ActiveCfg = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|ARM.Build.0 = Release|ARM
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|Mixed Platforms.Build.0 = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|x86.ActiveCfg = Release|x86
+		{486642F0-AB94-4F28-B49C-106CA3134239}.RxMobileTest|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
