@@ -195,6 +195,8 @@ namespace Growthstories.UI.ViewModel
                 this.Log().Info("followed popup dismissed: " + x);
                 var pr = (PopupResult)x;
 
+                FollowCanceled = true;
+
                 if (CleanDismiss)
                 {
                     if (App.Router.NavigationStack.Count > 0)
@@ -205,10 +207,12 @@ namespace Growthstories.UI.ViewModel
 
             UserSelectedCommand.Subscribe(_ => App.ShowPopup.Execute(pp));
        
+
             this.SyncResults = UserSelectedCommand
                 .RegisterAsyncTask(async (xx) =>
                 {
                     CleanDismiss = false;
+                    FollowCanceled = false;
 
                     var x = xx as RemoteUser;
                     if (x == null)
@@ -224,29 +228,43 @@ namespace Growthstories.UI.ViewModel
             
                     Logger.Info("Before SyncAll");
 
-                    // as we have the push filtering problem,
-                    // it is good to do one extra sync just to be sure
-                    await App.SyncAll();
-
-                    // now we get the user stream AND info on the plants
-                    await App.SyncAll();
-
-                    // now we get the plants too
+                    // (1) we get the user stream AND info on the plants
+                    // (2) now we get the plants too
+                    // (3) as we have the push filtering problem,
+                    //     it is good to do one extra sync just to be sure
                     var syncResult = await App.SyncAll();
+
+                    AllSyncResult? syncRes = null;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        syncRes = (await App.SyncAll()).Item1;
+                        if (syncRes == AllSyncResult.Error)
+                        {
+                            // stop on error, so we don't need to wait for 
+                            // request timeout * 3 until we get error message
+                            break;
+                        }
+                    }
 
                     CleanDismiss = true;
                     App.ShowPopup.Execute(null);
 
-                    if (syncResult.Item1 == Sync.AllSyncResult.Error)
+                    Logger.Info("follow canceled is " + FollowCanceled);
+
+                    if (!FollowCanceled)
                     {
-                        PopupViewModel pvm = new PopupViewModel()
+                        if (syncRes == Sync.AllSyncResult.Error)
                         {
-                            Caption = "Failed to load data",
-                            Message = "Could not load (all) information on followed user. Please try again later.",
-                            IsLeftButtonEnabled = true,
-                            LeftButtonContent = "OK",
-                        };
-                        App.ShowPopup.Execute(pvm);
+                            Logger.Info("follow was not canceled and received sync error");
+                            PopupViewModel pvm = new PopupViewModel()
+                            {
+                                Caption = "Failed to load data",
+                                Message = "Could not load (all) information on followed user. Please try again later.",
+                                IsLeftButtonEnabled = true,
+                                LeftButtonContent = "OK",
+                            };
+                            App.ShowPopup.Execute(pvm);
+                        }
                     }
                     
                     return syncResult;
@@ -254,24 +272,25 @@ namespace Growthstories.UI.ViewModel
 
             this.SyncResults.Publish().Connect();
 
-            this.SyncResults.Subscribe(x =>
-            {
-                if (x.Item1 == Sync.AllSyncResult.Error)
-                {
-                    PopupViewModel pvm = new PopupViewModel()
-                    {
-                        Caption = "Failed to load data",
-                        Message = "Could not load (all) information on followed user. Please try again later.",
-                        IsLeftButtonEnabled = true,
-                        LeftButtonContent = "OK"
-                    };
-                    App.ShowPopup.Execute(pvm);
-                }
-            });
+            //this.SyncResults.Subscribe(x =>
+            //{
+            //    if (x.Item1 == Sync.AllSyncResult.Error)
+            //    {
+            //        PopupViewModel pvm = new PopupViewModel()
+            //        {
+            //            Caption = "Failed to load data",
+            //            Message = "Could not load (all) information on followed user. Please try again later.",
+            //            IsLeftButtonEnabled = true,
+            //            LeftButtonContent = "OK"
+            //        };
+            //        App.ShowPopup.Execute(pvm);
+            //    }
+            //});
         }
 
         private bool CleanDismiss;
-        
+        private bool FollowCanceled;
+
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }

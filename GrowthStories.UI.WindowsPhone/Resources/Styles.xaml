@@ -273,11 +273,10 @@
             -->
         </Style>
     
-        <Style TargetType="telerikPrimitives:RadPasswordBox" x:Key="GSPasswordStyle">
+        <Style TargetType="PasswordBox" x:Key="GSPasswordStyle">
             <Setter Property="BorderBrush" Value="{StaticResource GSBackgroundBrush}" />
             <Setter Property="Foreground" Value="{StaticResource GSTextBoxBrush}"/>
             <Setter Property="Background" Value="{StaticResource GSBackgroundBrush}"/>           
-
         </Style>
 
     <Style TargetType="local:GSChatTextBox">

@@ -50,13 +50,12 @@ namespace Growthstories.UI.ViewModel
         private void LoadFollowedUser(Guid user)
         {
             App.CurrentGardens()
-                .Concat(App.FutureGardens())
-                .DistinctUntilChanged()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    _Friends.Add(x);
-                });
+            .Where(x => x.User.Id == user)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(x =>
+            {
+                _Friends.Add(x);
+            });
         }
 
 

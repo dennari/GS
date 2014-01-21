@@ -144,7 +144,7 @@ namespace Growthstories.UI.WindowsPhone
                 Foreground = PopupForeground,
                 Background = (System.Windows.Media.Brush)(Application.Current.Resources["GSWhiteBrush"]),
                 BorderBrush = PopupForeground,
-                BackKeyEnabled = x.BackKeyEnabled
+                //BackKeyEnabled = x.BackKeyEnabled
             };
 
             var pc = PopupContent(x);
