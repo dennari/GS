@@ -927,7 +927,12 @@ namespace Growthstories.UI.ViewModel
                 CanChooseNewPhoto = false;
             }
 
-            this.OpenZoomView.Subscribe(x => this.IsZoomViewOpen = !this.IsZoomViewOpen);
+            this.OpenZoomView.Subscribe(x => 
+                {
+                    this.Log().Info("openzoomview");
+                    this.IsZoomViewOpen = !this.IsZoomViewOpen;
+                }
+            );
 
             this.PhotoTimelineTap = new ReactiveCommand();
             this.PhotoChooserCommand = new ReactiveCommand();
