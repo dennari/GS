@@ -157,7 +157,7 @@ namespace Growthstories.UI.WindowsPhone
             // we get the ImageLoaded event each time the long list selector is doing some lazy
             //   loading
             //
-            if (OpenedImages.Contains(ViewModel.PlantActionId))
+            if (OpenedImages.Contains(ViewModel.PlantActionId) || ViewModel.OwnAction)
             {
                 ShowImage();
             }

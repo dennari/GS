@@ -112,6 +112,8 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        
+
 
         // Fade the content in if not already faded/fading in
         //
