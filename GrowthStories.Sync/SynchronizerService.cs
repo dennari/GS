@@ -1,15 +1,16 @@
 ﻿
-using Growthstories.Domain;
 using System;
-using System.Linq;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using Growthstories.Domain.Messaging;
-using Growthstories.Core;
-using ReactiveUI;
-using System.Reactive.Linq;
+using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
+using Enough.Async;
+using Growthstories.Core;
+using Growthstories.Domain;
+using Growthstories.Domain.Messaging;
+using ReactiveUI;
 
 namespace Growthstories.Sync
 {
@@ -61,6 +62,15 @@ namespace Growthstories.Sync
             }
 
         }
+
+        private AsyncLock _SyncLock = new AsyncLock();
+
+        public async Task<IDisposable> AcquireLock()
+        {
+            return await _SyncLock.LockAsync();
+        }
+
+
 
 
         // Tries to prepare an authorized user
@@ -147,16 +157,13 @@ namespace Growthstories.Sync
         }
 
 
-        private Task<ISyncInstance> Synchronize(IGSAppState appState)
+        private async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
-            var prevSynchronize = currentSynchronize;
-            currentSynchronize = Task.Run(async () =>
-            {
-                await Prev(prevSynchronize);
-                var request = await CreateSyncRequest(appState);
-                return await _Synchronize(request, appState);
-            });
-            return currentSynchronize;
+
+            var request = await CreateSyncRequest(appState);
+            return await _Synchronize(request, appState);
+
+
         }
 
 
@@ -311,7 +318,7 @@ namespace Growthstories.Sync
         {
 
             AutoSyncSubscription.Dispose();
-            AutoSyncSubscription = this.MessageBus.Listen<EventBase>().Subscribe(e =>
+            AutoSyncSubscription = this.MessageBus.Listen<IEvent>().OfType<EventBase>().Subscribe(e =>
             {
                 if (e.AggregateId == appState.User.Id
                     || e.AncestorId == appState.User.Id
@@ -336,15 +343,13 @@ namespace Growthstories.Sync
         // Run multiple synchronization sequences, until everything is pushed
         // or until a maximum amount of sequences is reached
         //
-        public Task<Tuple<AllSyncResult, GSStatusCode?>> SyncAll(IGSAppState appState, int maxRounds = 20)
+        public async Task<Tuple<AllSyncResult, GSStatusCode?>> SyncAll(IGSAppState appState, int maxRounds = 20)
         {
 
-            var prevSyncAll = currentSyncAll;
-
-            currentSyncAll = Task.Run(async () =>
+            using (await AcquireLock())
             {
 
-                await Prev(prevSyncAll);
+                //await Prev(prevSyncAll);
                 var debugId = Guid.NewGuid().ToString();
 
                 this.Log().Info("SyncAll starting, debugId: " + debugId);
@@ -374,8 +379,7 @@ namespace Growthstories.Sync
                 this.Log().Info("SyncAll finished, debugId: " + debugId);
 
                 return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
-            });
-            return currentSyncAll;
+            }
         }
 
 

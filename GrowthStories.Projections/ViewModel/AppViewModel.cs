@@ -342,7 +342,12 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x != null)
                 .Subscribe(x => Scheduler.ScheduleGarden(x));
 
-            this.WhenAnyValue(x => x.Model).Where(x => x != null).Subscribe(x => Synchronizer.SubscribeForAutoSync(x.State));
+            this.WhenAnyValue(x => x.Model)
+                .Where(x => x != null)
+                .Subscribe(x =>
+                {
+                    Synchronizer.SubscribeForAutoSync(x.State);
+                });
 
         }
 
@@ -990,7 +995,7 @@ namespace Growthstories.UI.ViewModel
                 //var empty = Disposable.Empty;
                 // do not go here while any sync operation is in progress
                 //using (var res = await _SynchronizeLock.LockAsync())
-                using (var res = Disposable.Empty)
+                using (await Synchronizer.AcquireLock())
                 {
                     // now we don't want the user to cancel the popup
                     // and allow for backward navigation instead
@@ -1047,8 +1052,6 @@ namespace Growthstories.UI.ViewModel
             throw new NotImplementedException();
         }
 
-        // Despite the lock, only SyncAll should call this function
-        // (except for unit tests)
         public Task<Tuple<AllSyncResult, GSStatusCode?>> Synchronize()
         {
             if (!HasDataConnection)

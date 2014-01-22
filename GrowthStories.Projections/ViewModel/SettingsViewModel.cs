@@ -264,6 +264,23 @@ namespace Growthstories.UI.ViewModel
 
             this.SynchronizeCommand.RegisterAsyncTask(async (_) =>
             {
+
+                if (!App.HasDataConnection)
+                {
+                    PopupViewModel pvm = new PopupViewModel()
+                    {
+                        Caption = "Data connection required",
+                        Message = "Synchronizing requires a data connection. Please enable one in your phone's settings and try again.",
+                        IsLeftButtonEnabled = true,
+                        LeftButtonContent = "OK"
+                    };
+                    App.ShowPopup.Execute(pvm);
+
+                    return;
+                }
+
+
+
                 var res = await App.Synchronize();
                 if (res == null)
                     return;

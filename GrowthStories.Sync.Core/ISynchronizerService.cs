@@ -1,10 +1,10 @@
 ﻿
 
-using CommonDomain;
-using Growthstories.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CommonDomain;
+using Growthstories.Core;
 namespace Growthstories.Sync
 {
 
@@ -83,6 +83,8 @@ namespace Growthstories.Sync
         Task<Tuple<AllSyncResult, GSStatusCode?>> SyncAll(IGSAppState appState, int maxRounds = 20);
         Task<GSStatusCode> PrepareAuthorizedUser(SyncHead head);
         IDisposable SubscribeForAutoSync(IGSAppState appState);
+
+        Task<IDisposable> AcquireLock();
 
     }
 

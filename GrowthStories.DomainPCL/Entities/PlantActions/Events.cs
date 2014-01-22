@@ -237,10 +237,12 @@ namespace Growthstories.Domain.Messaging
                 this.FBUid = D.FBUid;
             }
 
+            base.FromDTO(D);
+
             this.UserId = this.AncestorId.Value;
             this.PlantId = this.ParentId.Value;
 
-            return base.FromDTO(D);
+            return true;
 
         }
 
