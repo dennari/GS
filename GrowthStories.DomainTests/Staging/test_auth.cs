@@ -66,9 +66,9 @@ namespace Growthstories.DomainTests
             TestAssignUser();
             Assert.IsFalse(App.User.IsRegistered);
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
-            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+            //await Get<ISynchronizer>().CreateUserAsync(Ctx.Id);
 
-            await App.PrepareAuthorizedUser();
+            await Synchronizer.PrepareAuthorizedUser(App.Model.State.SyncHead);
             //Ctx = App.Context.CurrentUser;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
@@ -100,7 +100,7 @@ namespace Growthstories.DomainTests
             Assert.IsFalse(App.User.IsRegistered);
 
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
-            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+            //await Get<ISynchronizer>().CreateUserAsync(Ctx.Id);
 
             var regName = "dennari";
             var regEmail = "dennari@ymail.com";
@@ -143,10 +143,10 @@ namespace Growthstories.DomainTests
             var plant = await App.HandleCommand(new CreatePlant(plantId, "Jore", App.User.GardenId, App.User.Id));
 
             await HttpClient.SendAsync(HttpClient.CreateClearDBRequest());
-            //await Get<ISynchronizerService>().CreateUserAsync(Ctx.Id);
+            //await Get<ISynchronizer>().CreateUserAsync(Ctx.Id);
 
 
-            var restartedApp = new StagingAppViewModel(Kernel);
+            var restartedApp = Kernel.Get<IGSAppViewModel>();
             await restartedApp.Initialize();
             Assert.IsFalse(restartedApp.User.IsRegistered);
 
@@ -196,7 +196,7 @@ namespace Growthstories.DomainTests
             //Bus.SendCommand(addGarden);
 
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             SyncAssertions(R);
 
             return garden;
@@ -220,7 +220,7 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(wateringSchedule);
 
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             //var R = Rs[0];
             SyncAssertions(R, true);
 
@@ -248,15 +248,15 @@ namespace Growthstories.DomainTests
 
             await App.HandleCommand(addPlant);
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             //var R = Rs[0];
             SyncAssertions(R, true);
 
-            var R2 = await App.Synchronize();
+            var R2 = await SingleSync();
             //var R = Rs[0];
             SyncAssertions(R2, true);
 
-            var R3 = await App.Synchronize();
+            var R3 = await SingleSync();
             //var R = Rs[0];
             Assert.IsTrue(R3.PushReq.IsEmpty);
 
@@ -290,7 +290,7 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(comment);
 
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             //var R = Rs[0];
             SyncAssertions(R, true);
 
@@ -320,7 +320,7 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(prop);
 
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             //var R = Rs[0];
             SyncAssertions(R, true);
 

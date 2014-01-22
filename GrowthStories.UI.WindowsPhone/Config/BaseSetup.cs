@@ -20,20 +20,25 @@ using SQLite;
 using System;
 using System.IO;
 using System.Linq;
-using Windows.Storage;
+//using Windows.Storage;
 
 
-namespace Growthstories.UI.WindowsPhone
+namespace Growthstories.Configuration
 {
     public abstract class BaseSetup : NinjectModule
     {
 
+        protected IMutableDependencyResolver RxUIResolver;
 
 
         public override void Load()
         {
 
+            RxUIResolver = RxApp.MutableResolver;
+
             LogConfiguration();
+            RxUIConfiguration();
+
             HttpConfiguration();
             UserConfiguration();
             EventFactoryConfiguration();
@@ -59,16 +64,26 @@ namespace Growthstories.UI.WindowsPhone
 
         protected virtual void AppConfiguration()
         {
-            Bind<IIAPService>().To<GSIAPMock>().InSingletonScope();
+            Bind<IIAPService>().To<NullIIAP>().InSingletonScope();
             Bind<IScheduleService>().To<GardenScheduler>()
                 .InSingletonScope()
-                .WithConstructorArgument(new TimeSpan(0, 0, 10));
+                .WithConstructorArgument("updateInterval", new TimeSpan(0, 0, 10));
 
             Bind<ISynchronizer>().To<NonAutoSyncingSynchronizer>();
 
         }
 
+        protected virtual void RxUIConfiguration()
+        {
 
+
+            Bind<IMutableDependencyResolver>().ToConstant(this.RxUIResolver);
+            Bind<IRoutingState>().To<RoutingState>().InSingletonScope();
+            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IScreen)), typeof(IScreen));
+            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IRoutingState)), typeof(IRoutingState));
+            RxUIResolver.RegisterLazySingleton(() => GSViewLocator.Instance, typeof(IViewLocator));
+
+        }
 
         protected virtual void UserConfiguration()
         {
@@ -101,9 +116,7 @@ namespace Growthstories.UI.WindowsPhone
         protected virtual void LogConfiguration()
         {
 
-            //LogFactory.BuildLogger = type => new GSRemoteLog(type);
-            //GSLogFactory.BuildLogger = type => new GSRemoteLog(type);
-
+            RxUIResolver.Register(() => GSNullLog.Instance, typeof(ILogger));
             LogFactory.BuildLogger = type => GSNullLog.Instance;
             GSLogFactory.BuildLogger = type => GSNullLog.Instance;
 
@@ -123,18 +136,18 @@ namespace Growthstories.UI.WindowsPhone
 
         protected virtual void FileSystemConfiguration()
         {
-            Bind<IPhotoHandler>().To<WP8PhotoHandler>();
+            Bind<IPhotoHandler>().To<NullPhotoHandler>();
         }
 
         protected virtual void SQLiteConnectionConfiguration(string dbname = "GS.sqlite")
         {
             SQLiteConnection conn = null;
-            string path = Path.Combine(ApplicationData.Current.LocalFolder.Path, dbname);
+
             Func<SQLiteConnection> del = () =>
             {
                 if (conn == null)
                 {
-                    conn = new SQLiteConnection(path, true);
+                    conn = new SQLiteConnection(dbname, true);
                 }
                 return conn;
             };

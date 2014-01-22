@@ -35,7 +35,7 @@ namespace Growthstories.DomainTests
 
 
 
-        protected AppViewModel App;
+        protected IGSAppViewModel App;
         protected IKernel Kernel { get; set; }
         protected IAuthUser Ctx { get; set; }
 
@@ -45,12 +45,12 @@ namespace Growthstories.DomainTests
             if (Kernel != null)
                 Kernel.Dispose();
             Kernel = new StandardKernel(new SyncEngineTestsSetup());
-            App = new TestAppViewModel(Kernel);
+            App = Kernel.Get<IGSAppViewModel>();
 
             var u = App.User;
             Assert.IsNotNull(u);
             Assert.IsNotNull(u.Username);
-            Assert.IsNull(App.Model.State.User);
+            //Assert.IsNull(App.Model.State.User);
             Handler = Get<IDispatchCommands>();
             Handler.Handle(new CreateUser(u.Id, u.Username, u.Password, u.Email));
             Handler.Handle(new AssignAppUser(u.Id, u.Username, u.Password, u.Email));
@@ -58,7 +58,7 @@ namespace Growthstories.DomainTests
 
 
             //Ctx = Get<IUserService>().CurrentUser;
-            Assert.IsNotNull(App.Model.State.User);
+            //Assert.IsNotNull(App.Model.State.User);
 
 
         }

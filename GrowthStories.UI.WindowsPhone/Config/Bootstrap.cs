@@ -13,6 +13,11 @@ using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using System.Windows;
+using Windows.Storage;
+using System.IO;
+using Growthstories.Configuration;
+using Growthstories.Domain.Services;
+using Growthstories.Core;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -22,13 +27,11 @@ namespace Growthstories.UI.WindowsPhone
     public class Bootstrap : BaseSetup
     {
         protected readonly App PhoneApp;
-        protected readonly IMutableDependencyResolver RxUIResolver;
         protected const string BUGSENSE_TOKEN = "e73c0669";
 
         public Bootstrap(App phoneApp)
         {
             PhoneApp = phoneApp;
-            RxUIResolver = RxApp.MutableResolver;
 
         }
 
@@ -36,7 +39,6 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.Load();
 
-            RxUIConfiguration();
             ApplyGSAccentColor();
             BAConfiguration();
             ViewModelConfiguration();
@@ -68,24 +70,37 @@ namespace Growthstories.UI.WindowsPhone
             BAUtils.RegisterScheduledTask();
         }
 
-
-        protected virtual void RxUIConfiguration()
+        protected override void RxUIConfiguration()
         {
+            base.RxUIConfiguration();
             RxUIResolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(RxUIResolver.GetService<ISuspensionDriver>());
-
-            Bind<IMutableDependencyResolver>().ToConstant(this.RxUIResolver);
-            Bind<IRoutingState>().To<RoutingState>().InSingletonScope();
-            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IScreen)), typeof(IScreen));
-            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IRoutingState)), typeof(IRoutingState));
-            RxUIResolver.RegisterLazySingleton(() => GSViewLocator.Instance, typeof(IViewLocator));
 
         }
 
-        protected override void LogConfiguration()
-        {
-            base.LogConfiguration();
-            RxUIResolver.Register(() => GSNullLog.Instance, typeof(ILogger));
 
+        protected override void FileSystemConfiguration()
+        {
+            Bind<IPhotoHandler>().To<WP8PhotoHandler>();
+
+        }
+
+
+        protected override void AppConfiguration()
+        {
+            Bind<IIAPService>().To<GSIAPMock>().InSingletonScope();
+            Bind<IScheduleService>().To<GardenScheduler>()
+                .InSingletonScope()
+                .WithConstructorArgument(new TimeSpan(0, 0, 10));
+
+            Bind<ISynchronizer>().To<NonAutoSyncingSynchronizer>();
+
+        }
+
+
+        protected override void SQLiteConnectionConfiguration(string dbname = "GS.sqlite")
+        {
+            var dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, dbname);
+            base.SQLiteConnectionConfiguration(dbpath);
         }
 
         private void ApplyGSAccentColor()
@@ -161,7 +176,7 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
-         
+
             //RxUIResolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
             RxUIResolver.Register(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
 

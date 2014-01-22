@@ -42,6 +42,9 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(ISignInRegisterViewModel vm)
         {
             base.OnViewModelChanged(vm);
+
+            // unfocus any textbox when submitted
+            vm.OKCommand.Subscribe(_ => this.Focus());
         }
 
         private void username_LostFocus(object sender, RoutedEventArgs e)

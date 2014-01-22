@@ -20,42 +20,84 @@ namespace Growthstories.DomainTests
 {
     public class TestAppViewModel : AppViewModel
     {
+        protected IKernel Kernel;
 
 
-        public TestAppViewModel(IKernel kernel)
-            : base()
+        public TestAppViewModel(
+            IMutableDependencyResolver resolver,
+            IUserService context,
+            IDispatchCommands handler,
+            IGSRepository repository,
+            ITransportEvents transporter,
+            IUIPersistence uiPersistence,
+            IIAPService iiapService,
+            IScheduleService scheduler,
+            ISynchronizer synchronizer,
+            IRequestFactory requestFactory,
+            IRoutingState router,
+            IMessageBus bus
+         )
+            : base(
+                resolver,
+                context,
+                handler,
+                repository,
+                transporter,
+                uiPersistence,
+                iiapService,
+                scheduler,
+                synchronizer,
+                requestFactory,
+                router,
+                bus
+                )
         {
-            Kernel = kernel;
-            //Kernel.Bind<IScreen>().ToConstant(this);
-            //Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-            this.Bus = kernel.Get<IMessageBus>();
 
-            TestUtils.WaitForTask(this.Initialize());
 
-            //this.Model = (GSApp)Kernel.Get<IDispatchCommands>().Handle(new CreateGSApp());
-            //this.User = Context.CurrentUser;
+            //TestUtils.WaitForTask(this.Initialize());
+
         }
 
-        //public new Task<IAuthUser> Initialize()
-        //{
 
-        //    return null;
-        //}
+
 
     }
 
     public class StagingAppViewModel : AppViewModel
     {
+        protected IKernel Kernel;
 
 
-        public StagingAppViewModel(IKernel kernel)
-            : base()
+        public StagingAppViewModel(
+           IMutableDependencyResolver resolver,
+           IUserService context,
+           IDispatchCommands handler,
+           IGSRepository repository,
+           ITransportEvents transporter,
+           IUIPersistence uiPersistence,
+           IIAPService iiapService,
+           IScheduleService scheduler,
+           ISynchronizer synchronizer,
+           IRequestFactory requestFactory,
+           IRoutingState router,
+           IMessageBus bus
+        )
+            : base(
+                resolver,
+                context,
+                handler,
+                repository,
+                transporter,
+                uiPersistence,
+                iiapService,
+                scheduler,
+                synchronizer,
+                requestFactory,
+                router,
+                bus
+                )
         {
-            Kernel = kernel;
-            Kernel.Bind<IScreen>().ToConstant(this);
-            Kernel.Bind<IRoutingState>().ToConstant(this.Router);
-            this.Bus = kernel.Get<IMessageBus>();
-            //Initialize();
+
 
             //this.Model = (GSApp)Kernel.Get<IDispatchCommands>().Handle(new CreateGSApp());
             //this.User = Context.CurrentUser;

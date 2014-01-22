@@ -3,6 +3,7 @@ using System;
 using System.Reactive.Linq;
 using Growthstories.Core;
 using ReactiveUI;
+using Growthstories.Domain.Entities;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -58,29 +59,6 @@ namespace Growthstories.UI.ViewModel
                 })
                 .ToProperty(this, x => x.Plants, out _Plants);
 
-            // when current plant wants to show the action list, show it
-            // moved actionlist to a regular page
-            //this.WhenAnyValue(x => x.SelectedPlant)
-            //    .Where(x => x != null)
-            //    .Select(x => x.ShowActionList as IObservable<object>)
-            //    .Switch()
-            //    .Subscribe(_ =>
-            //    {
-            //        this.PlantActionList.Plant = this.SelectedPlant;
-            //        // switch back to default when any of the plantactions are clicked
-            //        //this.SelectedPlant
-            //        //    .NavigateToEmptyActionCommand
-            //        //    .Take(1)
-            //        //    .Subscribe(x => this.InnerViewModel = null);
-            //        //this.NavigateInterface = typeof(IPlantActionListViewModel);
-
-            //        this.SelectedPage = this.PlantActionList; // this makes the buttons and stuff to reflect the settings of the list
-            //        this.InnerViewModel = this.PlantActionList;
-            //    });
-
-            // when an action is selected on the action list, show default content
-            //this.PlantActionList.NavigateToSelected.Subscribe(_ => this.InnerViewModel = null);
-
             // when orientation changes to landscape, show current plant's chart
             Observable.CombineLatest(
                 this.App.WhenAnyValue(y => y.Orientation),
@@ -103,18 +81,47 @@ namespace Growthstories.UI.ViewModel
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
                 });
 
-            //App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
-            //{
-            //    if (this.InnerViewModel == this.PlantActionList)
-            //    {
-            //        x.Cancel = true;
-            //        this.InnerViewModel = null;
-            //        this.SelectedPage = this.SelectedPlant;
-            //    }
-            //});
 
+            this.WateringCommand = new ReactiveCommand();
+            this.WateringCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.WateringCommand.Execute(x);
+            });
+            this.PhotoCommand = new ReactiveCommand();
+            this.PhotoCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.PhotoCommand.Execute(x);
+            });
+            this.NavigateToEmptyActionCommand = new ReactiveCommand();
+            this.NavigateToEmptyActionCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.NavigateToEmptyActionCommand.Execute(x);
+            });
+            this.TryShareCommand = new ReactiveCommand();
+            this.TryShareCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.TryShareCommand.Execute(x);
+            });
+
+            this.AppBarButtons = GetOwnerButtons();
 
         }
+
+        public IReactiveCommand WateringCommand { get; protected set; }
+
+        public IReactiveCommand PhotoCommand { get; protected set; }
+
+        public IReactiveCommand NavigateToEmptyActionCommand { get; protected set; }
+
+
+        public IReactiveCommand TryShareCommand { get; protected set; }
+
+
+
 
         private IPlantActionListViewModel _PlantActionList;
         protected IPlantActionListViewModel PlantActionList
@@ -164,24 +171,64 @@ namespace Growthstories.UI.ViewModel
             get { return Vm.Username; }
         }
 
-        //public SupportedPageOrientation SupportedOrientations
-        //{
-        //    get { return SupportedPageOrientation.PortraitOrLandscape; }
-        //}
-
-        //protected override SupportedPageOrientation DefaultSupportedOrientation
-        //{
-        //    get
-        //    {
-        //        return SupportedPageOrientation.Portrait;
-        //    }
-        //}
-
 
         public override string UrlPathSegment
         {
             get { throw new NotImplementedException(); }
         }
+
+
+
+
+        private ReactiveList<IButtonViewModel> GetOwnerButtons()
+        {
+            return new ReactiveList<IButtonViewModel>()
+                    {
+                        new ButtonViewModel(null)
+                        {
+                            Text = "water",
+                            IconType = IconType.WATER,
+                            Command = this.WateringCommand,
+                        },
+                        new ButtonViewModel(null)
+                        {
+                            Text = "photograph",
+                            IconType = IconType.PHOTO,
+                            Command = this.PhotoCommand
+                        },
+                        new ButtonViewModel(null)
+                        {
+                            Text = "comment",
+                            IconType = IconType.NOTE,
+                            Command = NavigateToEmptyActionCommand,
+                            CommandParameter = PlantActionType.COMMENTED
+                        },
+                        new ButtonViewModel(null)
+                        {
+                            Text = "share",
+                            IconType = IconType.SHARE,
+                            Command = TryShareCommand
+                        },
+
+                    };
+        }
+
+
+        private IReadOnlyReactiveList<IButtonViewModel> _AppBarButtons;
+        public new IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                return _AppBarButtons;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+            }
+        }
+
+
+
     }
 
 

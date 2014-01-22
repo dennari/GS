@@ -30,4 +30,18 @@ namespace Growthstories.Core
         Task<bool> ShopForBasicProduct();
     }
 
+    public class NullIIAP : IIAPService
+    {
+
+        public bool HasPaidBasicProduct()
+        {
+            return true;
+        }
+
+        public Task<bool> ShopForBasicProduct()
+        {
+            return Task.FromResult(true);
+        }
+    }
+
 }

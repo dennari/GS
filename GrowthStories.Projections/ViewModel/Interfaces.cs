@@ -81,7 +81,7 @@ namespace Growthstories.UI.ViewModel
         //IDictionary<IconType, Uri> IconUri { get; }
         //IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
-        //GSApp Model { get; }
+        GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         IDictionary<Guid, PullStream> SyncStreams { get; }
@@ -241,17 +241,19 @@ namespace Growthstories.UI.ViewModel
         Guid UserId { get; }
         string Name { get; }
         string Species { get; }
+
         IReactiveCommand PinCommand { get; }
         IReactiveCommand ShareCommand { get; }
         IReactiveCommand ScrollCommand { get; }
         IReactiveCommand WateringCommand { get; }
-        //IObservable<IPlantViewModel> DeleteObservable { get; }
         IReactiveCommand DeleteCommand { get; }
         IReactiveCommand DeleteRequestedCommand { get; }
         IReactiveCommand NavigateToEmptyActionCommand { get; }
         IReactiveCommand ShowActionList { get; }
         IReactiveCommand ShowDetailsCommand { get; set; }
         IReactiveCommand ResetAnimationsCommand { get; }
+        IReactiveCommand PhotoCommand { get; }
+        IReactiveCommand TryShareCommand { get; }
 
         //IReactiveCommand ActionTapped { get; }
         //IReactiveCommand AddActionCommand(PlantActionType type);

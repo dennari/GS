@@ -208,20 +208,27 @@
                     Visibility="{Binding Plants.Count, Converter={StaticResource ZeroToVisibility}}"
                     />
             </StackPanel>
-            
-        <toolkit:LongListMultiSelector
-		    x:Name="PlantsSelector"
-		    ItemsSource="{Binding Plants}"
-		    ItemTemplate="{StaticResource C4fTile}"
-            ItemContainerStyle="{StaticResource TileSelectionStyle2}"
-            IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
-            SelectionChanged="PlantsSelector_SelectionChanged"
-		    GridCellSize="198,272"
-            LayoutMode="Grid"            
-            Margin="10,0,0,0"
-            BorderBrush="{StaticResource GSAccentBrush}"
-            Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
-        />
+
+            <ScrollViewer Height="480" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <toolkit:LongListMultiSelector
+                        x:Name="PlantsSelector"
+	                    ItemsSource="{Binding Plants}"
+	                    ItemTemplate="{StaticResource C4fTile}"
+                        ItemContainerStyle="{StaticResource TileSelectionStyle2}"
+                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
+                        SelectionChanged="PlantsSelector_SelectionChanged"
+	                    GridCellSize="198,272"
+                        LayoutMode="Grid"            
+                        Margin="10,0,0,0"
+                        BorderBrush="{StaticResource GSAccentBrush}"
+                        Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
+                        />
+                    
+                    <!-- placeholder -->
+                    <ContentControl Height="85"></ContentControl>
+                </StackPanel>
+            </ScrollViewer>
 
         </StackPanel>
 

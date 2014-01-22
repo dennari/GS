@@ -34,7 +34,7 @@ namespace Growthstories.DomainTests
 
 
 
-        protected AppViewModel App;
+        protected IGSAppViewModel App;
         protected IKernel Kernel { get; set; }
         protected IAuthUser Ctx { get; set; }
 
@@ -44,7 +44,7 @@ namespace Growthstories.DomainTests
             if (Kernel != null)
                 Kernel.Dispose();
             Kernel = new StandardKernel(new StagingModule());
-            App = new StagingAppViewModel(Kernel);
+            App = Kernel.Get<IGSAppViewModel>();
             //Ctx = Get<IUserService>().CurrentUser;
 
         }
@@ -56,7 +56,7 @@ namespace Growthstories.DomainTests
         public IMessageBus Handler { get { return Get<IMessageBus>(); } }
 
 
-        public ISynchronizerService Synchronizer { get { return Get<ISynchronizerService>(); } }
+        public SynchronizerService Synchronizer { get { return Get<SynchronizerService>(); } }
         public IRequestFactory RequestFactory { get { return Get<IRequestFactory>(); } }
 
         public ITransportEvents Transporter { get { return Get<ITransportEvents>(); } }
@@ -79,7 +79,10 @@ namespace Growthstories.DomainTests
 
 
 
-
+        public Task<ISyncInstance> SingleSync()
+        {
+            return Synchronizer.Synchronize(App.Model.State);
+        }
 
 
         public ISyncPushResponse SyncAssertions(ISyncInstance syncResult, bool hasPush = false)

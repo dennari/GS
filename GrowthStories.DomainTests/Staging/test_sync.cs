@@ -59,7 +59,7 @@ namespace Growthstories.DomainTests
 
 
             WaitForTask(HttpClient.SendAsync(HttpClient.CreateClearDBRequest()));
-            WaitForTask(App.PrepareAuthorizedUser());
+            //WaitForTask(App.PrepareAuthorizedUser());
             //Ctx = App.Context.CurrentUser;
 
             Assert.IsNotNullOrEmpty(Ctx.AccessToken);
@@ -95,7 +95,7 @@ namespace Growthstories.DomainTests
 
             await App.HandleCommand(new CreateSyncStream(fetchedUser.AggregateId, PullStreamType.USER));
 
-            var R2 = await App.Synchronize();
+            var R2 = await SingleSync();
             SyncAssertions(R2);
 
             var remoteUserAggregate = (User)Repository.GetById(remoteUser.AggregateId);
@@ -106,7 +106,7 @@ namespace Growthstories.DomainTests
             Assert.AreEqual(originalRemoteEvents.OfType<GardenCreated>().Single().EntityId.Value, remoteUserAggregate.State.Garden.Id);
             Assert.AreEqual(originalRemoteEvents.OfType<PlantCreated>().Single().AggregateId, remoteUserAggregate.State.Garden.PlantIds[0]);
 
-            var R3 = await App.Synchronize();
+            var R3 = await SingleSync();
             //var R3 = R3s[0];
             SyncAssertions(R3);
             //Assert.IsTrue(R3.PushReq.IsEmpty);
@@ -186,10 +186,10 @@ namespace Growthstories.DomainTests
             // this syncs automagically            
             lvm.UserSelectedCommand.Execute(R.Users[0]);
             var R3 = TestUtils.WaitForFirst(lvm.SyncResults);
-            Assert.AreEqual(AllSyncResult.AllSynced, R3.Item1);
+            Assert.AreEqual(AllSyncResult.AllSynced, R3);
 
 
-            //var R3 = WaitForTask(App.Synchronize());
+            //var R3 = WaitForTask(SingleSync());
             //SyncAssertions(R3);
 
             Assert.AreEqual(1, fvm.Friends.Count);
@@ -262,7 +262,7 @@ namespace Growthstories.DomainTests
             await App.HandleCommand(App.SetIds(plant));
 
 
-            var R4 = await App.Synchronize();
+            var R4 = await SingleSync();
             SyncAssertions(R4);
 
 
@@ -279,7 +279,7 @@ namespace Growthstories.DomainTests
 
             await PushAsAnother(Transporter.AuthToken, new IEvent[] { setNameEvent });
 
-            var R5 = await App.Synchronize();
+            var R5 = await SingleSync();
             SyncAssertions(R5);
 
         }
@@ -321,7 +321,7 @@ namespace Growthstories.DomainTests
             //Assert.AreEqual(photo, AppState.PhotoUploads.Values.Single());
 
             Assert.IsNull(photo.BlobKey);
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
 
             Assert.IsNotNull(R.PhotoUploadRequests);
@@ -369,7 +369,7 @@ namespace Growthstories.DomainTests
 
             await App.HandleCommand(new CreateSyncStream(remotePlant.AggregateId, PullStreamType.PLANT, remoteUser.AggregateId));
 
-            var R2 = await App.Synchronize();
+            var R2 = await SingleSync();
             SyncAssertions(R2);
 
             var remotePlantAggregate = (Plant)Repository.GetById(remotePlant.AggregateId);
@@ -390,7 +390,7 @@ namespace Growthstories.DomainTests
 
 
 
-            var R3 = await App.Synchronize();
+            var R3 = await SingleSync();
             SyncAssertions(R3);
             //Assert.IsNull(R3.PushReq);
 
@@ -418,7 +418,7 @@ namespace Growthstories.DomainTests
 
             var remotePlant = (PlantCreated)originalRemoteEvents.OfType<PlantCreated>().First();
 
-            var allR = await App.SyncAll();
+            var allR = await App.Synchronize();
 
             Assert.AreEqual(AllSyncResult.AllSynced, allR.Item1);
 
@@ -427,7 +427,7 @@ namespace Growthstories.DomainTests
             var relationshipCmd = App.SetIds(new BecomeFollower(Ctx.Id, remoteUser.AggregateId));
             await App.HandleCommand(relationshipCmd);
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             SyncAssertions(R);
 
             var stream = R.PushReq.Streams.First(x => x.AggregateId == Ctx.Id);
@@ -437,7 +437,7 @@ namespace Growthstories.DomainTests
 
             Assert.IsTrue(App.SyncStreams.ContainsKey(remoteUser.AggregateId));
             Assert.IsTrue(App.SyncStreams.ContainsKey(remotePlant.AggregateId));
-            User user = (User)(await App.GetById(Ctx.Id));
+            User user = (User)(Repository.GetById(Ctx.Id));
             Assert.IsTrue(user.State.Friends.ContainsKey(remoteUser.AggregateId));
 
             Log.Warn("------------- RESTART ------------------");
@@ -456,7 +456,7 @@ namespace Growthstories.DomainTests
             Assert.IsTrue(App.SyncStreams.ContainsKey(remoteUser.AggregateId));
             Assert.IsTrue(App.SyncStreams.ContainsKey(remotePlant.AggregateId));
 
-            user = (User)(await App.GetById(Ctx.Id));
+            user = (User)(Repository.GetById(Ctx.Id));
             Assert.IsTrue(user.State.Friends.ContainsKey(remoteUser.AggregateId));
 
             RemotePlant = remotePlant;
@@ -482,7 +482,7 @@ namespace Growthstories.DomainTests
             var relationshipCmd = App.SetIds(new UnFollow(cmd.AggregateId, cmd.Target));
             await App.HandleCommand(relationshipCmd);
 
-            var R = await App.Synchronize();
+            var R = await SingleSync();
             SyncAssertions(R);
 
             var stream = R.PushReq.Streams.First(x => x.AggregateId == Ctx.Id);
@@ -492,7 +492,7 @@ namespace Growthstories.DomainTests
 
             Assert.IsFalse(App.SyncStreams.ContainsKey(cmd.AggregateId));
             Assert.IsFalse(App.SyncStreams.ContainsKey(RemotePlant.AggregateId));
-            User user = (User)(await App.GetById(Ctx.Id));
+            User user = (User)(Repository.GetById(Ctx.Id));
             Assert.IsFalse(user.State.Friends.ContainsKey(cmd.AggregateId));
 
 
@@ -521,7 +521,7 @@ namespace Growthstories.DomainTests
 
             Assert.IsFalse(App.SyncStreams.ContainsKey(cmd.AggregateId));
             Assert.IsFalse(App.SyncStreams.ContainsKey(RemotePlant.AggregateId));
-            user = (User)(await App.GetById(Ctx.Id));
+            user = (User)(Repository.GetById(Ctx.Id));
             Assert.IsFalse(user.State.Friends.ContainsKey(cmd.AggregateId));
 
 

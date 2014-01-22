@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using ReactiveUI;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace Growthstories.DomainTests
@@ -34,6 +35,11 @@ namespace Growthstories.DomainTests
         IGSRepository Repository;
         FakeHttpClient Transporter;
 
+        public Task<ISyncInstance> SingleSync()
+        {
+            return Synchronizer.Synchronize(AppState);
+        }
+
         [TestInitialize]
         public void SetUp()
         {
@@ -42,8 +48,8 @@ namespace Growthstories.DomainTests
             if (Kernel != null)
                 Kernel.Dispose();
             Kernel = new StandardKernel(new SyncEngineTestsSetup());
-
-            var app = new TestAppViewModel(Kernel);
+            var app = Kernel.Get<IGSAppViewModel>();
+            TestUtils.WaitForTask(app.Initialize());
             this.App = app;
             this.AppState = app.Model.State;
             Transporter = Kernel.Get<FakeHttpClient>();
@@ -52,6 +58,8 @@ namespace Growthstories.DomainTests
 
         public string toJSON(object o) { return Kernel.Get<IJsonFactory>().Serialize(o); }
         public T fromJSON<T>(string s) { return Kernel.Get<IJsonFactory>().Deserialize<T>(s); }
+
+        public SynchronizerService Synchronizer { get { return Kernel.Get<SynchronizerService>(); } }
 
         protected ITranslateEvents Translator
         {
@@ -67,9 +75,9 @@ namespace Growthstories.DomainTests
             var u = App.User;
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
+             
 
-
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             Assert.IsFalse(R.PushReq.IsEmpty);
 
@@ -85,7 +93,7 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             Assert.IsFalse(R.PullReq.IsEmpty);
             Assert.AreEqual(u.Id, R.PullReq.Streams.Single().StreamId);
@@ -99,25 +107,25 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
 
-            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
             Assert.IsNull(R);
 
 
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, newName)));
 
-            R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R.PushReq.IsEmpty);
             var e1 = (UserCreated)R.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e1.AggregateId);
 
-            var R2 = TestUtils.WaitForTask(App.Synchronize());
+            var R2 = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R2.PushReq.IsEmpty);
             var e2 = (UsernameSet)R2.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e2.AggregateId);
             Assert.AreEqual(newName, e2.Username);
 
-            var R3 = TestUtils.WaitForTask(App.Synchronize());
+            var R3 = TestUtils.WaitForTask(SingleSync());
             Assert.IsTrue(R3.PushReq.IsEmpty);
 
 
@@ -130,25 +138,25 @@ namespace Growthstories.DomainTests
             var newName = "Jaakko";
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
 
-            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
             Assert.IsNull(R);
 
             TestUtils.WaitForTask(App.HandleCommand(new MultiCommand(
                 new CreateUser(u.Id, u.Username, u.Password, u.Email),
                 new SetUsername(u.Id, newName))));
 
-            R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R.PushReq.IsEmpty);
             var e1 = (UserCreated)R.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e1.AggregateId);
 
-            var R2 = TestUtils.WaitForTask(App.Synchronize());
+            var R2 = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R2.PushReq.IsEmpty);
             var e2 = (UsernameSet)R2.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e2.AggregateId);
             Assert.AreEqual(newName, e2.Username);
 
-            var R3 = TestUtils.WaitForTask(App.Synchronize());
+            var R3 = TestUtils.WaitForTask(SingleSync());
             Assert.IsTrue(R3.PushReq.IsEmpty);
 
         }
@@ -165,7 +173,7 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
             TestUtils.WaitForTask(App.HandleCommand(new CreateUser(u.Id, u.Username, u.Password, u.Email)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R.PushReq.IsEmpty);
             var e1 = (UserCreated)R.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e1.AggregateId);
@@ -182,7 +190,7 @@ namespace Growthstories.DomainTests
                 })
             };
 
-            var R22 = TestUtils.WaitForTask(App.Synchronize());
+            var R22 = TestUtils.WaitForTask(SingleSync());
             Assert.IsTrue(R22.PushReq.IsEmpty);
             Assert.IsFalse(R22.PullReq.IsEmpty);
             var uu = (User)Repository.GetById(u.Id);
@@ -193,13 +201,13 @@ namespace Growthstories.DomainTests
             //Assert.AreEqual(u.Id, e1.AggregateId);
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, newName)));
             Assert.AreEqual(newName, uu.State.Username);
-            var R2 = TestUtils.WaitForTask(App.Synchronize());
+            var R2 = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R2.PushReq.IsEmpty);
             var e2 = (UsernameSet)R2.PushReq.Streams.Single().Single();
             Assert.AreEqual(u.Id, e2.AggregateId);
             Assert.AreEqual(newName, e2.Username);
 
-            var R3 = TestUtils.WaitForTask(App.Synchronize());
+            var R3 = TestUtils.WaitForTask(SingleSync());
             Assert.IsTrue(R3.PushReq.IsEmpty);
         }
 
@@ -244,7 +252,7 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER)));
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
 
             var RemoteUser = Repository.GetById(remoteUser.AggregateId);
             Assert.IsInstanceOfType(RemoteUser, typeof(User));
@@ -270,13 +278,13 @@ namespace Growthstories.DomainTests
             Assert.IsFalse(plant.State.IsDeleted);
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
 
             Assert.AreEqual(R.PullReq.Streams.First(x => x.StreamId == plantId).Type, PullStreamType.PLANT);
 
             TestUtils.WaitForTask(App.HandleCommand(new DeleteAggregate(plantId, "plant")));
 
-            var R2 = TestUtils.WaitForTask(App.Synchronize());
+            var R2 = TestUtils.WaitForTask(SingleSync());
             Assert.IsNull(R2.PullReq.Streams.FirstOrDefault(x => x.StreamId == plantId));
             Assert.IsTrue(plant.State.IsDeleted);
 
@@ -311,8 +319,8 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER)));
 
 
-            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
-            R = TestUtils.WaitForTask(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
+            R = TestUtils.WaitForTask(SingleSync());
             Assert.IsFalse(R.PullReq.IsEmpty);
 
             var pullStream = R.PullReq.Streams.Single();
@@ -349,7 +357,7 @@ namespace Growthstories.DomainTests
 
             TestUtils.WaitForTask(App.HandleCommand(new BecomeFollower(u.Id, localTarget)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
@@ -395,7 +403,7 @@ namespace Growthstories.DomainTests
 
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, localName)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
 
             var pushStream = R.PushReq.Streams.Single();
@@ -448,7 +456,7 @@ namespace Growthstories.DomainTests
 
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, localName)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
@@ -517,7 +525,7 @@ namespace Growthstories.DomainTests
 
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, localName)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
@@ -585,7 +593,7 @@ namespace Growthstories.DomainTests
 
             TestUtils.WaitForTask(App.HandleCommand(new SetUsername(u.Id, localName)));
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
             //Assert.IsTrue(R.PushReq.IsEmpty);
             var pushStream = R.PushReq.Streams.Single();
@@ -659,21 +667,21 @@ namespace Growthstories.DomainTests
                 new SetUsername(u.Id, newerLocalName)
             )));
 
-            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
             IEventDTO[] translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
             Assert.AreEqual(5, translated.Single().AggregateVersion + 1);
 
             Transporter.PullResponseFactory = null;
 
-            R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(SingleSync());
             translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
             Assert.AreEqual(6, translated.Single().AggregateVersion + 1);
 
-            R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(SingleSync());
             translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
             Assert.AreEqual(7, translated.Single().AggregateVersion + 1);
 
-            R = TestUtils.WaitForTask(App.Synchronize());
+            R = TestUtils.WaitForTask(SingleSync());
             Assert.IsTrue(R.PushReq.IsEmpty);
 
 
@@ -718,15 +726,15 @@ namespace Growthstories.DomainTests
             TestUtils.WaitForTask(App.HandleCommand(new SchedulePhotoUpload(photo, plantActionId)));
 
 
-            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState._PhotoUploads.Values.Single());
+            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState.PhotoUploads.Values.Single());
 
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
             //var R = Rs[0];
 
             Assert.IsNotNull(R.PhotoUploadRequests);
 
-            Assert.AreEqual(0, AppState._PhotoUploads.Count);
+            Assert.AreEqual(0, AppState.PhotoUploads.Count);
 
 
         }
@@ -806,10 +814,10 @@ namespace Growthstories.DomainTests
 
             };
 
-            var R = TestUtils.WaitForTask(App.Synchronize());
+            var R = TestUtils.WaitForTask(SingleSync());
 
 
-            Assert.AreEqual(0, AppState._PhotoDownloads.Count);
+            Assert.AreEqual(0, AppState.PhotoDownloads.Count);
 
             var PhotoAction = (PlantAction)Repository.GetById(plantActionId);
 
@@ -909,7 +917,7 @@ namespace Growthstories.DomainTests
 
             };
 
-            ISyncInstance R = TestUtils.WaitForTask(App.Synchronize());
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
             Assert.IsNotNull(R.PullReq);
             Assert.IsNotNull(R.PullResp);
 
