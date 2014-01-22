@@ -1270,6 +1270,12 @@ namespace Growthstories.UI.ViewModel
 
 
         public IReactiveCommand DeleteRequestedCommand { get; set; }
+
+
+        public IReactiveCommand PhotoCommand { get; set; }
+
+        public IReactiveCommand TryShareCommand { get; set; }
+
     }
 
 
