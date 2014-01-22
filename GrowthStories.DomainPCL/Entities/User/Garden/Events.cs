@@ -1,10 +1,6 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Core;
-using System;
-using System.Linq;
-using Newtonsoft.Json;
-using System.ComponentModel;
+﻿using System;
 using Growthstories.Sync;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -34,22 +30,22 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created garden {0}", AggregateId);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ICreateGardenDTO)Dto;
+            var D = Dto as ICreateGardenDTO; if (Dto == null) return false;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
 
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ICreateGardenDTO)Dto;
+            var D = Dto as ICreateGardenDTO; if (Dto == null) return false;
 
             base.FillDTO(D);
             D.StreamAncestor = null;
-
+            return true;
         }
 
 
@@ -84,11 +80,11 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Added Plant {0} to Garden {1}", PlantId, EntityId);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.garden || D.PropertyName != "plants")
-                throw new ArgumentException();
+                return false;
 
 
             base.FromDTO(D);
@@ -98,27 +94,28 @@ namespace Growthstories.Domain.Messaging
                 var val = (JObject)D.PropertyValue;
                 this.PlantId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
                 this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+                return true;
             }
             catch
             {
-
+                return false;
             }
 
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.garden;
             D.PropertyName = "plants";
             D.PropertyValue = new JObject();
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AggregateId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantId.ToString();
 
-            base.FillDTO(D);
 
             D.ParentId = null;
             D.StreamAncestor = null;
+            return base.FillDTO(D);
         }
 
 

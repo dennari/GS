@@ -1,6 +1,6 @@
-﻿using Growthstories.Domain.Entities;
+﻿using System;
 using Growthstories.Core;
-using System;
+using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,19 +25,23 @@ namespace Growthstories.Domain.Messaging
 
         private Registered() { }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
             // no need for translation to work in this direction
             throw new NotImplementedException();
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (IRegisterDTO)Dto;
-            base.FromDTO(D);
+            var D = Dto as IRegisterDTO;
+            if (D == null)
+                return false;
+
             this.Username = D.Username;
             this.Password = D.Password;
             this.Email = D.Email;
+
+            return base.FromDTO(D);
         }
 
         public UserState AggregateState { get; set; }
@@ -91,24 +95,27 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created user {0}", AggregateId);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ICreateUserDTO)Dto;
-            base.FillDTO(D);
+            var D = Dto as ICreateUserDTO; if (Dto == null) return false;
             D.Username = this.Username;
             D.Password = this.Password;
             D.Email = this.Email;
             D.StreamAncestor = null;
             D.AncestorId = null;
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ICreateUserDTO)Dto;
-            base.FromDTO(D);
+            var D = Dto as ICreateUserDTO;
+            if (D == null)
+                return false;
+
             this.Username = D.Username;
             this.Password = D.Password;
             this.Email = D.Email;
+            return base.FromDTO(D);
         }
 
 
@@ -138,22 +145,25 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User name set to {0}", Username);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.user;
             D.PropertyName = "username";
             D.PropertyValue = this.Username;
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO;
+            if (D == null)
+                return false;
+
             if (D.EntityType != DTOType.user || D.PropertyName != "username")
-                throw new ArgumentException();
+                return false;
             this.Username = (string)D.PropertyValue;
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -181,22 +191,22 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Email set to {0}", Email);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.user;
             D.PropertyName = "email";
             D.PropertyValue = this.Email;
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "email")
-                throw new ArgumentException();
+                return false;
             this.Email = (string)D.PropertyValue;
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -225,22 +235,22 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Password set to {0}", Password);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.user;
             D.PropertyName = "password";
             D.PropertyValue = this.Password;
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "password")
-                throw new ArgumentException();
+                return false;
             this.Password = (string)D.PropertyValue;
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -262,37 +272,38 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
 
             D.EntityType = DTOType.user;
             D.PropertyValue = new JObject();
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
 
-            base.FillDTO(D);
 
             D.StreamAncestor = null;
             D.AncestorId = null;
 
+            return base.FillDTO(D);
 
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             base.FromDTO(D);
 
             try
             {
                 var val = (JObject)D.PropertyValue;
                 this.Target = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                return true;
                 //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
             }
             catch
             {
-
+                return false;
             }
 
         }
@@ -316,20 +327,20 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0} became a follower of user {1}.", this.AggregateId, this.Target);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "following";
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "following")
-                throw new ArgumentException();
+                return false;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -352,20 +363,20 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0} stopped following user {1}.", this.AggregateId, this.Target);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (IDelPropertyDTO)Dto;
+            var D = Dto as IDelPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "following";
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (IDelPropertyDTO)Dto;
+            var D = Dto as IDelPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "following")
-                throw new ArgumentException();
+                return false;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -387,20 +398,20 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0}: requested collaboration with {1}.", this.AggregateId, this.Target);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "wannabes";
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "wannabes")
-                throw new ArgumentException();
+                return false;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
 
         }
 
@@ -423,20 +434,20 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0}: denied collaboration with {1}.", this.AggregateId, this.Target);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "unworthies";
-            base.FillDTO(D);
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "unworthies")
-                throw new ArgumentException();
+                return false;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
         }
 
     }
@@ -465,9 +476,9 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"User {0} added garden {1}.", this.AggregateId, this.GardenId);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.user;
             D.PropertyName = "garden";
             D.PropertyValue = new JObject();
@@ -475,19 +486,20 @@ namespace Growthstories.Domain.Messaging
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AggregateId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.GardenId.ToString();
 
-            base.FillDTO(D);
 
             D.StreamAncestor = null;
             D.AncestorId = null;
 
+            return base.FillDTO(D);
+
 
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "garden")
-                throw new ArgumentException();
+                return false;
 
             base.FromDTO(D);
 
@@ -496,10 +508,11 @@ namespace Growthstories.Domain.Messaging
                 var val = (JObject)D.PropertyValue;
                 this.GardenId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
                 //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+                return true;
             }
             catch
             {
-
+                return false;
             }
 
         }
@@ -531,32 +544,32 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.EntityType = DTOType.user;
             D.PropertyName = "locationEnabled";
             D.PropertyValue = LocationEnabled;
-            base.FillDTO(D);
 
             D.StreamAncestor = null;
             D.AncestorId = null;
+            return base.FillDTO(D);
         }
 
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             if (D.EntityType != DTOType.user || D.PropertyName != "locationEnabled")
-                throw new ArgumentException();
+                return false;
 
             this.LocationEnabled = D.PropertyValue;
-            base.FromDTO(D);
+            return base.FromDTO(D);
         }
 
 
         public UserState AggregateState { get; set; }
-    
+
     }
 
 

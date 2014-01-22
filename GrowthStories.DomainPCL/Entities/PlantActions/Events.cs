@@ -1,12 +1,10 @@
-﻿using Growthstories.Domain.Entities;
-using Growthstories.Core;
-using System;
-using System.Linq;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using Growthstories.Sync;
-using Newtonsoft.Json.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Growthstories.Core;
+using Growthstories.Domain.Entities;
+using Growthstories.Sync;
+using Newtonsoft.Json;
 
 
 namespace Growthstories.Domain.Messaging
@@ -30,7 +28,7 @@ namespace Growthstories.Domain.Messaging
         DTOType.addPruning,
         DTOType.addSprouting,
         DTOType.addTransfer
-   
+
         )]
     public class PlantActionCreated : EventBase, ICreateMessage, IAggregateEvent<PlantActionState>
     {
@@ -138,9 +136,9 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created PlantAction of type {0}", Type);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ICreatePlantActionDTO)Dto;
+            var D = Dto as ICreatePlantActionDTO; if (Dto == null) return false;
             D.Note = this.Note;
             D.ParentId = this.PlantId;
 
@@ -185,13 +183,13 @@ namespace Growthstories.Domain.Messaging
                 D.FBUid = this.FBUid;
             }
 
-            base.FillDTO(D);
+            return base.FillDTO(D);
             //D.Name = this.Name;
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ICreatePlantActionDTO)Dto;
+            var D = Dto as ICreatePlantActionDTO; if (Dto == null) return false;
 
             this.Note = D.Note;
 
@@ -239,9 +237,11 @@ namespace Growthstories.Domain.Messaging
                 this.FBUid = D.FBUid;
             }
 
-            base.FromDTO(D);
             this.UserId = this.AncestorId.Value;
             this.PlantId = this.ParentId.Value;
+
+            return base.FromDTO(D);
+
         }
 
 
@@ -333,25 +333,25 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
 
             if (!ValidTypes.ContainsKey(D.EntityType))
-                throw new ArgumentException();
+                return false;
             if (D.PropertyName == "blobKey")
-                throw new ArgumentException();
+                return false;
 
 
             this.Type = ValidTypes[D.EntityType];
 
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "note";
             D.PropertyValue = this.Note;
 
@@ -368,6 +368,8 @@ namespace Growthstories.Domain.Messaging
             base.FillDTO(D);
 
             D.ParentId = null;
+
+            return true;
         }
     }
 
@@ -388,23 +390,23 @@ namespace Growthstories.Domain.Messaging
             this.BlobKey = cmd.BlobKey;
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
 
             if (D.PropertyName != "blobKey")
-                throw new ArgumentException();
+                return false;
 
             this.BlobKey = D.PropertyValue;
             if (D.Pmd != null && D.Pmd.RemoteUri != null)
                 this.Pmd = D.Pmd;
 
-            base.FromDTO(D);
+            return base.FromDTO(D);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (ISetPropertyDTO)Dto;
+            var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
             D.PropertyName = "blobKey";
             D.PropertyValue = this.BlobKey;
             D.EntityType = DTOType.photo;
@@ -412,6 +414,7 @@ namespace Growthstories.Domain.Messaging
             base.FillDTO(D);
 
             D.ParentId = null;
+            return true;
         }
     }
 

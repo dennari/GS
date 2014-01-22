@@ -1,55 +1,15 @@
-﻿using CommonDomain;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Growthstories.Core;
 using Growthstories.Domain.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace Growthstories.Sync
 {
     public static class DTOTypeExtensions
     {
 
-        public static IDomainEvent ToEvent(this EventDTOUnion dt)
-        {
-            foreach (var T in EventCache.GetEvents(dt.EventType))
-            {
-                try
-                {
-                    var instance = (IDomainEvent)JsonConvert.DeserializeObject("{}", T, new JsonSerializerSettings() { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
-                    instance.FromDTO(dt);
-                    return instance;
-                }
-                catch (Exception) { }
-            }
 
-            return null;
-
-        }
-
-        public static IEventDTO ToDTO(this IDomainEvent e)
-        {
-            //try
-            //{
-            DTOType[] T = e.GetDTOType();
-            if (T.Length == 0)
-                return null;
-            var instance = new EventDTOUnion()
-            {
-                EventType = T[0]
-            };
-            e.FillDTO(instance);
-            return instance;
-            //}
-            //catch (Exception) { }
-
-            //return null;
-        }
 
 
         public static T GetAttribute<T>(this Type o) where T : Attribute
@@ -116,7 +76,7 @@ namespace Growthstories.Sync
                                     DTOToEvent[DTOT] = new List<Type>() { T };
                                 }
                             }
-                        }                       
+                        }
                     }
 
                     catch (Exception)

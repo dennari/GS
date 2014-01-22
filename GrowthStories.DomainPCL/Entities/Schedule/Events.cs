@@ -44,21 +44,21 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created Schedule {0}", EntityId);
         }
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (IAddIntervalScheduleDTO)Dto;
+            var D = Dto as IAddIntervalScheduleDTO; if(Dto == null) return false;
             D.Interval = this.Interval;
 
 
-            base.FillDTO(D);
+            return base.FillDTO(D);
             //D.Name = this.Name;
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (IAddIntervalScheduleDTO)Dto;
+            var D = Dto as IAddIntervalScheduleDTO; if(Dto == null) return false;
             this.Interval = D.Interval;
-            base.FromDTO(D);
+            return base.FromDTO(D);
         }
 
 

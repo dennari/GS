@@ -1,10 +1,7 @@
-﻿using Growthstories.Domain.Entities;
+﻿using System;
 using Growthstories.Core;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using Growthstories.Sync;
+using Newtonsoft.Json;
 
 
 namespace Growthstories.Domain.Messaging
@@ -15,9 +12,9 @@ namespace Growthstories.Domain.Messaging
     {
 
 
-        void FillDTO(IEventDTO Dto);
+        bool FillDTO(IEventDTO Dto);
 
-        void FromDTO(IEventDTO Dto);
+        bool FromDTO(IEventDTO Dto);
 
     }
 
@@ -97,7 +94,7 @@ namespace Growthstories.Domain.Messaging
 
         }
 
-        public virtual void FromDTO(IEventDTO Dto)
+        public virtual bool FromDTO(IEventDTO Dto)
         {
             this.AggregateId = Dto.AggregateId;
             this.AggregateVersion = Dto.AggregateVersion;
@@ -110,10 +107,11 @@ namespace Growthstories.Domain.Messaging
             this.ParentId = Dto.ParentId;
             this.AncestorId = Dto.AncestorId;
 
+            return true;
 
         }
 
-        public virtual void FillDTO(IEventDTO Dto)
+        public virtual bool FillDTO(IEventDTO Dto)
         {
             Dto.AggregateId = this.AggregateId;
             Dto.EntityId = this.EntityId ?? this.AggregateId;
@@ -125,6 +123,8 @@ namespace Growthstories.Domain.Messaging
             Dto.ParentAncestorId = this.ParentAncestorId;
             Dto.ParentId = this.ParentId;
             Dto.AncestorId = this.AncestorId;
+
+            return true;
         }
 
 
@@ -163,11 +163,11 @@ namespace Growthstories.Domain.Messaging
     public class AggregateDeleted : EventBase, IDeleteEvent
     {
 
-        
+
         public AggregateDeleted() { }
 
         [JsonProperty]
-        public string Kind {get; set; }
+        public string Kind { get; set; }
 
         public AggregateDeleted(IDeleteCommand cmd)
             : base(cmd)
@@ -182,11 +182,10 @@ namespace Growthstories.Domain.Messaging
         }
 
 
-        public override void FillDTO(IEventDTO Dto)
+        public override bool FillDTO(IEventDTO Dto)
         {
-            var D = (IDelEntityDTO)Dto;
+            var D = Dto as IDelEntityDTO; if (Dto == null) return false;
 
-            base.FillDTO(D);
 
             switch (this.Kind)
             {
@@ -261,14 +260,19 @@ namespace Growthstories.Domain.Messaging
                 // BUG
                 D.EntityType = DTOType.NOTYPE;
             }
+            return base.FillDTO(D);
         }
 
-        public override void FromDTO(IEventDTO Dto)
+        public override bool FromDTO(IEventDTO Dto)
         {
-            var D = (IDelEntityDTO)Dto;
+
+            var D = Dto as IDelEntityDTO;
+            if (D == null)
+                return false;
 
 
-            base.FromDTO(D);
+
+            return base.FromDTO(D);
         }
     }
 
