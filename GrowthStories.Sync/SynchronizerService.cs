@@ -18,23 +18,23 @@ namespace Growthstories.Sync
 
     public class SynchronizerService : ISynchronizer, IEnableLogger
     {
-        private int AutoSyncCount = 0;
-        private bool AutoSyncEnabled = true;
+        //private int AutoSyncCount = 0;
+        //private bool AutoSyncEnabled = true;
 
-        private Task<ISyncInstance> currentSynchronize;
-        private Task<Tuple<AllSyncResult, GSStatusCode?>> currentSyncAll;
+        //private Task<ISyncInstance> currentSynchronize;
+        //private Task<Tuple<AllSyncResult, GSStatusCode?>> currentSyncAll;
 
 
         private IDisposable AutoSyncSubscription = Disposable.Empty;
 
-        private readonly Subject<IGSAppState> AutoSyncSubject = new Subject<IGSAppState>();
+        //private readonly Subject<IGSAppState> AutoSyncSubject = new Subject<IGSAppState>();
 
         private readonly IDispatchCommands Handler;
         private readonly IRequestFactory RequestF;
         private readonly IMessageBus MessageBus;
         private readonly IUserService AuthService;
 
-        private readonly TimeSpan ThrottleInterval;
+        //private readonly TimeSpan ThrottleInterval;
 
         public SynchronizerService(
             IDispatchCommands handler,
@@ -49,21 +49,14 @@ namespace Growthstories.Sync
             this.RequestF = requestF;
             this.MessageBus = messageBus;
             this.AuthService = authService;
-
-            if (IsAutoSyncEnabled)
-            {
-                this.AutoSyncSubject
-                    .Throttle(new TimeSpan(0, 0, throttleInterval))
-                    .Subscribe(x =>
-                    {
-                        this.Log().Info("AutoSync started");
-                        SyncAll(x);
-                    });
-            }
+            this.IsAutoSyncEnabled = IsAutoSyncEnabled;
+            this.ThrottleInterval = throttleInterval;
 
         }
 
         private AsyncLock _SyncLock = new AsyncLock();
+        private bool IsAutoSyncEnabled;
+        private int ThrottleInterval;
 
         public async Task<IDisposable> AcquireLock()
         {
@@ -157,12 +150,11 @@ namespace Growthstories.Sync
         }
 
 
-        private async Task<ISyncInstance> Synchronize(IGSAppState appState)
+        public async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
 
             var request = await CreateSyncRequest(appState);
             return await _Synchronize(request, appState);
-
 
         }
 
@@ -308,7 +300,7 @@ namespace Growthstories.Sync
                new IPhotoUploadRequest[0],
                null
             );
-            await Prev(currentSynchronize);
+            //await Prev(currentSynchronize);
             return await this._Synchronize(s);
         }
 
@@ -316,23 +308,36 @@ namespace Growthstories.Sync
 
         public IDisposable SubscribeForAutoSync(IGSAppState appState)
         {
+            if (appState == null || !IsAutoSyncEnabled)
+                return AutoSyncSubscription;
 
             AutoSyncSubscription.Dispose();
-            AutoSyncSubscription = this.MessageBus.Listen<IEvent>().OfType<EventBase>().Subscribe(e =>
-            {
-                if (e.AggregateId == appState.User.Id
-                    || e.AncestorId == appState.User.Id
-                    || e.EntityId == appState.User.Id
-                    || e.StreamAncestorId == appState.User.Id
-                    || e.StreamEntityId == appState.User.Id)
+            AutoSyncSubscription = this.MessageBus
+                .Listen<IEvent>()
+                .OfType<EventBase>()
+                .Where(e =>
                 {
-                    // this is an async call, so it will not block
-                    //PossiblyAutoSync(appState);
+                    if (appState.User == null)
+                        return false;
+                    if (e.AggregateId == appState.User.Id
+                       || e.AncestorId == appState.User.Id
+                       || e.EntityId == appState.User.Id
+                       || e.StreamAncestorId == appState.User.Id
+                       || e.StreamEntityId == appState.User.Id)
+                    {
+                        return true;
 
-                    this.AutoSyncSubject.OnNext(appState);
+                    }
+                    return false;
+                })
+                .Throttle(new TimeSpan(0, 0, ThrottleInterval))
+                .Select(_ => appState)
+                .Subscribe(x =>
+                {
+                    this.Log().Info("AutoSync started");
+                    var r = SyncAll(x);
+                });
 
-                }
-            });
 
             return AutoSyncSubscription;
         }

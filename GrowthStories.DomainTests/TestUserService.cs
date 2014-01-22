@@ -60,7 +60,20 @@ namespace Growthstories.DomainTests
 
         public Task<IAuthResponse> AuthorizeUser(string email, string password)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            var r = new AuthResponse()
+            {
+                AuthToken = new AuthToken("", 0, "") { },
+                StatusCode = GSStatusCode.OK,
+                StatusDescription = "OK"
+            };
+            return Task.FromResult((IAuthResponse)r);
+        }
+
+
+        public void ClearAuthorization()
+        {
+            //throw new NotImplementedException();
         }
     }
 

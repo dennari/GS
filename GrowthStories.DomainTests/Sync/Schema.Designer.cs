@@ -111,7 +111,7 @@ namespace Growthstories.DomainTests.Sync {
         ///		},
         ///		&quot;streamAncestor&quot;: {
         ///			&quot;type&quot;:&quot;string&quot;,
-        ///			&quot;id&quot;: &quot;http://js [rest of string was truncated]&quot;;.
+        ///			&quot;id&quot;: &quot;http://js [rest of string was truncated]&quot;.
         /// </summary>
         internal static string ievent {
             get {

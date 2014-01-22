@@ -45,7 +45,7 @@ namespace Growthstories.DomainTests
     public class SyncEngineTestsSetup : TestModule
     {
 
-        protected override void HttpConfiguration()
+        protected override void HttpConfiguration(string host = "default.lan", int port = 80)
         {
             Bind<IHttpClient, ITransportEvents, FakeHttpClient>().To<FakeHttpClient>().InSingletonScope();
             Bind<IEndpoint, FakeEndpoint>().To<FakeEndpoint>().InSingletonScope();

@@ -81,7 +81,7 @@ namespace Growthstories.UI.ViewModel
         //IDictionary<IconType, Uri> IconUri { get; }
         //IDictionary<IconType, Uri> BigIconUri { get; }
         IMutableDependencyResolver Resolver { get; }
-        //GSApp Model { get; }
+        GSApp Model { get; }
         T SetIds<T>(T cmd, Guid? parentId = null, Guid? ancestorId = null) where T : IAggregateCommand;
 
         IDictionary<Guid, PullStream> SyncStreams { get; }

@@ -84,6 +84,7 @@
     <Compile Include="IDispatchCommands.cs" />
     <Compile Include="Mixins.cs" />
     <Compile Include="Repositories\GSRepository.cs" />
+    <Compile Include="Services\GSNullLog.cs" />
     <Compile Include="Services\MessageBusDispatcher.cs" />
     <Compile Include="Messaging\CommandBase.cs" />
     <Compile Include="Messaging\EventBase.cs" />

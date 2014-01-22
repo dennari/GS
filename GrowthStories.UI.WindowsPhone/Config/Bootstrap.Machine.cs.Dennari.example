@@ -1,6 +1,10 @@
 ﻿
+using System;
 using EventStore.Logging;
 using Growthstories.Core;
+using Growthstories.Sync;
+using Growthstories.UI.Services;
+using Growthstories.UI.ViewModel;
 using ReactiveUI;
 namespace Growthstories.UI.WindowsPhone
 {
@@ -26,9 +30,52 @@ namespace Growthstories.UI.WindowsPhone
             GSRemoteLog.Host = LOGHOST;
             GSRemoteLog.Port = LOGPORT;
 
-            RxUIResolver.Register(() => GSRemoteLog.Instance, typeof(ILogger));
-            LogFactory.BuildLogger = type => new GSRemoteLog(type);
-            GSLogFactory.BuildLogger = type => new GSRemoteLog(type);
+
+
+            RxUIResolver.Register(() => new GSRemoteLog(null, Filter), typeof(ILogger));
+            LogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
+            GSLogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
+        }
+
+        protected override void AppConfiguration()
+        {
+            Bind<IIAPService>().To<GSIAPMock>().InSingletonScope();
+            Bind<IScheduleService>().To<GardenScheduler>()
+                .InSingletonScope()
+                .WithConstructorArgument(new TimeSpan(0, 0, 10));
+
+            Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
+
+        }
+
+
+        private bool Filter(Type type, string message)
+        {
+            if (type != null && type.Name != null)
+            {
+                switch (type.Name)
+                {
+                    case "JsonSerializer":
+                    case "OptimisticEventStream":
+                    case "OptimisticPipelineHook":
+                    case "SQLiteUIPersistence":
+                    case "SQLitePersistenceEngine":
+                    case "OptimisticEventStore":
+                    case "SynchronousDispatchScheduler":
+                        return false;
+                }
+            }
+
+            if (message.StartsWith("ReactiveObject")
+                || message.StartsWith("MemoizingMRUCache")
+                || message.StartsWith("MessageBus")
+                || message.StartsWith("ObservableAsPropertyHelper")
+                || message.StartsWith("LogHost"))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         protected override void HttpConfiguration(string host = "default.lan", int port = 80)

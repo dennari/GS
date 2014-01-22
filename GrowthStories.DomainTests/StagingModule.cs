@@ -17,7 +17,9 @@ namespace Growthstories.DomainTests
     public class StagingModule : TestModule
     {
 
-        protected override void HttpConfiguration()
+
+
+        protected override void HttpConfiguration(string host = "default.lan", int port = 80)
         {
             Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
             Bind<IEndpoint>().To<StagingEndpoint>();
@@ -30,6 +32,7 @@ namespace Growthstories.DomainTests
         {
             Bind<IUserService>().To<AppUserService>().InSingletonScope();
         }
+
 
 
 

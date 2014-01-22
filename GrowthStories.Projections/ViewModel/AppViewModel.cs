@@ -218,7 +218,7 @@ namespace Growthstories.UI.ViewModel
             this.NotifiedOnBadConnection = true;
 
             PopupViewModel pvm;
-            if (!App.HasDataConnection)
+            if (!HasDataConnection)
             {
                 this.Log().Info("images failed to load because of broken data connection");
                 pvm = new PopupViewModel()
@@ -1109,7 +1109,7 @@ namespace Growthstories.UI.ViewModel
         //
         public IEnumerable<Guid> GetCurrentPYFs()
         {
-            var us = GetUserState(App.User.Id);
+            var us = GetUserState(User.Id);
             if (us == null)
             {
                 this.Log().Warn("userstate was null");
@@ -1420,10 +1420,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public IGSAppViewModel App
-        {
-            get { return this; }
-        }
 
         private GSLocation _LastLocation;
         public GSLocation LastLocation

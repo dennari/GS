@@ -44,5 +44,19 @@ namespace Growthstories.Sync
         Task<Stream> WritePhoto(Photo photo);
     }
 
+    public class NullPhotoHandler : IPhotoHandler
+    {
+
+        public Task<Stream> ReadPhoto(Photo photo)
+        {
+            return Task.FromResult((Stream)null);
+        }
+
+        public Task<Stream> WritePhoto(Photo photo)
+        {
+            return Task.FromResult((Stream)null);
+        }
+    }
+
 
 }

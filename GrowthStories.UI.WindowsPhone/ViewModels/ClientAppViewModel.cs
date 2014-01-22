@@ -114,7 +114,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 //LeftButtonContent = "Do in background",
             };
 
-            App.ShowPopup.Execute(pvm);
+            ShowPopup.Execute(pvm);
 
             // make sure the popup is visible at least for a while
             // so user definitely knows that we are getting a location
@@ -124,7 +124,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             try
             {
                 location = await _DoGetLocation();
-                App.ShowPopup.Execute(null);
+                ShowPopup.Execute(null);
                 return location;
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
-                App.ShowPopup.Execute(popup);
+                ShowPopup.Execute(popup);
                 return null;
             }
         }
