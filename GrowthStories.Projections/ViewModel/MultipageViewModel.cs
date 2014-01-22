@@ -21,13 +21,7 @@ namespace Growthstories.UI.ViewModel
                     .Select(x => TryGetPage(x))
                     .Subscribe(x => this.SelectedPage = x);
 
-
-
                 var currentPageChanged = this.WhenAnyValue(x => x.SelectedPage).Where(x => x != null);
-
-
-                //this.ObservableForProperty(x => x.CurrentPage.)
-
 
                 currentPageChanged
                     .OfType<IHasAppBarButtons>()
@@ -157,7 +151,7 @@ namespace Growthstories.UI.ViewModel
         //}
 
         protected ObservableAsPropertyHelper<IReadOnlyReactiveList<IButtonViewModel>> _AppBarButtons;
-        public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        public virtual IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get { return _AppBarButtons != null ? _AppBarButtons.Value : null; }
         }

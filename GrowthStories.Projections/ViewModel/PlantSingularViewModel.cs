@@ -104,6 +104,23 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public override IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get 
+            {
+                if (App != null && App.IsRegistered)
+                {
+                    return base.AppBarButtons;
+                }
+
+                if (base.AppBarButtons != null)
+                {
+                    return base.AppBarButtons.ToObservable().Where(x => x.Text != "share").CreateCollection();     
+                }
+                return null;
+            }
+        }
+
 
         public override string UrlPathSegment
         {
