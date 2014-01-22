@@ -145,7 +145,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return string.Format("{0}", this.Type == ScheduleType.WATERING ? "watering schedule" : "fertilizing schedule");
+                return string.Format("{0}", this.Type == ScheduleType.WATERING ? "watering schedule" : "nourishing schedule");
             }
         }
 

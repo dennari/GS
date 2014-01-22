@@ -73,6 +73,7 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+
         private void TimeLine_Loaded(object sender, RoutedEventArgs e)
         {
             // hack to hide the scrollbar from longlistselector

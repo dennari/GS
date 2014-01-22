@@ -92,9 +92,6 @@
     </Style>
 
 
-
-
-
     <Style TargetType="ContentControl" x:Key="PlantNextAction">
         <Setter Property="Template">
             <Setter.Value>
@@ -106,17 +103,10 @@
                             <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
                         </StackPanel>
 
-                        <TextBlock Width="110" TextAlignment="Right" Text="NOW" Style="{StaticResource GSActionListWeekDayStyle}" 
+                        <TextBlock Width="96" TextAlignment="Left" Text="NOW" FontWeight="Bold" Style="{StaticResource GSActionListWeekDayStyle}" 
                                   Visibility="{Binding Now, Converter={StaticResource BooleanToVisibility}}" VerticalAlignment="Center"/>
 
                         <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-
-                        <!--
-                        <TextBlock Text="UPCOMING" Style="{StaticResource GSActionListItemTitleStyle}" 
-                             Visibility="{Binding Missed, Converter={StaticResource NullToVisibility},  ConverterParameter=negate}" VerticalAlignment="Center"/>
-
-                        <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" Visibility="{Binding Missed, Converter={StaticResource NullToVisibility}}" VerticalAlignment="Center"/>
-                        -->
 
                         <TextBlock Text="{Binding MissedText}" Style="{StaticResource GSActionListItemTitleStyle}" VerticalAlignment="Center"/>
 
@@ -125,8 +115,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-
 
 
     <Style TargetType="local:PlantActionView" x:Key="PlantTodayStyle">
@@ -350,7 +338,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Hidden">
                                 <Grid Margin="24,20,24,24" HorizontalAlignment="Stretch">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>

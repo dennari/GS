@@ -159,11 +159,8 @@ namespace Growthstories.Sync
 
         private async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
-
             var request = await CreateSyncRequest(appState);
             return await _Synchronize(request, appState);
-
-
         }
 
 

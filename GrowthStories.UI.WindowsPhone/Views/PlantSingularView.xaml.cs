@@ -1,6 +1,8 @@
 ﻿using System;
 using Growthstories.UI.ViewModel;
-
+using ReactiveUI;
+using System.Windows.Media.Animation;
+using System.Windows;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -15,6 +17,7 @@ namespace Growthstories.UI.WindowsPhone
 
     public partial class PlantSingularView : PlantSingularViewBase
     {
+
         // maybe just use the viewmodel's Log() extension method?
         //private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
 
@@ -27,13 +30,39 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = Double.NaN;
             }
-
         }
 
 
         protected override void OnViewModelChanged(IPlantSingularViewModel vm)
         {
             base.OnViewModelChanged(vm);
+
+            vm.WhenAnyValue(x => x.Plant.Name).Subscribe(name =>
+            {
+                if (name != null)
+                {
+                    FadeIn();
+                }
+            });
+        }
+
+
+        private void FadeIn()
+        {
+            DoubleAnimation wa = new DoubleAnimation();
+            wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
+            wa.BeginTime = TimeSpan.FromSeconds(0.2);
+            wa.From = 0;
+            wa.To = 1.0;
+            wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
+            Storyboard sb = new Storyboard();
+            sb.Children.Add(wa);
+
+            Storyboard.SetTarget(wa, SingularViewMainContent);
+            Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
+
+            sb.Begin();
         }
 
 

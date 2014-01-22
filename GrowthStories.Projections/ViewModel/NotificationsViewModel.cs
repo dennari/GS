@@ -19,6 +19,7 @@ namespace Growthstories.UI.ViewModel
         FERTILIZING_SCHEDULE,
     }
 
+
     public sealed class Notification : IComparable<Notification>
     {
         public string Name { get; set; }

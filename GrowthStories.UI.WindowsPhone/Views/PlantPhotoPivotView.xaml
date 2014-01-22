@@ -31,13 +31,17 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!--
+        SelectedItem="{Binding Selected}"
+        -->
 
         <telerikPrimitives:RadSlideView 
             x:Name="TheSlideView" ItemsSource="{Binding Photos}" 
-            SelectedItem="{Binding Selected}"
             IsFilmstripModeEnabled="True" 
             ItemRealizationMode="Default" 
-            IsLoopingEnabled="False">
+            IsLoopingEnabled="False"
+            Loaded="TheSlideView_Loaded"
+            >
             <telerikPrimitives:RadSlideView.ItemTemplate>
                 <DataTemplate>
                     <slideView:PanAndZoomImage 

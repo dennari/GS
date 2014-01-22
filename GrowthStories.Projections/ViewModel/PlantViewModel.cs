@@ -240,9 +240,6 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-
-
-
             Observable.CombineLatest(
                      App.WhenAnyValue(x => x.User),
                      stateObservable,
@@ -255,12 +252,10 @@ namespace Growthstories.UI.ViewModel
             {
                 this.Init(zz.Item2, zz.Item1);
 
-
                 var actionsAccessed = this.WhenAnyValue(x => x.ActionsAccessed).Where(x => x).Take(1);
 
                 actionsAccessed.SelectMany(_ =>
                 {
-
                     return Observable.CombineLatest(
                         this.WhenAnyValue(y => y.WateringSchedule).Where(y => y != null),
                         this.Actions.ItemsAdded.StartWith(this.Actions).Where(x => x.ActionType == PlantActionType.WATERED),
@@ -296,6 +291,11 @@ namespace Growthstories.UI.ViewModel
                     this.FertilizingScheduler.LastActionTime = x.Item2.Created;
                 });
 
+                actionsAccessed.Subscribe(_ =>
+                {
+                    SubscribeForActionRemovedSchedulerUpdates();
+                });
+
                 this.WhenAnyValue(x => x.FertilizingScheduler.Missed, x => x.WateringScheduler.Missed, (a, b) => a + b)
                 .Subscribe(x =>
                 {
@@ -316,6 +316,55 @@ namespace Growthstories.UI.ViewModel
             });
 
         }
+
+
+        // subscribe for updates regarding removed actions
+        //
+        private void SubscribeForActionRemovedSchedulerUpdates()
+        {
+            Actions.ItemsRemoved.Where(r => r.ActionType == PlantActionType.WATERED).Subscribe(r =>
+            {
+                var action = GetLatestAction(PlantActionType.WATERED);
+                if (this.WateringScheduler != null)
+                {
+                    if (action != null)
+                    {
+                        this.WateringScheduler.LastActionTime = action.Created;
+                    }
+                    else
+                    {
+                        this.WateringScheduler.LastActionTime = null;
+                    }
+                }
+            });
+            Actions.ItemsRemoved.Where(r => r.ActionType == PlantActionType.FERTILIZED).Subscribe(r =>
+            {
+                var action = GetLatestAction(PlantActionType.WATERED);
+                if (this.FertilizingScheduler != null && action != null)
+                {
+                    if (action != null)
+                    {
+                        this.FertilizingScheduler.LastActionTime = action.Created;   
+                    } else 
+                    {
+                        this.FertilizingScheduler.LastActionTime = null;
+                    }
+                }
+            });
+        }
+
+
+        private IPlantActionViewModel GetLatestAction(PlantActionType type)
+        {
+            var ret = Actions.Where(x => x.ActionType == type).OrderBy(x => x.ActionIndex).Take(1);
+            if (ret.Count() == 0)
+            {
+                return null;
+            }
+            return ret.First();
+        }
+
+
 
         private GSLocation _Location;
         public GSLocation Location

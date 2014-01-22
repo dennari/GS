@@ -41,8 +41,6 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IPhotoListViewModel vm)
         {
-
-
             //RadSlideView view = TheSlideView;
 
             //view.SelectedItem = vm.Selected;
@@ -51,6 +49,13 @@ namespace Growthstories.UI.WindowsPhone
             //{
             //    view.SelectedItem = x;
             //});
+        }
+
+
+        private void TheSlideView_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Log().Info("setting selected  to #{0}, {1}", ViewModel.Selected.ActionIndex, ViewModel.Selected.PlantActionId);
+            TheSlideView.SelectedItem = ViewModel.Selected;
         }
 
 
