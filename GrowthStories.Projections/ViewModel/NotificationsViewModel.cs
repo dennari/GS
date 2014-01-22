@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using Growthstories.Domain.Messaging;
 using Growthstories.UI.Services;
 using ReactiveUI;
-
+using Growthstories.Domain.Entities;
 
 
 namespace Growthstories.UI.ViewModel
@@ -136,6 +136,17 @@ namespace Growthstories.UI.ViewModel
 
                     plant.WhenAnyValue(y => y.IsWateringScheduleEnabled).Subscribe(_ => UpdateWateringNotification(plant));
                     plant.WhenAnyValue(y => y.IsFertilizingScheduleEnabled).Subscribe(_ => UpdateFertilizingNotification(plant));
+
+                    latestActions.ItemsRemoved.Where(z => z.ActionType == PlantActionType.WATERED).Subscribe(_ =>
+                    {
+                        UpdateWateringNotification(plant);
+                    });
+
+                    latestActions.ItemsRemoved.Where(z => z.ActionType == PlantActionType.FERTILIZED).Subscribe(_ =>
+                    {
+                        UpdateFertilizingNotification(plant);
+                    });
+
                 });
 
 

@@ -204,8 +204,8 @@ namespace Growthstories.UI.Services
             this._OwnPlant = own;
 
             this.WhenAnyValue(x => x.LastActionTime)
-                .Where(x => x.HasValue)
-                .Subscribe(x => this.ComputeNext());
+              //  .Where(x => x.HasValue)
+                  .Subscribe(x => this.ComputeNext());
 
         }
 

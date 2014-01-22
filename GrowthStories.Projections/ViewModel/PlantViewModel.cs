@@ -333,21 +333,21 @@ namespace Growthstories.UI.ViewModel
                     }
                     else
                     {
-                        this.WateringScheduler.LastActionTime = null;
+                        this.WateringScheduler = null;
                     }
                 }
             });
             Actions.ItemsRemoved.Where(r => r.ActionType == PlantActionType.FERTILIZED).Subscribe(r =>
             {
                 var action = GetLatestAction(PlantActionType.WATERED);
-                if (this.FertilizingScheduler != null && action != null)
+                if (this.FertilizingScheduler != null)
                 {
                     if (action != null)
                     {
                         this.FertilizingScheduler.LastActionTime = action.Created;   
                     } else 
                     {
-                        this.FertilizingScheduler.LastActionTime = null;
+                        this.FertilizingScheduler = null;
                     }
                 }
             });

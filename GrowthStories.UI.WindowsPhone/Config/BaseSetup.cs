@@ -127,11 +127,16 @@ namespace Growthstories.Configuration
         {
             Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
 
-            Bind<IEndpoint>().ToConstructor(ctx => new Endpoint(new Uri(string.Format("http://{0}:{1}", host, port)))).InSingletonScope();
+            Bind<IEndpoint>().ToConstructor(ctx => new Endpoint(new Uri(string.Format("{0}://{1}:{2}", Protocol(), host, port)))).InSingletonScope();
 
             Bind<IRequestFactory, RequestFactory>().To<RequestFactory>().InSingletonScope();
             Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
+        }
 
+
+        protected virtual string Protocol()
+        {
+            return "http";
         }
 
         protected virtual void FileSystemConfiguration()

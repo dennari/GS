@@ -12,6 +12,8 @@ using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Shell;
 using Newtonsoft.Json;
 using ReactiveUI;
+using Growthstories.Domain.Entities;
+
 
 namespace GrowthStories.UI.WindowsPhone.BA
 {
@@ -278,16 +280,33 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     UpdateTileAndInfoAfterDelay(x);
                 });
 
-                // also watch for added photos
-                x.WhenAnyValue(w => w.Actions.ItemsAdded)
-                    .Subscribe(u =>
+                x.Actions.ItemsAdded.Subscribe(a =>
                 {
-                    UpdateTileAndInfoAfterDelay(x);
+                    if (a.ActionType == PlantActionType.PHOTOGRAPHED)
+                    {
+                        UpdateTileAndInfoAfterDelay(x);
+                    }
                 });
+
+                // also watch for added photos
+                //x.Actions.ItemsAdded
+                //    .Where(u => u.)
+                //    .Subscribe(u =>
+                //{
+                //    UpdateTileAndInfoAfterDelay(x);
+                //});
+
+                x.Actions.ItemsRemoved.Subscribe(a =>
+                {
+                    if (a.ActionType == PlantActionType.WATERED || a.ActionType == PlantActionType.FERTILIZED)
+                    {
+                        UpdateTileAndInfoAfterDelay(x);
+                    }
+                });
+
             });
 
             garden.Plants.ItemsRemoved.Subscribe(x => ClearTileUpdateInfo(x));
-
         }
 
 
