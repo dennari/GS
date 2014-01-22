@@ -95,16 +95,21 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"Created user {0}", AggregateId);
         }
 
+
         public override bool FillDTO(IEventDTO Dto)
         {
             var D = Dto as ICreateUserDTO; if (Dto == null) return false;
             D.Username = this.Username;
             D.Password = this.Password;
             D.Email = this.Email;
+            
+            base.FillDTO(D);
             D.StreamAncestor = null;
             D.AncestorId = null;
-            return base.FillDTO(D);
+            
+            return true;
         }
+
 
         public override bool FromDTO(IEventDTO Dto)
         {
@@ -281,12 +286,11 @@ namespace Growthstories.Domain.Messaging
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = null;
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.Target.ToString();
 
-
+            base.FillDTO(D);
             D.StreamAncestor = null;
             D.AncestorId = null;
 
-            return base.FillDTO(D);
-
+            return true;
         }
 
         public override bool FromDTO(IEventDTO Dto)
@@ -486,13 +490,12 @@ namespace Growthstories.Domain.Messaging
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AggregateId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.GardenId.ToString();
 
+            base.FillDTO(D);
 
             D.StreamAncestor = null;
             D.AncestorId = null;
 
-            return base.FillDTO(D);
-
-
+            return true;
         }
 
         public override bool FromDTO(IEventDTO Dto)
@@ -550,10 +553,13 @@ namespace Growthstories.Domain.Messaging
             D.EntityType = DTOType.user;
             D.PropertyName = "locationEnabled";
             D.PropertyValue = LocationEnabled;
+            
+            base.FillDTO(D);
 
             D.StreamAncestor = null;
             D.AncestorId = null;
-            return base.FillDTO(D);
+
+            return true;
         }
 
 
