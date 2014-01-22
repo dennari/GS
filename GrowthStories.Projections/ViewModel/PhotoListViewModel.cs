@@ -5,10 +5,12 @@ using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
+
     public class PhotoListViewModel : RoutableViewModel, IPhotoListViewModel
     {
 
-        public IList<IPlantPhotographViewModel> Photos { get; private set; }
+        public IReactiveDerivedList<IPlantPhotographViewModel> Photos { get; private set; }
+
 
         private IPlantPhotographViewModel _Selected;
         public IPlantPhotographViewModel Selected
@@ -24,12 +26,20 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public PhotoListViewModel(IList<IPlantPhotographViewModel> photos, IGSAppViewModel app, IPlantPhotographViewModel selected = null)
+
+        public PhotoListViewModel(IReactiveDerivedList<IPlantPhotographViewModel> photos, IGSAppViewModel app, IPlantPhotographViewModel selected = null)
             : base(app)
         {
+            this.Log().Info("initializing photolistviewmodel {0}", selected);
             this.Photos = photos;
-            Selected = selected ?? photos.First();
-
+            if (selected == null)
+            {
+                selected = photos.First();
+            }
+            else
+            {
+                Selected = selected;
+            }
         }
 
         public override string UrlPathSegment

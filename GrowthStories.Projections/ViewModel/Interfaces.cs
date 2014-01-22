@@ -300,10 +300,9 @@ namespace Growthstories.UI.ViewModel
 
     public interface IPhotoListViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsPageOrientation
     {
-        IList<IPlantPhotographViewModel> Photos { get; }
+        IReactiveDerivedList<IPlantPhotographViewModel> Photos { get; }
 
         IPlantPhotographViewModel Selected { get; }
-
     }
 
 

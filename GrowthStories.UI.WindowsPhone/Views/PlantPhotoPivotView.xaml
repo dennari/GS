@@ -31,6 +31,63 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+
+        <telerikPrimitives:RadSlideView 
+            x:Name="TheSlideView" ItemsSource="{Binding Photos}" 
+            SelectedItem="{Binding Selected}"
+            IsFilmstripModeEnabled="True" 
+            ItemRealizationMode="Default" 
+            IsLoopingEnabled="False">
+            <telerikPrimitives:RadSlideView.ItemTemplate>
+                <DataTemplate>
+                    <slideView:PanAndZoomImage 
+                        ZoomMode="Free"
+                        MaximumZoom="4"
+                        Source="{Binding PhotoSource}" />
+                </DataTemplate>
+            </telerikPrimitives:RadSlideView.ItemTemplate>
+            <telerikPrimitives:RadSlideView.FilmstripModeItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding PhotoSource}" Stretch="Uniform" MaxWidth="460" HorizontalAlignment="Stretch" Margin="6,0,6,0"/>
+                </DataTemplate>
+            </telerikPrimitives:RadSlideView.FilmstripModeItemTemplate>
+        </telerikPrimitives:RadSlideView>
+
+<!--
+        <telerikPrimitives:RadSlideView x:Name="radSlideView" 
+            ItemsSource="{Binding Photos}" 
+            ItemRealizationMode="Default" 
+            AdjacentItemsPreviewMode="Both" 
+            IsLoopingEnabled="True"
+            Orientation="Horizontal">
+        
+        <telerikPrimitives:RadSlideView.ItemTemplate>
+            <DataTemplate>
+                <slideView:PanAndZoomImage Grid.Row="0"
+                        Stretch=""
+                        ZoomMode="Free"
+                        x:Name="panZoom"
+                        MaximumZoom="4"
+                        Source="{Binding PhotoSource}"/>
+            </DataTemplate>
+        </telerikPrimitives:RadSlideView.ItemTemplate>
+        <telerikPrimitives:RadSlideView.ItemPreviewTemplate>
+            <DataTemplate>
+                <slideView:PanAndZoomImage Grid.Row="0"
+                        IsEnabled="False"
+                        ZoomMode="Free"
+                        x:Name="panZoom"
+                        MaximumZoom="4"
+                        Source="{Binding PhotoSource}"/>
+            </DataTemplate>
+        </telerikPrimitives:RadSlideView.ItemPreviewTemplate>
+    </telerikPrimitives:RadSlideView>
+-->
+        
+<!--
+
+
+
         <phone:Pivot 
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"          
@@ -98,6 +155,7 @@
                             IsFullScreen="True"
                             x:Name="window"
                             IsOpen="{Binding IsZoomViewOpen, Mode=TwoWay}"
+                            Background="Black"
                             >
                             <telerikPrimitives:RadWindow.OpenAnimation>
                                 <telerikCore:RadScaleAnimation StartScaleX="0"
@@ -111,7 +169,7 @@
                                                EndScaleX="0"
                                                EndScaleY="0"/>
                             </telerikPrimitives:RadWindow.CloseAnimation>
-                            <Grid>
+                            <Grid Background="Black">
                                 <slideView:PanAndZoomImage Grid.Row="0"
                                            ZoomMode="Free"
                                            x:Name="panZoom"
@@ -135,6 +193,7 @@
             </phone:Pivot.ItemTemplate>
 
         </phone:Pivot>
+        -->
 
     </Grid>
 

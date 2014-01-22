@@ -601,7 +601,8 @@ namespace Growthstories.UI.ViewModel
                 photo.PhotoTimelineTap
                     .Subscribe(_ =>
                     {
-                        this.Navigate(new PhotoListViewModel(this.Actions.OfType<IPlantPhotographViewModel>().ToList(), App, photo));
+                        var derived = Actions.OfType<IPlantPhotographViewModel>().CreateDerivedCollection(u => u);
+                        this.Navigate(new PhotoListViewModel(derived, App, photo));
                     });
             }
 

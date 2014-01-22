@@ -35,7 +35,6 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
-
         public GardenPlantTileView()
         {
             InitializeComponent();
@@ -44,7 +43,6 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private IDisposable subscription;
-        private bool reset = false;
 
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
@@ -113,6 +111,8 @@ namespace Growthstories.UI.WindowsPhone
                 FadeIn();
             }
         }
+
+        
 
 
         // Fade the content in if not already faded/fading in
