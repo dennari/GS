@@ -259,6 +259,7 @@ namespace Growthstories.UI.ViewModel
 
             this.SynchronizeCommand.Subscribe(x =>
             {
+                App.ShowPopup.Execute(App.SyncPopup);
 
             });
 
@@ -278,10 +279,8 @@ namespace Growthstories.UI.ViewModel
 
                     return;
                 }
-
-
-
                 var res = await App.Synchronize();
+                App.ShowPopup.Execute(null);
                 if (res == null)
                     return;
                 if (res.Item1 == Sync.AllSyncResult.Error)
