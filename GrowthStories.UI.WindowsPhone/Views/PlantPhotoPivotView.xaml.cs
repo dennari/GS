@@ -56,6 +56,9 @@ namespace Growthstories.UI.WindowsPhone
         {
             ViewModel.Log().Info("setting selected  to #{0}, {1}", ViewModel.Selected.ActionIndex, ViewModel.Selected.PlantActionId);
             TheSlideView.SelectedItem = ViewModel.Selected;
+            //TheSlideView.StartSlideShow();
+            //TheSlideView.StopSlideShow();
+            //TheSlideView.UpdateLayout();
         }
 
 

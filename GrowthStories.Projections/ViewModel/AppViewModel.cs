@@ -988,12 +988,18 @@ namespace Growthstories.UI.ViewModel
             }
             catch
             {
+                if (SignInCancelRequested)
+                {
+                    return SignInResponse.canceled;
+                }
                 // this would be caused by Transporter.USerInfoAsync failing
                 return SignInResponse.connectionerror;
             }
 
             try
             {
+                // don't allow dismissing popup
+                SetDismissPopupAllowed.Execute(false);
 
                 //var empty = Disposable.Empty;
                 // do not go here while any sync operation is in progress
