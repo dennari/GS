@@ -895,7 +895,7 @@ namespace Growthstories.UI.ViewModel
                     app = await _SignOut(createUnregUser);
                 }
             }
-            
+            Synchronizer.SubscribeForAutoSync(app.State);
             //}
 
             this.SignedOut.Execute(null);
@@ -1005,7 +1005,7 @@ namespace Growthstories.UI.ViewModel
                 // do not go here while any sync operation is in progress
                 //using (var res = await _SynchronizeLock.LockAsync())
                 using (await Synchronizer.AcquireLock())
-                {    
+                {
                     var app = await SignOut(false, true);
 
                     Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
