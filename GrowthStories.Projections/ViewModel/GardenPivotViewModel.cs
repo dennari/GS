@@ -71,12 +71,18 @@ namespace Growthstories.UI.ViewModel
                     if ((o & PageOrientation.Landscape) == PageOrientation.Landscape && this.SelectedPlant != null)
                     {
                         this.SelectedPage = this.SelectedPlant.Chart;
+                        this.AppBarButtons = this.SelectedPlant.Chart.AppBarButtons;
+                        this.AppBarIsVisible = true;
                         this.InnerViewModel = this.SelectedPlant.Chart;
+
                     }
                     else
                     {
                         this.InnerViewModel = null;
                         this.SelectedPage = this.SelectedPlant;
+                        this.AppBarButtons = GetOwnerButtons();
+                        if (this.SelectedPlant != null)
+                            this.AppBarIsVisible = this.SelectedPlant.AppBarIsVisible;
                     }
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
                 });
@@ -179,10 +185,12 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+        private ReactiveList<IButtonViewModel> _OwnerButtons;
         private ReactiveList<IButtonViewModel> GetOwnerButtons()
         {
-            return new ReactiveList<IButtonViewModel>()
+            if (_OwnerButtons == null)
+            {
+                _OwnerButtons = new ReactiveList<IButtonViewModel>()
                     {
                         new ButtonViewModel(null)
                         {
@@ -211,19 +219,35 @@ namespace Growthstories.UI.ViewModel
                         },
 
                     };
+            }
+
+            return _OwnerButtons;
         }
 
 
-        private IReadOnlyReactiveList<IButtonViewModel> _AppBarButtons;
+        private IReadOnlyReactiveList<IButtonViewModel> __AppBarButtons;
         public new IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
             get
             {
-                return _AppBarButtons;
+                return __AppBarButtons;
             }
             set
             {
-                this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
+                this.RaiseAndSetIfChanged(ref __AppBarButtons, value);
+            }
+        }
+
+        private bool __AppBarIsVisible;
+        public new bool AppBarIsVisible
+        {
+            get
+            {
+                return __AppBarIsVisible;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref __AppBarIsVisible, value);
             }
         }
 
