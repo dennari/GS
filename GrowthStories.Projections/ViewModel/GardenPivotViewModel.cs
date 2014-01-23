@@ -59,6 +59,32 @@ namespace Growthstories.UI.ViewModel
                 })
                 .ToProperty(this, x => x.Plants, out _Plants);
 
+
+            this.WateringCommand = new ReactiveCommand();
+            this.WateringCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.WateringCommand.Execute(x);
+            });
+            this.PhotoCommand = new ReactiveCommand();
+            this.PhotoCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.PhotoCommand.Execute(x);
+            });
+            this.NavigateToEmptyActionCommand = new ReactiveCommand();
+            this.NavigateToEmptyActionCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.NavigateToEmptyActionCommand.Execute(x);
+            });
+            this.TryShareCommand = new ReactiveCommand();
+            this.TryShareCommand.Subscribe(x =>
+            {
+                if (this.SelectedPlant != null)
+                    this.SelectedPlant.TryShareCommand.Execute(x);
+            });
+
             // when orientation changes to landscape, show current plant's chart
             Observable.CombineLatest(
                 this.App.WhenAnyValue(y => y.Orientation),
@@ -88,30 +114,7 @@ namespace Growthstories.UI.ViewModel
                 });
 
 
-            this.WateringCommand = new ReactiveCommand();
-            this.WateringCommand.Subscribe(x =>
-            {
-                if (this.SelectedPlant != null)
-                    this.SelectedPlant.WateringCommand.Execute(x);
-            });
-            this.PhotoCommand = new ReactiveCommand();
-            this.PhotoCommand.Subscribe(x =>
-            {
-                if (this.SelectedPlant != null)
-                    this.SelectedPlant.PhotoCommand.Execute(x);
-            });
-            this.NavigateToEmptyActionCommand = new ReactiveCommand();
-            this.NavigateToEmptyActionCommand.Subscribe(x =>
-            {
-                if (this.SelectedPlant != null)
-                    this.SelectedPlant.NavigateToEmptyActionCommand.Execute(x);
-            });
-            this.TryShareCommand = new ReactiveCommand();
-            this.TryShareCommand.Subscribe(x =>
-            {
-                if (this.SelectedPlant != null)
-                    this.SelectedPlant.TryShareCommand.Execute(x);
-            });
+
 
             this.AppBarButtons = GetOwnerButtons();
 
