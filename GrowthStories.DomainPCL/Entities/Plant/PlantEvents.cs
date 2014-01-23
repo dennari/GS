@@ -93,11 +93,12 @@ namespace Growthstories.Domain.Messaging
         {
             var D = Dto as ICreatePlantDTO; if (Dto == null) return false;
             this.Name = D.Name;
-            
+
             base.FromDTO(D);
+
             this.UserId = this.AncestorId ?? default(Guid);
-            
-            return true; 
+
+            return true;
         }
 
         public PlantState AggregateState { get; set; }
@@ -139,16 +140,14 @@ namespace Growthstories.Domain.Messaging
         public override bool FillDTO(IEventDTO Dto)
         {
             var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
-            D.PropertyName = "photo";
-
-            D.PropertyValue = new JObject();
-
             base.FillDTO(D);
+
+            D.PropertyName = "photo";
+            D.PropertyValue = new JObject();
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantActionId.ToString();
-
             D.EntityType = DTOType.plant;
-            
+
             return true;
         }
 
