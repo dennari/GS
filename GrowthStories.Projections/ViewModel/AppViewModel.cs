@@ -870,7 +870,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public async Task<GSApp> SignOut(bool createUnregUser = true)
+        //
+        // skipLock = true is used when the caller already has the relevant lock
+        // 
+        public async Task<GSApp> SignOut(bool createUnregUser = true, bool skipLock = false)
         {
             // Clear db
             if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
@@ -879,29 +882,49 @@ namespace Growthstories.UI.ViewModel
             }
             GSApp app = null;
 
-            using (Synchronizer.DisableAutoSync())
+            //using (Synchronizer.DisableAutoSync())
+            //{
+            if (skipLock)
             {
-                this.ClearDB();
-                Handler.ResetApp();
-                this._Model = null;
-
-
-                if (createUnregUser)
+                app = await _SignOut(createUnregUser);
+            }
+            else
+            {
+                using (await Synchronizer.AcquireLock())
                 {
-                    await this.Initialize();
-                    app = this.Model;
-                    Router.NavigateAndReset.Execute(CreateMainViewModel());
-
-                }
-                else
-                {
-                    app = (GSApp)Handler.Handle(new CreateGSApp());
-                    this.Model = app;
+                    app = await _SignOut(createUnregUser);
                 }
             }
-
+            
+            //}
 
             this.SignedOut.Execute(null);
+            return app;
+        }
+
+
+
+        private async Task<GSApp> _SignOut(bool createUnregUser)
+        {
+            GSApp app = null;
+
+            this.ClearDB();
+            Handler.ResetApp();
+            this._Model = null;
+
+            if (createUnregUser)
+            {
+                await this.Initialize();
+                app = this.Model;
+                Router.NavigateAndReset.Execute(CreateMainViewModel());
+
+            }
+            else
+            {
+                app = (GSApp)Handler.Handle(new CreateGSApp());
+                this.Model = app;
+            }
+
             return app;
         }
 
@@ -976,13 +999,8 @@ namespace Growthstories.UI.ViewModel
                 // do not go here while any sync operation is in progress
                 //using (var res = await _SynchronizeLock.LockAsync())
                 using (await Synchronizer.AcquireLock())
-                {
-                    // now we don't want the user to cancel the popup
-                    // and allow for backward navigation instead
-                    // with back button
-                    SetDismissPopupAllowed.Execute(false);
-
-                    var app = await SignOut(false);
+                {    
+                    var app = await SignOut(false, true);
 
                     Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
                     Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
@@ -994,6 +1012,7 @@ namespace Growthstories.UI.ViewModel
 
                     Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
                 }
+
                 // important: the upcoming SyncAll operations must 
                 // not be inside the above using block, as the asynclocks
                 /// are not re-entrant 

@@ -49,8 +49,9 @@ namespace Growthstories.Sync
             this.AuthService = authService;
             this.IsAutoSyncEnabled = IsAutoSyncEnabled;
             this.ThrottleInterval = throttleInterval;
-
         }
+
+
 
         private AsyncLock _SyncLock = new AsyncLock();
         private bool IsAutoSyncEnabled;

@@ -91,7 +91,7 @@ namespace Growthstories.UI.ViewModel
         Task<IAuthUser> Initialize();
         Task<RegisterResponse> Register(string username, string email, string password);
         Task<SignInResponse> SignIn(string email, string password);
-        Task<GSApp> SignOut(bool createUnregUser = true);
+        Task<GSApp> SignOut(bool createUnregUser = true, bool skipLock = false);
         Task<Tuple<AllSyncResult, GSStatusCode?>> Synchronize();
         //Task<ISyncInstance> Push();
         Task<IGSAggregate> HandleCommand(IAggregateCommand x);

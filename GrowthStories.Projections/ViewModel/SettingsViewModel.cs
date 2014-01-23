@@ -126,6 +126,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         // I made this public so that we can construct the settingsviewmodel in the AppViewModel and then let the garden
         // set the plans before navigation - Ville
         public IReadOnlyReactiveList<IPlantViewModel> Plants
@@ -301,8 +302,6 @@ namespace Growthstories.UI.ViewModel
             App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);
 
-            // there was no obvious other way to get this info from a user
-            // aggregate, other than obtaining one
             SetGSLocationServicesEnabled(App.GSLocationServicesEnabled);
             App.WhenAnyValue(x => x.GSLocationServicesEnabled)
                 .Subscribe(x => SetGSLocationServicesEnabled(x));

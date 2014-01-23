@@ -193,7 +193,7 @@
             </phone:PanoramaItem>
             
             <!-- TESTING -->
-            
+            <!--
             <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                     <ScrollViewer>
@@ -213,11 +213,6 @@
                             
                         <Button  Command="{Binding RegisterCommand}" Content="Register"/>    
 
-                        
-                        <!--
-                        The event handler included only commented lines and I kind of deleted it - Ville
-                        <Button Tap="UpdateTiles" Content="update tiles" />-->
-
                         <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
 
                         <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
@@ -231,7 +226,7 @@
                     </ScrollViewer>
                 </Grid>
             </phone:PanoramaItem>
-            
+            -->            
             
         </phone:Panorama>
 
