@@ -314,6 +314,7 @@ namespace Growthstories.UI.ViewModel
             });
         }
 
+
         private IDisposable _ToggleSubscription;
 
         public bool AllowTriggering = false;

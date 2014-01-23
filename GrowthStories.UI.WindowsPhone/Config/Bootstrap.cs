@@ -175,7 +175,11 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
-            RxUIResolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
+
+            //RxUIResolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
+            
+            // the rad slider filmstrip mode does have some messy state, and therefore we want to start clean each time
+            RxUIResolver.Register(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
 
             //RxUIResolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
             RxUIResolver.Register(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));

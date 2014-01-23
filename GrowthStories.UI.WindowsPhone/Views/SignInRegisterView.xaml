@@ -110,6 +110,7 @@
                 Converter={StaticResource NullToVisibility}}"
             />
 
+                  <!-- disabled because unclear whether this is according to guidelines 
             <Button 
                     Style="{StaticResource GSButtonStyle}"
                     HorizontalAlignment="Left"
@@ -126,7 +127,7 @@
                        FontSize="24" TextDecorations="Underline"
                       />
                 </Button>
-
+                -->
             <!-- placeholder to help with scrolling when SIP is open -->
             <ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
 

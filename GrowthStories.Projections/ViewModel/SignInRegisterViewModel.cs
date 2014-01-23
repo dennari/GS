@@ -119,7 +119,16 @@ namespace Growthstories.UI.ViewModel
 
             this.WhenAnyValue(x => x.SignInMode).Subscribe(x => this.Title = !x ? "register" : "sign in");
             // NavigateBack = true;
+
+            DismissAllowed = true;
+            App.SetDismissPopupAllowed.OfType<bool>().Subscribe(x =>
+            {
+                DismissAllowed = x;
+            });
+
         }
+
+        private bool DismissAllowed = false;
 
 
 
@@ -277,7 +286,7 @@ namespace Growthstories.UI.ViewModel
                 pvm.DismissedObservable.Subscribe(_ =>
                 {
                     App.SignInCancelRequested = true;
-                    if (!OperationFinished)
+                    if (!OperationFinished && DismissAllowed)
                     {
                         var p = new PopupViewModel()
                         {
@@ -304,7 +313,7 @@ namespace Growthstories.UI.ViewModel
                     // it is already too late and this is ignored
                     App.RegisterCancelRequested = true;
 
-                    if (!OperationFinished)
+                    if (!OperationFinished && DismissAllowed)
                     {
                         var p = new PopupViewModel()
                         {
