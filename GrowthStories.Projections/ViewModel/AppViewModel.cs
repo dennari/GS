@@ -196,7 +196,6 @@ namespace Growthstories.UI.ViewModel
             });
 
             BackKeyPressedCommand = new ReactiveCommand();
-            InitializeJobStarted = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
 
 
@@ -354,20 +353,9 @@ namespace Growthstories.UI.ViewModel
         #region COMMANDS
         public IReactiveCommand ShowPopup { get; private set; }
         public IReactiveCommand SetDismissPopupAllowed { get; private set; }
-
-        public IReactiveCommand SynchronizeCommand { get; private set; }
-        public IReactiveCommand UISyncFinished { get; private set; }
         public IReactiveCommand SignedOut { get; private set; }
-
-        public IObservable<Tuple<AllSyncResult, GSStatusCode?>> SyncResults { get; protected set; }
-
         public IReactiveCommand BackKeyPressedCommand { get; private set; }
-
-        public IReactiveCommand InitializeJobStarted { get; private set; }
-
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
-
-
 
         #endregion
 
@@ -608,34 +596,27 @@ namespace Growthstories.UI.ViewModel
             {
                 GSApp app = null;
 
-
-                InitializeJobStarted.Execute(null);
-
-                //var kernel = Kernel;
-                //var persistence = kernel.Get<IPersistSyncStreams>();
-                //persistence.Initialize();
-
-                //var uiPersistence = kernel.Get<IUIPersistence>();
-                //uiPersistence.Initialize();
-
+                // try to get a previously created application from the repository
                 try
                 {
                     app = (GSApp)(Repository.GetById(GSAppState.GSAppId));
                 }
                 catch (DomainError)
                 {
-
-                }
-
-                if (app == null)
-                {
-                    //app = (GSApp)(await HandleCommand(new CreateGSApp()));
+                    // this means it's the first time the application's run
+                    // so let's create a new application
                     app = (GSApp)Handler.Handle(new CreateGSApp());
+
+                }
+                catch (Exception)
+                {
+                    // something really unexcpected happened
+                    throw;
                 }
 
-                IAuthUser user = null;
+                IAuthUser user = app.State.User;
 
-                if (app.State.User == null)
+                if (user == null)
                 {
                     var u = Context.GetNewUserCommands();
 
@@ -659,10 +640,6 @@ namespace Growthstories.UI.ViewModel
                         }
                     }
 
-                }
-                else
-                {
-                    user = app.State.User;
                 }
 
                 Context.SetupCurrentUser(user);
@@ -900,25 +877,28 @@ namespace Growthstories.UI.ViewModel
             {
                 await CurrentHandleJob;
             }
-            this.ClearDB();
-            Handler.ResetApp();
-            this._Model = null;
-
             GSApp app = null;
 
-            if (createUnregUser)
+            using (Synchronizer.DisableAutoSync())
             {
-                await this.Initialize();
-                app = this.Model;
-                Router.NavigateAndReset.Execute(CreateMainViewModel());
+                this.ClearDB();
+                Handler.ResetApp();
+                this._Model = null;
 
-            }
-            else
-            {
-                app = (GSApp)Handler.Handle(new CreateGSApp());
-                this.Model = app;
-            }
 
+                if (createUnregUser)
+                {
+                    await this.Initialize();
+                    app = this.Model;
+                    Router.NavigateAndReset.Execute(CreateMainViewModel());
+
+                }
+                else
+                {
+                    app = (GSApp)Handler.Handle(new CreateGSApp());
+                    this.Model = app;
+                }
+            }
 
 
             this.SignedOut.Execute(null);

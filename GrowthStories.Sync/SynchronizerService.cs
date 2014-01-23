@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Enough.Async;
 using Growthstories.Core;
@@ -25,7 +24,6 @@ namespace Growthstories.Sync
         //private Task<Tuple<AllSyncResult, GSStatusCode?>> currentSyncAll;
 
 
-        private IDisposable AutoSyncSubscription = Disposable.Empty;
 
         //private readonly Subject<IGSAppState> AutoSyncSubject = new Subject<IGSAppState>();
 
@@ -63,6 +61,20 @@ namespace Growthstories.Sync
             return await _SyncLock.LockAsync();
         }
 
+        private bool IsAutosyncTemporarilyDisabled = false;
+        public IDisposable DisableAutoSync()
+        {
+            //var current = this.IsAutoSyncEnabled;
+            if (!IsAutoSyncEnabled || IsAutosyncTemporarilyDisabled)
+                return Disposable.Empty;
+            this.Log().Info("Disabling autosync");
+            IsAutosyncTemporarilyDisabled = true;
+            return Disposable.Create(() =>
+            {
+                this.Log().Info("Re-enabling autosync");
+                this.IsAutosyncTemporarilyDisabled = false;
+            });
+        }
 
 
 
@@ -304,11 +316,14 @@ namespace Growthstories.Sync
         }
 
 
+        private IDisposable AutoSyncSubscription = Disposable.Empty;
 
         public IDisposable SubscribeForAutoSync(IGSAppState appState)
         {
             if (appState == null || !IsAutoSyncEnabled)
-                return AutoSyncSubscription;
+                return Disposable.Empty;
+
+            this.Log().Info("Subscribed for autosync");
 
             AutoSyncSubscription.Dispose();
             AutoSyncSubscription = this.MessageBus
@@ -316,7 +331,7 @@ namespace Growthstories.Sync
                 .OfType<EventBase>()
                 .Where(e =>
                 {
-                    if (appState.User == null)
+                    if (appState.User == null || IsAutosyncTemporarilyDisabled)
                         return false;
                     if (e.AggregateId == appState.User.Id
                        || e.AncestorId == appState.User.Id

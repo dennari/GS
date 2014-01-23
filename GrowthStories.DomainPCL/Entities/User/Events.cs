@@ -102,11 +102,11 @@ namespace Growthstories.Domain.Messaging
             D.Username = this.Username;
             D.Password = this.Password;
             D.Email = this.Email;
-            
+
             base.FillDTO(D);
             D.StreamAncestor = null;
             D.AncestorId = null;
-            
+
             return true;
         }
 
@@ -553,7 +553,7 @@ namespace Growthstories.Domain.Messaging
             D.EntityType = DTOType.user;
             D.PropertyName = "locationEnabled";
             D.PropertyValue = LocationEnabled;
-            
+
             base.FillDTO(D);
 
             D.StreamAncestor = null;

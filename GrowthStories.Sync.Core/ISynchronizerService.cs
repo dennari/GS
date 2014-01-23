@@ -85,6 +85,7 @@ namespace Growthstories.Sync
         IDisposable SubscribeForAutoSync(IGSAppState appState);
 
         Task<IDisposable> AcquireLock();
+        IDisposable DisableAutoSync();
 
     }
 
