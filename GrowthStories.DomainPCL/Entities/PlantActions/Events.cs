@@ -139,6 +139,9 @@ namespace Growthstories.Domain.Messaging
         public override bool FillDTO(IEventDTO Dto)
         {
             var D = Dto as ICreatePlantActionDTO; if (Dto == null) return false;
+
+            base.FillDTO(D);
+
             D.Note = this.Note;
             D.ParentId = this.PlantId;
 
@@ -183,7 +186,7 @@ namespace Growthstories.Domain.Messaging
                 D.FBUid = this.FBUid;
             }
 
-            return base.FillDTO(D);
+            return true;
             //D.Name = this.Name;
         }
 
@@ -238,9 +241,10 @@ namespace Growthstories.Domain.Messaging
             }
 
             base.FromDTO(D);
-
-            this.UserId = this.AncestorId.Value;
-            this.PlantId = this.ParentId.Value;
+            if (this.AncestorId.HasValue)
+                this.UserId = this.AncestorId.Value;
+            if (this.ParentId.HasValue)
+                this.PlantId = this.ParentId.Value;
 
             return true;
 
