@@ -93,14 +93,17 @@ namespace Growthstories.Domain.Messaging
         {
             var D = Dto as ICreatePlantDTO; if (Dto == null) return false;
             this.Name = D.Name;
+            
+            base.FromDTO(D);
             this.UserId = this.AncestorId ?? default(Guid);
-            return base.FromDTO(D);
-
+            
+            return true; 
         }
 
         public PlantState AggregateState { get; set; }
 
     }
+
 
     [DTOObject(DTOType.setProperty)]
     public class ProfilepictureSet : EventBase
@@ -132,6 +135,7 @@ namespace Growthstories.Domain.Messaging
             return string.Format(@"ProfilepicturePath changed to {0}", Profilepicture);
         }
 
+
         public override bool FillDTO(IEventDTO Dto)
         {
             var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
@@ -139,13 +143,15 @@ namespace Growthstories.Domain.Messaging
 
             D.PropertyValue = new JObject();
 
+            base.FillDTO(D);
             D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = this.AncestorId.ToString();
             D.PropertyValue[Language.PROPERTY_ENTITY_ID] = this.PlantActionId.ToString();
 
             D.EntityType = DTOType.plant;
-            return base.FillDTO(D);
-
+            
+            return true;
         }
+
 
         public override bool FromDTO(IEventDTO Dto)
         {
