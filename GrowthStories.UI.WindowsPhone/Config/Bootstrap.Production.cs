@@ -10,18 +10,19 @@ namespace Growthstories.UI.WindowsPhone
     {
 
 
-        private const string BACKENDHOST = "dennari-macbook.lan";
-        private const int BACKENDPORT = 8080;
-        private const string LOGHOST = "dennari-macbook.lan";
-        private const int LOGPORT = 2877;
-
-
 
         public BootstrapProduction(App app)
             : base(app)
         {
 
         }
+
+
+        protected override Uri BaseUri()
+        {
+            return new Uri("https://gs-prod.appspot.com");
+        }
+
 
         protected override void AppConfiguration()
         {
@@ -31,14 +32,8 @@ namespace Growthstories.UI.WindowsPhone
                 .WithConstructorArgument(new TimeSpan(0, 0, 10));
 
             Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
-
         }
-
-
-        protected override void HttpConfiguration(string host = "default.lan", int port = 80)
-        {
-            base.HttpConfiguration(BACKENDHOST, BACKENDPORT);
-        }
+      
 
     }
 }

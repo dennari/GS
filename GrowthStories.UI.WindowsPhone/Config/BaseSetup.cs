@@ -75,8 +75,6 @@ namespace Growthstories.Configuration
 
         protected virtual void RxUIConfiguration()
         {
-
-
             Bind<IMutableDependencyResolver>().ToConstant(this.RxUIResolver);
             Bind<IRoutingState>().To<RoutingState>().InSingletonScope();
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(IScreen)), typeof(IScreen));
@@ -123,21 +121,22 @@ namespace Growthstories.Configuration
         }
 
 
-        protected virtual void HttpConfiguration(string host = "default.lan", int port = 80)
+        protected void HttpConfiguration()
         {
             Bind<IHttpClient, ITransportEvents, SyncHttpClient>().To<SyncHttpClient>().InSingletonScope();
 
-            Bind<IEndpoint>().ToConstructor(ctx => new Endpoint(new Uri(string.Format("{0}://{1}:{2}", Protocol(), host, port)))).InSingletonScope();
+            Bind<IEndpoint>().ToConstructor(ctx => new Endpoint(BaseUri())).InSingletonScope();
 
             Bind<IRequestFactory, RequestFactory>().To<RequestFactory>().InSingletonScope();
             Bind<IResponseFactory, ResponseFactory>().To<ResponseFactory>().InSingletonScope();
         }
 
 
-        protected virtual string Protocol()
+        protected virtual Uri BaseUri()
         {
-            return "http";
+            return new Uri("https://gs-prod.appspot.com");
         }
+
 
         protected virtual void FileSystemConfiguration()
         {

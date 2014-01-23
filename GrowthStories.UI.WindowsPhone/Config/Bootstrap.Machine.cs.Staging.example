@@ -5,14 +5,16 @@ using Growthstories.Sync;
 using Growthstories.UI.Services;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+
+
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class BootstrapMachine : Bootstrap
     {
 
 
-        private const string BACKENDHOST = "gs-staging.appspot.com";
-        private const int BACKENDPORT = 80;
+       
         private const string LOGHOST = "192.168.0.51";
         private const int LOGPORT = 28777;
 
@@ -23,10 +25,12 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        protected virtual string Protocol()
+
+        protected override Uri BaseUri()
         {
-            return "https";
+            return new Uri("https://gs-staging.appspot.com");
         }
+
 
         protected override void LogConfiguration()
         {
@@ -79,11 +83,6 @@ namespace Growthstories.UI.WindowsPhone
             return true;
         }
 
-      
-        protected override void HttpConfiguration(string host = "default.lan", int port = 80)
-        {
-            base.HttpConfiguration(BACKENDHOST, BACKENDPORT);
-        }
 
     }
 
