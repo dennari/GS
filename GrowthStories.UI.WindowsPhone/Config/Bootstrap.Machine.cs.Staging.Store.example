@@ -1,0 +1,89 @@
+﻿using System;
+using EventStore.Logging;
+using Growthstories.Core;
+using Growthstories.Sync;
+using Growthstories.UI.Services;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
+
+
+namespace Growthstories.UI.WindowsPhone
+{
+
+    public class BootstrapMachine : Bootstrap
+    {
+
+
+       
+        private const string LOGHOST = "192.168.0.51";
+        private const int LOGPORT = 28777;
+
+
+        public BootstrapMachine(App app)
+            : base(app)
+        {
+
+        }
+
+
+        protected override Uri BaseUri()
+        {
+            return new Uri("https://gs-staging.appspot.com");
+        }
+
+
+        protected override void LogConfiguration()
+        {
+            GSRemoteLog.Host = LOGHOST;
+            GSRemoteLog.Port = LOGPORT;
+
+            RxUIResolver.Register(() => new GSRemoteLog(null, Filter), typeof(ILogger));
+            LogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
+            GSLogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
+        }
+
+
+        protected override void AppConfiguration()
+        {
+            Bind<IIAPService>().To<GSIAP>().InSingletonScope();
+            Bind<IScheduleService>().To<GardenScheduler>()
+                .InSingletonScope()
+                .WithConstructorArgument(new TimeSpan(0, 0, 60));
+
+            Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
+        }
+
+
+        private bool Filter(Type type, string message)
+        {
+            if (type != null && type.Name != null)
+            {
+                switch (type.Name)
+                {
+                    case "JsonSerializer":
+                    case "OptimisticEventStream":
+                    case "OptimisticPipelineHook":
+                    case "SQLiteUIPersistence":
+                    case "SQLitePersistenceEngine":
+                    case "OptimisticEventStore":
+                    case "SynchronousDispatchScheduler":
+                        return false;
+                }
+            }
+
+            if (message.StartsWith("ReactiveObject")
+                || message.StartsWith("MemoizingMRUCache")
+                || message.StartsWith("MessageBus")
+                || message.StartsWith("ObservableAsPropertyHelper")
+                || message.StartsWith("LogHost"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+    }
+
+}

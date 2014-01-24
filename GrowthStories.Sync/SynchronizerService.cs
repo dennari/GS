@@ -116,7 +116,7 @@ namespace Growthstories.Sync
         }
 
 
-        public async Task<ISyncInstance> CreateSyncRequest(IGSAppState appState)
+        private async Task<ISyncInstance> CreateSyncRequest(IGSAppState appState)
         {
             var code = await PrepareAuthorizedUser(appState.SyncHead);
             if (code != GSStatusCode.OK)
@@ -166,8 +166,18 @@ namespace Growthstories.Sync
         public async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
             var request = await CreateSyncRequest(appState);
-            return await _Synchronize(request, appState);
-
+                
+            try
+            {
+                return await _Synchronize(request, appState);
+            }
+            catch
+            {
+                this.Log().Info("Unexpected exception in SynchonizerService");
+                request.Status = SyncStatus.PULL_ERROR; // todo: switch to more descriptive value
+                request.Code = GSStatusCode.FAIL;
+                return request;
+            }
         }
 
 

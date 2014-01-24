@@ -21,11 +21,9 @@ namespace Growthstories.UI.WindowsPhone
 
         public GSIAPMock()
         {
-
             MockIAP.Init();
-
             MockIAP.RunInMockMode(true);
-            MockIAP.SetListingInformation(1, "en-us", "Allows adding 4 additional plants your garden", "4.95", "4 More Plants");
+            MockIAP.SetListingInformation(1, "en-us", "Allows adding 4 additional plants your garden", "4.75", "4 More Plants");
 
             ProductListing p = new ProductListing
             {
@@ -35,10 +33,28 @@ namespace Growthstories.UI.WindowsPhone
                 ProductId = BASIC_PRODUCT_ID,
                 ProductType = Windows.ApplicationModel.Store.ProductType.Durable,
                 Keywords = new string[] { },
-                FormattedPrice = "4.95",
+                FormattedPrice = "4.90",
                 Tag = string.Empty
             };
             MockIAP.AddProductListing(BASIC_PRODUCT_ID, p);
+        }
+
+
+        public async Task<string> FormattedPrice()
+        {
+            try
+            {
+                var list = new string[] { BASIC_PRODUCT_ID };
+                var listingInfo = await CurrentApp.LoadListingInformationByProductIdsAsync(list);
+                var productListing = listingInfo.ProductListings[BASIC_PRODUCT_ID];
+
+                return productListing.FormattedPrice;
+            }
+            catch
+            {
+                // something wrong with listing informations
+                return null;
+            }
         }
 
 

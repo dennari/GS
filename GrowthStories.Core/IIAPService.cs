@@ -26,12 +26,19 @@ namespace Growthstories.Core
 
     public interface IIAPService
     {
+        Task<string> FormattedPrice();
         bool HasPaidBasicProduct();
         Task<bool> ShopForBasicProduct();
     }
 
+
     public class NullIIAP : IIAPService
     {
+
+        public Task<string> FormattedPrice()
+        {
+            return null;
+        }
 
         public bool HasPaidBasicProduct()
         {
@@ -43,5 +50,6 @@ namespace Growthstories.Core
             return Task.FromResult(true);
         }
     }
+
 
 }

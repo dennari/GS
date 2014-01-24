@@ -34,6 +34,24 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        public async Task<string> FormattedPrice()
+        {
+            try
+            {
+                var list = new string[] { BASIC_PRODUCT_ID };
+                var listingInfo = await CurrentApp.LoadListingInformationByProductIdsAsync(list);
+                var productListing = listingInfo.ProductListings[BASIC_PRODUCT_ID];
+
+                return productListing.FormattedPrice;
+            }
+            catch
+            {
+                // something wrong with listing informations
+                return null;
+            }
+        }
+
+
         /*
          * Go shopping in the Windows Store for the basic GS IAP product 
          */

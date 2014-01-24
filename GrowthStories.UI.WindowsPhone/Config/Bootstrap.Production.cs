@@ -6,6 +6,7 @@ using Growthstories.UI.ViewModel;
 using System;
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class BootstrapProduction : Bootstrap
     {
 
@@ -29,7 +30,7 @@ namespace Growthstories.UI.WindowsPhone
             Bind<IIAPService>().To<GSIAP>().InSingletonScope();
             Bind<IScheduleService>().To<GardenScheduler>()
                 .InSingletonScope()
-                .WithConstructorArgument(new TimeSpan(0, 0, 10));
+                .WithConstructorArgument(new TimeSpan(0, 0, 60));
 
             Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
         }

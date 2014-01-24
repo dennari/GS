@@ -381,14 +381,16 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        protected void TryAddPlant()
+        protected async void TryAddPlant()
         {
-            if (Plants.Count >= 3 && !IAP.HasPaidBasicProduct())
+            // note: if listing information is incorrect user can add more plants for free
+            if (Plants.Count >= 3 && !IAP.HasPaidBasicProduct() && await IAP.FormattedPrice() != null)
             {
                 var pvm = new PopupViewModel()
                 {
                     Caption = "Purchase",
-                    Message = "You are currently limited to 3 plants. Add 4 additional plants for only 4,95!",
+                    Message = "You are currently limited to 3 plants. Add 4 additional plants for only " 
+                            + await IAP.FormattedPrice() + "!",
                     IsLeftButtonEnabled = true,
                     IsRightButtonEnabled = true,
                     LeftButtonContent = "Buy",
@@ -403,8 +405,6 @@ namespace Growthstories.UI.ViewModel
                         return r;
                     })
                     .Subscribe(AfterIAP);
-
-
 
                 App.ShowPopup.Execute(pvm);
 
