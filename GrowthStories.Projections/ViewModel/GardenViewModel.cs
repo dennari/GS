@@ -389,7 +389,7 @@ namespace Growthstories.UI.ViewModel
                 var pvm = new PopupViewModel()
                 {
                     Caption = "Purchase",
-                    Message = "You are currently limited to 3 plants. Add 4 additional plants for only " 
+                    Message = "You are currently limited to 3 plants. Add 4 additional plants for only "
                             + await IAP.FormattedPrice() + "!",
                     IsLeftButtonEnabled = true,
                     IsRightButtonEnabled = true,
@@ -404,6 +404,7 @@ namespace Growthstories.UI.ViewModel
                         var r = await IAP.ShopForBasicProduct();
                         return r;
                     })
+                    .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(AfterIAP);
 
                 App.ShowPopup.Execute(pvm);
