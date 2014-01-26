@@ -6,10 +6,12 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
+using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using ReactiveUI;
+using System.Reactive;
 
 
 namespace Growthstories.UI.ViewModel
@@ -344,8 +346,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     if (action != null)
                     {
-                        this.FertilizingScheduler.LastActionTime = action.Created;   
-                    } else 
+                        this.FertilizingScheduler.LastActionTime = action.Created;
+                    }
+                    else
                     {
                         this.FertilizingScheduler = null;
                     }
@@ -523,68 +526,96 @@ namespace Growthstories.UI.ViewModel
             if (HasWriteAccess)
             {
 
-                TryShareCommand.Where(_ => App.EnsureDataConnection()).Subscribe(_ =>
-                {
-
-
-                    if (appUser.IsRegistered)
+                TryShareCommand
+                    .Where(_ => App.EnsureDataConnection())
+                    .Select(_ =>
                     {
-                        this.ShareCommand.Execute(null);
 
-                    }
-                    else
-                    {
-                        var svm = new SignInRegisterViewModel(App)
+                        // [1] Check that user is registered and direct to registration if not
+
+                        if (appUser.IsRegistered)
                         {
-                            SignInMode = false
-                        };
-                        svm.Response
-                            .Where(x => SignInRegisterViewModel.IsSuccess(x))
-                            .Take(1)
-                            .Do(x =>
+
+                            return Observable.Return(new Unit());
+                        }
+                        else
+                        {
+                            // register first
+                            var svm = new SignInRegisterViewModel(App)
                             {
-                                var pvm = new ProgressPopupViewModel()
+                                SignInMode = false
+                            };
+                            this.Navigate(svm);
+                            // continue after successfull registration
+                            return svm.Response
+                                .Where(x => SignInRegisterViewModel.IsSuccess(x))
+                                .Take(1)
+                                .Do(__ =>
                                 {
-                                    Caption = "Preparing for sharing",
-                                    ProgressMessage = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
-                                };
+                                    if (App.Router.NavigationStack.Count > 0)
+                                        this.NavigateBack();
+                                })
+                                .Select(__ => new Unit());
 
-                                App.ShowPopup.Execute(pvm);
-                            })
-                            .SelectMany(async x =>
-                            {
+                        }
 
-                                var r = await App.Synchronize();
-                                return r;
-
-                            })
-                            .ObserveOn(RxApp.MainThreadScheduler)
-                            .Subscribe(x =>
-                            {
-
-                                App.ShowPopup.Execute(null);
-                                if (App.Router.NavigationStack.Count > 0)
+                    })
+                    .Switch()
+                    .Select(_ =>
+                    {
+                        // [2] Check that the plant is set to shared and prompt if not
+                        if (state.Public)
+                        {
+                            return Observable.Return(new Unit());
+                        }
+                        else
+                        {
+                            //App.ShowPopup.E
+                            var popup = this.PlantNotPublicPrompt();
+                            App.ShowPopup.Execute(popup);
+                            return popup.AcceptedObservable
+                                .Take(1)
+                                .SelectMany(async __ =>
                                 {
-                                    this.NavigateBack();
-                                }
-                                this.ShareCommand.Execute(null);
-                            });
+                                    await App.HandleCommand(new MarkPlantPublic(state.Id));
+                                    return new Unit();
+                                }).Take(1);
 
-                        this.Navigate(svm);
-                    }
-                });
+                        }
+                    })
+                    .Switch()
+                    .Do(x =>
+                        {
+                            var pvm = new ProgressPopupViewModel()
+                            {
+                                Caption = "Preparing for sharing",
+                                Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+                            };
 
+                            App.ShowPopup.Execute(pvm);
+                        })
+                    .SelectMany(async x => await App.Synchronize())
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+                    {
+                        App.ShowPopup.Execute(null);
+                        this.ShareCommand.Execute(null);
+                    });
             }
 
-
-
-
-
-
-
-
-
         }
+
+        private IPopupViewModel PlantNotPublicPrompt()
+        {
+            return new PopupViewModel()
+            {
+                Caption = string.Format("{0} is not yet public", this.Name.Substring(0, 1).ToUpper() + this.Name.Substring(1)),
+                Message = "After sharing, your plant can be followed by other users.",
+                LeftButtonContent = "OK"
+            };
+        }
+
+
 
 
         private bool _ShowPlaceHolder;
