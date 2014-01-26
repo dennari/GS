@@ -59,6 +59,25 @@ namespace Growthstories.UI.Services
 
 
 
+    public class PluralFormatProvider : IFormatProvider, ICustomFormatter
+    {
+
+        public object GetFormat(Type formatType)
+        {
+            return this;
+        }
+
+
+        public string Format(string format, object arg, IFormatProvider formatProvider)
+        {
+            string[] forms = format.Split(';');
+            int value = (int)arg;
+            int form = value == 1 ? 0 : 1;
+            return value.ToString() + " " + forms[form];
+        }
+
+    }
+
 
     public sealed class PlantScheduler : ReactiveObject
     {
@@ -70,27 +89,38 @@ namespace Growthstories.UI.Services
 
         public static string IntervalText(long ticks, double Missed)
         {
-            string IntervalText;
 
             var t = new TimeSpan((long)(ticks * Math.Abs(Missed)));
+
+            return IntervalText(t);
+
+        }
+
+        public static string IntervalText(TimeSpan t)
+        {
+            string IntervalText;
+
             if (t.TotalWeeks() > 0)
             {
-                IntervalText = string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
+                int numWeeks = t.TotalWeeks();
+                int numDays = t.DaysAfterWeeks();
+                IntervalText = string.Format("{0:D} {1}, {2:D} {3}", numWeeks, "week".ToPlural(numWeeks), numDays, "day".ToPlural(numDays));
             }
             else if (t.Days > 0)
             {
-                IntervalText = string.Format("{0:%d} days, {1:D} hours", t, t.Hours);
+
+                IntervalText = string.Format("{0:%d} {1}, {2:D} {3}", t, "day".ToPlural(t.Days), t.Hours, "hour".ToPlural(t.Hours));
             }
             else if (t.Hours > 0)
             {
-                IntervalText = string.Format("{0:%h} hours", t);
+                IntervalText = string.Format("{0:%h} {1}", t, "hour".ToPlural(t.Hours));
             }
             else
             {
-                IntervalText = string.Format("{0:%m} minutes", t);
+                IntervalText = string.Format("{0:%m} {1}", t, "minute".ToPlural(t.Minutes));
             }
-
             return IntervalText;
+
         }
 
 
@@ -204,7 +234,7 @@ namespace Growthstories.UI.Services
             this._OwnPlant = own;
 
             this.WhenAnyValue(x => x.LastActionTime)
-              //  .Where(x => x.HasValue)
+                //  .Where(x => x.HasValue)
                   .Subscribe(x => this.ComputeNext());
 
         }
