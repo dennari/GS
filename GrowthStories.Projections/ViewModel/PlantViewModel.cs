@@ -546,7 +546,7 @@ namespace Growthstories.UI.ViewModel
                                 var pvm = new ProgressPopupViewModel()
                                 {
                                     Caption = "Preparing for sharing",
-                                    Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+                                    ProgressMessage = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
                                 };
 
                                 App.ShowPopup.Execute(pvm);

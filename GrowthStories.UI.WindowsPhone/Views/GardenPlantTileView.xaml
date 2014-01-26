@@ -219,7 +219,7 @@
             
             <!-- consider the scale when adjusting width above -->
             <telerikPrimitives:RadBusyIndicator.RenderTransform>
-                <ScaleTransform ScaleX="1.4" ScaleY="1.4" />
+                <ScaleTransform CenterX="65" CenterY="65" ScaleX="1.4" ScaleY="1.4" />
             </telerikPrimitives:RadBusyIndicator.RenderTransform>
 
             <telerikPrimitives:RadBusyIndicator.ContentTemplate>

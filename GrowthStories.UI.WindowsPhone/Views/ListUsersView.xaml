@@ -61,6 +61,7 @@
 
             <Grid Height="130" Margin="0,-40,0,0">
                 <telerikPrimitives:RadTextBox 
+                    Style="{StaticResource GSRadSearchBoxStyle}"
                     ClearButtonVisibility="Collapsed"
                     VerticalAlignment="Bottom"
                         x:Name="UserListBox" 
@@ -69,6 +70,7 @@
                     BorderBrush="{StaticResource GSBackgroundBrush}"
                     Foreground="{StaticResource GSTextBoxBrush}"
                     Background="{StaticResource GSBackgroundBrush}"
+                      
                 />
             </Grid>
             <!--

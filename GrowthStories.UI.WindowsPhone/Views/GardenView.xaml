@@ -149,7 +149,7 @@
             Margin="12,24,0,0"
             >
             <telerikPrimitives:RadBusyIndicator.RenderTransform> 
-                <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
+                <ScaleTransform ScaleX="1.7" ScaleY="1.7"  />
             </telerikPrimitives:RadBusyIndicator.RenderTransform>
                  
             <telerikPrimitives:RadBusyIndicator.ContentTemplate>
