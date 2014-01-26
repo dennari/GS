@@ -51,8 +51,13 @@ namespace Growthstories.UI.ViewModel
 
 
 
+        // Get the current location
+        //
+        // Important: should only be called from the main thread
+        //
         public async Task<GSLocation> GetLocation()
         {
+            var kludge = new ReactiveCommand();
             using (var res = await LocationLock.LockAsync())
             {
                 var loc = await DoGetLocation();
@@ -65,7 +70,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public virtual Task<GSLocation> DoGetLocation()
+        protected virtual Task<GSLocation> DoGetLocation()
         {
             throw new NotImplementedException();
         }
@@ -583,6 +588,7 @@ namespace Growthstories.UI.ViewModel
             return CurrentGetByIdJob;
         }
 
+        private List<IDisposable> subs = new List<IDisposable>();
 
 
         protected Task<IAuthUser> InitializeJob;
@@ -595,18 +601,19 @@ namespace Growthstories.UI.ViewModel
             this.InitializeJob = Task.Run(() =>
             {
                 GSApp app = null;
-
+           
                 // try to get a previously created application from the repository
                 try
                 {
                     app = (GSApp)(Repository.GetById(GSAppState.GSAppId));
+                    this.Log().Info("found previous GSApp");
                 }
                 catch (DomainError)
                 {
                     // this means it's the first time the application's run
                     // so let's create a new application
+                    this.Log().Info("creating new GSApp");
                     app = (GSApp)Handler.Handle(new CreateGSApp());
-
                 }
                 catch (Exception)
                 {
@@ -665,19 +672,7 @@ namespace Growthstories.UI.ViewModel
                     });
                 kludge.Execute(null);
 
-                this.ListenTo<InternalRegistered>(app.State.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x =>
-                        {
-                            this.IsRegistered = true;
-                        });
-
-                this.ListenTo<Registered>(user.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => this.IsRegistered = true);
-
-                //SubscribeForAutoSync();
-
+              
                 kludge = new ReactiveCommand();
                 kludge
                     .ObserveOn(RxApp.MainThreadScheduler)
@@ -695,20 +690,64 @@ namespace Growthstories.UI.ViewModel
                 });
                 kludge.Execute(null);
 
-                this.ListenTo<LocationEnabledSet>(user.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x =>
-                        this.GSLocationServicesEnabled = x.LocationEnabled
-                        );
-
                 this.LastLocation = app.State.LastLocation;
-                this.ListenTo<LocationAcquired>(app.State.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => this.LastLocation = x.Location);
+
+                SetupSubscriptions(app, user);
 
                 return user;
             });
             return InitializeJob;
+        }
+
+
+        private void SetupSubscriptions(GSApp app, IAuthUser user)
+        {
+            this.Log().Info("info setting up subscriptions for user {0}", user.Id);
+            foreach (var d in subs)
+            {
+                d.Dispose();
+            }
+            subs.Clear();
+
+            subs.Add(this.ListenTo<InternalRegistered>(app.State.Id)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(x =>
+            {
+                this.UserEmail = x.Email;
+                this.Log().Info("setting user registered via InternalRegistered event {0}", user.Id);
+                this.IsRegistered = true;
+            }));
+
+            subs.Add(this.ListenTo<Registered>(user.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    this.Log().Info("setting user registered via Registered event {0}", user.Id);
+                    this.IsRegistered = true;
+                    this.UserEmail = x.Email;
+                }));
+
+            subs.Add(this.ListenTo<EmailSet>(user.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    this.Log().Info("setting user email via Registered event {0}", user.Id);
+                    this.UserEmail = x.Email;
+                }));
+
+            this.Log().Info("subscribing new listener for location services enabled {0}", user.Id);
+            subs.Add(this.ListenTo<LocationEnabledSet>(user.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    this.Log().Info("setting location services enabled {0}", user.Id);
+                    this.GSLocationServicesEnabled = x.LocationEnabled;
+                }
+                ));
+
+            subs.Add(this.ListenTo<LocationAcquired>(app.State.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => this.LastLocation = x.Location));
         }
 
 
@@ -917,10 +956,8 @@ namespace Growthstories.UI.ViewModel
                 await this.Initialize();
                 app = this.Model;
                 Router.NavigateAndReset.Execute(CreateMainViewModel());
-
-            }
-            else
-            {
+            
+            } else {
                 app = (GSApp)Handler.Handle(new CreateGSApp());
                 this.Model = app;
             }
@@ -1009,10 +1046,13 @@ namespace Growthstories.UI.ViewModel
                     var app = await SignOut(false, true);
 
                     Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
+
+                    this.User = app.State.User;
+                    SetupSubscriptions(app, this.User);
+
                     Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
                     Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
-                    this.User = app.State.User;
                     this.IsRegistered = true;
                     Context.SetupCurrentUser(this.User);
 
@@ -1146,13 +1186,6 @@ namespace Growthstories.UI.ViewModel
                 return null;
             }
         }
-
-
-        //public UserState GetUserState()
-        //{
-        //    var search = UIPersistence.GetUsers(null).Where(x => x.Id == App.User.Id);
-        //    return search.First();
-        //}
 
 
         public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
@@ -1454,17 +1487,11 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-
-
-
+        
         public virtual void UpdatePhoneLocationServicesEnabled()
         {
             throw new NotImplementedException();
         }
-
-
-
 
 
     }

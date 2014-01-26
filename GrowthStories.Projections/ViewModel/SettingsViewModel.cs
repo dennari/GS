@@ -12,17 +12,13 @@ namespace Growthstories.UI.ViewModel
     {
 
 
-        //bool InsideJob = false;
         public IReactiveCommand NavigateToAbout { get; protected set; }
-        //public IReactiveCommand WarnCommand { get; protected set; }
-        //public IReactiveCommand WarningDismissedCommand { get; protected set; }
         public IReactiveCommand SignOutCommand { get; protected set; }
         public IReactiveCommand SignInCommand { get; protected set; }
         public IReactiveCommand SignUpCommand { get; protected set; }
-
         public IReactiveCommand SynchronizeCommand { get; protected set; }
-        //public IReactiveCommand MaybeSignOutCommand { get; protected set; }
 
+        
         private ObservableAsPropertyHelper<bool> _IsRegistered;
 
         public bool IsRegistered
@@ -105,6 +101,14 @@ namespace Growthstories.UI.ViewModel
 
         public async void EnableLocationServices()
         {
+            var kludge = new ReactiveCommand();
+            kludge.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => _EnableLocationServices());
+            kludge.Execute(null);        
+        }
+
+
+        private async void _EnableLocationServices()
+        {
             var location = await App.GetLocation();
             if (location != null)
             {
@@ -117,7 +121,6 @@ namespace Growthstories.UI.ViewModel
                     var cmd = new SetLocation(p.Id, location);
                     await App.HandleCommand(cmd);
                 }
-
             }
             else
             {
@@ -125,7 +128,6 @@ namespace Growthstories.UI.ViewModel
                 GSLocationServicesEnabled = false;
             }
         }
-
 
         // I made this public so that we can construct the settingsviewmodel in the AppViewModel and then let the garden
         // set the plans before navigation - Ville
@@ -149,7 +151,6 @@ namespace Growthstories.UI.ViewModel
             };
 
             var isRegisteredObservable = App.WhenAnyValue(x => x.IsRegistered);
-
 
             //this.WarnCommand = new ReactiveCommand();
             //this.WarningDismissedCommand = new ReactiveCommand();
@@ -223,7 +224,6 @@ namespace Growthstories.UI.ViewModel
             isRegisteredObservable
                 .Do(x =>
                 {
-
                     this._AppBarButtons.Remove(this.SignUpButton);
                     this._AppBarButtons.Remove(this.SignInButton);
                     this._AppBarButtons.Remove(this.SignOutButton);
@@ -241,20 +241,21 @@ namespace Growthstories.UI.ViewModel
                 })
                 .ToProperty(this, x => x.IsRegistered, out _IsRegistered);
 
-            Observable.Merge(
-                App.WhenAnyValue(x => x.User, x => x != null ? x.Email : null)
-                    .Where(x => loggingOut == false && x != null),
-                this.ListenTo<InternalRegistered>().Select(x => x.Email)
-            )
-            .ToProperty(this, x => x.Email, out _Email);
 
+            App.WhenAnyValue(x => x.UserEmail).ToProperty(this, x => x.Email, out _Email);
+
+            //Observable.Merge(
+            //    App.WhenAnyValue(x => x.User, x => x != null ? x.Email : null)
+            //        .Where(x => loggingOut == false && x != null),
+            //    this.ListenTo<InternalRegistered>().Select(x => x.Email)
+            //)
+            //.ToProperty(this, x => x.Email, out _Email);
 
 
             this.SharedByDefault = new ButtonViewModel()
             {
                 IsEnabled = false,
             };
-
 
             this.SynchronizeCommand.CanExecuteObservable.Subscribe(x => this.CanSynchronize = x);
 
@@ -296,8 +297,6 @@ namespace Growthstories.UI.ViewModel
                     App.ShowPopup.Execute(pvm);
                 }
             }).Publish().Connect();
-
-
 
             App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);
@@ -387,8 +386,10 @@ namespace Growthstories.UI.ViewModel
                     _LogOutWarning = new PopupViewModel()
                     {
                         Caption = "Confirmation",
-                        Message = "Are you sure you wish to sign out?",
+                        Message = "Are you sure you wish to sign out? This will clear all your data from the application.",
                         LeftButtonContent = "yes",
+                        RightButtonContent = "no",
+                        IsRightButtonEnabled = true
                     };
                     //_LogOutWarning.DismissedObservable.Subscribe(_ => )
                 }

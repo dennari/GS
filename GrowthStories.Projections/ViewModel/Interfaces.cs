@@ -153,8 +153,9 @@ namespace Growthstories.UI.ViewModel
         bool RegisterCancelRequested { get; set; }
         bool SignInCancelRequested { get; set; }
 
-
         IReactiveCommand SetDismissPopupAllowed { get; }
+
+        string UserEmail { get; }
     }
 
 
