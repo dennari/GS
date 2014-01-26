@@ -50,6 +50,17 @@ namespace Growthstories.UI.ViewModel
         public static Enough.Async.AsyncLock LocationLock = new Enough.Async.AsyncLock();
 
 
+        public virtual void HandleApplicationActivated()
+        {
+            this.UpdatePhoneLocationServicesEnabled();
+        }
+
+
+        public virtual void UpdatePhoneLocationServicesEnabled()
+        {
+
+        }
+
 
         // Get the current location
         //
@@ -1097,6 +1108,7 @@ namespace Growthstories.UI.ViewModel
             throw new NotImplementedException();
         }
 
+
         public Task<Tuple<AllSyncResult, GSStatusCode?>> Synchronize()
         {
             if (!HasDataConnection)
@@ -1114,7 +1126,6 @@ namespace Growthstories.UI.ViewModel
             }
             return this.Synchronizer.SyncAll(Model.State);
         }
-
 
 
 
@@ -1486,13 +1497,6 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _PhoneLocationServicesEnabled, value);
             }
         }
-
-        
-        public virtual void UpdatePhoneLocationServicesEnabled()
-        {
-            throw new NotImplementedException();
-        }
-
 
     }
 

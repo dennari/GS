@@ -21,7 +21,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
 
-    public sealed class ClientAppViewModel : AppViewModel, IApplicationRootState
+    public class ClientAppViewModel : AppViewModel, IApplicationRootState
     {
 
 
@@ -145,6 +145,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
+        public override void HandleApplicationActivated()
+        {
+            base.HandleApplicationActivated();
+            UpdateHasTiles();
+        }
+
+
         private async Task<GSLocation> _DoGetLocation()
         {
 
@@ -186,6 +193,18 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 throw ex;
             }
 
+        }
+
+        public void UpdateHasTiles()
+        {
+            foreach (var p in MyGarden.Plants)
+            {
+                var gp = p as ClientPlantViewModel;
+                if (gp != null && gp.TileHelper != null)
+                {
+                    gp.TileHelper.UpdateHasTile();
+                }
+            }
         }
 
 

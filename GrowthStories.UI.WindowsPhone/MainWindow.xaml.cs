@@ -23,6 +23,7 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
+
     public partial class MainWindow : MainWindowBase, IEnableLogger
     {
 
@@ -206,6 +207,8 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
+        private bool firstOnNavigatedTo = true;
+
         /// <summary>
         /// We get here on the initial load AND whenever we resume, i.e. from tasks
         /// </summary>
@@ -227,12 +230,17 @@ namespace Growthstories.UI.WindowsPhone
             // this seems to the only working place were we can trigger
             // something whenever an app is brought to foreground, since
             // the usual events somehow don't work
-            ViewModel.UpdatePhoneLocationServicesEnabled();
-
+            if (!firstOnNavigatedTo)
+            {
+                ViewModel.HandleApplicationActivated();
+            }
+            
             if (this.ViewModel.Router.NavigationStack.Count == 0)
             {
                 ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
             }
+
+            firstOnNavigatedTo = false;
         }
 
         private IDisposable PlantNavigationSubscription = Disposable.Empty;

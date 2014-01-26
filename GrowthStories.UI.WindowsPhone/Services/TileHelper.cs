@@ -56,6 +56,13 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        public void UpdateHasTile()
+        {
+            _Current = null;
+            HasTile = Current != null;
+        }
+
+
         public bool DeleteTile()
         {
             if (HasTile)

@@ -139,7 +139,6 @@ namespace Growthstories.UI.ViewModel
         Task<GSLocation> GetLocation();
 
         bool GSLocationServicesEnabled { get; }
-
         void UpdatePhoneLocationServicesEnabled();
 
         GSLocation LastLocation { get; }
@@ -317,12 +316,11 @@ namespace Growthstories.UI.ViewModel
 
         bool HasTile { get; }
 
-
+        void UpdateHasTile();
     }
 
 
-
-
+    
 
     public interface IScheduleViewModel : IGSRoutableViewModel
     {
