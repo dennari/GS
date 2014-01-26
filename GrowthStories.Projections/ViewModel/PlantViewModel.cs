@@ -583,7 +583,7 @@ namespace Growthstories.UI.ViewModel
 
                         }
                     })
-                    .Merge(1)
+                    .Switch()
                     .Do(x =>
                         {
                             var pvm = new ProgressPopupViewModel()
@@ -595,7 +595,6 @@ namespace Growthstories.UI.ViewModel
                             App.ShowPopup.Execute(pvm);
                         })
                     .SelectMany(async x => await App.Synchronize())
-                    .Take(1)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(_ =>
                     {
@@ -611,7 +610,7 @@ namespace Growthstories.UI.ViewModel
             return new PopupViewModel()
             {
                 Caption = string.Format("{0} is not yet public", this.Name.Substring(0, 1).ToUpper() + this.Name.Substring(1)),
-                Message = "After sharing your plant can be followed by other users.",
+                Message = "After sharing, your plant can be followed by other users.",
                 LeftButtonContent = "OK"
             };
         }
