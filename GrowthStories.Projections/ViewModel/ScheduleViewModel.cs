@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using Growthstories.Domain.Entities;
 using Growthstories.Core;
 using System.Threading.Tasks;
+using Growthstories.UI.Services;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -101,12 +102,8 @@ namespace Growthstories.UI.ViewModel
         {
             if (!tt.HasValue)
                 return null;
-            var t = tt.Value;
-            if (t.TotalWeeks() > 0)
-                return string.Format("{0:D} weeks, {1:D} days", t.TotalWeeks(), t.DaysAfterWeeks());
-            if (t.Days > 0)
-                return string.Format("{0:%d} days, {0:%h} hours", t);
-            return string.Format("{0:%h} hours", t);
+
+            return PlantScheduler.IntervalText(tt.Value);
         }
 
 
