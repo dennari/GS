@@ -96,7 +96,7 @@ namespace Growthstories.UI.ViewModel
             ChooseProfilePictureCommand = new ReactiveCommand();
             UpdateLocationCommand = new ReactiveCommand();
 
-            UpdateLocationCommand.Subscribe(async x =>
+            UpdateLocationCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(async x =>
             {
                 var loc = await App.GetLocation();
                 if (loc != null)

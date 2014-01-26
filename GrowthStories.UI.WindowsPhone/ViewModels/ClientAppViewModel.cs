@@ -13,6 +13,8 @@ using GrowthStories.UI.WindowsPhone.BA;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Devices.Geolocation;
+using Windows.Foundation;
+
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -104,7 +106,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
         // ( could also be in AppViewModel )
-        public override async Task<GSLocation> DoGetLocation()
+        protected override async Task<GSLocation> DoGetLocation()
         {
             var pvm = new ProgressPopupViewModel()
             {
@@ -120,7 +122,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             // so user definitely knows that we are getting a location
             await Task.Delay(1000);
 
-            GSLocation location;
+            GSLocation location = null;
             try
             {
                 location = await _DoGetLocation();
@@ -136,6 +138,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
+                ShowPopup.Execute(null);
                 ShowPopup.Execute(popup);
                 return null;
             }
@@ -144,24 +147,45 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         private async Task<GSLocation> _DoGetLocation()
         {
+
             try
             {
                 var gl = new Geolocator();
                 gl.DesiredAccuracyInMeters = 50;
-                var pos = await gl.GetGeopositionAsync(
-                    maximumAge: TimeSpan.FromMinutes(5), timeout: TimeSpan.FromSeconds(15));
+                this.Log().Info("getGeoPosition");
 
-                return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);
+                var age = TimeSpan.FromMinutes(5);
+                var timeout = TimeSpan.FromSeconds(10);
+
+                var posTask = gl.GetGeopositionAsync(maximumAge: age, timeout: timeout);
+                Geoposition pos;
+                try
+                {
+                    pos = await posTask;
+                    this.Log().Info("getGeoPosition returned {0}", pos.ToString());
+                    return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);      
+                }
+                finally
+                {
+                    // http://stackoverflow.com/questions/18713557/getgeopositionasync-never-finishes-works-pefect-the-second-time-it-is-called
+                    if (posTask != null)
+                    {
+                        posTask.Cancel();
+                    }
+                }
             }
 
             catch (Exception ex)
             {
+                this.Log().Info("getGeoPositionAsync throwing exception {0}", ex.Message);
+
                 if ((uint)ex.HResult == 0x80004004)
                 {
                     throw new Exception("User has disabled location services");
                 }
                 throw ex;
             }
+
         }
 
 
