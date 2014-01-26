@@ -355,15 +355,28 @@ namespace Growthstories.UI.ViewModel
 
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
+            string msg;
+            if (count == 1)
+            {
+                msg = String.Format(
+                    "Are you sure you wish to delete the plant {0}? This can't be undone.",
+                    SelectedPlants.First().Name.ToUpper());
+            }
+            else
+            {
+                msg = string.Format("Are you sure you wish to delete {0} plants? This can't be undone.", count);
+            }
+
             return new PopupViewModel()
             {
                 Caption = "Confirm delete",
-                Message = string.Format("Are you sure you wish to delete {0} plants? This can't be undone.", count),
+                Message = msg,
                 IsLeftButtonEnabled = true,
                 IsRightButtonEnabled = false,
                 LeftButtonContent = "Yes",
             };
         }
+
 
         private bool _MultiCommandInFlight;
         public bool MultiCommandInFlight

@@ -124,7 +124,7 @@ namespace Growthstories.UI.Services
                 }
             }
 
-            // if we are late but not very late
+            // if we have missed a single watering
             if (Missed >= WINDOW && Missed < 1)
             {
                 switch (Type)
@@ -137,7 +137,7 @@ namespace Growthstories.UI.Services
                 }
             }
 
-            // awfully late
+            // missed more than one watering
             return string.Format(
                 "Last {0} {1} missed for {2}",
                 PlantScheduler.GetMissedCount(Missed),
@@ -190,11 +190,12 @@ namespace Growthstories.UI.Services
                 }
             }
 
-            // awfully late
-            return string.Format(
+            // missed more than one watering
+           return string.Format(
                 "Last {0} {1} missed",
                 PlantScheduler.GetMissedCount(Missed),
                 Type == ScheduleType.WATERING ? "waterings" : "nourishments");
+        
         }
 
 
@@ -259,7 +260,7 @@ namespace Growthstories.UI.Services
         {
             if (missed > WINDOW)
             {
-                return (int)Math.Ceiling(missed) + 1;
+                return (int)Math.Floor(missed) + 1;
                 //return (int)(missed * 1000 + 1) % 100;
             }
             return 0;

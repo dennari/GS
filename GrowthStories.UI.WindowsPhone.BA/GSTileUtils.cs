@@ -13,6 +13,7 @@ using Microsoft.Phone.Shell;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Growthstories.Domain.Entities;
+using System.Reactive.Linq;
 
 
 namespace GrowthStories.UI.WindowsPhone.BA
@@ -48,7 +49,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
     }
-
 
 
 
@@ -178,7 +178,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                         if (missed > maxMissed)
                         {
                             maxMissed = missed;
-                            missedWc = wideContent = PlantScheduler.NotificationText(
+                            missedWc = PlantScheduler.NotificationText(
                                     (TimeSpan)info.Interval, missed, ScheduleType.WATERING, info.Name);
                             maxCount = (uint)data.Count;
                         }
@@ -421,8 +421,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-
-
         public static CycleTileData GetTileData(TileUpdateInfo info)
         {
             var cnt = 0;
@@ -480,11 +478,29 @@ namespace GrowthStories.UI.WindowsPhone.BA
             UpdateApplicationTile();
         }
 
+        private static Dictionary<IPlantViewModel,IReactiveCommand> UpdateCommands 
+            = new Dictionary<IPlantViewModel, IReactiveCommand>();
+
 
         public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
         {
-            await Task.Delay(2 * 1000);
-            UpdateTileAndInfo(pvm);
+            if (!UpdateCommands.ContainsKey(pvm))
+            {
+                var cmd = new ReactiveCommand();
+
+                // updating tiles is probably a pretty expensive operation, 
+                // so we wish to throttle it. this would be relavant especially
+                // when signing in
+                //
+                // however, it the immediately exits the 
+                // app, we will not be able to update the tile
+                //
+                // therefore we cannot throttle for too much, one seconds seems to be
+                // appropriate (though if really trying it is still possible to exit too quickly)
+                cmd.Throttle(TimeSpan.FromSeconds(1)).Subscribe(_ => UpdateTileAndInfo(pvm));
+                UpdateCommands.Add(pvm, cmd);
+            }
+            UpdateCommands[pvm].Execute(null);
         }
 
 

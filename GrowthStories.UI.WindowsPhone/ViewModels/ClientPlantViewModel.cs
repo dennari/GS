@@ -30,7 +30,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-
         public ClientPlantViewModel(
             IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable,
             Func<IPlantViewModel, ITileHelper> tileHelperFactory,

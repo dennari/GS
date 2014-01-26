@@ -355,6 +355,7 @@ namespace Growthstories.Sync
                     }
                     return false;
                 })
+                //.ObserveOn(RxApp.TaskpoolScheduler)  // maybe enable this at some point
                 .Throttle(new TimeSpan(0, 0, ThrottleInterval))
                 .Select(_ => appState)
                 .Subscribe(x =>
@@ -362,7 +363,6 @@ namespace Growthstories.Sync
                     this.Log().Info("AutoSync started");
                     var r = SyncAll(x);
                 });
-
 
             return AutoSyncSubscription;
         }

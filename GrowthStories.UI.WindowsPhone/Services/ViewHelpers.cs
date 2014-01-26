@@ -188,8 +188,6 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-
-
     }
 
 
