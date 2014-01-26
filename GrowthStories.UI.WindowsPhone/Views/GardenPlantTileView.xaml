@@ -15,6 +15,29 @@
     mc:Ignorable="d">
 
 
+    <local:GardenPlantTileViewBase.Resources>
+        <Storyboard 
+				x:Name="trexStoryboard" 
+				AutoReverse="True" 
+				RepeatBehavior="Forever">
+            <DoubleAnimationUsingKeyFrames 
+							Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
+							Storyboard.TargetName="Img">
+                <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:30" Value="-198"/>
+                <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames 
+							Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
+							Storyboard.TargetName="Img">
+                <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:30"/>
+                <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+    </local:GardenPlantTileViewBase.Resources>
+
     <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True">
 
         <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}" Grid.Row="0">
@@ -91,31 +114,6 @@
                     c4fBinding:FrameworkElementBinding.ClipToBounds="True">
 
                 <Grid>
-                    <Grid.Triggers>
-                        <EventTrigger RoutedEvent="Canvas.Loaded" >
-                            <BeginStoryboard>
-                                <Storyboard 
-						x:Name="trexStoryboard" 
-						AutoReverse="True" 
-						RepeatBehavior="Forever">
-                                    <DoubleAnimationUsingKeyFrames 
-							Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
-							Storyboard.TargetName="Img">
-                                        <SplineDoubleKeyFrame KeyTime="0:0:1"/>
-                                        <SplineDoubleKeyFrame KeyTime="0:0:30" Value="-198"/>
-                                        <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198" />
-                                    </DoubleAnimationUsingKeyFrames>
-                                    <DoubleAnimationUsingKeyFrames 
-							Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
-							Storyboard.TargetName="Img">
-                                        <SplineDoubleKeyFrame KeyTime="0:0:1"/>
-                                        <SplineDoubleKeyFrame KeyTime="0:0:30"/>
-                                        <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198"/>
-                                    </DoubleAnimationUsingKeyFrames>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Grid.Triggers>
 
                     <Canvas>
 

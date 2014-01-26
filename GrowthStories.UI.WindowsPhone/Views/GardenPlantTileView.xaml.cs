@@ -21,6 +21,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media.Imaging;
 
 
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -135,6 +136,8 @@ namespace Growthstories.UI.WindowsPhone
             Storyboard.SetTarget(wa, panel);
             Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
 
+            sb.Completed += FadeInCompleted;
+
             if (panel.Opacity == 0)
             {
                 ViewModel.Log().Info("GardenPlantTileView: starting fadein for " + ViewModel.Name);
@@ -144,6 +147,13 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
+        }
+
+
+        private void FadeInCompleted(object sender, EventArgs e)
+        {
+            ViewModel.Log().Debug("fadein completed for {0}", ViewModel.Name);
+            trexStoryboard.Begin();
         }
 
 
