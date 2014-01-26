@@ -149,7 +149,6 @@ namespace Growthstories.UI.ViewModel
 
                 });
 
-
                 Garden.Plants.ItemsRemoved.Subscribe(pvm =>
                 {
                     TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
@@ -157,34 +156,9 @@ namespace Growthstories.UI.ViewModel
                 });
 
             });
-            //currentAndFuturePlants
-            //    .Do(x => latestActions = x.Actions) // this forces the actions to load eagerly, in order to get the notifications in the start
-            //    .SelectMany(x => x.WhenAnyValue(y => y.WateringScheduler, y => y.IsWateringScheduleEnabled, (y1, y2) => Tuple.Create(x, y1, y2)))
-            //    .Where(x => x.Item2 != null)
-            //    .SelectMany(x => x.Item2.WhenAnyValue(y => y.LastActionTime, y => Tuple.Create(x, y)))
-            //    .ObserveOn(RxApp.MainThreadScheduler)
-            //    .Subscribe(x =>
-            //    {
 
-            //        var plant = x.Item1.Item1;
-
-            //        if (!x.Item1.Item3)
-            //            TryRemove(plant.Id, NotificationType.WATERING_SCHEDULE);
-            //        else
-            //        {
-            //            var notification = new Notification()
-            //            {
-            //                Name = plant.Name,
-            //                Id = plant.Id,
-            //                Type = NotificationType.WATERING_SCHEDULE,
-            //                Number = x.Item1.Item2.Missed,
-            //                Interval = x.Item1.Item2.Interval.Value
-            //            };
-
-            //            UpdateList(notification);
-            //        }
-            //    });
         }
+
 
         private void UpdateWateringNotification(IPlantViewModel pvm)
         {
@@ -277,20 +251,6 @@ namespace Growthstories.UI.ViewModel
 
             //Notifications.Sort();           
         }
-
-        /*
-        public class Comparer<Notification> : IComparer<Notification>
-        {
-
-            int Compare(Notification o1, Notification o2)
-            {
-
-                //o1.TicksToAction
-
-                return o1.TicksToAction - o2.TicksToAction;
-            }
-        }
-        */
 
 
         private Dictionary<Tuple<Guid, NotificationType>, int?> NotificationsForPlant = new Dictionary<Tuple<Guid, NotificationType>, int?>();

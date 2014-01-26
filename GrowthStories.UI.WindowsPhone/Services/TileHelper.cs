@@ -19,22 +19,13 @@ namespace Growthstories.UI.WindowsPhone
             // this is optional and used only for optimization
             this.AppUser = appUser;
 
-
             UpdateSubscription = SubscribeToUpdates();
-
-            //this.WhenAnyValue(x => x.HasTile).Skip(1).Subscribe(x =>
-            //{
-            //    if (x)
-            //    else
-            //        UpdateSubscription.Dispose();
-            //});
 
             vm.WhenAnyValue(x => x.Id).Where(x => x != default(Guid))
                 .Take(1).Subscribe(x => this.HasTile = Current != null);
-
-
-
         }
+
+
         public bool CreateOrUpdateTile()
         {
             var tile = Current;
@@ -48,13 +39,12 @@ namespace Growthstories.UI.WindowsPhone
                 var info = GSTileUtils.CreateTileUpdateInfo(Vm);
                 ShellTile.Create(new Uri(info.UrlPath, UriKind.Relative), GSTileUtils.GetTileData(info), true);
                 GSTileUtils.WriteTileUpdateInfo(info);
-
             }
             _Current = null;
             HasTile = true;
             return true;
-
         }
+
 
         public bool DeleteTile()
         {
@@ -66,6 +56,7 @@ namespace Growthstories.UI.WindowsPhone
             HasTile = false;
             return true;
         }
+
 
         private ShellTile _Current;
         private ShellTile Current { get { return _Current ?? (_Current = GSTileUtils.GetShellTile(Vm)); } }
@@ -94,7 +85,15 @@ namespace Growthstories.UI.WindowsPhone
                 z => z.Actions.ItemsAdded,
                 (a, b, c) => true
                 )
-            .Subscribe(_ => GSTileUtils.UpdateTileAndInfoAfterDelay(Vm));
+                .Subscribe(_ =>
+                    {
+                        this.Log().Info("updating tileinfo for {0}", Vm.Name);
+                        GSTileUtils.UpdateTileAndInfoAfterDelay(Vm);
+                    });
         }
+
+
+
     }
+
 }
