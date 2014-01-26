@@ -15,6 +15,8 @@ namespace Growthstories.UI.WindowsPhone
 
         public static int GetSipHeight()
         {
+            // should maybe use different value for HD devices
+            // http://klingdigital.net/2013/06/scrollviewer-and-multiline-textbox-windowsphone/
             return 336;
         }
 

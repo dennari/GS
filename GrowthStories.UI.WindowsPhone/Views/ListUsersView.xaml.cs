@@ -72,5 +72,17 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private void UserListBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            UserSelector.Height = 560 - SIPHelper.GetSipHeight();
+        }
+
+
+        private void UserListBox_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            UserSelector.Height = 560;
+        }
+
+
     }
 }

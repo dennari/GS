@@ -61,10 +61,13 @@
 
             <Grid Height="130" Margin="0,-40,0,0">
                 <telerikPrimitives:RadTextBox 
+                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
                     Style="{StaticResource GSRadSearchBoxStyle}"
                     ClearButtonVisibility="Collapsed"
                     VerticalAlignment="Bottom"
-                        x:Name="UserListBox" 
+                    x:Name="UserListBox" 
+                    GotFocus="UserListBox_GotFocus"
+                    LostFocus="UserListBox_LostFocus"
                     Margin="-12,0,-12,12"
                     KeyUp="UserListBox_KeyUp"
                     BorderBrush="{StaticResource GSBackgroundBrush}"
@@ -105,10 +108,10 @@
                         ItemTemplate="{StaticResource ListUsersTemplate}"
                         SelectionChanged="UserSelector_SelectionChanged"
                         Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
-                            />
+                        Height="560"
+                        />
                 </StackPanel>
             </ScrollViewer>
-
 
             <StackPanel Visibility="{Binding ProgressIndicatorIsVisible, 
                     Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
