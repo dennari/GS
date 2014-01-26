@@ -126,13 +126,14 @@
 						                    Grid.Column="0"
 						                    Grid.Row="0"
 						                    FontWeight="Bold"
-						                    Padding="24,-8,24,0"
+						                    Padding="12,4,24,4"
 						                    Foreground="WhiteSmoke"
                                             InputScope="Number"
                                             GotFocus="TextBox_GotFocus"
 									        LostFocus="TextBox_LostFocus"
                                             />
-                                        
+
+
                                         <Image 
 						                    Margin="0,14,0,13"
 						                    Grid.Row="0"
@@ -147,7 +148,7 @@
 
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Grid.Column="1"
-                                                Margin="0,12,0,0"
+                                                Margin="0,12,-12,0"
                                                 Visibility="{Binding ShowTrendInfos, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
                                                 Text="{Binding CountText}"
                                                 HorizontalAlignment="Left"
@@ -260,6 +261,8 @@
 				VerticalAlignment="Top"						
 				Text="{Binding Note, Mode=TwoWay}" 		
 				Visibility="{Binding NoteVisibility}" />
+
+
 
             <ContentControl x:Name="SIPExtraPlaceHolder" Height="100" />
             
