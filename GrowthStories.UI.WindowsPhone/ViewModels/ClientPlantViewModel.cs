@@ -19,7 +19,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private readonly Func<IPlantViewModel, ITileHelper> TileHelperFactory;
 
         private ITileHelper _TileHelper;
-        private ITileHelper TileHelper
+        public ITileHelper TileHelper
         {
             get
             {
