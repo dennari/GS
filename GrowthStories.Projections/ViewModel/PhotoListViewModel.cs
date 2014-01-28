@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ReactiveUI;
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -12,37 +13,54 @@ namespace Growthstories.UI.ViewModel
         public IReactiveDerivedList<IPlantPhotographViewModel> Photos { get; private set; }
 
 
-        private IPlantPhotographViewModel _Selected;
+        private ObservableAsPropertyHelper<IPlantPhotographViewModel> _Selected;
         public IPlantPhotographViewModel Selected
         {
             get
             {
-                return _Selected;
+                return _Selected.Value;
+            }
+        }
+
+
+        private object _SelectedItem;
+        public object SelectedItem
+        {
+            get
+            {
+                return _SelectedItem;
             }
             set
             {
-                this.RaiseAndSetIfChanged(ref _Selected, value);
+                this.RaiseAndSetIfChanged(ref _SelectedItem, value);
             }
         }
+
 
 
         public PhotoListViewModel(IReactiveDerivedList<IPlantPhotographViewModel> photos, IGSAppViewModel app, IPlantPhotographViewModel selected = null)
             : base(app)
         {
             this.Log().Info("initializing photolistviewmodel");
-                     
+
             this.Photos = photos;
             if (selected == null)
             {
                 this.Log().Info("selected is null");
                 selected = photos.First();
-            
+
             }
             else
             {
                 this.Log().Info("selected is #{0}, {1}", selected.ActionIndex, selected.PlantActionId);
-                Selected = selected;
             }
+
+            this.WhenAnyValue(x => x.SelectedItem)
+                .OfType<IPlantPhotographViewModel>()
+                .ToProperty(this, x => x.Selected, out _Selected);
+
+            SelectedItem = selected;
+
         }
 
 
@@ -57,7 +75,7 @@ namespace Growthstories.UI.ViewModel
             get { return ApplicationBarMode.DEFAULT; }
         }
 
-        
+
         public bool AppBarIsVisible
         {
             get { return false; }

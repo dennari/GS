@@ -56,7 +56,7 @@ namespace Growthstories.UI.WindowsPhone
 
         IDisposable ShowPopupSubscription = Disposable.Empty;
         IDisposable SetDismissPopupAllowedSubscription = Disposable.Empty;
-        
+
 
         protected override void OnViewModelChanged(AppViewModel vm)
         {
@@ -217,6 +217,19 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.OnNavigatedTo(e);
             this.Log().Info("OnNavigatedTo");
+
+            if (this.ViewModel.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
+            {
+                // this seems to the only working place were we can trigger
+                // something whenever an app is brought to foreground, since
+                // the usual events somehow don't work
+
+                ViewModel.HandleApplicationActivated();
+                return;
+
+            }
+
+
             IDictionary<string, string> qs = this.NavigationContext.QueryString;
 
             Guid plantId = default(Guid);
@@ -227,20 +240,9 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
-            // this seems to the only working place were we can trigger
-            // something whenever an app is brought to foreground, since
-            // the usual events somehow don't work
-            if (!firstOnNavigatedTo)
-            {
-                ViewModel.HandleApplicationActivated();
-            }
-            
-            if (this.ViewModel.Router.NavigationStack.Count == 0)
-            {
-                ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
-            }
 
-            firstOnNavigatedTo = false;
+            ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
+
         }
 
         private IDisposable PlantNavigationSubscription = Disposable.Empty;
@@ -290,14 +292,14 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
-            
+
             base.OnBackKeyPress(e);
 
             if (Popup != null)
             {
                 this.Log().Info("backbutton pressed, dismissOnBackButton is " + Popup.DismissOnBackButton);
             }
-            
+
             if (IsDialogShown && Popup != null && Popup.DismissOnBackButton)
             {
                 // popups have their own subscription to the backkeypress,
