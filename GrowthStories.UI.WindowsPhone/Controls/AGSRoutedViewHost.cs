@@ -96,19 +96,19 @@ namespace Growthstories.UI.WindowsPhone
                 .StartWith(platform.GetOrientation())
                 .Select(x => x != null ? x.ToString() : default(string));
 
-            var vmAndContract = Observable.CombineLatest(
-                this.WhenAnyObservable(x => x.Router.CurrentViewModel),
-                this.WhenAnyObservable(x => x.ViewContractObservable),
-                (vm, contract) => Tuple.Create(vm, contract));
+            //var vmAndContract = Observable.CombineLatest(
+            //    this.WhenAnyObservable(x => x.Router.CurrentViewModel),
+            //    this.WhenAnyObservable(x => x.ViewContractObservable),
+            //    (vm, contract) => Tuple.Create(vm, contract));
 
             // NB: The DistinctUntilChanged is useful because most views in 
             // WinRT will end up getting here twice - once for configuring
             // the RoutedViewHost's ViewModel, and once on load via SizeChanged
-            vmAndContract.DistinctUntilChanged().Subscribe(x =>
+            this.WhenAnyObservable(x => x.Router.CurrentViewModel).DistinctUntilChanged().Subscribe(x =>
             {
 
                 this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
-                if (x.Item1 == null)
+                if (x == null)
                 {
                     Content = DefaultContent;
                     if (AppVM != null)
@@ -119,13 +119,13 @@ namespace Growthstories.UI.WindowsPhone
                 }
 
                 var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
-                var view = viewLocator.ResolveView(x.Item1, x.Item2) ?? viewLocator.ResolveView(x.Item1, null);
+                var view = viewLocator.ResolveView(x, null);
 
                 if (view == null)
                 {
-                    throw new Exception(String.Format("Couldn't find view for '{0}'.", x.Item1));
+                    throw new Exception(String.Format("Couldn't find view for '{0}'.", x));
                 }
-                view.ViewModel = x.Item1;
+                view.ViewModel = x;
                 Content = view;
 
                 if (AppVM != null)
