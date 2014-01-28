@@ -589,7 +589,7 @@ namespace Growthstories.UI.ViewModel
                             var pvm = new ProgressPopupViewModel()
                             {
                                 Caption = "Preparing for sharing",
-                                Message = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing"
+                                ProgressMessage = "Growth Stories is preparing your plant " + this.Name.ToUpper() + " for sharing" // [SIC]
                             };
 
                             App.ShowPopup.Execute(pvm);
@@ -609,12 +609,12 @@ namespace Growthstories.UI.ViewModel
         {
             return new PopupViewModel()
             {
-                Caption = string.Format("{0} is not yet public", this.Name.Substring(0, 1).ToUpper() + this.Name.Substring(1)),
+                Caption = string.Format("{0} is not yet public", this.Name.ToUpper()),
+                //Caption = string.Format("{0} is not yet public", this.Name.Substring(0, 1).ToUpper() + this.Name.Substring(1)),
                 Message = "After sharing, your plant can be followed by other users.",
                 LeftButtonContent = "OK"
             };
         }
-
 
 
 
