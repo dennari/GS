@@ -170,7 +170,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 {
                     pos = await posTask;
                     this.Log().Info("getGeoPosition returned {0}", pos.ToString());
-                    return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);      
+                    return new GSLocation((float)pos.Coordinate.Latitude, (float)pos.Coordinate.Longitude);
                 }
                 finally
                 {
@@ -197,6 +197,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public void UpdateHasTiles()
         {
+            if (MyGarden == null)
+                return;
             foreach (var p in MyGarden.Plants)
             {
                 var gp = p as ClientPlantViewModel;
