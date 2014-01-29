@@ -13,6 +13,7 @@ using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
 using ReactiveUI;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
+using ClientPlantViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientPlantViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -35,8 +36,6 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
 
         }
-
-
 
 
 
@@ -224,9 +223,17 @@ namespace Growthstories.UI.WindowsPhone
                 // something whenever an app is brought to foreground, since
                 // the usual events somehow don't work
 
+                this.Log().Info("HandleApplicationActivated");
                 ViewModel.HandleApplicationActivated();
-                return;
+                
+                // when navigated from secondary tile we also need to update infos on tiles
+                if (OnlyPlant != null && OnlyPlant.TileHelper != null)
+                {
+                    this.Log().Info("updating whether only plant has tile");
+                    OnlyPlant.TileHelper.UpdateHasTile();
+                }
 
+                return;
             }
 
 
@@ -240,10 +247,11 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
-
             ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
-
         }
+
+
+        private ClientPlantViewModel OnlyPlant;
 
         private IDisposable PlantNavigationSubscription = Disposable.Empty;
         protected void NavigateWithDeepLink(Guid plantId)
@@ -264,6 +272,7 @@ namespace Growthstories.UI.WindowsPhone
                 //    .Do(x => this.Log().Info("CurrentPlants returned"))
                 //    .FirstOrDefaultAsync().Wait();
                 pvm = ViewModel.GetSinglePlant(plantId);
+                OnlyPlant = pvm as ClientPlantViewModel;
                 var a = pvm.Actions; // just to start loading
                 t.Stop();
                 this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);

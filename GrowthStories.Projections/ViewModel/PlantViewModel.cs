@@ -306,6 +306,7 @@ namespace Growthstories.UI.ViewModel
 
                 this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
                 {
+                    this.Log().Info("setting up menu items");
                     AppBarMenuItems = OwnerMenuItems;
                 });
 
@@ -561,7 +562,7 @@ namespace Growthstories.UI.ViewModel
 
                     })
                     .Switch()
-                    .Select(_ =>
+                    .Select(async _ =>
                     {
                         // [2] Check that the plant is set to shared and prompt if not
                         if (state.Public)
@@ -570,17 +571,21 @@ namespace Growthstories.UI.ViewModel
                         }
                         else
                         {
-                            //App.ShowPopup.E
-                            var popup = this.PlantNotPublicPrompt();
-                            App.ShowPopup.Execute(popup);
-                            return popup.AcceptedObservable
-                                .Take(1)
-                                .SelectMany(async __ =>
-                                {
-                                    await App.HandleCommand(new MarkPlantPublic(state.Id));
-                                    return new Unit();
-                                }).Take(1);
+                            // had to disable this popup, as it breaks down
+                            // in landscape mode -- JOJ 29.1.2014
 
+                            //var popup = this.PlantNotPublicPrompt();
+                            //App.ShowPopup.Execute(popup);
+                            //return popup.AcceptedObservable
+                            //    .Take(1)
+                            //    .SelectMany(async __ =>
+                            //    {
+                            //        await App.HandleCommand(new MarkPlantPublic(state.Id));
+                            //        return new Unit();
+                            //    }).Take(1);
+
+                            await App.HandleCommand(new MarkPlantPublic(state.Id));
+                            return Observable.Return(new Unit());
                         }
                     })
                     .Switch()
@@ -605,13 +610,18 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        private void SetupMenuItems()
+        {
+
+        }
+
         private IPopupViewModel PlantNotPublicPrompt()
         {
             return new PopupViewModel()
             {
-                Caption = string.Format("{0} is not yet public", this.Name.ToUpper()),
+                Caption = string.Format("{0} will be public", this.Name.ToUpper()),
                 //Caption = string.Format("{0} is not yet public", this.Name.Substring(0, 1).ToUpper() + this.Name.Substring(1)),
-                Message = "After sharing, your plant can be followed by other users.",
+                Message = "Once shared, a plant can be followed by other users.",
                 LeftButtonContent = "OK"
             };
         }
@@ -1082,11 +1092,11 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
         private ReactiveList<IButtonViewModel> GetFollowerButtons()
         {
             return new ReactiveList<IButtonViewModel>();
         }
+
 
         private ReactiveList<IButtonViewModel> GetOwnerButtons()
         {
@@ -1147,16 +1157,14 @@ namespace Growthstories.UI.ViewModel
                             Text = "delete",
                             Command = DeleteRequestedCommand,
                             CommandParameter = DeleteRequestOrigin.SELF
-                    },
-                  new MenuItemViewModel(null)
-                        {
-                            Text = HasTile ? "unpin" : "pin",
-                            Command = PinCommand
-                        }
+                        },
+                        new MenuItemViewModel(null)
+                            {
+                                Text = HasTile ? "unpin" : "pin",
+                                Command = PinCommand
+                            }
                                         
-                    };
-
-
+                        };
 
 
                 return ret;

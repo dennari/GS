@@ -86,23 +86,37 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private void SetupAppBarButtons()
+        {
+            this._AppBarButtons.Clear();
+            var g = Garden as GardenViewModel;
+
+            if (g != null)
+            {
+                this._AppBarButtons.Add(
+                    new ButtonViewModel(null)
+                    {
+                        Text = "add",
+                        IconType = IconType.ADD,
+                        Command = g.TryAddPlantCommand
+                    }
+                );       
+           }
+        }
+
 
 
         public NotificationsViewModel(IObservable<IGardenViewModel> garden, IGSAppViewModel app)
             : base(app)
         {
 
-            this._AppBarButtons.Add(
-            new ButtonViewModel(null)
-            {
-                Text = "add",
-                IconType = IconType.ADD,
-                Command = this.HostScreen.Router.NavigateCommandFor<IAddEditPlantViewModel>()
-            });
 
             garden.Subscribe(x =>
             {
                 Garden = x;
+
+                SetupAppBarButtons();
+
                 var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
 
                 IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;

@@ -60,6 +60,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             _Current = null;
             HasTile = Current != null;
+            this.Log().Info("updating has tile to {0}", HasTile);
         }
 
 
@@ -118,9 +119,9 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     missedSubscription.Dispose();
                 }
+
                 // missed is updated whenever items are added 
                 // or removed, or schedule is recalculated
-
                 if (u != null)
                 {
                     missedSubscription = u.WhenAnyValue(y => y.Missed)
@@ -130,6 +131,11 @@ namespace Growthstories.UI.WindowsPhone
                     });
                     subs.Add(missedSubscription);
                 }
+                else
+                {
+                    // watering schedule is set to null when there is no (anymore) actions etc.
+                    TriggerTileUpdate();
+                }
             }));
 
             // watch for watering schedule enabled updates
@@ -138,7 +144,6 @@ namespace Growthstories.UI.WindowsPhone
                 TriggerTileUpdate();
             }));
 
-            // watch for new photos
             subs.Add(Vm.Actions.ItemsAdded.Subscribe(a =>
             {
                 if (a.ActionType == PlantActionType.PHOTOGRAPHED)
@@ -147,6 +152,14 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }));
 
+            // for some reason did not work with .Concat(...)
+            subs.Add(Vm.Actions.ItemsRemoved.Subscribe(a =>
+            {
+                if (a.ActionType == PlantActionType.PHOTOGRAPHED)
+                {
+                    TriggerTileUpdate();
+                }
+            }));
 
             // this implementation could not deal with the wateringscheduler
             // being switched

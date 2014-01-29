@@ -160,10 +160,10 @@ namespace Growthstories.UI.Services
                 switch (Type)
                 {
                     case ScheduleType.WATERING:
-                        return Name + " needs watering";
+                        return Name.ToUpper() + " needs watering";
 
                     case ScheduleType.FERTILIZING:
-                        return Name + " needs nourishing";
+                        return Name.ToUpper() + " needs nourishing";
                 }
             }
 
@@ -172,7 +172,7 @@ namespace Growthstories.UI.Services
                 "Last {0} {1} missed for {2}",
                 PlantScheduler.GetMissedCount(Missed),
                 Type == ScheduleType.WATERING ? "waterings" : "nourishments",
-                Name);
+                Name.ToUpper());
         }
 
 

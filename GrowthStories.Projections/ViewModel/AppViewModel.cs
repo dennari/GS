@@ -239,19 +239,19 @@ namespace Growthstories.UI.ViewModel
                 pvm = new PopupViewModel()
                 {
                     Caption = "No data connection",
-                    Message = "Photos of followed user's plants may not be displayed, because you don't have a data connection.",
+                    Message = "Photos of some plants may not be displayed, because you don't have a data connection.",
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
             }
-            else
+            
             {
                 this.Log().Info("images failed to load because of broken data connection");
 
                 pvm = new PopupViewModel()
                 {
                     Caption = "Failed to load images",
-                    Message = "Some photos of followed user's plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.",
+                    Message = "Some photos of plants failed to load. This may be caused by an invalid data connection. Growth Stories will try to load them later.",
                     IsLeftButtonEnabled = true,
                     LeftButtonContent = "OK"
                 };
