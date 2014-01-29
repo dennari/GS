@@ -100,7 +100,6 @@ namespace Growthstories.UI.ViewModel
                         this.AppBarButtons = this.SelectedPlant.Chart.AppBarButtons;
                         this.AppBarIsVisible = true;
                         this.InnerViewModel = this.SelectedPlant.Chart;
-
                     }
                     else
                     {

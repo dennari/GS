@@ -307,7 +307,10 @@ namespace Growthstories.UI.ViewModel
                 this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
                 {
                     this.Log().Info("setting up menu items");
-                    AppBarMenuItems = OwnerMenuItems;
+                    if (HasWriteAccess)
+                    {
+                        AppBarMenuItems = OwnerMenuItems;
+                    }
                 });
 
                 this.WhenAnyValue(x => x.IsWateringScheduleEnabled, x => x.WateringScheduler, (x, y) => x && y != null)
