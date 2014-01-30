@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using Growthstories.Domain.Entities;
 using System.Reactive.Linq;
+using System.Diagnostics;
 
 
 namespace GrowthStories.UI.WindowsPhone.BA
@@ -409,7 +410,11 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 .Take(9)
                 .ToList();
 
-
+            if (Debugger.IsAttached)
+            {
+                Debugger.Log(0, "tiles", "amount of photos is " + photoUris.Count());
+            }
+            
             if (photoUris.Count == 0)
             {
                 photoUris.Add(new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"));
@@ -449,8 +454,20 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             if (tile != null)
             {
+                ClearTile(tile);
                 tile.Update(tileData);
             }
+        }
+
+
+
+        private static void ClearTile(ShellTile tile)
+        {
+            // needed to clear the previous images from cycle tile
+            // from http://social.msdn.microsoft.com/Forums/wpapps/en-US/700b13e0-fc4d-401e-92c7-936379c23a1f/cycle-tile-clearing-previous-images?forum=wpdevelop
+            //
+            var clearTileData = new CycleTileData("<?xml version=\"1.0\" encoding=\"utf-8\"?><wp:Notification xmlns:wp=\"WPNotification\" Version=\"2.0\"> <wp:Tile Id=\"TileID\" Template=\"CycleTile\"> <wp:SmallBackgroundImage Action=\"Clear\" /> <wp:CycleImage1 Action=\"Clear\" /> <wp:CycleImage2 Action=\"Clear\" /> <wp:CycleImage3 Action=\"Clear\" /> <wp:CycleImage4 Action=\"Clear\" /> <wp:CycleImage5 Action=\"Clear\" /> <wp:CycleImage6 Action=\"Clear\" /> <wp:CycleImage7 Action=\"Clear\" /> <wp:CycleImage8 Action=\"Clear\" /> <wp:CycleImage9 Action=\"Clear\" /> <wp:Count Action=\"Clear\" /> <wp:Title Action=\"Clear\" /> </wp:Tile></wp:Notification>");
+            tile.Update(clearTileData);
         }
 
 
@@ -497,7 +514,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 //
                 // therefore we cannot throttle for too much, one seconds seems to be
                 // appropriate (though if really trying it is still possible to exit too quickly)
-                cmd.Throttle(TimeSpan.FromSeconds(1)).Subscribe(_ => UpdateTileAndInfo(pvm));
+                cmd.Throttle(TimeSpan.FromMilliseconds(750)).Subscribe(_ => UpdateTileAndInfo(pvm));
                 UpdateCommands.Add(pvm, cmd);
             }
             UpdateCommands[pvm].Execute(null);

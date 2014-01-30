@@ -166,7 +166,6 @@ namespace Growthstories.UI.ViewModel
         IAuthUser User { get; }
         IReadOnlyReactiveList<IPlantViewModel> Plants { get; }
         string Username { get; }
-
         IReactiveCommand ShowDetailsCommand { get; }
     }
 

@@ -84,10 +84,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             ShareLinkTask shareLinkTask = new ShareLinkTask();
 
-            shareLinkTask.Title = "Story of " + Name;
+            shareLinkTask.Title = "Story of " + Name.ToUpper();
             shareLinkTask.LinkUri = new Uri(
                 "http://www.growthstories.com/plant/" + UserId + "/" + Id, UriKind.Absolute);
-            shareLinkTask.Message = "Check out how my plant " + Name + " is doing!";
+            shareLinkTask.Message = "Check out how my plant " + Name.ToUpper() + " is doing!";
 
             shareLinkTask.Show();
         }
