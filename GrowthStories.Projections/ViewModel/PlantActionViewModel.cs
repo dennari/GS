@@ -27,7 +27,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand EditCommand { get; protected set; }
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IconType Icon { get; protected set; }
-        
+
 
         private bool _OwnAction;
         public bool OwnAction
@@ -180,8 +180,10 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
-        
-            } else {
+
+            }
+            else
+            {
                 var now = DateTimeOffset.Now;
                 this.WeekDay = SharedViewHelpers.FormatWeekDay(now);
                 this.Date = now.ToString("d");
@@ -224,7 +226,7 @@ namespace Growthstories.UI.ViewModel
                 case PlantActionType.DECEASED:
                     kind = "deceased";
                     break;
-                
+
                 case PlantActionType.FERTILIZED:
                     kind = "fertilizing";
                     break;
@@ -479,12 +481,12 @@ namespace Growthstories.UI.ViewModel
         private IReactiveDerivedList<IPlantMeasureViewModel> _MeasurementActions;
         public IReactiveDerivedList<IPlantMeasureViewModel> MeasurementActions
         {
-            get 
+            get
             {
                 return _MeasurementActions;
             }
 
-            set 
+            set
             {
                 this.RaiseAndSetIfChanged(ref _MeasurementActions, value);
             }
@@ -550,7 +552,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public override void AddCommandSubscription(object p) {  }
+        public override void AddCommandSubscription(object p) { }
 
 
         //public override IObservable<bool> CanExecute { get; protected set; }
@@ -603,14 +605,14 @@ namespace Growthstories.UI.ViewModel
             TimelineLinesSubscription.Dispose();
 
 
-            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x => 
+            this.WhenAnyValue(x => x.SelectedMeasurementType).Subscribe(x =>
             {
                 this.TimelineFirstLine = x == null ? null : x.TimelineTitle;
                 UpdatePreviousMeasurement();
                 UpdateCountText(); // is not necessarily called by UpdatePreviousMeasurement
             });
 
-            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x => 
+            this.WhenAnyValue(x => x.Value).Where(x => x.HasValue).Subscribe(x =>
             {
                 this.TimelineSecondLine = this.SelectedMeasurementType.FormatValue(x.Value, true);
             });
@@ -627,7 +629,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             this.SelectedItem = defaultMeasurementType;
-            this.SValue = state != null ? defaultMeasurementType.FormatValue(state.Value.Value) : string.Empty;
+            this.SValue = state != null && state.Value.HasValue ? defaultMeasurementType.FormatValue(state.Value.Value) : string.Empty;
 
             UpdateCountText();
         }
@@ -662,10 +664,13 @@ namespace Growthstories.UI.ViewModel
 
                 CountForType = actions.Count();
 
-                if (actions.Count() > 0) {
+                if (actions.Count() > 0)
+                {
                     PreviousMeasurement = actions.First();
 
-                } else {
+                }
+                else
+                {
                     PreviousMeasurement = null;
 
                 }
@@ -675,21 +680,28 @@ namespace Growthstories.UI.ViewModel
 
         private void UpdateTrendIcon()
         {
-            
-            if (PreviousMeasurement == null) {
+
+            if (PreviousMeasurement == null)
+            {
                 TrendIcon = null;
-            
-            } else if (PreviousMeasurement.Value > Value) {
+
+            }
+            else if (PreviousMeasurement.Value > Value)
+            {
                 TrendIcon = IconType.ARROW_DOWN;
 
-            } else if (PreviousMeasurement.Value < Value) {
+            }
+            else if (PreviousMeasurement.Value < Value)
+            {
                 TrendIcon = IconType.ARROW_UP;
 
-            } else {
+            }
+            else
+            {
                 TrendIcon = IconType.ARROW_RIGHT;
 
             }
-       }
+        }
 
 
         private bool _ShowTrendInfos;
@@ -736,10 +748,11 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _CountForType;   
+                return _CountForType;
             }
 
-            set {
+            set
+            {
                 this.RaiseAndSetIfChanged(ref _CountForType, value);
             }
 
@@ -755,13 +768,13 @@ namespace Growthstories.UI.ViewModel
                 return;
             }
 
-            CountText 
+            CountText
                 = Ordinal(CountForType + 1)
-                + " time you measured " 
+                + " time you measured "
                 + MeasurementTypeHelper.Options[this.MeasurementType].TimelineTitle;
         }
 
-        
+
         public static string Ordinal(int number)
         {
             const string TH = "th";
@@ -786,16 +799,18 @@ namespace Growthstories.UI.ViewModel
                     return s + TH;
             }
         }
-        
+
 
         private string _CountText = null;
         public string CountText
         {
-            get {
+            get
+            {
                 return _CountText;
             }
 
-            set {
+            set
+            {
                 this.RaiseAndSetIfChanged(ref _CountText, value);
             }
         }
@@ -803,17 +818,20 @@ namespace Growthstories.UI.ViewModel
 
         private void UpdateChangePercentage()
         {
-            if (PreviousMeasurement == null)
+            if (PreviousMeasurement == null || !Value.HasValue || !PreviousMeasurement.Value.HasValue)
             {
                 return;
             }
 
             double? pct = Value / PreviousMeasurement.Value * 100.0 - 100.0;
 
-            if (pct > 0) {
+            if (pct > 0)
+            {
                 ChangePercentage = "+" + string.Format("{0:F1}", pct) + "%";
 
-            } else {
+            }
+            else
+            {
                 ChangePercentage = string.Format("{0:F1}", pct) + "%";
             }
         }
@@ -825,7 +843,7 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _ChangePercentage;
-        }
+            }
 
             set
             {
@@ -839,9 +857,9 @@ namespace Growthstories.UI.ViewModel
             base.SetProperty(prop);
             if (prop.Value != null && prop.Value.HasValue)
             {
-            this.Value = prop.Value;
-            this.SValue = prop.Value.Value.ToString("F1");
-        }
+                this.Value = prop.Value;
+                this.SValue = prop.Value.Value.ToString("F1");
+            }
         }
 
     }
@@ -851,7 +869,7 @@ namespace Growthstories.UI.ViewModel
     {
 
         bool _IsZoomViewOpen = false;
-        
+
         public bool IsZoomViewOpen
         {
             get { return _IsZoomViewOpen; }
@@ -927,7 +945,7 @@ namespace Growthstories.UI.ViewModel
                 CanChooseNewPhoto = false;
             }
 
-            this.OpenZoomView.Subscribe(x => 
+            this.OpenZoomView.Subscribe(x =>
                 {
                     this.Log().Info("openzoomview");
                     this.IsZoomViewOpen = !this.IsZoomViewOpen;
@@ -937,7 +955,7 @@ namespace Growthstories.UI.ViewModel
             this.PhotoTimelineTap = new ReactiveCommand();
             this.PhotoChooserCommand = new ReactiveCommand();
             this.SetAsProfilePictureCommand = new ReactiveCommand();
-            
+
             this.WhenAnyValue(z => z.PlantId).Subscribe(u =>
             {
                 if (u != null)
@@ -949,7 +967,7 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
-        
+
             this.SetAsProfilePictureCommand.Subscribe(_ =>
             {
                 App.HandleCommand(new SetProfilepicture((Guid)PlantId, this.Photo, PlantActionId));
@@ -992,7 +1010,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PhotoChooserCommand { get; protected set; }
 
 
-        
+
     }
 
 }

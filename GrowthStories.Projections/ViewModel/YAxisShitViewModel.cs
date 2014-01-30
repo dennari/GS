@@ -42,7 +42,7 @@ namespace Growthstories.UI.ViewModel
 
             foreach (var x in MeasurementTypeHelper.Options)
             {
-                var series = allActions.CreateDerivedCollection(y => (IPlantMeasureViewModel)y, y => y is IPlantMeasureViewModel && y.MeasurementType == x.Key);
+                var series = allActions.CreateDerivedCollection(y => (IPlantMeasureViewModel)y, y => y is IPlantMeasureViewModel && y.MeasurementType == x.Key && y.Value.HasValue);
                 AllSeries[x.Key] = series;
 
                 //series.ItemsAdded.Subscribe(x => {
