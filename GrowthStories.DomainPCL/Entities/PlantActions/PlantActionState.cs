@@ -125,7 +125,6 @@ namespace Growthstories.Domain.Entities
                 this.Photo.RemoteUri = @event.Pmd.RemoteUri;
                 this.Photo.Width = @event.Pmd.Width;
                 this.Photo.Height = @event.Pmd.Height;
-
             }
         }
 

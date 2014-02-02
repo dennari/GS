@@ -1141,6 +1141,8 @@ namespace Growthstories.UI.ViewModel
                 var garden = Bus.Listen<IEvent>()
                     .OfType<GardenAdded>();
 
+                this.Log().Info("creating new gardens observable {0}", this.ToString());
+                
                 _Gardens = Observable.CombineLatest(U, garden, (u, g) => Tuple.Create(u, g))
                     .Where(x =>
                     {
@@ -1149,7 +1151,7 @@ namespace Growthstories.UI.ViewModel
                     .DistinctUntilChanged()
                     .Select(x =>
                         {
-                            this.Log().Info("instantiating new gardenviewmodel");
+                            this.Log().Info("instantiating new gardenviewmodel {0}", x.Item1.AggregateId);
                             return new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this);
                         });
             }

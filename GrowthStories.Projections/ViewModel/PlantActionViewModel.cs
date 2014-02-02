@@ -558,6 +558,12 @@ namespace Growthstories.UI.ViewModel
         public PlantMeasureViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.MEASURED, app, state)
         {
+            this.Log().Info("measureviewmodel for {0}", state.Id);
+            if (state.Value == null)
+            {
+                this.Log().Info("value is null");
+            }
+            
             if (state != null && state.Type != PlantActionType.MEASURED)
                 throw new InvalidOperationException();
 
