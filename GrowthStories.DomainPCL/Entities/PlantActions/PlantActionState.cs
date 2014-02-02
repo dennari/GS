@@ -102,13 +102,14 @@ namespace Growthstories.Domain.Entities
             //if (@event.Type != this.Type)
             //    throw new InvalidOperationException("Can't set properties of incompatible PlantActionTypes");
 
+            // only enable editing of note
             if (@event.Note != null)
                 this.Note = @event.Note;
 
-            if (Type == PlantActionType.MEASURED)
-                this.Value = @event.Value;
-            if (Type == PlantActionType.PHOTOGRAPHED)
-                this.Photo = @event.Photo;
+            //if (Type == PlantActionType.MEASURED && @event.Value.HasValue)
+            //    this.Value = @event.Value;
+            //if (Type == PlantActionType.PHOTOGRAPHED && @event.Photo != null)
+            //    this.Photo = @event.Photo;
 
         }
 

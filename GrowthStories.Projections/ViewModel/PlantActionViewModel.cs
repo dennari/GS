@@ -144,6 +144,8 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        public bool NoState { get; private set; }
+
 
         public DateTimeOffset Created { get; protected set; }
 
@@ -183,6 +185,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
+                this.NoState = false;
 
             }
             else
@@ -192,6 +195,7 @@ namespace Growthstories.UI.ViewModel
                 this.Date = now.ToString("d");
                 this.Time = now.ToString("t");
                 this.Created = now;
+                this.NoState = true;
 
                 // I wonder if setting Created here is a problem,
                 // for some reason it has been avoided before
@@ -365,9 +369,9 @@ namespace Growthstories.UI.ViewModel
             {
                 return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
                 {
-                    Note = this.Note,
-                    Photo = this.Photo,
-                    Value = this.Value,
+                    Note = this.Note == State.Note ? null : this.Note,
+                    Photo = this.Photo == State.Photo ? null : this.Photo,
+                    Value = this.Value == State.Value ? null : this.Value,
                     MeasurementType = this.MeasurementType
                 });
             }
@@ -569,12 +573,7 @@ namespace Growthstories.UI.ViewModel
         public PlantMeasureViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(PlantActionType.MEASURED, app, state)
         {
-            this.Log().Info("measureviewmodel for {0}", state.Id);
-            if (state.Value == null)
-            {
-                this.Log().Info("value is null");
-            }
-            
+
             if (state != null && state.Type != PlantActionType.MEASURED)
                 throw new InvalidOperationException();
 
@@ -590,12 +589,13 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.Value = dValue);
             PreviousMeasurement = null;
 
-            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
+            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, x => x.Note, (x, y, z) => Tuple.Create(x, y, z))
               .Select(x =>
               {
-                  if (state != null && x.Item2 == state.MeasurementType)
+
+                  if (state != null) // we are editing
                   {
-                      return x.Item1.HasValue && x.Item1 != state.Value;
+                      return x.Item3 != state.Note; // check if note has been changed
                   }
                   return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
               });

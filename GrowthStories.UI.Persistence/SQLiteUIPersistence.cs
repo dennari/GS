@@ -186,7 +186,7 @@ namespace Growthstories.UI.Persistence
             this.ExecuteCommand(a.Id, (connection, cmd) =>
             {
                 var payload = this.serializer.Serialize(a);
-                
+
                 //this.GSLog().Info("serialized userstate: {0}", 
                 //    System.Text.Encoding.UTF8.GetString(payload, 0, payload.Length));
 
@@ -357,17 +357,17 @@ namespace Growthstories.UI.Persistence
 
                 return query.ExecuteQuery<UserState>(queryText, (stmt) =>
                 {
-                    
-                    
+
+
                     var u = Deserialize<UserState>(stmt, (int)UserIndex.Payload);
                     u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)UserIndex.Collaborator) > 0 ? true : false;
-                    
+
                     this.GSLog().Info("unserialized user friends is {0}", u.Friends);
                     if (u.Friends != null)
                     {
                         this.GSLog().Info("unserialized user friends count is {0}", u.Friends.Count());
                     }
-                    
+
                     return u;
                 });
             });
@@ -378,11 +378,13 @@ namespace Growthstories.UI.Persistence
         {
             var bytes = SQLite3.ColumnByteArray(stmt, index);
 
-            // var debug = Encoding.UTF8.GetString(bytes);
             if (bytes == null || bytes.Length == 0)
                 return null;
 
-            //this.GSLog().Info("deserialized something: {0}", System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length));
+
+            //string debug = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            //if (debug.Contains("LENGTH") || debug.Contains("PlantActionState"))
+            //    this.GSLog().Info("UI_STORE: DESERIALIZED  {0}", debug);
             return serializer.Deserialize<T>(bytes);
         }
 

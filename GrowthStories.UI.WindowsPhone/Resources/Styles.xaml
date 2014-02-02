@@ -47,6 +47,8 @@
     <FontFamily x:Key="GSTextBoxFont">/Resources/Montserrat-Regular.ttf#Montserrat</FontFamily>
 
     <system:String x:Key="GSInputLabelFontColor">#fff5dae4</system:String>
+    <Color x:Key="GSInputLabelColor">#fff5dae4</Color>
+
     <Color x:Key="GSInputColor">#ffae2e5f</Color>
     <system:String x:Key="GSTextBoxDisabledFontColor">#a0f5dae4</system:String>
     <Color x:Key="GSAppBarColor">#fffa6800</Color>
@@ -61,6 +63,8 @@
     <SolidColorBrush x:Key="GSBackgroundBrush" Color="{StaticResource GSBackgroundColor}"/>
     <SolidColorBrush x:Key="PhoneTextBoxEditBorderBrush" Color="{StaticResource GSAccentColor}" />
     <SolidColorBrush x:Key="GSWhiteBrush" Color="WhiteSmoke"/>
+    <SolidColorBrush x:Key="GSInputColorBrush" Color="{StaticResource GSInputColor}"/>
+    <SolidColorBrush x:Key="GSInputLabelBrush" Color="WhiteSmoke"/>
 
     <RadialGradientBrush x:Key="GSBackgroundGradient"
                 Center="0.9,0.1" GradientOrigin="0.9,0.1" RadiusY="0.9" RadiusX="0.9">
@@ -179,7 +183,7 @@
 
 
     <Style x:Key="GSTextBoxOnTextBlockStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource GSInputColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSWhiteBrush}"/>
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
             <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMediumLarge}"/>
             <!--<Setter Property="Margin" Value="{StaticResource PhoneHorizontalMargin}"/>-->
@@ -200,7 +204,7 @@
         <Style x:Key="GSInputLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource GSInputLabelFont}"/>
             <Setter Property="FontSize" Value="{StaticResource GSInputLabelFontSize}"/>
-            <Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
+            <Setter Property="Foreground" Value="{StaticResource GSInputLabelBrush}"/>
         </Style>
         <Style x:Key="GSPlantTileLabelStyle" BasedOn="{StaticResource PhoneTextNormalStyle}" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource GSTextBoxFont}"/>
@@ -223,7 +227,7 @@
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyNormal}"/>
             <Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}"/>
             <Setter Property="Margin" Value="{StaticResource GSZeroMargin}"/>
-            <Setter Property="Foreground" Value="{StaticResource GSInputLabelFontColor}"/>
+            <Setter Property="Foreground" Value="WhiteSmoke"/>
         </Style>
         <Style x:Key="GSActionListItemNoteStyle" BasedOn="{StaticResource GSTextNormalStyle}" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource PhoneFontFamilyLight}"/>

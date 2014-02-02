@@ -65,6 +65,7 @@
 								<local:GSListPicker 
 									x:Name="MeasurementTypePicker"			
 									ExpansionMode="ExpansionAllowed"
+                                    IsEnabled="{Binding NoState}"
 									ItemsSource="{Binding Options}"
 									SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 									BorderBrush="{StaticResource GSBackgroundBrush}"
@@ -73,7 +74,9 @@
 									<local:GSListPicker.ItemTemplate>
 										<DataTemplate>
 											<TextBlock Text="{Binding TitleWithUnit}" 
-												Style="{StaticResource GSTextBoxOnTextBlockStyle}" />
+                                                FontFamily="{StaticResource PhoneFontFamilyNormal}"
+                                                FontSize="{StaticResource PhoneFontSizeMediumLarge}"
+                                                />
 										</DataTemplate>
 									</local:GSListPicker.ItemTemplate>
 								</local:GSListPicker>
@@ -131,6 +134,7 @@
                                             InputScope="Number"
                                             GotFocus="TextBox_GotFocus"
 									        LostFocus="TextBox_LostFocus"
+                                             IsEnabled="{Binding NoState}"
                                             />
 
 

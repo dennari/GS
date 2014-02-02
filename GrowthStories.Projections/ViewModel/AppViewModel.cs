@@ -244,7 +244,7 @@ namespace Growthstories.UI.ViewModel
                     LeftButtonContent = "OK"
                 };
             }
-            
+
             {
                 this.Log().Info("images failed to load because of broken data connection");
 
@@ -612,7 +612,7 @@ namespace Growthstories.UI.ViewModel
             this.InitializeJob = Task.Run(() =>
             {
                 GSApp app = null;
-           
+
                 // try to get a previously created application from the repository
                 try
                 {
@@ -683,7 +683,7 @@ namespace Growthstories.UI.ViewModel
                     });
                 kludge.Execute(null);
 
-              
+
                 kludge = new ReactiveCommand();
                 kludge
                     .ObserveOn(RxApp.MainThreadScheduler)
@@ -967,8 +967,10 @@ namespace Growthstories.UI.ViewModel
                 await this.Initialize();
                 app = this.Model;
                 Router.NavigateAndReset.Execute(CreateMainViewModel());
-            
-            } else {
+
+            }
+            else
+            {
                 app = (GSApp)Handler.Handle(new CreateGSApp());
                 this.Model = app;
             }
@@ -1129,36 +1131,18 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        IObservable<IGardenViewModel> _Gardens;
         public IObservable<IGardenViewModel> FutureGardens(Guid? userId = null)
         {
 
-            if (_Gardens == null)
-            {
-                var U = Bus.Listen<IEvent>()
-                    .OfType<UserCreated>();
+            return Bus.Listen<IEvent>()
+                .OfType<GardenAdded>()
+                .Where(x => userId.HasValue ? x.AggregateId == userId.Value : true)
+                .Select(x =>
+                {
+                    this.Log().Info("instantiating new gardenviewmodel {0}", x.AggregateId);
+                    return new GardenViewModel(Observable.Return(x.AggregateState), false, this);
+                });
 
-                var garden = Bus.Listen<IEvent>()
-                    .OfType<GardenAdded>();
-
-                this.Log().Info("creating new gardens observable {0}", this.ToString());
-                
-                _Gardens = Observable.CombineLatest(U, garden, (u, g) => Tuple.Create(u, g))
-                    .Where(x =>
-                    {
-                        return x.Item1.AggregateId == x.Item2.AggregateId;
-                    })
-                    .DistinctUntilChanged()
-                    .Select(x =>
-                        {
-                            this.Log().Info("instantiating new gardenviewmodel {0}", x.Item1.AggregateId);
-                            return new GardenViewModel(Observable.Return(x.Item2.AggregateState), false, this);
-                        });
-            }
-
-            if (userId != null)
-                return _Gardens.Where(x => x.User.Id == userId);
-            return _Gardens;
         }
 
 
@@ -1231,8 +1215,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private IObservable<PlantActionCreated> PlantActionCreatedObservable;
         public IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null)
         {
+
             return Bus.Listen<IEvent>()
                     .OfType<PlantActionCreated>()
                     .Where(x => x.PlantId == plantId)
