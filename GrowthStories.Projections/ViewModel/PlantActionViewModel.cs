@@ -357,9 +357,9 @@ namespace Growthstories.UI.ViewModel
             {
                 return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
                 {
-                    Note = this.Note,
-                    Photo = this.Photo,
-                    Value = this.Value,
+                    Note = this.Note == State.Note ? null : this.Note,
+                    Photo = this.Photo == State.Photo ? null : this.Photo,
+                    Value = this.Value == State.Value ? null : this.Value,
                     MeasurementType = this.MeasurementType
                 });
             }

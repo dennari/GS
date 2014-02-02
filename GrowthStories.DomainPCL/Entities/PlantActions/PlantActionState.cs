@@ -105,9 +105,9 @@ namespace Growthstories.Domain.Entities
             if (@event.Note != null)
                 this.Note = @event.Note;
 
-            if (Type == PlantActionType.MEASURED)
+            if (Type == PlantActionType.MEASURED && @event.Value.HasValue)
                 this.Value = @event.Value;
-            if (Type == PlantActionType.PHOTOGRAPHED)
+            if (Type == PlantActionType.PHOTOGRAPHED && @event.Photo != null)
                 this.Photo = @event.Photo;
 
         }

@@ -5,6 +5,7 @@ using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace Growthstories.Domain.Messaging
@@ -348,6 +349,32 @@ namespace Growthstories.Domain.Messaging
             if (D.PropertyName == "blobKey")
                 return false;
 
+            if (D.PropertyName == "note")
+            {
+                try
+                {
+                    string val = (string)D.PropertyValue;
+                    if (val != null)
+                        this.Note = val;
+                }
+                catch
+                {
+
+                }
+            }
+            if (D.PropertyName == "value")
+            {
+                try
+                {
+                    double? val = (double?)D.PropertyValue;
+                    if (val.HasValue)
+                        this.Value = val;
+                }
+                catch
+                {
+
+                }
+            }
 
             this.Type = ValidTypes[D.EntityType];
 
@@ -358,12 +385,16 @@ namespace Growthstories.Domain.Messaging
         public override bool FillDTO(IEventDTO Dto)
         {
             var D = Dto as ISetPropertyDTO; if (Dto == null) return false;
-            D.PropertyName = "note";
-            D.PropertyValue = this.Note;
 
-            if (D.PropertyValue == null)
+            if (this.Note != null)
             {
-                D.PropertyValue = "";
+                D.PropertyName = "note";
+                D.PropertyValue = this.Note ?? "";
+            }
+            else if (this.Value.HasValue)
+            {
+                D.PropertyName = "value";
+                D.PropertyValue = this.Value.Value;
             }
 
             D.EntityType = PlantActionPropertySet.ValidTypes
