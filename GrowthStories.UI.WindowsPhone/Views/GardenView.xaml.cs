@@ -48,8 +48,21 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
 
-
-
+            var gvm = vm as GardenViewModel;
+            if (gvm != null)
+            {
+                gvm.WhenAnyValue(x => x.OwnGarden).Subscribe(own =>
+                {
+                    if (own)
+                    {
+                        MainScroller.Height = 480;
+                    }
+                    else
+                    {
+                        MainScroller.Height = 480 + 180;
+                    }
+                });
+            }
         }
 
 

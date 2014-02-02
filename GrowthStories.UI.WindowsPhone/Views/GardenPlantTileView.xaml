@@ -85,7 +85,6 @@
             
             <Button 
             IsHitTestVisible="True"
- 
             IsEnabled="True"        
             HorizontalAlignment="Left"
             Margin="-12,-12,-12,-12"
