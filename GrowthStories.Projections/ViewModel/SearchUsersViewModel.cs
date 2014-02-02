@@ -165,9 +165,10 @@ namespace Growthstories.UI.ViewModel
 
                     var filtered = x.Users.Where(y =>
                         !followed.Contains(y.AggregateId)
+                        && y.AggregateId != App.User.Id
                         && y.Garden != null
                         && y.Garden.Plants != null
-                        && y.Garden.Plants.Count > 0
+                        && y.Garden.Plants.Count > 0  // should count only public plants
                         ).ToArray();
 
                     if (filtered.Length > 0)
