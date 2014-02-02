@@ -46,24 +46,25 @@ namespace Growthstories.Domain.Messaging
     public class SetProfilepicture : PlantCommand
     {
 
-        public Photo Profilepicture { get; private set; }
+        //public Photo Profilepicture { get; private set; }
         public Guid PlantActionId { get; private set; }
 
 
         protected SetProfilepicture() { }
-        public SetProfilepicture(Guid entityId, Photo profilepicture, Guid plantActionId)
+        public SetProfilepicture(Guid entityId, Guid plantActionId)
             : base(entityId)
         {
-            this.Profilepicture = profilepicture;
+            //this.Profilepicture = profilepicture;
             this.PlantActionId = plantActionId;
         }
 
         public override string ToString()
         {
-            return string.Format(@"Change ProfilepicturePath to {0}", Profilepicture);
+            return string.Format(@"Change Profilepicture to {0}", PlantActionId);
         }
 
     }
+
 
     public class MarkPlantPublic : PlantCommand
     {

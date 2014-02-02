@@ -5,7 +5,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using EventStore.Logging;
 
 namespace Growthstories.Domain.Messaging
 {
@@ -110,30 +110,36 @@ namespace Growthstories.Domain.Messaging
     public class ProfilepictureSet : EventBase
     {
 
-        [JsonProperty]
-        public Photo Profilepicture { get; private set; }
+        private static ILog Logger = LogFactory.BuildLogger(typeof(ProfilepictureSet));
+
+        //[JsonProperty]
+        //public Photo Profilepicture { get; private set; }
+
         [JsonProperty]
         public Guid PlantActionId { get; private set; }
 
+
         protected ProfilepictureSet() { }
-        public ProfilepictureSet(Guid entityId, Photo profilepicture, Guid plantActionId)
+
+
+        public ProfilepictureSet(Guid entityId, Guid plantActionId)
             : base(entityId)
         {
-            this.Profilepicture = profilepicture;
+            //this.Profilepicture = profilepicture;
             this.PlantActionId = plantActionId;
         }
+
 
         public ProfilepictureSet(SetProfilepicture cmd)
             : base(cmd)
         {
-            this.Profilepicture = cmd.Profilepicture;
+            //this.Profilepicture = cmd.Profilepicture;
             this.PlantActionId = cmd.PlantActionId;
-
         }
 
         public override string ToString()
         {
-            return string.Format(@"ProfilepicturePath changed to {0}", Profilepicture);
+            return string.Format(@"Profilepicture changed to {0}", PlantActionId);
         }
 
 
@@ -162,14 +168,15 @@ namespace Growthstories.Domain.Messaging
                 var val = (JObject)D.PropertyValue;
                 this.PlantActionId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
                 //this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());
+             
             }
             catch
             {
-
+                Logger.Warn("Could not parse plantActionId");
             }
             return base.FromDTO(D);
-
         }
+
 
     }
 

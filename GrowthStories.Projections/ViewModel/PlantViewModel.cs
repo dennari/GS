@@ -306,7 +306,6 @@ namespace Growthstories.UI.ViewModel
 
                 this.WhenAnyValue(x => x.HasTile).Subscribe(x =>
                 {
-                    this.Log().Info("setting up menu items");
                     if (HasWriteAccess)
                     {
                         AppBarMenuItems = OwnerMenuItems;
@@ -421,30 +420,16 @@ namespace Growthstories.UI.ViewModel
                 .StartWith(state.Species)
                 .Subscribe(x => this.Species = x);
 
-            this.ListenTo<ProfilepictureSet>(this.State.Id).Select(x => x.Profilepicture)
-                .StartWith(state.Profilepicture)
+            this.WhenAnyValue(x => x.ProfilePictureActionId).Subscribe(x => HandleNewProfilePictureActionId(x));
+
+            ProfilePictureActionId = this.State.ProfilepictureActionId;
+            this.ListenTo<ProfilepictureSet>(this.State.Id)
+                .Select(x => x.PlantActionId)
                 .Subscribe(x =>
                 {
-                    this.Photo = x;
+                    this.ProfilePictureActionId = x;
                 });
-
-            this.WhenAnyValue(x => x.Photo).Subscribe(x =>
-            {
-                foreach (var a in Actions.Where(z => z.ActionType == PlantActionType.PHOTOGRAPHED).AsEnumerable())
-                {
-                    SetIsProfilePhoto((IPlantPhotographViewModel)a);
-                }
-            });
-
-            if (state.Profilepicture == null && state.ProfilepictureActionId.HasValue)
-            {
-                var photoId = state.ProfilepictureActionId.Value;
-                this.Actions.ItemsAdded.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == photoId).Take(1).Subscribe(x =>
-                {
-                    this.Photo = x.Photo;
-                });
-            }
-
+      
             this.ListenTo<MarkedPlantPublic>(this.State.Id)
                 .Subscribe(x => this.IsShared = true);
 
@@ -458,7 +443,6 @@ namespace Growthstories.UI.ViewModel
                         this.IsWateringScheduleEnabled = x.IsEnabled;
                     else
                         this.IsFertilizingScheduleEnabled = x.IsEnabled;
-
                 });
 
             this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
@@ -470,7 +454,6 @@ namespace Growthstories.UI.ViewModel
                 .StartWith(state.Location)
                 .Subscribe(x =>
             {
-                ;
                 Location = x;
             });
 
@@ -524,7 +507,6 @@ namespace Growthstories.UI.ViewModel
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
             this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
-
 
 
             if (HasWriteAccess)
@@ -610,8 +592,61 @@ namespace Growthstories.UI.ViewModel
                         this.ShareCommand.Execute(null);
                     });
             }
-
         }
+
+
+        private IDisposable ppActionsSubs = Disposable.Empty;
+
+
+        private void HandleNewProfilePictureActionId(Guid? PPActionId)
+        {
+            ppActionsSubs.Dispose();
+            ProfilePictureActionId = PPActionId;
+
+            //this.Log().Info("new profile picture actionid {0}", ProfilePictureActionId);
+
+            if (ProfilePictureActionId == null || !ProfilePictureActionId.HasValue)
+            {
+                //this.Log().Info("setting profile photo to null", ProfilePictureActionId);
+                this.Photo = null;
+                return;
+            }
+
+            this.Photo = LookupPhoto((Guid)ProfilePictureActionId);
+            //this.Log().Info("setting profile photo to {0} after looking up corresponding action", ProfilePictureActionId);
+
+            // tell actions whether they are now the profile photo
+            //foreach (var a in Actions.Where(z => z.ActionType == PlantActionType.PHOTOGRAPHED).AsEnumerable())
+            //{
+            //    SetIsProfilePhoto((IPlantPhotographViewModel)a, PPActionId);
+            //}
+
+            ppActionsSubs = this.Actions.ItemsAdded
+                .OfType<IPlantPhotographViewModel>()
+                .StartWith(Actions)
+                //.Where(x => x.PlantActionId == ProfilePictureActionId)
+                .Subscribe(x =>
+                {
+                    if (x.PlantActionId == ProfilePictureActionId)
+                    {
+                        //this.Log().Info("setting profile photo to {0} after loading corresponding action", ProfilePictureActionId);
+                        this.Photo = x.Photo;
+                    }
+                    SetIsProfilePhoto((IPlantPhotographViewModel)x, PPActionId);
+                });
+        }
+
+         
+        private Photo LookupPhoto(Guid PlantActionId)
+        {
+            var list = Actions.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == PlantActionId);
+            if (list.Count() > 0)
+            {
+                return list.First().Photo;
+            }
+            return null;
+        }
+
 
         private void SetupMenuItems()
         {
@@ -679,24 +714,36 @@ namespace Growthstories.UI.ViewModel
 
             x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
 
+            x.DeleteCommand.Subscribe(_ =>
+            {
+                HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+            });
+
+            
             this.ListenTo<AggregateDeleted>(x.PlantActionId)
                 .Subscribe(y =>
             {
                 _Actions.Remove(x);
-                HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
-            });
 
+                // this was not right, as the logic for handling removed profile
+                // photos should only be triggered when something has been removed
+                // from the UI by the user, not for example when running events pulled
+                // from server when signing in (*)
+                // HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
+            });
+            
             var photo = x as IPlantPhotographViewModel;
             if (photo != null)
             {
-                PossiblySetAsProfilePhoto(photo);
+                // essentially same comment as above (*)
+                // PossiblySetAsProfilePhoto(photo);
 
                 photo.PhotoTimelineTap
-                    .Subscribe(_ =>
-                    {
-                        var derived = Actions.OfType<IPlantPhotographViewModel>().CreateDerivedCollection(u => u);
-                        this.Navigate(new PhotoListViewModel(derived, App, photo));
-                    });
+                .Subscribe(_ =>
+                {
+                    var derived = Actions.OfType<IPlantPhotographViewModel>().CreateDerivedCollection(u => u);
+                    this.Navigate(new PhotoListViewModel(derived, App, photo));
+                });
             }
 
             ScrollCommand.Execute(x);
@@ -895,23 +942,48 @@ namespace Growthstories.UI.ViewModel
             }
 
             var pa = vm as IPlantPhotographViewModel;
-            SetIsProfilePhoto(pa);
+            if (pa != null)
+            {
+                pa.ActionAddedCommand.OfType<Guid>().Subscribe(guid =>
+                {
+                    PossiblySetAsProfilePhoto(guid);
+                });
+            }
         }
 
 
-        private void SetIsProfilePhoto(IPlantPhotographViewModel pa)
+        private Guid? _ProfilePictureActionId;
+        public Guid? ProfilePictureActionId
         {
-            if (pa != null && Photo != null && pa.State != null && pa.State.Photo != null)
-            {
-                // hack, works for now
-                pa.IsProfilePhoto =
-                    (Photo.LocalUri != null && Photo.LocalUri == pa.State.Photo.LocalUri)
-                    || (Photo.RemoteUri != null && Photo.RemoteUri == pa.State.Photo.RemoteUri);
+            get {
+                return _ProfilePictureActionId; 
             }
-            else if (pa != null)
+            set
             {
-                pa.IsProfilePhoto = false;
+                this.RaiseAndSetIfChanged(ref _ProfilePictureActionId, value);
             }
+        }
+
+
+        private void SetIsProfilePhoto(IPlantPhotographViewModel pa, Guid? PPActionId)
+        {
+            //this.Log().Info("set is profile photo {0} {1}", pa.PlantActionId, PPActionId);
+            if (pa != null)
+            {
+                pa.IsProfilePhoto = PPActionId == pa.PlantActionId;
+            }
+
+            //if (pa != null && Photo != null && pa.State != null && pa.State.Photo != null)
+            //{
+            //    // hack, works for now
+            //    pa.IsProfilePhoto =
+            //        (Photo.LocalUri != null && Photo.LocalUri == pa.State.Photo.LocalUri)
+            //        || (Photo.RemoteUri != null && Photo.RemoteUri == pa.State.Photo.RemoteUri);
+            //}
+            //else if (pa != null)
+            //{
+            //    pa.IsProfilePhoto = false;
+            //}
         }
 
 
@@ -942,7 +1014,8 @@ namespace Growthstories.UI.ViewModel
                         this.Navigate(vm);
                     });
                     // the request came from the action picker
-                    _NavigateToEmptyActionCommand.OfType<Tuple<PlantActionType, string>>().Where(x => x.Item2 == PlantActionListViewModel.ACTIONLIST_ID).Subscribe(x =>
+                    _NavigateToEmptyActionCommand.OfType<Tuple<PlantActionType, string>>()
+                        .Where(x => x.Item2 == PlantActionListViewModel.ACTIONLIST_ID).Subscribe(x =>
                     {
                         var vm = CreateEmptyActionVM(x.Item1);
                         // remove one from the stack
@@ -1017,15 +1090,16 @@ namespace Growthstories.UI.ViewModel
         //
         // (Not necessarily stricly correct to have this in the ViewModel, but
         //  will do for now)
-        private void PossiblySetAsProfilePhoto(IPlantPhotographViewModel vm)
+        private void PossiblySetAsProfilePhoto(Guid plantActionId)
         {
-            if (vm == null || !HasWriteAccess)
+            if (!HasWriteAccess)
             {
                 return;
             }
-            if (this.Photo == null)
+            //this.Log().Info("possiblysetasprofilephoto {0} {1}", plantActionId, ProfilePictureActionId);
+            if (ProfilePictureActionId == null || !ProfilePictureActionId.HasValue || Photo == null)
             {
-                App.HandleCommand(new SetProfilepicture((Guid)vm.PlantId, vm.Photo, vm.PlantActionId));
+                App.HandleCommand(new SetProfilepicture(this.Id, plantActionId));
             }
         }
 
@@ -1046,14 +1120,14 @@ namespace Growthstories.UI.ViewModel
             {
                 var latest = LatestPhoto();
 
-                if (latest != null)
+                if (latest != null && latest != vm)
                 {
-                    App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.Photo, latest.PlantActionId));
-
+                    App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.PlantActionId));
                 }
                 else
                 {
-                    this.Photo = null;
+                    //this.Log().Info("after remove, profile picture actionId is null");
+                    this.ProfilePictureActionId = null;
                 }
             }
         }
@@ -1231,7 +1305,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
     }
 
 
@@ -1356,12 +1429,9 @@ namespace Growthstories.UI.ViewModel
 
         public SupportedPageOrientation SupportedOrientations { get; set; }
 
-
         public IObservable<IPlantViewModel> DeleteObservable { get; set; }
 
-
         public IReactiveCommand DeleteRequestedCommand { get; set; }
-
 
         public IReactiveCommand PhotoCommand { get; set; }
 

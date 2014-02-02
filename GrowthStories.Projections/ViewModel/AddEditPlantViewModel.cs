@@ -467,7 +467,7 @@ namespace Growthstories.UI.ViewModel
                 var plantActionId = Guid.NewGuid();
                 await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
                 await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
-                await App.HandleCommand(new SetProfilepicture(plantId, this.Photo, plantActionId));
+                await App.HandleCommand(new SetProfilepicture(plantId, plantActionId));
             }
 
             if (!this.TagSet.SetEquals(this.Tags))

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using EventStore.Logging;
 
 
 namespace Growthstories.Domain.Entities
@@ -15,6 +16,8 @@ namespace Growthstories.Domain.Entities
 
     public sealed class PlantState : AggregateState<PlantCreated>
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(PlantState));
 
 
         [JsonProperty]
@@ -39,8 +42,10 @@ namespace Growthstories.Domain.Entities
         public string Name { get; private set; }
         [JsonProperty]
         public string Species { get; private set; }
-        [JsonProperty]
-        public Photo Profilepicture { get; private set; }
+
+        //[JsonProperty]
+        //public Photo Profilepicture { get; private set; }
+        
         [JsonProperty]
         public Guid? ProfilepictureActionId { get; private set; }
         
@@ -90,11 +95,13 @@ namespace Growthstories.Domain.Entities
             Public = false;
         }
 
+
         public void Apply(ProfilepictureSet @event)
         {
-            this.Profilepicture = @event.Profilepicture;
+            //this.Profilepicture = @event.Profilepicture;
             this.ProfilepictureActionId = @event.PlantActionId;
         }
+
 
         public void Apply(ScheduleSet @event)
         {

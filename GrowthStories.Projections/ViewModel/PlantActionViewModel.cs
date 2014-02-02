@@ -28,6 +28,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IconType Icon { get; protected set; }
 
+        public IReactiveCommand ActionAddedCommand {get; protected set; }
 
         private bool _OwnAction;
         public bool OwnAction
@@ -161,6 +162,8 @@ namespace Growthstories.UI.ViewModel
             this.Icon = ActionTypeToIcon[type];
             this.Label = ActionTypeToLabel[type];
             this.State = state;
+
+            ActionAddedCommand = new ReactiveCommand();
 
             //AddCommand.Subscribe(x =>
             //{
@@ -334,13 +337,16 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
         protected virtual Task<IGSAggregate> AsyncAddCommand(object _)
         {
 
             if (State == null)
             {
-                return App.HandleCommand(new CreatePlantAction(
-                                 Guid.NewGuid(),
+                var guid = Guid.NewGuid();
+
+                var ret = App.HandleCommand(new CreatePlantAction(
+                                 guid,
                                  this.UserId.Value,
                                  this.PlantId.Value,
                                  this.ActionType,
@@ -351,6 +357,8 @@ namespace Growthstories.UI.ViewModel
                     MeasurementType = this.MeasurementType,
                     Value = this.Value
                 });
+                ActionAddedCommand.Execute(guid);
+                return ret;
 
             }
             else
@@ -364,6 +372,7 @@ namespace Growthstories.UI.ViewModel
                 });
             }
         }
+
 
 
 
@@ -962,21 +971,20 @@ namespace Growthstories.UI.ViewModel
             this.PhotoChooserCommand = new ReactiveCommand();
             this.SetAsProfilePictureCommand = new ReactiveCommand();
 
-            this.WhenAnyValue(z => z.PlantId).Subscribe(u =>
-            {
-                if (u != null)
-                {
-                    this.ListenTo<ProfilepictureSet>((Guid)u).Subscribe(x =>
-                    {
-                        IsProfilePhoto = this.PlantActionId == x.PlantActionId;
-                    });
-                }
-            });
-
+            //this.WhenAnyValue(z => z.PlantId).Subscribe(u =>
+            //{
+            //    if (u != null)
+            //    {
+            //        this.ListenTo<ProfilepictureSet>((Guid)u).Subscribe(x =>
+            //        {
+            //            IsProfilePhoto = this.PlantActionId == x.PlantActionId;
+            //        });
+            //    }
+            //});
 
             this.SetAsProfilePictureCommand.Subscribe(_ =>
             {
-                App.HandleCommand(new SetProfilepicture((Guid)PlantId, this.Photo, PlantActionId));
+                App.HandleCommand(new SetProfilepicture((Guid)PlantId, PlantActionId));
             });
 
             this.WhenAnyValue(x => x.IsProfilePhoto).Subscribe(_ =>
