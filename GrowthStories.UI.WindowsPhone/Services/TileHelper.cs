@@ -7,6 +7,15 @@ using Microsoft.Phone.Shell;
 using ReactiveUI;
 using Growthstories.Domain.Entities;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ReactiveUI;
+using System.Diagnostics;
+using System.IO.IsolatedStorage;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using EventStore.Logging;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -41,14 +50,14 @@ namespace Growthstories.UI.WindowsPhone
             var tile = Current;
             if (tile != null)
             {
-                GSTileUtils.UpdateTileAndInfoAfterDelay(Vm);
+                TilesHelper.UpdateTileAndInfoAfterDelay(Vm);
 
             }
             else
             {
-                var info = GSTileUtils.CreateTileUpdateInfo(Vm);
+                var info = TilesHelper.CreateTileUpdateInfo(Vm);
                 ShellTile.Create(new Uri(info.UrlPath, UriKind.Relative), GSTileUtils.GetTileData(info), true);
-                GSTileUtils.WriteTileUpdateInfo(info);
+                TilesHelper.WriteTileUpdateInfo(info);
             }
             _Current = null;
             HasTile = true;
@@ -67,8 +76,8 @@ namespace Growthstories.UI.WindowsPhone
         public bool DeleteTile()
         {
             if (HasTile)
-                GSTileUtils.DeleteTile(Vm);
-            GSTileUtils.ClearTileUpdateInfo(Vm);
+                TilesHelper.DeleteTile(Vm);
+            TilesHelper.ClearTileUpdateInfo(Vm);
             ClearSubscriptions();
             _Current = null;
             HasTile = false;
@@ -77,7 +86,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private ShellTile _Current;
-        private ShellTile Current { get { return _Current ?? (_Current = GSTileUtils.GetShellTile(Vm)); } }
+        private ShellTile Current { get { return _Current ?? (_Current = TilesHelper.GetShellTile(Vm)); } }
 
 
         private bool _HasTile;
@@ -183,7 +192,287 @@ namespace Growthstories.UI.WindowsPhone
         private void TriggerTileUpdate()
         {
             this.Log().Info("triggered update of tileinfo for {0}", Vm.Name);
-            GSTileUtils.UpdateTileAndInfoAfterDelay(Vm);
+            TilesHelper.UpdateTileAndInfoAfterDelay(Vm);
+        }
+
+
+    }
+
+
+    class TilesHelper
+    {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(TilesHelper));
+
+
+        public static string GetSettingsKey(IPlantViewModel pvm)
+        {
+            return GSTileUtils.SETTINGS_KEY + pvm.UrlPath;
+        }
+
+
+        public static void WriteTileUpdateInfo(TileUpdateInfo info)
+        {
+            using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
+            {
+
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+
+                    var s = JsonConvert.SerializeObject(info, Formatting.None);
+
+                    settings.Remove(GSTileUtils.GetSettingsKey(info));
+                    settings.Add(GSTileUtils.GetSettingsKey(info), s);
+                    settings.Save();
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+        }
+
+
+        public static void SubscribeForTileUpdates(IGardenViewModel garden)
+        {
+            // subscribe to changes of each watering scheduler
+
+            garden.Plants.ItemsAdded
+                .Subscribe(x =>
+                {
+                    //  watch for watering scheduler updates
+                    x.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
+                    {
+                        u.WhenAnyValue(y => y.Missed)
+                            .Subscribe(_ =>
+                            {
+                                UpdateTileAndInfoAfterDelay(x);
+                            });
+                    });
+
+                    // watch for watering schedule enabled updates
+                    x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
+                    {
+                        UpdateTileAndInfoAfterDelay(x);
+                    });
+
+                    x.Actions.ItemsAdded.Subscribe(a =>
+                    {
+                        if (a.ActionType == PlantActionType.PHOTOGRAPHED)
+                        {
+                            UpdateTileAndInfoAfterDelay(x);
+                        }
+                    });
+
+                    x.Actions.ItemsRemoved.Subscribe(a =>
+                    {
+                        if (a.ActionType == PlantActionType.WATERED || a.ActionType == PlantActionType.FERTILIZED)
+                        {
+                            UpdateTileAndInfoAfterDelay(x);
+                        }
+                    });
+
+                });
+
+            garden.Plants.ItemsRemoved.Subscribe(x => ClearTileUpdateInfo(x));
+        }
+
+
+        //
+        // To be called when database is cleared
+        //
+        public static void ClearAllTileUpdateInfos()
+        {
+            using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+                    settings.Clear();
+
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+            GSTileUtils.UpdateTiles();
+        }
+
+
+        // 
+        // To be called whenever plants are removed
+        //
+        public static void ClearTileUpdateInfo(IPlantViewModel pvm)
+        {
+            using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    var settings = IsolatedStorageSettings.ApplicationSettings;
+                    if (settings.Contains(GetSettingsKey(pvm)))
+                    {
+                        settings.Remove(GetSettingsKey(pvm));
+                        settings.Save();
+                    }
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+            GSTileUtils.UpdateApplicationTile();
+        }
+
+
+        public static ShellTile GetShellTile(IPlantViewModel pvm)
+        {
+            return GSTileUtils.GetShellTile(pvm.UrlPathSegment);
+        }
+
+
+        public static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
+        {
+            TileUpdateInfo info = new TileUpdateInfo();
+
+            if (pvm.WateringSchedule != null
+                && pvm.WateringScheduler != null
+                && pvm.IsWateringScheduleEnabled
+                && pvm.WateringScheduler.Interval != null
+                && pvm.WateringScheduler.LastActionTime != null)
+            {
+                info.Interval = (TimeSpan)pvm.WateringSchedule.Interval;
+                info.Last = (DateTimeOffset)pvm.WateringScheduler.LastActionTime;
+            }
+
+            info.UrlPathSegment = pvm.UrlPathSegment;
+            info.UrlPath = pvm.UrlPath;
+            info.Name = pvm.Name;
+
+            var photoUris = pvm.Actions
+                .Where(x => x.Photo != null && x.Photo.LocalUri != null)
+                .Select(x => new Uri(x.Photo.LocalUri))
+                .Take(9)
+                .ToList();
+
+            if (pvm.Photo != null)
+            {
+                Logger.Info("localFullPath is {0}, Uri is {1}, LocalUri is {2}, RemoteUri is {3}",
+                    pvm.Photo.LocalFullPath, pvm.Photo.Uri, pvm.Photo.LocalUri, pvm.Photo.RemoteUri);
+            }
+
+            if (photoUris.Count == 0)
+            {
+                photoUris.Add(new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"));
+            }
+
+            info.PhotoUris = photoUris;
+
+            if (pvm.Photo != null && pvm.Photo.LocalUri != null)
+            {
+                try
+                {
+                    info.ProfilePhotoUri = new Uri(pvm.Photo.LocalUri);
+                }
+                catch { Logger.Warn("could not parse profilephotouri"); }
+            }
+            if (info.ProfilePhotoUri == null)
+            {
+                info.ProfilePhotoUri = new System.Uri("appdata:/Assets/Icons/NoImageNoText.png");
+            }
+
+            return info;
+        }
+
+
+        private static void UpdateTileAndInfo(IPlantViewModel pvm)
+        {
+
+            var vm = (PlantViewModel)pvm;
+
+            if (vm.State.IsDeleted)
+            {
+                ClearTileUpdateInfo(pvm);
+                GSTileUtils.UpdateApplicationTile();
+                return;
+            }
+
+            var tile = GetShellTile(pvm);
+            TileUpdateInfo info = CreateTileUpdateInfo(pvm);
+            WriteTileUpdateInfo(info);
+
+            if (tile != null)
+            {
+                GSTileUtils.UpdateTile(info);
+            }
+
+            GSTileUtils.UpdateApplicationTile();
+        }
+
+
+        private static Dictionary<IPlantViewModel, IReactiveCommand> UpdateCommands
+            = new Dictionary<IPlantViewModel, IReactiveCommand>();
+
+
+        public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
+        {
+            if (!UpdateCommands.ContainsKey(pvm))
+            {
+                var cmd = new ReactiveCommand();
+
+                // updating tiles is probably a pretty expensive operation, 
+                // so we wish to throttle it. this would be relavant especially
+                // when signing in
+                //
+                // however, it the immediately exits the 
+                // app, we will not be able to update the tile
+                //
+                // therefore we cannot throttle for too much, one seconds seems to be
+                // appropriate (though if really trying it is still possible to exit too quickly)
+                cmd.Throttle(TimeSpan.FromMilliseconds(750)).Subscribe(_ => UpdateTileAndInfo(pvm));
+                UpdateCommands.Add(pvm, cmd);
+            }
+            UpdateCommands[pvm].Execute(null);
+        }
+
+
+        public static void DeleteTile(IPlantViewModel pvm)
+        {
+            var t = GetShellTile(pvm);
+            if (t != null)
+            {
+                t.Delete();
+                // the plant takes care of this itself
+                //pvm.HasTile = false;
+            }
+
+            // no need to update infos
+        }
+
+
+        public static void DeleteAllTiles()
+        {
+            int cnt = 0;
+            foreach (var tile in ShellTile.ActiveTiles.AsEnumerable())
+            {
+                // application tile is first 
+                if (cnt != 0)
+                {
+                    tile.Delete();
+                }
+                cnt++;
+            }
+            ClearAllTileUpdateInfos();
         }
 
 

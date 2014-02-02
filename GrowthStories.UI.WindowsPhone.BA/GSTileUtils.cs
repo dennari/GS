@@ -3,16 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using Growthstories.Domain.Messaging;
 using Growthstories.UI.Services;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Shell;
 using Newtonsoft.Json;
-using ReactiveUI;
 using Growthstories.Domain.Entities;
+using System.Threading;
+using System.Threading.Tasks;
+using ReactiveUI;
 using System.Reactive.Linq;
 using System.Diagnostics;
 
@@ -42,6 +42,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
         [JsonProperty]
         public string Name { get; set; }
 
+        [JsonProperty]
+        public Uri ProfilePhotoUri { get; set; }
 
         public TileUpdateInfo()
         {
@@ -52,7 +54,10 @@ namespace GrowthStories.UI.WindowsPhone.BA
     }
 
 
-
+    // Tile operations needed by the background agent
+    // other tile-related stuff is in the TileHelper and TilesHelper classes
+    // in GrowthStories.UI.WindowsPhone
+    //
     public class GSTileUtils
     {
 
@@ -62,42 +67,16 @@ namespace GrowthStories.UI.WindowsPhone.BA
         public const string DELETE_MUTEX = "GSTileUtilsDeleteMutex";
 
 
-        public static string GetSettingsKey(IPlantViewModel pvm)
+        /**
+        * Update tiles based on TileUpdateInfos
+        * stored in IsolatedStorageSettings
+        */
+        public static void UpdateTiles()
         {
-            return SETTINGS_KEY + pvm.UrlPath;
-        }
+            var pti = ReadTileUpdateInfos();
+            UpdateTiles(pti);
 
-
-        public static string GetSettingsKey(TileUpdateInfo info)
-        {
-            return SETTINGS_KEY + info.UrlPath;
-        }
-
-
-        public static void WriteTileUpdateInfo(TileUpdateInfo info)
-        {
-            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
-            {
-
-                try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
-
-                try
-                {
-                    var settings = IsolatedStorageSettings.ApplicationSettings;
-
-                    var s = JsonConvert.SerializeObject(info, Formatting.None);
-
-                    settings.Remove(GetSettingsKey(info));
-                    settings.Add(GetSettingsKey(info), s);
-                    settings.Save();
-
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
+            UpdateApplicationTile();
         }
 
 
@@ -138,16 +117,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        /**
-         * Update tiles based on TileUpdateInfos
-         * stored in IsolatedStorageSettings
-         */
-        public static void UpdateTiles()
+        public static ShellTile GetShellTile(string urlPathSegment)
         {
-            var pti = ReadTileUpdateInfos();
-            UpdateTiles(pti);
+            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));
+        }
 
-            UpdateApplicationTile();
+
+        public static string GetSettingsKey(TileUpdateInfo info)
+        {
+            return SETTINGS_KEY + info.UrlPath;
         }
 
 
@@ -258,125 +236,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
 
 
-        public static void SubscribeForTileUpdates(IGardenViewModel garden)
-        {
-            // subscribe to changes of each watering scheduler
-
-            garden.Plants.ItemsAdded
-                .Subscribe(x =>
-            {
-                //  watch for watering scheduler updates
-                x.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
-                {
-                    u.WhenAnyValue(y => y.Missed)
-                        .Subscribe(_ =>
-                        {
-                            UpdateTileAndInfoAfterDelay(x);
-                        });
-                });
-
-                // watch for watering schedule enabled updates
-                x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
-                {
-                    UpdateTileAndInfoAfterDelay(x);
-                });
-
-                x.Actions.ItemsAdded.Subscribe(a =>
-                {
-                    if (a.ActionType == PlantActionType.PHOTOGRAPHED)
-                    {
-                        UpdateTileAndInfoAfterDelay(x);
-                    }
-                });
-
-                // also watch for added photos
-                //x.Actions.ItemsAdded
-                //    .Where(u => u.)
-                //    .Subscribe(u =>
-                //{
-                //    UpdateTileAndInfoAfterDelay(x);
-                //});
-
-                x.Actions.ItemsRemoved.Subscribe(a =>
-                {
-                    if (a.ActionType == PlantActionType.WATERED || a.ActionType == PlantActionType.FERTILIZED)
-                    {
-                        UpdateTileAndInfoAfterDelay(x);
-                    }
-                });
-
-            });
-
-            garden.Plants.ItemsRemoved.Subscribe(x => ClearTileUpdateInfo(x));
-        }
-
-
-
-        //
-        // To be called when database is cleared
-        //
-        public static void ClearAllTileUpdateInfos()
-        {
-            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
-            {
-                try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
-
-                try
-                {
-                    var settings = IsolatedStorageSettings.ApplicationSettings;
-                    settings.Clear();
-
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
-            UpdateTiles();
-        }
-
-
-        // 
-        // To be called whenever plants are removed
-        //
-        public static void ClearTileUpdateInfo(IPlantViewModel pvm)
-        {
-            using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
-            {
-                try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
-
-                try
-                {
-                    var settings = IsolatedStorageSettings.ApplicationSettings;
-                    if (settings.Contains(GetSettingsKey(pvm)))
-                    {
-                        settings.Remove(GetSettingsKey(pvm));
-                        settings.Save();
-                    }
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
-            UpdateApplicationTile();
-        }
-
-
-        public static ShellTile GetShellTile(IPlantViewModel pvm)
-        {
-            return GetShellTile(pvm.UrlPathSegment);
-        }
-
-
-        public static ShellTile GetShellTile(string urlPathSegment)
-        {
-            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));
-        }
-
-
         private static void UpdateTiles(HashSet<TileUpdateInfo> infos)
         {
             foreach (var info in infos)
@@ -384,47 +243,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 UpdateTile(info);
             }
         }
-
-
-        public static TileUpdateInfo CreateTileUpdateInfo(IPlantViewModel pvm)
-        {
-            TileUpdateInfo info = new TileUpdateInfo();
-
-            if (pvm.WateringSchedule != null
-                && pvm.WateringScheduler != null
-                && pvm.IsWateringScheduleEnabled
-                && pvm.WateringScheduler.Interval != null
-                && pvm.WateringScheduler.LastActionTime != null)
-            {
-                info.Interval = (TimeSpan)pvm.WateringSchedule.Interval;
-                info.Last = (DateTimeOffset)pvm.WateringScheduler.LastActionTime;
-            }
-
-            info.UrlPathSegment = pvm.UrlPathSegment;
-            info.UrlPath = pvm.UrlPath;
-            info.Name = pvm.Name;
-
-            var photoUris = pvm.Actions
-                .Where(x => x.Photo != null && x.Photo.LocalUri != null)
-                .Select(x => new Uri(x.Photo.LocalUri))
-                .Take(9)
-                .ToList();
-
-            if (Debugger.IsAttached)
-            {
-                Debugger.Log(0, "tiles", "amount of photos is " + photoUris.Count());
-            }
-            
-            if (photoUris.Count == 0)
-            {
-                photoUris.Add(new System.Uri("appdata:/Assets/Icons/NoImageNoText.png"));
-            }
-
-            info.PhotoUris = photoUris;
-
-            return info;
-        }
-
 
         public static CycleTileData GetTileData(TileUpdateInfo info)
         {
@@ -440,14 +258,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
             {
                 Title = info.Name.ToUpper(),
                 Count = cnt,
-                CycleImages = info.PhotoUris
+                CycleImages = info.PhotoUris,
+                SmallBackgroundImage = info.ProfilePhotoUri
             };
 
             return tileData;
         }
 
 
-        private static void UpdateTile(TileUpdateInfo info)
+        public static void UpdateTile(TileUpdateInfo info)
         {
             var tileData = GetTileData(info);
             var tile = GetShellTile(info.UrlPathSegment);
@@ -460,7 +279,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-
         private static void ClearTile(ShellTile tile)
         {
             // needed to clear the previous images from cycle tile
@@ -471,87 +289,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
         }
 
 
-        private static void UpdateTileAndInfo(IPlantViewModel pvm)
-        {
-
-            var vm = (PlantViewModel)pvm;
-
-            if (vm.State.IsDeleted)
-            {
-                ClearTileUpdateInfo(pvm);
-                UpdateApplicationTile();
-                return;
-            }
-
-            var tile = GetShellTile(pvm);
-            TileUpdateInfo info = CreateTileUpdateInfo(pvm);
-            WriteTileUpdateInfo(info);
-
-            if (tile != null)
-            {
-                UpdateTile(info);
-            }
-
-            UpdateApplicationTile();
-        }
-
-        private static Dictionary<IPlantViewModel,IReactiveCommand> UpdateCommands 
-            = new Dictionary<IPlantViewModel, IReactiveCommand>();
-
-
-        public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
-        {
-            if (!UpdateCommands.ContainsKey(pvm))
-            {
-                var cmd = new ReactiveCommand();
-
-                // updating tiles is probably a pretty expensive operation, 
-                // so we wish to throttle it. this would be relavant especially
-                // when signing in
-                //
-                // however, it the immediately exits the 
-                // app, we will not be able to update the tile
-                //
-                // therefore we cannot throttle for too much, one seconds seems to be
-                // appropriate (though if really trying it is still possible to exit too quickly)
-                cmd.Throttle(TimeSpan.FromMilliseconds(750)).Subscribe(_ => UpdateTileAndInfo(pvm));
-                UpdateCommands.Add(pvm, cmd);
-            }
-            UpdateCommands[pvm].Execute(null);
-        }
-
-
-        public static void DeleteTile(IPlantViewModel pvm)
-        {
-            var t = GetShellTile(pvm);
-            if (t != null)
-            {
-                t.Delete();
-                // the plant takes care of this itself
-                //pvm.HasTile = false;
-            }
-
-            // no need to update infos
-        }
-
-
-        public static void DeleteAllTiles()
-        {
-            int cnt = 0;
-            foreach (var tile in ShellTile.ActiveTiles.AsEnumerable())
-            {
-                // application tile is first 
-                if (cnt != 0)
-                {
-                    tile.Delete();
-                }
-                cnt++;
-            }
-            ClearAllTileUpdateInfos();
-        }
-
     }
-
 
 
 }

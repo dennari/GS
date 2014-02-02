@@ -13,6 +13,7 @@ using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class FriendsPivotViewBase : GSView<IFriendsViewModel>
     {
 

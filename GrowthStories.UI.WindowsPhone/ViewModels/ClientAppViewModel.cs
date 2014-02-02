@@ -95,7 +95,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 try
                 {
-                    GSTileUtils.DeleteAllTiles();
+                    TilesHelper.DeleteAllTiles();
                 }
                 catch { }
             });
@@ -212,9 +212,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public override void UpdatePhoneLocationServicesEnabled()
         {
-            // we need to try to get location to find out whether
-            // location services are enabled
-
+            
             var gl = new Geolocator();
             if (gl.LocationStatus == PositionStatus.Disabled)
             {
@@ -282,7 +280,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         protected override void ClearDB()
         {
             // clear isolated storage containing tile update infos
-            GSTileUtils.ClearAllTileUpdateInfos();
+            TilesHelper.ClearAllTileUpdateInfos();
 
             Store.ReInitialize();
             UIPersistence.ReInitialize();

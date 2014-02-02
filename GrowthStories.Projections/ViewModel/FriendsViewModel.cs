@@ -40,7 +40,6 @@ namespace Growthstories.UI.ViewModel
                 }
                 return _FilteredFriends;
             }
-
         }
 
         public IReactiveCommand ItemTappedCommand { get; set; }
