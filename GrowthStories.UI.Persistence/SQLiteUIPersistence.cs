@@ -382,9 +382,9 @@ namespace Growthstories.UI.Persistence
                 return null;
 
 
-            string debug = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-            if (debug.Contains("LENGTH") || debug.Contains("PlantActionState"))
-                this.GSLog().Info("UI_STORE: DESERIALIZED  {0}", debug);
+            //string debug = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            //if (debug.Contains("LENGTH") || debug.Contains("PlantActionState"))
+            //    this.GSLog().Info("UI_STORE: DESERIALIZED  {0}", debug);
             return serializer.Deserialize<T>(bytes);
         }
 
