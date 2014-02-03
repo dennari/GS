@@ -81,7 +81,7 @@ namespace Growthstories.UI.WindowsPhone
         protected override void FileSystemConfiguration()
         {
             Bind<IPhotoHandler>().To<WP8PhotoHandler>();
-
+            ImagingExtensions.Handler = new WP8PhotoHandler();
         }
 
 
@@ -177,7 +177,7 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
 
             //RxUIResolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
-            
+
             // the rad slider filmstrip mode does have some messy state, and therefore we want to start clean each time
             RxUIResolver.Register(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
 

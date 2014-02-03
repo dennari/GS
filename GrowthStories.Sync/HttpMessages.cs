@@ -161,7 +161,7 @@ namespace Growthstories.Sync
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
 
             this.UploadUri = uploadUriResponse.PhotoUri;
-            this.Stream = await FileOpener.ReadPhoto(Photo);
+            this.Stream = await FileOpener.OpenReadStream(Photo.FileName);
 
             return await Transporter.RequestPhotoUpload(this);
 
@@ -179,20 +179,22 @@ namespace Growthstories.Sync
     {
         private readonly ITransportEvents Transporter;
         private readonly IJsonFactory jFactory;
-        private readonly IPhotoHandler PhotoHandler;
+        private readonly IPhotoHandler FileOpener;
 
 
-        public PhotoDownloadRequest(Photo photo, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
+        public PhotoDownloadRequest(Photo photo, Guid plantActionId, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
         {
             // TODO: Complete member initialization
 
             this.jFactory = jFactory;
             this.Photo = photo;
-            this.PhotoHandler = fileOpener;
+            this.PlantActionId = plantActionId;
+            this.FileOpener = fileOpener;
             this.Transporter = transporter;
         }
 
         public Photo Photo { get; private set; }
+        public Guid PlantActionId { get; private set; }
 
         public bool IsEmpty
         {
@@ -217,20 +219,17 @@ namespace Growthstories.Sync
 
             }
 
-            var r2 = await Transporter.RequestPhotoDownload(this);
-            if (r2.StatusCode != GSStatusCode.OK)
+            IPhotoDownloadResponse response = await Transporter.RequestPhotoDownload(this);
+            if (response.StatusCode != GSStatusCode.OK)
                 throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
 
-
-            using (var writeStream = await PhotoHandler.WritePhoto(Photo))
-            using (var readStream = r2.Stream)
-            {
-                await readStream.CopyToAsync(writeStream);
-            }
+            Photo.FileName = FileOpener.FilenameFromBlobKey(Photo.BlobKey);
+            Photo.LocalFullPath = await FileOpener.WriteToDisk(response.Stream, Photo.FileName);
 
 
-            return r2;
+
+            return response;
 
 
         }
@@ -248,6 +247,7 @@ namespace Growthstories.Sync
 
         public Photo Photo { get; set; }
         public Stream Stream { get; set; }
+        public Guid PlantActionId { get; set; }
 
     }
 

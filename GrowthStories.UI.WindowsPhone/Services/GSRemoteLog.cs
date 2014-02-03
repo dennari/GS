@@ -48,8 +48,13 @@ namespace Growthstories.UI.WindowsPhone
             if (Filter != null && !Filter(Type, message))
                 return;
 
+            string content = message;
+            try
+            {
+                content = string.Format(message, values).Replace("\r\n", "\n");
+            }
+            catch { }
 
-            string content = string.Format(message, values).Replace("\r\n", "\n");
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             //Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);
 

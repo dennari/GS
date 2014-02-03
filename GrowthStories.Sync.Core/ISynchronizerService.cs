@@ -21,7 +21,8 @@ namespace Growthstories.Sync
         IEnumerable<PullStream> SyncStreams { get; }
         SyncHead SyncHead { get; }
         IDictionary<string, Tuple<Photo, Guid>> PhotoUploads { get; }
-        IDictionary<string, Photo> PhotoDownloads { get; }
+        IDictionary<string, Tuple<Photo, Guid>> PhotoDownloads { get; }
+        IDictionary<Guid, string> LocalPhotoPaths { get; }
         IAuthUser User { get; }
     }
 

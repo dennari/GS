@@ -198,7 +198,7 @@ namespace Growthstories.Sync
         {
 
             derived = null;
-            
+
             //var photo = cmd as CreatePlantAction;
             //if (photo != null && photo.Type == PlantActionType.PHOTOGRAPHED)
             //{
@@ -216,7 +216,7 @@ namespace Growthstories.Sync
             //    }
             //    catch { }
             //}
-            
+
 
             var upload = cmd as CompletePhotoUpload;
             if (upload != null && upload.PlantActionId != default(Guid))
@@ -226,6 +226,15 @@ namespace Growthstories.Sync
                 {
                     AncestorId = upload.AncestorId
                 };
+                return true;
+
+            }
+
+            var download = cmd as CompletePhotoDownload;
+            if (download != null && download.PlantActionId != default(Guid))
+            {
+
+                derived = new SetLocalFullPath(download.PlantActionId, download.Photo.LocalFullPath);
                 return true;
 
             }

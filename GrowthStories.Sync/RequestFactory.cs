@@ -218,10 +218,10 @@ namespace Growthstories.Sync
 
         }
 
-        public IPhotoDownloadRequest CreatePhotoDownloadRequest(Photo photo)
+        public IPhotoDownloadRequest CreatePhotoDownloadRequest(Tuple<Photo, Guid> photo)
         {
 
-            return new PhotoDownloadRequest(photo, jFactory, Transporter, FileOpener);
+            return new PhotoDownloadRequest(photo.Item1, photo.Item2, jFactory, Transporter, FileOpener);
 
         }
 

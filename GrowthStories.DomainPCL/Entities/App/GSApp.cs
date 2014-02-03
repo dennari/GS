@@ -204,16 +204,32 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new LocationAcquired(command));
         }
 
-        //public void Handle(CompletePhotoDownload command)
-        //{
-        //    RaiseEvent(new PhotoDownloadCompleted(command));
-        //}
+        public void Handle(CompletePhotoDownload command)
+        {
+            RaiseEvent(new PhotoDownloadCompleted(command));
+        }
 
-        //public void Handle(PlantActionCreated e)
-        //{
-        //    if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
-        //        RaiseEvent(new PhotoDownloadScheduled(e));
-        //}
+        public void Handle(PlantActionCreated e)
+        {
+            if (e != null && e.Type == PlantActionType.PHOTOGRAPHED && this.State != null && this.State.User != null && this.State.User.Id == e.UserId)
+                RaiseEvent(new PhotoDownloadScheduled(e));
+        }
+
+        public void Handle(BlobKeySet e)
+        {
+            if (this.State != null && this.State.PhotoDownloads.ContainsKey(e.AggregateId.ToString()))
+            {
+                RaiseEvent(new PhotoDownloadScheduled(e));
+            }
+
+        }
+
+        public void Handle(SetLocalFullPath e)
+        {
+
+            RaiseEvent(new LocalFullPathSet(e));
+
+        }
 
         public static bool CanHandle(IMessage cmd, bool isRemote = false)
         {
@@ -253,15 +269,15 @@ namespace Growthstories.Domain.Entities
                     return true;
                 if (cmd is UnFollowed)
                     return true;
+                if (cmd is BlobKeySet)
+                    return true;
 
+                var e = cmd as PlantActionCreated;
+                if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
+                    return true;
 
             }
-            //else
-            //{
-            //    var e = cmd as PlantActionCreated;
-            //    if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
-            //        return true;
-            //}
+
             return false;
         }
 

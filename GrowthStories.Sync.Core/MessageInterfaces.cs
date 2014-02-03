@@ -47,6 +47,7 @@ namespace Growthstories.Sync
     {
         Uri DownloadUri { get; }
         Photo Photo { get; }
+        Guid PlantActionId { get; }
         Task<IPhotoDownloadResponse> GetResponse();
     }
 
@@ -54,6 +55,7 @@ namespace Growthstories.Sync
     {
         Photo Photo { get; }
         Stream Stream { get; }
+        Guid PlantActionId { get; }
 
     }
 

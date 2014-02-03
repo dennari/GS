@@ -76,7 +76,10 @@ namespace Growthstories.Domain.Entities
 
         private readonly IDictionary<string, Tuple<Photo, Guid>> _PhotoUploads = new Dictionary<string, Tuple<Photo, Guid>>();
 
-        private readonly IDictionary<string, Photo> _PhotoDownloads = new Dictionary<string, Photo>();
+        private readonly IDictionary<string, Tuple<Photo, Guid>> _PhotoDownloads = new Dictionary<string, Tuple<Photo, Guid>>();
+
+        private readonly IDictionary<Guid, string> _LocalPhotoPaths = new Dictionary<Guid, string>();
+
 
         public IDictionary<string, Tuple<Photo, Guid>> PhotoUploads
         {
@@ -86,7 +89,7 @@ namespace Growthstories.Domain.Entities
             }
         }
 
-        public IDictionary<string, Photo> PhotoDownloads
+        public IDictionary<string, Tuple<Photo, Guid>> PhotoDownloads
         {
             get
             {
@@ -94,6 +97,13 @@ namespace Growthstories.Domain.Entities
             }
         }
 
+        public IDictionary<Guid, string> LocalPhotoPaths
+        {
+            get
+            {
+                return _LocalPhotoPaths;
+            }
+        }
 
         public IEnumerable<PullStream> SyncStreams
         {
@@ -149,6 +159,14 @@ namespace Growthstories.Domain.Entities
 
         }
 
+        public void Apply(LocalFullPathSet @event)
+        {
+
+
+            this._LocalPhotoPaths[@event.PlantActionId] = @event.LocalFullPath;
+
+        }
+
         //public void Apply(SyncStampSet @event)
         //{
         //    PullStream syncStream = null;
@@ -185,16 +203,20 @@ namespace Growthstories.Domain.Entities
 
         public void Apply(PhotoDownloadScheduled @event)
         {
-            if (@event.Photo.BlobKey == null)
-                throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
-            _PhotoDownloads[@event.Photo.BlobKey] = @event.Photo;
+            //if (@event.Photo.BlobKey == null)
+            //    return;//throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
+            _PhotoDownloads[@event.PlantActionId.ToString()] = Tuple.Create(@event.Photo, @event.PlantActionId);
         }
 
         public void Apply(PhotoDownloadCompleted @event)
         {
-            if (@event.Photo.BlobKey == null)
-                throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
-            _PhotoDownloads.Remove(@event.Photo.BlobKey);
+            //if (@event.Photo.BlobKey == null)
+            //    return;//throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
+            _PhotoDownloads.Remove(@event.PlantActionId.ToString());
+
+            if (@event.Photo.LocalFullPath != null)
+                _LocalPhotoPaths[@event.PlantActionId] = @event.Photo.LocalFullPath;
+
         }
 
 

@@ -36,13 +36,14 @@ namespace Growthstories.Domain.Messaging
     {
         public readonly GSLocation Location;
 
-        public AcquireLocation(GSLocation lo) : base(GSAppState.GSAppId)
+        public AcquireLocation(GSLocation lo)
+            : base(GSAppState.GSAppId)
         {
             this.Location = lo;
         }
     }
 
-   
+
     public sealed class InternalRegisterAppUser : AggregateCommand<GSApp>
     {
         public readonly Guid UserId;
@@ -59,7 +60,7 @@ namespace Growthstories.Domain.Messaging
             this.Email = email;
         }
 
-       public override string ToString()
+        public override string ToString()
         {
             return string.Format(@"Internally mark user registered", UserId);
         }
@@ -253,12 +254,16 @@ namespace Growthstories.Domain.Messaging
 
 
         public readonly Photo Photo;
+        public readonly Guid PlantActionId;
 
 
-        public CompletePhotoDownload(Photo photo)
+
+        public CompletePhotoDownload(IPhotoDownloadResponse response)
             : base(GSAppState.GSAppId)
         {
-            this.Photo = photo;
+            this.Photo = response.Photo;
+            this.PlantActionId = response.PlantActionId;
+
         }
 
 
@@ -269,6 +274,23 @@ namespace Growthstories.Domain.Messaging
         }
 
 
+    }
+
+    public sealed class SetLocalFullPath : AggregateCommand<GSApp>
+    {
+        //public PlantActionType Type { get; private set; }
+
+        public readonly string LocalFullPath;
+        public readonly Guid PlantActionId;
+
+
+        //protected SetPlantActionProperty() { }
+        public SetLocalFullPath(Guid plantActionId, string localFullPath)
+            : base(GSAppState.GSAppId)
+        {
+            this.LocalFullPath = localFullPath;
+            this.PlantActionId = plantActionId;
+        }
     }
 
     public abstract class Synchronize : AggregateCommand<GSApp>

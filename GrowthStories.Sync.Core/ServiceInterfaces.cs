@@ -15,7 +15,7 @@ namespace Growthstories.Sync
         ISyncPushRequest CreateUserSyncRequest(Guid userId);
         ISyncPullRequest CreatePullRequest(ICollection<PullStream> streams);
         IPhotoUploadRequest CreatePhotoUploadRequest(Tuple<Photo, Guid> x);
-        IPhotoDownloadRequest CreatePhotoDownloadRequest(Photo x);
+        IPhotoDownloadRequest CreatePhotoDownloadRequest(Tuple<Photo, Guid> x);
     }
 
 
@@ -40,21 +40,48 @@ namespace Growthstories.Sync
 
     public interface IPhotoHandler
     {
-        Task<Stream> ReadPhoto(Photo photo);
-        Task<Stream> WritePhoto(Photo photo);
+        Task<Stream> OpenReadStream(string filename);
+        Task<Tuple<Stream, string>> OpenWriteStream(string filename);
+        Task<string> WriteToDisk(Stream readStream, string filename);
+        string GetPhotoLocalUri(string filename);
+        string GeneratePhotoFilename(string extension = "jpg");
+        string FilenameFromBlobKey(string blobKey);
     }
 
     public class NullPhotoHandler : IPhotoHandler
     {
 
-        public Task<Stream> ReadPhoto(Photo photo)
+
+        public Task<Stream> OpenReadStream(string filename)
         {
             return Task.FromResult((Stream)null);
         }
 
-        public Task<Stream> WritePhoto(Photo photo)
+        public Task<Tuple<Stream, string>> OpenWriteStream(string filename)
         {
-            return Task.FromResult((Stream)null);
+            return Task.FromResult(Tuple.Create((Stream)null, (string)null));
+
+        }
+
+        public Task<string> WriteToDisk(Stream readStream, string filename)
+        {
+            return Task.FromResult((string)null);
+        }
+
+
+        public string GetPhotoLocalUri(string filename)
+        {
+            return filename;
+        }
+
+        public string GeneratePhotoFilename(string extension = "jpg")
+        {
+            return Guid.NewGuid() + "." + extension;
+        }
+
+        public string FilenameFromBlobKey(string blobKey)
+        {
+            return blobKey;
         }
     }
 

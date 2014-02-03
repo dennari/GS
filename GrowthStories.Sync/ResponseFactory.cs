@@ -65,8 +65,10 @@ namespace Growthstories.Sync
                                 x.Stream.NextSince = x.NextSince;
                                 return x.Stream;
 
-                            } catch {
-                                Logger.Info("skipping out-of-sequence stream {0} {1}", x.Stream.StreamId, x.Stream.AncestorId); 
+                            }
+                            catch
+                            {
+                                Logger.Info("skipping out-of-sequence stream {0} {1}", x.Stream.StreamId, x.Stream.AncestorId);
 
                             }
                             // TODO/JOJ: is empty try catch and returning null a good idea?
@@ -84,7 +86,7 @@ namespace Growthstories.Sync
 
 
         public ISyncPushResponse CreatePushResponse(ISyncPushRequest req, Tuple<HttpResponseMessage, string> resp)
-        {   
+        {
             try
             {
                 var ret = jFactory.Deserialize<HttpPushResponse>(resp.Item2);
@@ -134,14 +136,16 @@ namespace Growthstories.Sync
         public APIRegisterResponse CreateRegisterResponse(Tuple<HttpResponseMessage, string> resp)
         {
             APIRegisterResponse ret;
-            
+
             if (resp.Item1.IsSuccessStatusCode)
             {
                 ret = jFactory.Deserialize<APIRegisterResponse>(resp.Item2);
 
-            } else {
+            }
+            else
+            {
                 ret = new APIRegisterResponse();
-                
+
             }
             ret.HttpStatus = resp.Item1.StatusCode;
 
@@ -188,7 +192,7 @@ namespace Growthstories.Sync
                     // we are not using the 404 code on the http status line currently
                     // for anything, so getting this code means that server is probably
                     // really unreachable (or down)
-                    sc = GSStatusCode.SERVER_UNREACHABLE; 
+                    sc = GSStatusCode.SERVER_UNREACHABLE;
                     break;
 
                 default:
@@ -237,6 +241,8 @@ namespace Growthstories.Sync
             {
                 r.Photo = req.Photo;
                 r.Stream = resp.Item2;
+                r.PlantActionId = req.PlantActionId;
+
             }
             return r;
 

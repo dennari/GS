@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 
 namespace QuickTests
 {
@@ -228,5 +229,18 @@ namespace QuickTests
 
             }
         }
+
+        [TestMethod]
+        public void TestBlobKeyToFileName()
+        {
+
+            var t = "AMIfv944Cl22xmFIGM4K-0BdbPBAiZLkxum4k3dn1xeU8dQLnY0HH02ngrSK_iXNZbbsDFtLbldpxGYqxVuvpr3nrQMKZnAeeUL26N0W-IsNorCjCh8xlLpiJ4Az914xhxOoxmi4pPIp3M1bDnMM4FphNYc3T54h3A";
+            Regex regEx = new Regex(@"[^a-zA-Z]+");
+            t = regEx.Replace(t, "");
+
+            Console.WriteLine(t);
+        }
+
+
     }
 }

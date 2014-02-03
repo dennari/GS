@@ -130,7 +130,7 @@ namespace Growthstories.Sync
                 RequestF.CreatePullRequest(syncStreams),
                 RequestF.CreatePushRequest(appState.SyncHead),
                 appState.PhotoUploads.Values.Select(x => RequestF.CreatePhotoUploadRequest(x)).ToArray(),
-                null
+                appState.PhotoDownloads.Values.Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray()
             );
 
             // pullrequest should really never be empty
@@ -166,14 +166,14 @@ namespace Growthstories.Sync
         public async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
             var request = await CreateSyncRequest(appState);
-                
+
             try
             {
                 return await _Synchronize(request, appState);
             }
-            catch
+            catch (Exception e)
             {
-                this.Log().Info("Unexpected exception in SynchonizerService");
+                this.Log().DebugExceptionExtended("Unhandled exception in SynchronizerService", e);
                 request.Status = SyncStatus.PULL_ERROR; // todo: switch to more descriptive value
                 request.Code = GSStatusCode.FAIL;
                 return request;
@@ -271,35 +271,34 @@ namespace Growthstories.Sync
                 var responses = await s.UploadPhotos();
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
                     .Select(x => new CompletePhotoUpload(x) { AncestorId = appState.User.Id }).ToArray();
+                this.Log().Info("uploaded {0}/{1} photos", successes.Length, responses.Length);
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(appState.Id, successes));
 
-                foreach (var resp in responses)
+                if (successes.Length < s.PhotoUploadRequests.Length)
                 {
-                    if (resp.StatusCode != GSStatusCode.OK)
-                    {
-                        s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
-                        return s;
-                    }
+                    s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
+                    return s;
                 }
+
             }
 
             if (downloadRequests.Length > 0 && appState != null)
             {
                 var responses = await s.DownloadPhotos(downloadRequests);
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
-                    .Select(x => new CompletePhotoDownload(x.Photo)).ToArray();
+                    .Select(x => new CompletePhotoDownload(x)).ToArray();
+
+
+                this.Log().Info("downloaded {0}/{1} photos", successes.Length, responses.Length);
 
                 if (successes.Length > 0)
                     Handler.Handle(new StreamSegment(appState.Id, successes));
 
-                foreach (var resp in responses)
+                if (successes.Length < downloadRequests.Length)
                 {
-                    if (resp.StatusCode != GSStatusCode.OK)
-                    {
-                        s.Status = SyncStatus.PHOTODOWNLOAD_ERROR;
-                        return s;
-                    }
+                    s.Status = SyncStatus.PHOTODOWNLOAD_ERROR;
+                    return s;
                 }
             }
             s.Status = SyncStatus.OK;

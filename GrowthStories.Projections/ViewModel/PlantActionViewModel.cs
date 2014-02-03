@@ -28,7 +28,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand DeleteCommand { get; protected set; }
         public IconType Icon { get; protected set; }
 
-        public IReactiveCommand ActionAddedCommand {get; protected set; }
+        public IReactiveCommand ActionAddedCommand { get; protected set; }
 
         private bool _OwnAction;
         public bool OwnAction
@@ -185,6 +185,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     SetProperty(x);
                 });
+
                 this.NoState = false;
 
             }
@@ -956,8 +957,18 @@ namespace Growthstories.UI.ViewModel
 
             if (state != null)
             {
-                this.Photo = state.Photo;
+                var photo = state.Photo;
+                if (photo.LocalFullPath == null)
+                {
+                    string localFullPath = null;
+                    if (app.Model.State.LocalPhotoPaths.TryGetValue(state.Id, out localFullPath) && localFullPath != null)
+                    {
+                        photo.LocalFullPath = localFullPath;
+                        this.Log().Info("Retrieved LocalFullPath " + localFullPath);
+                    }
+                }
                 CanChooseNewPhoto = false;
+                this.Photo = photo;
             }
 
             this.OpenZoomView.Subscribe(x =>
@@ -991,6 +1002,9 @@ namespace Growthstories.UI.ViewModel
             {
                 UpdateShowSetAsProfilePicture();
             });
+
+
+
 
         }
 

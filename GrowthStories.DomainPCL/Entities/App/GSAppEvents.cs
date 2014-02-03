@@ -64,7 +64,7 @@ namespace Growthstories.Domain.Messaging
 
         private LocationAcquired() { }
 
-         public LocationAcquired(AcquireLocation cmd)
+        public LocationAcquired(AcquireLocation cmd)
             : base(cmd)
         {
             this.Location = cmd.Location;
@@ -340,13 +340,28 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Photo Photo { get; private set; }
 
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
+
+
         private PhotoDownloadScheduled() { }
         public PhotoDownloadScheduled(PlantActionCreated e)
         {
             this.Photo = e.Photo;
+            this.PlantActionId = e.AggregateId;
         }
 
-
+        public PhotoDownloadScheduled(BlobKeySet e)
+        {
+            if (e.Pmd != null)
+                this.Photo = e.Pmd;
+            else
+            {
+                this.Photo = new Photo();
+            }
+            this.Photo.BlobKey = e.BlobKey;
+            this.PlantActionId = e.AggregateId;
+        }
 
         public override string ToString()
         {
@@ -361,10 +376,14 @@ namespace Growthstories.Domain.Messaging
         [JsonProperty]
         public Photo Photo { get; private set; }
 
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
+
         private PhotoDownloadCompleted() { }
         public PhotoDownloadCompleted(CompletePhotoDownload cmd)
         {
             this.Photo = cmd.Photo;
+            this.PlantActionId = cmd.PlantActionId;
         }
 
 
@@ -378,6 +397,25 @@ namespace Growthstories.Domain.Messaging
     }
 
 
+    public sealed class LocalFullPathSet : GSAppEvent
+    {
+        [JsonProperty]
+        public string LocalFullPath { get; private set; }
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
+
+
+
+        protected LocalFullPathSet() { }
+
+        public LocalFullPathSet(SetLocalFullPath cmd)
+            : base(cmd)
+        {
+            this.LocalFullPath = cmd.LocalFullPath;
+            this.PlantActionId = cmd.PlantActionId;
+        }
+
+    }
 
     public sealed class Pulled : GSAppEvent
     {
