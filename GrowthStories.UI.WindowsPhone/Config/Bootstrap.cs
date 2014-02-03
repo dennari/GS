@@ -18,6 +18,7 @@ using System.IO;
 using Growthstories.Configuration;
 using Growthstories.Domain.Services;
 using Growthstories.Core;
+using Microsoft.Phone.Controls;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -107,6 +108,9 @@ namespace Growthstories.UI.WindowsPhone
         {
             try
             {
+                ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
+                ThemeManager.ToDarkTheme();
+                
                 PhoneApp.Resources.Remove("PhoneAccentColor");
                 PhoneApp.Resources.Add("PhoneAccentColor", PhoneApp.Resources["GSAccentColor"]);
 
@@ -116,6 +120,12 @@ namespace Growthstories.UI.WindowsPhone
 
                 var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
                 ebb.Color = ac;
+
+                //var fb = (SolidColorBrush)PhoneApp.Resources["PhoneForegroundBrush"];
+                //fb.Color = (Color)PhoneApp.Resources["GSForegroundColor"];
+
+                //var bb = (SolidColorBrush)PhoneApp.Resources["PhoneBackgroundBrush"];
+                //bb.Color = (Color)PhoneApp.Resources["GSBlackColor"];
             }
             catch
             {

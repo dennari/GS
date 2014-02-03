@@ -55,6 +55,7 @@
     <Color x:Key="GSAccentColor">#fffa6800</Color>
     <Color x:Key="GSBackgroundColor">#a0f5dae4</Color>
     <Color x:Key="GSForegroundColor">#ffffffff</Color>
+    <Color x:Key="GSBlackColor">#ff000000</Color>
 
     <SolidColorBrush x:Key="GSPureWhiteBrush" Color="White" />
     <SolidColorBrush x:Key="GSTextBoxBrush" Color="{StaticResource GSInputColor}"/>
