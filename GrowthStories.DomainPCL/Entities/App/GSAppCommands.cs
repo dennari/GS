@@ -276,22 +276,7 @@ namespace Growthstories.Domain.Messaging
 
     }
 
-    public sealed class SetLocalFullPath : AggregateCommand<GSApp>
-    {
-        //public PlantActionType Type { get; private set; }
 
-        public readonly string LocalFullPath;
-        public readonly Guid PlantActionId;
-
-
-        //protected SetPlantActionProperty() { }
-        public SetLocalFullPath(Guid plantActionId, string localFullPath)
-            : base(GSAppState.GSAppId)
-        {
-            this.LocalFullPath = localFullPath;
-            this.PlantActionId = plantActionId;
-        }
-    }
 
     public abstract class Synchronize : AggregateCommand<GSApp>
     {

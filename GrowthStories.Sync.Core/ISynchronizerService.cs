@@ -22,7 +22,7 @@ namespace Growthstories.Sync
         SyncHead SyncHead { get; }
         IDictionary<string, Tuple<Photo, Guid>> PhotoUploads { get; }
         IDictionary<string, Tuple<Photo, Guid>> PhotoDownloads { get; }
-        IDictionary<Guid, string> LocalPhotoPaths { get; }
+        IDictionary<Guid, LocalPhotoPaths> LocalPhotoPaths { get; }
         IAuthUser User { get; }
     }
 

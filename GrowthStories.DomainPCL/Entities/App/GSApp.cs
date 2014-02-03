@@ -224,12 +224,7 @@ namespace Growthstories.Domain.Entities
 
         }
 
-        public void Handle(SetLocalFullPath e)
-        {
 
-            RaiseEvent(new LocalFullPathSet(e));
-
-        }
 
         public static bool CanHandle(IMessage cmd, bool isRemote = false)
         {

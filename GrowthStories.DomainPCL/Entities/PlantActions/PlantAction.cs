@@ -43,11 +43,7 @@ namespace Growthstories.Domain.Entities
             RaiseEvent(new BlobKeySet(command));
         }
 
-        public void Handle(SetLocalFullPath command)
-        {
 
-            RaiseEvent(new LocalFullPathSet(command));
-        }
 
     }
 

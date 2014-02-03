@@ -179,17 +179,17 @@ namespace Growthstories.Sync
     {
         private readonly ITransportEvents Transporter;
         private readonly IJsonFactory jFactory;
-        private readonly IPhotoHandler FileOpener;
+        private readonly IPhotoHandler PhotoHandler;
 
 
-        public PhotoDownloadRequest(Photo photo, Guid plantActionId, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
+        public PhotoDownloadRequest(Photo photo, Guid plantActionId, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler photoHandler)
         {
             // TODO: Complete member initialization
 
             this.jFactory = jFactory;
             this.Photo = photo;
             this.PlantActionId = plantActionId;
-            this.FileOpener = fileOpener;
+            this.PhotoHandler = photoHandler;
             this.Transporter = transporter;
         }
 
@@ -224,8 +224,9 @@ namespace Growthstories.Sync
                 throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
 
-            Photo.FileName = FileOpener.FilenameFromBlobKey(Photo.BlobKey);
-            Photo.LocalFullPath = await FileOpener.WriteToDisk(response.Stream, Photo.FileName);
+            Photo.FileName = PhotoHandler.FilenameFromBlobKey(Photo.BlobKey);
+            Photo.LocalUri = PhotoHandler.GetPhotoLocalUri(Photo.FileName);
+            Photo.LocalFullPath = await PhotoHandler.WriteToDisk(response.Stream, Photo.FileName);
 
 
 

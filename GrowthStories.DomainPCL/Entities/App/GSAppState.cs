@@ -78,7 +78,7 @@ namespace Growthstories.Domain.Entities
 
         private readonly IDictionary<string, Tuple<Photo, Guid>> _PhotoDownloads = new Dictionary<string, Tuple<Photo, Guid>>();
 
-        private readonly IDictionary<Guid, string> _LocalPhotoPaths = new Dictionary<Guid, string>();
+        private readonly IDictionary<Guid, LocalPhotoPaths> _LocalPhotoPaths = new Dictionary<Guid, LocalPhotoPaths>();
 
 
         public IDictionary<string, Tuple<Photo, Guid>> PhotoUploads
@@ -97,7 +97,7 @@ namespace Growthstories.Domain.Entities
             }
         }
 
-        public IDictionary<Guid, string> LocalPhotoPaths
+        public IDictionary<Guid, LocalPhotoPaths> LocalPhotoPaths
         {
             get
             {
@@ -159,13 +159,6 @@ namespace Growthstories.Domain.Entities
 
         }
 
-        public void Apply(LocalFullPathSet @event)
-        {
-
-
-            this._LocalPhotoPaths[@event.PlantActionId] = @event.LocalFullPath;
-
-        }
 
         //public void Apply(SyncStampSet @event)
         //{
@@ -214,9 +207,15 @@ namespace Growthstories.Domain.Entities
             //    return;//throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
             _PhotoDownloads.Remove(@event.PlantActionId.ToString());
 
-            if (@event.Photo.LocalFullPath != null)
-                _LocalPhotoPaths[@event.PlantActionId] = @event.Photo.LocalFullPath;
-
+            if (@event.Photo != null)
+            {
+                _LocalPhotoPaths[@event.PlantActionId] = new LocalPhotoPaths()
+                {
+                    LocalFullPath = @event.Photo.LocalFullPath,
+                    LocalUri = @event.Photo.LocalUri,
+                    FileName = @event.Photo.FileName
+                };
+            }
         }
 
 

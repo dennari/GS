@@ -230,14 +230,7 @@ namespace Growthstories.Sync
 
             }
 
-            var download = cmd as CompletePhotoDownload;
-            if (download != null && download.PlantActionId != default(Guid))
-            {
 
-                derived = new SetLocalFullPath(download.PlantActionId, download.Photo.LocalFullPath);
-                return true;
-
-            }
 
 
             return false;

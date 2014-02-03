@@ -960,11 +960,13 @@ namespace Growthstories.UI.ViewModel
                 var photo = state.Photo;
                 if (photo.LocalFullPath == null)
                 {
-                    string localFullPath = null;
-                    if (app.Model.State.LocalPhotoPaths.TryGetValue(state.Id, out localFullPath) && localFullPath != null)
+                    LocalPhotoPaths paths = null;
+                    if (app.Model.State.LocalPhotoPaths.TryGetValue(state.Id, out paths) && paths != null)
                     {
-                        photo.LocalFullPath = localFullPath;
-                        this.Log().Info("Retrieved LocalFullPath " + localFullPath);
+                        photo.LocalFullPath = paths.LocalFullPath;
+                        photo.FileName = paths.FileName;
+                        photo.LocalUri = paths.LocalUri;
+                        this.Log().Info("Retrieved paths: LocalFullPath {0}, LocalUri {1}", paths.LocalFullPath.Replace("{", "").Replace("}", ""), paths.LocalUri);
                     }
                 }
                 CanChooseNewPhoto = false;

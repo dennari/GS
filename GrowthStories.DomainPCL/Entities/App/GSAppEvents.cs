@@ -397,25 +397,6 @@ namespace Growthstories.Domain.Messaging
     }
 
 
-    public sealed class LocalFullPathSet : GSAppEvent
-    {
-        [JsonProperty]
-        public string LocalFullPath { get; private set; }
-        [JsonProperty]
-        public Guid PlantActionId { get; private set; }
-
-
-
-        protected LocalFullPathSet() { }
-
-        public LocalFullPathSet(SetLocalFullPath cmd)
-            : base(cmd)
-        {
-            this.LocalFullPath = cmd.LocalFullPath;
-            this.PlantActionId = cmd.PlantActionId;
-        }
-
-    }
 
     public sealed class Pulled : GSAppEvent
     {

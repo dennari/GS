@@ -30,7 +30,19 @@ namespace Growthstories.Sync
         string Uri { get; }
     }
 
+    public sealed class LocalPhotoPaths
+    {
+        [JsonProperty]
+        public string LocalFullPath { get; set; }
 
+
+        [JsonProperty]
+        public string LocalUri { get; set; }
+
+
+        [JsonProperty]
+        public string FileName { get; set; }
+    }
 
     public sealed class Photo : IPhoto
     {
