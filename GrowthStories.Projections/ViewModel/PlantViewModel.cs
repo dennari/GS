@@ -622,8 +622,8 @@ namespace Growthstories.UI.ViewModel
             //}
 
             ppActionsSubs = this.Actions.ItemsAdded
-                .OfType<IPlantPhotographViewModel>()
                 .StartWith(Actions)
+                .OfType<IPlantPhotographViewModel>()
                 //.Where(x => x.PlantActionId == ProfilePictureActionId)
                 .Subscribe(x =>
                 {
@@ -861,6 +861,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
+                this.Log().Info("plant {0} loaded is now {1}", this.Id, value);
                 this.RaiseAndSetIfChanged(ref _Loaded, value);
             }
         }
