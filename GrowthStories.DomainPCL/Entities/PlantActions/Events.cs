@@ -72,8 +72,6 @@ namespace Growthstories.Domain.Messaging
 
 
 
-
-
         protected PlantActionCreated() { }
         //public PlantActionCreated(Guid id, Guid userId, Guid plantId, PlantActionType type, string note)
         //    : base(id)
