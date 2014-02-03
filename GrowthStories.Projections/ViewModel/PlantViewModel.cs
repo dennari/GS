@@ -861,7 +861,7 @@ namespace Growthstories.UI.ViewModel
             }
             set
             {
-                this.Log().Info("plant {0} is now loaded");
+                this.Log().Info("plant {0} loaded is now {1}", this.Id, value);
                 this.RaiseAndSetIfChanged(ref _Loaded, value);
             }
         }
