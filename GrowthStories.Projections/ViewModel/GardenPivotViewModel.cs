@@ -255,6 +255,11 @@ namespace Growthstories.UI.ViewModel
 
 
 
+
+        public void Dispose()
+        {
+            Vm.Dispose();
+        }
     }
 
 

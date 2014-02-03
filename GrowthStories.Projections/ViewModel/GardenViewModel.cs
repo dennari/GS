@@ -9,6 +9,7 @@ using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
+using System.Reactive.Disposables;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -49,53 +50,49 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        IDisposable FuturePlantsSubscription = Disposable.Empty;
         private void LoadPlants(IAuthUser u)
         {
 
             PlantsLoaded = true;
             var current = App.CurrentPlants(u.Id)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Do(_ => { }, () =>
-                {
-                    SubscribeForNestedIsLoaded();
-                    //this.IsLoaded = true;
-                })
-                .Subscribe(x => IntroducePlant(x));
+                .ObserveOn(RxApp.MainThreadScheduler);
 
-            var plantStream = App.FuturePlants(u.Id).ObserveOn(RxApp.MainThreadScheduler);
-            plantStream.Subscribe(x => IntroducePlant(x));
+
+            //current
+            //    .SelectMany(x => x.WhenAnyValue(y => y.Loaded))
+            //    .Where(x => x)
+
+            current.Subscribe(x => IntroducePlant(x), () =>
+            {
+                SubscribeForNestedIsLoaded();
+            });
+
+            FuturePlantsSubscription = App.FuturePlants(u.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => IntroducePlant(x));
         }
 
 
         private void SubscribeForNestedIsLoaded()
         {
-            if (Plants.Count() == 0)
+            var count = Plants.Count();
+            if (count == 0)
             {
                 IsLoaded = true;
+                return;
             }
 
-            Plants.ToObservable().Subscribe(x =>
-            {
-                x.WhenAnyValue(z => z.Loaded).Subscribe(loaded =>
+            Plants
+                .ToObservable()
+                .SelectMany(x => x.WhenAnyValue(y => y.Loaded).Where(y => y).Take(1))
+                .Subscribe(_ => { }, () =>
                 {
-                    if (loaded)
-                    {
-                        this.Log().Info("Loaded plant " + x.Id);
-                        UpdateIsLoaded();
-                    }
+                    this.Log().Info("Garden and its plants are loaded");
+                    IsLoaded = true;
                 });
-            });
         }
 
-
-        private void UpdateIsLoaded()
-        {
-            IsLoaded = Plants.Where(x => !x.Loaded).Count() == 0;
-            if (IsLoaded)
-            {
-                this.Log().Info("Garden and its plants are loaded");
-            }
-        }
 
 
         protected ReactiveList<IPlantViewModel> _Plants;
@@ -783,6 +780,19 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing)
+                this.FuturePlantsSubscription.Dispose();
+
+        }
     }
 
 

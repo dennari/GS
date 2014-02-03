@@ -37,6 +37,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
+
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
         public SupportedPageOrientation SupportedOrientations
         {
@@ -364,6 +366,15 @@ namespace Growthstories.UI.ViewModel
                     Synchronizer.SubscribeForAutoSync(x.State);
                 });
 
+            this.WhenAnyValue(x => x.User)
+               .Where(x => x != null)
+               .ObserveOn(RxApp.MainThreadScheduler)
+               .Subscribe(x =>
+               {
+                   this.IsRegistered = x.IsRegistered;
+                   this.GSLocationServicesEnabled = x.LocationEnabled;
+               });
+
         }
 
         #region COMMANDS
@@ -420,6 +431,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private IMainViewModel _CurrentMainViewModel = null;
         public IMainViewModel CreateMainViewModel()
         {
 
@@ -449,7 +461,10 @@ namespace Growthstories.UI.ViewModel
             var notifications = Observable.Start(() => new NotificationsViewModel(gardenObs, this), scheduler);
             var friends = Observable.Start(() => new FriendsViewModel(this), scheduler);
 
-            return new MainViewModel(gardenObs, notifications, friends, this);
+            if (_CurrentMainViewModel != null)
+                _CurrentMainViewModel.Dispose();
+            _CurrentMainViewModel = new MainViewModel(gardenObs, notifications, friends, this);
+            return _CurrentMainViewModel;
         }
 
 
@@ -665,42 +680,6 @@ namespace Growthstories.UI.ViewModel
                 this.Model = app;
                 this.User = user;
                 this.UserEmail = user.Email;
-
-                // did not now how to execute code
-                // in the RxApp.MainThreadScheduler
-                // without this kludge 
-                //   -- JOJ 4.1.2014
-                var kludge = new ReactiveCommand();
-                kludge
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x =>
-                    {
-                        this.IsRegistered = false;
-                        if (user.IsRegistered)
-                        {
-                            this.IsRegistered = true;
-                        }
-                    });
-                kludge.Execute(null);
-
-
-                kludge = new ReactiveCommand();
-                kludge
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ =>
-                {
-                    var us = GetUserState(user.Id);
-                    if (us != null)
-                    {
-                        this.GSLocationServicesEnabled = us.LocationEnabled;
-                    }
-                    else
-                    {
-                        this.GSLocationServicesEnabled = false;
-                    }
-                });
-                kludge.Execute(null);
-
                 this.LastLocation = app.State.LastLocation;
 
                 SetupSubscriptions(app, user);
@@ -979,13 +958,23 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private bool SignInInProgress = false;
+
         private Enough.Async.AsyncLock SignInLock = new Enough.Async.AsyncLock();
 
         public async Task<SignInResponse> SignIn(string email, string password)
         {
             // user can press signin, dismiss popup and press 
             // signin so we better make signins are synchronous
-            using (var res = await SignInLock.LockAsync())
+
+
+            var signInLock = await SignInLock.LockAsync();
+            SignInInProgress = true;
+            using (Disposable.Create(() =>
+            {
+                SignInInProgress = false;
+                signInLock.Dispose();
+            }))
             {
 
                 // note that an autosync may already be in progress
@@ -1054,6 +1043,7 @@ namespace Growthstories.UI.ViewModel
                 //var empty = Disposable.Empty;
                 // do not go here while any sync operation is in progress
                 //using (var res = await _SynchronizeLock.LockAsync())
+
                 using (await Synchronizer.AcquireLock())
                 {
                     var app = await SignOut(false, true);
@@ -1130,68 +1120,75 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        public IObservable<IGardenViewModel> FutureGardens(Guid? userId = null)
+        IObservable<IGardenViewModel> FuturePYFsObservable;
+        public IObservable<IGardenViewModel> FuturePYFs(Guid? userId = null)
         {
 
-            return Bus.Listen<IEvent>()
-                .OfType<GardenAdded>()
-                .Where(x => userId.HasValue ? x.AggregateId == userId.Value : true)
-                .Select(x =>
-                {
-                    this.Log().Info("instantiating new gardenviewmodel {0}", x.AggregateId);
-                    return new GardenViewModel(Observable.Return(x.AggregateState), false, this);
-                });
+            if (FuturePYFsObservable == null)
+            {
+                FuturePYFsObservable = Bus.Listen<IEvent>()
+                     .OfType<BecameFollower>()
+                     .Where(x => x.AggregateId == this.User.Id && !SignInInProgress)
+                     .SelectMany(x =>
+                     {
+
+
+                         return Observable.Start(() =>
+                         {
+
+
+                             // ok, so we first check if we already have the user's stream
+                             // (this can happen if we've been following the same user earlier)
+                             UserState state = UIPersistence.GetUsers(new[] { x.Target }).FirstOrDefault();
+                             if (state == null)
+                             {
+                                 // we have to wait for the GardenAdded event
+
+                                 return new GardenViewModel(
+                                     Bus.Listen<IEvent>()
+                                        .OfType<GardenAdded>()
+                                        .Where(y => y.AggregateId == x.Target)
+                                        .Select(y => y.AggregateState)
+                                        .Take(1)
+                                        .Do(y => this.Log().Info("instantiating FUTURE LAZY pyf {0}", x.Target))
+                                        ,
+                                    false,
+                                    this);
+
+                             }
+                             this.Log().Info("instantiating FUTURE pyf {0}", x.Target);
+                             return new GardenViewModel(Observable.Return(state), false, this);
+
+
+
+
+                         }, RxApp.TaskpoolScheduler).Take(1);
+                     });
+            }
+            return FuturePYFsObservable;
 
         }
 
-
-        // Return GUIDs to the users 
-        // currently App.User is currently following 
-        //
-        public IEnumerable<Guid> GetCurrentPYFs()
+        public IObservable<IGardenViewModel> CurrentPYFs(Guid? userId = null)
         {
-            var us = GetUserState(User.Id);
-            if (us == null)
-            {
-                this.Log().Warn("userstate was null");
-                return new List<Guid>();
-            }
-            var friends = us.Friends;
-            if (friends == null)
-            {
-                this.Log().Warn("userstate.Friends is null");
-                return new List<Guid>();
-            }
 
-            var ret = friends.Keys.AsEnumerable();
-            return ret;
-        }
-
-
-        // Get UserState for given user 
-        //
-        private UserState GetUserState(Guid userId)
-        {
-            var search = UIPersistence.GetUsers(null).Where(x => x.Id == userId);
-            if (search.Count() > 0)
-            {
-                return search.First();
-            }
-            else
-            {
+            var currentUserState = UIPersistence.GetUsers(new[] { User.Id }).FirstOrDefault();
+            if (currentUserState == null || currentUserState.Friends.Count == 0)
                 return null;
-            }
-        }
 
 
-        public IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null)
-        {
-            return UIPersistence.GetUsers(userId)
+            return UIPersistence.GetUsers(currentUserState.Friends.Keys.ToArray())
                 .ToObservable()
                 .Where(x => !x.IsDeleted && (User == null || User.Id != x.Id))
-                .Select(x => new GardenViewModel(Observable.Return(x), false, this));
+                .Select(x =>
+                {
+                    this.Log().Info("instantiating CURRENT pyf {0}", x.Id);
+
+                    return new GardenViewModel(Observable.Return(x), false, this);
+                });
         }
+
+
 
 
         public IObservable<IPlantActionViewModel> CurrentPlantActions(
@@ -1221,7 +1218,7 @@ namespace Growthstories.UI.ViewModel
 
             return Bus.Listen<IEvent>()
                     .OfType<PlantActionCreated>()
-                    .Where(x => x.PlantId == plantId)
+                    .Where(x => x.PlantId == plantId && !SignInInProgress)
                     .Select(x => PlantActionViewModelFactory(x.AggregateState.Type, x.AggregateState));
         }
 
@@ -1241,28 +1238,10 @@ namespace Growthstories.UI.ViewModel
             return Observable.Start(() => UIPersistence.GetPlants(null, null, userId).ToObservable(), RxApp.TaskpoolScheduler)
                 .Merge()
                 .Where(x => !x.Item1.IsDeleted)
-                .Select(x => PlantViewModelFactory(Observable.Return(x)));
-            //this.Log().Info("CurrentPlants: userId: {0}, plantId: {1}", userId, plantId);
-            //var plants = Observable.Defer(() =>
-            //{
-            //    this.Log().Info("CurrentPlants Task started");
-            //})
-            //.Do(x => this.Log().Info("CurrentPlants Task ended"))
-            //.Where(x => !x.Item1.IsDeleted).Publish().RefCount();
+                .Select(x => PlantViewModelFactory(Observable.Return(x)))
+                .Publish()
+                .RefCount();
 
-            //IObservable<IPlantViewModel> r = null;
-            //if (plantId != null)
-            //{
-            //    this.Log().Info("Returning single plant");
-            //    r = Return(PlantViewModelFactory(plants));
-            //}
-            //else
-            //{
-            //    r = plants.Select(x => PlantViewModelFactory(Observable.Return(x)));
-            //}
-            //this.Log().Info("CurrentPlants: end");
-
-            //return r;
         }
 
         public static IObservable<T> Return<T>(T value)
@@ -1281,9 +1260,14 @@ namespace Growthstories.UI.ViewModel
                .OfType<PlantCreated>()
                .Where(x =>
                {
-                   return x.UserId == userId;
+                   return x.UserId == userId && !SignInInProgress;
                })
-               .Select(x => PlantViewModelFactory(Observable.Return(Tuple.Create(x.AggregateState, (ScheduleState)null, (ScheduleState)null))));
+               .Select(x =>
+               {
+                   this.Log().Info("instantiating futureplant {0}", x.AggregateId);
+
+                   return PlantViewModelFactory(Observable.Return(Tuple.Create(x.AggregateState, (ScheduleState)null, (ScheduleState)null)));
+               });
         }
 
 
@@ -1291,6 +1275,11 @@ namespace Growthstories.UI.ViewModel
         protected virtual IPlantViewModel PlantViewModelFactory(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable)
         {
             return new PlantViewModel(stateObservable, this);
+        }
+
+        public virtual ISearchUsersViewModel SearchUsersViewModelFactory(IFriendsViewModel friendsVM)
+        {
+            return new SearchUsersViewModel(Transporter, friendsVM, this);
         }
 
         IObservable<Tuple<ScheduleCreated, ScheduleSet>> _Schedules;
@@ -1310,18 +1299,20 @@ namespace Growthstories.UI.ViewModel
                 _Schedules = Observable.CombineLatest(schedule, plant, (u, g) => Tuple.Create(u, g))
                     .Where(x =>
                     {
-                        return x.Item1.AggregateId == x.Item2.ScheduleId;
+                        return x.Item1.AggregateId == x.Item2.ScheduleId && !SignInInProgress;
                     })
                     .DistinctUntilChanged();
             }
 
 
             return _Schedules
-                .Where(x =>
+                .Where(x => x.Item2.AggregateId == plantId)
+                .Select(x =>
                 {
-                    return x.Item2.AggregateId == plantId;
-                })
-                .Select(x => new ScheduleViewModel(x.Item1.AggregateState, x.Item2.Type, this));
+                    this.Log().Info("instantiating futureschedule {0}", x.Item1.AggregateId);
+
+                    return new ScheduleViewModel(x.Item1.AggregateState, x.Item2.Type, this);
+                });
 
 
         }

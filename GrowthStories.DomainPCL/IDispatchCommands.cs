@@ -42,7 +42,7 @@ namespace Growthstories.Domain
             );
 
         IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null);
-        IEnumerable<UserState> GetUsers(Guid? UserId = null);
+        IEnumerable<UserState> GetUsers(Guid[] UserIds = null);
         //IEnumerable<PlantActionState> GetPhotoActions(Guid? PlantId = null);
 
         //IEnumerable<ScheduleState> GetSchedules(Guid PlantId);

@@ -294,10 +294,10 @@ namespace Growthstories.Domain.Messaging
             {
                 throw new ArgumentNullException("PlantActionType has to be provided");
             }
-            if (type == PlantActionType.PHOTOGRAPHED && cmd.Photo == null)
-            {
-                throw new ArgumentNullException("PhotoAction needs photo");
-            }
+            //if (type == PlantActionType.PHOTOGRAPHED && cmd.Photo == null)
+            //{
+            //    throw new ArgumentNullException("PhotoAction needs photo");
+            //}
             //if (type == PlantActionType.MEASURED && (cmd.MeasurementType == Sync.MeasurementType.NOTYPE || !cmd.Value.HasValue))
             //{
             //    throw new ArgumentNullException("MeasurementAction needs measurementType and value");

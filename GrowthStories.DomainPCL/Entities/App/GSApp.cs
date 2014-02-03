@@ -17,6 +17,7 @@ namespace Growthstories.Domain.Entities
        ICommandHandler<CreateGSApp>,
        ICommandHandler<CreateUser>,
        ICommandHandler<SetUsername>,
+       ICommandHandler<SetLocationEnabled>,
        ICommandHandler<SetEmail>,
        ICommandHandler<SetPassword>,
        ICommandHandler<AddPlant>,
@@ -127,6 +128,15 @@ namespace Growthstories.Domain.Entities
             }
         }
 
+        public void Handle(SetLocationEnabled command)
+        {
+            if (command.AggregateId == this.State.User.Id)
+            {
+                var copy = new SetLocationEnabled(this.Id, command.LocationEnabled);
+                RaiseEvent(new LocationEnabledSet(copy));
+            }
+        }
+
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -214,6 +224,8 @@ namespace Growthstories.Domain.Entities
                 if (cmd is CreateUser)
                     return true;
                 if (cmd is SetUsername)
+                    return true;
+                if (cmd is SetLocationEnabled)
                     return true;
                 if (cmd is SetEmail)
                     return true;

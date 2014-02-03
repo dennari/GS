@@ -7,11 +7,8 @@ using Microsoft.Reactive.Testing;
 using System.Threading;
 using NUnit.Framework;
 using ReactiveUI;
-using EventStore.Dispatcher;
-using Growthstories.Core;
-using EventStore;
 using System.Collections.Generic;
-using Growthstories.Domain.Messaging;
+
 
 namespace QuickTests
 {
@@ -156,88 +153,44 @@ namespace QuickTests
 
         }
 
-
-
-
         [Test]
-        public void TestEventDispatch()
+        public void TestEventListen()
         {
-
-            // arrange
-            IEvent[] events = new IEvent[] {
-                new PlantCreated(Guid.NewGuid(),"jore",Guid.NewGuid()),
-                new PlantCreated(Guid.NewGuid(),"jare",Guid.NewGuid())
-            };
             var mb = new MessageBus();
-            var observable = mb.Listen<PlantCreated>();
+            var observable1 = mb.Listen<Event>();
+            //var observable2 = mb.Listen<PlantCreated>().DumpDo("original2");
 
-            var dispatcher = new MBDispatcher(mb);
-            var commit = new Commit(
-                Guid.Empty,
-                2,
-                Guid.Empty,
-                1,
-                DateTime.MaxValue,
-                null,
-                events.Select(x => new EventMessage() { Body = x }).ToList()
-            );
+            //var filtered = observable1.Where(x => x.Name == "jore").DumpDo("filtered");
+            observable1
+            .DumpDo("first")
+            .Subscribe(x =>
+            {
+                "FIRST: {0}".Out(x.Name);
+            });
+
+            mb.SendMessage(new Event() { Name = "JORRE" });
 
 
+            observable1
+            .DumpDo("second")
+           .Subscribe(x =>
+           {
+               "SECOND: {0}".Out(x.Name);
+           });
 
-            //observable.Subscribe(e => {
-            //    Console.WriteLine(e);          
-            //});
-            bool asserted = false;
-            observable.Dump();
-            observable.Take(events.Length).ToArray().Subscribe(
-                events2 =>
-                {
-                    Assert.True(events.Except(events2).Count() == 0);
-                    Assert.True(events2.Except(events).Count() == 0);
-                    asserted = true;
-                },
-                () =>
-                {
-                    Assert.True(asserted);
-                    "Asserted".Out();
-                }
-            );
+            mb.SendMessage(new Event() { Name = "jore" });
+            //mb.SendMessage(new Event() { Name = "jare" });
 
-            "Before dispatch".Out();
-            dispatcher.Dispatch(commit);
-            "After dispatch".Out();
-
-            "Before dispatch".Out();
-            dispatcher.Dispatch(commit);
-            "After dispatch".Out();
-
-            Thread.Sleep(1000);
-            Assert.True(asserted);
 
         }
 
 
     }
 
-    public class MBDispatcher : IDispatchCommits
+    public class Event
     {
-        private readonly IMessageBus Mb;
-
-        public MBDispatcher(IMessageBus mb)
-        {
-            this.Mb = mb;
-        }
-
-        public void Dispatch(Commit commit)
-        {
-            foreach (var e in commit.ActualEvents())
-                this.Mb.SendMessage(((dynamic)e));
-        }
-
-        public void Dispose()
-        {
-            //throw new NotImplementedException();
-        }
+        public string Name { get; set; }
     }
+
 
 }

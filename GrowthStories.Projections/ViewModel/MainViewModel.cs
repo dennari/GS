@@ -9,8 +9,7 @@ namespace Growthstories.UI.ViewModel
 {
 
 
-    [DataContract]
-    public class MainViewModel : MultipageViewModel, IMainViewModel
+    public sealed class MainViewModel : MultipageViewModel, IMainViewModel
     {
 
         private bool _AllLoaded;
@@ -64,7 +63,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _GardenVM;
             }
-            protected set
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _GardenVM, value);
             }
@@ -77,7 +76,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _NotificationsVM;
             }
-            protected set
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _NotificationsVM, value);
 
@@ -91,7 +90,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _FriendsVM;
             }
-            protected set
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _FriendsVM, value);
 
@@ -125,6 +124,14 @@ namespace Growthstories.UI.ViewModel
         public bool ProgressIndicatorIsVisible
         {
             get { return false; }
+        }
+
+        public void Dispose()
+        {
+            if (this.FriendsVM != null)
+                this.FriendsVM.Dispose();
+            if (this.GardenVM != null)
+                this.GardenVM.Dispose();
         }
     }
 

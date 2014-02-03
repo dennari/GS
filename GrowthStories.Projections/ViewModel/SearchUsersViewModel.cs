@@ -120,9 +120,10 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private readonly IFriendsViewModel FriendsVM;
 
 
-        public SearchUsersViewModel(ITransportEvents transporter, IGSAppViewModel app)
+        public SearchUsersViewModel(ITransportEvents transporter, IFriendsViewModel friendsVM, IGSAppViewModel app)
             : base(app)
         {
 
@@ -131,6 +132,7 @@ namespace Growthstories.UI.ViewModel
             _List = new ReactiveList<RemoteUser>();
             SearchCommand = new ReactiveCommand();
             ProgressIndicatorIsVisible = false;
+            this.FriendsVM = friendsVM;
 
             var input = SearchCommand
                 .OfType<string>()
@@ -161,10 +163,8 @@ namespace Growthstories.UI.ViewModel
                 if (x.Users != null && x.Users.Count > 0)
                 {
 
-                    var followed = App.GetCurrentPYFs();
-
                     var filtered = x.Users.Where(y =>
-                        !followed.Contains(y.AggregateId)
+                        FriendsVM.Friends.FirstOrDefault(z => z.UserId == y.AggregateId) == null
                         && y.AggregateId != App.User.Id
                         && y.Garden != null
                         && y.Garden.Plants != null
@@ -222,7 +222,7 @@ namespace Growthstories.UI.ViewModel
                     Logger.Info("Before BecomeFollower");
 
                     // do not add the same followed user twice
-                    if (!App.GetCurrentPYFs().Contains(x.AggregateId))
+                    if (FriendsVM.Friends.FirstOrDefault(z => z.UserId == x.AggregateId) == null)
                     {
                         await App.HandleCommand(new BecomeFollower(App.User.Id, x.AggregateId));
                     }
