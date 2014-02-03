@@ -622,8 +622,8 @@ namespace Growthstories.UI.ViewModel
             //}
 
             ppActionsSubs = this.Actions.ItemsAdded
-                .OfType<IPlantPhotographViewModel>()
                 .StartWith(Actions)
+                .OfType<IPlantPhotographViewModel>()
                 //.Where(x => x.PlantActionId == ProfilePictureActionId)
                 .Subscribe(x =>
                 {
