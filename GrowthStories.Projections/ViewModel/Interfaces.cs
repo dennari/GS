@@ -24,7 +24,7 @@ namespace Growthstories.UI.ViewModel
         string Title { get; }
     }
 
-    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect
+    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect, IDisposable
     {
         IReadOnlyReactiveList<IGardenViewModel> Friends { get; }
         IGardenViewModel SelectedFriend { get; }
@@ -117,8 +117,8 @@ namespace Growthstories.UI.ViewModel
         IPlantViewModel GetSinglePlant(Guid plantId);
         IObservable<IPlantViewModel> FuturePlants(Guid userId);
 
-        IObservable<IGardenViewModel> CurrentGardens(Guid? userId = null);
-        IObservable<IGardenViewModel> FutureGardens(Guid? userId = null);
+        IObservable<IGardenViewModel> CurrentPYFs(Guid? userId = null);
+        IObservable<IGardenViewModel> FuturePYFs(Guid? userId = null);
 
         IObservable<IScheduleViewModel> FutureSchedules(Guid plantId);
 
@@ -143,7 +143,7 @@ namespace Growthstories.UI.ViewModel
 
         GSLocation LastLocation { get; }
 
-        IEnumerable<Guid> GetCurrentPYFs();
+        //IEnumerable<Guid> GetCurrentPYFs();
 
         void NotifyImageDownloadFailed();
 
@@ -155,10 +155,12 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand SetDismissPopupAllowed { get; }
 
         string UserEmail { get; }
+
+        ISearchUsersViewModel SearchUsersViewModelFactory(IFriendsViewModel friendsVM);
     }
 
 
-    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems, IDisposable
     {
         Guid Id { get; }
         Guid UserId { get; }
@@ -218,7 +220,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator
+    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator, IDisposable
     {
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }
@@ -319,7 +321,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    
+
 
     public interface IScheduleViewModel : IGSRoutableViewModel
     {

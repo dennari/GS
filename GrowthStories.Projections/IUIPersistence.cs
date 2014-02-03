@@ -63,7 +63,7 @@ namespace Growthstories.UI
 
 
 
-        public IEnumerable<UserState> GetUsers(Guid? UserId = null)
+        public IEnumerable<UserState> GetUsers(Guid[] UserIds = null)
         {
             throw new NotImplementedException();
         }

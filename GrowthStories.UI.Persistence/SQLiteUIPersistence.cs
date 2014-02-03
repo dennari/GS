@@ -330,25 +330,17 @@ namespace Growthstories.UI.Persistence
         }
 
 
-        public IEnumerable<UserState> GetUsers(Guid? UserId = null)
+        public IEnumerable<UserState> GetUsers(Guid[] UserIds = null)
         {
 
-            var filters = new Dictionary<string, Guid?>(){
-                    {"C.UserId",UserId}
-                }.Where(x => x.Value.HasValue).ToArray();
-
-            //if (filters.Length == 0)
-            //    throw new InvalidOperationException();
-            return this.ExecuteQuery(UserId ?? default(Guid), query =>
+            return this.ExecuteQuery(default(Guid), query =>
             {
 
-                var queryText = string.Format(@"SELECT U.*,C.Status FROM Users U LEFT JOIN Collaborators C ON (U.UserId = C.UserId)");
-                if (filters.Length > 0)
+                var queryText = string.Format(@"SELECT * FROM Users");
+                if (UserIds != null)
                 {
-                    foreach (var x in filters)
-                        query.AddParameter(@"@" + x.Key, x.Value);
-                    queryText += string.Format(" WHERE ({0})",
-                        string.Join(" AND ", filters.Select(x => string.Format(@"({0} = @{0})", x.Key))));
+                    queryText += string.Format(" WHERE UserId IN ({0})",
+                        string.Join(",", UserIds.Select(x => "\"" + x.ToString() + "\"")));
                 }
                 queryText += ";";
 
@@ -358,17 +350,7 @@ namespace Growthstories.UI.Persistence
                 return query.ExecuteQuery<UserState>(queryText, (stmt) =>
                 {
 
-
-                    var u = Deserialize<UserState>(stmt, (int)UserIndex.Payload);
-                    u.IsCollaborator = SQLite3.ColumnInt(stmt, (int)UserIndex.Collaborator) > 0 ? true : false;
-
-                    this.GSLog().Info("unserialized user friends is {0}", u.Friends);
-                    if (u.Friends != null)
-                    {
-                        this.GSLog().Info("unserialized user friends count is {0}", u.Friends.Count());
-                    }
-
-                    return u;
+                    return Deserialize<UserState>(stmt, (int)UserIndex.Payload);
                 });
             });
         }

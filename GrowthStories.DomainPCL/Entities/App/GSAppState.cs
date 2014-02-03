@@ -61,6 +61,9 @@ namespace Growthstories.Domain.Entities
 
         public bool IsRegistered { get; set; }
 
+        public bool LocationEnabled { get; set; }
+
+
     }
 
 
@@ -259,6 +262,11 @@ namespace Growthstories.Domain.Entities
         public void Apply(UsernameSet @event)
         {
             this._User.Username = @event.Username;
+        }
+
+        public void Apply(LocationEnabledSet @event)
+        {
+            this._User.LocationEnabled = @event.LocationEnabled;
         }
 
         public void Apply(PasswordSet @event)

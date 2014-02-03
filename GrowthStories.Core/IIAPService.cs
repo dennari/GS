@@ -21,6 +21,7 @@ namespace Growthstories.Core
         Guid GardenId { get; }
         bool IsCollaborator { get; }
         bool IsRegistered { get; }
+        bool LocationEnabled { get; }
     }
 
 

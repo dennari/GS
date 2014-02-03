@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Growthstories.Domain.Messaging;
@@ -9,7 +10,7 @@ using System.Collections.Generic;
 namespace Growthstories.UI.ViewModel
 {
 
-    public class FriendsViewModel : MultipageViewModel, IFriendsViewModel
+    public sealed class FriendsViewModel : MultipageViewModel, IFriendsViewModel
     {
 
 
@@ -44,80 +45,41 @@ namespace Growthstories.UI.ViewModel
 
         public IReactiveCommand ItemTappedCommand { get; set; }
 
-       
+
         private void LoadFollowedUser(Guid user)
         {
-            App.CurrentGardens().Concat(App.FutureGardens())
-            .DistinctUntilChanged()
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(x =>
-            {            
-                x.WhenAnyValue(z => z.UserId).StartWith(x.UserId).Subscribe(z =>
-                {
-                    if (z == user)
-                    {
-                        this.Log().Info("adding friend garden {0} {0}", x.UserId, x.Username);
-                        if (!_Friends.Contains(x))
-                        {
-                            _Friends.Add(x);
-                        }
-                    }
-                });
-            });
+
         }
 
-
-        private void RemoveFollowedUser(Guid user)
-        {
-            // we need to first collect the item(s) to be
-            // removed and then actually remove them, as we 
-            // cannot modify a collection while traversing it
-            //
-            // we do this the old fashion way to be sure
-            //
-            var toBeRemoved = new List<IGardenViewModel>();
-            foreach (var f in Friends)
-            {
-                if (f.UserId == user)
-                {
-                    toBeRemoved.Add(f);
-                }
-            }
-            foreach (var f in toBeRemoved)
-            {
-                _Friends.Remove(f);
-            }
-        }
 
 
         private IDisposable loadSubscription = Disposable.Empty;
+        private IDisposable unfollowedSubscription = Disposable.Empty;
         void LoadFriends()
         {
-            if (App.User == null)
-            {
-                this.Log().Info("App.User is null" + App.User.Id);
-            }
+
             this.Log().Info("loading friends for " + App.User.Id);
 
-            App.GetCurrentPYFs()
-                .ToObservable()
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-            {
-                var guid = (Guid)x;
-                LoadFollowedUser(x);
-            });
 
-            this.ListenTo<BecameFollower>(App.User.Id)
+            IObservable<IGardenViewModel> obs = App.CurrentPYFs();
+            if (obs == null)
+                obs = App.FuturePYFs();
+            else
+                obs = obs.Concat(App.FuturePYFs());
+
+            loadSubscription = obs.ObserveOn(RxApp.MainThreadScheduler)
+               .Subscribe(x =>
+               {
+                   _Friends.Add(x);
+               });
+
+            unfollowedSubscription = this.ListenTo<UnFollowed>(App.User.Id)
             .Subscribe(x =>
             {
-                LoadFollowedUser(x.Target);
-            });
-
-            this.ListenTo<UnFollowed>(App.User.Id)
-            .Subscribe(x =>
-            {
-                RemoveFollowedUser(x.Target);
+                IGardenViewModel friend = Friends.FirstOrDefault(y => y.UserId == x.Target);
+                if (friend != null)
+                    _Friends.Remove(friend);
+                //this._Friends.RemoveAt()
             });
 
             //// currentgardens, really? -- JOJ
@@ -140,29 +102,23 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        protected ReactiveList<IGardenViewModel> _Friends;
+        private bool FriendsLoaded = false;
+        private ReactiveList<IGardenViewModel> _Friends = new ReactiveList<IGardenViewModel>();
         public IReadOnlyReactiveList<IGardenViewModel> Friends
         {
             get
             {
-                if (_Friends == null)
+                if (!FriendsLoaded)
                 {
-                    _Friends = new ReactiveList<IGardenViewModel>();
-                    App.WhenAnyValue(x => x.User).Subscribe(x =>
+                    FriendsLoaded = true;
+                    App
+                        .WhenAnyValue(x => x.User)
+                        .Where(x => x != null)
+                        .Take(1)
+                        .Subscribe(x =>
                     {
-                        if (x == null)
-                        {
-                            this.loadSubscription.Dispose();
-                            if (_Friends != null)
-                            {
-                                _Friends.Clear();
-                            }
-                        }
-                        else
-                        {
-                            this.LoadFriends();
-                        }
+
+                        this.LoadFriends();
 
                     });
                 }
@@ -218,7 +174,7 @@ namespace Growthstories.UI.ViewModel
                 }
                 else
                 {
-                    App.Router.NavigateCommandFor<ISearchUsersViewModel>().Execute(null);
+                    App.Router.Navigate.Execute(App.SearchUsersViewModelFactory(this));
                 }
             });
 
@@ -300,6 +256,14 @@ namespace Growthstories.UI.ViewModel
             //get { return this.AppBarButtons == this.MainViewButtons; }
         }
 
+
+        public void Dispose()
+        {
+            this.loadSubscription.Dispose();
+            this.unfollowedSubscription.Dispose();
+            foreach (var friend in this.Friends)
+                friend.Dispose();
+        }
     }
 
 }
