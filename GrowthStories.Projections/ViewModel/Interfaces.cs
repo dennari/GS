@@ -445,6 +445,7 @@ namespace Growthstories.UI.ViewModel
         string TimelineSecondLine { get; }
         int ActionIndex { get; set; }
         bool OwnAction { get; set; }
+        IReactiveCommand ActionAddedCommand { get; }
 
         IObservable<IPlantActionViewModel> AsyncAddObservable { get; }
 
