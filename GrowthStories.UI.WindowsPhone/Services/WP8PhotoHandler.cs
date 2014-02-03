@@ -9,7 +9,7 @@ using Growthstories.Sync;
 using Windows.Foundation;
 using System.Text.RegularExpressions;
 using System.Text;
-using PWDTK_MOBILE_WP_8;
+using System.Security.Cryptography;
 
 
 namespace Growthstories.Sync
@@ -84,15 +84,20 @@ namespace Growthstories.Sync
         }
 
 
-
+        private SHA1Managed _SHA;
+        private SHA1Managed SHA
+        {
+            get
+            {
+                return _SHA ?? (_SHA = new SHA1Managed());
+            }
+        }
         public string FilenameFromBlobKey(string blobKey)
         {
 
-            var salt = "GSCRAZYSALTWHOA";
 
-            string t = PWDTK.HashBytesToHexString(PWDTK.PasswordToHash(Encoding.UTF8.GetBytes(salt), blobKey));
 
-            return t.Substring(0, 32) + ".jpg";
+            return Convert.ToBase64String(SHA.ComputeHash(Encoding.UTF8.GetBytes(blobKey))) + ".jpg";
 
 
         }
