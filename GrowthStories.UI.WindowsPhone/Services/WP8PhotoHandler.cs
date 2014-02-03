@@ -10,12 +10,16 @@ using Windows.Foundation;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Security.Cryptography;
+using EventStore.Logging;
 
 
 namespace Growthstories.Sync
 {
     public sealed class WP8PhotoHandler : IPhotoHandler
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(WP8PhotoHandler));
+
 
         //public const string IMG_FOLDER = @"LocalImages";
         public const string IMG_FOLDER = @"LocalImages";
@@ -51,6 +55,8 @@ namespace Growthstories.Sync
             //var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
             var imgFolder = await GetImageFolder();
 
+            Logger.Info("opening read stream for filename {0}, path {1}", filename, imgFolder.Path);
+
             return await imgFolder.OpenStreamForReadAsync(filename);
         }
 
@@ -60,6 +66,9 @@ namespace Growthstories.Sync
             //var imgFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(IMG_FOLDER, CreationCollisionOption.OpenIfExists);
 
             var imgFolder = await GetImageFolder();
+
+            Logger.Info("opening write stream for filename {0}, path {1}", filename, imgFolder.Path);
+
             var imgFile = await imgFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
 
             var stream = await imgFile.OpenStreamForWriteAsync();
@@ -92,14 +101,15 @@ namespace Growthstories.Sync
                 return _SHA ?? (_SHA = new SHA1Managed());
             }
         }
+
+
         public string FilenameFromBlobKey(string blobKey)
         {
+            var temp = Convert.ToBase64String(SHA.ComputeHash(Encoding.UTF8.GetBytes(blobKey)))
+                .Replace("+", "_").Replace("/", "-").Replace("=","");
 
-
-
-            return Convert.ToBase64String(SHA.ComputeHash(Encoding.UTF8.GetBytes(blobKey))) + ".jpg";
-
-
+            return temp + ".jpg";
         }
+
     }
 }
