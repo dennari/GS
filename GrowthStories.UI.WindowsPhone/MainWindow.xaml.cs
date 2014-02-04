@@ -72,8 +72,10 @@ namespace Growthstories.UI.WindowsPhone
               });
 
             SetDismissPopupAllowedSubscription.Dispose();
-            SetDismissPopupAllowedSubscription = vm.SetDismissPopupAllowed
-                .ObserveOn(RxApp.MainThreadScheduler)
+            SetDismissPopupAllowedSubscription = vm.SetDismissPopupAllowedCommand
+                // this was important not to do in RxApp.MainThreadScheduler, 
+                // as it could delay setting this flag and mess things up 
+                //.ObserveOn(RxApp.MainThreadScheduler) 
                 .OfType<bool>()
                 .Subscribe(x =>
                 {
@@ -84,6 +86,7 @@ namespace Growthstories.UI.WindowsPhone
 
         public void SetDismissPopupAllowed(bool allowed)
         {
+            this.Log().Info("settings dismiss popup allowed in mainwindow to {0}", allowed);
             Popup.DismissOnBackButton = allowed;
         }
 
@@ -201,8 +204,6 @@ namespace Growthstories.UI.WindowsPhone
 
             popup.Show();
         }
-
-
 
 
 
@@ -335,10 +336,17 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             e.Cancel = true;
-            ViewModel.NavigatingBack = true;
 
-            this.Log().Info("navigating back");
-            ViewModel.Router.NavigateBack.Execute(null);
+            if (!IsDialogShown)
+            {
+                this.Log().Info("navigating back");
+                ViewModel.NavigatingBack = true;
+                ViewModel.Router.NavigateBack.Execute(null);
+            }
+            else
+            {
+                this.Log().Info("preventing back navigation");
+            }
         }
 
 

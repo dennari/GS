@@ -13,7 +13,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
-
+using System.Diagnostics;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -35,8 +35,6 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _UrlPath, value);
             }
         }
-
-
 
 
         protected ObservableAsPropertyHelper<SupportedPageOrientation> _SupportedOrientations;
@@ -196,7 +194,7 @@ namespace Growthstories.UI.ViewModel
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
             // COMMANDS
-            SetDismissPopupAllowed = new ReactiveCommand();
+            SetDismissPopupAllowedCommand = new ReactiveCommand();
             ShowPopup = new ReactiveCommand();
             PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
             {
@@ -216,9 +214,19 @@ namespace Growthstories.UI.ViewModel
             BackKeyPressedCommand = new ReactiveCommand();
             SignedOut = new ReactiveCommand();
 
-
             Bootstrap();
+
+            //NavigateAndResetStopwatch = new Stopwatch();
+            this.Router.NavigateAndReset.Subscribe(_ => 
+             {
+                this.Log().Info("navigate and reset");
+                //NavigateAndResetStopwatch.Restart();
+             });
+   
         }
+
+
+        //public Stopwatch NavigateAndResetStopwatch {get; set;} 
 
 
         public bool NotifiedOnBadConnection { get; set; }
@@ -379,7 +387,7 @@ namespace Growthstories.UI.ViewModel
 
         #region COMMANDS
         public IReactiveCommand ShowPopup { get; private set; }
-        public IReactiveCommand SetDismissPopupAllowed { get; private set; }
+        public IReactiveCommand SetDismissPopupAllowedCommand { get; private set; }
         public IReactiveCommand SignedOut { get; private set; }
         public IReactiveCommand BackKeyPressedCommand { get; private set; }
         public IReactiveCommand PageOrientationChangedCommand { get; private set; }
@@ -805,9 +813,9 @@ namespace Growthstories.UI.ViewModel
                 return RegisterResponse.canceled;
             }
 
-            SetDismissPopupAllowed.Execute(false);
+            SetDismissPopupAllowedCommand.Execute(false);
             var ret = await _FinishRegistration(username, email, password);
-            SetDismissPopupAllowed.Execute(true);
+            SetDismissPopupAllowedCommand.Execute(true);
             return ret;
         }
 
@@ -932,6 +940,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private bool SignOutInProgress;
 
         private async Task<GSApp> _SignOut(bool createUnregUser)
         {
@@ -946,7 +955,6 @@ namespace Growthstories.UI.ViewModel
                 await this.Initialize();
                 app = this.Model;
                 Router.NavigateAndReset.Execute(CreateMainViewModel());
-
             }
             else
             {
@@ -957,16 +965,15 @@ namespace Growthstories.UI.ViewModel
             return app;
         }
 
-
         private bool SignInInProgress = false;
 
         private Enough.Async.AsyncLock SignInLock = new Enough.Async.AsyncLock();
+
 
         public async Task<SignInResponse> SignIn(string email, string password)
         {
             // user can press signin, dismiss popup and press 
             // signin so we better make signins are synchronous
-
 
             var signInLock = await SignInLock.LockAsync();
             SignInInProgress = true;
@@ -1024,6 +1031,10 @@ namespace Growthstories.UI.ViewModel
                 }
 
                 u = await Transporter.UserInfoAsync(email);
+                if (SignInCancelRequested)
+                {
+                    return SignInResponse.canceled;
+                }
             }
             catch
             {
@@ -1037,8 +1048,10 @@ namespace Growthstories.UI.ViewModel
 
             try
             {
+                this.Log().Info("signin no more allowing cancel");
+
                 // don't allow dismissing popup
-                SetDismissPopupAllowed.Execute(false);
+                SetDismissPopupAllowedCommand.Execute(false);
 
                 //var empty = Disposable.Empty;
                 // do not go here while any sync operation is in progress
@@ -1083,7 +1096,7 @@ namespace Growthstories.UI.ViewModel
             }
             finally
             {
-                SetDismissPopupAllowed.Execute(true);
+                SetDismissPopupAllowedCommand.Execute(true);
             }
 
         }

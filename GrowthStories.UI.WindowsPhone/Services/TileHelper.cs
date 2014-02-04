@@ -193,7 +193,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void TriggerTileUpdate()
         {
-            this.Log().Info("triggered update of tileinfo for {0}", Vm.Name);
+            //this.Log().Info("triggered update of tileinfo for {0}", Vm.Name);
             TilesHelper.UpdateTileAndInfoAfterDelay(Vm);
         }
 
@@ -372,8 +372,8 @@ namespace Growthstories.UI.WindowsPhone
 
             if (pvm.Photo != null)
             {
-                Logger.Info("localFullPath is {0}, Uri is {1}, LocalUri is {2}, RemoteUri is {3}",
-                    pvm.Photo.LocalFullPath, pvm.Photo.Uri, pvm.Photo.LocalUri, pvm.Photo.RemoteUri);
+                //Logger.Info("localFullPath is {0}, Uri is {1}, LocalUri is {2}, RemoteUri is {3}",
+                //    pvm.Photo.LocalFullPath, pvm.Photo.Uri, pvm.Photo.LocalUri, pvm.Photo.RemoteUri);
             }
 
             if (photoUris.Count == 0)

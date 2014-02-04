@@ -121,8 +121,9 @@ namespace Growthstories.UI.ViewModel
             // NavigateBack = true;
 
             DismissAllowed = true;
-            App.SetDismissPopupAllowed.OfType<bool>().Subscribe(x =>
+            App.SetDismissPopupAllowedCommand.OfType<bool>().Subscribe(x =>
             {
+                this.Log().Info("setting dismisspopupallowed to {0}", x);
                 DismissAllowed = x;
             });
 
@@ -285,6 +286,7 @@ namespace Growthstories.UI.ViewModel
 
                 pvm.DismissedObservable.Subscribe(_ =>
                 {
+                    this.Log().Info("setting signincancelrequested");
                     App.SignInCancelRequested = true;
                     if (!OperationFinished && DismissAllowed)
                     {

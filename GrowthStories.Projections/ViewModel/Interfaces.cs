@@ -8,6 +8,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using ReactiveUI;
+using System.Diagnostics;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -152,11 +153,13 @@ namespace Growthstories.UI.ViewModel
         bool RegisterCancelRequested { get; set; }
         bool SignInCancelRequested { get; set; }
 
-        IReactiveCommand SetDismissPopupAllowed { get; }
+        IReactiveCommand SetDismissPopupAllowedCommand { get; }
 
         string UserEmail { get; }
 
         ISearchUsersViewModel SearchUsersViewModelFactory(IFriendsViewModel friendsVM);
+
+        // Stopwatch NavigateAndResetStopwatch {get; }
     }
 
 
