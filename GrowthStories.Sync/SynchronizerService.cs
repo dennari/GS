@@ -260,7 +260,7 @@ namespace Growthstories.Sync
                     {
                         Handler.Handle(new Pull(s));
                         if (appState != null)
-                            downloadRequests = appState.PhotoDownloads.Values.Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray();
+                            downloadRequests = QueryPhotoDownloads(appState);
                     }
                     Handler.Handle(new Push(s));
                 }
