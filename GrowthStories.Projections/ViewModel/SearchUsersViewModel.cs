@@ -168,7 +168,7 @@ namespace Growthstories.UI.ViewModel
                         && y.AggregateId != App.User.Id
                         && y.Garden != null
                         && y.Garden.Plants != null
-                        && y.Garden.Plants.Count > 0  // should count only public plants
+                        && y.PlantCount > 0 
                         ).ToArray();
 
                     if (filtered.Length > 0)

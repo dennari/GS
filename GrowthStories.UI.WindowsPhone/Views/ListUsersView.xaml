@@ -158,7 +158,7 @@
                             <StackPanel Visibility="{Binding List.Count, Converter={StaticResource ZeroToVisibility}}">
                                 <TextBlock
                                     Style="{StaticResource GSPlaceholderTextBlockStyle}"                    
-                                    Text="No matching users were found" 
+                                    Text="No matching users with at least one public plant were found" 
                                     FontWeight="Bold"
                                     HorizontalAlignment="Left"
                                     Margin="0,0,0,24"
