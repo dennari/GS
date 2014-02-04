@@ -39,19 +39,22 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void GSToggleSwitch_Checked(object sender, RoutedEventArgs e)
-        {
-          
-        }
+        //private void GSToggleSwitch_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    var vm = ViewModel as SettingsViewModel;
+        //    vm.AllowTriggering = true;
+        //    //vm.ToggleLocationServicesEnabled();
+        //    vm.LocationServicesEnabledUpdated();   
+        //}
 
         
-        private void GSToggleSwitch_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-            var vm = ViewModel as SettingsViewModel;
-            vm.AllowTriggering = true;
-            //vm.ToggleLocationServicesEnabled();
-            vm.LocationServicesEnabledUpdated();
-        }
+        //private void GSToggleSwitch_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        //{
+        //    var vm = ViewModel as SettingsViewModel;
+        //    vm.AllowTriggering = true;
+        //    //vm.ToggleLocationServicesEnabled();
+        //    vm.LocationServicesEnabledUpdated();
+        //}
         
 
         //    IDisposable WarnSubscription = Disposable.Empty;

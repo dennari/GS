@@ -124,10 +124,10 @@
             <TextBlock Text="share plant locations" Style="{StaticResource GSTextBlockStyle}" FontSize="34" Foreground="White"
                        Margin="0,0,0,0" />
 
-                <local:GSToggleSwitch
+            
+            <local:GSToggleSwitch
                     Visibility="{Binding PhoneLocationServicesEnabled, Converter={StaticResource BooleanToVisibility}}"                    
                     IsChecked="{Binding GSLocationServicesEnabled, Mode=TwoWay}"
-                    Tap="GSToggleSwitch_Tap"
                     Content="{Binding}"
                     ContentTemplate="{StaticResource LocationEnabledTemplate}"
                     VerticalContentAlignment="Center"
