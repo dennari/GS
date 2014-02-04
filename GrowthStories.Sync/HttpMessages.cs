@@ -155,7 +155,6 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoUploadResponse> GetResponse()
         {
-
             var uploadUriResponse = await Transporter.RequestPhotoUploadUri();
             if (uploadUriResponse.StatusCode != GSStatusCode.OK)
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
@@ -164,9 +163,8 @@ namespace Growthstories.Sync
             this.Stream = await FileOpener.OpenReadStream(Photo.FileName);
 
             return await Transporter.RequestPhotoUpload(this);
-
-
         }
+
 
         public Uri UploadUri { get; private set; }
 

@@ -391,6 +391,8 @@ namespace Growthstories.Sync
                 this.Log().Info("SyncAll starting, debugId: " + debugId);
 
                 int counter = 0;
+                int failCounter = 0;
+
                 ISyncInstance R = null;
                 GSStatusCode? nullResponseCode = null;
 
@@ -401,7 +403,11 @@ namespace Growthstories.Sync
 
                     if (R.Status != SyncStatus.OK)
                     {
-                        return Tuple.Create(AllSyncResult.Error, nullResponseCode);
+                        failCounter++;
+                        if (failCounter == 5)
+                        {
+                            break;
+                        }
                     }
 
                     // TODO: check if there is more stuff to pull
@@ -410,6 +416,11 @@ namespace Growthstories.Sync
                     {
                         return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
                     }
+                }
+
+                if (R.Status != SyncStatus.OK)
+                {
+                    return Tuple.Create(AllSyncResult.Error, nullResponseCode); 
                 }
 
                 this.Log().Info("SyncAll finished, debugId: " + debugId);
