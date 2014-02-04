@@ -125,7 +125,7 @@ namespace Growthstories.UI.ViewModel
             else
             {
                 // revert toggle switch if unable to get location
-                GSLocationServicesEnabled = false;
+                SetGSLocationServicesEnabledNoTrigger(false);
             }
         }
 
@@ -136,6 +136,7 @@ namespace Growthstories.UI.ViewModel
             get;
             set;
         }
+
 
         public SettingsViewModel(IGSAppViewModel app)
             : base(app)
@@ -301,50 +302,74 @@ namespace Growthstories.UI.ViewModel
             App.WhenAnyValue(x => x.PhoneLocationServicesEnabled)
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);
 
-            SetGSLocationServicesEnabled(App.GSLocationServicesEnabled);
             App.WhenAnyValue(x => x.GSLocationServicesEnabled)
-                .Subscribe(x => SetGSLocationServicesEnabled(x));
-
+                .Subscribe(x => 
+                    {
+                        SetGSLocationServicesEnabledNoTrigger(x);
+                    });
+                    
             App.Router.CurrentViewModel
                 .Where(vm => vm == this)
                 .Subscribe(_ =>
             {
                 App.UpdatePhoneLocationServicesEnabled();
             });
+
+
+            this.WhenAnyValue(x => x.GSLocationServicesEnabled).Skip(1).Subscribe(_ =>
+            {
+                if (!AllowTriggering)
+                {
+                    return;
+                }
+                if (GSLocationServicesEnabled)
+                {
+                    EnableLocationServices();
+                }
+                else
+                {
+                    PossiblyDisableLocationServices();
+                }
+            });
+
         }
 
 
         private IDisposable _ToggleSubscription;
 
-        public bool AllowTriggering = false;
+        public bool AllowTriggering = true;
 
-        public void SetGSLocationServicesEnabled(bool enabled)
+
+        //public void LocationServicesEnabledUpdated()
+        //{
+        //    if (!AllowTriggering)
+        //    {
+        //        return;
+        //    }
+        //    AllowTriggering = false;
+
+        //    if (GSLocationServicesEnabled)
+        //    {
+        //        EnableLocationServices();
+        //    }
+        //    else
+        //    {
+        //        PossiblyDisableLocationServices();
+        //    }
+        //}
+
+
+        public void SetGSLocationServicesEnabledNoTrigger(bool enabled)
         {
-            GSLocationServicesEnabled = enabled;
-        }
-
-        public void LocationServicesEnabledUpdated()
-        {
-            if (!AllowTriggering)
-            {
-                return;
-            }
-            AllowTriggering = false;
-
-            if (GSLocationServicesEnabled)
-            {
-                EnableLocationServices();
-            }
-            else
-            {
-                PossiblyDisableLocationServices();
-            }
+            this.AllowTriggering = false;
+            this.GSLocationServicesEnabled = enabled;
+            this.AllowTriggering = true;
         }
 
 
         public void PossiblyDisableLocationServices()
         {
-            SetGSLocationServicesEnabled(false);
+            SetGSLocationServicesEnabledNoTrigger(false);
 
             var pvm = new PopupViewModel()
             {
@@ -368,7 +393,7 @@ namespace Growthstories.UI.ViewModel
                 if (res != PopupResult.LeftButton)
                 {
                     // undo toggle
-                    SetGSLocationServicesEnabled(true);
+                    SetGSLocationServicesEnabledNoTrigger(true);
                 }
             });
 
