@@ -4,6 +4,7 @@ using Microsoft.Phone.Controls;
 using ReactiveUI;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -41,9 +42,9 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty HasTitleProperty = DependencyProperty.Register("HasTitle", typeof(bool), typeof(GSViewGrid), new PropertyMetadata(null));
         public bool HasTitle
         {
-            get  
+            get
             {
-                return Title != null && Title.Length > 0;     
+                return Title != null && Title.Length > 0;
             }
         }
 
@@ -244,6 +245,8 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        public ViewportControl ViewPort { get; private set; }
+
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(
                 "SelectedItem",
@@ -303,6 +306,22 @@ namespace Growthstories.UI.WindowsPhone
             if (ItemTappedCommand != null)
                 ItemTappedCommand.Execute(item);
 
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            var viewPort = this.GetTemplateChild("ViewportControl");
+
+            if (viewPort != null)
+            {
+                var vp = viewPort as ViewportControl;
+                if (vp != null)
+                {
+                    this.ViewPort = vp;
+                }
+            }
         }
 
         //protected override 

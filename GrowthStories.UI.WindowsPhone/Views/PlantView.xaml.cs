@@ -44,6 +44,15 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = Double.NaN;
             }
+            Rect b = default(Rect);
+            this.WhenAnyValue(x => x.TimeLine.ViewPort)
+                .Where(x => x != null)
+                .Subscribe(x =>
+                {
+                    b = x.Viewport;
+
+
+                });
 
         }
 
@@ -55,7 +64,9 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Margin = new Thickness(0, 0, 0, 72);
 
-            } else {
+            }
+            else
+            {
                 Margin = new Thickness(0, 0, 0, 0);
             }
 
@@ -90,9 +101,11 @@ namespace Growthstories.UI.WindowsPhone
                     var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
                     sb.Margin = new Thickness(0, 0, -10, 0);
                 }
-            
-            } catch {
-                
+
+            }
+            catch
+            {
+
             }
         }
 
