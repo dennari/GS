@@ -211,7 +211,7 @@
 
             <phone:LongListSelector.ListFooterTemplate>
                 <DataTemplate>
-                    <ContentControl Height="60" />
+                    <ContentControl Height="100" />
                 </DataTemplate>
             </phone:LongListSelector.ListFooterTemplate>
 

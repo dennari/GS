@@ -329,6 +329,7 @@ namespace Growthstories.Domain.Messaging
                 {DTOType.harvesting, PlantActionType.HARVESTED},
                 {DTOType.misting, PlantActionType.MISTED},
                 {DTOType.pollination, PlantActionType.POLLINATED},
+                {DTOType.pruning, PlantActionType.PRUNED},
                 {DTOType.sprouting, PlantActionType.SPROUTED},
                 {DTOType.transfer, PlantActionType.TRANSFERRED}
             };

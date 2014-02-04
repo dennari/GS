@@ -60,8 +60,14 @@ namespace Growthstories.UI.WindowsPhone
                 Margin = new Thickness(0, 0, 0, 0);
             }
 
-            vm.FilteredActions.ItemsAdded.Subscribe(x =>
+
+            vm.FilteredActions
+                .ItemsAdded
+                .Throttle(TimeSpan.FromMilliseconds(300))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
             {
+                this.ViewModel.Log().Info("itemadded, possibly triggering scroll");
                 try
                 {
                     if (TimeLine.ItemsSource.Count > 2)
@@ -69,11 +75,8 @@ namespace Growthstories.UI.WindowsPhone
                         if (TimeLine.ViewPort != null)
                         {
                             vm.Log().Info("scrolling");
-                            TimeLine.ViewPort.SetViewportOrigin(new Point(0, -96));
-                        }
-                        else
-                        {
-                            vm.Log().Info("viewport was null");
+                            TimeLine.ScrollTo(x);
+                            TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
                         }
                     }
                 }

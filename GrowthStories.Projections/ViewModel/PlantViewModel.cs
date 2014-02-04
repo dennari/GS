@@ -801,6 +801,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         private bool _ActionsAccessed;
         public bool ActionsAccessed
         {
