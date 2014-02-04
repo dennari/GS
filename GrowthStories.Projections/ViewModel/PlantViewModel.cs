@@ -592,6 +592,14 @@ namespace Growthstories.UI.ViewModel
                         this.ShareCommand.Execute(null);
                     });
             }
+
+            // kludge:
+            //
+            // needs to be done to make sure that
+            // this.Photo and isLoaded gets set
+            // 
+            //
+            var tmp = Actions;
         }
 
 

@@ -82,17 +82,22 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock 
+                        TextAlignment="Left"
+                        HorizontalAlignment="Left"
                         Text="Off" 
                         Grid.Column="0" 
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
                     <TextBlock 
+                        TextAlignment="Left"
+                        HorizontalAlignment="Left"
                         Text="On" 
                         Grid.Column="0" 
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                     <TextBlock 
+                        TextAlignment="Left"
+                        HorizontalAlignment="Left"
                         Text="{Binding IntervalLabel}" 
-                        Grid.Column="1" 
-                        HorizontalAlignment="Center"
+                        Grid.Column="1"
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                 </Grid>
         </DataTemplate>

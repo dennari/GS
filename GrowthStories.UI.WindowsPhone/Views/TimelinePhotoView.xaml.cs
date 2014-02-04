@@ -43,7 +43,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IPlantPhotographViewModel vm)
         {
-            ViewModel.Log().Info("onviewmodelchanged for timelinephotoview image " + vm.PlantActionId);
+            //ViewModel.Log().Info("onviewmodelchanged for timelinephotoview image " + vm.PlantActionId);
             ImageControl.CacheMode = null;
         }
 
@@ -55,7 +55,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("imageopened for " + ViewModel.PlantActionId);
+            //ViewModel.Log().Info("imageopened for " + ViewModel.PlantActionId);
 
             var img = sender as System.Windows.Controls.Image;
             OpenedImages.Add(ViewModel.PlantActionId);
@@ -76,7 +76,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void FadeInImage()
         {
-            ViewModel.Log().Info("fading in image for " + ViewModel.PlantActionId);
+            //ViewModel.Log().Info("fading in image for " + ViewModel.PlantActionId);
 
             AnimatedImages.Add(ViewModel.PlantActionId);
 
@@ -106,7 +106,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Img_Unloaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("image unloaded event for " + ViewModel.PlantActionId);
+            //ViewModel.Log().Info("image unloaded event for " + ViewModel.PlantActionId);
         }
 
 
@@ -114,7 +114,7 @@ namespace Growthstories.UI.WindowsPhone
         //
         private void ShowImage()
         {
-            ViewModel.Log().Info("showing image " + ViewModel.PlantActionId);
+            //ViewModel.Log().Info("showing image " + ViewModel.PlantActionId);
 
             LoadingFailed.Visibility = Visibility.Collapsed;
             LoadingPhoto.Visibility = Visibility.Collapsed;
@@ -128,12 +128,12 @@ namespace Growthstories.UI.WindowsPhone
                 //b.Opacity = 1.0;
                 //b.BorderThickness = new Thickness(3);
 
- //               if ((int)b.Height != 220)
-  //              {
-    //                //b.Height = 220;
-      //              b.Opacity = 1.0;
-        //            //b.BorderThickness = new Thickness(3);
-          //      }
+                //if ((int)b.Height != 220)
+                //{
+                //    //b.Height = 220;
+                //    b.Opacity = 1.0;
+                //    //b.BorderThickness = new Thickness(3);
+                //}
             }
             else
             {
@@ -145,7 +145,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Img_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("image loaded event for " + ViewModel.PlantActionId);
+            //ViewModel.Log().Info("image loaded event for " + ViewModel.PlantActionId);
 
             var img = ImageControl;
             var b = ButtonControl;

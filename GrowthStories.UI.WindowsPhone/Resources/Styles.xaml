@@ -358,7 +358,7 @@
 					                    Text="{TemplateBinding TopTitle}"
 					                    Style="{StaticResource GSAppTitleStyle}" />
                                         <TextBlock
-					                    Margin="0,0,0,0"
+					                    Margin="0,0,-24,0"
 					                    Text="{TemplateBinding Title}"
 					                    Style="{StaticResource GSPageTitleStyle}" />
                                     </StackPanel>
@@ -404,7 +404,7 @@
 					            Text="{TemplateBinding TopTitle}"
 					            Style="{StaticResource GSAppTitleStyle}" />
                                     <TextBlock
-					            Margin="0,0,0,0"
+					            Margin="0,0,-24,0"
 					            Text="{TemplateBinding Title}"
 					            Style="{StaticResource GSPageTitleStyle}" />
                                 </StackPanel>

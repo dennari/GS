@@ -22,6 +22,8 @@ namespace Growthstories.UI.ViewModel
         public Guid? Id { get; private set; }
 
 
+        private TimeSpan? LastInterval;
+
         public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSAppViewModel app)
             : base(app)
         {
@@ -43,11 +45,12 @@ namespace Growthstories.UI.ViewModel
                 this.HasOtherSchedules = x.Count() > 0 ? true : false;
 
             });
+
             this.WhenAny(x => x.SelectedCopySchedule, x => x.GetValue()).Where(x => x != null).OfType<Tuple<IPlantViewModel, IScheduleViewModel>>().Subscribe(x =>
             {
+                LastInterval = x.Item2.Interval;
                 this.Interval = x.Item2.Interval;
             });
-
 
 
             TimeSpan? originalInterval = TimeSpan.FromSeconds(state != null ? state.Interval : 24 * 3600 * 2);
@@ -70,9 +73,21 @@ namespace Growthstories.UI.ViewModel
             this.Interval = originalInterval;
             if (state != null)
                 this.Id = state.Id;
-
-
         }
+
+
+        public void ScheduleSelected()
+        {
+            this.Interval = LastInterval;
+
+            //var schedule = SelectedCopySchedule as IScheduleViewModel;
+            //
+            //if (schedule != null)
+            //{
+            //    
+            //}
+        }
+
 
         protected TimeSpan? _Interval;
         public TimeSpan? Interval

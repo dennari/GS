@@ -32,7 +32,17 @@ namespace Growthstories.UI.WindowsPhone
             p.PopupDefaultValue = TimeSpan.FromDays(2);
             p.MaxValue = TimeSpan.FromDays(365);
             p.MinValue = TimeSpan.FromHours(1);
+        }
 
+        private void Grid_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var vm = ViewModel as ScheduleViewModel;
+
+            if (vm != null)
+            {
+                vm.Log().Info("schedule tapped");
+                vm.ScheduleSelected();
+            }
         }
     }
 
