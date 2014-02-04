@@ -21,7 +21,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override Uri BaseUri()
         {
-            return new Uri("http://gs-prod.appspot.com");
+            return new Uri("https://gs-prod.appspot.com");
         }
 
 
