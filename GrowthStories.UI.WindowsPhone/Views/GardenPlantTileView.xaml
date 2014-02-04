@@ -40,7 +40,7 @@
 
     <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True">
 
-        <StackPanel x:Name="panel" Opacity="0.0" toolkit:SlideInEffect.LineIndex="{Binding PlantIndex}" Grid.Row="0">
+        <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
             
             <telerikPrimitives:RadContextMenu.ContextMenu >
 
