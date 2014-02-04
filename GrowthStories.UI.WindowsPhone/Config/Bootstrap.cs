@@ -53,18 +53,19 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-            PhoneApp.UnhandledException += (o, e) =>
-            {
-                // try to log the Exception
-                try
-                {
-                    PhoneApp.Log().DebugExceptionExtended("Unhandled", e.ExceptionObject);
-                }
-                catch { }
-            };
+            PhoneApp.UnhandledException += HandleUnhandledExceptions;
+
         }
 
-
+        protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
+        {
+            // try to log the Exception
+            try
+            {
+                PhoneApp.Log().DebugExceptionExtended("Unhandled", ee.ExceptionObject);
+            }
+            catch { }
+        }
 
         protected virtual void BAConfiguration()
         {
@@ -110,7 +111,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
                 ThemeManager.ToDarkTheme();
-                
+
                 PhoneApp.Resources.Remove("PhoneAccentColor");
                 PhoneApp.Resources.Add("PhoneAccentColor", PhoneApp.Resources["GSAccentColor"]);
 
