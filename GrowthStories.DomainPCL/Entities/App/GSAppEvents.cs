@@ -371,6 +371,29 @@ namespace Growthstories.Domain.Messaging
 
     }
 
+    public sealed class PhotoDownloadUnScheduled : GSAppEvent
+    {
+
+        [JsonProperty]
+        public Guid PlantActionId { get; private set; }
+
+
+        private PhotoDownloadUnScheduled() { }
+        public PhotoDownloadUnScheduled(Guid plantActionId)
+        {
+
+            this.PlantActionId = plantActionId;
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format(@"Photo unscheduled for download");
+        }
+
+
+    }
+
     public sealed class PhotoDownloadCompleted : GSAppEvent
     {
         [JsonProperty]

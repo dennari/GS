@@ -201,6 +201,13 @@ namespace Growthstories.Domain.Entities
             _PhotoDownloads[@event.PlantActionId.ToString()] = Tuple.Create(@event.Photo, @event.PlantActionId);
         }
 
+        public void Apply(PhotoDownloadUnScheduled @event)
+        {
+            //if (@event.Photo.BlobKey == null)
+            //    return;//throw DomainError.Named("no_blobkey", "To download a photo the BlobKey needs to be set.");
+            _PhotoDownloads.Remove(@event.PlantActionId.ToString());
+        }
+
         public void Apply(PhotoDownloadCompleted @event)
         {
             //if (@event.Photo.BlobKey == null)

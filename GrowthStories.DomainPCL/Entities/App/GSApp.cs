@@ -215,6 +215,13 @@ namespace Growthstories.Domain.Entities
                 RaiseEvent(new PhotoDownloadScheduled(e));
         }
 
+        public void Handle(AggregateDeleted e)
+        {
+            if (e != null && this.State != null && this.State.PhotoDownloads.ContainsKey(e.AggregateId.ToString()))
+                RaiseEvent(new PhotoDownloadUnScheduled(e.AggregateId));
+        }
+
+
         public void Handle(BlobKeySet e)
         {
             if (this.State != null && this.State.PhotoDownloads.ContainsKey(e.AggregateId.ToString()))
@@ -270,6 +277,11 @@ namespace Growthstories.Domain.Entities
                 var e = cmd as PlantActionCreated;
                 if (e != null && e.Type == PlantActionType.PHOTOGRAPHED)
                     return true;
+
+                var ee = cmd as AggregateDeleted;
+                if (ee != null)
+                    return true;
+
 
             }
 
