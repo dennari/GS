@@ -1109,10 +1109,10 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private IPlantPhotographViewModel LatestPhoto()
+        private IPlantPhotographViewModel LatestPhoto(IPlantPhotographViewModel excluding)
         {
             var list = Actions
-                .Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED && x.Photo != null && x.Photo.Uri != null)
+                .Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED && x.Photo != null && x.Photo.Uri != null && x != excluding)
                 .OrderByDescending(x => x.Created)
                 .Take(1);
 
@@ -1170,8 +1170,8 @@ namespace Growthstories.UI.ViewModel
                 return;
             }
 
-            var latest = LatestPhoto();
-            if (latest != null && latest != previous)
+            var latest = LatestPhoto(previous);
+            if (latest != null)
             {
                 App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.PlantActionId));
             }
