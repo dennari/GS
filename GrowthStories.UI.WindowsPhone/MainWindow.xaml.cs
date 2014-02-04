@@ -14,6 +14,7 @@ using Microsoft.Phone.Controls;
 using ReactiveUI;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 using ClientPlantViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientPlantViewModel;
+using ReactiveUI.Mobile;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -226,7 +227,7 @@ namespace Growthstories.UI.WindowsPhone
 
                 this.Log().Info("HandleApplicationActivated");
                 ViewModel.HandleApplicationActivated();
-                
+
                 // when navigated from secondary tile we also need to update infos on tiles
                 if (OnlyPlant != null && OnlyPlant.TileHelper != null)
                 {
@@ -280,10 +281,9 @@ namespace Growthstories.UI.WindowsPhone
 
                 ViewModel.Bus.Listen<IEvent>().OfType<AggregateDeleted>().Where(x => x.AggregateId == plantId).Take(1).Subscribe(x =>
                 {
-                    // get back from plantview, into "nothing"
-                    this.ViewModel.Router.NavigateBack.Execute(null);
-                    // exit app
-                    this.ViewModel.Router.NavigateBack.Execute(null);
+
+                    Application.Current.Terminate();
+
 
                 });
 
