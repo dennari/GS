@@ -24,6 +24,13 @@ namespace Growthstories.UI.WindowsPhone
             return new Uri("http://gs-prod.appspot.com");
         }
 
+        protected override void HandleUnhandledExceptions(object sender, System.Windows.ApplicationUnhandledExceptionEventArgs ee)
+        {
+            // tries to log
+            base.HandleUnhandledExceptions(sender, ee);
+            // don't crash
+            ee.Handled = true;
+        }
 
         protected override void AppConfiguration()
         {
@@ -34,7 +41,7 @@ namespace Growthstories.UI.WindowsPhone
 
             Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
         }
-      
+
 
     }
 }

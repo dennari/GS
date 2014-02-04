@@ -10,6 +10,7 @@ using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
+using System.Collections.Generic;
 
 namespace Growthstories.Sync
 {
@@ -130,7 +131,7 @@ namespace Growthstories.Sync
                 RequestF.CreatePullRequest(syncStreams),
                 RequestF.CreatePushRequest(appState.SyncHead),
                 appState.PhotoUploads.Values.Select(x => RequestF.CreatePhotoUploadRequest(x)).ToArray(),
-                appState.PhotoDownloads.Values.Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray()
+                QueryPhotoDownloads(appState)
             );
 
             // pullrequest should really never be empty
@@ -192,6 +193,12 @@ namespace Growthstories.Sync
         //    }
         //}
 
+        IPhotoDownloadRequest[] QueryPhotoDownloads(IGSAppState appState)
+        {
+            return appState.PhotoDownloads.Values
+                .Where(x => x.Item1.BlobKey != null)
+                .Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray();
+        }
 
         private async Task<ISyncInstance> _Synchronize(ISyncInstance s, IGSAppState appState = null)
         {
@@ -212,7 +219,7 @@ namespace Growthstories.Sync
                     {
                         Handler.Handle(new Pull(s));
                         if (appState != null)
-                            downloadRequests = appState.PhotoDownloads.Values.Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray();
+                            downloadRequests = QueryPhotoDownloads(appState);
                     }
                 }
 
