@@ -36,8 +36,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     // we need to compare against UnregUsername because 
                     // User.IsRegistered does not probably work
-                    _FilteredFriends = Friends.ToObservable()
-                        .Where(x => !x.Username.Equals(AuthUser.UnregUsername)).CreateCollection();
+                    _FilteredFriends = Friends.CreateDerivedCollection(x => x, x => !x.Username.Equals(AuthUser.UnregUsername));
                 }
                 return _FilteredFriends;
             }

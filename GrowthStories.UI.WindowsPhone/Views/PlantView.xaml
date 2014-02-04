@@ -139,7 +139,7 @@
             Loaded="TimeLine_Loaded"
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             x:Name="TimeLine" 
-            ItemsSource="{Binding Actions}" 
+            ItemsSource="{Binding FilteredActions}" 
             Grid.Row="1"
             ListHeader="{Binding}"
             VerticalAlignment="Stretch"

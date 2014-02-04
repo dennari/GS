@@ -23,6 +23,7 @@ namespace Growthstories.UI.ViewModel
         PARENT,
         SELF
     }
+
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
@@ -90,7 +91,6 @@ namespace Growthstories.UI.ViewModel
 
 
         public PlantState State { get; protected set; }
-
 
 
         private bool _IsShared;
@@ -749,7 +749,7 @@ namespace Growthstories.UI.ViewModel
                 photo.PhotoTimelineTap
                 .Subscribe(_ =>
                 {
-                    var derived = Actions.OfType<IPlantPhotographViewModel>().CreateDerivedCollection(u => u);
+                    var derived = FilteredActions.CreateDerivedCollection(u => (IPlantPhotographViewModel)u, u => u.ActionType == PlantActionType.PHOTOGRAPHED);
                     this.Navigate(new PhotoListViewModel(derived, App, photo));
                 });
             }
@@ -1070,7 +1070,6 @@ namespace Growthstories.UI.ViewModel
                 {
                     _Actions = new ReactiveList<IPlantActionViewModel>();
                     this.ActionsAccessed = true;
-
                 }
 
                 return _Actions;
@@ -1078,10 +1077,26 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public IReactiveDerivedList<IPlantActionViewModel> _FilteredActions;
+        public IReactiveDerivedList<IPlantActionViewModel> FilteredActions
+        {
+            get
+            {
+                if (_FilteredActions == null)
+                {
+                    _FilteredActions = Actions
+                        .CreateDerivedCollection(x => x, x => x.ActionType != PlantActionType.PHOTOGRAPHED 
+                            || (x.Photo != null && x.Photo.Uri != null));
+                 }
+                return _FilteredActions;
+            }
+        }
+
+
         private IPlantPhotographViewModel LatestPhoto()
         {
             var list = Actions
-                .Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED)
+                .Where(x => x.ActionType == PlantActionType.PHOTOGRAPHED && x.Photo != null && x.Photo.Uri != null)
                 .OrderByDescending(x => x.Created)
                 .Take(1);
 
@@ -1390,6 +1405,8 @@ namespace Growthstories.UI.ViewModel
         public bool IsWateringScheduleEnabled { get; set; }
 
         public IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; set; }
+
+        public IReactiveDerivedList<IPlantActionViewModel> FilteredActions { get; set; }
 
         public IPlantActionViewModel SelectedItem { get; set; }
 

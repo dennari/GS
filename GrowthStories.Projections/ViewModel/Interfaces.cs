@@ -271,6 +271,8 @@ namespace Growthstories.UI.ViewModel
         bool IsWateringScheduleEnabled { get; }
         //PlantState State { get; }
         IReadOnlyReactiveList<IPlantActionViewModel> Actions { get; }
+        IReactiveDerivedList<IPlantActionViewModel> FilteredActions { get; }
+
         IScheduleViewModel WateringSchedule { get; set; }
         IScheduleViewModel FertilizingSchedule { get; set; }
 

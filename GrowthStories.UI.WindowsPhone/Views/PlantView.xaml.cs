@@ -60,7 +60,7 @@ namespace Growthstories.UI.WindowsPhone
                 Margin = new Thickness(0, 0, 0, 0);
             }
 
-            vm.Actions.ItemsAdded.Subscribe(x =>
+            vm.FilteredActions.ItemsAdded.Subscribe(x =>
             {
                 try
                 {
