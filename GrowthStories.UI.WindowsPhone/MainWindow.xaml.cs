@@ -279,13 +279,19 @@ namespace Growthstories.UI.WindowsPhone
                 t.Stop();
                 this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);
 
-                ViewModel.Bus.Listen<IEvent>().OfType<AggregateDeleted>().Where(x => x.AggregateId == plantId).Take(1).Subscribe(x =>
-                {
+                ViewModel.Bus.Listen<IEvent>()
+                    .OfType<AggregateDeleted>()
+                    .Where(x => x.AggregateId == plantId)
+                    .Take(1)
+                    .DelaySubscription(TimeSpan.FromMilliseconds(500), RxApp.TaskpoolScheduler)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                    {
 
-                    Application.Current.Terminate();
+                        Application.Current.Terminate();
 
 
-                });
+                    });
 
             }
             catch (Exception e)
