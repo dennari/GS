@@ -487,6 +487,21 @@ namespace Growthstories.UI.ViewModel
 
                     () =>
                     {
+                        // if after loading finished profile photo uri is null, it means that
+                        // profile photo was a photo that was pulled from server and did not 
+                        // have a blobkey set, we will try to handle this
+                        if (this.Photo != null && this.Photo.Uri == null)
+                        {
+                            this.Log().Info("current profile picture does not have an URI");
+                            if (HasWriteAccess)
+                            {
+                                TryAssignNewProfilePhoto(null);
+                            }
+                            else
+                            {
+                                this.ProfilePictureActionId = null;
+                            }
+                        }
                         this.Loaded = true;
                     })
 
@@ -1142,18 +1157,29 @@ namespace Growthstories.UI.ViewModel
 
             if (vm.IsProfilePhoto)
             {
-                var latest = LatestPhoto();
-
-                if (latest != null && latest != vm)
-                {
-                    App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.PlantActionId));
-                }
-                else
-                {
-                    //this.Log().Info("after remove, profile picture actionId is null");
-                    this.ProfilePictureActionId = null;
-                }
+                TryAssignNewProfilePhoto(vm);
             }
+        }
+
+
+        private void TryAssignNewProfilePhoto(IPlantPhotographViewModel previous)
+        {
+            if (!HasWriteAccess)
+            {
+                return;
+            }
+
+            var latest = LatestPhoto();
+            if (latest != null && latest != previous)
+            {
+                App.HandleCommand(new SetProfilepicture((Guid)latest.PlantId, latest.PlantActionId));
+            }
+            else
+            {
+                //this.Log().Info("after remove, profile picture actionId is null");
+                this.ProfilePictureActionId = null;
+            }
+
         }
 
 
