@@ -44,16 +44,6 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Height = Double.NaN;
             }
-            Rect b = default(Rect);
-            this.WhenAnyValue(x => x.TimeLine.ViewPort)
-                .Where(x => x != null)
-                .Subscribe(x =>
-                {
-                    b = x.Viewport;
-
-
-                });
-
         }
 
 
@@ -76,7 +66,15 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     if (TimeLine.ItemsSource.Count > 2)
                     {
-                        TimeLine.ScrollTo(x);
+                        if (TimeLine.ViewPort != null)
+                        {
+                            vm.Log().Info("scrolling");
+                            TimeLine.ViewPort.SetViewportOrigin(new Point(0, -96));
+                        }
+                        else
+                        {
+                            vm.Log().Info("viewport was null");
+                        }
                     }
                 }
                 catch { }

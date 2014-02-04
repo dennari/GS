@@ -21,20 +21,22 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
         </Grid.Background>
 
+     
         <reactive:ViewModelViewHost x:Name="SingularViewMainContent"
             ViewModel="{Binding InnerViewModel}"
             VerticalContentAlignment="Stretch"
             HorizontalContentAlignment="Stretch"
-            Opacity="0.0"
-        >
+            Opacity="0.0">
+            
         <reactive:ViewModelViewHost.DefaultContent>
 
             <local:GSViewGrid
                 TopTitle="GROWTH STORIES"
                 Title="{Binding Plant.Name}"
+                Style="{StaticResource NoScroll}"
                 >
                 
-                <Grid Margin="-12,0,-18,0">
+                <Grid Margin="-12,0,-18,-36">
                 <telerikPrimitives:RadBusyIndicator 
                     Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
                     ContentPosition="Right"
@@ -65,15 +67,13 @@
                     </telerikPrimitives:RadBusyIndicator.ContentTemplate>
                 </telerikPrimitives:RadBusyIndicator>
 
-                    <StackPanel>
-                        <local:PlantView 
+                            <local:PlantView 
                         Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}}"
                         ViewModel="{Binding Plant}" 
                         VerticalAlignment="Stretch"
                         HorizontalAlignment="Stretch"    
-                            />
-                    </StackPanel>
-                </Grid>
+                        />
+                    </Grid>
                 
             </local:GSViewGrid>
             

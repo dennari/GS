@@ -209,14 +209,17 @@
                 
             </phone:LongListSelector.ItemTemplate>
 
-
+            <phone:LongListSelector.ListFooterTemplate>
+                <DataTemplate>
+                    <ContentControl Height="60" />
+                </DataTemplate>
+            </phone:LongListSelector.ListFooterTemplate>
 
         </local:GSLongListSelector>
 
     </Grid>
     
-    
-               
+   
 
 
 </local:PlantViewBase>
