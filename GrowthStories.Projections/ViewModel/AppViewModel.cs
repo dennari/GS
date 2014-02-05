@@ -948,6 +948,8 @@ namespace Growthstories.UI.ViewModel
 
             this.ClearDB();
             Handler.ResetApp();
+            Growthstories.UI.Services.GSViewLocator.Instance.Reset();
+
             this._Model = null;
 
             if (createUnregUser)

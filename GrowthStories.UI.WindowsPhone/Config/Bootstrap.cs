@@ -19,7 +19,8 @@ using Growthstories.Configuration;
 using Growthstories.Domain.Services;
 using Growthstories.Core;
 using Microsoft.Phone.Controls;
-
+using System.Collections.Generic;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -27,6 +28,10 @@ namespace Growthstories.UI.WindowsPhone
 
     public class Bootstrap : BaseSetup
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(Bootstrap));
+
+
         protected readonly App PhoneApp;
         protected const string BUGSENSE_TOKEN = "e73c0669";
 
@@ -121,16 +126,10 @@ namespace Growthstories.UI.WindowsPhone
 
                 var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
                 ebb.Color = ac;
-
-                //var fb = (SolidColorBrush)PhoneApp.Resources["PhoneForegroundBrush"];
-                //fb.Color = (Color)PhoneApp.Resources["GSForegroundColor"];
-
-                //var bb = (SolidColorBrush)PhoneApp.Resources["PhoneBackgroundBrush"];
-                //bb.Color = (Color)PhoneApp.Resources["GSBlackColor"];
             }
             catch
             {
-                Debugger.Break();
+                Logger.Warn("could not apply gs theme");
             }
         }
 
@@ -171,6 +170,8 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+ 
+
         protected virtual void ViewConfiguration()
         {
 
@@ -187,10 +188,13 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
 
+            RxUIResolver.Register(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
+
             //RxUIResolver.RegisterLazySingleton(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
 
             // the rad slider filmstrip mode does have some messy state, and therefore we want to start clean each time
             RxUIResolver.Register(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
+
 
             //RxUIResolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
             RxUIResolver.Register(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));

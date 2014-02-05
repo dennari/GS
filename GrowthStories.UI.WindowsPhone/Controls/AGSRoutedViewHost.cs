@@ -117,7 +117,7 @@ namespace Growthstories.UI.WindowsPhone
                     }
                     return;
                 }
-
+                
                 var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
                 var view = viewLocator.ResolveView(x, null);
 

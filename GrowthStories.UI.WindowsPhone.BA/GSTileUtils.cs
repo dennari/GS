@@ -273,8 +273,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             if (tile != null)
             {
-                ClearTile(tile);
-                tile.Update(tileData);
+                try
+                {
+                    ClearTile(tile);
+                    tile.Update(tileData);
+                }
+                catch
+                {
+                    if (Debugger.IsAttached) { Debugger.Break(); }
+                }
             }
         }
 
