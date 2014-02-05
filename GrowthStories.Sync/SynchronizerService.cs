@@ -412,7 +412,7 @@ namespace Growthstories.Sync
 
                     // TODO: check if there is more stuff to pull
 
-                    if (R != null && R.PushReq != null && R.PushReq.IsEmpty)
+                    else if (R != null && R.PushReq != null && R.PushReq.IsEmpty)
                     {
                         return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
                     }
