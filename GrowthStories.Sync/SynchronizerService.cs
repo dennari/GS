@@ -404,7 +404,7 @@ namespace Growthstories.Sync
                     if (R == null || R.Status != SyncStatus.OK)
                     {
                         failCounter++;
-                        if (failCounter == 5)
+                        if (failCounter == 3)
                         {
                             break;
                         }
