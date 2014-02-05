@@ -174,7 +174,7 @@ namespace Growthstories.Sync
             }
             catch (Exception e)
             {
-                this.Log().DebugExceptionExtended("Unhandled exception in SynchronizerService", e);
+                this.Log().DebugExceptionExtended("Unexpected exception in SynchronizerService", e);
                 request.Status = SyncStatus.PULL_ERROR; // todo: switch to more descriptive value
                 request.Code = GSStatusCode.FAIL;
                 return request;
@@ -401,7 +401,7 @@ namespace Growthstories.Sync
                     R = await Synchronize(appState);
                     counter++;
 
-                    if (R.Status != SyncStatus.OK)
+                    if (R == null || R.Status != SyncStatus.OK)
                     {
                         failCounter++;
                         if (failCounter == 5)
@@ -412,13 +412,13 @@ namespace Growthstories.Sync
 
                     // TODO: check if there is more stuff to pull
 
-                    if (R.PushReq.IsEmpty)
+                    if (R != null && R.PushReq != null && R.PushReq.IsEmpty)
                     {
                         return Tuple.Create(AllSyncResult.AllSynced, nullResponseCode);
                     }
                 }
 
-                if (R.Status != SyncStatus.OK)
+                if (R == null || R.Status != SyncStatus.OK)
                 {
                     return Tuple.Create(AllSyncResult.Error, nullResponseCode); 
                 }

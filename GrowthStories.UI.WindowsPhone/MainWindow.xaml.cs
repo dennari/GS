@@ -283,14 +283,13 @@ namespace Growthstories.UI.WindowsPhone
                     .OfType<AggregateDeleted>()
                     .Where(x => x.AggregateId == plantId)
                     .Take(1)
-                    .DelaySubscription(TimeSpan.FromMilliseconds(500), RxApp.TaskpoolScheduler)
+                    .Delay(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
+                    //.DelaySubscription(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x =>
                     {
-
+                        this.Log().Info("terminating app");
                         Application.Current.Terminate();
-
-
                     });
 
             }
@@ -364,7 +363,6 @@ namespace Growthstories.UI.WindowsPhone
             //{
             ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
             //}
-
         }
 
     }
