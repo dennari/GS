@@ -72,12 +72,13 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     if (TimeLine.ItemsSource.Count > 2)
                     {
-                        if (TimeLine.ViewPort != null)
-                        {
-                            vm.Log().Info("scrolling");
-                            TimeLine.ScrollTo(x);
-                            TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
-                        }
+                        vm.Log().Info("scrolling");
+                        TimeLine.ScrollTo(x);
+
+                        //if (TimeLine.ViewPort != null)
+                        //{                           
+                            //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
+                        //}
                     }
                 }
                 catch { }
