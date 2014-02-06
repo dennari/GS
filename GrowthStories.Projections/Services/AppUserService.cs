@@ -133,7 +133,7 @@ namespace Growthstories.UI.Services
                 _CurrentUser.ExpiresIn = authResponse.AuthToken.ExpiresIn;
                 _CurrentUser.RefreshToken = authResponse.AuthToken.RefreshToken;
 
-                Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+                await Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
                 Transporter.AuthToken = authResponse.AuthToken;
                 return authResponse;
@@ -147,7 +147,7 @@ namespace Growthstories.UI.Services
 
             if (authResponse.StatusCode == GSStatusCode.OK)
             {
-                Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+                await Handler.Handle(new SetAuthToken(authResponse.AuthToken));
                 Transporter.AuthToken = authResponse.AuthToken;
             }
 

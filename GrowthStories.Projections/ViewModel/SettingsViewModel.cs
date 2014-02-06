@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -18,7 +19,7 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand SignUpCommand { get; protected set; }
         public IReactiveCommand SynchronizeCommand { get; protected set; }
 
-        
+
         private ObservableAsPropertyHelper<bool> _IsRegistered;
 
         public bool IsRegistered
@@ -99,15 +100,15 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public async void EnableLocationServices()
+        public void EnableLocationServices()
         {
             var kludge = new ReactiveCommand();
             kludge.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => _EnableLocationServices());
-            kludge.Execute(null);        
+            kludge.Execute(null);
         }
 
 
-        private async void _EnableLocationServices()
+        private async Task _EnableLocationServices()
         {
             var location = await App.GetLocation();
             if (location != null)
@@ -184,17 +185,17 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            var loggingOut = false;
+            //var loggingOut = false;
             var logoutObservable = this.LogOutWarning
                 .AcceptedObservable
                 .SelectMany(async _ =>
                 {
                     this.Log().Info("Logging out");
-                    loggingOut = true;
+                    //loggingOut = true;
                     App.ShowPopup.Execute(this.LogOutProgress);
                     var r = await App.SignOut();
                     App.ShowPopup.Execute(null);
-                    loggingOut = false;
+                    //loggingOut = false;
 
                     return r;
                 }).Publish();
@@ -303,11 +304,11 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.PhoneLocationServicesEnabled = x);
 
             App.WhenAnyValue(x => x.GSLocationServicesEnabled)
-                .Subscribe(x => 
+                .Subscribe(x =>
                     {
                         SetGSLocationServicesEnabledNoTrigger(x);
                     });
-                    
+
             App.Router.CurrentViewModel
                 .Where(vm => vm == this)
                 .Subscribe(_ =>
@@ -333,10 +334,6 @@ namespace Growthstories.UI.ViewModel
             });
 
         }
-
-
-        private IDisposable _ToggleSubscription;
-
         public bool AllowTriggering = true;
 
 

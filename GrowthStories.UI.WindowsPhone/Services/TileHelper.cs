@@ -1,21 +1,17 @@
-﻿using System;
-using System.Reactive.Linq;
+﻿using EventStore.Logging;
 using Growthstories.Core;
+using Growthstories.Domain.Entities;
 using Growthstories.UI.ViewModel;
 using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Shell;
-using ReactiveUI;
-using Growthstories.Domain.Entities;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using ReactiveUI;
-using System.Diagnostics;
-using System.IO.IsolatedStorage;
 using Newtonsoft.Json;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using System.Linq;
-using EventStore.Logging;
+using System.Reactive.Linq;
+using System.Threading;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -119,8 +115,8 @@ namespace Growthstories.UI.WindowsPhone
         private void SubscribeToUpdates()
         {
             // there should not be any at this point, but does not hurt
-            ClearSubscriptions(); 
-         
+            ClearSubscriptions();
+
             //  watch for watering scheduler updates
             subs.Add(Vm.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
             {
@@ -429,7 +425,7 @@ namespace Growthstories.UI.WindowsPhone
             = new Dictionary<IPlantViewModel, IReactiveCommand>();
 
 
-        public static async void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
+        public static void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
         {
             if (!UpdateCommands.ContainsKey(pvm))
             {

@@ -231,7 +231,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _AppBarButtons;
             }
-            protected set
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _AppBarButtons, value);
             }

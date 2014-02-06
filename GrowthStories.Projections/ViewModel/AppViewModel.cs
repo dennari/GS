@@ -75,7 +75,7 @@ namespace Growthstories.UI.ViewModel
                 var loc = await DoGetLocation();
                 if (loc != null)
                 {
-                    this.Handler.Handle(new AcquireLocation(loc));
+                    await this.Handler.Handle(new AcquireLocation(loc));
                 }
                 return loc;
             }
@@ -906,7 +906,6 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private bool SignOutInProgress;
 
         private async Task<GSApp> _SignOut(bool createUnregUser)
         {
@@ -1192,7 +1191,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private IObservable<PlantActionCreated> PlantActionCreatedObservable;
+
         public IObservable<IPlantActionViewModel> FuturePlantActions(Guid plantId, Guid? PlantActionId = null)
         {
 
