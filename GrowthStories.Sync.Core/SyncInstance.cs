@@ -65,7 +65,7 @@ namespace Growthstories.Sync
                 return null;
 
 
-            return Task.WhenAll(PhotoUploadRequests.Select(x => x.GetResponse()));
+            return Task.WhenAll(PhotoUploadRequests.Take(1).Select(x => x.GetResponse()));
 
         }
 

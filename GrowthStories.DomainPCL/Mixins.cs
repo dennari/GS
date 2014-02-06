@@ -3,6 +3,7 @@ using Growthstories.Core;
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using EventStore.Logging;
 
 namespace Growthstories.Domain
 {
@@ -13,6 +14,12 @@ namespace Growthstories.Domain
         {
             if ((int)This.Level < (int)LogLevel.Debug)
                 This.Debug(String.Format("{0}: {1}", message, exception.ToStringExtended()));
+        }
+
+        public static void DebugExceptionExtended(this ILog This, string message, Exception exception)
+        {
+
+            This.Debug(String.Format("{0}: {1}", message, exception.ToStringExtended()));
         }
 
         public static IObservable<Unit> AsCompletion<T>(this IObservable<T> observable)

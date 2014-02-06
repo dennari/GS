@@ -259,10 +259,12 @@ namespace Growthstories.Sync
 
             if (s.PhotoUploadRequests.Length > 0 && appState != null)
             {
+
+
                 var responses = await s.UploadPhotos();
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
                     .Select(x => new CompletePhotoUpload(x) { AncestorId = appState.User.Id }).ToArray();
-                this.Log().Info("uploaded {0}/{1} photos", successes.Length, responses.Length);
+                this.Log().Info("succesfully uploaded {0}/{1} photos, {2} left in queue", successes.Length, responses.Length, s.PhotoUploadRequests.Length - successes.Length);
                 if (successes.Length > 0)
                     await Handler.Handle(new StreamSegment(appState.Id, successes));
 

@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
 using Growthstories.Core;
-
+using Growthstories.Domain;
 
 namespace Growthstories.Sync
 {
@@ -22,6 +22,8 @@ namespace Growthstories.Sync
     {
         HttpClient Client;
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncHttpClient));
+        public const int NormalTimeout = 10;
+        public const int UploadTimeout = 300;
 
 
         void InitClient()
@@ -29,9 +31,28 @@ namespace Growthstories.Sync
 
             Client = new System.Net.Http.HttpClient(this.Handler)
             {
-                Timeout = TimeSpan.FromSeconds(20)
+                Timeout = TimeSpan.FromSeconds(NormalTimeout)
             };
             //Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
+        }
+
+        private HttpClient _UploadClient;
+        private HttpClient UploadClient
+        {
+
+            get
+            {
+
+                if (_UploadClient == null)
+                {
+                    _UploadClient = new HttpClient(this.Handler)
+                    {
+                        Timeout = TimeSpan.FromSeconds(UploadTimeout)
+                    };
+                }
+                return _UploadClient;
+            }
+
         }
 
         SyncHttpHandler _Handler;
@@ -146,7 +167,7 @@ namespace Growthstories.Sync
         }
 
 
-        public Task<Tuple<HttpResponseMessage, string>> Upload(Uri uri, Stream file)
+        public async Task<Tuple<HttpResponseMessage, string>> Upload(Uri uri, Stream file)
         {
             var req = new HttpRequestMessage(HttpMethod.Post, uri);
             var form = new MultipartFormDataContent();
@@ -162,9 +183,30 @@ namespace Growthstories.Sync
 
             req.Content = form;
 
-            return SendAndGetBodyAsync(req);
+            string s = null;
+            HttpResponseMessage r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
+            try
+            {
+                r = await UploadClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+                s = await r.Content.ReadAsStringAsync();
+
+            }
+            catch (Exception e)
+            {
+                Logger.DebugExceptionExtended("Upload exception", e);
+                //throw e;
+            }
+
+
+            Logger.Info("[RESPONSEBODY]\n{0}", s);
+            return Tuple.Create(r, s);
 
         }
+
+
+
+
+
 
         public async Task<Tuple<HttpResponseMessage, Stream>> Download(Uri uri)
         {
@@ -207,7 +249,7 @@ namespace Growthstories.Sync
                 Logger.Error(e.ToString());
                 //throw e;
             }
-            
+
 
             Logger.Info("[RESPONSEBODY]\n{0}", s);
             return Tuple.Create(r, s);
