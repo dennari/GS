@@ -10,6 +10,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -236,7 +237,7 @@ namespace Growthstories.UI.ViewModel
 
 
             TryAddPlantCommand = new ReactiveCommand();
-            TryAddPlantCommand.Subscribe(_ => TryAddPlant());
+            TryAddPlantCommand.RegisterAsyncTask(_ => TryAddPlant());
 
 
             this.ShowDetailsCommand = new ReactiveCommand();
@@ -349,6 +350,7 @@ namespace Growthstories.UI.ViewModel
             });
         }
 
+        
 
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
@@ -390,11 +392,10 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
-        protected async void TryAddPlant()
+        protected async Task TryAddPlant()
         {
             // note: if listing information is incorrect user can add more plants for free
-            if (Plants.Count >= 3 && !IAP.HasPaidBasicProduct() && await IAP.FormattedPrice() != null)
+            if (Plants.Count == 3 && !IAP.HasPaidBasicProduct() && await IAP.FormattedPrice() != null)
             {
                 var pvm = new PopupViewModel()
                 {
