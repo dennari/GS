@@ -35,7 +35,7 @@
 
             <TextBlock 
                Style="{StaticResource GSTextBlockStyle}"
-               Text="Growth Stories version 1.0.1.4" HorizontalAlignment="Left"
+               Text="Growth Stories version 1.0.1.5" HorizontalAlignment="Left"
                VerticalAlignment="Top" Grid.Row="1" Margin="0,0,0,0"
                 Foreground="White"
                 FontSize="24"

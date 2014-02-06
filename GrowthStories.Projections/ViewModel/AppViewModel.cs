@@ -53,6 +53,7 @@ namespace Growthstories.UI.ViewModel
         public virtual void HandleApplicationActivated()
         {
             this.UpdatePhoneLocationServicesEnabled();
+            this.UpdateIAPBought();
         }
 
 
@@ -288,7 +289,6 @@ namespace Growthstories.UI.ViewModel
                  .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
                  .Switch()
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
-
 
             vmChanged
                 .Select(x =>
@@ -937,6 +937,21 @@ namespace Growthstories.UI.ViewModel
 
             this.SignedOut.Execute(null);
             return app;
+        }
+
+
+        private bool _IAPBought;
+
+        // do not rely on this completely
+        // if true, iap has been definitelybought, if false, iap has maybe been bought 
+        public bool IAPBought { get; set; }
+
+        public void UpdateIAPBought()
+        {
+            var kludge = new ReactiveCommand();
+            
+            //Task.Run(UpdateIAPBought);
+            //Task.Run(x => IAPBought = IIAPService.HasPaidBasicProduct());
         }
 
 

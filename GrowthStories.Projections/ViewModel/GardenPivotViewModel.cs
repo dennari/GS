@@ -92,6 +92,12 @@ namespace Growthstories.UI.ViewModel
                 (o, v) => Tuple.Create(o, v)
              ).Subscribe(xx =>
                 {
+                    if (xx.Item2 != this)
+                    {
+                        this.Log().Info("skipping orientation change stuff");
+                        return;
+                    }
+
                     //this.NavigateInterface = typeof(IYAxisShitViewModel);
                     var o = xx.Item1;
                     if ((o & PageOrientation.Landscape) == PageOrientation.Landscape && this.SelectedPlant != null)
@@ -118,6 +124,7 @@ namespace Growthstories.UI.ViewModel
             this.AppBarButtons = GetOwnerButtons();
 
         }
+
 
         public IReactiveCommand WateringCommand { get; protected set; }
 
