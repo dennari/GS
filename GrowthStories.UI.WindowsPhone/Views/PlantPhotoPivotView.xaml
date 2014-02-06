@@ -27,8 +27,7 @@
 
 
         <telerikPrimitives:RadSlideView 
-            x:Name="TheSlideView" ItemsSource="{Binding Photos}" 
-            IsFilmstripModeEnabled="True" 
+            x:Name="TheSlideView" ItemsSource="{Binding Photos}"  
             ItemRealizationMode="Default" 
             IsLoopingEnabled="False"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
@@ -41,11 +40,13 @@
                         Source="{Binding PhotoSource}" />
                 </DataTemplate>
             </telerikPrimitives:RadSlideView.ItemTemplate>
+            <!--
             <telerikPrimitives:RadSlideView.FilmstripModeItemTemplate>
                 <DataTemplate>
                     <Image Source="{Binding PhotoSource}" Stretch="Uniform" MaxWidth="460" HorizontalAlignment="Stretch" Margin="6,0,6,0"/>
                 </DataTemplate>
             </telerikPrimitives:RadSlideView.FilmstripModeItemTemplate>
+            -->
         </telerikPrimitives:RadSlideView>
 
     </Grid>
