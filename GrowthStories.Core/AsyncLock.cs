@@ -5,49 +5,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Enough.Async
+namespace Growthstories.Core
 {
-    /// <summary>AsyncLock locks across one or several await calls.
-    /// 
+    /// <summary>
+    /// http://www.hanselman.com/blog/ComparingTwoTechniquesInNETAsynchronousCoordinationPrimitives.aspx
     /// </summary>
-    public class AsyncLock
+    public sealed class AsyncLock
     {
-        private readonly AsyncSemaphore _semaphore;
-        private readonly Task<Releaser> _releaser;
+        private readonly SemaphoreSlim m_semaphore = new SemaphoreSlim(1, 1);
+        private readonly Task<IDisposable> m_releaser;
 
         public AsyncLock()
         {
-            _semaphore = new AsyncSemaphore(1);
-            _releaser = Task.FromResult(new Releaser(this));
+            m_releaser = Task.FromResult((IDisposable)new Releaser(this));
         }
 
-        public Task<Releaser> LockAsync()
+        public Task<IDisposable> LockAsync()
         {
-            var wait = _semaphore.WaitAsync();
+            var wait = m_semaphore.WaitAsync();
             return wait.IsCompleted ?
-                _releaser :
-                wait.ContinueWith((_, state) => new Releaser((AsyncLock)state),
-                    this, CancellationToken.None,
-                    TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                        m_releaser :
+                        wait.ContinueWith((_, state) => (IDisposable)state,
+                            m_releaser.Result, CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
-
-        public struct Releaser : IDisposable
+        private sealed class Releaser : IDisposable
         {
-            private readonly AsyncLock _toRelease;
-
-            internal Releaser(AsyncLock toRelease) 
-            { 
-                _toRelease = toRelease; 
-            }
-
-            public void Dispose()
-            {
-                if (_toRelease != null)
-                {
-                    _toRelease._semaphore.Release();
-                }
-            }
+            private readonly AsyncLock m_toRelease;
+            internal Releaser(AsyncLock toRelease) { m_toRelease = toRelease; }
+            public void Dispose() { m_toRelease.m_semaphore.Release(); }
         }
     }
 }

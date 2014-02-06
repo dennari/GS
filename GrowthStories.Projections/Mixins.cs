@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using EventStore.Logging;
 using System.Threading;
-using Enough.Async;
 
 
 namespace Growthstories.UI

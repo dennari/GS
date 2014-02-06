@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Enough.Async;
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
@@ -148,23 +147,8 @@ namespace Growthstories.Sync
         }
 
 
-        private Task<bool> Prev<T>(Task<T> prev)
-        {
-            if (prev != null && prev.Status == TaskStatus.Running)
-            {
-                return Task.Run(async () =>
-                {
-                    await prev;
-                    return true;
-                });
 
-            }
-
-            return Task.FromResult(false);
-        }
-
-
-        public async Task<ISyncInstance> Synchronize(IGSAppState appState)
+        private async Task<ISyncInstance> Synchronize(IGSAppState appState)
         {
             var request = await CreateSyncRequest(appState);
 
@@ -217,7 +201,7 @@ namespace Growthstories.Sync
                     handlePull = true;
                     if (s.PushReq.IsEmpty)
                     {
-                        Handler.Handle(new Pull(s));
+                        await Handler.Handle(new Pull(s));
                         if (appState != null)
                             downloadRequests = QueryPhotoDownloads(appState);
                     }
@@ -258,11 +242,11 @@ namespace Growthstories.Sync
                 {
                     if (handlePull)
                     {
-                        Handler.Handle(new Pull(s));
+                        await Handler.Handle(new Pull(s));
                         if (appState != null)
                             downloadRequests = QueryPhotoDownloads(appState);
                     }
-                    Handler.Handle(new Push(s));
+                    await Handler.Handle(new Push(s));
                 }
 
                 if (pushResp == null || (pushResp.StatusCode != GSStatusCode.OK
@@ -280,7 +264,7 @@ namespace Growthstories.Sync
                     .Select(x => new CompletePhotoUpload(x) { AncestorId = appState.User.Id }).ToArray();
                 this.Log().Info("uploaded {0}/{1} photos", successes.Length, responses.Length);
                 if (successes.Length > 0)
-                    Handler.Handle(new StreamSegment(appState.Id, successes));
+                    await Handler.Handle(new StreamSegment(appState.Id, successes));
 
                 if (successes.Length < s.PhotoUploadRequests.Length)
                 {
@@ -300,7 +284,7 @@ namespace Growthstories.Sync
                 this.Log().Info("downloaded {0}/{1} photos", successes.Length, responses.Length);
 
                 if (successes.Length > 0)
-                    Handler.Handle(new StreamSegment(appState.Id, successes));
+                    await Handler.Handle(new StreamSegment(appState.Id, successes));
 
                 if (successes.Length < downloadRequests.Length)
                 {
@@ -420,7 +404,7 @@ namespace Growthstories.Sync
 
                 if (R == null || R.Status != SyncStatus.OK)
                 {
-                    return Tuple.Create(AllSyncResult.Error, nullResponseCode); 
+                    return Tuple.Create(AllSyncResult.Error, nullResponseCode);
                 }
 
                 this.Log().Info("SyncAll finished, debugId: " + debugId);

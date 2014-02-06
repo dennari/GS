@@ -28,6 +28,8 @@ namespace Growthstories.Sync
         private readonly IUIPersistence UIPersistence;
         private static ILog Logger = LogFactory.BuildLogger(typeof(CommandHandler));
         private readonly GSEventStore SyncPersistence;
+        private readonly AsyncLock alock = new AsyncLock();
+
         //private readonly IMessageBus _bus;
 
         private readonly object gate = new object();
@@ -44,6 +46,17 @@ namespace Growthstories.Sync
             Factory = factory;
             UIPersistence = uipersistence;
             this.SyncPersistence = syncPersistence;
+        }
+
+
+        protected GSApp _App;
+        public GSApp GetApp()
+        {
+            return _App ?? (_App = (GSApp)Repository.GetById(GSAppState.GSAppId));
+        }
+        public void ResetApp()
+        {
+            this._App = null;
         }
 
 
@@ -99,10 +112,49 @@ namespace Growthstories.Sync
         }
 
 
-        public IGSAggregate Handle(IStreamSegment msgs)
+        public async Task<IGSAggregate> Handle(IStreamSegment msgs)
         {
 
+            using (await alock.LockAsync())
+                return _Handle(msgs);
 
+
+        }
+
+        public async Task<IGSAggregate> Handle(IMessage msg)
+        {
+
+            using (await alock.LockAsync())
+                return _Handle(msg);
+
+
+        }
+
+        public async Task<GSApp> Handle(Push c)
+        {
+
+            //c.GlobalCommitSequence = c.Sync.PushReq.NumLeftInCommit > 0 ? c.Sync.PushReq.GlobalCommitSequence + 1 : Repository.GetGlobalCommitSequence();
+            using (await alock.LockAsync())
+                return (GSApp)_Handle((IMessage)c);
+        }
+
+
+
+        public async Task<GSApp> Handle(Pull c)
+        {
+            using (await alock.LockAsync())
+                return _Handle(c);
+        }
+
+
+
+        /// <summary>
+        ///  non thread-safe
+        /// </summary>
+        /// <param name="msgs"></param>
+        /// <returns></returns>
+        private IGSAggregate _Handle(IStreamSegment msgs)
+        {
             var aggregate = msgs.CreateMessage != null ? Construct(msgs.CreateMessage) : Construct(msgs.First());
 
             foreach (var msg in msgs)
@@ -132,7 +184,7 @@ namespace Growthstories.Sync
                     IAggregateCommand derived = null;
                     if (this.CreateDerivedCommand(cmd, out derived))
                     {
-                        Handle(derived);
+                        _Handle(derived);
                     }
                 }
             }
@@ -140,22 +192,13 @@ namespace Growthstories.Sync
 
 
             return aggregate;
-
         }
 
-        protected GSApp _App;
-        public GSApp GetApp()
-        {
-            return _App ?? (_App = (GSApp)Repository.GetById(GSAppState.GSAppId));
-        }
-        public void ResetApp()
-        {
-            this._App = null;
-        }
 
-        //public 
 
-        public IGSAggregate Handle(IMessage msg)
+
+
+        private IGSAggregate _Handle(IMessage msg)
         {
 
 
@@ -185,7 +228,7 @@ namespace Growthstories.Sync
                 IAggregateCommand derived = null;
                 if (this.CreateDerivedCommand(cmd, out derived))
                 {
-                    Handle(derived);
+                    _Handle(derived);
                 }
             }
 
@@ -194,68 +237,12 @@ namespace Growthstories.Sync
 
         }
 
-        private bool CreateDerivedCommand(IAggregateCommand cmd, out IAggregateCommand derived)
-        {
-
-            derived = null;
-
-            //var photo = cmd as CreatePlantAction;
-            //if (photo != null && photo.Type == PlantActionType.PHOTOGRAPHED)
-            //{
-            //    try
-            //    {
-            //        var plant = (Plant)Repository.GetById(photo.PlantId);
-            //        //if (plant.State.Profilepicture == null)
-            //        //{
-            //        derived = new SetProfilepicture(photo.PlantId, photo.Photo, photo.AggregateId)
-            //        {
-            //            AncestorId = photo.AncestorId
-            //        };
-            //        return true;
-            //        //}
-            //    }
-            //    catch { }
-            //}
-
-
-            var upload = cmd as CompletePhotoUpload;
-            if (upload != null && upload.PlantActionId != default(Guid))
-            {
-
-                derived = new SetBlobKey(upload.PlantActionId, upload.BlobKey)
-                {
-                    AncestorId = upload.AncestorId
-                };
-                return true;
-
-            }
 
 
 
 
-            return false;
-        }
 
-
-        public int AttachAggregates(ISyncPullResponse pullResp)
-        {
-            return pullResp.Streams
-                .Aggregate(
-                    0,
-                    (acc, x) =>
-                    {
-
-                        //x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
-                        x.Aggregate = RemoteConstructNoThrow(x.First());
-
-                        x.TrimDuplicates();
-                        return acc + (x.Aggregate == null ? 0 : 1);
-                    }
-                 );
-
-        }
-
-        public GSApp Handle(Pull c)
+        private GSApp _Handle(Pull c)
         {
 
             var A = GetApp();
@@ -311,11 +298,47 @@ namespace Growthstories.Sync
 
         }
 
-        public GSApp Handle(Push c)
+        private bool CreateDerivedCommand(IAggregateCommand cmd, out IAggregateCommand derived)
         {
 
-            //c.GlobalCommitSequence = c.Sync.PushReq.NumLeftInCommit > 0 ? c.Sync.PushReq.GlobalCommitSequence + 1 : Repository.GetGlobalCommitSequence();
-            return (GSApp)this.Handle((IMessage)c);
+            derived = null;
+
+
+
+            var upload = cmd as CompletePhotoUpload;
+            if (upload != null && upload.PlantActionId != default(Guid))
+            {
+
+                derived = new SetBlobKey(upload.PlantActionId, upload.BlobKey)
+                {
+                    AncestorId = upload.AncestorId
+                };
+                return true;
+
+            }
+
+
+
+
+            return false;
+        }
+
+        public int AttachAggregates(ISyncPullResponse pullResp)
+        {
+            return pullResp.Streams
+                .Aggregate(
+                    0,
+                    (acc, x) =>
+                    {
+
+                        //x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
+                        x.Aggregate = RemoteConstructNoThrow(x.First());
+
+                        x.TrimDuplicates();
+                        return acc + (x.Aggregate == null ? 0 : 1);
+                    }
+                 );
+
         }
 
         private void UISave(IMessage[] UIEvents)

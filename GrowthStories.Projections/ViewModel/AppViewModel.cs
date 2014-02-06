@@ -15,6 +15,7 @@ using Growthstories.Sync;
 using ReactiveUI;
 using System.Diagnostics;
 
+
 namespace Growthstories.UI.ViewModel
 {
 
@@ -47,7 +48,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public static Enough.Async.AsyncLock LocationLock = new Enough.Async.AsyncLock();
+
 
 
         public virtual void HandleApplicationActivated()
@@ -163,6 +164,10 @@ namespace Growthstories.UI.ViewModel
         private readonly IRequestFactory RequestFactory;
         private readonly IRoutingState _Router;
 
+        private readonly AsyncLock RegisterLock = new AsyncLock();
+        private readonly AsyncLock SignInLock = new AsyncLock();
+        public static readonly AsyncLock LocationLock = new AsyncLock();
+
         public AppViewModel(
             IMutableDependencyResolver resolver,
             IUserService context,
@@ -217,12 +222,12 @@ namespace Growthstories.UI.ViewModel
             Bootstrap();
 
             //NavigateAndResetStopwatch = new Stopwatch();
-            this.Router.NavigateAndReset.Subscribe(_ => 
+            this.Router.NavigateAndReset.Subscribe(_ =>
              {
-                this.Log().Info("navigate and reset");
-                //NavigateAndResetStopwatch.Restart();
+                 this.Log().Info("navigate and reset");
+                 //NavigateAndResetStopwatch.Restart();
              });
-   
+
         }
 
 
@@ -324,7 +329,7 @@ namespace Growthstories.UI.ViewModel
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .DistinctUntilChanged()
                 .ToProperty(this, x => x.AppBarMenuItems, out _AppBarMenuItems);
-            
+
             vmChanged
                  .OfType<IControlsSystemTray>()
                  .Select(x => x.WhenAnyValue(y => y.SystemTrayIsVisible))
@@ -556,95 +561,27 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        Task<IGSAggregate> CurrentHandleJob;
+
         public Task<IGSAggregate> HandleCommand(IAggregateCommand x)
         {
-            var prevJob = CurrentHandleJob;
 
-            CurrentHandleJob = Task.Run(async () =>
-            {
-
-                if (this.InitializeJob == null)
-                {
-                    await Initialize();
-                }
-                else if (!this.InitializeJob.IsCompleted)
-                {
-                    await this.InitializeJob;
-                }
-
-                if (prevJob != null && !prevJob.IsCompleted)
-                {
-                    await prevJob;
-                }
-                if (!x.AncestorId.HasValue)
-                    this.SetIds(x);
-                var push = x as Push;
-                if (push != null)
-                    return Handler.Handle(push);
-                var pull = x as Pull;
-                if (pull != null)
-                    return Handler.Handle(pull);
-                return Handler.Handle(x);
-            });
-            //CurrentHandleJob.ConfigureAwait(false);
-            return CurrentHandleJob;
+            return Handler.Handle(x);
         }
 
 
         public Task<IGSAggregate> HandleCommand(MultiCommand x)
         {
-            var prevJob = CurrentHandleJob;
-
-            CurrentHandleJob = Task.Run(async () =>
-            {
-
-                if (this.InitializeJob == null)
-                {
-                    await Initialize();
-                }
-                else if (!this.InitializeJob.IsCompleted)
-                {
-                    await this.InitializeJob;
-                }
-
-                if (prevJob != null && !prevJob.IsCompleted)
-                {
-                    await prevJob;
-                }
-                return Handler.Handle(x);
-            });
-
-            return CurrentHandleJob;
+            return Handler.Handle(x);
         }
 
 
-        Task<IGSAggregate> CurrentGetByIdJob; // only for starting
+
         public Task<IGSAggregate> GetById(Guid id)
         {
-            //CurrentGetByIdJob = CurrentGetByIdJob.ContinueWith(prev => RunTask(() => Repository.GetById(id))).Unwrap();
-            //CurrentGetByIdJob.ConfigureAwait(false);
-            var prevJob = CurrentGetByIdJob;
-            CurrentGetByIdJob = Task.Run(async () =>
-            {
 
-                if (this.InitializeJob == null)
-                {
-                    await Initialize();
-                }
-                else if (!this.InitializeJob.IsCompleted)
-                {
-                    await this.InitializeJob;
-                }
+            return Task.Run(() => Repository.GetById(id));
 
-                if (prevJob != null && !prevJob.IsCompleted)
-                {
-                    await prevJob;
-                }
-                return Repository.GetById(id);
-            });
 
-            return CurrentGetByIdJob;
         }
 
         private List<IDisposable> subs = new List<IDisposable>();
@@ -657,7 +594,7 @@ namespace Growthstories.UI.ViewModel
             if (this.Model != null)
                 return Task.FromResult(this.User);
 
-            this.InitializeJob = Task.Run(() =>
+            this.InitializeJob = Task.Run(async () =>
             {
                 GSApp app = null;
 
@@ -671,14 +608,21 @@ namespace Growthstories.UI.ViewModel
                 {
                     // this means it's the first time the application's run
                     // so let's create a new application
-                    this.Log().Info("creating new GSApp");
-                    app = (GSApp)Handler.Handle(new CreateGSApp());
+
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // something really unexcpected happened
+                    this.Log().DebugExceptionExtended("Tried to get GSApp in Init", e);
+
                     throw;
                 }
+                if (app == null)
+                {
+                    this.Log().Info("creating new GSApp");
+                    app = (GSApp)(await Handler.Handle(new CreateGSApp()));
+                }
+
 
                 IAuthUser user = app.State.User;
 
@@ -695,14 +639,14 @@ namespace Growthstories.UI.ViewModel
                         var first = u.Item2[0] as CreateUser;
                         if (first == null)
                             throw new InvalidOperationException("Can't create new user");
-                        user = ((User)Handler.Handle(first)).State;
+                        user = ((User)(await Handler.Handle(first))).State;
                         var counter = 0;
                         foreach (var cmd in u.Item2)
                         {
                             counter++;
                             if (counter == 1)
                                 continue;
-                            Handler.Handle(cmd);
+                            await Handler.Handle(cmd);
                         }
                     }
 
@@ -787,7 +731,7 @@ namespace Growthstories.UI.ViewModel
         public bool RegisterCancelRequested { get; set; }
 
 
-        private Enough.Async.AsyncLock RegisterLock = new Enough.Async.AsyncLock();
+
 
 
         public async Task<RegisterResponse> Register(string username, string email, string password)
@@ -937,11 +881,6 @@ namespace Growthstories.UI.ViewModel
         // 
         public async Task<GSApp> SignOut(bool createUnregUser = true, bool skipLock = false)
         {
-            // Clear db
-            if (CurrentHandleJob != null && !CurrentHandleJob.IsCompleted)
-            {
-                await CurrentHandleJob;
-            }
             GSApp app = null;
 
             //using (Synchronizer.DisableAutoSync())
@@ -985,7 +924,7 @@ namespace Growthstories.UI.ViewModel
             }
             else
             {
-                app = (GSApp)Handler.Handle(new CreateGSApp());
+                app = (GSApp)(await HandleCommand(new CreateGSApp()));
                 this.Model = app;
             }
 
@@ -994,7 +933,6 @@ namespace Growthstories.UI.ViewModel
 
         private bool SignInInProgress = false;
 
-        private Enough.Async.AsyncLock SignInLock = new Enough.Async.AsyncLock();
 
 
         public async Task<SignInResponse> SignIn(string email, string password)
@@ -1088,18 +1026,18 @@ namespace Growthstories.UI.ViewModel
                 {
                     var app = await SignOut(false, true);
 
-                    Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
+                    await Handler.Handle(new AssignAppUser(u.AggregateId, u.Username, password, email));
 
                     this.User = app.State.User;
                     SetupSubscriptions(app, this.User);
 
-                    Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
-                    Handler.Handle(new SetAuthToken(authResponse.AuthToken));
+                    await Handler.Handle(new InternalRegisterAppUser(u.AggregateId, u.Username, password, email));
+                    await Handler.Handle(new SetAuthToken(authResponse.AuthToken));
 
                     this.IsRegistered = true;
                     Context.SetupCurrentUser(this.User);
 
-                    Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
+                    await Handler.Handle(new CreateSyncStream(u.AggregateId, PullStreamType.USER));
                 }
 
                 // important: the upcoming SyncAll operations must 

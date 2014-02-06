@@ -57,9 +57,7 @@
     <Compile Include="AggregateState.cs" />
     <Compile Include="ApplyEventRouter.cs" />
     <Compile Include="AsyncLock.cs" />
-    <Compile Include="AsyncSemaphore.cs" />
     <Compile Include="CommandHandlerBase.cs" />
-    <Compile Include="EventHandlerBase.cs" />
     <Compile Include="IAsyncDispatchCommits.cs" />
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="IIAPService.cs" />

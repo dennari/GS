@@ -4,6 +4,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Growthstories.Domain
 {
@@ -11,12 +12,12 @@ namespace Growthstories.Domain
     {
 
 
-        IGSAggregate Handle(IMessage c);
-        IGSAggregate Handle(IStreamSegment msgs);
+        Task<IGSAggregate> Handle(IMessage c);
+        Task<IGSAggregate> Handle(IStreamSegment msgs);
         int AttachAggregates(ISyncPullResponse pullResp);
         void ResetApp();
-        GSApp Handle(Pull c);
-        GSApp Handle(Push c);
+        Task<GSApp> Handle(Pull c);
+        Task<GSApp> Handle(Push c);
 
 
     }
