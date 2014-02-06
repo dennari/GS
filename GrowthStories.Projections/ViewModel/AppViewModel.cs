@@ -53,7 +53,6 @@ namespace Growthstories.UI.ViewModel
         public virtual void HandleApplicationActivated()
         {
             this.UpdatePhoneLocationServicesEnabled();
-            this.UpdateIAPBought();
         }
 
 
@@ -325,9 +324,7 @@ namespace Growthstories.UI.ViewModel
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .DistinctUntilChanged()
                 .ToProperty(this, x => x.AppBarMenuItems, out _AppBarMenuItems);
-
-
-
+            
             vmChanged
                  .OfType<IControlsSystemTray>()
                  .Select(x => x.WhenAnyValue(y => y.SystemTrayIsVisible))
@@ -377,10 +374,37 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.User)
                .Where(x => x != null)
                .ObserveOn(RxApp.MainThreadScheduler)
-               .Subscribe(x =>
+               .Subscribe(async x =>
                {
                    this.IsRegistered = x.IsRegistered;
-                   this.GSLocationServicesEnabled = x.LocationEnabled;
+
+                   UserState user = null;
+                   try
+                   {
+                       var ret = await GetById(x.Id);
+                       if (ret == null)
+                       {
+                           this.Log().Warn("could not get userstate for user {0}", x.Id);
+                       }
+                       user = ret.State as UserState;
+                       if (user == null)
+                       {
+                           this.Log().Warn("could not get userstate for user {0}", x.Id);
+                       }
+                   }
+                   catch { this.Log().Warn("could not get userstate for user {0} (exception)", x.Id); }
+
+                   if (user == null)
+                   {
+                       this.Log().Info("setting gslocationservices enabled via appstate to {0}", x.LocationEnabled);
+                       this.GSLocationServicesEnabled = x.LocationEnabled;
+                   }
+                   else
+                   {
+                       this.Log().Info("setting gslocationservices enabled via userstate to {0}", user.LocationEnabled);
+                       this.GSLocationServicesEnabled = user.LocationEnabled;
+                   }
+
                });
 
         }
@@ -593,6 +617,7 @@ namespace Growthstories.UI.ViewModel
 
             return CurrentHandleJob;
         }
+
 
         Task<IGSAggregate> CurrentGetByIdJob; // only for starting
         public Task<IGSAggregate> GetById(Guid id)
@@ -937,21 +962,6 @@ namespace Growthstories.UI.ViewModel
 
             this.SignedOut.Execute(null);
             return app;
-        }
-
-
-        private bool _IAPBought;
-
-        // do not rely on this completely
-        // if true, iap has been definitelybought, if false, iap has maybe been bought 
-        public bool IAPBought { get; set; }
-
-        public void UpdateIAPBought()
-        {
-            var kludge = new ReactiveCommand();
-            
-            //Task.Run(UpdateIAPBought);
-            //Task.Run(x => IAPBought = IIAPService.HasPaidBasicProduct());
         }
 
 
