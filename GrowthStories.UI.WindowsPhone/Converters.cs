@@ -15,19 +15,41 @@ using System.Windows.Input;
 using System.Windows.Interactivity;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
     public static class ConverterHelpers
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(ConverterHelpers));
+
+        //private static Dictionary<string, WeakReference<BitmapImage>> imageCache = new Dictionary<string, WeakReference<BitmapImage>>();
+
+
         public static BitmapImage ToBitmapImage(this IPhoto x)
         {
-            var img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
+            BitmapImage img;
+
+            //if (imageCache.ContainsKey(x.Uri))
+            //{
+            //    var r = imageCache[x.Uri];
+            //    bool success = r.TryGetTarget(out img);
+            //    if (success && img != null)
+            //    {
+            //        Logger.Info("found image {0} from imagecache", x.Uri);
+            //        return img;
+            //    }
+            //}
+
+            Logger.Info("creating new bitmapimage for {0}", x.Uri);
+            img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
               {
-                  CreateOptions = (BitmapCreateOptions.DelayCreation & BitmapCreateOptions.BackgroundCreation),
+                  CreateOptions = (BitmapCreateOptions.BackgroundCreation),
                   DecodePixelType = x.DimensionsType == DimensionsType.LOGICAL ? DecodePixelType.Logical : DecodePixelType.Physical
               };
+
             if (x.Height != default(uint))
                 img.DecodePixelHeight = (int)x.Height;
             // the width is ignored when using BackGroundCreation
@@ -37,6 +59,9 @@ namespace Growthstories.UI.WindowsPhone
             {
                 //throw e.ErrorException;
             };
+
+            //imageCache[x.Uri] = new WeakReference<BitmapImage>(img);
+
             return img;
         }
 

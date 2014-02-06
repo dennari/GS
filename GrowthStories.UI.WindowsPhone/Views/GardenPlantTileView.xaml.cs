@@ -99,12 +99,15 @@ namespace Growthstories.UI.WindowsPhone
 
         private bool Opened = false;
 
+        public static HashSet<Guid> OpenedImages = new HashSet<Guid>();
+
 
         // Real image (no placeholder) has been opened
         // 
         //
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
+            OpenedImages.Add(this.ViewModel.Id);
             //ViewModel.Log().Info("GardenPlantTileView: image opened event for " + ViewModel.Name);
             Opened = true;
             if (ViewModel.Loaded)
@@ -154,6 +157,15 @@ namespace Growthstories.UI.WindowsPhone
         {
             //ViewModel.Log().Debug("fadein completed for {0}", ViewModel.Name);
             trexStoryboard.Begin();
+        }
+
+
+        private void Img_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (OpenedImages.Contains(this.ViewModel.Id))
+            {
+                FadeIn();
+            }
         }
 
 

@@ -29,9 +29,13 @@ namespace Growthstories.UI.WindowsPhone
             if (image != null)
             {
 
-                uint maxBytes = (uint)(1.5 * 1024 * 1024); // 0.5 megabytes
-                int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
-                var maxSize = new Size(4096, 4096); // Maximum texture size on WP8 is 4096x4096
+                uint maxBytes = (uint)(1.5 * 800 * 800); // 0.5 megabytes
+                int maxPixels = (int)(1.0 * 800 * 800); // 1.25 megapixels
+                var maxSize = new Size(800, 800); // Maximum texture size on WP8 is 4096x4096
+
+                //uint maxBytes = (uint)(1.5 * 1024 * 1024); // 0.5 megabytes
+                //int maxPixels = (int)(1.25 * 1024 * 1024); // 1.25 megapixels
+                //var maxSize = new Size(4096, 4096); // Maximum texture size on WP8 is 4096x4096
 
                 Tuple<Stream, Size> scaled = null;
                 try
