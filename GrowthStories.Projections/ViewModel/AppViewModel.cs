@@ -564,7 +564,9 @@ namespace Growthstories.UI.ViewModel
 
         public Task<IGSAggregate> HandleCommand(IAggregateCommand x)
         {
-
+            // this is important!
+            if (!x.AncestorId.HasValue)
+                this.SetIds(x);
             return Handler.Handle(x);
         }
 
