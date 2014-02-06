@@ -11,6 +11,7 @@ using System.Net;
 using EventStore;
 using Growthstories.Domain.Entities;
 using System.IO;
+using EventStore.Logging;
 
 namespace Growthstories.Sync
 {
@@ -132,6 +133,7 @@ namespace Growthstories.Sync
         private readonly IJsonFactory jFactory;
         private readonly IPhotoHandler FileOpener;
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(PhotoUploadRequest));
 
         public PhotoUploadRequest(Photo photo, Guid plantActionId, IJsonFactory jFactory, ITransportEvents transporter, IPhotoHandler fileOpener)
         {
@@ -155,6 +157,7 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoUploadResponse> GetResponse()
         {
+            Logger.Info("Uploading photo {0}", Photo.FileName);
             var uploadUriResponse = await Transporter.RequestPhotoUploadUri();
             if (uploadUriResponse.StatusCode != GSStatusCode.OK)
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
