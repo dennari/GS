@@ -112,9 +112,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\GrowthStories.DomainTests\BaseSetup.cs">
-      <Link>BaseSetup.cs</Link>
-    </Compile>
     <Compile Include="..\GrowthStories.DomainTests\Sync\SyncEngineTests.cs">
       <Link>SyncEngineTests.cs</Link>
     </Compile>
@@ -127,7 +124,10 @@
     <Compile Include="..\GrowthStories.DomainTests\TestUtils.cs">
       <Link>TestUtils.cs</Link>
     </Compile>
-    <Compile Include="..\GrowthStories.UI.WindowsPhone\WP8PhotoHandler.cs">
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Config\BaseSetup.cs">
+      <Link>BaseSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\GrowthStories.UI.WindowsPhone\Services\WP8PhotoHandler.cs">
       <Link>WP8PhotoHandler.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">

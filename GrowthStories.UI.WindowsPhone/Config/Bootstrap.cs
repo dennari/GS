@@ -2,8 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Media;
-using BugSense;
-using BugSense.Core.Model;
+
 using Growthstories.Domain;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
@@ -49,14 +48,6 @@ namespace Growthstories.UI.WindowsPhone
             BAConfiguration();
             ViewModelConfiguration();
             ViewConfiguration();
-
-
-            var excMgr = new ExceptionManager((Application)PhoneApp);
-            BugSenseHandler.Instance.InitAndStartSession(excMgr, BUGSENSE_TOKEN);
-            BugSenseHandler.Instance.HandleWhileDebugging = true;
-
-
-
 
             PhoneApp.UnhandledException += HandleUnhandledExceptions;
 
@@ -170,7 +161,7 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
- 
+
 
         protected virtual void ViewConfiguration()
         {
