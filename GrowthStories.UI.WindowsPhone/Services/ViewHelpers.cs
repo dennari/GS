@@ -90,39 +90,41 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+
         public static async Task<Photo> HandlePhotoChooserCompleted(PhotoResult e, IReactiveCommand ShowPopup)
         {
-            var image = e.ChosenPhoto;
-
-            if (e.TaskResult == TaskResult.OK)
+            using (var image = e.ChosenPhoto)
             {
-                if (image.CanRead && image.Length > 0)
+                if (e.TaskResult == TaskResult.OK)
                 {
-                    return await image.SavePhotoToLocalStorageAsync();
-                }
-                else
-                {
-                    // For some reason images renamed by connecting a computer to Windows
-                    // causes the e.ChosenPhoto to contain an empty stream.
-                    // 
-                    // The official foursquare app and Ilta-Sanomat app crashes when such
-                    // a photo is selected via the photo chooser.
-                    //
-                    // Even the OneNote app fails to add the photo (but does not crash).
-                    //
-                    // We are handling it better and displaying an error message
-                    //
-                    //  -- JOJ 18.1.2014
-                    //
-                    var pvm = new PopupViewModel()
+                    if (image.CanRead && image.Length > 0)
                     {
-                        Caption = "Cannot add image",
-                        Message = "Growth Stories could not read the image you selected. Please try selecting another one.",
-                        IsLeftButtonEnabled = true,
-                        LeftButtonContent = "OK"
-                    };
+                        return await image.SavePhotoToLocalStorageAsync();
+                    }
+                    else
+                    {
+                        // For some reason images renamed by connecting a computer to Windows
+                        // causes the e.ChosenPhoto to contain an empty stream.
+                        // 
+                        // The official foursquare app and Ilta-Sanomat app crashes when such
+                        // a photo is selected via the photo chooser.
+                        //
+                        // Even the OneNote app fails to add the photo (but does not crash).
+                        //
+                        // We are handling it better and displaying an error message
+                        //
+                        //  -- JOJ 18.1.2014
+                        //
+                        var pvm = new PopupViewModel()
+                        {
+                            Caption = "Cannot add image",
+                            Message = "Growth Stories could not read the image you selected. Please try selecting another one.",
+                            IsLeftButtonEnabled = true,
+                            LeftButtonContent = "OK"
+                        };
 
-                    ShowPopup.Execute(pvm);
+                        ShowPopup.Execute(pvm);
+                    }
                 }
             }
 

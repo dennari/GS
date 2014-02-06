@@ -24,7 +24,6 @@ namespace Growthstories.UI.WindowsPhone
         {
             //string savedPath = null;
 
-
             var photo = new Photo();
             if (image != null)
             {
@@ -38,32 +37,41 @@ namespace Growthstories.UI.WindowsPhone
                 //var maxSize = new Size(4096, 4096); // Maximum texture size on WP8 is 4096x4096
 
                 Tuple<Stream, Size> scaled = null;
+
                 try
                 {
-                    scaled = image.Scale(maxPixels, maxSize, maxBytes);
+                    try
+                    {
+                        scaled = image.Scale(maxPixels, maxSize, maxBytes);
+                    }
+                    catch // throws for example if photo's dimensions can't be read
+                    {
+                        return null;
+                    }
+
+                    photo.FileName = Handler.GeneratePhotoFilename();
+                    photo.LocalUri = Handler.GetPhotoLocalUri(photo.FileName);
+                    photo.Width = (uint)scaled.Item2.Width;
+                    photo.Height = (uint)scaled.Item2.Height;
+
+                    Stream img = scaled.Item1;
+                    img.Position = 0;
+
+                    photo.LocalFullPath = await Handler.WriteToDisk(img, photo.FileName);
                 }
-                catch // throws for example if photo's dimensions can't be read
+                finally
                 {
-                    return null;
-                } 
-
-                photo.FileName = Handler.GeneratePhotoFilename();
-                photo.LocalUri = Handler.GetPhotoLocalUri(photo.FileName);
-                photo.Width = (uint)scaled.Item2.Width;
-                photo.Height = (uint)scaled.Item2.Height;
-
-                Stream img = scaled.Item1;
-                img.Position = 0;
-
-
-                photo.LocalFullPath = await Handler.WriteToDisk(img, photo.FileName);
-
+                    if (scaled != null && scaled.Item1 != null)
+                    {
+                        scaled.Item1.Close();
+                    }
+                }
             }
             return photo;
         }
 
 
-        public static Tuple<Stream, Size> Scale(this Stream image, int maxPixels, Size maxSize, uint maxBytes)
+        private static Tuple<Stream, Size> Scale(this Stream image, int maxPixels, Size maxSize, uint maxBytes)
         {
 
             BitmapImage img = new BitmapImage();
@@ -81,6 +89,7 @@ namespace Growthstories.UI.WindowsPhone
             WriteableBitmap wBitmap = new WriteableBitmap(img);
             MemoryStream ms = new MemoryStream();
             wBitmap.SaveJpeg(ms, (int)saveSize.Width, (int)saveSize.Height, 0, 100);
+
             return Tuple.Create((System.IO.Stream)ms, saveSize);
 
 
