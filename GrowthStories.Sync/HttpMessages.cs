@@ -163,9 +163,16 @@ namespace Growthstories.Sync
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
 
             this.UploadUri = uploadUriResponse.PhotoUri;
-            this.Stream = await FileOpener.OpenReadStream(Photo.FileName);
-
-            return await Transporter.RequestPhotoUpload(this);
+            
+            try
+            {
+                this.Stream = await FileOpener.OpenReadStream(Photo.FileName);
+                return await Transporter.RequestPhotoUpload(this);
+            }
+            finally
+            {
+                this.Stream.Dispose();
+            }
         }
 
 
@@ -220,20 +227,28 @@ namespace Growthstories.Sync
 
             }
 
-            IPhotoDownloadResponse response = await Transporter.RequestPhotoDownload(this);
-            if (response.StatusCode != GSStatusCode.OK)
-                throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
+            IPhotoDownloadResponse response = null;
 
-            Photo.FileName = PhotoHandler.FilenameFromBlobKey(Photo.BlobKey);
-            Photo.LocalUri = PhotoHandler.GetPhotoLocalUri(Photo.FileName);
-            Photo.LocalFullPath = await PhotoHandler.WriteToDisk(response.Stream, Photo.FileName);
+            try
+            {
+                response = await Transporter.RequestPhotoDownload(this);
+                if (response.StatusCode != GSStatusCode.OK)
+                    throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
-
+                Photo.FileName = PhotoHandler.FilenameFromBlobKey(Photo.BlobKey);
+                Photo.LocalUri = PhotoHandler.GetPhotoLocalUri(Photo.FileName);
+                Photo.LocalFullPath = await PhotoHandler.WriteToDisk(response.Stream, Photo.FileName);
+            }
+            finally
+            {
+                if (response != null && response.Stream != null)
+                {
+                    response.Stream.Dispose();
+                }
+            }
 
             return response;
-
-
         }
 
         public Uri DownloadUri { get; private set; }

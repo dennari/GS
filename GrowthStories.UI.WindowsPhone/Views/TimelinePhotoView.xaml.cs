@@ -44,7 +44,7 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IPlantPhotographViewModel vm)
         {
             //ViewModel.Log().Info("onviewmodelchanged for timelinephotoview image " + vm.PlantActionId);
-            ImageControl.CacheMode = null;
+            //ImageControl.CacheMode = null;
         }
 
 
@@ -107,6 +107,7 @@ namespace Growthstories.UI.WindowsPhone
         private void Img_Unloaded(object sender, RoutedEventArgs e)
         {
             //ViewModel.Log().Info("image unloaded event for " + ViewModel.PlantActionId);
+            //ImageControl.Source = null;
         }
 
 

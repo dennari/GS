@@ -14,7 +14,7 @@ using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
-
+using Microsoft.Phone.Info;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -102,6 +102,34 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
             UpdatePhoneLocationServicesEnabled();
+
+            BeginRecording();
+        }
+
+
+        public void LogMemory()
+        {
+            this.Log().Info(
+                "MEM Current: {0}, Peak: {1}, Limit: {2}",
+                DeviceStatus.ApplicationCurrentMemoryUsage,
+                DeviceStatus.ApplicationPeakMemoryUsage,
+                DeviceStatus.ApplicationMemoryUsageLimit
+            );
+
+            this.Log().Info(
+                "MEM Current: {0:0.00} %, Peak: {1:0.00} %",
+                (double)DeviceStatus.ApplicationCurrentMemoryUsage/(double)DeviceStatus.ApplicationMemoryUsageLimit * 100,
+                (double)DeviceStatus.ApplicationPeakMemoryUsage/(double)DeviceStatus.ApplicationMemoryUsageLimit * 100);
+        }
+
+
+        public void BeginRecording()
+        {
+            IObservable<long> Timer;
+            TimeSpan UpdateInterval = TimeSpan.FromSeconds(4);
+
+            Timer = Observable.Interval(UpdateInterval, RxApp.TaskpoolScheduler);
+            Timer.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => LogMemory());
         }
 
 

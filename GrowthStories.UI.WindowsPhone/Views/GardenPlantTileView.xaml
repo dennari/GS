@@ -125,6 +125,7 @@
                             Stretch="UniformToFill"
                             ImageOpened="Img_ImageOpened"
                             ImageFailed="Img_ImageFailed"
+                            Loaded="Img_Loaded"
                             >
                             <Image.RenderTransform>
                                 <CompositeTransform/>
