@@ -6,6 +6,7 @@ using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
+using Growthstories.UI.WindowsPhone.Services;
 using Microsoft.Phone.Tasks;
 using ReactiveUI;
 
@@ -21,7 +22,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                if (Photo == null || GetUri(Photo) == null)
+                if (Photo == null)
                 {
                     return null;
                 }
@@ -30,7 +31,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
                     DecodePixelType = DecodePixelType.Physical,
-                    DecodePixelHeight = (int)Photo.Height,
+                    DecodePixelHeight = Math.Min((int)Photo.Height, (int)MaxPhotoSize.Height), // don't enlarge
                     //DecodePixelWidth = (int)p.Width
                 };
             }
@@ -41,7 +42,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                if (Photo == null || GetUri(Photo) == null)
+                if (Photo == null)
                 {
                     return null;
                 }
@@ -66,14 +67,14 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             else
             {
                 this.PhotoUri = GetUri(p);
-            }           
+            }
         }
 
 
-        private Size _MaxPhotoSize = Size.Empty;
-        private Size MaxPhotoSize
+        private static Size _MaxPhotoSize = Size.Empty;
+        private static Size MaxPhotoSize
         {
-            get { return _MaxPhotoSize == Size.Empty ? (_MaxPhotoSize = ResolutionHelper.MaxImageSize) : _MaxPhotoSize; }
+            get { return _MaxPhotoSize == Size.Empty ? (_MaxPhotoSize = ResolutionHelper.CurrentResolutionDimensions) : _MaxPhotoSize; }
         }
 
 
@@ -87,7 +88,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 remoteUri += string.Format("=s{0}", Math.Max((int)MaxPhotoSize.Width, (int)MaxPhotoSize.Height));
             }
-
+            this.Log().Info("Retrieving remote photo from uri {0}", remoteUri);
             return new Uri(remoteUri, UriKind.RelativeOrAbsolute);
 
         }
@@ -130,7 +131,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.WhenAnyValue(x => x.PhotoUri).Subscribe(_ =>
             {
                 this.raisePropertyChanged("TimelinePhotoSource");
-                this.raisePropertyChanged("PhotoSource");     
+                this.raisePropertyChanged("PhotoSource");
             });
         }
 

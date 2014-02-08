@@ -4,11 +4,10 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using EventStore.Logging;
+using Growthstories.UI.WindowsPhone.Services;
 using Windows.Storage;
-
 using Size = Growthstories.Core.Size;
 
 namespace Growthstories.Sync
@@ -35,7 +34,8 @@ namespace Growthstories.Sync
         {
             //var memLimit = DeviceStatus.ApplicationMemoryUsageLimit / 1024 / 1024; // in MB
 
-            maxSize = ResolutionHelper.MaxImageSize;
+            var wxga = ResolutionHelper.ResolutionDimensions[Resolutions.WXGA];
+            maxSize = new Size(wxga.Height, wxga.Height);
         }
 
 
@@ -231,68 +231,6 @@ namespace Growthstories.Sync
     }
 
 
-    public enum Resolutions { WVGA, WXGA, HD };
 
-    public static class ResolutionHelper
-    {
-        private static bool IsWvga
-        {
-            get
-            {
-                return Application.Current.Host.Content.ScaleFactor == 100;
-            }
-        }
-
-        private static bool IsWxga
-        {
-            get
-            {
-                return Application.Current.Host.Content.ScaleFactor == 160;
-            }
-        }
-
-        private static bool IsHD
-        {
-            get
-            {
-                return Application.Current.Host.Content.ScaleFactor == 150;
-            }
-        }
-
-        public static Resolutions CurrentResolution
-        {
-            get
-            {
-                if (IsWvga) return Resolutions.WVGA;
-                else if (IsWxga) return Resolutions.WXGA;
-                else if (IsHD) return Resolutions.HD;
-                else throw new InvalidOperationException("Unknown resolution");
-            }
-        }
-
-        public static Size MaxImageSize
-        {
-            get
-            {
-                try
-                {
-                    var resolution = CurrentResolution;
-                    if (resolution == Resolutions.WXGA)
-                    {
-                        return new Size(1280, 1280);
-                    }
-                    if (resolution == Resolutions.HD)
-                    {
-                        return new Size(1280, 1280);
-                    }
-                }
-                catch (InvalidOperationException) { }
-
-                return new Size(800, 800);
-                //return new Size(4000, 4000);
-            }
-        }
-
-    }
 
 }
