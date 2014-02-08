@@ -22,7 +22,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                if (Photo == null)
+                if (PhotoUri == null)
                 {
                     return null;
                 }
@@ -42,7 +42,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                if (Photo == null)
+                if (PhotoUri == null)
                 {
                     return null;
                 }

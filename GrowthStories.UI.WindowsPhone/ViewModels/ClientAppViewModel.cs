@@ -103,7 +103,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             UpdatePhoneLocationServicesEnabled();
 
-            //BeginRecording();
+            BeginRecording();
         }
 
 

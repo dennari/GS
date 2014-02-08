@@ -343,11 +343,11 @@
                                     </EventTrigger>
                                 </Grid.Triggers>
 
-                                <Canvas Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}">
+                                <Canvas Visibility="{Binding TilePhotoSource, Converter={StaticResource NullToVisibility}}">
                                     <Image
                                 x:Name="Img"
                                 Width="396" Height="396"
-	        		            Source="{Binding Photo, ConverterParameter=396x396, Converter={StaticResource PhotoToImageSource}}" 
+	        		            Source="{Binding TilePhotoSource}" 
                                 Stretch="UniformToFill"
                                 >
 
@@ -360,7 +360,7 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Foreground="White"
-                                Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
+                                Visibility="{Binding TilePhotoSource, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
                                 />
                                 <Border BorderThickness="3" IsHitTestVisible="False">
                                     <Border.BorderBrush>

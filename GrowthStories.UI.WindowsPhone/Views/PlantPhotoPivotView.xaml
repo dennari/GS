@@ -30,6 +30,7 @@
             x:Name="TheSlideView" 
             ItemsSource="{Binding Photos}"  
             ItemRealizationMode="ViewportItem" 
+            CacheMode="BitmapCache"
             IsLoopingEnabled="False"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             >
@@ -39,8 +40,13 @@
                         ZoomMode="Free"
                         MaximumZoom="4"
                         Source="{Binding PhotoSource}" />
-                </DataTemplate>
+                </DataTemplate>                
             </telerikPrimitives:RadSlideView.ItemTemplate>
+            <telerikPrimitives:RadSlideView.ItemPreviewTemplate>
+                <DataTemplate>
+                    <ContentControl />
+                </DataTemplate>
+            </telerikPrimitives:RadSlideView.ItemPreviewTemplate>
             <!--
             <telerikPrimitives:RadSlideView.FilmstripModeItemTemplate>
                 <DataTemplate>
