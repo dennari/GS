@@ -32,6 +32,7 @@ namespace Growthstories.Sync
             {
                 Timeout = TimeSpan.FromSeconds(NormalTimeout)
             };
+
             //Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
         }
 
@@ -398,7 +399,9 @@ namespace Growthstories.Sync
         public SyncHttpHandler(HttpMessageHandler innerHandler)
             : base(innerHandler)
         {
+
         }
+
 
         protected IAuthToken _AuthToken;
         public IAuthToken AuthToken
