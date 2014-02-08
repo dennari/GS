@@ -17,8 +17,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-
-        private BitmapImage _PhotoSource;
         public BitmapImage PhotoSource
         {
             get
@@ -119,7 +117,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             get { return _MaxPhotoSize == Size.Empty ? (_MaxPhotoSize = ResolutionHelper.MaxImageSize) : _MaxPhotoSize; }
         }
 
-        private Uri GetUri(Photo p)
+
+        public Uri GetUri(Photo p)
         {
             if (p.LocalFullPath != null)
                 return new Uri(p.LocalFullPath, UriKind.RelativeOrAbsolute);
@@ -128,7 +127,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             if (remoteUri.Contains("ggpht"))
             {
                 remoteUri += string.Format("=s{0}", Math.Max((int)MaxPhotoSize.Width, (int)MaxPhotoSize.Height));
-
             }
 
             return new Uri(remoteUri, UriKind.RelativeOrAbsolute);

@@ -19,7 +19,7 @@ using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Imaging;
-
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -65,37 +65,36 @@ namespace Growthstories.UI.WindowsPhone
                     FadeIn();
                 }
             });
-
             
             vm.WhenAnyValue(x => x.Loaded).Subscribe(x =>
             {
-                if (Opened)
+                if (Opened || true)
                 {
-                    //ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
+                    ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
                     FadeIn();
                 }
 
                 if (!ViewModel.HasWriteAccess)
                 {
-                    //ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
+                    ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
                     LoadingPhoto.Visibility = Visibility.Visible;
                 }
-            });
-            
+            });    
         }
 
 
-        private void ResetImage(Image i)
-        {
-            //ViewModel.Log().Info("GardenPlantTileView: resetting image");
-            var bitmapImage = i.Source as BitmapImage;
+        //private void ResetImage(Image i)
+        //{
+        //    //ViewModel.Log().Info("GardenPlantTileView: resetting image");
+        //    var bitmapImage = i.Source as BitmapImage;
            
-            if (bitmapImage != null)
-            {
-                bitmapImage.UriSource = null;
-                i.Source = null;
-            }
-        }
+        //    if (bitmapImage != null)
+        //    {
+        //        bitmapImage.UriSource = null;
+        //        i.Source = null;
+        //    }
+        //}
+
 
         private bool Opened = false;
 
@@ -108,7 +107,7 @@ namespace Growthstories.UI.WindowsPhone
         private void Img_ImageOpened(object sender, RoutedEventArgs e)
         {
             OpenedImages.Add(this.ViewModel.Id);
-            //ViewModel.Log().Info("GardenPlantTileView: image opened event for " + ViewModel.Name);
+            ViewModel.Log().Info("GardenPlantTileView: image opened event for " + ViewModel.Name);
             Opened = true;
             if (ViewModel.Loaded)
             {
@@ -143,25 +142,25 @@ namespace Growthstories.UI.WindowsPhone
 
             if (panel.Opacity == 0)
             {
-                //ViewModel.Log().Info("GardenPlantTileView: starting fadein for " + ViewModel.Name);
+                ViewModel.Log().Info("GardenPlantTileView: starting fadein for " + ViewModel.Name);
                 sb.Begin();
             }
             else
             {
-                //ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
+                ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
         }
 
 
         private void FadeInCompleted(object sender, EventArgs e)
         {
-            //ViewModel.Log().Debug("fadein completed for {0}", ViewModel.Name);
             trexStoryboard.Begin();
         }
 
 
         private void Img_Loaded(object sender, RoutedEventArgs e)
         {
+            ViewModel.Log().Info("GardenPlantTileView: image loaded for " + ViewModel.Name);
             if (OpenedImages.Contains(this.ViewModel.Id))
             {
                 FadeIn();
@@ -180,8 +179,6 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Button_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            //ViewModel.Log().Info("GardenPlantTileView: button tapped" + ViewModel.Name);
-
             if (ViewModel != null)
             {
                 ViewModel.ShowDetailsCommand.Execute(ViewModel);
@@ -190,13 +187,12 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //ViewModel.Log().Info("GardenPlantTileView: button click" + ViewModel.Name);
 
         }
 
         private void RadContextMenu_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            //ViewModel.Log().Info("GardenPlantTileView: radcontextmenu tap" + ViewModel.Name);
+
         }
 
     }

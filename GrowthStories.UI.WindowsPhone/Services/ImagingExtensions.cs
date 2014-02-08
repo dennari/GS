@@ -26,8 +26,6 @@ namespace Growthstories.UI.WindowsPhone
             var photo = new Photo();
             if (image != null)
             {
-
-
                 Tuple<Stream, Size> scaled = null;
 
                 try
@@ -61,12 +59,6 @@ namespace Growthstories.UI.WindowsPhone
             }
             return photo;
         }
-
-
-
-
-
-
 
 
 

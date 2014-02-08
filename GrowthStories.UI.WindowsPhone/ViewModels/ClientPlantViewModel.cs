@@ -26,21 +26,46 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 return _TileHelper ?? (_TileHelper = TileHelperFactory(this));
             }
-
         }
 
-        private BitmapImage _TilePhotoSource;
+
         public BitmapImage TilePhotoSource
         {
             get
             {
-                return _TilePhotoSource;
+                var vm = ProfilePictureAction as ClientPlantPhotographViewModel;
+
+                if (vm == null || vm.GetUri(vm.Photo) == null)
+                {
+                    return null;
+                }
+
+                return new BitmapImage(vm.GetUri(vm.Photo))
+                {
+                    CreateOptions = BitmapCreateOptions.DelayCreation,
+                    DecodePixelType = DecodePixelType.Logical,
+                    DecodePixelHeight = 396
+                };
             }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _TilePhotoSource, value);
-            }
+
+            //set
+            //{
+            //    this.RaiseAndSetIfChanged(ref _PhotoSource, value);
+            //}
         }
+
+        //private BitmapImage _TilePhotoSource;
+        //public BitmapImage TilePhotoSource
+        //{
+        //    get
+        //    {
+        //        return _TilePhotoSource;
+        //    }
+        //    set
+        //    {
+        //        this.RaiseAndSetIfChanged(ref _TilePhotoSource, value);
+        //    }
+        //}
 
 
 
@@ -84,24 +109,23 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 });
 
             this.WhenAnyValue(x => x.ProfilePictureAction)
-                .Where(x => x != null)
+                //.Where(x => x != null)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
-                    TilePhotoSource = new BitmapImage(x.PhotoUri)
+                    if (x != null)
                     {
-                        CreateOptions = BitmapCreateOptions.DelayCreation,
-                        DecodePixelType = DecodePixelType.Logical,
-                        DecodePixelHeight = 396
-                    };
+                        this.Log().Info("raising property changed for tilephotosource, actionId is {0} url is {1}", x.PlantActionId, x.PhotoUri);
+                    }
+                    else
+                    {
+                        this.Log().Info("raising property changed for tilephotosource, action is null");
+                    }
+                    raisePropertyChanged("TilePhotoSource");
                 });
-
-
 
             ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
-
-
 
 
 

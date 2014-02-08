@@ -11,6 +11,7 @@ using Growthstories.Domain.Messaging;
 using ReactiveUI;
 using System.Collections.Generic;
 
+
 namespace Growthstories.Sync
 {
 
@@ -408,8 +409,6 @@ namespace Growthstories.Sync
                 {
                     return Tuple.Create(AllSyncResult.Error, nullResponseCode);
                 }
-
-                this.Log().Info("SyncAll finished, debugId: " + debugId);
 
                 return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
             }

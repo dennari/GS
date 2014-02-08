@@ -289,6 +289,7 @@ namespace Growthstories.Sync
                 catch (InvalidOperationException) { }
 
                 return new Size(800, 800);
+                //return new Size(4000, 4000);
             }
         }
 
