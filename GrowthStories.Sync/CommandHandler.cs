@@ -1,22 +1,13 @@
-﻿using CommonDomain;
-using CommonDomain.Core;
-using CommonDomain.Persistence;
+﻿//using Microsoft.CSharp.RuntimeBinder;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using CommonDomain;
 using EventStore.Logging;
-using EventStore.Persistence;
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
-using Growthstories.Sync;
-using Microsoft.CSharp.RuntimeBinder;
-using ReactiveUI;
-//using Microsoft.CSharp.RuntimeBinder;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Growthstories.Sync
 {
@@ -245,7 +236,10 @@ namespace Growthstories.Sync
         private GSApp _Handle(Pull c)
         {
 
-            var A = GetApp();
+            GSApp A = GetApp();
+
+            if (c.Sync == null || c.Sync.PullResp == null || c.Sync.PullResp.Streams == null)
+                return A;
 
             var remoteStreams = c.Sync.PullResp.Streams.ToArray();
 

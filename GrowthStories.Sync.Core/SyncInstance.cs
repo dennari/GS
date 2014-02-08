@@ -1,9 +1,10 @@
 namespace Growthstories.Sync
 {
-    using EventStore.Logging;
     using System;
-    using System.Threading.Tasks;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using EventStore.Logging;
 
 
 
@@ -48,24 +49,29 @@ namespace Growthstories.Sync
 
         public async Task<ISyncPullResponse> Pull()
         {
-            PullResp = await PullReq.GetResponse();
-            return PullResp;
+            this.PullResp = await PullReq.GetResponse();
+
+            return this.PullResp;
 
         }
 
         public async Task<ISyncPushResponse> Push()
         {
-            PushResp = await PushReq.GetResponse();
-            return PushResp;
+
+            this.PushResp = await PushReq.GetResponse();
+            return this.PushResp;
         }
 
-        public Task<IPhotoUploadResponse[]> UploadPhotos()
+        public async Task<IPhotoUploadResponse[]> UploadPhotos()
         {
             if (PhotoUploadRequests == null)
                 return null;
 
+            var responses = new List<IPhotoUploadResponse>();
+            foreach (var x in PhotoUploadRequests)
+                responses.Add(await x.GetResponse());
 
-            return Task.WhenAll(PhotoUploadRequests.Take(1).Select(x => x.GetResponse()));
+            return responses.ToArray();
 
         }
 

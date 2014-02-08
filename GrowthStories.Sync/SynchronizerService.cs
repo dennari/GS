@@ -5,12 +5,12 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using EventStore.Logging;
 using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
-using System.Collections.Generic;
-using EventStore.Logging;
+
 
 namespace Growthstories.Sync
 {
@@ -139,7 +139,7 @@ namespace Growthstories.Sync
             // pullrequest should really never be empty
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
             {
-                   
+
                 if (Debugger.IsAttached)
                 {
                     Debugger.Break();
@@ -274,7 +274,7 @@ namespace Growthstories.Sync
                 if (successes.Length > 0)
                     await Handler.Handle(new StreamSegment(appState.Id, successes));
 
-                if (successes.Length < s.PhotoUploadRequests.Length)
+                if (successes.Length < responses.Length)
                 {
                     s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
                     return s;
@@ -293,7 +293,7 @@ namespace Growthstories.Sync
                 if (successes.Length > 0)
                     await Handler.Handle(new StreamSegment(appState.Id, successes));
 
-                if (successes.Length < downloadRequests.Length)
+                if (successes.Length < responses.Length)
                 {
                     s.Status = SyncStatus.PHOTODOWNLOAD_ERROR;
                     return s;
