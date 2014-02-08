@@ -35,12 +35,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             {
                 var vm = ProfilePictureAction as ClientPlantPhotographViewModel;
 
-                if (vm == null || vm.GetUri(vm.Photo) == null)
+                if (vm == null || vm.Photo.Uri == null)
                 {
                     return null;
                 }
 
-                return new BitmapImage(vm.GetUri(vm.Photo))
+                return new BitmapImage(new Uri(vm.Photo.Uri, UriKind.RelativeOrAbsolute))
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
                     DecodePixelType = DecodePixelType.Logical,
