@@ -22,75 +22,93 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-        private BitmapImage _PhotoSource;
+        //private BitmapImage _PhotoSource;
         public BitmapImage PhotoSource
         {
             get
             {
-                return _PhotoSource;
+                if (Photo == null || Photo.Uri == null)
+                {
+                    return null;
+                }
+
+                return new BitmapImage(new Uri(Photo.Uri, UriKind.RelativeOrAbsolute))
+                {
+                    CreateOptions = BitmapCreateOptions.DelayCreation,
+                    DecodePixelType = DecodePixelType.Physical,
+                    DecodePixelHeight = (int)Photo.Height,
+                    //DecodePixelWidth = (int)p.Width
+                };
             }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _PhotoSource, value);
-            }
+
+            //set
+            //{
+            //    this.RaiseAndSetIfChanged(ref _PhotoSource, value);
+            //}
         }
 
-        private BitmapImage _TimelinePhotoSource;
+        //private BitmapImage _TimelinePhotoSource;
         public BitmapImage TimelinePhotoSource
         {
             get
             {
-                return _TimelinePhotoSource;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _TimelinePhotoSource, value);
+                if (Photo == null || Photo.Uri == null)
+                {
+                    return null;
+                }
+
+                return new BitmapImage(new Uri(Photo.Uri, UriKind.RelativeOrAbsolute))
+                {
+                    CreateOptions = BitmapCreateOptions.DelayCreation,
+                    DecodePixelType = DecodePixelType.Physical,
+                    DecodePixelHeight = 220,
+                    //DecodePixelWidth = 450
+                };
             }
         }
 
 
+        //private void SetPhotos(Photo p)
+        //{
+        //    if (p == null || p.Uri == null)
+        //        return;
+        //    TimelinePhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
+        //    {
+        //        CreateOptions = BitmapCreateOptions.DelayCreation,
+        //        DecodePixelType = DecodePixelType.Physical,
+        //        DecodePixelHeight = 220,
+        //        //DecodePixelWidth = 450
+        //    };
+        //    //var fakeUri = new Uri("http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg", UriKind.RelativeOrAbsolute);
+        //    //var fakeUri = new Uri("http://dennari-macbook.lan:8080/_ah/img/uAtkbmrhY17K87WPNEyaZA?paska=moi.jpg", UriKind.RelativeOrAbsolute);
 
+        //    //TimelinePhotoSource = new BitmapImage(fakeUri)
+        //    //{
+        //    //    CreateOptions = BitmapCreateOptions.DelayCreation,
+        //    //    DecodePixelType = DecodePixelType.Physical,
+        //    //    DecodePixelHeight = 220,
 
-        private void SetPhotos(Photo p)
-        {
-            if (p == null || p.Uri == null)
-                return;
-            TimelinePhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
-            {
-                CreateOptions = BitmapCreateOptions.DelayCreation,
-                DecodePixelType = DecodePixelType.Physical,
-                DecodePixelHeight = 220,
-                //DecodePixelWidth = 450
-            };
-            //var fakeUri = new Uri("http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg", UriKind.RelativeOrAbsolute);
-            //var fakeUri = new Uri("http://dennari-macbook.lan:8080/_ah/img/uAtkbmrhY17K87WPNEyaZA?paska=moi.jpg", UriKind.RelativeOrAbsolute);
+        //    //    //DecodePixelWidth = 450
+        //    //};
+        //    //TimelinePhotoSource.ImageOpened += TimelinePhotoSource_ImageOpened;
+        //    //TimelinePhotoSource.ImageFailed += TimelinePhotoSource_ImageFailed;
 
-            //TimelinePhotoSource = new BitmapImage(fakeUri)
-            //{
-            //    CreateOptions = BitmapCreateOptions.DelayCreation,
-            //    DecodePixelType = DecodePixelType.Physical,
-            //    DecodePixelHeight = 220,
+        //    //PhotoSource = new BitmapImage(fakeUri)
+        //    //{
+        //    //    CreateOptions = BitmapCreateOptions.DelayCreation,
+        //    //    DecodePixelType = DecodePixelType.Physical,
+        //    //    DecodePixelHeight = (int)p.Height,
+        //    //    //DecodePixelWidth = (int)p.Width
+        //    //};
+        //    PhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
+        //    {
+        //        CreateOptions = BitmapCreateOptions.DelayCreation,
+        //        DecodePixelType = DecodePixelType.Physical,
+        //        DecodePixelHeight = (int)p.Height,
+        //        //DecodePixelWidth = (int)p.Width
+        //    };
+        //}
 
-            //    //DecodePixelWidth = 450
-            //};
-            //TimelinePhotoSource.ImageOpened += TimelinePhotoSource_ImageOpened;
-            //TimelinePhotoSource.ImageFailed += TimelinePhotoSource_ImageFailed;
-
-            //PhotoSource = new BitmapImage(fakeUri)
-            //{
-            //    CreateOptions = BitmapCreateOptions.DelayCreation,
-            //    DecodePixelType = DecodePixelType.Physical,
-            //    DecodePixelHeight = (int)p.Height,
-            //    //DecodePixelWidth = (int)p.Width
-            //};
-            PhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
-            {
-                CreateOptions = BitmapCreateOptions.DelayCreation,
-                DecodePixelType = DecodePixelType.Physical,
-                DecodePixelHeight = (int)p.Height,
-                //DecodePixelWidth = (int)p.Width
-            };
-        }
 
         private void TimelinePhotoSource_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
         {
@@ -100,8 +118,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private void TimelinePhotoSource_ImageOpened(object sender, System.Windows.RoutedEventArgs e)
         {
             var ee = e.OriginalSource;
-
         }
+
 
         public ClientPlantPhotographViewModel(IGSAppViewModel app, PlantActionState state = null)
             : base(app, state)
@@ -116,8 +134,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             photoStream.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
             {
-                if (x != null)
-                    SetPhotos(x);
+                this.raisePropertyChanged("TimelinePhotoSource");
+                this.raisePropertyChanged("PhotoSource");
+                //if (x != null)
+                //    SetPhotos(x);
             });
 
             PhotoChooserCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
@@ -127,7 +147,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     Chooser.Show();
                 }
             });
-
         }
 
 
@@ -135,6 +154,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             //this.SendCommand(new Photograph(this.State.EntityId, this.State.PlantId, this.Note, this.Path), true);
         }
+
 
         private PhotoChooserTask _Chooser;
         public PhotoChooserTask Chooser
@@ -162,9 +182,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 Photo = res;
             }
         }
-
-
-     
 
 
     }

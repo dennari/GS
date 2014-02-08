@@ -27,8 +27,9 @@
 
 
         <telerikPrimitives:RadSlideView 
-            x:Name="TheSlideView" ItemsSource="{Binding Photos}"  
-            ItemRealizationMode="Default" 
+            x:Name="TheSlideView" 
+            ItemsSource="{Binding Photos}"  
+            ItemRealizationMode="ViewportItem" 
             IsLoopingEnabled="False"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             >

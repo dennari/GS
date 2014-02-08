@@ -54,6 +54,7 @@ namespace Growthstories.UI.Persistence
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing || this.disposed)
@@ -295,6 +296,7 @@ namespace Growthstories.UI.Persistence
             });
         }
 
+
         public IEnumerable<Tuple<PlantState, ScheduleState, ScheduleState>> GetPlants(Guid? PlantId = null, Guid? GardenId = null, Guid? UserId = null)
         {
 
@@ -307,15 +309,14 @@ namespace Growthstories.UI.Persistence
             if (filters.Length == 0)
                 throw new InvalidOperationException("GetPlants: no filters");
             return this.ExecuteQuery(PlantId ?? default(Guid), query =>
-            {
-
+            {              
                 foreach (var x in filters)
                     query.AddParameter(@"@" + x.Key, x.Value);
 
                 var queryText = string.Format(@"SELECT P.*, SW.Payload, SF.Payload FROM Plants P 
-                    LEFT JOIN Schedules SW ON P.WateringScheduleId = SW.ScheduleId 
-                    LEFT JOIN Schedules SF ON P.FertilizingScheduleId = SF.ScheduleId 
-                    WHERE ({0}) ;", string.Join(" AND ", filters.Select(x => string.Format(@"(P.{0} = @{0})", x.Key))));
+                LEFT JOIN Schedules SW ON P.WateringScheduleId = SW.ScheduleId 
+                LEFT JOIN Schedules SF ON P.FertilizingScheduleId = SF.ScheduleId 
+                WHERE ({0}) ;", string.Join(" AND ", filters.Select(x => string.Format(@"(P.{0} = @{0})", x.Key))));
                 this.GSLog().Info("GetPlants: {0}", queryText);
 
                 return query.ExecuteQuery(queryText, (stmt) =>
@@ -325,7 +326,7 @@ namespace Growthstories.UI.Persistence
                     var fertilizingSchedule = Deserialize<ScheduleState>(stmt, (int)PlantIndex.FertilizingSchedulePayload);
 
                     return Tuple.Create(plant, wateringSchedule, fertilizingSchedule);
-                });
+                });   
             });
         }
 
@@ -335,7 +336,6 @@ namespace Growthstories.UI.Persistence
 
             return this.ExecuteQuery(default(Guid), query =>
             {
-
                 var queryText = string.Format(@"SELECT * FROM Users");
                 if (UserIds != null)
                 {
@@ -344,14 +344,12 @@ namespace Growthstories.UI.Persistence
                 }
                 queryText += ";";
 
-
                 this.GSLog().Info("GetUsers: {0}", queryText);
 
                 return query.ExecuteQuery<UserState>(queryText, (stmt) =>
                 {
-
                     return Deserialize<UserState>(stmt, (int)UserIndex.Payload);
-                });
+                });   
             });
         }
 
@@ -362,7 +360,6 @@ namespace Growthstories.UI.Persistence
 
             if (bytes == null || bytes.Length == 0)
                 return null;
-
 
             //string debug = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
             //if (debug.Contains("LENGTH") || debug.Contains("PlantActionState"))
@@ -386,15 +383,15 @@ namespace Growthstories.UI.Persistence
                 results = query(command);
                 this.GSLog().Verbose("UI Persistence: executed query");
                 return results;
-
             }
             catch (Exception e)
             {
-
                 this.GSLog().Exception(e, "ExecuteQuery");
-                if (Debugger.IsAttached)
-                    Debugger.Break();
                 throw;
+            }
+            finally
+            {
+                command.Dispose();
             }
 
         }
@@ -436,10 +433,11 @@ namespace Growthstories.UI.Persistence
                     Debugger.Break();
 
                 throw;
-
-
             }
-
+            finally
+            {
+                command.Dispose();
+            }
 
 
         }

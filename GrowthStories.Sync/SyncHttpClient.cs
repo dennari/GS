@@ -20,6 +20,7 @@ namespace Growthstories.Sync
 
     public class SyncHttpClient : IHttpClient, ITransportEvents
     {
+
         HttpClient Client;
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncHttpClient));
         public const int NormalTimeout = 10;
@@ -35,6 +36,7 @@ namespace Growthstories.Sync
             };
             //Client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GrowthStories", "v0.1"));
         }
+
 
         private HttpClient _UploadClient;
         private HttpClient UploadClient
@@ -140,25 +142,29 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoDownloadUri(blobKey));
-            var response = await SendAndGetBodyAsync(request);
-            var r = new PhotoUriResponse()
+            using (var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoDownloadUri(blobKey)))
             {
-                StatusCode = GSStatusCode.FAIL
-            };
-            if (response.Item1.IsSuccessStatusCode)
-            {
-                r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
-                r.StatusCode = GSStatusCode.OK;
+                var response = await SendAndGetBodyAsync(request);
+                var r = new PhotoUriResponse()
+                {
+                    StatusCode = GSStatusCode.FAIL
+                };
+                if (response.Item1.IsSuccessStatusCode)
+                {
+                    r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
+                    r.StatusCode = GSStatusCode.OK;
+                }
+                return r;
             }
-            return r;
+            
         }
+
 
         public async Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest req)
         {
-
             return ResponseFactory.CreatePhotoUploadResponse(req, await Upload(req.UploadUri, req.Stream));
         }
+
 
         public async Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest req)
         {
@@ -169,59 +175,54 @@ namespace Growthstories.Sync
 
         public async Task<Tuple<HttpResponseMessage, string>> Upload(Uri uri, Stream file)
         {
-            var req = new HttpRequestMessage(HttpMethod.Post, uri);
-            var form = new MultipartFormDataContent();
-
-            StreamContent c = new StreamContent(file);
-            c.Headers.Remove("Content-Disposition");
-            c.Headers.TryAddWithoutValidation("Content-Disposition", "form-data; name=\"file\"; filename=\"filename.jpg\"");
-            form.Add(c);
-
-            // the content-disposition header has to be set manually because
-            // the app engine production parser insist on a space before filename
-            // http://stackoverflow.com/questions/2893268/appengine-blobstore-upload-failing-with-a-request-that-works-in-the-development
-
-            req.Content = form;
-
-            string s = null;
-            HttpResponseMessage r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
-            try
+            using (var req = new HttpRequestMessage(HttpMethod.Post, uri))
+            using (var form = new MultipartFormDataContent())
+            using (StreamContent c = new StreamContent(file))
             {
-                r = await UploadClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
-                s = await r.Content.ReadAsStringAsync();
+                c.Headers.Remove("Content-Disposition");
+                c.Headers.TryAddWithoutValidation("Content-Disposition", "form-data; name=\"file\"; filename=\"filename.jpg\"");
+                form.Add(c);
+                // the content-disposition header has to be set manually because
+                // the app engine production parser insist on a space before filename
+                // http://stackoverflow.com/questions/2893268/appengine-blobstore-upload-failing-with-a-request-that-works-in-the-development
 
+                req.Content = form;
+
+                string s = null;
+                HttpResponseMessage r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
+                try
+                {
+                    r = await UploadClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead);
+                    s = await r.Content.ReadAsStringAsync();
+
+                }
+                catch (Exception e)
+                {
+                    Logger.DebugExceptionExtended("Upload exception", e);
+                    //throw e;
+                }
+
+                Logger.Info("[RESPONSEBODY]\n{0}", s);
+                return Tuple.Create(r, s);
             }
-            catch (Exception e)
-            {
-                Logger.DebugExceptionExtended("Upload exception", e);
-                //throw e;
-            }
-
-
-            Logger.Info("[RESPONSEBODY]\n{0}", s);
-            return Tuple.Create(r, s);
-
         }
-
-
-
 
 
 
         public async Task<Tuple<HttpResponseMessage, Stream>> Download(Uri uri)
         {
-            var req = new HttpRequestMessage(HttpMethod.Get, uri);
-
-            var r = await SendAsync(req);
-
-            Stream c = null;
-            if (r.IsSuccessStatusCode)
+            using (var req = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                c = await r.Content.ReadAsStreamAsync();
+                var r = await SendAsync(req);
+
+                Stream c = null;
+                if (r.IsSuccessStatusCode)
+                {
+                    c = await r.Content.ReadAsStreamAsync();
+                }
+
+                return Tuple.Create(r, c);
             }
-
-            return Tuple.Create(r, c);
-
         }
 
 
@@ -236,20 +237,19 @@ namespace Growthstories.Sync
 
         protected async Task<Tuple<HttpResponseMessage, string>> SendAndGetBodyAsync(HttpRequestMessage request)
         {
-            HttpResponseMessage r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
+            HttpResponseMessage r = null;
             string s = null;
             try
             {
                 r = await SendAsync(request);
                 s = await r.Content.ReadAsStringAsync();
-
             }
             catch (Exception e)
             {
+                r = new HttpResponseMessage(System.Net.HttpStatusCode.RequestTimeout);
                 Logger.Error(e.ToString());
                 //throw e;
             }
-
 
             Logger.Info("[RESPONSEBODY]\n{0}", s);
             return Tuple.Create(r, s);
@@ -292,7 +292,6 @@ namespace Growthstories.Sync
 
             Logger.Info("AuthRequest\n{0}", Serializer.Serialize(dict));
 
-
             var fContent = new FormUrlEncodedContent(dict);
 
             //var builder = new UriBuilder(Endpoint.AuthUri);
@@ -322,7 +321,6 @@ namespace Growthstories.Sync
 
         public HttpRequestMessage CreatePushRequest(ISyncPushRequest req)
         {
-
             return CreateSyncRequest(req, Endpoint.PushUri);
         }
 
@@ -359,9 +357,8 @@ namespace Growthstories.Sync
                 return NetworkInterface.GetIsNetworkAvailable();
             }
         }
-
-
     }
+
 
     public class SyncHttpHandler : MessageProcessingHandler
     {
@@ -386,10 +383,9 @@ namespace Growthstories.Sync
             }
         }
 
+
         protected override HttpRequestMessage ProcessRequest(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-
-
             if ((request.Method == HttpMethod.Post || request.Method == HttpMethod.Get) && AuthToken != null)
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken.AccessToken);
@@ -399,8 +395,8 @@ namespace Growthstories.Sync
             Logger.Info("HTTPREQUEST\n{0}", request.ToString());
 
             return request;
-
         }
+
 
         protected override HttpResponseMessage ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
