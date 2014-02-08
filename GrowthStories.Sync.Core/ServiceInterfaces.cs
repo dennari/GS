@@ -1,9 +1,9 @@
-﻿using Growthstories.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Growthstories.Core;
 
 
 namespace Growthstories.Sync
@@ -46,7 +46,15 @@ namespace Growthstories.Sync
         string GetPhotoLocalUri(string filename);
         string GeneratePhotoFilename(string extension = "jpg");
         string FilenameFromBlobKey(string blobKey);
+
+        Size CalculateSize(Size originalSize);
+
+        Tuple<Stream, Size> Scale(Stream original);
+        int JpegQuality { get; }
     }
+
+
+
 
     public class NullPhotoHandler : IPhotoHandler
     {
@@ -82,6 +90,22 @@ namespace Growthstories.Sync
         public string FilenameFromBlobKey(string blobKey)
         {
             return blobKey;
+        }
+
+
+        public Size CalculateSize(Size originalSize)
+        {
+            return originalSize;
+        }
+
+        public Tuple<Stream, Size> Scale(Stream original)
+        {
+            return Tuple.Create(original, new Size(100, 100));
+        }
+
+        public int JpegQuality
+        {
+            get { return 80; }
         }
     }
 

@@ -377,9 +377,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_06_22_36_22.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_06_22_39_28.sap" />
-    <None Include="Help\Nokia Imaging SDK.chm" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -474,8 +471,6 @@
   <ItemGroup>
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="SplashScreenImage.jpg" />
-    <Content Include="TestData\517e100d782a828894.jpg" />
-    <Content Include="TestData\flowers-from-the-conservatory.jpg" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.fi-FI.resx" />

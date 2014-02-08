@@ -2,16 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
-using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using ReactiveUI;
-using System.Reactive;
 
 
 namespace Growthstories.UI.ViewModel
@@ -429,7 +428,7 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.ProfilePictureActionId = x;
                 });
-      
+
             this.ListenTo<MarkedPlantPublic>(this.State.Id)
                 .Subscribe(x => this.IsShared = true);
 
@@ -654,18 +653,32 @@ namespace Growthstories.UI.ViewModel
                     {
                         //this.Log().Info("setting profile photo to {0} after loading corresponding action", ProfilePictureActionId);
                         this.Photo = x.Photo;
+                        this.ProfilePictureAction = x;
                     }
                     SetIsProfilePhoto((IPlantPhotographViewModel)x, PPActionId);
                 });
         }
 
-         
+        private IPlantPhotographViewModel _ProfilePictureAction;
+        protected IPlantPhotographViewModel ProfilePictureAction
+        {
+            get
+            {
+                return _ProfilePictureAction;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _ProfilePictureAction, value);
+            }
+        }
+
         private Photo LookupPhoto(Guid PlantActionId)
         {
-            var list = Actions.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == PlantActionId);
-            if (list.Count() > 0)
+            var action = Actions.OfType<IPlantPhotographViewModel>().Where(x => x.PlantActionId == PlantActionId).FirstOrDefault();
+            if (action != null)
             {
-                return list.First().Photo;
+                ProfilePictureAction = action;
+                return action.Photo;
             }
             return null;
         }
@@ -742,7 +755,7 @@ namespace Growthstories.UI.ViewModel
                 HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
             });
 
-            
+
             this.ListenTo<AggregateDeleted>(x.PlantActionId)
                 .Subscribe(y =>
             {
@@ -754,7 +767,7 @@ namespace Growthstories.UI.ViewModel
                 // from server when signing in (*)
                 // HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
             });
-            
+
             var photo = x as IPlantPhotographViewModel;
             if (photo != null)
             {
@@ -980,8 +993,9 @@ namespace Growthstories.UI.ViewModel
         private Guid? _ProfilePictureActionId;
         public Guid? ProfilePictureActionId
         {
-            get {
-                return _ProfilePictureActionId; 
+            get
+            {
+                return _ProfilePictureActionId;
             }
             set
             {
@@ -1101,9 +1115,9 @@ namespace Growthstories.UI.ViewModel
                 if (_FilteredActions == null)
                 {
                     _FilteredActions = Actions
-                        .CreateDerivedCollection(x => x, x => x.ActionType != PlantActionType.PHOTOGRAPHED 
+                        .CreateDerivedCollection(x => x, x => x.ActionType != PlantActionType.PHOTOGRAPHED
                             || (x.Photo != null && x.Photo.Uri != null));
-                 }
+                }
                 return _FilteredActions;
             }
         }
