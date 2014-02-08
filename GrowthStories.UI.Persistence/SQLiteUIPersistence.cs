@@ -391,7 +391,7 @@ namespace Growthstories.UI.Persistence
             }
             finally
             {
-                command.Dispose();
+                // command.Dispose();
             }
 
         }
@@ -436,7 +436,7 @@ namespace Growthstories.UI.Persistence
             }
             finally
             {
-                command.Dispose();
+                // command.Dispose();
             }
 
 
