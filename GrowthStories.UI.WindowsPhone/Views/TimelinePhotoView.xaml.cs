@@ -80,15 +80,7 @@ namespace Growthstories.UI.WindowsPhone
 
             AnimatedImages.Add(ViewModel.PlantActionId);
 
-            Storyboard sb = new Storyboard();
-
-            //var ha = new DoubleAnimation();
-            //ha.Duration = new Duration(TimeSpan.FromSeconds(0.7));
-            //ha.From = 0;
-            //ha.To = 220;
-            //ha.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
-            //sb.Children.Add(ha);
-            
+            Storyboard sb = new Storyboard();           
             var oa = new DoubleAnimation();
             oa.Duration = new Duration(TimeSpan.FromSeconds(0.7));
             oa.From = 0.0;
@@ -96,11 +88,9 @@ namespace Growthstories.UI.WindowsPhone
             oa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
             sb.Children.Add(oa);
 
-            //var b = ButtonControl;
             Storyboard.SetTarget(oa, ImageControl);
             Storyboard.SetTargetProperty(oa, new PropertyPath("Opacity"));
             sb.Begin();
-            //b.BorderThickness = new Thickness(3);
         }
 
 
@@ -121,20 +111,9 @@ namespace Growthstories.UI.WindowsPhone
             LoadingPhoto.Visibility = Visibility.Collapsed;
             ButtonControl.IsHitTestVisible = true;
 
-            //var b = ButtonControl;
-
             if (AnimatedImages.Contains(ViewModel.PlantActionId))
             {
                 ImageControl.Opacity = 1.0;
-                //b.Opacity = 1.0;
-                //b.BorderThickness = new Thickness(3);
-
-                //if ((int)b.Height != 220)
-                //{
-                //    //b.Height = 220;
-                //    b.Opacity = 1.0;
-                //    //b.BorderThickness = new Thickness(3);
-                //}
             }
             else
             {

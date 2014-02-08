@@ -68,7 +68,7 @@ namespace Growthstories.UI.WindowsPhone
             
             vm.WhenAnyValue(x => x.Loaded).Subscribe(x =>
             {
-                if (Opened || true)
+                if (Opened)
                 {
                     ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
                     FadeIn();
