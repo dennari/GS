@@ -1,6 +1,7 @@
 
 using System;
 using System.Reactive.Linq;
+using System.Windows.Media.Imaging;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
@@ -26,6 +27,19 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return _TileHelper ?? (_TileHelper = TileHelperFactory(this));
             }
 
+        }
+
+        private BitmapImage _TilePhotoSource;
+        public BitmapImage TilePhotoSource
+        {
+            get
+            {
+                return _TilePhotoSource;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _TilePhotoSource, value);
+            }
         }
 
 
@@ -69,6 +83,18 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     //TileHelper.
                 });
 
+            this.WhenAnyValue(x => x.ProfilePictureAction)
+                .Where(x => x != null)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    TilePhotoSource = new BitmapImage(x.PhotoUri)
+                    {
+                        CreateOptions = BitmapCreateOptions.DelayCreation,
+                        DecodePixelType = DecodePixelType.Logical,
+                        DecodePixelHeight = 396
+                    };
+                });
 
 
 

@@ -1,15 +1,14 @@
-﻿using Growthstories.Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -1040,6 +1039,18 @@ namespace Growthstories.UI.ViewModel
         public IReactiveCommand PhotoChooserCommand { get; protected set; }
 
 
+        private Uri _PhotoUri;
+        public Uri PhotoUri
+        {
+            get
+            {
+                return _PhotoUri;
+            }
+            protected set
+            {
+                this.RaiseAndSetIfChanged(ref _PhotoUri, value);
+            }
+        }
 
     }
 

@@ -8,7 +8,6 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using ReactiveUI;
-using System.Diagnostics;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -480,6 +479,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand PhotoTimelineTap { get; }
         IReactiveCommand PhotoChooserCommand { get; }
 
+        Uri PhotoUri { get; }
         bool IsProfilePhoto { get; set; }
         void NotifyImageDownloadFailed();
     }

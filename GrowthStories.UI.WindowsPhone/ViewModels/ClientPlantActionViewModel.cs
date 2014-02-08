@@ -1,18 +1,13 @@
-﻿using Growthstories.Domain.Messaging;
-using Growthstories.UI.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using ReactiveUI;
-using System.Reactive.Linq;
-using System.Reactive;
-using Microsoft.Phone.Tasks;
+using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
+using Growthstories.UI.ViewModel;
+using Microsoft.Phone.Tasks;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -22,12 +17,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     {
 
 
-        //private BitmapImage _PhotoSource;
+
+        private BitmapImage _PhotoSource;
         public BitmapImage PhotoSource
         {
             get
             {
-                if (Photo == null || Photo.Uri == null)
+                if (Photo == null || GetUri(Photo) == null)
                 {
                     return null;
                 }
@@ -52,7 +48,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                if (Photo == null || Photo.Uri == null)
+                if (Photo == null || GetUri(Photo) == null)
                 {
                     return null;
                 }
@@ -88,27 +84,56 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         //    //    DecodePixelType = DecodePixelType.Physical,
         //    //    DecodePixelHeight = 220,
 
-        //    //    //DecodePixelWidth = 450
-        //    //};
-        //    //TimelinePhotoSource.ImageOpened += TimelinePhotoSource_ImageOpened;
-        //    //TimelinePhotoSource.ImageFailed += TimelinePhotoSource_ImageFailed;
+        
+        //private void SetPhotos(Photo p)
+        //{
+        //    if (p == null || p.Uri == null)
+        //        return;
 
-        //    //PhotoSource = new BitmapImage(fakeUri)
-        //    //{
-        //    //    CreateOptions = BitmapCreateOptions.DelayCreation,
-        //    //    DecodePixelType = DecodePixelType.Physical,
-        //    //    DecodePixelHeight = (int)p.Height,
-        //    //    //DecodePixelWidth = (int)p.Width
-        //    //};
-        //    PhotoSource = new BitmapImage(new Uri(p.Uri, UriKind.RelativeOrAbsolute))
+
+        //    var uri = GetUri(p);
+        //    this.PhotoUri = uri;
+        //    TimelinePhotoSource = new BitmapImage(uri)
+        //    {
+        //        CreateOptions = BitmapCreateOptions.DelayCreation,
+        //        DecodePixelType = DecodePixelType.Logical,
+        //        DecodePixelHeight = 220,
+        //        //DecodePixelWidth = 450
+        //    };
+
+        //    PhotoSource = new BitmapImage(uri)
         //    {
         //        CreateOptions = BitmapCreateOptions.DelayCreation,
         //        DecodePixelType = DecodePixelType.Physical,
         //        DecodePixelHeight = (int)p.Height,
         //        //DecodePixelWidth = (int)p.Width
         //    };
+
+
         //}
 
+
+        private Size _MaxPhotoSize = Size.Empty;
+        private Size MaxPhotoSize
+        {
+            get { return _MaxPhotoSize == Size.Empty ? (_MaxPhotoSize = ResolutionHelper.MaxImageSize) : _MaxPhotoSize; }
+        }
+
+        private Uri GetUri(Photo p)
+        {
+            if (p.LocalFullPath != null)
+                return new Uri(p.LocalFullPath, UriKind.RelativeOrAbsolute);
+            var remoteUri = p.RemoteUri;
+
+            if (remoteUri.Contains("ggpht"))
+            {
+                remoteUri += string.Format("=s{0}", Math.Max((int)MaxPhotoSize.Width, (int)MaxPhotoSize.Height));
+
+            }
+
+            return new Uri(remoteUri, UriKind.RelativeOrAbsolute);
+
+        }
 
         private void TimelinePhotoSource_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
         {
