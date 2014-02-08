@@ -1,16 +1,14 @@
 ﻿
-using EventStore.Logging;
-using Growthstories.Domain.Entities;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.NetworkInformation;
+using EventStore.Logging;
 using Growthstories.Core;
 using Growthstories.Domain;
 
@@ -83,68 +81,72 @@ namespace Growthstories.Sync
 
         public async Task<ISyncPushResponse> PushAsync(ISyncPushRequest request)
         {
-            return ResponseFactory.CreatePushResponse(request, await SendAndGetBodyAsync(CreatePushRequest(request)));
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = CreatePushRequest(request))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreatePushResponse(request, response);
         }
 
 
         public async Task<ISyncPullResponse> PullAsync(ISyncPullRequest request)
         {
-            return ResponseFactory.CreatePullResponse(request, await SendAndGetBodyAsync(CreatePullRequest(request)));
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = CreatePullRequest(request))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreatePullResponse(request, response);
+
         }
 
 
         public async Task<IAuthResponse> RequestAuthAsync(string username, string password)
         {
-            return ResponseFactory.CreateAuthResponse(await SendAndGetBodyAsync(CreateAuthRequest(username, password)));
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = CreateAuthRequest(username, password))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreateAuthResponse(response);
         }
 
 
         public async Task<IUserListResponse> ListUsersAsync(string username)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserListUri(username));
 
-            return ResponseFactory.CreateUserListResponse(await SendAndGetBodyAsync(request));
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserListUri(username)))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreateUserListResponse(response);
+
         }
 
 
         public async Task<RemoteUser> UserInfoAsync(string email)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserInfoUri(email));
 
-            return ResponseFactory.CreateUserInfoResponse(await SendAndGetBodyAsync(request));
+
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = new HttpRequestMessage(HttpMethod.Get, Endpoint.UserInfoUri(email)))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreateUserInfoResponse(response);
         }
 
 
         public async Task<APIRegisterResponse> RegisterAsync(string username, string email, string password)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.RegisterUri(username, email, password));
 
-            return ResponseFactory.CreateRegisterResponse(await SendAndGetBodyAsync(request));
+            Tuple<HttpResponseMessage, string> response = null;
+            using (var rrequest = new HttpRequestMessage(HttpMethod.Post, Endpoint.RegisterUri(username, email, password)))
+            using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
+                return ResponseFactory.CreateRegisterResponse(response);
+
         }
 
 
         public async Task<IPhotoUriResponse> RequestPhotoUploadUri()
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoUploadUri);
-            var response = await SendAndGetBodyAsync(request);
-            var r = new PhotoUriResponse()
-            {
-                StatusCode = GSStatusCode.FAIL
-            };
-            if (response.Item1.IsSuccessStatusCode)
-            {
-                r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
-                r.StatusCode = GSStatusCode.OK;
-            }
-            return r;
-        }
+            Tuple<HttpResponseMessage, string> response = null;
 
-
-        public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
-        {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoDownloadUri(blobKey)))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoUploadUri))
+            using ((response = await SendAndGetBodyAsync(request)).Item1)
             {
-                var response = await SendAndGetBodyAsync(request);
                 var r = new PhotoUriResponse()
                 {
                     StatusCode = GSStatusCode.FAIL
@@ -156,20 +158,48 @@ namespace Growthstories.Sync
                 }
                 return r;
             }
-            
+
+        }
+
+
+        public async Task<IPhotoUriResponse> RequestPhotoDownloadUri(string blobKey)
+        {
+            Tuple<HttpResponseMessage, string> response = null;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoDownloadUri(blobKey)))
+            using ((response = await SendAndGetBodyAsync(request)).Item1)
+            {
+                var r = new PhotoUriResponse()
+                {
+                    StatusCode = GSStatusCode.FAIL
+                };
+                if (response.Item1.IsSuccessStatusCode)
+                {
+                    r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
+                    r.StatusCode = GSStatusCode.OK;
+                }
+                return r;
+            }
+
         }
 
 
         public async Task<IPhotoUploadResponse> RequestPhotoUpload(IPhotoUploadRequest req)
         {
-            return ResponseFactory.CreatePhotoUploadResponse(req, await Upload(req.UploadUri, req.Stream));
+
+            Tuple<HttpResponseMessage, string> response = null;
+            using ((response = await Upload(req.UploadUri, req.Stream)).Item1)
+                return ResponseFactory.CreatePhotoUploadResponse(req, response);
+
+
         }
 
 
         public async Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest req)
         {
-
-            return ResponseFactory.CreatePhotoDownloadResponse(req, await Download(req.DownloadUri));
+            Tuple<HttpResponseMessage, Stream> response = null;
+            using ((response = await Download(req.DownloadUri)).Item1)
+                return ResponseFactory.CreatePhotoDownloadResponse(req, response);
         }
 
 
