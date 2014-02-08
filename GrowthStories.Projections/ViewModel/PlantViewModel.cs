@@ -517,6 +517,24 @@ namespace Growthstories.UI.ViewModel
                     HandleAction(x);
                 });
 
+                this.WhenAnyValue(x => x.ProfilePictureAction).Subscribe(x =>
+                {
+                    if (x == null)
+                    {
+                        this.RaisePropertyChanged("TilePhotoSource");
+                    }
+                    else
+                    {
+                        x.WhenAnyValue(z => z.PhotoUri).Subscribe(_ =>
+                        {
+                            if (x == ProfilePictureAction)
+                            {
+                                this.RaisePropertyChanged("TilePhotoSource");
+                            }
+                        });
+                    }
+                });
+
             });
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
