@@ -25,25 +25,11 @@ namespace Growthstories.UI.WindowsPhone
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(ConverterHelpers));
 
-        //private static Dictionary<string, WeakReference<BitmapImage>> imageCache = new Dictionary<string, WeakReference<BitmapImage>>();
-
 
         public static BitmapImage ToBitmapImage(this IPhoto x)
         {
             BitmapImage img;
 
-            //if (imageCache.ContainsKey(x.Uri))
-            //{
-            //    var r = imageCache[x.Uri];
-            //    bool success = r.TryGetTarget(out img);
-            //    if (success && img != null)
-            //    {
-            //        Logger.Info("found image {0} from imagecache", x.Uri);
-            //        return img;
-            //    }
-            //}
-
-            Logger.Info("creating new bitmapimage for {0}", x.Uri);
             img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
               {
                   CreateOptions = (BitmapCreateOptions.BackgroundCreation),
@@ -60,7 +46,6 @@ namespace Growthstories.UI.WindowsPhone
                 //throw e.ErrorException;
             };
 
-            //imageCache[x.Uri] = new WeakReference<BitmapImage>(img);
 
             return img;
         }

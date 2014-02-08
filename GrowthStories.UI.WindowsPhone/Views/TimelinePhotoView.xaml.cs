@@ -60,7 +60,7 @@ namespace Growthstories.UI.WindowsPhone
             var img = sender as System.Windows.Controls.Image;
             OpenedImages.Add(ViewModel.PlantActionId);
 
-            FadeInImage();
+            ShowImage();
         }
 
 

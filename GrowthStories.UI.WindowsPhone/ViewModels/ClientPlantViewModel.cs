@@ -108,22 +108,25 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     //TileHelper.
                 });
 
-            this.WhenAnyValue(x => x.ProfilePictureAction)
-                //.Where(x => x != null)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
+            this.WhenAnyValue(x => x.ProfilePictureAction).Subscribe(x =>
+            {
+                if (x == null)
                 {
-                    if (x != null)
+                    this.RaisePropertyChanged("TilePhotoSource");
+                }
+                else
+                {
+                    x.WhenAnyValue(z => z.PhotoUri).Subscribe(_ =>
                     {
-                        this.Log().Info("raising property changed for tilephotosource, actionId is {0} url is {1}", x.PlantActionId, x.PhotoUri);
-                    }
-                    else
-                    {
-                        this.Log().Info("raising property changed for tilephotosource, action is null");
-                    }
-                    raisePropertyChanged("TilePhotoSource");
-                });
+                        if (x == ProfilePictureAction)
+                        {
+                            this.RaisePropertyChanged("TilePhotoSource");
+                        }
+                    });
+                }
+            });
 
+        
             ShareCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => Share());
         }
 

@@ -10,7 +10,7 @@ using Growthstories.Domain;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
 using System.Collections.Generic;
-
+using EventStore.Logging;
 
 namespace Growthstories.Sync
 {
@@ -18,13 +18,15 @@ namespace Growthstories.Sync
 
     public class SynchronizerService : ISynchronizer, IEnableLogger
     {
+
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(SynchronizerService));
+
         //private int AutoSyncCount = 0;
         //private bool AutoSyncEnabled = true;
 
         //private Task<ISyncInstance> currentSynchronize;
         //private Task<Tuple<AllSyncResult, GSStatusCode?>> currentSyncAll;
-
-
 
         //private readonly Subject<IGSAppState> AutoSyncSubject = new Subject<IGSAppState>();
 
@@ -137,6 +139,7 @@ namespace Growthstories.Sync
             // pullrequest should really never be empty
             if (s.PullReq.IsEmpty && s.PushReq.IsEmpty && s.PhotoUploadRequests.Length == 0)
             {
+                   
                 if (Debugger.IsAttached)
                 {
                     Debugger.Break();
@@ -155,7 +158,9 @@ namespace Growthstories.Sync
 
             try
             {
-                return await _Synchronize(request, appState);
+                var ret = await _Synchronize(request, appState);
+                this.Log().Info("_Synchronize returning GSStatusCode {0}, SyncStatus {1}", ret.Code, ret.Status);
+                return ret;
             }
             catch (Exception e)
             {
@@ -184,6 +189,7 @@ namespace Growthstories.Sync
                 .Where(x => x.Item1.BlobKey != null)
                 .Select(x => RequestF.CreatePhotoDownloadRequest(x)).ToArray();
         }
+
 
         private async Task<ISyncInstance> _Synchronize(ISyncInstance s, IGSAppState appState = null)
         {
@@ -258,10 +264,9 @@ namespace Growthstories.Sync
                 }
             }
 
+
             if (s.PhotoUploadRequests.Length > 0 && appState != null)
             {
-
-
                 var responses = await s.UploadPhotos();
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
                     .Select(x => new CompletePhotoUpload(x) { AncestorId = appState.User.Id }).ToArray();
@@ -274,15 +279,14 @@ namespace Growthstories.Sync
                     s.Status = SyncStatus.PHOTOUPLOAD_ERROR;
                     return s;
                 }
-
             }
+
 
             if (downloadRequests.Length > 0 && appState != null)
             {
                 var responses = await s.DownloadPhotos(downloadRequests);
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
                     .Select(x => new CompletePhotoDownload(x)).ToArray();
-
 
                 this.Log().Info("downloaded {0}/{1} photos", successes.Length, responses.Length);
 
@@ -295,8 +299,9 @@ namespace Growthstories.Sync
                     return s;
                 }
             }
-            s.Status = SyncStatus.OK;
 
+            s.Code = GSStatusCode.OK;
+            s.Status = SyncStatus.OK;
 
             return s;
         }
@@ -448,12 +453,8 @@ namespace Growthstories.Sync
 
         //    return Tuple.Create(AllSyncResult.SomeLeft, nullResponseCode);
         //}
-
-
-
-
-
     }
+
 
     public sealed class NonAutoSyncingSynchronizer : SynchronizerService
     {
