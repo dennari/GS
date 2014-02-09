@@ -1,4 +1,6 @@
-﻿using CommonDomain;
+﻿using System;
+using System.Linq;
+using CommonDomain;
 using CommonDomain.Core;
 using EventStore;
 using EventStore.Dispatcher;
@@ -17,9 +19,6 @@ using Ninject;
 using Ninject.Modules;
 using ReactiveUI;
 using SQLite;
-using System;
-using System.IO;
-using System.Linq;
 //using Windows.Storage;
 
 
@@ -151,7 +150,7 @@ namespace Growthstories.Configuration
             {
                 if (conn == null)
                 {
-                    conn = new SQLiteConnection(dbname, true);
+                    conn = new SQLiteConnection(dbname, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex, true);
                 }
                 return conn;
             };
