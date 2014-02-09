@@ -161,6 +161,7 @@
     <Compile Include="Controls\CustomMessageBox.cs" />
     <Compile Include="Controls\GSCustomMessageBox.cs" />
     <Compile Include="Services\ResolutionHelper.cs" />
+    <Compile Include="ViewModels\ClientAddEditPlantViewModel.cs" />
     <Compile Include="Views\GardenPlantTileView.xaml.cs">
       <DependentUpon>GardenPlantTileView.xaml</DependentUpon>
     </Compile>
@@ -176,7 +177,7 @@
     <Compile Include="Services\ReactiveUIHelpers.cs" />
     <Compile Include="Services\SIPHelper.cs" />
     <Compile Include="Services\TileHelper.cs" />
-    <Compile Include="ViewModels\ClientTestingViewModel..cs" />
+    <Compile Include="ViewModels\ClientTestingViewModel.cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantViewModel.cs" />
     <Compile Include="Views\PlantSingularView.xaml.cs">
@@ -217,7 +218,6 @@
     </Compile>
     <Compile Include="Services\ViewHelpers.cs" />
     <Compile Include="ViewModels\ClientAppViewModel.cs" />
-    <Compile Include="ViewModels\ClientAddPlantViewModel..cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
       <DependentUpon>AboutView.xaml</DependentUpon>
