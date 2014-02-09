@@ -219,7 +219,7 @@ namespace Growthstories.UI.WindowsPhone
             base.OnNavigatedTo(e);
             this.Log().Info("OnNavigatedTo");
 
-            if (this.ViewModel.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
+            if (this.ViewModel != null && this.ViewModel.Router != null && this.ViewModel.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
             {
                 // this seems to the only working place were we can trigger
                 // something whenever an app is brought to foreground, since
@@ -249,7 +249,7 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
-            ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
+            //ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
         }
 
 

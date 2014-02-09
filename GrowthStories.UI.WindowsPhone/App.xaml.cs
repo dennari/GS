@@ -13,7 +13,7 @@ using Growthstories.Core;
 
 namespace Growthstories.UI.WindowsPhone
 {
-    public partial class App : AutoSuspendApplication
+    public partial class App : GSAutoSuspendApplication
     {
 
 
@@ -25,7 +25,8 @@ namespace Growthstories.UI.WindowsPhone
         {
             // Global handler for uncaught exceptions.
             //UnhandledException += Application_UnhandledException;
-
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             // Standard XAML initialization
             InitializeComponent();
 
@@ -60,18 +61,18 @@ namespace Growthstories.UI.WindowsPhone
             //////////////////////////////////
             //// INITIAL STARTING POINT //////
             //////////////////////////////////
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            var xamlElapsed = stopwatch.Elapsed;
+            stopwatch.Restart();
             var kernel = new StandardKernel(Bootstrap.GetModule(this));
             var kernelElapsed = stopwatch.Elapsed;
-            this.Log().Info("Kernel creation: {0}", kernelElapsed.Milliseconds);
             stopwatch.Restart();
             this.ViewModel = kernel.Get<IApplicationRootState>();
             var appVmElapsed = stopwatch.Elapsed;
-            this.Log().Info("ApplicationViewModel creation: {0}", appVmElapsed.Milliseconds);
-
             stopwatch.Stop();
+
+
+            this.Log().Info("XAML init: {0}, kernel init {1}, AppVM init {2}", xamlElapsed.Milliseconds, kernelElapsed.Milliseconds, appVmElapsed.Milliseconds);
+
 
         }
 

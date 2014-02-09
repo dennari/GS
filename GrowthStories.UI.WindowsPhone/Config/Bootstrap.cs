@@ -58,7 +58,8 @@ namespace Growthstories.UI.WindowsPhone
             var settings = IsolatedStorageSettings.ApplicationSettings;
             if (settings.Contains("lastException"))
             {
-                PhoneApp.Log().Info("Exception on last crash was {0}", settings["lastException"]);
+                PhoneApp.Log().Info("Exception on last crash was " + settings["lastException"]);
+                settings.Remove("lastException");
             }
             else
             {
@@ -88,7 +89,7 @@ namespace Growthstories.UI.WindowsPhone
         protected override void RxUIConfiguration()
         {
             base.RxUIConfiguration();
-            RxUIResolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(RxUIResolver.GetService<ISuspensionDriver>());
+            //RxUIResolver.GetService<ISuspensionHost>().SetupDefaultSuspendResume(RxUIResolver.GetService<ISuspensionDriver>());
 
         }
 
@@ -166,7 +167,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected virtual void ViewModelConfiguration()
         {
-            Bind<IGSAppViewModel, IApplicationRootState, IScreen>().To<ClientAppViewModel>().InSingletonScope();
+            Bind<IGSAppViewModel, IApplicationRootState, IScreen>().To<MockClientAppViewModel>().InSingletonScope();
             Bind<TestingViewModel>().To<ClientTestingViewModel>().InSingletonScope();
             Bind<IAboutViewModel>().To<AboutViewModel>().InSingletonScope();
             Bind<ISearchUsersViewModel>().To<SearchUsersViewModel>().InSingletonScope();

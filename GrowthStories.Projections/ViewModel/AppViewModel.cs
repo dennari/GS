@@ -152,7 +152,7 @@ namespace Growthstories.UI.ViewModel
             return true; // should override this
         }
 
-        public IRoutingState Router { get { return _Router; } }
+        public IRoutingState Router { get { return _Router ?? (_Router = new RoutingState()); } }
 
         private readonly IUserService Context;
         private readonly IDispatchCommands Handler;
@@ -161,7 +161,7 @@ namespace Growthstories.UI.ViewModel
         private readonly IScheduleService Scheduler;
         private readonly ISynchronizer Synchronizer;
         private readonly IRequestFactory RequestFactory;
-        private readonly IRoutingState _Router;
+        private IRoutingState _Router;
 
         private readonly AsyncLock RegisterLock = new AsyncLock();
         private readonly AsyncLock SignInLock = new AsyncLock();
@@ -177,7 +177,7 @@ namespace Growthstories.UI.ViewModel
             IScheduleService scheduler,
             ISynchronizer synchronizer,
             IRequestFactory requestFactory,
-            IRoutingState router,
+            //IRoutingState router, // let's lazyload this, it's relatively heavy
             IMessageBus bus
          )
         {
@@ -187,7 +187,7 @@ namespace Growthstories.UI.ViewModel
             this._UIPersistence = uiPersistence;
             this.IIAPService = iiapService;
             this.RequestFactory = requestFactory;
-            this._Router = router;
+            //this._Router = router;
             this.Resolver = resolver;
             this.Bus = bus;
             this.Scheduler = scheduler;
