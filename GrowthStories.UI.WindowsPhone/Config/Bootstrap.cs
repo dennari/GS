@@ -20,6 +20,7 @@ using Growthstories.Core;
 using Microsoft.Phone.Controls;
 using System.Collections.Generic;
 using EventStore.Logging;
+using System.IO.IsolatedStorage;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -37,20 +38,32 @@ namespace Growthstories.UI.WindowsPhone
         public Bootstrap(App phoneApp)
         {
             PhoneApp = phoneApp;
-
+            PhoneApp.UnhandledException += HandleUnhandledExceptions;
         }
 
         public override void Load()
         {
             base.Load();
 
+            PrintLastUnhandledException();
+     
             ApplyGSAccentColor();
             BAConfiguration();
             ViewModelConfiguration();
             ViewConfiguration();
+        }
 
-            PhoneApp.UnhandledException += HandleUnhandledExceptions;
-
+        public void PrintLastUnhandledException()
+        {
+            var settings = IsolatedStorageSettings.ApplicationSettings;
+            if (settings.Contains("lastException"))
+            {
+                PhoneApp.Log().Info("Exception on last crash was {0}", settings["lastException"]);
+            }
+            else
+            {
+                PhoneApp.Log().Info("No crashes recorded");
+            }
         }
 
         protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
@@ -58,6 +71,10 @@ namespace Growthstories.UI.WindowsPhone
             // try to log the Exception
             try
             {
+                var settings = IsolatedStorageSettings.ApplicationSettings;
+                settings["lastException"] = ee.ExceptionObject.ToStringExtended();
+                settings.Save();
+             
                 PhoneApp.Log().DebugExceptionExtended("Unhandled", ee.ExceptionObject);
             }
             catch { }
