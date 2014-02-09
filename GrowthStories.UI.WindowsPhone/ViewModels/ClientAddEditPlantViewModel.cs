@@ -14,16 +14,6 @@ using ReactiveUI;
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
-    public static class Mixins
-    {
-        public static void SetSource(this BitmapImage i, Photo x)
-        {
-            i.DecodePixelHeight = (int)x.Height;
-            i.DecodePixelWidth = (int)x.Width;
-            i.UriSource = new Uri(x.Uri, UriKind.RelativeOrAbsolute);
-        }
-    }
-
 
     public class ClientAddEditPlantViewModel : AddEditPlantViewModel
     {
@@ -57,13 +47,13 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             get
             {
-                this.Log().Info("photo.uri is {0}", Photo.Uri);
-                if (Photo.Uri == null)
+
+                if (Photo == null || Photo.Uri == null)
                 {
                     return null;
                 }
 
-                return new BitmapImage(new Uri(Photo.LocalUri, UriKind.RelativeOrAbsolute))
+                return new BitmapImage(new Uri(Photo.Uri, UriKind.RelativeOrAbsolute))
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
                     DecodePixelType = DecodePixelType.Logical,
@@ -107,83 +97,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return _PhotoChooser;
             }
         }
-
-        //private ReactiveCommand _ViewFSCommand;
-        //public ReactiveCommand ViewFSCommand
-        //{
-        //    get
-        //    {
-
-        //        if (_ViewFSCommand == null)
-        //        {
-        //            _ViewFSCommand = new ReactiveCommand();
-        //            _ViewFSCommand.Subscribe(_ =>
-        //            {
-        //                if (this.Photo == null)
-        //                    return;
-        //                FSView.Show();
-        //            });
-        //        }
-        //        return _ViewFSCommand;
-
-        //    }
-        //}
-
-        //CustomMessageBox FSView
-        //{
-        //    get
-        //    {
-        //        return new CustomMessageBox()
-        //         {
-        //             IsLeftButtonEnabled = false,
-        //             IsRightButtonEnabled = false,
-        //             Content = new Image()
-        //             {
-        //                 Stretch = Stretch.UniformToFill,
-        //                 Source = this.Profilepicture
-        //             },
-        //             IsFullScreen = true // Pivots should always be full-screen.
-        //         };
-        //    }
-        //}
-
-        //private ReactiveCommand _CMOpen;
-        //public ReactiveCommand CMOpen
-        //{
-        //    get
-        //    {
-
-        //        if (_CMOpen == null)
-        //        {
-        //            _CMOpen = new ReactiveCommand();
-        //            _CMOpen.Subscribe(_ =>
-        //                {
-        //                    //ChoosePhoto();
-        //                });
-        //        }
-        //        return _CMOpen;
-
-        //    }
-        //}
-
-        //private ReactiveCommand _CMClose;
-        //public ReactiveCommand CMClose
-        //{
-        //    get
-        //    {
-
-        //        if (_CMClose == null)
-        //        {
-        //            _CMClose = new ReactiveCommand();
-        //            _CMOpen.Subscribe(_ =>
-        //            {
-        //                //ChoosePhoto();
-        //            });
-        //        }
-        //        return _CMClose;
-
-        //    }
-        //}
 
 
         async Task t_Completed(object sender, PhotoResult e)
