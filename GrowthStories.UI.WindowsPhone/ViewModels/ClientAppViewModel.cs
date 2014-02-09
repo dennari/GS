@@ -56,7 +56,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                    IScheduleService scheduler,
                    ISynchronizer synchronizer,
                    IRequestFactory requestFactory,
-                   IRoutingState router,
                    IMessageBus bus,
                    OptimisticPipelineHook hook
                 )
@@ -70,7 +69,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             scheduler,
             synchronizer,
             requestFactory,
-            router,
             bus
             )
         {

@@ -21,9 +21,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 {
 
 
-    public class MockClientAppViewModel : IGSAppViewModel, IApplicationRootState
+    public class MockClientAppViewModel : ReactiveObject, IGSAppViewModel, IApplicationRootState
     {
 
+
+        private IRoutingState _Router;
+        public IRoutingState Router { get { return _Router ?? (_Router = new RoutingState()); } }
 
 
 
@@ -281,44 +284,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             return null;
         }
 
-        public string UrlPath
-        {
-            get { return null; }
-        }
 
-        public string UrlPathSegment
-        {
-            get { return null; }
-        }
-
-        public IScreen HostScreen
-        {
-            get { return null; }
-        }
-
-        public IObservable<IObservedChange<object, object>> Changing
-        {
-            get { return null; }
-        }
-
-        public IObservable<IObservedChange<object, object>> Changed
-        {
-            get { return null; }
-        }
-
-        public IDisposable SuppressChangeNotifications()
-        {
-            return null;
-        }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
-        public event PropertyChangingEventHandler PropertyChanging;
-
-        public IRoutingState Router
-        {
-            get { return null; }
-        }
 
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
@@ -338,6 +304,21 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public bool AppBarIsVisible
         {
             get { return true; }
+        }
+
+        public string UrlPath
+        {
+            get { return null; }
+        }
+
+        public string UrlPathSegment
+        {
+            get { return null; }
+        }
+
+        public IScreen HostScreen
+        {
+            get { return this; }
         }
     }
 
