@@ -39,9 +39,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             this.WhenAnyValue(x => x.Photo, x => x)
                 .Where(x => x != null)
-                .Subscribe(x => Profilepicture.SetSource(x));
+                .Subscribe(_ =>
+            {
+                this.Log().Info("raisepropchange for profilepicture");
+                this.raisePropertyChanged("Profilepicture");
+            });
         }
-
 
 
         void Profilepicture_ImageFailed(object sender, System.Windows.ExceptionRoutedEventArgs e)
@@ -49,23 +52,43 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             throw e.ErrorException;
         }
 
-        protected BitmapImage _Profilepicture;
+
         public BitmapImage Profilepicture
         {
             get
             {
-                if (_Profilepicture == null)
+                this.Log().Info("photo.uri is {0}", Photo.Uri);
+                if (Photo.Uri == null)
                 {
-                    _Profilepicture = new BitmapImage()
-                    {
-                        CreateOptions = BitmapCreateOptions.DelayCreation,
-                        DecodePixelType = DecodePixelType.Physical
-                    };
-                    Profilepicture.ImageFailed += Profilepicture_ImageFailed;
+                    return null;
                 }
-                return _Profilepicture;
+
+                return new BitmapImage(new Uri(Photo.LocalUri, UriKind.RelativeOrAbsolute))
+                {
+                    CreateOptions = BitmapCreateOptions.DelayCreation,
+                    DecodePixelType = DecodePixelType.Logical,
+                    DecodePixelHeight = 396
+                };
             }
         }
+
+        //protected BitmapImage _Profilepicture;
+        //public BitmapImage Profilepicture
+        //{
+        //    get
+        //    {
+        //        if (_Profilepicture == null)
+        //        {
+        //            _Profilepicture = new BitmapImage()
+        //            {
+        //                CreateOptions = BitmapCreateOptions.DelayCreation,
+        //                DecodePixelType = DecodePixelType.Physical
+        //            };
+        //            Profilepicture.ImageFailed += Profilepicture_ImageFailed;
+        //        }
+        //        return _Profilepicture;
+        //    }
+        //}
 
 
         private PhotoChooserTask _PhotoChooser;
@@ -85,82 +108,82 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-        private ReactiveCommand _ViewFSCommand;
-        public ReactiveCommand ViewFSCommand
-        {
-            get
-            {
+        //private ReactiveCommand _ViewFSCommand;
+        //public ReactiveCommand ViewFSCommand
+        //{
+        //    get
+        //    {
 
-                if (_ViewFSCommand == null)
-                {
-                    _ViewFSCommand = new ReactiveCommand();
-                    _ViewFSCommand.Subscribe(_ =>
-                    {
-                        if (this.Photo == null)
-                            return;
-                        FSView.Show();
-                    });
-                }
-                return _ViewFSCommand;
+        //        if (_ViewFSCommand == null)
+        //        {
+        //            _ViewFSCommand = new ReactiveCommand();
+        //            _ViewFSCommand.Subscribe(_ =>
+        //            {
+        //                if (this.Photo == null)
+        //                    return;
+        //                FSView.Show();
+        //            });
+        //        }
+        //        return _ViewFSCommand;
 
-            }
-        }
+        //    }
+        //}
 
-        CustomMessageBox FSView
-        {
-            get
-            {
-                return new CustomMessageBox()
-                 {
-                     IsLeftButtonEnabled = false,
-                     IsRightButtonEnabled = false,
-                     Content = new Image()
-                     {
-                         Stretch = Stretch.UniformToFill,
-                         Source = this.Profilepicture
-                     },
-                     IsFullScreen = true // Pivots should always be full-screen.
-                 };
-            }
-        }
+        //CustomMessageBox FSView
+        //{
+        //    get
+        //    {
+        //        return new CustomMessageBox()
+        //         {
+        //             IsLeftButtonEnabled = false,
+        //             IsRightButtonEnabled = false,
+        //             Content = new Image()
+        //             {
+        //                 Stretch = Stretch.UniformToFill,
+        //                 Source = this.Profilepicture
+        //             },
+        //             IsFullScreen = true // Pivots should always be full-screen.
+        //         };
+        //    }
+        //}
 
-        private ReactiveCommand _CMOpen;
-        public ReactiveCommand CMOpen
-        {
-            get
-            {
+        //private ReactiveCommand _CMOpen;
+        //public ReactiveCommand CMOpen
+        //{
+        //    get
+        //    {
 
-                if (_CMOpen == null)
-                {
-                    _CMOpen = new ReactiveCommand();
-                    _CMOpen.Subscribe(_ =>
-                        {
-                            //ChoosePhoto();
-                        });
-                }
-                return _CMOpen;
+        //        if (_CMOpen == null)
+        //        {
+        //            _CMOpen = new ReactiveCommand();
+        //            _CMOpen.Subscribe(_ =>
+        //                {
+        //                    //ChoosePhoto();
+        //                });
+        //        }
+        //        return _CMOpen;
 
-            }
-        }
+        //    }
+        //}
 
-        private ReactiveCommand _CMClose;
-        public ReactiveCommand CMClose
-        {
-            get
-            {
+        //private ReactiveCommand _CMClose;
+        //public ReactiveCommand CMClose
+        //{
+        //    get
+        //    {
 
-                if (_CMClose == null)
-                {
-                    _CMClose = new ReactiveCommand();
-                    _CMOpen.Subscribe(_ =>
-                    {
-                        //ChoosePhoto();
-                    });
-                }
-                return _CMClose;
+        //        if (_CMClose == null)
+        //        {
+        //            _CMClose = new ReactiveCommand();
+        //            _CMOpen.Subscribe(_ =>
+        //            {
+        //                //ChoosePhoto();
+        //            });
+        //        }
+        //        return _CMClose;
 
-            }
-        }
+        //    }
+        //}
 
 
         async Task t_Completed(object sender, PhotoResult e)
