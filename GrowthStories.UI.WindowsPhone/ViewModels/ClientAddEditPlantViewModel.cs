@@ -31,7 +31,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 .Where(x => x != null)
                 .Subscribe(_ =>
             {
-                this.Log().Info("raisepropchange for profilepicture");
                 this.raisePropertyChanged("Profilepicture");
             });
         }
@@ -43,11 +42,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
+
         public BitmapImage Profilepicture
         {
             get
             {
-
                 if (Photo == null || Photo.Uri == null)
                 {
                     return null;
@@ -61,24 +60,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 };
             }
         }
-
-        //protected BitmapImage _Profilepicture;
-        //public BitmapImage Profilepicture
-        //{
-        //    get
-        //    {
-        //        if (_Profilepicture == null)
-        //        {
-        //            _Profilepicture = new BitmapImage()
-        //            {
-        //                CreateOptions = BitmapCreateOptions.DelayCreation,
-        //                DecodePixelType = DecodePixelType.Physical
-        //            };
-        //            Profilepicture.ImageFailed += Profilepicture_ImageFailed;
-        //        }
-        //        return _Profilepicture;
-        //    }
-        //}
 
 
         private PhotoChooserTask _PhotoChooser;

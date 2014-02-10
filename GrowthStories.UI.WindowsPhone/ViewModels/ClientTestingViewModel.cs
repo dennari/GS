@@ -29,6 +29,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private IHttpClient HttpClient;
         private IJsonFactory Serializer;
 
+
         public ClientTestingViewModel(
             SQLitePersistenceEngine store,
             SQLiteUIPersistence uiStore,
@@ -97,9 +98,98 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
             else
             {
-                _CreateLocalTestData();
+                _CreateLocalTestData2();
             }
         }
+
+
+        private void _CreateLocalTestData2()
+        {
+
+            for (var i = 0; i < 30; i++)
+            {
+
+                var localPlant = new CreatePlant(Guid.NewGuid(), "Jare" + i, App.User.GardenId, App.User.Id);
+                Handler.Handle(localPlant);
+
+                var localPlantProperty = new MarkPlantPublic(localPlant.AggregateId);
+                Handler.Handle(localPlantProperty);
+
+                Handler.Handle(new AddPlant(App.User.GardenId, localPlant.AggregateId, App.User.Id, "Jare " + i));
+
+                //var wateringSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600);
+                //Handler.Handle(wateringSchedule);
+                //Handler.Handle(new SetWateringSchedule(localPlant.AggregateId, wateringSchedule.AggregateId));
+
+                //var FertilizingSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 50 * 3600);
+                //Handler.Handle(FertilizingSchedule);
+                //Handler.Handle(new SetFertilizingSchedule(localPlant.AggregateId, FertilizingSchedule.AggregateId));
+
+                Handler.Handle(
+                        new CreatePlantAction(
+                            Guid.NewGuid(),
+                            App.User.Id,
+                            localPlant.AggregateId,
+                            PlantActionType.COMMENTED,
+                            "Hello local world " + i));
+
+                //Handler.Handle(
+                //    new CreatePlantAction(
+                //        Guid.NewGuid(),
+                //        App.User.Id,
+                //        localPlant.AggregateId,
+                //        PlantActionType.PHOTOGRAPHED,
+                //        "Hello local world " + i)
+                //    {
+                //        Photo = new Photo()
+                //        {
+                //            RemoteUri = @"http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"
+                //        }
+                //    });
+
+                Handler.Handle(
+                    new CreatePlantAction(
+                        Guid.NewGuid(),
+                        App.User.Id,
+                        localPlant.AggregateId,
+                        PlantActionType.FERTILIZED,
+                        "Hello local world " + i));
+
+                for (int j = 0; j < 20; j++)
+                {
+                    Handler.Handle(
+                        new CreatePlantAction(
+                            Guid.NewGuid(),
+                            App.User.Id,
+                            localPlant.AggregateId,
+                            PlantActionType.WATERED,
+                            "Hello local world " + j));
+                }
+
+                //IPhoto photo = null;
+                //try
+                //{
+                //    photo = App.MyGarden.Plants.First().Photo;
+                //}
+                //catch { }
+                
+                //Handler.Handle(
+                //    new CreatePlantAction(
+                //        Guid.NewGuid(),
+                //        App.User.Id,
+                //        localPlant.AggregateId,
+                //        PlantActionType.PHOTOGRAPHED,
+                //        "Hello local world " + i)
+                //    {
+                //        Photo = photo
+                //    });
+
+            }
+
+
+        }
+
+
         private void _CreateLocalTestData()
         {
 

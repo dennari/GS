@@ -330,7 +330,7 @@
                                     </EventTrigger>
                                 </Grid.Triggers>
 
-                                <Canvas Visibility="{Binding Profilepicture, Converter={StaticResource NullToVisibility}}">
+                                <Canvas Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}">
                                     <Image
                                         x:Name="Img"
                                         Width="396" Height="396"
@@ -347,7 +347,7 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="White"
-                                        Visibility="{Binding Profilepicture, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
+                                        Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
                                         />
                                 <Border BorderThickness="3" IsHitTestVisible="False">
                                     <Border.BorderBrush>

@@ -177,7 +177,7 @@
     <Compile Include="Services\ReactiveUIHelpers.cs" />
     <Compile Include="Services\SIPHelper.cs" />
     <Compile Include="Services\TileHelper.cs" />
-    <Compile Include="ViewModels\ClientTestingViewModel..cs" />
+    <Compile Include="ViewModels\ClientTestingViewModel.cs" />
     <Compile Include="ViewModels\ClientYAxisShitViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantViewModel.cs" />
     <Compile Include="Views\PlantSingularView.xaml.cs">
