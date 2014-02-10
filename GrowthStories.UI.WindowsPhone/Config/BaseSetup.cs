@@ -41,7 +41,7 @@ namespace Growthstories.Configuration
             HttpConfiguration();
             UserConfiguration();
             EventFactoryConfiguration();
-            SQLiteConnectionConfiguration();
+            //SQLiteConnectionConfiguration();
             PersistenceConfiguration();
             FileSystemConfiguration();
             EventStoreConfiguration();
@@ -142,28 +142,42 @@ namespace Growthstories.Configuration
             Bind<IPhotoHandler>().To<NullPhotoHandler>();
         }
 
-        protected virtual void SQLiteConnectionConfiguration(string dbname = "GS.sqlite")
-        {
-            SQLiteConnection conn = null;
-
-            Func<SQLiteConnection> del = () =>
-            {
-                if (conn == null)
-                {
-                    conn = new SQLiteConnection(dbname, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex, true);
-                }
-                return conn;
-            };
-            Bind<ISQLiteConnectionFactory>().To<DelegateConnectionFactory>().WithConstructorArgument("f", (object)del);
-        }
 
         protected virtual void PersistenceConfiguration()
         {
-            Bind<IPersistSyncStreams, IPersistStreams>().To<SQLitePersistenceEngine>().InSingletonScope();
-            Bind<IUIPersistence>().To<SQLiteUIPersistence>().InSingletonScope();
+            Bind<IPersistSyncStreams, IPersistStreams>().ToConstructor((arg) => new SQLitePersistenceEngine(new DelegateConnectionFactory(SQLConnection), KernelInstance.Get<ISerialize>())).InSingletonScope();
+            Bind<IUIPersistence>().ToConstructor((arg) => new SQLiteUIPersistence(new DelegateConnectionFactory(UIConnection), KernelInstance.Get<ISerialize>())).InSingletonScope();
         }
 
+        protected virtual string UIPersistenceDBName()
+        {
+            return "GSUI.sqlite";
+        }
 
+        protected virtual string SQLPersistenceDBName()
+        {
+            return "GS.sqlite";
+        }
+
+        private SQLiteConnection _UIConnection;
+        private SQLiteConnection UIConnection()
+        {
+            if (_UIConnection == null)
+            {
+                _UIConnection = new SQLiteConnection(UIPersistenceDBName(), SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex, true);
+            }
+            return _UIConnection;
+        }
+
+        private SQLiteConnection _SQLConnection;
+        private SQLiteConnection SQLConnection()
+        {
+            if (_SQLConnection == null)
+            {
+                _SQLConnection = new SQLiteConnection(SQLPersistenceDBName(), SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex, true);
+            }
+            return _SQLConnection;
+        }
 
 
     }

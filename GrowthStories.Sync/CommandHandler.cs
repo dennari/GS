@@ -50,6 +50,11 @@ namespace Growthstories.Sync
             this._App = null;
         }
 
+        public AsyncLock Alock
+        {
+            get { return alock; }
+        }
+
 
         protected IGSAggregate Construct(IMessage c)
         {

@@ -18,7 +18,7 @@ namespace Growthstories.Domain
         void ResetApp();
         Task<GSApp> Handle(Pull c);
         Task<GSApp> Handle(Push c);
-
+        AsyncLock Alock { get; }
 
     }
 
