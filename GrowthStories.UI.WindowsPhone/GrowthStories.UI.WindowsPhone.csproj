@@ -381,6 +381,12 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_24_16.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_28_16.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_32_26.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_36_11.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_05_09_55.sap" />
+    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_05_13_35.sap" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

@@ -58,6 +58,7 @@
     <Compile Include="ApplyEventRouter.cs" />
     <Compile Include="AsyncLock.cs" />
     <Compile Include="CommandHandlerBase.cs" />
+    <Compile Include="GSDispatchScheduler.cs" />
     <Compile Include="IAsyncDispatchCommits.cs" />
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="IIAPService.cs" />

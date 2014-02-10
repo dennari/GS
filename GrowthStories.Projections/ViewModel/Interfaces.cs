@@ -150,13 +150,18 @@ namespace Growthstories.UI.ViewModel
         bool NotifiedOnBadConnection { get; set; }
 
         bool RegisterCancelRequested { get; set; }
+        bool NavigatingBack { get; set; }
         bool SignInCancelRequested { get; set; }
 
         IReactiveCommand SetDismissPopupAllowedCommand { get; }
+        IReactiveCommand PageOrientationChangedCommand { get; }
+
 
         string UserEmail { get; }
 
         ISearchUsersViewModel SearchUsersViewModelFactory(IFriendsViewModel friendsVM);
+
+        void HandleApplicationActivated();
 
         // Stopwatch NavigateAndResetStopwatch {get; }
     }

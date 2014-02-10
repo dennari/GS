@@ -19,6 +19,7 @@ using Ninject;
 using Ninject.Modules;
 using ReactiveUI;
 using SQLite;
+using GrowthStories.Core;
 //using Windows.Storage;
 
 
@@ -97,7 +98,7 @@ namespace Growthstories.Configuration
         {
             Bind<IPipelineHook, OptimisticPipelineHook>().To<OptimisticPipelineHook>().InSingletonScope();
             Bind<IPipelineHook>().To<DispatchSchedulerPipelineHook>().InSingletonScope();
-            Bind<IScheduleDispatches>().To<SynchronousDispatchScheduler>().InSingletonScope();
+            Bind<IScheduleDispatches>().To<GSDispatchScheduler>().InSingletonScope();
             Bind<IDispatchCommits, MessageBusDispatcher>().To<MessageBusDispatcher>();
             Bind<IStoreEvents, ICommitEvents, GSEventStore>().ToMethod(x =>
             {

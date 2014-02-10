@@ -22,9 +22,9 @@
         </ResourceDictionary>
     </Application.Resources>
 
-    <Application.ApplicationLifetimeObjects>
-        <shell:PhoneApplicationService/>
-    </Application.ApplicationLifetimeObjects>
+    <!--<Application.ApplicationLifetimeObjects>
+        <shell:PhoneApplicationService />
+    </Application.ApplicationLifetimeObjects>-->
 
 </local:GSAutoSuspendApplication>
     

@@ -46,23 +46,28 @@ namespace Growthstories.UI.WindowsPhone
 
         public static PhoneApplicationFrame RootFrame { get; protected set; }
 
+        public static readonly Stopwatch LifeTimer = new Stopwatch();
+        protected PhoneApplicationService LifeTimeHelper { get; private set; }
+
         protected GSAutoSuspendApplication()
         {
 
-            TimeSpan constructorElapsed = default(TimeSpan);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            LifeTimer.Start();
+
+            LifeTimeHelper = new PhoneApplicationService();
+            ApplicationLifetimeObjects.Add(LifeTimeHelper);
 
             var host = new SuspensionHost();
 
+
             host.IsLaunchingNew =
                 Observable.FromEventPattern<LaunchingEventArgs>(
-                    x => PhoneApplicationService.Current.Launching += x, x => PhoneApplicationService.Current.Launching -= x)
+                    x => LifeTimeHelper.Launching += x, x => LifeTimeHelper.Launching -= x)
                     .Select(_ => Unit.Default);
 
             host.IsUnpausing =
                 Observable.FromEventPattern<ActivatedEventArgs>(
-                    x => PhoneApplicationService.Current.Activated += x, x => PhoneApplicationService.Current.Activated -= x)
+                    x => LifeTimeHelper.Activated += x, x => LifeTimeHelper.Activated -= x)
                     .Where(x => x.EventArgs.IsApplicationInstancePreserved)
                     .Select(_ => Unit.Default);
 
@@ -72,7 +77,7 @@ namespace Growthstories.UI.WindowsPhone
             // it takes for the application to resume"
             host.IsResuming =
                 Observable.FromEventPattern<ActivatedEventArgs>(
-                    x => PhoneApplicationService.Current.Activated += x, x => PhoneApplicationService.Current.Activated -= x)
+                    x => LifeTimeHelper.Activated += x, x => LifeTimeHelper.Activated -= x)
                     .Where(x => !x.EventArgs.IsApplicationInstancePreserved)
                     .Select(_ => Unit.Default)
                     .ObserveOn(RxApp.TaskpoolScheduler);
@@ -81,10 +86,10 @@ namespace Growthstories.UI.WindowsPhone
             // do it in-process
             host.ShouldPersistState = Observable.Merge(
                 Observable.FromEventPattern<DeactivatedEventArgs>(
-                    x => PhoneApplicationService.Current.Deactivated += x, x => PhoneApplicationService.Current.Deactivated -= x)
+                    x => LifeTimeHelper.Deactivated += x, x => LifeTimeHelper.Deactivated -= x)
                     .Select(_ => Disposable.Empty),
                 Observable.FromEventPattern<ClosingEventArgs>(
-                    x => PhoneApplicationService.Current.Closing += x, x => PhoneApplicationService.Current.Closing -= x)
+                    x => LifeTimeHelper.Closing += x, x => LifeTimeHelper.Closing -= x)
                     .Select(_ => Disposable.Empty));
 
             host.ShouldInvalidateState =
@@ -92,6 +97,13 @@ namespace Growthstories.UI.WindowsPhone
                     .Select(_ => Unit.Default);
 
             SuspensionHost = host;
+
+            SuspensionHost.IsLaunchingNew.Subscribe(_ =>
+            {
+                //ViewModel = RxApp.DependencyResolver.GetService<IApplicationRootState>();
+
+                //this.Log().Info("IsLaunchingNew: setting ViewModel to an instance of {0}", ViewModel.GetType().Name);
+            });
 
             //
             // Do the equivalent steps that the boilerplate code does for WP8 apps
@@ -104,12 +116,15 @@ namespace Growthstories.UI.WindowsPhone
             var currentViewFor = default(WeakReference<IViewFor>);
             this.Log().Info("GSAutoSuspendApplication constructor");
 
-
+            // Finally make it live
+            RootVisual = RootFrame;
             RootFrame.Navigated += (o, e) =>
             {
+
+
                 // Always clear the WP8 Back Stack, we're using our own
-                this.Log().Info("RootFrame navigated");
-                this.Log().Info("GSAutoSuspendApplication constructor init {0}", constructorElapsed.Milliseconds);
+                this.Log().Info("RootFrame navigated begins {0}", LifeTimer.ElapsedMilliseconds);
+                //this.Log().Info("GSAutoSuspendApplication constructor init {0}", LifeTimer.ElapsedMilliseconds);
 
 
                 while (RootFrame.RemoveBackEntry() != null) { }
@@ -133,22 +148,25 @@ namespace Growthstories.UI.WindowsPhone
                     {
                         throw new Exception("Your Main Page (i.e. the one that is pointed to by WMAppManifest) must implement IViewFor<YourAppBootstrapperClass>");
                     }
+                    //this.Log().Info("Setting ViewModel to an instance of {0} for View {1}", ViewModel.GetType().Name, viewFor.GetType().Name);
 
                     currentViewFor = new WeakReference<IViewFor>(viewFor);
-                    viewFor.ViewModel = ViewModel;
+                    //viewFor.ViewModel = ViewModel;
                 }
-                this.Log().Info("RootVisual set");
+                this.Log().Info("RootFrame navigated ends {0}", LifeTimer.ElapsedMilliseconds);
 
-                // Finally make it live
-                RootVisual = RootFrame;
+
             };
 
-            _viewModelChanged.StartWith(ViewModel).Where(x => x != null).Subscribe(vm =>
+            _viewModelChanged.StartWith(ViewModel).Where(x => x != null).ObserveOn(RxApp.MainThreadScheduler).Subscribe(vm =>
             {
                 var viewFor = default(IViewFor);
+
                 if (currentViewFor != null && currentViewFor.TryGetTarget(out viewFor))
                 {
                     viewFor.ViewModel = vm;
+                    this.Log().Info("Setting ViewModel to an instance of {0} for View {1}", ViewModel.GetType().Name, viewFor.GetType().Name);
+
                 }
             });
 
@@ -162,8 +180,6 @@ namespace Growthstories.UI.WindowsPhone
                 if (Debugger.IsAttached) Debugger.Break();
             };
 
-            constructorElapsed = stopwatch.Elapsed;
-            stopwatch.Stop();
 
         }
 

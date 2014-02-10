@@ -43,7 +43,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _SupportedOrientations.Value;
+                return _SupportedOrientations != null ? _SupportedOrientations.Value : SupportedPageOrientation.Portrait;
             }
         }
 
@@ -181,6 +181,9 @@ namespace Growthstories.UI.ViewModel
             IMessageBus bus
          )
         {
+
+            //this.Log().Info("AppViewModel constructor begins {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+
             this.Context = context;
             this.Handler = handler;
             this.Transporter = transporter;
@@ -196,36 +199,20 @@ namespace Growthstories.UI.ViewModel
             //resolver.RegisterLazySingleton(() => new AddPlantViewModel(this), typeof(IAddPlantViewModel));
 
             // COMMANDS
-            SetDismissPopupAllowedCommand = new ReactiveCommand();
-            ShowPopup = new ReactiveCommand();
-            PageOrientationChangedCommand = Observable.Return(true).ToCommandWithSubscription(x =>
-            {
 
-                try
-                {
-                    this.Orientation = (PageOrientation)x;
 
-                }
-                catch
-                {
 
-                }
-
-            });
-
-            BackKeyPressedCommand = new ReactiveCommand();
-            SignedOut = new ReactiveCommand();
-
-            Bootstrap();
+            //Bootstrap();
 
             //NavigateAndResetStopwatch = new Stopwatch();
-            this.Router.NavigateAndReset.Subscribe(_ =>
-             {
-                 this.Log().Info("navigate and reset");
-                 //NavigateAndResetStopwatch.Restart();
-             });
+            //this.Router.NavigateAndReset.Subscribe(_ =>
+            // {
+            //     this.Log().Info("navigate and reset");
+            //NavigateAndResetStopwatch.Restart();
+            // });
 
         }
+        public bool NavigatingBack { get; set; }
 
 
         //public Stopwatch NavigateAndResetStopwatch {get; set;} 
@@ -412,11 +399,72 @@ namespace Growthstories.UI.ViewModel
         }
 
         #region COMMANDS
-        public IReactiveCommand ShowPopup { get; private set; }
-        public IReactiveCommand SetDismissPopupAllowedCommand { get; private set; }
-        public IReactiveCommand SignedOut { get; private set; }
-        public IReactiveCommand BackKeyPressedCommand { get; private set; }
-        public IReactiveCommand PageOrientationChangedCommand { get; private set; }
+
+
+        private IReactiveCommand _PageOrientationChangedCommand;
+        public IReactiveCommand PageOrientationChangedCommand
+        {
+            get
+            {
+                if (_PageOrientationChangedCommand == null)
+                {
+                    _PageOrientationChangedCommand = new ReactiveCommand();
+                    _PageOrientationChangedCommand.Subscribe(x =>
+                    {
+                        try
+                        {
+                            this.Orientation = (PageOrientation)x;
+
+                        }
+                        catch
+                        {
+
+                        }
+                    });
+                }
+                return _PageOrientationChangedCommand;
+            }
+        }
+
+        private IReactiveCommand _ShowPopup;
+        public IReactiveCommand ShowPopup
+        {
+            get
+            {
+                return _ShowPopup ?? (_ShowPopup = new ReactiveCommand());
+            }
+        }
+
+        private IReactiveCommand _BackKeyPressedCommand;
+        public IReactiveCommand BackKeyPressedCommand
+        {
+            get
+            {
+                return _BackKeyPressedCommand ?? (_BackKeyPressedCommand = new ReactiveCommand());
+            }
+
+        }
+
+        private IReactiveCommand _SetDismissPopupAllowedCommand;
+        public IReactiveCommand SetDismissPopupAllowedCommand
+        {
+            get
+            {
+                return _SetDismissPopupAllowedCommand ?? (_SetDismissPopupAllowedCommand = new ReactiveCommand());
+            }
+        }
+
+        private IReactiveCommand _SignedOut;
+        protected IReactiveCommand SignedOut
+        {
+            get
+            {
+                return _SignedOut ?? (_SignedOut = new ReactiveCommand());
+            }
+
+        }
+
+
 
         #endregion
 
@@ -470,34 +518,35 @@ namespace Growthstories.UI.ViewModel
         {
 
             var scheduler = RxApp.TaskpoolScheduler;
-            var settings = Observable.Start(() => new SettingsViewModel(this), scheduler);
-            var add = Observable.Start(() => this.EditPlantViewModelFactory(null), scheduler);
 
-            var gardenObs = Observable.Start(() =>
+
+
+            Func<IGardenViewModel> gardenF = () =>
             {
-                return new GardenViewModel(
+                this.MyGarden = new GardenViewModel(
                         this.WhenAnyValue(x => x.User),
                         true,
                         this,
                         IIAPService,
-                        settings,
-                        add
+                        Observable.Start(() => new SettingsViewModel(this), scheduler),
+                        Observable.Start(() => this.EditPlantViewModelFactory(null), scheduler)
                     );
-            }
-            , scheduler).ObserveOn(RxApp.MainThreadScheduler).Do(x =>
-            {
-                this.MyGarden = x;
-            });
+                return this.MyGarden;
+            };
+
+            var gardenObs = this.WhenAnyValue(x => x.MyGarden).Where(x => x != null);
+
+            Func<INotificationsViewModel> notificationsF = () => new NotificationsViewModel(gardenObs, this);
+            Func<FriendsViewModel> friendsF = () => new FriendsViewModel(this);
 
             //myGarden.ObserveOn()
-            //var gardenObs = this.WhenAnyValue(x => x.MyGarden).Where(x => x != null);
 
-            var notifications = Observable.Start(() => new NotificationsViewModel(gardenObs, this), scheduler);
-            var friends = Observable.Start(() => new FriendsViewModel(this), scheduler);
+            //var notifications = Observable.Start(() => new NotificationsViewModel(gardenObs, this), scheduler);
+            //var friends = Observable.Start(() => new FriendsViewModel(this), scheduler);
 
             if (_CurrentMainViewModel != null)
                 _CurrentMainViewModel.Dispose();
-            _CurrentMainViewModel = new MainViewModel(gardenObs, notifications, friends, this);
+            _CurrentMainViewModel = new MainViewModel(gardenF, notificationsF, friendsF, this);
             return _CurrentMainViewModel;
         }
 
@@ -1307,25 +1356,25 @@ namespace Growthstories.UI.ViewModel
         protected ObservableAsPropertyHelper<bool> _AppBarIsVisible;
         public bool AppBarIsVisible
         {
-            get { return _AppBarIsVisible.Value; }
+            get { return _AppBarIsVisible != null ? _AppBarIsVisible.Value : true; }
         }
 
         protected ObservableAsPropertyHelper<bool> _SystemTrayIsVisible;
         public bool SystemTrayIsVisible
         {
-            get { return _SystemTrayIsVisible.Value; }
+            get { return _SystemTrayIsVisible != null ? _SystemTrayIsVisible.Value : false; }
         }
 
         protected ObservableAsPropertyHelper<bool> _ProgressIndicatorIsVisible;
         public bool ProgressIndicatorIsVisible
         {
-            get { return _ProgressIndicatorIsVisible.Value; }
+            get { return _ProgressIndicatorIsVisible != null ? _ProgressIndicatorIsVisible.Value : false; }
         }
 
         protected ObservableAsPropertyHelper<ApplicationBarMode> _AppBarMode;
         public ApplicationBarMode AppBarMode
         {
-            get { return _AppBarMode.Value; }
+            get { return _AppBarMode != null ? _AppBarMode.Value : ApplicationBarMode.MINIMIZED; }
         }
 
 
@@ -1334,7 +1383,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _AppBarButtons.Value;
+                return _AppBarButtons != null ? _AppBarButtons.Value : null;
             }
         }
 
@@ -1343,7 +1392,7 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
-                return _AppBarMenuItems.Value;
+                return _AppBarMenuItems != null ? _AppBarMenuItems.Value : null;
             }
         }
 

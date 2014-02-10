@@ -72,36 +72,41 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             bus
             )
         {
+
+            this.Log().Info("ClientAppViewModel constructor begins {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+
             this.Store = store;
             this.Hook = hook;
             this.Handler = handler;
 
-            Initialize();
+            //Initialize();
 
-            this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
-            {
-                try
-                {
-                    this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
+            //this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
+            //{
+            //    try
+            //    {
+            //        this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
 
-                }
-                catch { }
-            });
-
-
-            SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
-            {
-                try
-                {
-                    TilesHelper.DeleteAllTiles();
-                }
-                catch { }
-            });
+            //    }
+            //    catch { }
+            //});
 
 
-            UpdatePhoneLocationServicesEnabled();
+            //SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            //{
+            //    try
+            //    {
+            //        TilesHelper.DeleteAllTiles();
+            //    }
+            //    catch { }
+            //});
 
-            BeginRecording();
+
+            //UpdatePhoneLocationServicesEnabled();
+
+            this.Log().Info("ClientAppViewModel constructor ends {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+
+            //BeginRecording();
         }
 
 
@@ -272,7 +277,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             */
         }
 
-        public bool NavigatingBack { get; set; }
 
 
         public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)

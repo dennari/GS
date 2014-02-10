@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Scheduler;
+using System.Windows;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -46,9 +47,9 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ClearMockIAP(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            #if DEBUG
+#if DEBUG
             MockIAPLib.MockIAP.ClearCache();
-            #endif
+#endif
         }
 
         private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
@@ -61,6 +62,11 @@ namespace Growthstories.UI.WindowsPhone
         private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
         {
             BAUtils.RegisterScheduledTask();
+        }
+
+        private void MainViewBase_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModel.Log().Info("MainView Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
         }
 
 

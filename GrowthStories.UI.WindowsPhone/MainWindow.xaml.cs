@@ -12,14 +12,13 @@ using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
 using ReactiveUI;
-using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
-using ClientPlantViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientPlantViewModel;
 using ReactiveUI.Mobile;
+using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public class MainWindowBase : GSPage<AppViewModel>
+    public class MainWindowBase : GSPage<IGSAppViewModel>
     {
 
     }
@@ -58,8 +57,58 @@ namespace Growthstories.UI.WindowsPhone
         IDisposable SetDismissPopupAllowedSubscription = Disposable.Empty;
 
 
-        protected override void OnViewModelChanged(AppViewModel vm)
+        protected override void OnViewModelChanged(IGSAppViewModel vm)
         {
+
+
+            this.Log().Info("MainWindowBase loaded {0}, MainViewBase Loaded {1}", MainWindowBaseMS, MainViewBaseMS);
+
+            if (vm.Router != null && vm.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
+            {
+                // this seems to the only working place were we can trigger
+                // something whenever an app is brought to foreground, since
+                // the usual events somehow don't work
+
+                this.Log().Info("HandleApplicationActivated");
+                vm.HandleApplicationActivated();
+
+                // when navigated from secondary tile we also need to update infos on tiles
+                if (OnlyPlant != null && OnlyPlant.TileHelper != null)
+                {
+                    this.Log().Info("updating whether only plant has tile");
+                    OnlyPlant.TileHelper.UpdateHasTile();
+                }
+
+                return;
+            }
+
+
+            IDictionary<string, string> qs = this.NavigationContext.QueryString;
+
+            Guid plantId = default(Guid);
+
+            if (qs.ContainsKey("id") && Guid.TryParse(qs["id"], out plantId))
+            {
+                this.NavigateWithDeepLink(plantId);
+                return;
+            }
+
+            var w = new Stopwatch();
+            w.Start();
+            var mvm = ViewModel.CreateMainViewModel();
+            var el = w.ElapsedMilliseconds;
+            //vm.Router.Navigate.Execute(mvm);
+            this.Log().Info("OnNavigated to MainViewModel creation ({1}) and navigation {0}", w.ElapsedMilliseconds, el);
+            w.Stop();
+
+            var mv = this.Content.DefaultContent as IViewFor;
+            if (mv != null)
+                mv.ViewModel = mvm;
+
+
+
+
+
             ShowPopupSubscription.Dispose();
             ShowPopupSubscription = vm.ShowPopup
               .ObserveOn(RxApp.MainThreadScheduler)
@@ -219,37 +268,7 @@ namespace Growthstories.UI.WindowsPhone
             base.OnNavigatedTo(e);
             this.Log().Info("OnNavigatedTo");
 
-            if (this.ViewModel != null && this.ViewModel.Router != null && this.ViewModel.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
-            {
-                // this seems to the only working place were we can trigger
-                // something whenever an app is brought to foreground, since
-                // the usual events somehow don't work
 
-                this.Log().Info("HandleApplicationActivated");
-                ViewModel.HandleApplicationActivated();
-
-                // when navigated from secondary tile we also need to update infos on tiles
-                if (OnlyPlant != null && OnlyPlant.TileHelper != null)
-                {
-                    this.Log().Info("updating whether only plant has tile");
-                    OnlyPlant.TileHelper.UpdateHasTile();
-                }
-
-                return;
-            }
-
-
-            IDictionary<string, string> qs = this.NavigationContext.QueryString;
-
-            Guid plantId = default(Guid);
-
-            if (qs.ContainsKey("id") && Guid.TryParse(qs["id"], out plantId))
-            {
-                this.NavigateWithDeepLink(plantId);
-                return;
-            }
-
-            //ViewModel.Router.Navigate.Execute(ViewModel.CreateMainViewModel());
         }
 
 
@@ -364,6 +383,23 @@ namespace Growthstories.UI.WindowsPhone
             ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
             //}
         }
+
+        long MainViewBaseMS;
+        private void MainViewBase_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+            MainViewBaseMS = GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds;
+            //if (ViewModel != null)
+            //    ViewModel.Log().Info("MainView Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+        }
+
+        long MainWindowBaseMS;
+        private void MainWindowBase_Loaded(object sender, RoutedEventArgs e)
+        {
+            MainWindowBaseMS = GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds;
+
+        }
+
 
     }
 }

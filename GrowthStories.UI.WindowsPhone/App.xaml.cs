@@ -10,6 +10,7 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using Growthstories.Core;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -22,7 +23,10 @@ namespace Growthstories.UI.WindowsPhone
         /// Constructor for the Application object.
         /// </summary>
         public App()
+            : base()
         {
+
+
             // Global handler for uncaught exceptions.
             //UnhandledException += Application_UnhandledException;
             var stopwatch = new Stopwatch();
@@ -61,19 +65,21 @@ namespace Growthstories.UI.WindowsPhone
             //////////////////////////////////
             //// INITIAL STARTING POINT //////
             //////////////////////////////////
-            var xamlElapsed = stopwatch.Elapsed;
-            stopwatch.Restart();
-            var kernel = new StandardKernel(Bootstrap.GetModule(this));
-            var kernelElapsed = stopwatch.Elapsed;
-            stopwatch.Restart();
-            this.ViewModel = kernel.Get<IApplicationRootState>();
-            var appVmElapsed = stopwatch.Elapsed;
-            stopwatch.Stop();
+            Task.Run(() =>
+            {
+                //var xamlElapsed = stopwatch.Elapsed;
+                //stopwatch.Restart();
+                var kernel = new StandardKernel(Bootstrap.GetModule(this));
+                //var kernelElapsed = stopwatch.Elapsed;
+                //stopwatch.Restart();
+                this.ViewModel = kernel.Get<IApplicationRootState>();
+                //var appVmElapsed = stopwatch.Elapsed;
+                //stopwatch.Stop();
+            });
 
+            //this.Log().Info("XAML init: {0}, kernel init {1}, AppVM init {2}", xamlElapsed.Milliseconds, kernelElapsed.Milliseconds, appVmElapsed.Milliseconds);
 
-            this.Log().Info("XAML init: {0}, kernel init {1}, AppVM init {2}", xamlElapsed.Milliseconds, kernelElapsed.Milliseconds, appVmElapsed.Milliseconds);
-
-
+            this.Log().Info("App.xaml.cs constructor end {0}", LifeTimer.ElapsedMilliseconds);
         }
 
 

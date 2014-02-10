@@ -25,34 +25,44 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private Func<IGardenViewModel> MyGardenF;
+        private Func<INotificationsViewModel> NotificationsF;
+        private Func<FriendsViewModel> FriendsF;
 
         public MainViewModel(
-            IObservable<IGardenViewModel> myGarden,
-            IObservable<INotificationsViewModel> notifications,
-            IObservable<FriendsViewModel> friends,
+            Func<IGardenViewModel> myGardenF,
+            Func<INotificationsViewModel> notificationsF,
+            Func<FriendsViewModel> friendsF,
             IGSAppViewModel app)
             : base(app)
         {
-            myGarden.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
-            {
-                this.GardenVM = x;
-                this._Pages.Add(x);
-                this.SelectedPage = x;
-            }).Select(x => new Unit()).Take(1)
-            .Concat(notifications.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
-            {
-                this.NotificationsVM = x;
-                this._Pages.Add(x);
-            }).Select(x => new Unit()).Take(1))
-            .Concat(friends.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
-            {
-                this.FriendsVM = x;
-                this._Pages.Add(x);
-            }).Select(x => new Unit()).Take(1))
-            .ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => { }, () =>
-            {
-                AllLoaded = true;
-            });
+            this.MyGardenF = myGardenF;
+            this.NotificationsF = notificationsF;
+            this.FriendsF = friendsF;
+
+            //this.Log().Info("Constructor start");
+            //myGarden.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            //{
+            //    this.GardenVM = x;
+            //    this._Pages.Add(x);
+            //    this.SelectedPage = x;
+            //}).Select(x => new Unit()).Take(1)
+            //.Concat(notifications.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            //{
+            //    this.NotificationsVM = x;
+            //    this._Pages.Add(x);
+            //}).Select(x => new Unit()).Take(1))
+            //.Concat(friends.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
+            //{
+            //    this.FriendsVM = x;
+            //    this._Pages.Add(x);
+            //}).Select(x => new Unit()).Take(1))
+            //.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => { }, () =>
+            //{
+            //    AllLoaded = true;
+            //});
+            //this.Log().Info("Constructor end");
+
         }
 
 
@@ -61,6 +71,8 @@ namespace Growthstories.UI.ViewModel
         {
             get
             {
+                if (_GardenVM == null)
+                    InitGardenVM();
                 return _GardenVM;
             }
             private set
@@ -69,11 +81,25 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private void InitGardenVM()
+        {
+            this.GardenVM = MyGardenF();
+            CheckIfAllLoaded();
+        }
+
+        private void CheckIfAllLoaded()
+        {
+            if (_GardenVM != null && _NotificationsVM != null && _FriendsVM != null)
+                AllLoaded = true;
+        }
+
         private INotificationsViewModel _NotificationsVM;
         public INotificationsViewModel NotificationsVM
         {
             get
             {
+                if (_NotificationsVM == null)
+                    InitNotificationsVM();
                 return _NotificationsVM;
             }
             private set
@@ -83,11 +109,19 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private void InitNotificationsVM()
+        {
+            this.NotificationsVM = NotificationsF();
+            CheckIfAllLoaded();
+        }
+
         private FriendsViewModel _FriendsVM;
         public FriendsViewModel FriendsVM
         {
             get
             {
+                if (_FriendsVM == null)
+                    InitFriendsVM();
                 return _FriendsVM;
             }
             private set
@@ -97,7 +131,14 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private void InitFriendsVM()
+        {
+            this.FriendsVM = FriendsF();
+            CheckIfAllLoaded();
+        }
+
         private TestingViewModel _TestingVM;
+
         public TestingViewModel TestingVM
         {
             get

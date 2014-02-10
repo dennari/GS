@@ -20,9 +20,26 @@ namespace Growthstories.Domain
         private readonly IDictionary<Guid, Snapshot> snapshots = new Dictionary<Guid, Snapshot>();
         private readonly IDictionary<Guid, IGSAggregate> aggregates = new Dictionary<Guid, IGSAggregate>();
         private readonly IDictionary<Guid, IEventStream> streams = new Dictionary<Guid, IEventStream>();
-        private readonly IStoreEvents eventStore;
         private readonly IDetectConflicts conflictDetector;
         private readonly IAggregateFactory factory;
+
+
+
+        private readonly IStoreEvents _eventStore;
+        private IStoreEvents eventStore
+        {
+            get
+            {
+                if (!isPersistenceInitialized)
+                {
+                    isPersistenceInitialized = true;
+                    _Persistence.Initialize();
+
+                }
+                return _eventStore;
+
+            }
+        }
 
 
         private bool isPersistenceInitialized;
@@ -32,7 +49,11 @@ namespace Growthstories.Domain
             get
             {
                 if (!isPersistenceInitialized)
+                {
+                    isPersistenceInitialized = true;
                     _Persistence.Initialize();
+
+                }
                 return _Persistence;
 
             }
@@ -45,7 +66,11 @@ namespace Growthstories.Domain
             get
             {
                 if (!isUIPersistenceInitialized)
+                {
+                    isUIPersistenceInitialized = true;
                     _UIPersistence.Initialize();
+
+                }
                 return _UIPersistence;
 
             }
@@ -61,7 +86,7 @@ namespace Growthstories.Domain
             )
         {
 
-            this.eventStore = eventStore;
+            this._eventStore = eventStore;
             this.conflictDetector = conflictDetector;
             this.factory = factory;
             this._UIPersistence = uipersistence;
@@ -284,21 +309,21 @@ namespace Growthstories.Domain
                 return aggregate;
 
             var versionToLoad = int.MaxValue;
-            var snapshot = this.GetSnapshot(id, versionToLoad);
+            //var snapshot = this.GetSnapshot(id, versionToLoad);
 
-            var stream = this.OpenStream(id, versionToLoad, snapshot);
-            if (snapshot == null && stream.CommittedEvents.Count == 0)
+            var stream = this.OpenStream(id, versionToLoad, null);
+            if (stream.CommittedEvents.Count == 0)
                 throw DomainError.Named("premature", "aggregate not yet created");
 
-            if (snapshot != null)
-            {
-                var state = snapshot.Payload as AggregateState;
-                if (state != null)
-                {
-                    aggregate = (IGSAggregate)factory.Build(state.AggregateType);
-                    aggregate.ApplyState((IMemento)snapshot.Payload);
-                }
-            }
+            //if (snapshot != null)
+            //{
+            //    var state = snapshot.Payload as AggregateState;
+            //    if (state != null)
+            //    {
+            //        aggregate = (IGSAggregate)factory.Build(state.AggregateType);
+            //        aggregate.ApplyState((IMemento)snapshot.Payload);
+            //    }
+            //}
             if (aggregate == null)
             {
 

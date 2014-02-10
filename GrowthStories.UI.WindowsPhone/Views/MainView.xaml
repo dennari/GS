@@ -13,6 +13,7 @@
     xmlns:bar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     mc:Ignorable="d"
+    Loaded="MainViewBase_Loaded"
     >
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">

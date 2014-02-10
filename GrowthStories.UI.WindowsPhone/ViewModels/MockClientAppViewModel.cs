@@ -30,10 +30,66 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
 
-        public MockClientAppViewModel()
+        public MockClientAppViewModel(
+                   IMutableDependencyResolver resolver,
+                   IUserService context,
+                   IDispatchCommands handler,
+                   IGSRepository repository,
+                   ITransportEvents transporter,
+                   IUIPersistence uiPersistence,
+                   IPersistSyncStreams store,
+                   IIAPService iiapService,
+                   IScheduleService scheduler,
+                     ISynchronizer synchronizer,
+                   IRequestFactory requestFactory,
+                    IMessageBus bus,
+                   OptimisticPipelineHook hook
+                )
         {
+        }
+
+
+
+        private IReactiveCommand _PageOrientationChangedCommand;
+        public IReactiveCommand PageOrientationChangedCommand
+        {
+            get
+            {
+                return _PageOrientationChangedCommand ?? (_PageOrientationChangedCommand = new ReactiveCommand());
+            }
+        }
+
+        private IReactiveCommand _ShowPopup;
+        public IReactiveCommand ShowPopup
+        {
+            get
+            {
+                return _ShowPopup ?? (_ShowPopup = new ReactiveCommand());
+            }
+        }
+
+        private IReactiveCommand _BackKeyPressedCommand;
+        public IReactiveCommand BackKeyPressedCommand
+        {
+            get
+            {
+                return _BackKeyPressedCommand ?? (_BackKeyPressedCommand = new ReactiveCommand());
+            }
 
         }
+
+        private IReactiveCommand _SetDismissPopupAllowedCommand;
+        public IReactiveCommand SetDismissPopupAllowedCommand
+        {
+            get
+            {
+                return _SetDismissPopupAllowedCommand ?? (_SetDismissPopupAllowedCommand = new ReactiveCommand());
+            }
+
+        }
+
+
+
 
         public IGardenViewModel MyGarden
         {
@@ -55,10 +111,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             get { return null; }
         }
 
-        public IReactiveCommand ShowPopup
-        {
-            get { return null; }
-        }
+
 
         public IPopupViewModel SyncPopup
         {
@@ -132,13 +185,14 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public IMainViewModel CreateMainViewModel()
         {
-            return null;
+            return new MainViewModel(
+                () => (IGardenViewModel)null,
+                () => (INotificationsViewModel)null,
+                () => (FriendsViewModel)null,
+                this
+                );
         }
 
-        public IReactiveCommand BackKeyPressedCommand
-        {
-            get { return null; }
-        }
 
         public IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null)
         {
@@ -269,10 +323,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-        public IReactiveCommand SetDismissPopupAllowedCommand
-        {
-            get { return null; }
-        }
+
 
         public string UserEmail
         {
@@ -319,6 +370,25 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public IScreen HostScreen
         {
             get { return this; }
+        }
+
+
+        public bool NavigatingBack
+        {
+            get
+            {
+                return false;
+            }
+            set
+            {
+
+            }
+        }
+
+
+
+        public void HandleApplicationActivated()
+        {
         }
     }
 

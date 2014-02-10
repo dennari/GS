@@ -29,7 +29,6 @@ namespace Growthstories.UI.WindowsPhone
     /// </summary>
     public class AGSRoutedViewHost : RadTransitionControl
     {
-        IDisposable _inner = null;
 
         /// <summary>
         /// The Router associated with this View Host.
@@ -52,16 +51,26 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         /// <summary>
-        /// This content is displayed whenever there is no page currently
-        /// routed.
+        /// If no ViewModel is displayed, this content (i.e. a control) will be displayed.
         /// </summary>
-        public object DefaultContent
+        public FrameworkElement DefaultContent
         {
-            get { return (object)GetValue(DefaultContentProperty); }
+            get { return (FrameworkElement)GetValue(DefaultContentProperty); }
             set { SetValue(DefaultContentProperty, value); }
         }
         public static readonly DependencyProperty DefaultContentProperty =
-            DependencyProperty.Register("DefaultContent", typeof(object), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
+            DependencyProperty.Register("DefaultContent", typeof(FrameworkElement), typeof(AGSRoutedViewHost), new PropertyMetadata(null, OnDefaultContentChanged));
+
+        private static void OnDefaultContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var This = (AGSRoutedViewHost)d;
+            var v = (FrameworkElement)e.NewValue;
+            if (This.DefaultContent != v)
+                This.DefaultContent = v;
+
+            if (This.Content == null)
+                This.Content = v;
+        }
 
         public IObservable<string> ViewContractObservable
         {
@@ -90,11 +99,11 @@ namespace Growthstories.UI.WindowsPhone
                 throw new Exception("Couldn't find an IPlatformOperations. This should never happen, your dependency resolver is broken");
             }
 
-            ViewContractObservable = Observable.FromEventPattern<SizeChangedEventHandler, SizeChangedEventArgs>(x => SizeChanged += x, x => SizeChanged -= x)
-                .Select(_ => platform.GetOrientation())
-                .DistinctUntilChanged()
-                .StartWith(platform.GetOrientation())
-                .Select(x => x != null ? x.ToString() : default(string));
+            //ViewContractObservable = Observable.FromEventPattern<SizeChangedEventHandler, SizeChangedEventArgs>(x => SizeChanged += x, x => SizeChanged -= x)
+            //    .Select(_ => platform.GetOrientation())
+            //    .DistinctUntilChanged()
+            //    .StartWith(platform.GetOrientation())
+            //    .Select(x => x != null ? x.ToString() : default(string));
 
             //var vmAndContract = Observable.CombineLatest(
             //    this.WhenAnyObservable(x => x.Router.CurrentViewModel),
@@ -110,14 +119,18 @@ namespace Growthstories.UI.WindowsPhone
                 this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
                 if (x == null)
                 {
-                    Content = DefaultContent;
+                    if (Content != DefaultContent)
+                    {
+                        Content = null;
+                        Content = DefaultContent;
+                    }
                     if (AppVM != null)
                     {
                         AppVM.NavigatingBack = false;
                     }
                     return;
                 }
-                
+
                 var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
                 var view = viewLocator.ResolveView(x, null);
 
