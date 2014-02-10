@@ -24,7 +24,6 @@ namespace Growthstories.UI.Services
         private Dictionary<IGardenPivotViewModel, IViewFor> pivotViews = new Dictionary<IGardenPivotViewModel, IViewFor>();
 
 
-
         /// <summary>
         /// Returns the View associated with a ViewModel, deriving the name of
         /// the Type via ViewModelToViewFunc, then discovering it via
@@ -36,7 +35,6 @@ namespace Growthstories.UI.Services
         public IViewFor ResolveView<T>(T viewModel, string contract = null)
             where T : class
         {
-
             var viewType = typeof(IViewFor<>);
 
             var gvm = viewModel as IGardenPivotViewModel;
@@ -45,6 +43,8 @@ namespace Growthstories.UI.Services
                 if (!pivotViews.ContainsKey(gvm))
                 {
                     this.Log().Info("creating new gardenpivotviewmodel for {0}", gvm.Username);
+                    // only cache the latest one, as otherwise we wil use too much memory
+                    pivotViews.Clear(); 
                     pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
                 }
                 else
