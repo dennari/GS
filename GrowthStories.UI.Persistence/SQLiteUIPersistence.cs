@@ -367,80 +367,89 @@ namespace Growthstories.UI.Persistence
             return serializer.Deserialize<T>(bytes);
         }
 
+        private AsyncLock AccessLock = new AsyncLock();
+
 
         protected virtual IEnumerable<T> ExecuteQuery<T>(Guid streamId, Func<SQLiteCommand, IEnumerable<T>> query)
         {
             this.ThrowWhenDisposed();
-            SQLiteConnection connection = null;
-            SQLiteCommand command = null;
-            IEnumerable<T> results = null;
 
-            try
+            using (var res = AccessLock.LockAsync().Result)
             {
-                connection = ConnectionFac.GetConnection();
-                command = connection.CreateCommand("");
-                this.GSLog().Verbose("UI Persistence: executing query");
-                results = query(command);
-                this.GSLog().Verbose("UI Persistence: executed query");
-                return results;
-            }
-            catch (Exception e)
-            {
-                this.GSLog().Exception(e, "ExecuteQuery");
-                throw;
-            }
-            finally
-            {
-                // command.Dispose();
-            }
+                SQLiteConnection connection = null;
+                SQLiteCommand command = null;
+                IEnumerable<T> results = null;
 
+                try
+                {
+                    connection = ConnectionFac.GetConnection();
+                    command = connection.CreateCommand("");
+                    this.GSLog().Verbose("UI Persistence: executing query");
+                    results = query(command);
+                    this.GSLog().Verbose("UI Persistence: executed query");
+                    return results;
+                }
+                catch (Exception e)
+                {
+                    this.GSLog().Exception(e, "ExecuteQuery");
+                    throw;
+                }
+                finally
+                {
+                    // command.Dispose();
+                }
+            }
         }
+
 
         protected virtual T ExecuteCommand<T>(Guid streamId, Func<SQLiteConnection, SQLiteCommand, T> executor)
         {
             this.ThrowWhenDisposed();
-            SQLiteConnection connection = null;
-            SQLiteCommand command = null;
-            T results = default(T);
 
-            try
+            using (var res = AccessLock.LockAsync().Result)
             {
-                connection = ConnectionFac.GetConnection();
-                command = connection.CreateCommand("");
-                this.GSLog().Verbose("UI Persistence: executing command");
-                results = executor(connection, command);
-                this.GSLog().Verbose("UI Persistence: executed command {1}, {0} rows affeted", results, command.CommandText);
-                return results;
-            }
-            catch (Exception e)
-            {
-                object payload = null;
-                if (command != null && command.Bindings.TryGetValue(SQL.Payload, out payload))
+                SQLiteConnection connection = null;
+                SQLiteCommand command = null;
+                T results = default(T);
+
+                try
                 {
-
-                    string payloadString = string.Empty;
-                    byte[] payloadBytes = payload as byte[];
-                    if (payloadBytes != null)
-                        payloadString = Encoding.UTF8.GetString(payloadBytes, 0, Math.Min(payloadBytes.Length, 2 * 1024));
-
-                    this.GSLog().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
-
+                    connection = ConnectionFac.GetConnection();
+                    command = connection.CreateCommand("");
+                    this.GSLog().Verbose("UI Persistence: executing command");
+                    results = executor(connection, command);
+                    this.GSLog().Verbose("UI Persistence: executed command {1}, {0} rows affeted", results, command.CommandText);
+                    return results;
                 }
-                else
-                    this.GSLog().Exception(e, "ExecuteCommand");
+                catch (Exception e)
+                {
+                    object payload = null;
+                    if (command != null && command.Bindings.TryGetValue(SQL.Payload, out payload))
+                    {
 
-                if (Debugger.IsAttached)
-                    Debugger.Break();
+                        string payloadString = string.Empty;
+                        byte[] payloadBytes = payload as byte[];
+                        if (payloadBytes != null)
+                            payloadString = Encoding.UTF8.GetString(payloadBytes, 0, Math.Min(payloadBytes.Length, 2 * 1024));
 
-                throw;
+                        this.GSLog().Exception(e, "ExecuteCommand\n Query: {0}\n Payload:\n{1}", command.CommandText, payloadString);
+
+                    }
+                    else
+                        this.GSLog().Exception(e, "ExecuteCommand");
+
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+
+                    throw;
+                }
+                finally
+                {
+                    // command.Dispose();
+                }
             }
-            finally
-            {
-                // command.Dispose();
-            }
-
-
         }
+
 
         private void ThrowWhenDisposed()
         {
