@@ -198,9 +198,8 @@ namespace Growthstories.Sync
 
         public async Task<IPhotoDownloadResponse> RequestPhotoDownload(IPhotoDownloadRequest req)
         {
-            Tuple<HttpResponseMessage, Stream> response = null;
-            using ((response = await Download(req.DownloadUri)).Item1)
-                return ResponseFactory.CreatePhotoDownloadResponse(req, response);
+
+            return ResponseFactory.CreatePhotoDownloadResponse(req, await Download(req.DownloadUri));
         }
 
 
@@ -240,19 +239,12 @@ namespace Growthstories.Sync
 
 
 
-        public async Task<Tuple<HttpResponseMessage, Stream>> Download(Uri uri)
+        public async Task<HttpResponseMessage> Download(Uri uri)
         {
             using (var req = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                var r = await SendAsync(req);
+                return await SendAsync(req);
 
-                Stream c = null;
-                if (r.IsSuccessStatusCode)
-                {
-                    c = await r.Content.ReadAsStreamAsync();
-                }
-
-                return Tuple.Create(r, c);
             }
         }
 

@@ -45,9 +45,10 @@ namespace Growthstories.Sync
         {
             return _App ?? (_App = (GSApp)Repository.GetById(GSAppState.GSAppId));
         }
-        public void ResetApp()
+        public void Reset()
         {
             this._App = null;
+            Repository.ClearCaches();
         }
 
         public AsyncLock Alock
@@ -61,8 +62,13 @@ namespace Growthstories.Sync
             ICreateMessage cc = c as ICreateMessage;
             if (cc != null)
                 return Construct(cc);
-            return c.AggregateId == GSAppState.GSAppId ? GetApp() : Repository.GetById(c.AggregateId);
+            return c.AggregateId == GSAppState.GSAppId ? GetApp() : Construct(c.AggregateId);
 
+        }
+
+        protected IGSAggregate Construct(Guid id)
+        {
+            return Repository.GetById(id);
         }
 
         protected IGSAggregate Construct(ICreateMessage cc)
@@ -78,7 +84,7 @@ namespace Growthstories.Sync
 
             try
             {
-                return Repository.GetById(c.AggregateId);
+                return Construct(c.AggregateId);
             }
             catch (DomainError e)
             {
@@ -142,7 +148,33 @@ namespace Growthstories.Sync
                 return _Handle(c);
         }
 
+        public async Task<int> AttachAggregates(ISyncPullResponse pullResp)
+        {
+            using (await alock.LockAsync())
+            {
 
+                return pullResp.Streams
+                    .Aggregate(
+                        0,
+                        (acc, x) =>
+                        {
+
+                            //x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
+                            x.Aggregate = RemoteConstructNoThrow(x.First());
+
+                            x.TrimDuplicates();
+                            return acc + (x.Aggregate == null ? 0 : 1);
+                        }
+                     );
+            }
+
+        }
+
+        public async Task<IGSAggregate> GetById(Guid id)
+        {
+            using (await alock.LockAsync())
+                return Construct(id);
+        }
 
         /// <summary>
         ///  non thread-safe
@@ -322,23 +354,7 @@ namespace Growthstories.Sync
             return false;
         }
 
-        public int AttachAggregates(ISyncPullResponse pullResp)
-        {
-            return pullResp.Streams
-                .Aggregate(
-                    0,
-                    (acc, x) =>
-                    {
 
-                        //x.Aggregate = x.CreateMessage != null ? Construct(x.CreateMessage) : RemoteConstructNoThrow(x.First());
-                        x.Aggregate = RemoteConstructNoThrow(x.First());
-
-                        x.TrimDuplicates();
-                        return acc + (x.Aggregate == null ? 0 : 1);
-                    }
-                 );
-
-        }
 
         private void UISave(IMessage[] UIEvents)
         {

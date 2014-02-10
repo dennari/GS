@@ -30,6 +30,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             = Microsoft.Phone.Controls.SupportedPageOrientation.Portrait;
         private readonly OptimisticPipelineHook Hook;
         private readonly IPersistSyncStreams Store;
+        private readonly IDispatchCommands Handler;
 
         public Microsoft.Phone.Controls.SupportedPageOrientation ClientSupportedOrientations
         {
@@ -48,23 +49,21 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                    IMutableDependencyResolver resolver,
                    IUserService context,
                    IDispatchCommands handler,
-                   IGSRepository repository,
                    ITransportEvents transporter,
                    IUIPersistence uiPersistence,
                    IPersistSyncStreams store,
                    IIAPService iiapService,
                    IScheduleService scheduler,
-                     ISynchronizer synchronizer,
+                   ISynchronizer synchronizer,
                    IRequestFactory requestFactory,
                    IRoutingState router,
-                    IMessageBus bus,
+                   IMessageBus bus,
                    OptimisticPipelineHook hook
                 )
             : base(
             resolver,
             context,
             handler,
-            repository,
             transporter,
             uiPersistence,
             iiapService,
@@ -77,6 +76,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
             this.Store = store;
             this.Hook = hook;
+            this.Handler = handler;
 
             Initialize();
 
@@ -118,8 +118,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             this.Log().Info(
                 "MEM Current: {0:0.00} %, Peak: {1:0.00} %",
-                (double)DeviceStatus.ApplicationCurrentMemoryUsage/(double)DeviceStatus.ApplicationMemoryUsageLimit * 100,
-                (double)DeviceStatus.ApplicationPeakMemoryUsage/(double)DeviceStatus.ApplicationMemoryUsageLimit * 100);
+                (double)DeviceStatus.ApplicationCurrentMemoryUsage / (double)DeviceStatus.ApplicationMemoryUsageLimit * 100,
+                (double)DeviceStatus.ApplicationPeakMemoryUsage / (double)DeviceStatus.ApplicationMemoryUsageLimit * 100);
         }
 
 
@@ -240,7 +240,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public override void UpdatePhoneLocationServicesEnabled()
         {
-            
+
             var gl = new Geolocator();
             if (gl.LocationStatus == PositionStatus.Disabled)
             {
@@ -312,7 +312,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             Store.ReInitialize();
             UIPersistence.ReInitialize();
-            Repository.ClearCaches();
+            Handler.Reset();
             Hook.Dispose();
         }
 

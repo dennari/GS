@@ -204,7 +204,7 @@ namespace Growthstories.Sync
                     && pullResp.Streams != null
                     && pullResp.Streams.Count > 0)
                 {
-                    Handler.AttachAggregates(pullResp);
+                    await Handler.AttachAggregates(pullResp);
                     handlePull = true;
                     if (s.PushReq.IsEmpty)
                     {

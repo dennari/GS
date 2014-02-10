@@ -169,7 +169,7 @@ namespace Growthstories.Sync
             if (PhotoDownloadResponseFactory != null)
                 return PhotoDownloadResponseFactory(request);
 
-            return Task.FromResult<IPhotoDownloadResponse>(new PhotoDownloadResponse()
+            return Task.FromResult<IPhotoDownloadResponse>(new PhotoDownloadResponse(null)
             {
                 StatusCode = GSStatusCode.OK,
                 Photo = request.Photo

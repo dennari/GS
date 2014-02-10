@@ -14,11 +14,14 @@ namespace Growthstories.Domain
 
         Task<IGSAggregate> Handle(IMessage c);
         Task<IGSAggregate> Handle(IStreamSegment msgs);
-        int AttachAggregates(ISyncPullResponse pullResp);
-        void ResetApp();
+        Task<int> AttachAggregates(ISyncPullResponse pullResp);
+        Task<IGSAggregate> GetById(Guid id);
         Task<GSApp> Handle(Pull c);
         Task<GSApp> Handle(Push c);
+
         AsyncLock Alock { get; }
+        void Reset();
+
 
     }
 

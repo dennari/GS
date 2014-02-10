@@ -156,7 +156,6 @@ namespace Growthstories.UI.ViewModel
 
         private readonly IUserService Context;
         private readonly IDispatchCommands Handler;
-        protected readonly IGSRepository Repository;
         private readonly ITransportEvents Transporter;
         private readonly IIAPService IIAPService;
         private readonly IScheduleService Scheduler;
@@ -172,7 +171,6 @@ namespace Growthstories.UI.ViewModel
             IMutableDependencyResolver resolver,
             IUserService context,
             IDispatchCommands handler,
-            IGSRepository repository,
             ITransportEvents transporter,
             IUIPersistence uiPersistence,
             IIAPService iiapService,
@@ -185,7 +183,6 @@ namespace Growthstories.UI.ViewModel
         {
             this.Context = context;
             this.Handler = handler;
-            this.Repository = repository;
             this.Transporter = transporter;
             this._UIPersistence = uiPersistence;
             this.IIAPService = iiapService;
@@ -379,36 +376,36 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.User)
                .Where(x => x != null)
                .ObserveOn(RxApp.MainThreadScheduler)
-               .Subscribe(async x =>
+               .Subscribe(x =>
                {
                    this.IsRegistered = x.IsRegistered;
+                   this.GSLocationServicesEnabled = x.LocationEnabled;
+                   //UserState user = null;
+                   //try
+                   //{
+                   //    var ret = await GetById(x.Id);
+                   //    if (ret == null)
+                   //    {
+                   //        this.Log().Warn("could not get userstate for user {0}", x.Id);
+                   //    }
+                   //    user = ret.State as UserState;
+                   //    if (user == null)
+                   //    {
+                   //        this.Log().Warn("could not get userstate for user {0}", x.Id);
+                   //    }
+                   //}
+                   //catch { this.Log().Warn("could not get userstate for user {0} (exception)", x.Id); }
 
-                   UserState user = null;
-                   try
-                   {
-                       var ret = await GetById(x.Id);
-                       if (ret == null)
-                       {
-                           this.Log().Warn("could not get userstate for user {0}", x.Id);
-                       }
-                       user = ret.State as UserState;
-                       if (user == null)
-                       {
-                           this.Log().Warn("could not get userstate for user {0}", x.Id);
-                       }
-                   }
-                   catch { this.Log().Warn("could not get userstate for user {0} (exception)", x.Id); }
-
-                   if (user == null)
-                   {
-                       this.Log().Info("setting gslocationservices enabled via appstate to {0}", x.LocationEnabled);
-                       this.GSLocationServicesEnabled = x.LocationEnabled;
-                   }
-                   else
-                   {
-                       this.Log().Info("setting gslocationservices enabled via userstate to {0}", user.LocationEnabled);
-                       this.GSLocationServicesEnabled = user.LocationEnabled;
-                   }
+                   //if (user == null)
+                   //{
+                   //    this.Log().Info("setting gslocationservices enabled via appstate to {0}", x.LocationEnabled);
+                   //    this.GSLocationServicesEnabled = x.LocationEnabled;
+                   //}
+                   //else
+                   //{
+                   //    this.Log().Info("setting gslocationservices enabled via userstate to {0}", user.LocationEnabled);
+                   //    this.GSLocationServicesEnabled = user.LocationEnabled;
+                   //}
 
                });
 
@@ -578,14 +575,6 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public Task<IGSAggregate> GetById(Guid id)
-        {
-
-            return Task.Run(() => Repository.GetById(id));
-
-
-        }
-
         private List<IDisposable> subs = new List<IDisposable>();
 
 
@@ -603,7 +592,7 @@ namespace Growthstories.UI.ViewModel
                 // try to get a previously created application from the repository
                 try
                 {
-                    app = (GSApp)(Repository.GetById(GSAppState.GSAppId));
+                    app = (GSApp)(await Handler.GetById(GSAppState.GSAppId));
                     this.Log().Info("found previous GSApp");
                 }
                 catch (DomainError)
@@ -912,7 +901,7 @@ namespace Growthstories.UI.ViewModel
             GSApp app = null;
 
             this.ClearDB();
-            Handler.ResetApp();
+            //Handler.ResetApp();
             Growthstories.UI.Services.GSViewLocator.Instance.Reset();
 
             this._Model = null;

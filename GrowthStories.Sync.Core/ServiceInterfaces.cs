@@ -26,7 +26,7 @@ namespace Growthstories.Sync
         ISyncPullResponse CreatePullResponse(ISyncPullRequest req, Tuple<HttpResponseMessage, string> resp);
         ISyncPushResponse CreatePushResponse(ISyncPushRequest req, Tuple<HttpResponseMessage, string> resp);
         IPhotoUploadResponse CreatePhotoUploadResponse(IPhotoUploadRequest req, Tuple<HttpResponseMessage, string> resp);
-        IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, Tuple<HttpResponseMessage, Stream> resp);
+        IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, HttpResponseMessage resp);
 
         IAuthResponse CreateAuthResponse(Tuple<HttpResponseMessage, string> resp);
         IUserListResponse CreateUserListResponse(Tuple<HttpResponseMessage, string> resp);
