@@ -75,6 +75,26 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        public bool ShouldPlantBeFullyLoaded(IPlantViewModel plant, IPlantViewModel selectedPlant)
+        {
+            if (plant.UserId != selectedPlant.UserId)
+            {
+                return false;
+            }
+
+            //this.Log().Info(
+            //    "index for plant is {0}, for selectedplant is {1}, count is {2}", 
+            //    plant.PlantIndex, selectedPlant.PlantIndex, Plants.Count());
+
+            return
+                selectedPlant == plant
+                || selectedPlant.PlantIndex + 1 == plant.PlantIndex
+                || selectedPlant.PlantIndex - 1 == plant.PlantIndex
+                || (selectedPlant.PlantIndex == 0 && plant.PlantIndex == Plants.Count() - 1)
+                || (selectedPlant.PlantIndex == Plants.Count() - 1 && plant.PlantIndex == 0);
+        }
+
+
         private void SubscribeForNestedIsLoaded()
         {
             var count = Plants.Count();
@@ -348,9 +368,19 @@ namespace Growthstories.UI.ViewModel
             {
                 Init(x, isOwn);
             });
+
+            App.WhenAnyValue(x => x.SelectedPlant).Subscribe(x =>
+            {
+                foreach (var p in Plants)
+                {
+                    var should = ShouldPlantBeFullyLoaded(p, x);
+                    //this.Log().Info("should plant {0} be fully loaded is now {1}", p.Name, should);
+                    p.ShouldBeFullyLoaded = should;
+                }
+            });
+
         }
 
-        
 
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {

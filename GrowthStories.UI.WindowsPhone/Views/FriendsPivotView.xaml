@@ -13,7 +13,7 @@
 	d:DataContext="{StaticResource FriendsPivotViewModelDesign}"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded">
+    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded" Unloaded="LayoutRoot_Unloaded">
         
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.jpg"/>
@@ -44,7 +44,7 @@
 
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <local:GardenView ViewModel="{Binding}"/>
+                    <local:GardenView ViewModel="{Binding}" CleanUpOnUnload="TRUE" />
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
 

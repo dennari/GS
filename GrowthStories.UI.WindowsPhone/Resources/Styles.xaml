@@ -19,7 +19,6 @@
 	xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
 	xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
     xmlns:PhoneTextBox="clr-namespace:Telerik.Windows.Controls.PhoneTextBox;assembly=Telerik.Windows.Controls.Primitives" 
-      
     mc:Ignorable="d">
 
     <local:LocalizedStrings x:Key="LocalizedStrings" />

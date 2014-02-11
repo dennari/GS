@@ -53,7 +53,7 @@
 
                 <telerikPrimitives:RadContextMenuItem 
                         Content="Water"
-                        Command="{Binding WateringCommand}"
+                        Command="{Binding WateringCommand, Converter={StaticResource WeakCommandBinding}}"
                         CommandParameter="{Binding}"
                         IsEnabled="{Binding HasWriteAccess}"
                         Foreground="{StaticResource GSAccentBrush}"
@@ -61,7 +61,7 @@
 
                 <telerikPrimitives:RadContextMenuItem 
                         Content="Edit" 
-                        Command="{Binding EditCommand}"
+                        Command="{Binding EditCommand, Converter={StaticResource WeakCommandBinding}}"
                         CommandParameter="{Binding}"
                         IsEnabled="{Binding HasWriteAccess}"
                         Foreground="{StaticResource GSAccentBrush}"
@@ -69,7 +69,7 @@
 
                 <telerikPrimitives:RadContextMenuItem 
                         Content="Delete" 
-                        Command="{Binding DeleteRequestedCommand}"
+                        Command="{Binding DeleteRequestedCommand, Converter={StaticResource WeakCommandBinding}}"
                         CommandParameter="{Binding}"
                         IsEnabled="{Binding HasWriteAccess}"    
                         Foreground="{StaticResource GSAccentBrush}"
@@ -99,10 +99,7 @@
             >
 
                 <Grid>
-                    <!--
-                    Command="{Binding ShowDetailsCommand}"
-                    -->
-
+                   
                     <c4f:Tile 
                     Grid.Row="0"
                     Background="Transparent"
@@ -198,7 +195,7 @@
 
 
         <StackPanel Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
-        <StackPanel Visibility="{Binding Loading, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"> 
+        <StackPanel Visibility="{Binding Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"> 
         
         <telerikPrimitives:RadBusyIndicator 
             Grid.Row="0"

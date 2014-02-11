@@ -207,7 +207,6 @@ namespace Growthstories.UI.ViewModel
                 try
                 {
                     this.Orientation = (PageOrientation)x;
-
                 }
                 catch
                 {
@@ -734,7 +733,18 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+        private IPlantViewModel _SelectedPlant;
+        public IPlantViewModel SelectedPlant
+        {
+            get
+            {
+                return _SelectedPlant;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SelectedPlant, value);
+            }
+        }
 
         public async Task<RegisterResponse> Register(string username, string email, string password)
         {

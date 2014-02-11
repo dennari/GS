@@ -45,6 +45,25 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        public static readonly DependencyProperty CleanUpOnUnloadProperty =
+                   DependencyProperty.Register("CleanUpOnUnload", typeof(string), typeof(GardenView), new PropertyMetadata("FALSE"));
+
+
+        public string CleanUpOnUnload
+        {
+            get
+            {
+                return (string)GetValue(CleanUpOnUnloadProperty);
+            }
+            set
+            {
+                Logger.Info("trying to set value to {0}, currentvalue is {1}", value, CleanUpOnUnload);
+                SetValue(CleanUpOnUnloadProperty, value);
+                Logger.Info("set value to {0}", value);
+            }
+        }
+
+
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
 
@@ -187,6 +206,22 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        private void ViewRoot_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Log().Info("gardenview unloaded for {0}", ViewModel.Username);
+            if (CleanUpOnUnload != null && CleanUpOnUnload.Equals("TRUE"))
+            {
+                ViewModel.Log().Info("cleaning up gardenview {0}", ViewModel.Username);
+                PlantsSelector.ItemsSource = null;
+                ViewHelpers.ClearLongListMultiSelectorDependencyValues(PlantsSelector);
+                GC.Collect(2, GCCollectionMode.Forced, true); // useful for testing
+            }
+        }
+
+        ~GardenView()  // destructor
+        {
+            ViewModel.Log().Info("destroying viewmodel {0}", ViewModel.Username);
+        }
 
     }
 }

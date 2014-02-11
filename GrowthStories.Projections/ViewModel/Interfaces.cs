@@ -159,6 +159,7 @@ namespace Growthstories.UI.ViewModel
         ISearchUsersViewModel SearchUsersViewModelFactory(IFriendsViewModel friendsVM);
 
         // Stopwatch NavigateAndResetStopwatch {get; }
+        IPlantViewModel SelectedPlant { get; set; }
     }
 
 
@@ -294,6 +295,8 @@ namespace Growthstories.UI.ViewModel
         bool ShowPlaceHolder { get; }
 
         void NotifyImageDownloadFailed();
+
+        bool ShouldBeFullyLoaded { get; set; }
 
     }
 

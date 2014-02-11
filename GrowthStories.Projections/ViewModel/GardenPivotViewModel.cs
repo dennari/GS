@@ -48,6 +48,7 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x =>
                 {
                     this.SelectedPlant = x;
+                    App.SelectedPlant = x;
                     this.Log().Info("SelectedPlant changed to {0}", x.Name);
                 });
 

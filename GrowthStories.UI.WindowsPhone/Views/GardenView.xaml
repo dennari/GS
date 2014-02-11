@@ -133,7 +133,7 @@
     </UserControl.Resources>
 
 
-        <Grid>
+        <Grid x:Name="ViewRoot" Unloaded="ViewRoot_Unloaded">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>

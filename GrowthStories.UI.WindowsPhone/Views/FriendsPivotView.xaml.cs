@@ -26,13 +26,26 @@ namespace Growthstories.UI.WindowsPhone
         public FriendsPivotView()
         {
             InitializeComponent();
+            ViewModel.Log().Info("initializing new friendspivotview");
         }
+
 
         private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
         {
             //ViewModel.App.PossiblyAutoSync();
         }
 
+        private void LayoutRoot_Unloaded(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Log().Info("cleaning up friendspivot");
+            Friends.ItemsSource = null;
+            ViewHelpers.ClearPivotDependencyValues(Friends);
+        }
+
+        ~FriendsPivotView()
+        {
+            this.ViewModel.Log().Info("in friendspivotview destructor");
+        }
 
     }
 }

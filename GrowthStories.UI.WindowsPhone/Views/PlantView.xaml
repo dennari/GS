@@ -12,95 +12,7 @@
     d:DesignHeight="800"
     mc:Ignorable="d">
 
- 
-    <local:PlantViewBase.Resources>
-        <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
-            
-
-                <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,0,24,12">
-
-                <telerikPrimitives:RadContextMenu.ContextMenu>
-                    <telerikPrimitives:RadContextMenu 
-                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
-                            IsFadeEnabled="True"
-                            IsZoomEnabled="False"
-                            Background="WhiteSmoke"                           
-                            Foreground="{StaticResource GSAccentBrush}">
-
-                        <telerikPrimitives:RadContextMenuItem 
-                                Content="Edit" 
-                            Command="{Binding EditCommand}"
-                            CommandParameter="{Binding}"
-                                IsEnabled="{Binding IsEditEnabled}"
-                            Foreground="{StaticResource GSAccentBrush}"              
-                                />
-
-                        <telerikPrimitives:RadContextMenuItem 
-                                Content="Delete" 
-                            Command="{Binding DeleteCommand}"
-                            CommandParameter="{Binding}"
-                                IsEnabled="{Binding IsEditEnabled}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
-
-                        <telerikPrimitives:RadContextMenuItem 
-                                Visibility="{Binding ShowSetAsProfilePicture, Converter={StaticResource BooleanToVisibility}}"
-                                Content="Set as profile picture" 
-                                Command="{Binding SetAsProfilePictureCommand}"
-                                CommandParameter="{Binding}"
-                                Foreground="{StaticResource GSAccentBrush}"
-                                />
-
-                    </telerikPrimitives:RadContextMenu>
-                </telerikPrimitives:RadContextMenu.ContextMenu>
-
-                <ContentPresenter 
-						DataContext="{Binding}"
-                        Content="{Binding}" 
-						ContentTemplate="{TemplateBinding ContentTemplate}" 
-						Visibility="{TemplateBinding ContentVisibility}" 
-						HorizontalAlignment="Stretch"
-                        />
-
-                    <Button
-                        Style="{StaticResource GSButtonStyle}"
-                        HorizontalAlignment="Left"
-                        Margin="0,0,0,0"
-                        toolkit:TiltEffect.IsTiltEnabled="True"
-                        Padding="0,0,0,0"
-                        BorderThickness="0"
-                        BorderBrush="Transparent"
-                        Command="{Binding EditCommand}"
-                        CommandParameter="{Binding}"    
-                        VerticalContentAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                        IsEnabled="{Binding OwnAction}"
-                        >
-
-                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
-                        <StackPanel Orientation="Vertical" Width="96">
-                            <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
-                            <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
-                            <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
-                        </StackPanel>
-                        <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIcon}}" Width="45" Margin="24,0"  />
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
-                            <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                            <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                </Button>
-
-            </StackPanel>
-
-        </ControlTemplate>
-
-        <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
-
-    </local:PlantViewBase.Resources>
-    
+  
         <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -133,19 +45,27 @@
                 />
 
         </StackPanel>
-        
 
+        <Grid x:Name="TimelineContainer" Loaded="TimelineContainer_Loaded" Unloaded="TimelineContainer_Unloaded">
+            <!--
+            <local:TimelineLongListSelectorView 
+            ViewModel="{Binding}" />
+            -->
+        </Grid>
+            
+        <!--
         <local:GSLongListSelector
-            Loaded="TimeLine_Loaded"
+            
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             x:Name="TimeLine" 
             ItemsSource="{Binding FilteredActions}" 
             Grid.Row="1"
-            ListHeader="{Binding}"
             VerticalAlignment="Stretch"
             Margin="-12,0,-12,0"
-            Padding="0,0,0,0"                        
-            Visibility="{Binding Actions.Count, Converter={StaticResource NonZeroToVisibility}}">
+            Padding="0,0,0,0"
+            Loaded="TimeLine_Loaded"
+            Unloaded="TimeLine_Unloaded"
+            Visibility="{Binding FilteredActions.Count, Converter={StaticResource NonZeroToVisibility}}">
 
             <phone:LongListSelector.ListHeaderTemplate>
                 <DataTemplate>
@@ -162,31 +82,6 @@
                             Style="{StaticResource PlantNextAction}"/>
                         </Grid>
                         
-                        <!--
-                        <Canvas Height="54" Margin="0,0,0,24" >
-                            <Line X1="0" X2="7" Y1="27" Y2="27" 
-                        Canvas.ZIndex="0"
-                        StrokeThickness="3">
-                                <Line.Stroke>
-                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                                </Line.Stroke>
-                            </Line>
-                            <Line X1="120" X2="200" Y1="27" Y2="27" 
-                    Canvas.ZIndex="0"
-                    StrokeThickness="3">
-                                <Line.Stroke>
-                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                                </Line.Stroke>
-                            </Line>
-                            <Line X1="265" X2="456" Y1="27" Y2="27" 
-                    Canvas.ZIndex="0"
-                    StrokeThickness="3">
-                                <Line.Stroke>
-                                    <SolidColorBrush Color="{StaticResource GSAppBarColor}"/>
-                                </Line.Stroke>
-                            </Line>
-                        </Canvas>
-                        -->
                         <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
 
                     </StackPanel>
@@ -195,16 +90,17 @@
             <phone:LongListSelector.ItemTemplate>
                 <DataTemplate>
                     <local:PlantActionView 
-                        ViewModel="{Binding}"
+                        ViewModel="{Binding Mode=OneTime}"
                         Template="{StaticResource TimelineActionTemplate}"
-                        toolkit:SlideInEffect.LineIndex="{Binding ActionIndex}"
-                        >         
+                        >
+
                         <local:PlantActionView.PhotoTemplate>
                             <DataTemplate>
                                 <local:TimelinePhotoView ViewModel="{Binding}" />
                             </DataTemplate>
                         </local:PlantActionView.PhotoTemplate>
                     </local:PlantActionView>
+                    
                 </DataTemplate>
                 
             </phone:LongListSelector.ItemTemplate>
@@ -216,7 +112,8 @@
             </phone:LongListSelector.ListFooterTemplate>
 
         </local:GSLongListSelector>
-
+        -->
+            
     </Grid>
     
    

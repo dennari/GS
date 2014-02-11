@@ -154,7 +154,7 @@
                 <DataTemplate>
                     <bar:BindableApplicationBarButton
                         
-                        Command="{Binding Command}"
+                        Command="{Binding Command, Converter={StaticResource WeakCommandBinding}}"
                         CommandParameter="{Binding CommandParameter}"
                         IconUri="{Binding IconType, Converter={StaticResource IconTypeToIconUri}, ConverterParameter=small}"
                         IsEnabled="{Binding IsEnabled}"

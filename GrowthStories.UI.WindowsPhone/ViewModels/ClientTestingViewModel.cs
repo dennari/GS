@@ -106,7 +106,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private void _CreateLocalTestData2()
         {
 
-            for (var i = 0; i < 30; i++)
+            for (var i = 1; i <= 25; i++)
             {
 
                 var localPlant = new CreatePlant(Guid.NewGuid(), "Jare" + i, App.User.GardenId, App.User.Id);
@@ -155,7 +155,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                         PlantActionType.FERTILIZED,
                         "Hello local world " + i));
 
-                for (int j = 0; j < 20; j++)
+                for (int j = 0; j < 30; j++)
                 {
                     Handler.Handle(
                         new CreatePlantAction(

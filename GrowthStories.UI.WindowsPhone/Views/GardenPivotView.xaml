@@ -10,6 +10,8 @@
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives"             
+    xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"             
     mc:Ignorable="d">
 
 
@@ -26,10 +28,47 @@
                     <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
                 </Grid.Background>
 
+                <!--
+                
+                <TextBlock 
+                    Style="{StaticResource GSAppTitleStyle}"
+                    Text="GROWTH STORIES" 
+                    Margin="0,4,0,8" />
 
-               <phone:Pivot 
+                <telerikPrimitives:RadSlideView x:Name="Plants" 
+                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                    ItemsSource="{Binding Plants}" ItemRealizationMode="Default"
+                    FontFamily="{StaticResource GSPageTitleFont}">
+                    
+                    <telerikPrimitives:RadSlideView.ItemTemplate>
+                        <DataTemplate>
+                            <local:PlantView 
+                                ViewModel="{Binding}" 
+                                Margin="0,0,0,0" 
+                                VerticalAlignment="Stretch" />
+                        </DataTemplate>
+                        
+                    </telerikPrimitives:RadSlideView.ItemTemplate>
+                    
+                    <telerikPrimitives:RadSlideView.ItemPreviewTemplate>
+                        <DataTemplate>
+                            <ContentControl />                            
+                        </DataTemplate>
+                    </telerikPrimitives:RadSlideView.ItemPreviewTemplate>
+                
+                    <telerikPrimitives:RadSlideView.OverlayContentTemplate>
+                        <DataTemplate>
+                            <TextBlock 
+                               Style="{StaticResource GSPageTitleStyle}"
+                               Text="{Binding Name}"  />
+                        </DataTemplate>
+                    </telerikPrimitives:RadSlideView.OverlayContentTemplate>
+                    
+                </telerikPrimitives:RadSlideView>
+                -->
+                
+                <phone:Pivot 
                 Loaded="Plants_Loaded"    
-                LoadedPivotItem="Plants_LoadedPivotItem"
 			    x:Name="Plants" 
 			    ItemsSource="{Binding Plants}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
@@ -45,10 +84,6 @@
                                 Style="{StaticResource GSAppTitleStyle}"
                                 Text="GROWTH STORIES" 
                                 Margin="0,4,0,8" />
-
-                            <!--
-                                Text="{Binding Username, Converter={StaticResource ToUpperOrLowerCase}}"  />
-                                -->
                         </DataTemplate>
                         
                     </phone:Pivot.TitleTemplate>
@@ -72,7 +107,7 @@
                     </phone:Pivot.ItemTemplate>
 
                 </phone:Pivot>
-
+                
 
             </Grid>
         </local:GSMultiViewHost.DefaultContent>

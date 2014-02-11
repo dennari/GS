@@ -22,14 +22,13 @@
         HorizontalAlignment="Stretch" 
         Style="{StaticResource GSWrapperButtonStyle}" 
         Margin="0,6,0,18" 
-        Command="{Binding PhotoTimelineTap}"
+        Command="{Binding PhotoTimelineTap, Converter={StaticResource WeakCommandBinding}}"
         Padding="0,0,0,0"
         IsEnabled="True"
         Height="220"
         >
         
         <Grid>
-
             <telerikPrimitives:RadBusyIndicator 
             x:Name="LoadingPhoto"
             Visibility="Visible"

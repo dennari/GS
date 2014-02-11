@@ -23,6 +23,7 @@ namespace Growthstories.UI.ViewModel
         SELF
     }
 
+
     public class PlantViewModel : RoutableViewModel, IPlantViewModel
     {
 
@@ -167,6 +168,16 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private bool _ShouldBeFullyLoaded;
+        public bool ShouldBeFullyLoaded
+        {
+            get {
+                return _ShouldBeFullyLoaded;
+            }
+            set {
+                this.RaiseAndSetIfChanged(ref _ShouldBeFullyLoaded, value);
+            }
+        }
 
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
@@ -177,10 +188,7 @@ namespace Growthstories.UI.ViewModel
             if (stateObservable == null)
                 throw new ArgumentNullException("StateObservable cannot be null");
 
-
             this.WateringCommand = new ReactiveCommand();
-
-
             this.FertilizingSchedule = new ScheduleViewModel(null, ScheduleType.FERTILIZING, app);
 
             ResetAnimationsCommand = new ReactiveCommand();
@@ -216,16 +224,6 @@ namespace Growthstories.UI.ViewModel
             this.ScrollCommand = new ReactiveCommand();
             this.TryShareCommand = new ReactiveCommand();
             this.ShowActionList = Observable.Return(true).ToCommandWithSubscription(_ => this.Navigate(PlantActionList));
-
-
-            //this.ShowDetailsCommand = new ReactiveCommand();
-            //this.ShowDetailsCommand
-            //    .Subscribe(x =>
-            //    {
-            //        var g = App.MyGarden as GardenViewModel;
-            //        g.PivotVM.SelectedItem = this;
-            //        App.Router.Navigate.Execute(g.PivotVM);
-            //    });
 
 
             this.PhotoCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
@@ -318,6 +316,7 @@ namespace Growthstories.UI.ViewModel
                     .ToProperty(this, x => x.ShowFertilizingScheduler, out _ShowFertilizingScheduler);
 
             });
+
 
         }
 
@@ -614,6 +613,7 @@ namespace Growthstories.UI.ViewModel
             // 
             //
             var tmp = Actions;
+        
         }
 
 
@@ -1107,6 +1107,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+
         public IReactiveDerivedList<IPlantActionViewModel> _FilteredActions;
         public IReactiveDerivedList<IPlantActionViewModel> FilteredActions
         {
@@ -1369,7 +1370,6 @@ namespace Growthstories.UI.ViewModel
             };
         }
 
-
     }
 
 
@@ -1377,6 +1377,8 @@ namespace Growthstories.UI.ViewModel
     {
 
         public bool Loaded { get; set; }
+
+        public bool ShouldBeFullyLoaded { get; set; }
 
         public bool ShowPlaceHolder { get; set; }
 

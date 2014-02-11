@@ -32,16 +32,11 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {
             //base.OnViewModelChanged(vm);
-            //vm.Log().Info("GardenPivotView: OnViewModelChanged");
+            vm.Log().Info("GardenPivotView: OnViewModelChanged");
 
         }
 
 
-        private void Plants_LoadedPivotItem(object sender, PivotItemEventArgs e)
-        {
-            //var pvm = e.Item.Content as IPlantViewModel;
-            //pvm.ResetAnimationsCommand.Execute(null);
-        }
 
 
         private void Plants_Loaded(object sender, RoutedEventArgs e)
@@ -52,7 +47,6 @@ namespace Growthstories.UI.WindowsPhone
             //}
         }
 
-
         //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         //{
         //    var plantActionView = (PlantActionView)sender;
@@ -60,6 +54,15 @@ namespace Growthstories.UI.WindowsPhone
         //    plant.ActionTapped.Execute(plantActionView.ViewModel);
         //}
 
+
+        public void CleanUp()
+        {
+            //
+            //foreach (var p in ViewModel.Plants)
+            //{
+            //    p.ShouldBeFullyLoaded = false;
+            //}
+        }
 
 
     }

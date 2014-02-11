@@ -37,5 +37,6 @@
 
     <local:BooleanToPlaceHolderImageSourceConverter x:Key="BooleanToPlaceHolderImageSource"/>
 
-
+    <local:WeakCommandBindingConverter x:Key="WeakCommandBinding" />
+    
 </ResourceDictionary>

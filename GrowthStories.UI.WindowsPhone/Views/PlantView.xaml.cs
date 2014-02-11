@@ -32,12 +32,13 @@ namespace Growthstories.UI.WindowsPhone
 
     public partial class PlantView : PlantViewBase
     {
-        // maybe just use the viewmodel's Log() extension method?
-        //private static ILog Logger = LogFactory.BuildLogger(typeof(SearchUsersViewModel));
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(PlantView));
 
 
         public PlantView()
         {
+            Logger.Info("initializing new plantview");
             InitializeComponent();
 
             if (Height != Double.NaN)
@@ -49,7 +50,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
-
+            Logger.Info("onviewmodelchanged for {0}", vm.Name);
+        
             if (vm.HasWriteAccess)
             {
                 Margin = new Thickness(0, 0, 0, 72);
@@ -60,58 +62,87 @@ namespace Growthstories.UI.WindowsPhone
                 Margin = new Thickness(0, 0, 0, 0);
             }
 
+            //vm.FilteredActions
+            //    .ItemsAdded
+            //    .Throttle(TimeSpan.FromMilliseconds(300))
+            //    .ObserveOn(RxApp.MainThreadScheduler)
+            //    .Subscribe(x =>
+            //{
+            //    this.ViewModel.Log().Info("itemadded, possibly triggering scroll");
+            //    try
+            //    {
 
-            vm.FilteredActions
-                .ItemsAdded
-                .Throttle(TimeSpan.FromMilliseconds(300))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
+            //        if (TimeLine.ItemsSource.Count > 2)
+            //        {
+            //            vm.Log().Info("scrolling");
+            //            TimeLine.ScrollTo(x);
+
+            //            //if (TimeLine.ViewPort != null)
+            //            //{                           
+            //            //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
+            //            //}
+            //        }
+            //    }
+            //    catch { }
+            //});
+
+            vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
             {
-                this.ViewModel.Log().Info("itemadded, possibly triggering scroll");
-                try
+                if (x)
                 {
-                    if (TimeLine.ItemsSource.Count > 2)
-                    {
-                        vm.Log().Info("scrolling");
-                        TimeLine.ScrollTo(x);
-
-                        //if (TimeLine.ViewPort != null)
-                        //{                           
-                            //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
-                        //}
-                    }
+                    _AddLongListSelector();
                 }
-                catch { }
+                else
+                {
+                    _RemoveLongListSelector();
+                }
             });
 
         }
 
 
-        private void TimeLine_Loaded(object sender, RoutedEventArgs e)
+    
+
+
+        private void _RemoveLongListSelector()
         {
-            // hack to hide the scrollbar from longlistselector
-            // needs to be done as it screws up alignment on the grid
-            //
-            // from http://stackoverflow.com/questions/18414498/hide-scrollbar-in-longlistselector
-            //
-            //   -- JOJ 17.1.2014
-
-            try
+            ViewModel.Log().Info("removing longlistselector for {0}", ViewModel.Name);
+            foreach (var c in TimelineContainer.Children)
             {
-                if (TimeLine.ItemsSource.Count > 0)
+                var lls = c as TimelineLongListSelectorView;
+                if (lls != null)
                 {
-                    var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
-                    sb.Margin = new Thickness(0, 0, -10, 0);
+                    lls.CleanUp();
                 }
-
             }
-            catch
-            {
+            TimelineContainer.Children.Clear();
+        }
+    
 
+        private void TimelineContainer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            //_RemoveLongListSelector();
+        }
+
+
+        private void _AddLongListSelector()
+        {
+            var lls = new TimelineLongListSelectorView();
+            lls.ViewModel = this.ViewModel;
+
+            if (TimelineContainer.Children.Count() == 0)
+            {
+                ViewModel.Log().Info("adding longlistselector for {0}", this.ViewModel.Name);
+                TimelineContainer.Children.Add(lls);
             }
         }
 
 
+        private void TimelineContainer_Loaded(object sender, RoutedEventArgs e)
+        {
+            //ViewModel.Log().Info("loaded timelinecontainer for {0}", ViewModel.Name);
+            //_AddLongListSelector();
+        }
 
     }
 

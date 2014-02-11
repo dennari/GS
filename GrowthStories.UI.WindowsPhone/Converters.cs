@@ -16,6 +16,8 @@ using System.Windows.Interactivity;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using EventStore.Logging;
+using WeakEventSource;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -25,16 +27,28 @@ namespace Growthstories.UI.WindowsPhone
 
         private static ILog Logger = LogFactory.BuildLogger(typeof(ConverterHelpers));
 
+        private static Dictionary<string, WeakReference<BitmapImage>> cache 
+            = new Dictionary<string,WeakReference<BitmapImage>>();
+
 
         public static BitmapImage ToBitmapImage(this IPhoto x)
         {
             BitmapImage img;
 
+            if (cache.ContainsKey(x.Uri))
+            {
+                bool success = cache[x.Uri].TryGetTarget(out img);
+                if (success && img != null)
+                {
+                    return img;
+                }
+            }
+
             img = new BitmapImage(new Uri(x.Uri, UriKind.RelativeOrAbsolute))
-              {
+            {
                   CreateOptions = (BitmapCreateOptions.BackgroundCreation),
                   DecodePixelType = x.DimensionsType == DimensionsType.LOGICAL ? DecodePixelType.Logical : DecodePixelType.Physical
-              };
+            };
 
             if (x.Height != default(uint))
                 img.DecodePixelHeight = (int)x.Height;
@@ -46,6 +60,7 @@ namespace Growthstories.UI.WindowsPhone
                 //throw e.ErrorException;
             };
 
+            cache[x.Uri] = new WeakReference<BitmapImage>(img); 
 
             return img;
         }
@@ -713,8 +728,6 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
-
-
     /// <summary>
     /// Behavior that will connect an UI event to a viewmodel Command,
     /// allowing the event arguments to be passed as the CommandParameter.
@@ -735,7 +748,6 @@ namespace Growthstories.UI.WindowsPhone
         // PassArguments (default: false)
         public bool PassArguments { get { return (bool)GetValue(PassArgumentsProperty); } set { SetValue(PassArgumentsProperty, value); } }
         public static readonly DependencyProperty PassArgumentsProperty = DependencyProperty.Register("PassArguments", typeof(bool), typeof(EventToCommandBehavior), new PropertyMetadata(false));
-
 
         private static void OnEventChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -787,6 +799,68 @@ namespace Growthstories.UI.WindowsPhone
                     this.Command.Execute(parameter);
             }
         }
+    }
+
+
+    // from http://social.msdn.microsoft.com/Forums/silverlight/en-US/34d85c3f-52ea-4adc-bb32-8297f5549042/command-binding-memory-leak?forum=silverlightbugs
+    // and http://blog.thekieners.com/2010/02/17/weakeventsource-implementation-2/
+
+    public class WeakCommandBindingConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && typeof(ICommand).IsAssignableFrom(value.GetType()))
+                return new CommandWrapper(value as ICommand);
+
+            return value;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public class CommandWrapper : ICommand 
+    {
+        private ICommand originalCommand;
+        private CanExecuteChangedWeakEventSource weakEventSource;
+
+        public CommandWrapper(ICommand originalCommand) 
+        {
+            this.originalCommand = originalCommand;
+            weakEventSource = new CanExecuteChangedWeakEventSource();
+            weakEventSource.CanExecuteChanged += (sender, e) =>
+            {
+                if (CanExecuteChanged != null)
+                    CanExecuteChanged(sender, e);
+            };
+            weakEventSource.SetEventSource(originalCommand);
+        }
+
+        public event EventHandler CanExecuteChanged;
+
+        public bool CanExecute(object parameter) { return originalCommand.CanExecute(parameter); }
+        public void Execute(object parameter) { originalCommand.Execute(parameter); }
+    }
+
+
+    public class CanExecuteChangedWeakEventSource : WeakEventSourceBase<ICommand>
+    {
+        protected override WeakEventListenerBase CreateWeakEventListener(ICommand eventObject)
+        {
+            var weakListener = new WeakEventListener<CanExecuteChangedWeakEventSource, ICommand, EventArgs>(this, eventObject);
+            weakListener.OnDetachAction = (listener, source) => { source.CanExecuteChanged -= listener.OnEvent; };
+            weakListener.OnEventAction = (instance, source, e) =>
+            {
+                if (instance.CanExecuteChanged != null)
+                    instance.CanExecuteChanged(source, e);
+            };
+            eventObject.CanExecuteChanged += weakListener.OnEvent;
+            return weakListener;
+        }
+
+        public event EventHandler CanExecuteChanged;
     }
 
 }

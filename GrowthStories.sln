@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Growthstories.Tests", "Tests\Growthstories.Tests.csproj", "{66CEED54-2A26-4FC2-AA33-8CB44B10E185}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.DomainTests", "GrowthStories.DomainTests\GrowthStories.DomainTests.csproj", "{6BB57385-307B-4433-BB9F-27E062876D4B}"
@@ -83,6 +81,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.WindowsPhone.BA", "GrowthStories.UI.WindowsPhone.BA\GrowthStories.UI.WindowsPhone.BA.csproj", "{EC6EBFAB-E3D5-431F-AE04-66665289724B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockIAPLib", "..\MockIAPLib\MockIAPLib.csproj", "{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36855A3D-85F7-44F0-B2DE-446CB1848D22}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
