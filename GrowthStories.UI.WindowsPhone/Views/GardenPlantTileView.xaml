@@ -206,7 +206,7 @@
             HorizontalAlignment="Left"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
-            IsRunning="True"
+            IsRunning="{Binding Loaded, Converter={StaticResource InverseBoolean}}"
             AnimationStyle="AnimationStyle7"
             Foreground="WhiteSmoke"
             Margin="0,0,0,0"

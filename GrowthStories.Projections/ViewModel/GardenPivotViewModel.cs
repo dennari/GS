@@ -119,11 +119,12 @@ namespace Growthstories.UI.ViewModel
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
                 });
 
-
-
-
-            this.AppBarButtons = GetOwnerButtons();
-
+            App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
+            {
+                this.Log().Info("resetting selected plant");
+                App.SelectedPlant = null;
+                App.SelectedPlant = this.SelectedPlant;
+            });            
         }
 
 

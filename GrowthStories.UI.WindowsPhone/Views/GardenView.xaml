@@ -139,11 +139,12 @@
             </Grid.RowDefinitions>
 
         <telerikPrimitives:RadBusyIndicator 
+            
             Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
             ContentPosition="Right"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
-            IsRunning="True"
+            IsRunning="{Binding IsLoaded, Converter={StaticResource InverseBoolean}}"
             AnimationStyle="AnimationStyle7"
             Foreground="WhiteSmoke"
             Margin="12,24,0,0"

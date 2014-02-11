@@ -69,6 +69,7 @@ namespace Growthstories.UI.WindowsPhone
             settings.Save();
         }
 
+
         protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
         {
             // try to log the Exception

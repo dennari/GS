@@ -369,7 +369,7 @@ namespace Growthstories.UI.ViewModel
                 Init(x, isOwn);
             });
 
-            App.WhenAnyValue(x => x.SelectedPlant).Subscribe(x =>
+            App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null).Subscribe(x =>
             {
                 foreach (var p in Plants)
                 {
@@ -378,7 +378,6 @@ namespace Growthstories.UI.ViewModel
                     p.ShouldBeFullyLoaded = should;
                 }
             });
-
         }
 
 
