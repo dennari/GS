@@ -47,6 +47,9 @@
         </StackPanel>
 
         <Grid x:Name="TimelineContainer" Loaded="TimelineContainer_Loaded" Unloaded="TimelineContainer_Unloaded">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <!--
             <local:TimelineLongListSelectorView 
             ViewModel="{Binding}" />
