@@ -163,7 +163,7 @@ namespace Growthstories.Sync
                 throw new InvalidOperationException("Can't upload photo since upload uri can't be retrieved");
 
             this.UploadUri = uploadUriResponse.PhotoUri;
-            
+
             try
             {
                 this.Stream = await FileOpener.OpenReadStream(Photo.FileName);
@@ -230,22 +230,14 @@ namespace Growthstories.Sync
 
             IPhotoDownloadResponse response = null;
 
-            try
+            using (response = await Transporter.RequestPhotoDownload(this))
             {
-                response = await Transporter.RequestPhotoDownload(this);
                 if (response.StatusCode != GSStatusCode.OK)
                     throw new InvalidOperationException("Unable to download image " + this.DownloadUri);
 
                 Photo.FileName = PhotoHandler.FilenameFromBlobKey(Photo.BlobKey);
                 Photo.LocalUri = PhotoHandler.GetPhotoLocalUri(Photo.FileName);
-                Photo.LocalFullPath = await PhotoHandler.WriteToDisk(response.Stream, Photo.FileName);
-            }
-            finally
-            {
-                if (response != null && response.Stream != null)
-                {
-                    response.Stream.Dispose();
-                }
+                Photo.LocalFullPath = await PhotoHandler.WriteToDisk(await response.GetStreamAsync(), Photo.FileName);
             }
 
             return response;
@@ -258,14 +250,33 @@ namespace Growthstories.Sync
 
     }
 
+    public class DownloadResponse : HttpResponse
+    {
+
+    }
 
     public class PhotoDownloadResponse : HttpResponse, IPhotoDownloadResponse
     {
 
+        private readonly HttpResponseMessage Response;
+
+        public PhotoDownloadResponse(HttpResponseMessage response)
+        {
+            Response = response;
+        }
+
         public Photo Photo { get; set; }
-        public Stream Stream { get; set; }
+        public Task<Stream> GetStreamAsync()
+        {
+            return Response.Content.ReadAsStreamAsync();
+        }
         public Guid PlantActionId { get; set; }
 
+
+        public void Dispose()
+        {
+            Response.Dispose();
+        }
     }
 
 

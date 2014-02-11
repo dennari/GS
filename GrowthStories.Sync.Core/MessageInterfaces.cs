@@ -51,10 +51,14 @@ namespace Growthstories.Sync
         Task<IPhotoDownloadResponse> GetResponse();
     }
 
-    public interface IPhotoDownloadResponse : ISyncResponse
+    public interface IDownloadResponse : ISyncResponse, IDisposable
+    {
+        Task<Stream> GetStreamAsync();
+    }
+
+    public interface IPhotoDownloadResponse : IDownloadResponse, IDisposable
     {
         Photo Photo { get; }
-        Stream Stream { get; }
         Guid PlantActionId { get; }
 
     }

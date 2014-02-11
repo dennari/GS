@@ -137,6 +137,16 @@ namespace Growthstories.Domain.Entities
             }
         }
 
+        public void Handle(LocationEnabledSet command)
+        {
+            if (command.AggregateId == this.State.User.Id)
+            {
+                var copy = new SetLocationEnabled(this.Id, command.LocationEnabled);
+                RaiseEvent(new LocationEnabledSet(copy));
+            }
+        }
+
+
         public void Handle(BecomeFollower command)
         {
             RaiseEvent(new SyncStreamCreated(command));
@@ -272,6 +282,8 @@ namespace Growthstories.Domain.Entities
                 if (cmd is UnFollowed)
                     return true;
                 if (cmd is BlobKeySet)
+                    return true;
+                if (cmd is LocationEnabledSet)
                     return true;
 
                 var e = cmd as PlantActionCreated;

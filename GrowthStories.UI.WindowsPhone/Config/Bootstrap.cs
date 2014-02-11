@@ -46,14 +46,14 @@ namespace Growthstories.UI.WindowsPhone
             base.Load();
 
             PrintLastUnhandledException();
-     
+
             ApplyGSAccentColor();
             BAConfiguration();
             ViewModelConfiguration();
             ViewConfiguration();
         }
 
-        public void PrintLastUnhandledException()
+        protected virtual void PrintLastUnhandledException()
         {
             var settings = IsolatedStorageSettings.ApplicationSettings;
             if (settings.Contains("lastException"))
@@ -64,6 +64,9 @@ namespace Growthstories.UI.WindowsPhone
             {
                 PhoneApp.Log().Info("No crashes recorded");
             }
+
+            settings.Remove("lastException");
+            settings.Save();
         }
 
         protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
@@ -127,10 +130,17 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected override void SQLiteConnectionConfiguration(string dbname = "GS.sqlite")
+
+
+        protected override string SQLPersistenceDBName()
         {
-            var dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, dbname);
-            base.SQLiteConnectionConfiguration(dbpath);
+            //return base.SQLPersistenceDBName();
+            return Path.Combine(ApplicationData.Current.LocalFolder.Path, "GS.sqlite");
+        }
+
+        protected override string UIPersistenceDBName()
+        {
+            return Path.Combine(ApplicationData.Current.LocalFolder.Path, "GSUI.sqlite");
         }
 
         private void ApplyGSAccentColor()

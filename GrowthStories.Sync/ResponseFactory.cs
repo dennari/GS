@@ -167,8 +167,19 @@ namespace Growthstories.Sync
 
         T CreateWithStatusCode<T>(HttpResponseMessage resp) where T : HttpResponse, new()
         {
+
+
+            return new T()
+            {
+                StatusCode = GetGSStatusCode(resp.StatusCode)
+            };
+        }
+
+
+        public GSStatusCode GetGSStatusCode(HttpStatusCode code)
+        {
             var sc = GSStatusCode.FAIL;
-            switch (resp.StatusCode)
+            switch (code)
             {
                 case HttpStatusCode.Forbidden:
                     sc = GSStatusCode.FORBIDDEN;
@@ -199,11 +210,7 @@ namespace Growthstories.Sync
                     sc = GSStatusCode.FAIL;
                     break;
             }
-
-            return new T()
-            {
-                StatusCode = sc
-            };
+            return sc;
         }
 
         //public IPhotoUriResponse CreatePhotoUploadUriResponse(Tuple<HttpResponseMessage, string> resp)
@@ -234,17 +241,29 @@ namespace Growthstories.Sync
 
         }
 
-        public IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, Tuple<HttpResponseMessage, Stream> resp)
+        public IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, HttpResponseMessage resp)
         {
-            var r = CreateWithStatusCode<PhotoDownloadResponse>(resp.Item1);
-            if (r.StatusCode == GSStatusCode.OK)
+            IPhotoDownloadResponse R = null;
+            var sc = GetGSStatusCode(resp.StatusCode);
+            if (sc == GSStatusCode.OK)
             {
-                r.Photo = req.Photo;
-                r.Stream = resp.Item2;
-                r.PlantActionId = req.PlantActionId;
-
+                R = new PhotoDownloadResponse(resp)
+                {
+                    StatusCode = sc,
+                    Photo = req.Photo,
+                    PlantActionId = req.PlantActionId
+                };
             }
-            return r;
+            else
+            {
+                R = new PhotoDownloadResponse(null)
+                {
+                    StatusCode = sc
+                };
+            }
+
+
+            return R;
 
 
         }
