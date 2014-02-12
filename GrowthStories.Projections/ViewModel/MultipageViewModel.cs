@@ -39,7 +39,7 @@ namespace Growthstories.UI.ViewModel
                     .OfType<IControlsAppBar>()
                     .Select(x => x.WhenAnyValue(y => y.AppBarMode))
                     .Switch()
-                    .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.DEFAULT);
+                    .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
 
                 currentPageChanged
                      .OfType<IControlsAppBar>()

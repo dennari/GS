@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Growthstories.Tests", "Tests\Growthstories.Tests.csproj", "{66CEED54-2A26-4FC2-AA33-8CB44B10E185}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.DomainTests", "GrowthStories.DomainTests\GrowthStories.DomainTests.csproj", "{6BB57385-307B-4433-BB9F-27E062876D4B}"
@@ -83,6 +81,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrowthStories.UI.WindowsPhone.BA", "GrowthStories.UI.WindowsPhone.BA\GrowthStories.UI.WindowsPhone.BA.csproj", "{EC6EBFAB-E3D5-431F-AE04-66665289724B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockIAPLib", "..\MockIAPLib\MockIAPLib.csproj", "{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BindableApplicationBar", "BindableApplicationBar\BindableApplicationBar.csproj", "{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -2462,6 +2462,86 @@ Global
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|Mixed Platforms.Build.0 = Release|x86
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|x86.ActiveCfg = Release|x86
 		{015E3DFE-EB56-429F-95EF-BAB5D41B23BE}.RxMobileTest|x86.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|Any CPU.Build.0 = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|ARM.ActiveCfg = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|ARM.Build.0 = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|Mixed Platforms.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|Mixed Platforms.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|x86.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug Phone Device|x86.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|Any CPU.Build.0 = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|ARM.ActiveCfg = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|ARM.Build.0 = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|Mixed Platforms.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|x86.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug PhoneApp|x86.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|Any CPU.Build.0 = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|ARM.ActiveCfg = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|ARM.Build.0 = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|Mixed Platforms.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|Mixed Platforms.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|x86.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug StoreApp|x86.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|ARM.ActiveCfg = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|ARM.Build.0 = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|x86.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Debug|x86.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|Any CPU.Build.0 = Debug|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|ARM.ActiveCfg = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|ARM.Build.0 = Debug|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|Mixed Platforms.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|Mixed Platforms.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|x86.ActiveCfg = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Design|x86.Build.0 = Debug|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|Any CPU.Build.0 = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|ARM.ActiveCfg = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|ARM.Build.0 = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|Mixed Platforms.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|Mixed Platforms.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|x86.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Netflix|x86.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|Any CPU.Build.0 = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|ARM.ActiveCfg = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|ARM.Build.0 = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|Mixed Platforms.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|Mixed Platforms.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|x86.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.QuickTest|x86.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|ARM.ActiveCfg = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|ARM.Build.0 = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|Mixed Platforms.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|x86.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.Release|x86.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|Any CPU.Build.0 = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|ARM.ActiveCfg = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|ARM.Build.0 = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|Mixed Platforms.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|Mixed Platforms.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|x86.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.ReleaseARM|x86.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|Any CPU.Build.0 = Release|Any CPU
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|ARM.ActiveCfg = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|ARM.Build.0 = Release|ARM
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|Mixed Platforms.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|Mixed Platforms.Build.0 = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|x86.ActiveCfg = Release|x86
+		{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}.RxMobileTest|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

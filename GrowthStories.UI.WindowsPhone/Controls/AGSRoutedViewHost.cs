@@ -16,6 +16,8 @@ using System.Windows.Controls;
 using System.Reactive.Subjects;
 using System.Reactive;
 using System.Reactive.Disposables;
+using ReactiveUI.Mobile;
+using Growthstories.UI.Services;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -33,13 +35,20 @@ namespace Growthstories.UI.WindowsPhone
         /// <summary>
         /// The Router associated with this View Host.
         /// </summary>
-        public IRoutingState Router
+        public IGSRoutingState Router
         {
-            get { return (IRoutingState)GetValue(RouterProperty); }
-            set { SetValue(RouterProperty, value); }
+            get
+            {
+                var v = (IGSRoutingState)GetValue(RouterProperty);
+                return v;
+            }
+            set
+            {
+                SetValue(RouterProperty, value);
+            }
         }
         public static readonly DependencyProperty RouterProperty =
-            DependencyProperty.Register("Router", typeof(IRoutingState), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
+            DependencyProperty.Register("Router", typeof(IGSRoutingState), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
 
         public static readonly DependencyProperty AppVMProperty =
              DependencyProperty.Register("AppVM", typeof(AppViewModel), typeof(AGSRoutedViewHost), new PropertyMetadata(null));
@@ -113,15 +122,40 @@ namespace Growthstories.UI.WindowsPhone
             // NB: The DistinctUntilChanged is useful because most views in 
             // WinRT will end up getting here twice - once for configuring
             // the RoutedViewHost's ViewModel, and once on load via SizeChanged
+
+            //this.WhenAnyValue(x => x.Router).Where(x => x != null).Subscribe(x =>
+            //{
+            //    var viewfor = Content as IViewFor;
+            //    if (viewfor != null)
+            //    {
+            //        var vm = viewfor.ViewModel as IRoutableViewModel;
+            //        if (vm != null)
+            //            x.Navigate.Execute(vm);
+            //    }
+            //});
+
+            this.WhenAnyObservable(x => x.Router.NavigationStack.IsEmptyChanged).DistinctUntilChanged().Subscribe(x =>
+            {
+                if (x)
+                {
+                    if (Content != DefaultContent)
+                    {
+                        //Content = null;
+                        Content = DefaultContent;
+                    }
+                }
+            });
+
+
             this.WhenAnyObservable(x => x.Router.CurrentViewModel).DistinctUntilChanged().Subscribe(x =>
             {
 
                 this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
-                if (x == null)
+                if (x == null || x is IMainViewModel || x is IPlantSingularViewModel)
                 {
                     if (Content != DefaultContent)
                     {
-                        Content = null;
+                        //Content = null;
                         Content = DefaultContent;
                     }
                     if (AppVM != null)

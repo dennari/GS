@@ -34,6 +34,8 @@ namespace Growthstories.UI.WindowsPhone
 
         public GardenView()
         {
+            this.SetBinding(ViewModelProperty, new Binding());
+
             InitializeComponent();
 
             if (Height != Double.NaN)

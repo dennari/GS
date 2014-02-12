@@ -187,8 +187,8 @@ namespace Growthstories.UI.ViewModel
         public Guid UserId { get; protected set; }
 
         private readonly IIAPService IAP;
-        private readonly IObservable<ISettingsViewModel> SettingObservable;
-        private readonly IObservable<IAddEditPlantViewModel> AddPlantViewModelObservable;
+        private readonly Func<ISettingsViewModel> SettingsF;
+        private readonly Func<IAddEditPlantViewModel> AddPlantViewModelF;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -198,8 +198,8 @@ namespace Growthstories.UI.ViewModel
             bool isOwn,
             IGSAppViewModel app,
             IIAPService iap = null,
-            IObservable<ISettingsViewModel> settings = null,
-            IObservable<IAddEditPlantViewModel> addPlant = null
+            Func<ISettingsViewModel> settings = null,
+            Func<IAddEditPlantViewModel> addPlant = null
             )
             : base(app)
         {
@@ -209,8 +209,8 @@ namespace Growthstories.UI.ViewModel
 
 
 
-            this.SettingObservable = settings;
-            this.AddPlantViewModelObservable = addPlant;
+            this.SettingsF = settings;
+            this.AddPlantViewModelF = addPlant;
             this.IAP = iap;
             //this.Id = iid;
 
@@ -350,7 +350,7 @@ namespace Growthstories.UI.ViewModel
             });
         }
 
-        
+
 
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
@@ -573,10 +573,11 @@ namespace Growthstories.UI.ViewModel
                    });
 
 
-                this.SettingObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
-                this.AddPlantViewModelObservable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.AddPlantViewModel = x);
+                //this.SettingsF.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
+                //this.AddPlantViewModelF.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.AddPlantViewModel = x);
 
-
+                this.SettingsViewModel = SettingsF();
+                this.AddPlantViewModel = AddPlantViewModelF();
 
             }
 

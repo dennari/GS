@@ -79,36 +79,37 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.Hook = hook;
             this.Handler = handler;
 
-            //Initialize();
-
-            //this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
-            //{
-            //    try
-            //    {
-            //        this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
-
-            //    }
-            //    catch { }
-            //});
-
-
-            //SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
-            //{
-            //    try
-            //    {
-            //        TilesHelper.DeleteAllTiles();
-            //    }
-            //    catch { }
-            //});
-
-
-            //UpdatePhoneLocationServicesEnabled();
-
             this.Log().Info("ClientAppViewModel constructor ends {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
 
             //BeginRecording();
         }
 
+
+        protected override void Bootstrap(IGSViewModel defaultVM)
+        {
+            base.Bootstrap(defaultVM);
+            this.WhenAny(x => x.SupportedOrientations, x => x.GetValue()).Subscribe(x =>
+            {
+                try
+                {
+                    this.ClientSupportedOrientations = (Microsoft.Phone.Controls.SupportedPageOrientation)x;
+
+                }
+                catch { }
+            });
+
+
+            SignedOut.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
+            {
+                try
+                {
+                    TilesHelper.DeleteAllTiles();
+                }
+                catch { }
+            });
+
+            UpdatePhoneLocationServicesEnabled();
+        }
 
         public void LogMemory()
         {

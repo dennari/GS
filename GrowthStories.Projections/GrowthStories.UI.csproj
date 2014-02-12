@@ -105,6 +105,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IHandles.cs" />
     <Compile Include="Services\AppUserService.cs" />
+    <Compile Include="Services\GSRoutingState.cs" />
     <Compile Include="Services\GSViewLocator.cs" />
     <Compile Include="Services\PlantScheduler.cs" />
     <Compile Include="SharedViewHelpers.cs" />

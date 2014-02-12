@@ -26,16 +26,8 @@ namespace Growthstories.UI.WindowsPhone
             : base()
         {
 
-
-            // Global handler for uncaught exceptions.
-            //UnhandledException += Application_UnhandledException;
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
             // Standard XAML initialization
             InitializeComponent();
-
-            // Phone-specific initialization
-            //InitializePhoneApplication();
 
             // Language display initialization
             InitializeLanguage();
@@ -65,17 +57,7 @@ namespace Growthstories.UI.WindowsPhone
             //////////////////////////////////
             //// INITIAL STARTING POINT //////
             //////////////////////////////////
-            Task.Run(() =>
-            {
-                //var xamlElapsed = stopwatch.Elapsed;
-                //stopwatch.Restart();
-                var kernel = new StandardKernel(Bootstrap.GetModule(this));
-                //var kernelElapsed = stopwatch.Elapsed;
-                //stopwatch.Restart();
-                this.ViewModel = kernel.Get<IApplicationRootState>();
-                //var appVmElapsed = stopwatch.Elapsed;
-                //stopwatch.Stop();
-            });
+
 
             //this.Log().Info("XAML init: {0}, kernel init {1}, AppVM init {2}", xamlElapsed.Milliseconds, kernelElapsed.Milliseconds, appVmElapsed.Milliseconds);
 
@@ -90,62 +72,7 @@ namespace Growthstories.UI.WindowsPhone
         //
 
 
-        // Code to execute when the application is launching (eg, from Start)
-        // This code will not execute when the application is reactivated
-        private void Application_Launching(object sender, LaunchingEventArgs e)
-        {
-        }
 
-
-        // Code to execute when the application is activated (brought to foreground)
-        // This code will not execute when the application is first launched
-        private void Application_Activated(object sender, ActivatedEventArgs e)
-        {
-            this.Log().Info("application activated");
-        }
-
-        // Code to execute when the application is deactivated (sent to background)
-        // This code will not execute when the application is closing
-        private void Application_Deactivated(object sender, DeactivatedEventArgs e)
-        {
-            this.Log().Info("application deactivated");
-        }
-
-        // Code to execute when the application is closing (eg, user hit Back)
-        // This code will not execute when the application is deactivated
-        private void Application_Closing(object sender, ClosingEventArgs e)
-        {
-            this.Log().Info("application closing");
-        }
-
-
-        // This is never used, instead AutoSuspendApplication adds a similar handler in its constructor
-        // Code to execute if a navigation fails
-        private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            if (Debugger.IsAttached)
-            {
-                // A navigation has failed; break into the debugger
-                Debugger.Break();
-            }
-        }
-
-        // Code to execute on Unhandled Exceptions
-        // This is never used, instead AutoSuspendApplication adds a similar handler in its constructor
-        private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
-        {
-            if (Debugger.IsAttached)
-            {
-                // An unhandled exception has occurred; break into the debugger
-                Debugger.Break();
-            }
-        }
-
-        #region Phone application initialization
-
-
-
-        #endregion
 
         // Initialize the app's font and flow direction as defined in its localized resource strings.
         //

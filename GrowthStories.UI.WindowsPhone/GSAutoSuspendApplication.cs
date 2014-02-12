@@ -1,5 +1,6 @@
 ﻿using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Ninject;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using System;
@@ -28,7 +29,7 @@ namespace Growthstories.UI.WindowsPhone
         public IObservable<Unit> ShouldInvalidateState { get { return SuspensionHost.ShouldInvalidateState; } }
 
 
-        internal static SuspensionHost SuspensionHost;
+        public static SuspensionHost SuspensionHost;
 
         readonly Subject<IApplicationRootState> _viewModelChanged = new Subject<IApplicationRootState>();
         IApplicationRootState _ViewModel;
@@ -47,12 +48,17 @@ namespace Growthstories.UI.WindowsPhone
         public static PhoneApplicationFrame RootFrame { get; protected set; }
 
         public static readonly Stopwatch LifeTimer = new Stopwatch();
+        protected IKernel Kernel;
         protected PhoneApplicationService LifeTimeHelper { get; private set; }
 
         protected GSAutoSuspendApplication()
         {
 
             LifeTimer.Start();
+
+
+            //this.Log().Info("Kernel creation {0}", LifeTimer.ElapsedMilliseconds);
+
 
             LifeTimeHelper = new PhoneApplicationService();
             ApplicationLifetimeObjects.Add(LifeTimeHelper);
@@ -114,10 +120,8 @@ namespace Growthstories.UI.WindowsPhone
 
             var currentBackHook = default(IDisposable);
             var currentViewFor = default(WeakReference<IViewFor>);
-            this.Log().Info("GSAutoSuspendApplication constructor");
 
-            // Finally make it live
-            RootVisual = RootFrame;
+
             RootFrame.Navigated += (o, e) =>
             {
 
@@ -155,7 +159,8 @@ namespace Growthstories.UI.WindowsPhone
                 }
                 this.Log().Info("RootFrame navigated ends {0}", LifeTimer.ElapsedMilliseconds);
 
-
+                // Finally make it live
+                RootVisual = RootFrame;
             };
 
             _viewModelChanged.StartWith(ViewModel).Where(x => x != null).ObserveOn(RxApp.MainThreadScheduler).Subscribe(vm =>
@@ -180,7 +185,18 @@ namespace Growthstories.UI.WindowsPhone
                 if (Debugger.IsAttached) Debugger.Break();
             };
 
+            Task.Run(() =>
+            {
+                //var xamlElapsed = stopwatch.Elapsed;
+                //stopwatch.Restart();
+                //var kernelElapsed = stopwatch.Elapsed;
+                //stopwatch.Restart();
+                this.Kernel = new StandardKernel(Bootstrap.GetModule(this));
 
+                this.ViewModel = Kernel.Get<IApplicationRootState>();
+                //var appVmElapsed = stopwatch.Elapsed;
+                //stopwatch.Stop();
+            });
         }
 
 

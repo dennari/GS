@@ -211,10 +211,27 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         public static readonly DependencyProperty ViewModelProperty =
-           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(Page), new PropertyMetadata(null, ViewHelpers.ViewModelValueChanged));
+           DependencyProperty.Register("ViewModel", typeof(IRoutableViewModel), typeof(Page), new PropertyMetadata(null, ViewModelValueChanged));
 
 
+        static void ViewModelValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                var view = (FrameworkElement)sender;
+                var vm = e.NewValue;
 
+                if (view.DataContext != vm)
+                    view.DataContext = vm;
+
+                var viewF = sender as IReportViewModelChange;
+                if (viewF != null)
+                    viewF.ViewModelChangeReport(e.NewValue);
+
+
+            }
+            catch { }
+        }
 
         object IViewFor.ViewModel
         {

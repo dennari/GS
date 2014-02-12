@@ -58,7 +58,7 @@ namespace Growthstories.UI.ViewModel
         public virtual string PageTitle { get; protected set; }
         public abstract string UrlPathSegment { get; }
 
-        public string UrlPath
+        public virtual string UrlPath
         {
             get
             {

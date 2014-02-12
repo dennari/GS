@@ -12,7 +12,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-        public BootstrapProduction(App app)
+        public BootstrapProduction(GSAutoSuspendApplication app)
             : base(app)
         {
 

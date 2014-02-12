@@ -26,7 +26,18 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
         private IRoutingState _Router;
-        public IRoutingState Router { get { return _Router ?? (_Router = new RoutingState()); } }
+        public IRoutingState Router
+        {
+            get
+            {
+                return _Router;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Router, value);
+            }
+        }
+
 
 
 
@@ -86,6 +97,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 return _SetDismissPopupAllowedCommand ?? (_SetDismissPopupAllowedCommand = new ReactiveCommand());
             }
 
+        }
+        public IReactiveCommand _MainWindowLoadedCommand;
+        public IReactiveCommand MainWindowLoadedCommand
+        {
+            get { return _MainWindowLoadedCommand ?? (_MainWindowLoadedCommand = new ReactiveCommand()); }
         }
 
 
@@ -389,6 +405,15 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public void HandleApplicationActivated()
         {
+        }
+
+
+
+
+
+        public IGSViewModel DefaultVM
+        {
+            get { return null; }
         }
     }
 

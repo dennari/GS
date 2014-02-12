@@ -69,6 +69,7 @@ namespace Growthstories.UI.ViewModel
     {
         //bool CanGoBack { get; }
         IGardenViewModel MyGarden { get; }
+        //IGSViewModel DefaultVM { get; }
         bool IsRegistered { get; }
         string AppName { get; }
         IMessageBus Bus { get; }
@@ -104,6 +105,7 @@ namespace Growthstories.UI.ViewModel
         IMainViewModel CreateMainViewModel();
 
         IReactiveCommand BackKeyPressedCommand { get; }
+        IReactiveCommand MainWindowLoadedCommand { get; }
         IPlantActionViewModel PlantActionViewModelFactory(PlantActionType type, PlantActionState state = null);
         IObservable<IPlantActionViewModel> CurrentPlantActions(
             Guid PlantId,
@@ -303,7 +305,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IPlantSingularViewModel : IGSRoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation
+    public interface IPlantSingularViewModel : IGSRoutableViewModel, IMultipageViewModel, IHasAppBarButtons, IHasMenuItems, IControlsAppBar, IControlsPageOrientation, IHasInnerViewModel
     {
         IPlantViewModel Plant { get; }
     }
@@ -696,8 +698,8 @@ namespace Growthstories.UI.ViewModel
 
     public enum ApplicationBarMode
     {
-        DEFAULT,
-        MINIMIZED
+        MINIMIZED,
+        DEFAULT
     }
 
 }

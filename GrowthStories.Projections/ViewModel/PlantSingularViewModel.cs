@@ -14,8 +14,8 @@ namespace Growthstories.UI.ViewModel
         // just to keep compiler happy
         public IReactiveCommand ShowDetailsCommand { get; private set; }
 
-        private IRoutableViewModel _InnerViewModel;
-        public IRoutableViewModel InnerViewModel
+        private IGSViewModel _InnerViewModel;
+        public IGSViewModel InnerViewModel
         {
             get
             {
@@ -106,7 +106,7 @@ namespace Growthstories.UI.ViewModel
 
         public override IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
         {
-            get 
+            get
             {
                 if (App != null && App.IsRegistered)
                 {
@@ -115,7 +115,7 @@ namespace Growthstories.UI.ViewModel
 
                 if (base.AppBarButtons != null)
                 {
-                    return base.AppBarButtons.ToObservable().Where(x => x.Text != "share").CreateCollection();     
+                    return base.AppBarButtons.ToObservable().Where(x => x.Text != "share").CreateCollection();
                 }
                 return null;
             }

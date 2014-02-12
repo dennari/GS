@@ -3,6 +3,7 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using System.Windows.Media.Animation;
 using System.Windows;
+using System.Windows.Data;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -11,7 +12,11 @@ namespace Growthstories.UI.WindowsPhone
 
     public class PlantSingularViewBase : GSView<IPlantSingularViewModel>
     {
+        public PlantSingularViewBase()
+        {
+            this.SetBinding(ViewModelProperty, new Binding());
 
+        }
     }
 
 

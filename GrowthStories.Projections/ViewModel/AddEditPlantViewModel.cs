@@ -480,8 +480,8 @@ namespace Growthstories.UI.ViewModel
                 await App.HandleCommand(new SetLocation(plantId, this.Location));
             }
 
-            if (this.App.Router.NavigationStack.Count > 1)
-                this.App.Router.NavigateBack.Execute(null);
+            //if (this.App.Router.NavigationStack.Count > 1)
+            this.App.Router.NavigateBack.Execute(null);
             return plantId;
         }
 

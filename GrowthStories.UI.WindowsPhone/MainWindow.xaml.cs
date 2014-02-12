@@ -1,113 +1,56 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using Growthstories.Core;
-using Growthstories.Domain.Messaging;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using Growthstories.UI.WindowsPhone.ViewModels;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public class MainWindowBase : GSPage<IGSAppViewModel>
+    public class MainWindowBase : GSPage<IGSAppViewModel>, IEnableLogger
     {
+        private readonly SuspensionHost LifeTimeHelper;
 
-    }
-
-
-
-    public partial class MainWindow : MainWindowBase, IEnableLogger
-    {
-
-        //private Task<IAuthUser> InitializeTask;
-
-        public MainWindow()
-        {
-            this.Log().Info("MainWindow constructor");
-            InitializeComponent();
-
-        }
-
-
-
-        private void DismissPopup(PopupResult result = PopupResult.None)
+        public MainWindowBase()
         {
 
-            if (IsDialogShown)
+
+            LifeTimeHelper = GSAutoSuspendApplication.SuspensionHost;
+
+            if (LifeTimeHelper != null)
             {
-                IsDialogShown = false;
-                if (Popup != null)
-                {
-                    Popup.Dismiss();
-                }
-
+                LifeTimeHelper.IsResuming.Subscribe(HandleResuming);
+                LifeTimeHelper.IsUnpausing.Subscribe(HandleUnpausing);
             }
+
         }
 
-        IDisposable ShowPopupSubscription = Disposable.Empty;
-        IDisposable SetDismissPopupAllowedSubscription = Disposable.Empty;
+        protected virtual void HandleUnpausing(Unit _)
+        {
+            this.Log().Info("Application Unpausing");
+            HandleResuming(_);
 
+        }
+
+        protected virtual void HandleResuming(Unit _)
+        {
+            this.Log().Info("Application Resuming");
+            if (ViewModel != null)
+                ViewModel.HandleApplicationActivated();
+
+
+        }
 
         protected override void OnViewModelChanged(IGSAppViewModel vm)
         {
-
-
-            this.Log().Info("MainWindowBase loaded {0}, MainViewBase Loaded {1}", MainWindowBaseMS, MainViewBaseMS);
-
-            if (vm.Router != null && vm.Router.NavigationStack.Count > 0) // we are returning from a chooser or activating via switcher
-            {
-                // this seems to the only working place were we can trigger
-                // something whenever an app is brought to foreground, since
-                // the usual events somehow don't work
-
-                this.Log().Info("HandleApplicationActivated");
-                vm.HandleApplicationActivated();
-
-                // when navigated from secondary tile we also need to update infos on tiles
-                if (OnlyPlant != null && OnlyPlant.TileHelper != null)
-                {
-                    this.Log().Info("updating whether only plant has tile");
-                    OnlyPlant.TileHelper.UpdateHasTile();
-                }
-
-                return;
-            }
-
-
-            IDictionary<string, string> qs = this.NavigationContext.QueryString;
-
-            Guid plantId = default(Guid);
-
-            if (qs.ContainsKey("id") && Guid.TryParse(qs["id"], out plantId))
-            {
-                this.NavigateWithDeepLink(plantId);
-                return;
-            }
-
-            var w = new Stopwatch();
-            w.Start();
-            var mvm = ViewModel.CreateMainViewModel();
-            var el = w.ElapsedMilliseconds;
-            //vm.Router.Navigate.Execute(mvm);
-            this.Log().Info("OnNavigated to MainViewModel creation ({1}) and navigation {0}", w.ElapsedMilliseconds, el);
-            w.Stop();
-
-            var mv = this.Content.DefaultContent as IViewFor;
-            if (mv != null)
-                mv.ViewModel = mvm;
-
-
-
-
+            base.OnViewModelChanged(vm);
 
             ShowPopupSubscription.Dispose();
             ShowPopupSubscription = vm.ShowPopup
@@ -131,6 +74,44 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     SetDismissPopupAllowed(x);
                 });
+        }
+
+        protected override void OnOrientationChanged(OrientationChangedEventArgs e)
+        {
+            base.OnOrientationChanged(e);
+            //var cvm = ViewModel.Router.GetCurrentViewModel() as Growthstories.UI.ViewModel.IControlsPageOrientation;
+            //if (cvm != null)
+            //{
+            ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
+            //}
+        }
+
+
+
+        #region POPUP
+
+        private void DismissPopup(PopupResult result = PopupResult.None)
+        {
+
+            if (IsDialogShown)
+            {
+                IsDialogShown = false;
+                if (Popup != null)
+                {
+                    Popup.Dismiss();
+                }
+
+            }
+        }
+
+        IDisposable ShowPopupSubscription = Disposable.Empty;
+        IDisposable SetDismissPopupAllowedSubscription = Disposable.Empty;
+
+        protected IRoutableViewModel DefaultContentViewModel;
+        protected virtual void SetDefaultContentViewModel(IRoutableViewModel vm)
+        {
+            DefaultContentViewModel = vm;
+
         }
 
 
@@ -257,8 +238,6 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-        private bool firstOnNavigatedTo = true;
-
         /// <summary>
         /// We get here on the initial load AND whenever we resume, i.e. from tasks
         /// </summary>
@@ -272,53 +251,6 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private ClientPlantViewModel OnlyPlant;
-
-        private IDisposable PlantNavigationSubscription = Disposable.Empty;
-        protected void NavigateWithDeepLink(Guid plantId)
-        {
-
-
-            // this should actually return immediately
-            this.Log().Info("Navigated from tile");
-            IPlantViewModel pvm = null;
-            try
-            {
-                //this.Log().Info("Loading plant"); 
-                this.Log().Info("Loading plant started");
-
-                var t = new Stopwatch();
-                t.Start();
-                //pvm = ViewModel.CurrentPlants(plantId: plantId).Where(x => x != null).Take(1)
-                //    .Do(x => this.Log().Info("CurrentPlants returned"))
-                //    .FirstOrDefaultAsync().Wait();
-                pvm = ViewModel.GetSinglePlant(plantId);
-                OnlyPlant = pvm as ClientPlantViewModel;
-                var a = pvm.Actions; // just to start loading
-                t.Stop();
-                this.Log().Info("Loading plant took: {0}ms", t.ElapsedMilliseconds);
-
-                ViewModel.Bus.Listen<IEvent>()
-                    .OfType<AggregateDeleted>()
-                    .Where(x => x.AggregateId == plantId)
-                    .Take(1)
-                    .Delay(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
-                    //.DelaySubscription(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x =>
-                    {
-                        this.Log().Info("terminating app");
-                        Application.Current.Terminate();
-                    });
-
-            }
-            catch (Exception e)
-            {
-
-            }
-
-            this.ViewModel.Router.Navigate.Execute(new PlantSingularViewModel(pvm, ViewModel));
-        }
 
 
         private bool IsDialogShown;
@@ -374,31 +306,77 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected override void OnOrientationChanged(OrientationChangedEventArgs e)
+
+
+        #endregion
+
+    }
+
+
+
+    public partial class MainWindow : MainWindowBase
+    {
+
+        //private Task<IAuthUser> InitializeTask;
+
+        public MainWindow()
         {
-            base.OnOrientationChanged(e);
-            //var cvm = ViewModel.Router.GetCurrentViewModel() as Growthstories.UI.ViewModel.IControlsPageOrientation;
-            //if (cvm != null)
-            //{
-            ViewModel.PageOrientationChangedCommand.Execute((Growthstories.UI.ViewModel.PageOrientation)e.Orientation);
-            //}
+            this.Log().Info("MainWindow constructor");
+            InitializeComponent();
+
         }
 
-        long MainViewBaseMS;
-        private void MainViewBase_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
 
-            MainViewBaseMS = GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds;
-            //if (ViewModel != null)
-            //    ViewModel.Log().Info("MainView Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+
+        private bool UILoaded = false;
+
+        protected override void OnViewModelChanged(IGSAppViewModel vm)
+        {
+            if (MainViewModel != null)
+                return;
+
+            MainViewModel = vm.CreateMainViewModel();
+
+            base.OnViewModelChanged(vm);
+            if (UILoaded)
+            {
+
+                UIAndVMLoaded();
+
+            }
+
+
         }
 
-        long MainWindowBaseMS;
-        private void MainWindowBase_Loaded(object sender, RoutedEventArgs e)
+        IMainViewModel MainViewModel;
+
+        private void UIAndVMLoaded()
         {
-            MainWindowBaseMS = GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds;
+
+            ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
+            ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
+            this.ApplicationBar.IsVisible = true;
+            //this.MainView.ViewModel = MainViewModel;
+
+            //this.DataContext = ViewModel;
+            //this.DataContext = ViewModel;
+        }
+
+
+        protected void MainWindowBase_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (UILoaded)
+                return;
+
+            UILoaded = true;
+            if (MainViewModel != null)
+            {
+                UIAndVMLoaded();
+            }
+
 
         }
+
 
 
     }

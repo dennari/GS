@@ -145,7 +145,9 @@ namespace Growthstories.UI.ViewModel
 
             //this.Plants = plants;
 
-            this.NavigateToAbout = app.Router.NavigateCommandFor<IAboutViewModel>();
+            this.NavigateToAbout = new ReactiveCommand();
+            NavigateToAbout.Subscribe(_ => App.Router.Navigate.Execute(new AboutViewModel(App)));
+
 
             this.LocationServices = new ButtonViewModel()
             {

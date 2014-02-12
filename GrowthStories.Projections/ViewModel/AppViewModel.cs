@@ -12,8 +12,8 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
+using Growthstories.UI.Services;
 using ReactiveUI;
-using System.Diagnostics;
 
 
 namespace Growthstories.UI.ViewModel
@@ -48,6 +48,31 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private IMainViewModel _MainVM;
+        public IMainViewModel MainVM
+        {
+            get
+            {
+                return _MainVM;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _MainVM, value);
+            }
+        }
+
+        private IPlantSingularViewModel _PlantSingularVM;
+        public IPlantSingularViewModel PlantSingularVM
+        {
+            get
+            {
+                return _PlantSingularVM;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _PlantSingularVM, value);
+            }
+        }
 
 
 
@@ -152,7 +177,42 @@ namespace Growthstories.UI.ViewModel
             return true; // should override this
         }
 
-        public IRoutingState Router { get { return _Router ?? (_Router = new RoutingState()); } }
+        private IGSRoutingState _Router;
+        public IGSRoutingState Router
+        {
+            get
+            {
+                return _Router ?? (_Router = new GSRoutingState());
+            }
+            //set
+            //{
+            //    this.RaiseAndSetIfChanged(ref _Router, value);
+            //}
+        }
+
+        IRoutingState IScreen.Router
+        {
+            get
+            {
+                return (IRoutingState)this.Router;
+            }
+            //set
+            //{
+            //    this.RaiseAndSetIfChanged(ref _Router, value);
+            //}
+        }
+        //private IRoutingState _Router;
+        //public IRoutingState Router
+        //{
+        //    get
+        //    {
+        //        return _Router;
+        //    }
+        //    private set
+        //    {
+        //        this.RaiseAndSetIfChanged(ref _Router, value);
+        //    }
+        //}
 
         private readonly IUserService Context;
         private readonly IDispatchCommands Handler;
@@ -161,7 +221,6 @@ namespace Growthstories.UI.ViewModel
         private readonly IScheduleService Scheduler;
         private readonly ISynchronizer Synchronizer;
         private readonly IRequestFactory RequestFactory;
-        private IRoutingState _Router;
 
         private readonly AsyncLock RegisterLock = new AsyncLock();
         private readonly AsyncLock SignInLock = new AsyncLock();
@@ -200,7 +259,23 @@ namespace Growthstories.UI.ViewModel
 
             // COMMANDS
 
+            MainWindowLoadedCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            {
+                var mvm = x as IMainViewModel;
+                if (mvm != null)
+                    MainVM = mvm;
+                var svm = x as IPlantSingularViewModel;
+                if (svm != null)
+                    PlantSingularVM = svm;
 
+                if (!Bootstrapped)
+                {
+                    Bootstrapped = true;
+                    Bootstrap(x as IGSViewModel);
+                }
+            });
+
+            Initialize();
 
             //Bootstrap();
 
@@ -214,7 +289,7 @@ namespace Growthstories.UI.ViewModel
         }
         public bool NavigatingBack { get; set; }
 
-
+        private bool Bootstrapped = false;
         //public Stopwatch NavigateAndResetStopwatch {get; set;} 
 
 
@@ -260,22 +335,40 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private void Bootstrap()
+        protected virtual void Bootstrap(IGSViewModel defaultVM)
         {
-            var resolver = Resolver;
 
-            var vmChanged = this.Router.CurrentViewModel.DistinctUntilChanged();
+            this.Log().Info("Bootstrap");
+            var resolver = Resolver;
+            //this.Router = new GSRoutingState();
+            //this.Router.Navigate.Execute(this);
+
+            var vmChanged = this.Router.CurrentViewModel
+                .Select(x =>
+                {
+                    if (x != null)
+                        return x as IGSViewModel;
+                    if (defaultVM is IMainViewModel)
+                        return (IGSViewModel)MainVM;
+                    return (IGSViewModel)PlantSingularVM;
+                })
+                .DistinctUntilChanged()
+                .Do(x => this.Log().Info("Router ViewModel changed to {0}", x));
+
+
 
             vmChanged
                .OfType<IControlsAppBar>()
-               .Select(x => x.WhenAny(y => y.AppBarMode, y => y.GetValue()).StartWith(x.AppBarMode))
+               .Select(x => x.WhenAnyValue(y => y.AppBarMode))
                .Switch()
+               .Do(x => this.Log().Info("ApplicationBarMode {0}", x))
                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
 
             vmChanged
                  .OfType<IControlsAppBar>()
-                 .Select(x => x.WhenAny(y => y.AppBarIsVisible, y => y.GetValue()).StartWith(x.AppBarIsVisible))
+                 .Select(x => x.WhenAnyValue(y => y.AppBarIsVisible))
                  .Switch()
+                 .Do(x => this.Log().Info("AppBarIsVisible {0}", x))
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
             vmChanged
@@ -293,7 +386,7 @@ namespace Growthstories.UI.ViewModel
                 .DistinctUntilChanged()
                 .Do(x =>
                 {
-                    //this.Log().Info("from throttle MAINBUTTONS changed, count={0}, text={1}", x.Count, string.Join(",", x.Select(y => y.Text)));
+                    this.Log().Info("AppBarButtons changed, count={0}", x != null ? x.Count : 0);
                 })
                 .ToProperty(this, x => x.AppBarButtons, out _AppBarButtons);
             //.Subscribe(x => this.UpdateAppBar(x ?? ));
@@ -318,6 +411,11 @@ namespace Growthstories.UI.ViewModel
                  .OfType<IControlsSystemTray>()
                  .Select(x => x.WhenAnyValue(y => y.SystemTrayIsVisible))
                  .Switch()
+                 .Do(x =>
+                 {
+                     this.Log().Info("SystemTrayIsVisible {0}", x);
+
+                 })
                  .ToProperty(this, x => x.SystemTrayIsVisible, out this._SystemTrayIsVisible, false);
 
             vmChanged
@@ -351,6 +449,7 @@ namespace Growthstories.UI.ViewModel
 
             this.WhenAnyValue(x => x.MyGarden)
                 .Where(x => x != null)
+                .Do(x => this.Log().Info("MyGarden set"))
                 .Subscribe(x => Scheduler.ScheduleGarden(x));
 
             this.WhenAnyValue(x => x.Model)
@@ -363,6 +462,7 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.User)
                .Where(x => x != null)
                .ObserveOn(RxApp.MainThreadScheduler)
+               .Do(x => this.Log().Info("User set"))
                .Subscribe(x =>
                {
                    this.IsRegistered = x.IsRegistered;
@@ -445,6 +545,16 @@ namespace Growthstories.UI.ViewModel
 
         }
 
+        private IReactiveCommand _MainWindowLoadedCommand;
+        public IReactiveCommand MainWindowLoadedCommand
+        {
+            get
+            {
+                return _MainWindowLoadedCommand ?? (_MainWindowLoadedCommand = new ReactiveCommand());
+            }
+
+        }
+
         private IReactiveCommand _SetDismissPopupAllowedCommand;
         public IReactiveCommand SetDismissPopupAllowedCommand
         {
@@ -517,21 +627,17 @@ namespace Growthstories.UI.ViewModel
         public IMainViewModel CreateMainViewModel()
         {
 
-            var scheduler = RxApp.TaskpoolScheduler;
-
-
-
             Func<IGardenViewModel> gardenF = () =>
             {
-                this.MyGarden = new GardenViewModel(
+                return new GardenViewModel(
                         this.WhenAnyValue(x => x.User),
                         true,
                         this,
                         IIAPService,
-                        Observable.Start(() => new SettingsViewModel(this), scheduler),
-                        Observable.Start(() => this.EditPlantViewModelFactory(null), scheduler)
+                        () => new SettingsViewModel(this),
+                        () => this.EditPlantViewModelFactory(null)
                     );
-                return this.MyGarden;
+
             };
 
             var gardenObs = this.WhenAnyValue(x => x.MyGarden).Where(x => x != null);
@@ -547,9 +653,19 @@ namespace Growthstories.UI.ViewModel
             if (_CurrentMainViewModel != null)
                 _CurrentMainViewModel.Dispose();
             _CurrentMainViewModel = new MainViewModel(gardenF, notificationsF, friendsF, this);
+            _CurrentMainViewModel.WhenAnyValue(x => x.GardenVM).Where(x => x != null).Take(1).Subscribe(x => this.MyGarden = x);
             return _CurrentMainViewModel;
         }
 
+        //public IMainViewModel CreateMainViewModel()
+        //{
+        //    return new MainViewModel(
+        //        () => (IGardenViewModel)null,
+        //        () => (INotificationsViewModel)null,
+        //        () => (FriendsViewModel)null,
+        //        this
+        //        );
+        //}
 
         protected GSApp _Model;
         public GSApp Model
@@ -959,7 +1075,11 @@ namespace Growthstories.UI.ViewModel
             {
                 await this.Initialize();
                 app = this.Model;
-                Router.NavigateAndReset.Execute(CreateMainViewModel());
+                var mvm = CreateMainViewModel();
+
+                Router.Reset();
+
+                this.MainWindowLoadedCommand.Execute(mvm);
             }
             else
             {
@@ -1095,7 +1215,10 @@ namespace Growthstories.UI.ViewModel
                     }
                 }
 
-                Router.NavigateAndReset.Execute(CreateMainViewModel());
+                var mvm = CreateMainViewModel();
+                Router.Reset();
+                this.MainWindowLoadedCommand.Execute(mvm);
+
                 return SignInResponse.success;
             }
             finally
@@ -1356,7 +1479,7 @@ namespace Growthstories.UI.ViewModel
         protected ObservableAsPropertyHelper<bool> _AppBarIsVisible;
         public bool AppBarIsVisible
         {
-            get { return _AppBarIsVisible != null ? _AppBarIsVisible.Value : true; }
+            get { return _AppBarIsVisible != null ? _AppBarIsVisible.Value : false; }
         }
 
         protected ObservableAsPropertyHelper<bool> _SystemTrayIsVisible;

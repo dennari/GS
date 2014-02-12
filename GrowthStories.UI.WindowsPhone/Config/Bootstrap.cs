@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using EventStore.Logging;
 using System.IO.IsolatedStorage;
 using SQLite;
+using System.Reactive.Disposables;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -33,13 +34,21 @@ namespace Growthstories.UI.WindowsPhone
         private static ILog Logger = LogFactory.BuildLogger(typeof(Bootstrap));
 
 
-        protected readonly App PhoneApp;
+        protected readonly GSAutoSuspendApplication PhoneApp;
         protected const string BUGSENSE_TOKEN = "e73c0669";
 
-        public Bootstrap(App phoneApp)
+        public Bootstrap(GSAutoSuspendApplication phoneApp)
         {
             PhoneApp = phoneApp;
-            //PhoneApp.UnhandledException += HandleUnhandledExceptions;
+            //PhoneApp.RootVisual.D
+            //Deployment.Current.Dispatcher.
+
+            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
+            {
+                PhoneApp.UnhandledException += HandleUnhandledExceptions;
+
+                return Disposable.Empty;
+            });
         }
 
         public override void Load()
@@ -150,7 +159,7 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        internal static INinjectModule GetModule(App app)
+        internal static INinjectModule GetModule(GSAutoSuspendApplication app)
         {
             if (DesignModeDetector.IsInDesignMode())
                 return new BootstrapDesign();
@@ -168,7 +177,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected virtual void ViewModelConfiguration()
         {
-            Bind<IGSAppViewModel, IApplicationRootState, IScreen>().To<MockClientAppViewModel>().InSingletonScope();
+            Bind<IGSAppViewModel, IApplicationRootState, IScreen>().To<ClientAppViewModel>().InSingletonScope();
             Bind<TestingViewModel>().To<ClientTestingViewModel>().InSingletonScope();
             Bind<IAboutViewModel>().To<AboutViewModel>().InSingletonScope();
             Bind<ISearchUsersViewModel>().To<SearchUsersViewModel>().InSingletonScope();

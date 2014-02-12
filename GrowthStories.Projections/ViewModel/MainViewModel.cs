@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using ReactiveUI;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -19,7 +20,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return _AllLoaded;
             }
-            set
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _AllLoaded, value);
             }
@@ -66,13 +67,17 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        Task LoadingGarden;
         private IGardenViewModel _GardenVM;
         public IGardenViewModel GardenVM
         {
             get
             {
-                if (_GardenVM == null)
-                    InitGardenVM();
+                if (_GardenVM == null && LoadingGarden == null)
+                {
+
+                    LoadingGarden = InitGardenVM();
+                }
                 return _GardenVM;
             }
             private set
@@ -81,25 +86,35 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private void InitGardenVM()
+        private async Task InitGardenVM()
         {
-            this.GardenVM = MyGardenF();
+            this.GardenVM = await Task.Run(() => MyGardenF());
             CheckIfAllLoaded();
         }
 
         private void CheckIfAllLoaded()
         {
             if (_GardenVM != null && _NotificationsVM != null && _FriendsVM != null)
+            {
+
                 AllLoaded = true;
+                this._Pages.Add(_GardenVM);
+                this._Pages.Add(_NotificationsVM);
+                this._Pages.Add(_FriendsVM);
+                this.SelectedPage = _GardenVM;
+            }
         }
 
+        Task LoadingNotifications;
         private INotificationsViewModel _NotificationsVM;
         public INotificationsViewModel NotificationsVM
         {
             get
             {
-                if (_NotificationsVM == null)
-                    InitNotificationsVM();
+                if (_NotificationsVM == null && LoadingNotifications == null)
+                {
+                    LoadingNotifications = InitNotificationsVM();
+                }
                 return _NotificationsVM;
             }
             private set
@@ -109,19 +124,24 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private void InitNotificationsVM()
+        private async Task InitNotificationsVM()
         {
-            this.NotificationsVM = NotificationsF();
+
+            this.NotificationsVM = await Task.Run(() => NotificationsF());
+
             CheckIfAllLoaded();
         }
 
+        Task LoadingFriends;
         private FriendsViewModel _FriendsVM;
         public FriendsViewModel FriendsVM
         {
             get
             {
-                if (_FriendsVM == null)
-                    InitFriendsVM();
+                if (_FriendsVM == null && LoadingFriends == null)
+                {
+                    LoadingFriends = InitFriendsVM();
+                }
                 return _FriendsVM;
             }
             private set
@@ -131,9 +151,9 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private void InitFriendsVM()
+        private async Task InitFriendsVM()
         {
-            this.FriendsVM = FriendsF();
+            this.FriendsVM = await Task.Run(() => FriendsF());
             CheckIfAllLoaded();
         }
 

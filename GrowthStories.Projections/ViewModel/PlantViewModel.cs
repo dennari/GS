@@ -1218,6 +1218,14 @@ namespace Growthstories.UI.ViewModel
             get { return string.Format("type=plant&id={0}", this.Id); }
         }
 
+        public override string UrlPath
+        {
+            get
+            {
+                return string.Format("/MainSingularWindow.xaml?{0}", this.UrlPathSegment);
+            }
+        }
+
         #region APPBAR
         private IReadOnlyReactiveList<IButtonViewModel> _AppBarButtons;
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons

@@ -11,6 +11,7 @@
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
     xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
+	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:TimeSpanPicker="clr-namespace:Telerik.Windows.Controls.TimeSpanPicker;assembly=Telerik.Windows.Controls.Input"
     SupportedOrientations="{Binding ClientSupportedOrientations}"  
 	shell:SystemTray.BackgroundColor="Black"
@@ -24,32 +25,10 @@
 
 
     <phone:PhoneApplicationPage.Resources>
-        <Style TargetType="bar:BindableApplicationBar" x:Key="GSAppBarStyle">
-            <Setter Property="ForegroundColor" Value="{StaticResource GSAppBarColor}"/>
-            <Setter Property="BackgroundColor" Value="White"/>
-        </Style>
-
-        <!--<telerik:RadFadeAnimation x:Key="fadeInAnimation" StartOpacity="0.0" EndOpacity="1.0" Duration="0:0:2" />
-        <telerik:RadFadeAnimation x:Key="fadeOutAnimation" StartOpacity="1.0" EndOpacity="0.0" Duration="0:0:2" />
-
-        <telerik:RadSlideAnimation x:Key="GSSlideInAnimation" Duration="0:0:1" />
-        <telerik:RadSlideAnimation x:Key="GSSlideOutAnimation" Duration="0:0:1" />-->
-
-        <!--
-        <telerikPrimitives:RadTurnstileAndSlideTransition x:Key="GSTransition" />
-        -->
-        
-        <!--<telerikPrimitives:RadContinuumTransition x:Key="GSTransition" -->
-        
+       
         <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
         
-        <!--<telerikPrimitives:RadSlideAndSwivelTransition x:Key="GSSlideSwivel" />
-        <telerikPrimitives:RadSlideTransition x:Key="GSSlide" />-->
-
-        <!--
-        <telerik:RadTurnstileTransition x:Key="GSTurnstileAnimation" StartOpacity="1.0" EndOpacity="0.0" Duration="0:0:2" />
-        -->
-
+   
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
             Style="{StaticResource GSTextBlockStyle}"
@@ -101,7 +80,10 @@
                                 </ContentControl.RenderTransform>
                             </ContentControl>
                             <ContentPresenter Content="{TemplateBinding Content}" 
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0,0,0,30" Grid.Row="1" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              Margin="0,0,0,30" 
+                                              Grid.Row="1" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -110,11 +92,20 @@
 
     </phone:PhoneApplicationPage.Resources>
     
-    <shell:SystemTray.ProgressIndicator>
+    <local:MainWindowBase.ApplicationBar>
+        <shell:ApplicationBar 
+            Mode="Minimized"
+            BackgroundColor="White"
+            ForegroundColor="#fffa6800"
+            IsVisible="False"
+            />
+    </local:MainWindowBase.ApplicationBar>
+
+    <!--<shell:SystemTray.ProgressIndicator>
         <shell:ProgressIndicator 
             IsIndeterminate="True" 
             IsVisible="{Binding ProgressIndicatorIsVisible}" />
-    </shell:SystemTray.ProgressIndicator>
+    </shell:SystemTray.ProgressIndicator>-->
    
     <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">
         <Grid.Background>
@@ -136,71 +127,16 @@
 	
             <local:AGSRoutedViewHost.DefaultContent>
 
-                <local:MainViewBase Loaded="MainViewBase_Loaded">
-                    <UserControl.Resources>
-                        <DataTemplate x:Key="ListUsersTemplate">
-                            <TextBlock 
-            Style="{StaticResource GSTextBlockStyle}"
-            Foreground="White"
-            Text="{Binding Username}"               
-            FontSize="{StaticResource PhoneFontSizeExtraLarge}"
-            toolkit:TiltEffect.IsTiltEnabled="True"/>
-                        </DataTemplate>
-
-                        <DataTemplate x:Key="NotificationTemplate">
-                            <StackPanel>
-                                <TextBlock 
-                Style="{StaticResource GSTextBlockStyle}"
-                Foreground="White"
-                Width="350"
-                HorizontalAlignment="Left"
-                TextAlignment="Left"
-                Margin="12,0,0,24"
-                Text="{Binding NotificationText}"
-                TextWrapping="Wrap"
-                />
-
-
-                            </StackPanel>
-                        </DataTemplate>
-
-                        <Style x:Key="GSPanoramaItemStyle" TargetType="phone:PanoramaItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Foreground" Value="White" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="phone:PanoramaItem">
-                                        <Grid Background="{TemplateBinding Background}" Margin="12,0,0,0">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="auto"/>
-                                                <RowDefinition Height="*"/>
-                                            </Grid.RowDefinitions>
-                                            <ContentControl x:Name="header" 
-                                            CharacterSpacing="-35" 
-                                            ContentTemplate="{TemplateBinding HeaderTemplate}" 
-                                            Content="{TemplateBinding Header}" 
-                                            FontSize="66" 
-                                            FontFamily="{StaticResource GSPageTitleFont}" 
-                                            HorizontalAlignment="Left" 
-                                            Margin="10,-2,0,24">
-                                                <ContentControl.RenderTransform>
-                                                    <TranslateTransform x:Name="headerTransform"/>
-                                                </ContentControl.RenderTransform>
-                                            </ContentControl>
-                                            <ContentPresenter Content="{TemplateBinding Content}" 
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0,0,0,30" Grid.Row="1" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-
-
-                    </UserControl.Resources>
-                    <!--LayoutRoot contains the root grid where all other page content is placed-->
+                <local:MainViewBase x:Name="MainView" DataContext="{Binding MainVM}">
+                       <!--LayoutRoot contains the root grid where all other page content is placed-->
                     <Grid x:Name="LayoutRoot">
                         <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding PageChangedCommand, Mode=OneWay}"
+												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                             <phone:Panorama.Background>
                                 <ImageBrush Stretch="UniformToFill" >
                                     <ImageBrush.ImageSource>
@@ -220,23 +156,21 @@
                             </phone:Panorama.Title>
 
                             <!-- MY GARDEN -->
-                            <phone:PanoramaItem 
+              <phone:PanoramaItem 
                 Header="my garden" 
-                x:Name="mygardenItem"
+                x:Name="mygardenItem" 
                 Style="{StaticResource GSPanoramaItemStyle}">
-                                <Grid Visibility="{Binding GardenVM, Converter={StaticResource NullToVisibility}}">
-                                    <local:GardenView 
-                        DataContext="{Binding GardenVM}"
-                        ViewModel="{Binding GardenVM}"                                        
-                        x:Name="GardenView"/>
-                                </Grid>
-                            </phone:PanoramaItem>
+
+
+                <local:GardenView 
+                    DataContext="{Binding GardenVM}"           
+                    x:Name="GardenView"/>
+               
+               </phone:PanoramaItem>
                             <!-- NOTIFICATIONS -->
-                            <phone:PanoramaItem                                 
-                Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
-                                <Grid x:Name="ContentPanel2" Margin="0,0" 
-                      
-                      DataContext="{Binding NotificationsVM}">
+                <phone:PanoramaItem                                 
+                    Style="{StaticResource GSPanoramaItemStyle}" Header="notifications" x:Name="notificationsItem">
+                    <Grid x:Name="ContentPanel2" Margin="0,0"  DataContext="{Binding NotificationsVM}">
 
                                     <TextBlock 
                         HorizontalAlignment="Left"
@@ -260,13 +194,8 @@
                             <phone:PanoramaItem 
                 Style="{StaticResource GSPanoramaItemStyle}"         
                 Header="following" x:Name="friendsItem">
-                                <!--
-                <Grid x:Name="ContentPanel3" Margin="0,0"  DataContext="{Binding FriendsVM}">
-                    -->
-
-                                <Grid DataContext="{Binding FriendsVM}" 
-                                       
-                      >
+       
+                                <Grid DataContext="{Binding FriendsVM}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
@@ -321,17 +250,11 @@
             
         </local:AGSRoutedViewHost>
 
-        <!--
-        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" 
-               Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
-        -->
-
     </Grid>
     
     <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar
-			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"
-			Style="{StaticResource GSAppBarStyle}"
+			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"			
 			ButtonsSource="{Binding AppBarButtons}"
 			MenuItemsSource="{Binding AppBarMenuItems}"
 			IsVisible="{Binding AppBarIsVisible}"            

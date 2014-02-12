@@ -160,6 +160,9 @@
     <Compile Include="Config\Bootstrap.Production.cs" />
     <Compile Include="Controls\CustomMessageBox.cs" />
     <Compile Include="Controls\GSCustomMessageBox.cs" />
+    <Compile Include="MainSingularWindow.xaml.cs">
+      <DependentUpon>MainSingularWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GSAutoSuspendApplication.cs" />
     <Compile Include="Services\ResolutionHelper.cs" />
     <Compile Include="ViewModels\MockClientAppViewModel.cs" />
@@ -219,7 +222,6 @@
     </Compile>
     <Compile Include="Services\ViewHelpers.cs" />
     <Compile Include="ViewModels\ClientAppViewModel.cs" />
-
     <Compile Include="ViewModels\ClientAddEditPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
@@ -262,6 +264,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="MainSingularWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\GardenPlantTileView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -381,12 +387,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_24_16.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_28_16.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_32_26.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_01_36_11.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_05_09_55.sap" />
-    <None Include="GrowthStories.UI.WindowsPhone_2014_02_10_05_13_35.sap" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -490,10 +490,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BindableApplicationBar, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\BindableApplicationBar.1.1.0.0\lib\wp8\BindableApplicationBar.dll</HintPath>
-    </Reference>
     <Reference Include="Coding4Fun.Toolkit.Controls, Version=2.0.7.0, Culture=neutral, PublicKeyToken=c5fd7b72b1a17ce4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Coding4Fun.Toolkit.Controls.2.0.7\lib\windowsphone8\Coding4Fun.Toolkit.Controls.dll</HintPath>
@@ -630,6 +626,10 @@
     <ProjectReference Include="..\..\ReactiveUI\ReactiveUI\ReactiveUI.csproj">
       <Project>{464CB812-F99F-401B-BE4C-E8F0515CD19D}</Project>
       <Name>ReactiveUI %28ReactiveUI\ReactiveUI%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BindableApplicationBar\BindableApplicationBar.csproj">
+      <Project>{4BE7F5D8-A46B-4FB8-AB58-11C9C425960E}</Project>
+      <Name>BindableApplicationBar</Name>
     </ProjectReference>
     <ProjectReference Include="..\GrowthStories.Core\GrowthStories.Core.csproj">
       <Project>{DFDB229B-9C77-4E89-A602-6CBAEE83315F}</Project>

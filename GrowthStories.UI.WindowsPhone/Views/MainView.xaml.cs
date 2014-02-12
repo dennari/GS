@@ -1,18 +1,26 @@
 ﻿using System;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
-using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using GrowthStories.UI.WindowsPhone.BA;
+using System.Reactive.Linq;
+using System.Windows.Data;
+using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Scheduler;
-using System.Windows;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
 
-    public class MainViewBase : GSView<MainViewModel>
+    public class MainViewBase : GSView<IMainViewModel>
     {
+        public MainViewBase()
+        {
+            this.SetBinding(ViewModelProperty, new Binding());
 
+        }
+
+        protected override void OnViewModelChanged(IMainViewModel vm)
+        {
+            base.OnViewModelChanged(vm);
+        }
     }
 
     public partial class MainView : MainViewBase
@@ -25,7 +33,7 @@ namespace Growthstories.UI.WindowsPhone
             //FriendsSelector.SelectedItem = null;
         }
         private IDisposable GardenVMSubscription = Disposable.Empty;
-        protected override void OnViewModelChanged(MainViewModel vm)
+        protected override void OnViewModelChanged(IMainViewModel vm)
         {
             //base.OnViewModelChanged(vm);
 

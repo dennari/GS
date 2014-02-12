@@ -138,12 +138,16 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.SelectedFriend = x);
 
             this.TrySearchUsersCommand = new ReactiveCommand();
-            this.ItemTappedCommand = new ReactiveCommand(App.Router.CurrentViewModel.Select(x => x != this));
+
+
+            var isNotThisObs = App.WhenAnyObservable(x => x.Router.CurrentViewModel).Select(x => x != this);
+
+            this.ItemTappedCommand = new ReactiveCommand(isNotThisObs);
             this.ItemTappedCommand.Subscribe(_ => this.Navigate(this));
 
-            this.App.Router.CurrentViewModel.Subscribe(x =>
+            isNotThisObs.Subscribe(x =>
             {
-                if (x == this)
+                if (!x)
                 {
                     this.AppBarButtons = this.GardenButtons;
 

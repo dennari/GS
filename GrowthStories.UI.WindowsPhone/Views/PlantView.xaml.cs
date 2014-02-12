@@ -49,6 +49,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
+            if (vm == null)
+                return;
 
             if (vm.HasWriteAccess)
             {
@@ -77,7 +79,7 @@ namespace Growthstories.UI.WindowsPhone
 
                         //if (TimeLine.ViewPort != null)
                         //{                           
-                            //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
+                        //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
                         //}
                     }
                 }
@@ -98,7 +100,7 @@ namespace Growthstories.UI.WindowsPhone
 
             try
             {
-                if (TimeLine.ItemsSource.Count > 0)
+                if (TimeLine.ItemsSource != null && TimeLine.ItemsSource.Count > 0)
                 {
                     var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
                     sb.Margin = new Thickness(0, 0, -10, 0);
