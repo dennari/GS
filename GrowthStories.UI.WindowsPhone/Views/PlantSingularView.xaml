@@ -15,80 +15,61 @@
     mc:Ignorable="d">
 
 
-    <Grid Height="800">
-        
-        <Grid.Background>
-            <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
-        </Grid.Background>
+    <local:GSViewGrid
+        x:Name="ViewGrid"
+        TopTitle="GROWTH STORIES"
+        Title="loading"
+        Style="{StaticResource NoScroll}">
 
-     
-        <reactive:ViewModelViewHost x:Name="SingularViewMainContent"
-            ViewModel="{Binding InnerViewModel}"
-            VerticalContentAlignment="Stretch"
-            HorizontalContentAlignment="Stretch"
-            Opacity="0.0">
-            
-        <reactive:ViewModelViewHost.DefaultContent>
+        <Grid Margin="-12,0,-18,-36">
 
-            <local:GSViewGrid
-                TopTitle="GROWTH STORIES"
-                Title="{Binding Plant.Name}"
-                Style="{StaticResource NoScroll}"
-                >
-                
-                <Grid Margin="-12,0,-18,-36">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+            <telerikPrimitives:RadBusyIndicator
+                Grid.Row="0"
+                Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+                ContentPosition="Right"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                IsRunning="True"
+                AnimationStyle="AnimationStyle7"
+                Foreground="WhiteSmoke"
+                Margin="12,12,0,62"
+                                            >
+                <telerikPrimitives:RadBusyIndicator.RenderTransform>
+                    <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
+                </telerikPrimitives:RadBusyIndicator.RenderTransform>
 
-                        <telerikPrimitives:RadBusyIndicator
-                                Grid.Row="0"
-                                Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
-                                ContentPosition="Right"
-                                VerticalAlignment="Top"
-                                HorizontalAlignment="Left"
-                                IsRunning="True"
-                                AnimationStyle="AnimationStyle7"
-                                Foreground="WhiteSmoke"
-                                Margin="12,12,0,24"
-                                >
-                                <telerikPrimitives:RadBusyIndicator.RenderTransform>
-                                    <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
-                                </telerikPrimitives:RadBusyIndicator.RenderTransform>
+                <telerikPrimitives:RadBusyIndicator.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock 
+                            VerticalAlignment="Center"
+                            Style="{StaticResource GSPlaceholderTextBlockStyle}"
+                            Text="Loading..." 
+                            FontSize="14"
+                            FontWeight="Normal"
+                            Margin="8,-4,0,0"
+                            Width="200"
+                            x:Name="loading-plants-text" />
+                    </DataTemplate>
+                </telerikPrimitives:RadBusyIndicator.ContentTemplate>
+            </telerikPrimitives:RadBusyIndicator>
 
-                                <telerikPrimitives:RadBusyIndicator.ContentTemplate>
-                                    <DataTemplate>
-                                        <TextBlock 
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                                            Text="Loading..." 
-                                            FontSize="14"
-                                            FontWeight="Normal"
-                                            Margin="8,-4,0,0"
-                                            Width="200"
-                                            x:Name="loading-plants-text"                    
-                                            />
-                                    </DataTemplate>
-                                </telerikPrimitives:RadBusyIndicator.ContentTemplate>
-                            </telerikPrimitives:RadBusyIndicator>
+            <local:PlantView 
+                x:Name="ThePlantView"
+                Grid.Row="1"
+                Visibility="Collapsed"
+                ViewModel="{Binding Plant}" 
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"    
+                />
 
-                            <local:PlantView 
-                                Grid.Row="1"
-                                Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}}"
-                                ViewModel="{Binding Plant}" 
-                                VerticalAlignment="Stretch"
-                                HorizontalAlignment="Stretch"    
-                                />
+        </Grid>
 
-                </Grid>
-                
-            </local:GSViewGrid>
-            
-        </reactive:ViewModelViewHost.DefaultContent>
-    </reactive:ViewModelViewHost>
+    </local:GSViewGrid>
 
-    </Grid>
 
 </local:PlantSingularViewBase>

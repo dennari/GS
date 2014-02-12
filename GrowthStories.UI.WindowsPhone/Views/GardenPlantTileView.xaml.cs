@@ -49,6 +49,7 @@ namespace Growthstories.UI.WindowsPhone
             //ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
             //ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
 
+            subs.Dispose();
             subs = Observable.CombineLatest(
                 vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x),
                 vm.WhenAnyValue(z => z.Loaded).Where(z => z))

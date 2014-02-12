@@ -23,15 +23,12 @@ namespace Growthstories.UI.WindowsPhone
         {
             this.Log().Info("MainSingularWindow constructor");
             InitializeComponent();
-
-
         }
 
 
 
         protected override void HandleResuming(Unit _)
         {
-
             base.HandleResuming(_);
 
             // when navigated from secondary tile we also need to update infos on tiles
@@ -44,7 +41,6 @@ namespace Growthstories.UI.WindowsPhone
                     cpvm.TileHelper.UpdateHasTile();
                 }
             }
-
         }
 
 
@@ -54,7 +50,6 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGSAppViewModel vm)
         {
-
 
             //this.Log().Info("MainWindowBase loaded {0}, MainViewBase Loaded {1}", MainWindowBaseMS, MainViewBaseMS);
 
@@ -84,7 +79,6 @@ namespace Growthstories.UI.WindowsPhone
                     .Where(x => x.AggregateId == plantId)
                     .Take(1)
                     .Delay(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
-                    //.DelaySubscription(TimeSpan.FromMilliseconds(500), RxApp.MainThreadScheduler)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x =>
                     {
@@ -99,17 +93,16 @@ namespace Growthstories.UI.WindowsPhone
             }
 
             MainViewModel = new PlantSingularViewModel(Pvm, vm);
-
             base.OnViewModelChanged(vm);
+            vm.Log().Info("setting selected plant to {0}");
+            Pvm.ShouldBeFullyLoaded = true;
+            
             if (UILoaded)
             {
-
                 UIAndVMLoaded();
-
             }
-
-
         }
+
 
         private bool UILoaded = false;
 

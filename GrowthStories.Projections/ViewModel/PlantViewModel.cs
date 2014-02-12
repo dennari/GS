@@ -183,6 +183,7 @@ namespace Growthstories.UI.ViewModel
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
         {
+            Name = "loading";
             Loaded = false;
             ShowPlaceHolder = false;
 
@@ -318,7 +319,8 @@ namespace Growthstories.UI.ViewModel
 
             });
 
-            DifferentUsersPlantSelected = App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null && x.UserId != this.UserId);
+            DifferentUsersPlantSelected = App
+                .WhenAnyValue(x => x.SelectedPlant).Where(x => x != null && x.UserId != this.UserId);
         }
 
 

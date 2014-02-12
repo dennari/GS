@@ -63,16 +63,14 @@
             <local:AGSRoutedViewHost.DefaultContent>
 
                 <local:PlantSingularViewBase
-                    DataContext="{Binding PlantSingularVM}"
-                    >
-
+                    DataContext="{Binding PlantSingularVM}">
 
                     <Grid Height="800">
 
                         <Grid.Background>
                             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
                         </Grid.Background>
-
+                        
                         <local:GSMultiViewHost
                             ViewModel="{Binding}"
                             x:Name="SingularViewMainContent"
@@ -81,62 +79,7 @@
                             Opacity="1.0"
                             >
                             <local:GSMultiViewHost.DefaultContent>
-                                <local:GSViewGrid
-                                    TopTitle="GROWTH STORIES"
-                                    Title="{Binding Plant.Name}"
-                                    Style="{StaticResource NoScroll}"
-                                    >
-
-                                    <Grid Margin="-12,0,-18,-36">
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-
-                                        <telerikPrimitives:RadBusyIndicator
-                                Grid.Row="0"
-                                Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
-                                ContentPosition="Right"
-                                VerticalAlignment="Top"
-                                HorizontalAlignment="Left"
-                                IsRunning="True"
-                                AnimationStyle="AnimationStyle7"
-                                Foreground="WhiteSmoke"
-                                Margin="12,12,0,24"
-                                >
-                                            <telerikPrimitives:RadBusyIndicator.RenderTransform>
-                                                <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
-                                            </telerikPrimitives:RadBusyIndicator.RenderTransform>
-
-                                            <telerikPrimitives:RadBusyIndicator.ContentTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock 
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                                            Text="Loading..." 
-                                            FontSize="14"
-                                            FontWeight="Normal"
-                                            Margin="8,-4,0,0"
-                                            Width="200"
-                                            x:Name="loading-plants-text"                    
-                                            />
-                                                </DataTemplate>
-                                            </telerikPrimitives:RadBusyIndicator.ContentTemplate>
-                                        </telerikPrimitives:RadBusyIndicator>
-
-                                        <local:PlantView 
-                                            Grid.Row="1"
-                                            Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}}"
-                                            ViewModel="{Binding Plant}" 
-                                            VerticalAlignment="Stretch"
-                                            HorizontalAlignment="Stretch"    
-                                            />
-
-                                    </Grid>
-
-                                </local:GSViewGrid>
-
+                                <local:PlantSingularView ViewModel="{Binding}" />
                             </local:GSMultiViewHost.DefaultContent>
                         </local:GSMultiViewHost>
 

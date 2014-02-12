@@ -400,6 +400,7 @@ namespace Growthstories.UI.WindowsPhone
         {
 
             var vm = (PlantViewModel)pvm;
+            vm.Log().Info("updatating tile and info for {0} in thread {1}", pvm.Name, Thread.CurrentThread.Name);
 
             if (vm.State.IsDeleted)
             {

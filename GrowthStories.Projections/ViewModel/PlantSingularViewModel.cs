@@ -76,9 +76,8 @@ namespace Growthstories.UI.ViewModel
             //        this.SelectedPage = this.Plant;
             //    }
             //});
-
-
         }
+
 
         private IPlantActionListViewModel _PlantActionList;
         protected IPlantActionListViewModel PlantActionList

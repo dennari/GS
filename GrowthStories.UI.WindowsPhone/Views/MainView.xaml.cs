@@ -23,6 +23,7 @@ namespace Growthstories.UI.WindowsPhone
         }
     }
 
+
     public partial class MainView : MainViewBase
     {
 
@@ -32,6 +33,7 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
             //FriendsSelector.SelectedItem = null;
         }
+
         private IDisposable GardenVMSubscription = Disposable.Empty;
         protected override void OnViewModelChanged(IMainViewModel vm)
         {
@@ -43,7 +45,6 @@ namespace Growthstories.UI.WindowsPhone
                 this.GardenView.ViewModel = vm.GardenVM;
 
             });
-
         }
 
         private void CauseException(object sender, System.Windows.Input.GestureEventArgs e)
@@ -55,9 +56,9 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ClearMockIAP(object sender, System.Windows.Input.GestureEventArgs e)
         {
-#if DEBUG
+            #if DEBUG
             MockIAPLib.MockIAP.ClearCache();
-#endif
+            #endif
         }
 
         private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)

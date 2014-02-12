@@ -45,11 +45,17 @@ namespace Growthstories.UI.WindowsPhone
 
             RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
             {
-            PhoneApp.UnhandledException += HandleUnhandledExceptions;
+                PhoneApp.UnhandledException += HandleUnhandledExceptions;
+                return Disposable.Empty;
+            });
 
+            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
+            {
+                ApplyGSAccentColor();
                 return Disposable.Empty;
             });
         }
+
 
         public override void Load()
         {
@@ -57,11 +63,11 @@ namespace Growthstories.UI.WindowsPhone
 
             PrintLastUnhandledException();
 
-            ApplyGSAccentColor();
             BAConfiguration();
             ViewModelConfiguration();
             ViewConfiguration();
         }
+
 
         protected virtual void PrintLastUnhandledException()
         {
@@ -154,28 +160,30 @@ namespace Growthstories.UI.WindowsPhone
             return Path.Combine(ApplicationData.Current.LocalFolder.Path, "GSUI.sqlite");
         }
 
+
         private void ApplyGSAccentColor()
         {
             try
             {
-                //ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
-                //ThemeManager.ToDarkTheme();
+                ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
+                ThemeManager.ToDarkTheme();
 
-                //PhoneApp.Resources.Remove("PhoneAccentColor");
-                //PhoneApp.Resources.Add("PhoneAccentColor", PhoneApp.Resources["GSAccentColor"]);
+                PhoneApp.Resources.Remove("PhoneAccentColor");
+                PhoneApp.Resources.Add("PhoneAccentColor", PhoneApp.Resources["GSAccentColor"]);
 
-                //var ab = (SolidColorBrush)PhoneApp.Resources["PhoneAccentBrush"];
-                //var ac = (Color)PhoneApp.Resources["PhoneAccentColor"];
-                //ab.Color = ac;
+                var ab = (SolidColorBrush)PhoneApp.Resources["PhoneAccentBrush"];
+                var ac = (Color)PhoneApp.Resources["PhoneAccentColor"];
+                ab.Color = ac;
 
-                //var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
-                //ebb.Color = ac;
+                var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
+                ebb.Color = ac;
             }
             catch
             {
                 Logger.Warn("could not apply gs theme");
             }
         }
+
 
         internal static INinjectModule GetModule(GSAutoSuspendApplication app)
         {

@@ -4,7 +4,7 @@ using ReactiveUI;
 using System.Windows.Media.Animation;
 using System.Windows;
 using System.Windows.Data;
-
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -15,7 +15,6 @@ namespace Growthstories.UI.WindowsPhone
         public PlantSingularViewBase()
         {
             this.SetBinding(ViewModelProperty, new Binding());
-
         }
     }
 
@@ -42,33 +41,45 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.OnViewModelChanged(vm);
 
-            vm.WhenAnyValue(x => x.Plant.Name).Subscribe(name =>
+            vm.WhenAnyValue(x => x.Plant.Name).Where(x => x != null).Take(1).Subscribe(x =>
             {
-                if (name != null)
-                {
-                    FadeIn();
-                }
+                ViewGrid.Title = x;
+                ThePlantView.Visibility = Visibility.Visible;
             });
+
+
+            //if (vm.Plant.Name == null)
+            //{
+            //    vm.Plant.Name = "loading";
+            //}
+
+            //vm.WhenAnyValue(x => x.Plant.Name).Subscribe(name =>
+            //{
+            //    if (name != null)
+            //    {
+            //        FadeIn();
+            //    }
+            //});
         }
 
 
-        private void FadeIn()
-        {
-            DoubleAnimation wa = new DoubleAnimation();
-            wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
-            wa.BeginTime = TimeSpan.FromSeconds(0.2);
-            wa.From = 0;
-            wa.To = 1.0;
-            wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+        //private void FadeIn()
+        //{
+        //    DoubleAnimation wa = new DoubleAnimation();
+        //    wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
+        //    wa.BeginTime = TimeSpan.FromSeconds(0.2);
+        //    wa.From = 0;
+        //    wa.To = 1.0;
+        //    wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
 
-            Storyboard sb = new Storyboard();
-            sb.Children.Add(wa);
+        //    Storyboard sb = new Storyboard();
+        //    sb.Children.Add(wa);
 
-            Storyboard.SetTarget(wa, SingularViewMainContent);
-            Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
+        //    Storyboard.SetTarget(wa, LayoutRoot);
+        //    Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
 
-            sb.Begin();
-        }
+        //    sb.Begin();
+        //}
 
 
     }

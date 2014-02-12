@@ -97,9 +97,9 @@ namespace Growthstories.UI.WindowsPhone
                     _AddLongListSelector();
                 }
                 else
-                    {
+                {
                     _RemoveLongListSelector();
-                    }
+                }
             });
 
             // when selected plant is no more one of this user, clean up subscription
