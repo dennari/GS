@@ -47,6 +47,8 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        private IDisposable subs;
+
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
@@ -85,8 +87,8 @@ namespace Growthstories.UI.WindowsPhone
             //    }
             //    catch { }
             //});
-
-            vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
+           
+            subs = vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
             {
                 if (x)
                 {
@@ -98,10 +100,16 @@ namespace Growthstories.UI.WindowsPhone
                 }
             });
 
+            // when selected plant is no more one of this user, clean up subscription
+            vm.DifferentUsersPlantSelected.Take(1).Subscribe(x =>
+            {
+                ViewModel.Log().Info("cleaning up plantview for {0}", ViewModel.Name);
+                subs.Dispose();
+                _RemoveLongListSelector();
+            });
         }
 
 
-    
 
 
         private void _RemoveLongListSelector()
@@ -144,7 +152,15 @@ namespace Growthstories.UI.WindowsPhone
             //_AddLongListSelector();
         }
 
+
+        ~PlantView()
+        {
+            NotifyDestroyed("");
+        }
+
     }
+
+
 
 
 }

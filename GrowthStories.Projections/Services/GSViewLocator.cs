@@ -49,7 +49,6 @@ namespace Growthstories.UI.Services
                     {
                         this.Log().Info("creating new gardenpivotviewmodel for {0}", gvm.Username);
                         pivotViews.Clear(); // only cache the latest one, as otherwise we will use too much memory
-
                         pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
                     }
                     else

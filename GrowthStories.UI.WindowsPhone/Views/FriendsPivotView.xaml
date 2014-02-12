@@ -10,10 +10,9 @@
 	xmlns:command="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
 	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
 	xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-	d:DataContext="{StaticResource FriendsPivotViewModelDesign}"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded" Unloaded="LayoutRoot_Unloaded">
+    <Grid x:Name="LayoutRoot">
         
         <Grid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/garden_all.jpg"/>
@@ -21,7 +20,7 @@
          
         <phone:Pivot 
 			x:Name="Friends" 
-			ItemsSource="{Binding Friends}"
+			ItemsSource="{Binding Friends, Mode=OneWay}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
             <phone:Pivot.TitleTemplate>
@@ -44,7 +43,7 @@
 
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <local:GardenView ViewModel="{Binding}" CleanUpOnUnload="TRUE" />
+                    <local:GardenView ViewModel="{Binding}" CleanUpOnUnload="TRUE" MainScrollerHeight="660" />
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
 

@@ -298,6 +298,8 @@ namespace Growthstories.UI.ViewModel
 
         bool ShouldBeFullyLoaded { get; set; }
 
+        IObservable<IPlantViewModel> DifferentUsersPlantSelected { get; }
+
     }
 
 

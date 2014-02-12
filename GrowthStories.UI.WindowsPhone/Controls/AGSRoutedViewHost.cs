@@ -78,8 +78,6 @@ namespace Growthstories.UI.WindowsPhone
 
         public AGSRoutedViewHost()
         {
-            
-            
 
             HorizontalContentAlignment = HorizontalAlignment.Stretch;
             VerticalContentAlignment = VerticalAlignment.Stretch;
@@ -146,6 +144,8 @@ namespace Growthstories.UI.WindowsPhone
                     AppVM.NavigatingBack = false;
                 }
 
+                Growthstories.Core.MemoryHelper.CollectGarbageForTesting();
+                
             }, ex => RxApp.DefaultExceptionHandler.OnNext(ex));
         }
     }
@@ -228,7 +228,11 @@ namespace Growthstories.UI.WindowsPhone
                 view.ViewModel = x;
                 Content = view;
             });
+        }
 
+        public void CleanUp()
+        {
+            subscription.Dispose();
         }
 
         private IViewLocator ViewLocator;

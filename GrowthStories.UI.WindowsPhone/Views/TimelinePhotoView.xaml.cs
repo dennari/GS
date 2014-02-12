@@ -145,6 +145,10 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+        ~TimelinePhotoView()
+        {
+            NotifyDestroyed("");
+        }
     }
 
 }

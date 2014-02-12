@@ -306,7 +306,6 @@ namespace Growthstories.UI.WindowsPhone
             ClearValue(oPivotItem, PivotItem.ContentTemplateProperty);
             ClearValue(oPivotItem, PivotItem.CursorProperty);
             ClearValue(oPivotItem, PivotItem.DataContextProperty);
-            //ClearValue(oPivotItem, PivotItem.DefaultStyleKeyProperty);
             ClearValue(oPivotItem, PivotItem.FlowDirectionProperty);
             ClearValue(oPivotItem, PivotItem.FontFamilyProperty);
             ClearValue(oPivotItem, PivotItem.FontSizeProperty);
@@ -327,7 +326,6 @@ namespace Growthstories.UI.WindowsPhone
             ClearValue(oPivotItem, PivotItem.MaxWidthProperty);
             ClearValue(oPivotItem, PivotItem.MinHeightProperty);
             ClearValue(oPivotItem, PivotItem.MinWidthProperty);
-            //ClearValue(oPivotItem, PivotItem.NameProperty);
             ClearValue(oPivotItem, PivotItem.OpacityMaskProperty);
             ClearValue(oPivotItem, PivotItem.OpacityProperty);
             ClearValue(oPivotItem, PivotItem.PaddingProperty);

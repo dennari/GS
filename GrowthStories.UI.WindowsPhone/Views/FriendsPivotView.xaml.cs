@@ -10,6 +10,8 @@ using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using System.Reactive.Linq;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -19,32 +21,43 @@ namespace Growthstories.UI.WindowsPhone
 
     }
 
+
     public partial class FriendsPivotView : FriendsPivotViewBase
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(FriendsPivotView));
+
+        Guid id;
+        static ReactiveCommand Constructed = new ReactiveCommand();
 
 
         public FriendsPivotView()
         {
+            id = Guid.NewGuid();
             InitializeComponent();
-            ViewModel.Log().Info("initializing new friendspivotview");
+
+            Logger.Info("initializing new friendspivotview {0}", id);
+       
+            Constructed.Execute(null);
+            Constructed.Take(1).Subscribe(_ => CleanUp());
         }
 
 
-        private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
+        private void CleanUp()
         {
-            //ViewModel.App.PossiblyAutoSync();
-        }
-
-        private void LayoutRoot_Unloaded(object sender, RoutedEventArgs e)
-        {
-            this.ViewModel.Log().Info("cleaning up friendspivot");
+            this.ViewModel.Log().Info("cleaning up friendspivot {0}", id);
+            
             Friends.ItemsSource = null;
+            //Friends.SelectedItem = null;
             ViewHelpers.ClearPivotDependencyValues(Friends);
+            
+            //LayoutRoot.Children.Clear();
         }
+
 
         ~FriendsPivotView()
         {
-            this.ViewModel.Log().Info("in friendspivotview destructor");
+            NotifyDestroyed(id.ToString());
         }
 
     }

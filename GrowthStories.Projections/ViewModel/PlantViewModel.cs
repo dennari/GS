@@ -179,6 +179,7 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
         {
@@ -317,9 +318,11 @@ namespace Growthstories.UI.ViewModel
 
             });
 
-
+            DifferentUsersPlantSelected = App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null && x.UserId != this.UserId);
         }
 
+
+        public IObservable<IPlantViewModel> DifferentUsersPlantSelected { get; set; }
 
         // subscribe for updates regarding removed actions
         //
@@ -1383,6 +1386,9 @@ namespace Growthstories.UI.ViewModel
         public bool ShowPlaceHolder { get; set; }
 
         public GSLocation Location { get; set; }
+
+        public IObservable<IPlantViewModel> DifferentUsersPlantSelected { get; set; }
+
 
         public void NotifyImageDownloadFailed()
         {

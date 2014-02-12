@@ -38,7 +38,7 @@
 
     </local:GardenPlantTileViewBase.Resources>
 
-    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True">
+    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True" x:Name="LayoutRoot" Unloaded="LayoutRoot_Unloaded">
 
         <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
             
@@ -214,7 +214,6 @@
             Height="130"
             >
             
-            <!-- consider the scale when adjusting width above -->
             <telerikPrimitives:RadBusyIndicator.RenderTransform>
                 <ScaleTransform CenterX="65" CenterY="65" ScaleX="1.4" ScaleY="1.4" />
             </telerikPrimitives:RadBusyIndicator.RenderTransform>
@@ -232,6 +231,7 @@
                 </DataTemplate>
             </telerikPrimitives:RadBusyIndicator.ContentTemplate>
         </telerikPrimitives:RadBusyIndicator>
+            
         </StackPanel>
         </StackPanel>
         

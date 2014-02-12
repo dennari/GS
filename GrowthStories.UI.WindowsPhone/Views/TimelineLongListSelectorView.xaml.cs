@@ -10,6 +10,9 @@ using Microsoft.Phone.Shell;
 using Growthstories.UI.ViewModel;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
+using System.Reactive.Disposables;
+using ReactiveUI;
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -29,18 +32,43 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
         }
 
+        IDisposable subs = Disposable.Empty;
 
-        public void CleanUp()
+        protected override void OnViewModelChanged(IPlantViewModel vm)
         {
-            TimeLine.ItemsSource = null;
+            subs =
+                vm.FilteredActions
+                    .ItemsAdded
+                    .Throttle(TimeSpan.FromMilliseconds(300))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x =>
+                {
+                    try
+                    {
 
-            ViewHelpers.ClearLongListSelectorDependencyValues(TimeLine);
-            GC.Collect(2, GCCollectionMode.Forced, true); // useful for testing
+                        if (TimeLine.ItemsSource.Count > 2)
+                        {
+                            vm.Log().Info("scrolling");
+                            TimeLine.ScrollTo(x);
+
+                            //if (TimeLine.ViewPort != null)
+                            //{                           
+                            //TimeLine.ViewPort.SetViewportOrigin(new Point(0, 0));
+                            //}
+                        }
+                    }
+                    catch { }
+                });
         }
 
 
+        public void CleanUp()
+        {
+            subs.Dispose();
+            TimeLine.ItemsSource = null;
+            ViewHelpers.ClearLongListSelectorDependencyValues(TimeLine);
+        }
 
-        
 
 
         private void TimeLine_Loaded(object sender, RoutedEventArgs e)
@@ -66,6 +94,12 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
         
+
+        ~TimelineLongListSelectorView()
+        {
+            NotifyDestroyed("");
+        }
+
 
     }
 

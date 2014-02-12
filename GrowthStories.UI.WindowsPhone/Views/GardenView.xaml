@@ -214,10 +214,10 @@
                 <StackPanel>
                     <toolkit:LongListMultiSelector
                         x:Name="PlantsSelector"
-	                    ItemsSource="{Binding Plants}"
+	                    ItemsSource="{Binding Plants, Mode=OneWay}"
 	                    ItemTemplate="{StaticResource C4fTile}"
                         ItemContainerStyle="{StaticResource TileSelectionStyle2}"
-                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
+                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=OneWay}"
                         SelectionChanged="PlantsSelector_SelectionChanged"
 	                    GridCellSize="198,272"
                         LayoutMode="Grid"            

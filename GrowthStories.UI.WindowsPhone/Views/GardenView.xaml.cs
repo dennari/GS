@@ -45,8 +45,12 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        public static readonly DependencyProperty CleanUpOnUnloadProperty =
-                   DependencyProperty.Register("CleanUpOnUnload", typeof(string), typeof(GardenView), new PropertyMetadata("FALSE"));
+        public static readonly DependencyProperty CleanUpOnUnloadProperty = 
+            DependencyProperty.Register("CleanUpOnUnload", typeof(string), typeof(GardenView), new PropertyMetadata("FALSE"));
+
+
+        public static readonly DependencyProperty MainScrollerHeightProperty =
+            DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(480));
 
 
         public string CleanUpOnUnload
@@ -57,82 +61,49 @@ namespace Growthstories.UI.WindowsPhone
             }
             set
             {
-                Logger.Info("trying to set value to {0}, currentvalue is {1}", value, CleanUpOnUnload);
                 SetValue(CleanUpOnUnloadProperty, value);
-                Logger.Info("set value to {0}", value);
+            }
+        }
+
+
+        public int MainScrollerHeight
+        {
+            get
+            {
+                return (int)GetValue(MainScrollerHeightProperty);
+            }
+            set
+            {
+                SetValue(MainScrollerHeightProperty, value);
             }
         }
 
 
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
+            MainScroller.Height = MainScrollerHeight;
 
-            var gvm = vm as GardenViewModel;
-            if (gvm != null)
-            {
-                gvm.WhenAnyValue(x => x.OwnGarden).Subscribe(own =>
-                {
-                    if (own)
-                    {
-                        MainScroller.Height = 480;
-                    }
-                    else
-                    {
-                        MainScroller.Height = 480 + 180;
-                    }
-                });
-            }
-        }
-
-
-        public void handleDelete(PlantViewModel pvm)
-        {
-            //PlantView.DeleteTile(pvm);
-            //MessageBoxResult res = MessageBox.Show("Are you sure you wish to delete the plant " + pvm.Name + "?");
+            //var gvm = vm as GardenViewModel;
+            //if (gvm != null)
+            //{
+            //    gvm.WhenAnyValue(x => x.OwnGarden).Subscribe(own =>
+            //    {
+            //        if (own)
+            //        {
+            //            MainScroller.Height = 480;
+            //        }
+            //        else
+            //        {
+            //            MainScroller.Height = 480 + 180;
+            //        }
+            //    });
+            //}
         }
 
 
         private void PlantsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.ViewModel.SelectedItemsChanged.Execute(Tuple.Create(e.AddedItems, e.RemovedItems));
-        }
-
-
-        private void Img_ImageOpened(object sender, RoutedEventArgs e)
-        {
-            Logger.Info("ImageOpened " + sender.ToString());
-            ImgOpened(sender, false);
-        }
-
-
-        private void Img_PlaceHolderImageOpened(object sender, RoutedEventArgs e)
-        {
-            var pvm = GetViewModel(sender);
-
-            if (pvm.Loaded)
-            {
-                ImgOpened(sender, true);
-
-            }
-            else
-            {
-
-
-            }
-
-            var vm = (PlantViewModel)ViewModel.Plants.First();
-            var b1 = vm.ShowPlaceHolder;
-            var b2 = vm.Loaded;
-            var photo = vm.Photo;
-
-            ImgOpened(sender, true);
-        }
-
-
-        private void Img_ImageFailed(object sender, RoutedEventArgs e)
-        {
-            Logger.Debug("ImageDebug");
-            Logger.Info("ImageFailedDebug " + sender.ToString());
         }
 
 
@@ -143,53 +114,6 @@ namespace Growthstories.UI.WindowsPhone
             var button = GSViewUtils.FindParent<Button>(c4fTile);
 
             return button.CommandParameter as PlantViewModel;
-        }
-
-
-        private void ImgOpened(object sender, bool isPlaceholder)
-        {
-
-            var img = sender as System.Windows.Controls.Image;
-
-            DoubleAnimation wa = new DoubleAnimation();
-            wa.Duration = new Duration(TimeSpan.FromSeconds(1.5));
-            wa.BeginTime = TimeSpan.FromSeconds(0.5);
-            wa.From = 0;
-            wa.To = 1.0;
-            wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
-
-            Storyboard sb = new Storyboard();
-            sb.Children.Add(wa);
-
-            var sp = GSViewUtils.FindParent<StackPanel>(img);
-
-            if (sp != null)
-            {
-                Storyboard.SetTarget(wa, sp);
-                Storyboard.SetTargetProperty(wa, new PropertyPath("Opacity"));
-            }
-
-            var c4fTile = GSViewUtils.FindParent<Button>(img);
-            var button = GSViewUtils.FindParent<Button>(c4fTile);
-            var vm = button.CommandParameter as PlantViewModel;
-
-            if (vm.Photo != null && isPlaceholder)
-            {
-                return;
-            }
-
-            if (vm.Photo == null && !isPlaceholder)
-            {
-                return;
-            }
-
-            // this event is somehow triggered many times, 
-            // so do this only once
-            // ( double comparison against zero should be ok )
-            if (sp.Opacity == 0)
-            {
-                sb.Begin();
-            }
         }
 
 
@@ -208,19 +132,22 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ViewRoot_Unloaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("gardenview unloaded for {0}", ViewModel.Username);
+            ViewModel.Log().Info("gardenview unloaded for {0}, CleanUpOnUnload is {1}", ViewModel.Username, CleanUpOnUnload);
             if (CleanUpOnUnload != null && CleanUpOnUnload.Equals("TRUE"))
             {
                 ViewModel.Log().Info("cleaning up gardenview {0}", ViewModel.Username);
+                PlantsSelector.IsSelectionEnabled = false;
                 PlantsSelector.ItemsSource = null;
+                PlantsSelector.SelectionChanged -= PlantsSelector_SelectionChanged;
+                
                 ViewHelpers.ClearLongListMultiSelectorDependencyValues(PlantsSelector);
-                GC.Collect(2, GCCollectionMode.Forced, true); // useful for testing
             }
         }
 
-        ~GardenView()  // destructor
+
+        ~GardenView()
         {
-            ViewModel.Log().Info("destroying viewmodel {0}", ViewModel.Username);
+            NotifyDestroyed("");
         }
 
     }

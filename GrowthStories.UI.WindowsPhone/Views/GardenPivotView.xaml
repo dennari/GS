@@ -68,7 +68,6 @@
                 -->
                 
                 <phone:Pivot 
-                Loaded="Plants_Loaded"    
 			    x:Name="Plants" 
 			    ItemsSource="{Binding Plants}"
                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"

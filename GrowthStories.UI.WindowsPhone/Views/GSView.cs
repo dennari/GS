@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using EventStore.Logging;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -22,6 +24,8 @@ namespace Growthstories.UI.WindowsPhone
     public class GSView<T> : UserControl, IReportViewModelChange, IViewFor<T> where T : class
     {
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(GSView<T>));
+        
 
         public static readonly DependencyProperty ViewModelProperty =
            DependencyProperty.Register(
@@ -100,6 +104,25 @@ namespace Growthstories.UI.WindowsPhone
         }
 
         protected List<Control> TabItems { get; set; }
+
+
+        public void NotifyDestroyed(String msg)
+        {
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                var name = this.GetType().Name;
+                System.Diagnostics.Debugger.Log(1, "dest", string.Format("DESTROYING {0},{1}\n", name, msg));
+            }
+
+            //var cmd = new ReactiveCommand();
+            //cmd.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ =>
+            //{
+            //    var name = this.GetType().Name;
+            //    Logger.Info("DESTROYING {0},{1}", name, msg);
+            //});
+            //cmd.Execute(null);
+        }
+
 
         protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {

@@ -68,6 +68,7 @@
     <Compile Include="IAppliesEvents.cs" />
     <Compile Include="IApplyState.cs" />
     <Compile Include="IEventHandler.cs" />
+    <Compile Include="MemoryHelper.cs" />
     <Compile Include="MessageInterfaces.cs" />
     <Compile Include="IStateAggregate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

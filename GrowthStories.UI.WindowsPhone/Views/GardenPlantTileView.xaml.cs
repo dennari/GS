@@ -41,6 +41,7 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
         }
 
+        IDisposable subs = Disposable.Empty;
         
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
@@ -48,19 +49,22 @@ namespace Growthstories.UI.WindowsPhone
             //ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
             //ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
 
-            Observable.CombineLatest(
-                vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x), 
-                vm.WhenAnyValue(z => z.Loaded).Where(z => z)).Take(1).Subscribe(_ =>
+            subs = Observable.CombineLatest(
+                vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x),
+                vm.WhenAnyValue(z => z.Loaded).Where(z => z))
+
+                .Take(1).Subscribe(_ =>
             {
                 if (vm.ShowPlaceHolder)
                 {
-                    FadeIn();
-                
-                } else if (vm.Loaded) {
+                    _FadeIn();
+                }
+                else if (vm.Loaded)
+                {
                     if (Opened)
                     {
                         ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
-                        FadeIn();
+                        _FadeIn();
                     }
 
                     if (!ViewModel.HasWriteAccess)
@@ -71,19 +75,6 @@ namespace Growthstories.UI.WindowsPhone
                 }
             });
         }
-
-
-        //private void ResetImage(Image i)
-        //{
-        //    //ViewModel.Log().Info("GardenPlantTileView: resetting image");
-        //    var bitmapImage = i.Source as BitmapImage;
-           
-        //    if (bitmapImage != null)
-        //    {
-        //        bitmapImage.UriSource = null;
-        //        i.Source = null;
-        //    }
-        //}
 
 
         private bool Opened = false;
@@ -105,12 +96,16 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        
+        private void FadeIn()
+        {
+            _FadeIn();
+            subs.Dispose();
+        }
 
         // Fade the content in if not already faded/fading in
         //
         //
-        private void FadeIn()
+        private void _FadeIn()
         {
             LoadingFailed.Visibility = Visibility.Collapsed;
             LoadingPhoto.Opacity = 0.0;
@@ -139,6 +134,8 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
+
+            
         }
 
 
@@ -185,6 +182,17 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        ~GardenPlantTileView()
+        {
+            NotifyDestroyed("");
+        }
+
+
+        private void LayoutRoot_Unloaded(object sender, RoutedEventArgs e)
+        {
+            trexStoryboard.Stop();
+        }
+    
     }
 
 
