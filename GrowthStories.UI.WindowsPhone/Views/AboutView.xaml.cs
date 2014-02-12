@@ -35,6 +35,11 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        ~AboutView()
+        {
+            NotifyDestroyed("");
+        }
+
     }
 
 

@@ -39,7 +39,10 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-
+        ~PlantPhotoPivotView()
+        {
+            NotifyDestroyed("");
+        }
 
     }
 }

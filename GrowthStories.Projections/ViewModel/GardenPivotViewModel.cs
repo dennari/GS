@@ -48,6 +48,7 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x =>
                 {
                     this.SelectedPlant = x;
+                    App.SelectedPlant = x;
                     this.Log().Info("SelectedPlant changed to {0}", x.Name);
                 });
 
@@ -118,11 +119,12 @@ namespace Growthstories.UI.ViewModel
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
                 });
 
-
-
-
-            this.AppBarButtons = GetOwnerButtons();
-
+            App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
+            {
+                this.Log().Info("resetting selected plant");
+                App.SelectedPlant = null;
+                App.SelectedPlant = this.SelectedPlant;
+            });            
         }
 
 

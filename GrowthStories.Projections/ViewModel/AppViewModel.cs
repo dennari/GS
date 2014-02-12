@@ -260,7 +260,7 @@ namespace Growthstories.UI.ViewModel
             // COMMANDS
 
             MainWindowLoadedCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
-            {
+                {
                 var mvm = x as IMainViewModel;
                 if (mvm != null)
                     MainVM = mvm;
@@ -283,7 +283,7 @@ namespace Growthstories.UI.ViewModel
             //this.Router.NavigateAndReset.Subscribe(_ =>
             // {
             //     this.Log().Info("navigate and reset");
-            //NavigateAndResetStopwatch.Restart();
+                 //NavigateAndResetStopwatch.Restart();
             // });
 
         }
@@ -888,7 +888,18 @@ namespace Growthstories.UI.ViewModel
 
 
 
-
+        private IPlantViewModel _SelectedPlant;
+        public IPlantViewModel SelectedPlant
+        {
+            get
+            {
+                return _SelectedPlant;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _SelectedPlant, value);
+            }
+        }
 
         public async Task<RegisterResponse> Register(string username, string email, string password)
         {

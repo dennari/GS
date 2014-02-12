@@ -70,6 +70,7 @@ namespace Growthstories.UI.WindowsPhone
             LoadingFailed.Visibility = Visibility.Visible;
             ButtonControl.IsHitTestVisible = false;
             LoadingPhoto.Visibility = Visibility.Collapsed;
+            LoadingPhoto.IsRunning = false;
             //ButtonControl.BorderThickness = new Thickness(3);
         }
 
@@ -109,6 +110,7 @@ namespace Growthstories.UI.WindowsPhone
 
             LoadingFailed.Visibility = Visibility.Collapsed;
             LoadingPhoto.Visibility = Visibility.Collapsed;
+            LoadingPhoto.IsRunning = false;
             ButtonControl.IsHitTestVisible = true;
 
             if (AnimatedImages.Contains(ViewModel.PlantActionId))
@@ -143,7 +145,10 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-
+        ~TimelinePhotoView()
+        {
+            NotifyDestroyed("");
+        }
     }
 
 }

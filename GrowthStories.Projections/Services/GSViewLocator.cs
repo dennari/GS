@@ -2,6 +2,7 @@
 using System;
 using Growthstories.UI.ViewModel;
 using System.Collections.Generic;
+using Growthstories.Core;
 
 namespace Growthstories.UI.Services
 {
@@ -23,6 +24,8 @@ namespace Growthstories.UI.Services
 
         private Dictionary<IGardenPivotViewModel, IViewFor> pivotViews = new Dictionary<IGardenPivotViewModel, IViewFor>();
 
+        private AsyncLock ResolveLock = new AsyncLock();
+
 
         /// <summary>
         /// Returns the View associated with a ViewModel, deriving the name of
@@ -35,32 +38,37 @@ namespace Growthstories.UI.Services
         public IViewFor ResolveView<T>(T viewModel, string contract = null)
             where T : class
         {
-            var viewType = typeof(IViewFor<>);
-
-            var gvm = viewModel as IGardenPivotViewModel;
-            if (gvm != null)
+            using (var ret = ResolveLock.LockAsync().Result)
             {
-                if (!pivotViews.ContainsKey(gvm))
-                {
-                    this.Log().Info("creating new gardenpivotviewmodel for {0}", gvm.Username);
-                    // only cache the latest one, as otherwise we wil use too much memory
-                    pivotViews.Clear(); 
-                    pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
-                }
-                else
-                {
-                    this.Log().Info("using cached gardenpivotviewmodel for {0}", gvm.Username);
-                }
-                return pivotViews[gvm];
-            }
+                var viewType = typeof(IViewFor<>);
 
-            return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+                var gvm = viewModel as IGardenPivotViewModel;
+                if (gvm != null)
+                {
+                    if (!pivotViews.ContainsKey(gvm))
+                    {
+                        this.Log().Info("creating new gardenpivotviewmodel for {0}", gvm.Username);
+                        pivotViews.Clear(); // only cache the latest one, as otherwise we will use too much memory
+                        pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+                    }
+                    else
+                    {
+                        this.Log().Info("using cached gardenpivotviewmodel for {0}", gvm.Username);
+                    }
+                    return pivotViews[gvm];
+                }
+
+                return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+            }
         }
 
 
         public void Reset()
         {
-            pivotViews.Clear();
+            using (var ret = ResolveLock.LockAsync().Result)
+            {
+                pivotViews.Clear();
+            }
         }
 
 

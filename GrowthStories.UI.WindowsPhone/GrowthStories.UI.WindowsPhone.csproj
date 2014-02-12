@@ -166,6 +166,11 @@
     <Compile Include="GSAutoSuspendApplication.cs" />
     <Compile Include="Services\ResolutionHelper.cs" />
     <Compile Include="ViewModels\MockClientAppViewModel.cs" />
+    <Compile Include="Services\WeakEventSource\CollectionChangedWeakEventSource.cs" />
+    <Compile Include="Services\WeakEventSource\EventWrapperSourceBase.cs" />
+    <Compile Include="Services\WeakEventSource\WeakEventListener.cs" />
+    <Compile Include="Services\WeakEventSource\WeakEventListenerBase.cs" />
+    <Compile Include="ViewModels\ClientAddEditPlantViewModel.cs" />
     <Compile Include="Views\GardenPlantTileView.xaml.cs">
       <DependentUpon>GardenPlantTileView.xaml</DependentUpon>
     </Compile>
@@ -239,6 +244,9 @@
     </Compile>
     <Compile Include="Views\ScheduleView.xaml.cs">
       <DependentUpon>ScheduleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TimelineLongListSelectorView.xaml.cs">
+      <DependentUpon>TimelineLongListSelectorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TimelinePhotoView.xaml.cs">
       <DependentUpon>TimelinePhotoView.xaml</DependentUpon>
@@ -340,6 +348,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\TimelineLongListSelectorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TimelinePhotoView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -387,6 +399,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="GrowthStories.UI.WindowsPhone_2013_12_21_06_28_03.sap" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

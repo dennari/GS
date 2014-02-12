@@ -133,17 +133,18 @@
     </UserControl.Resources>
 
 
-        <Grid>
+        <Grid x:Name="ViewRoot" Unloaded="ViewRoot_Unloaded">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
         <telerikPrimitives:RadBusyIndicator 
+            
             Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
             ContentPosition="Right"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
-            IsRunning="True"
+            IsRunning="{Binding IsLoaded, Converter={StaticResource InverseBoolean}}"
             AnimationStyle="AnimationStyle7"
             Foreground="WhiteSmoke"
             Margin="12,24,0,0"
@@ -213,10 +214,10 @@
                 <StackPanel>
                     <toolkit:LongListMultiSelector
                         x:Name="PlantsSelector"
-	                    ItemsSource="{Binding Plants}"
+	                    ItemsSource="{Binding Plants, Mode=OneWay}"
 	                    ItemTemplate="{StaticResource C4fTile}"
                         ItemContainerStyle="{StaticResource TileSelectionStyle2}"
-                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
+                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=OneWay}"
                         SelectionChanged="PlantsSelector_SelectionChanged"
 	                    GridCellSize="198,272"
                         LayoutMode="Grid"            

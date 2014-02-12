@@ -45,7 +45,7 @@ namespace Growthstories.UI.WindowsPhone
 
             RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
             {
-                PhoneApp.UnhandledException += HandleUnhandledExceptions;
+            PhoneApp.UnhandledException += HandleUnhandledExceptions;
 
                 return Disposable.Empty;
             });
@@ -68,14 +68,17 @@ namespace Growthstories.UI.WindowsPhone
             var settings = IsolatedStorageSettings.ApplicationSettings;
             if (settings.Contains("lastException"))
             {
-                PhoneApp.Log().Info("Exception on last crash was " + settings["lastException"]);
-                settings.Remove("lastException");
+                PhoneApp.Log().Info("Exception on last crash was: " + settings["lastException"]);
             }
             else
             {
                 PhoneApp.Log().Info("No crashes recorded");
             }
+
+            settings.Remove("lastException");
+            settings.Save();
         }
+
 
         protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
         {
@@ -83,13 +86,28 @@ namespace Growthstories.UI.WindowsPhone
             try
             {
                 var settings = IsolatedStorageSettings.ApplicationSettings;
+                if (ee != null && ee.ExceptionObject != null)
+                {
                 settings["lastException"] = ee.ExceptionObject.ToStringExtended();
+                }
+                else
+                {
+                    settings["lastException"] = "no exception provided in ApplicationUnhandledExceptionEventArgs";
+                }
                 settings.Save();
 
+                if (ee != null && ee.ExceptionObject != null)
+                {
                 PhoneApp.Log().DebugExceptionExtended("Unhandled", ee.ExceptionObject);
+            }
+                else
+                {
+                    PhoneApp.Log().Warn("ee or ee.ExceptionObject was null when crashing");
+                }
             }
             catch { }
         }
+
 
         protected virtual void BAConfiguration()
         {
@@ -192,7 +210,6 @@ namespace Growthstories.UI.WindowsPhone
                 return KernelInstance.GetService(typeof(IAddEditPlantViewModel));
             }, typeof(IAddEditPlantViewModel));
             RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(TestingViewModel)), typeof(TestingViewModel));
-
         }
 
 
@@ -212,7 +229,8 @@ namespace Growthstories.UI.WindowsPhone
             RxUIResolver.RegisterLazySingleton(() => new YAxisShitView(), typeof(IViewFor<IYAxisShitViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new ListUsersView(), typeof(IViewFor<ISearchUsersViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new PlantActionListView(), typeof(IViewFor<IPlantActionListViewModel>));
-            RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
+
+            //RxUIResolver.RegisterLazySingleton(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
 
             RxUIResolver.Register(() => new GardenPivotView(), typeof(IViewFor<IGardenPivotViewModel>));
 
@@ -220,7 +238,6 @@ namespace Growthstories.UI.WindowsPhone
 
             // the rad slider filmstrip mode does have some messy state, and therefore we want to start clean each time
             RxUIResolver.Register(() => new PlantPhotoPivotView(), typeof(IViewFor<IPhotoListViewModel>));
-
 
             //RxUIResolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
             RxUIResolver.Register(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
@@ -261,22 +278,17 @@ namespace Growthstories.UI.WindowsPhone
 
             };
         }
-
-
-
-
     }
+
 
     public class BootstrapDesign : NinjectModule
     {
-
 
         public override void Load()
         {
             Bind<IUserService>().To<NullUserService>().InSingletonScope();
             Bind<IUIPersistence>().To<NullUIPersistence>().InSingletonScope();
             //Bind<IDispatchCommands>().To<NullCommandHandler>().InSingletonScope();
-
         }
 
     }

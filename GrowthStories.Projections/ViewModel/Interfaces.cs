@@ -166,6 +166,7 @@ namespace Growthstories.UI.ViewModel
         void HandleApplicationActivated();
 
         // Stopwatch NavigateAndResetStopwatch {get; }
+        IPlantViewModel SelectedPlant { get; set; }
     }
 
 
@@ -301,6 +302,10 @@ namespace Growthstories.UI.ViewModel
         bool ShowPlaceHolder { get; }
 
         void NotifyImageDownloadFailed();
+
+        bool ShouldBeFullyLoaded { get; set; }
+
+        IObservable<IPlantViewModel> DifferentUsersPlantSelected { get; }
 
     }
 

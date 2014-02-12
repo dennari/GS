@@ -1,0 +1,163 @@
+﻿<local:TimelineLongListSelectorViewBase 
+    x:Class="Growthstories.UI.WindowsPhone.TimelineLongListSelectorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+  	xmlns:local="clr-namespace:Growthstories.UI.WindowsPhone"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"     
+    xmlns:telerikPrimitives="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Primitives" 
+    d:DesignHeight="480" d:DesignWidth="480">
+
+    <local:TimelineLongListSelectorViewBase.Resources>
+
+        <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
+            <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,0,24,12">
+
+                <telerikPrimitives:RadContextMenu.ContextMenu>
+                    <telerikPrimitives:RadContextMenu 
+                            Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
+                            IsFadeEnabled="True"
+                            IsZoomEnabled="False"
+                            Background="WhiteSmoke"                           
+                            Foreground="{StaticResource GSAccentBrush}">
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Edit" 
+                            Command="{Binding EditCommand, Converter={StaticResource WeakCommandBinding}}"
+                            CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}"
+                            Foreground="{StaticResource GSAccentBrush}"              
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Content="Delete" 
+                            Command="{Binding DeleteCommand, Converter={StaticResource WeakCommandBinding}}"
+                            CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                        <telerikPrimitives:RadContextMenuItem 
+                                Visibility="{Binding ShowSetAsProfilePicture, Converter={StaticResource BooleanToVisibility}}"
+                                Content="Set as profile picture" 
+                                Command="{Binding SetAsProfilePictureCommand, Converter={StaticResource WeakCommandBinding}}"
+                                CommandParameter="{Binding}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+                    </telerikPrimitives:RadContextMenu>
+                </telerikPrimitives:RadContextMenu.ContextMenu>
+
+
+                <ContentPresenter 
+						DataContext="{Binding}"
+                        Content="{Binding}" 
+						ContentTemplate="{TemplateBinding ContentTemplate}" 
+						Visibility="{TemplateBinding ContentVisibility}" 
+						HorizontalAlignment="Stretch"
+                        />
+
+                <Button
+                        Style="{StaticResource GSButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,0"
+                        toolkit:TiltEffect.IsTiltEnabled="True"
+                        Padding="0,0,0,0"
+                        BorderThickness="0"
+                        BorderBrush="Transparent"
+                        Command="{Binding EditCommand, Converter={StaticResource WeakCommandBinding}}"
+                        CommandParameter="{Binding}"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsEnabled="{Binding OwnAction}"
+                        >
+
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Vertical" Width="96">
+                            <TextBlock Text="{Binding WeekDay}" Style="{StaticResource GSActionListWeekDayStyle}"/>
+                            <TextBlock Text="{Binding Date}" Style="{StaticResource GSActionListDateStyle}"/>
+                            <TextBlock Text="{Binding Time}" Style="{StaticResource GSActionListTimeStyle}"/>
+                        </StackPanel>
+
+                        <Image Source="{Binding Icon, Converter={StaticResource IconTypeToIconUri}}" Width="45" Margin="24,0"  />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                            <TextBlock Text="{Binding Label, Converter={StaticResource ToUpperOrLowerCase}}" Style="{StaticResource GSActionListItemTitleStyle}"/>
+                            <TextBlock Text="{Binding TimelineFirstLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                            <TextBlock Text="{Binding TimelineSecondLine}" Style="{StaticResource GSActionListItemNoteStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                </Button>
+
+            </StackPanel>
+
+        </ControlTemplate>
+
+    </local:TimelineLongListSelectorViewBase.Resources>
+
+    <local:GSLongListSelector
+            Height="636"
+            ListHeader="{Binding}"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            x:Name="TimeLine" 
+            ItemsSource="{Binding FilteredActions}" 
+            Grid.Row="0"
+            VerticalAlignment="Top"
+            Margin="-12,0,-12,0"
+            Padding="0,0,0,0"
+            Loaded="TimeLine_Loaded"
+            Visibility="{Binding FilteredActions.Count, Converter={StaticResource NonZeroToVisibility}}">
+   
+      <phone:LongListSelector.ListHeaderTemplate>
+            <DataTemplate>
+                <StackPanel Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}">
+
+                    <Grid Visibility="{Binding ShowFertilizingScheduler, Converter={StaticResource BooleanToVisibility}}">
+                        <ContentControl                            
+                                DataContext="{Binding FertilizingScheduler}"
+                                Style="{StaticResource PlantNextAction}"/>
+                    </Grid>
+                    <Grid Visibility="{Binding ShowWateringScheduler, Converter={StaticResource BooleanToVisibility}}">
+                        <ContentControl                           
+                            DataContext="{Binding WateringScheduler}"
+                            Style="{StaticResource PlantNextAction}"/>
+                    </Grid>
+
+                    <local:PlantActionView Style="{StaticResource PlantTodayStyle}"/>
+
+                </StackPanel>
+            </DataTemplate>
+        </phone:LongListSelector.ListHeaderTemplate>
+        <phone:LongListSelector.ItemTemplate>
+            <DataTemplate>
+                <local:PlantActionView 
+                        ViewModel="{Binding Mode=OneTime}"
+                        Template="{StaticResource TimelineActionTemplate}">
+
+                    <local:PlantActionView.PhotoTemplate>
+                        <DataTemplate>
+                            <local:TimelinePhotoView ViewModel="{Binding}" />
+                        </DataTemplate>
+                    </local:PlantActionView.PhotoTemplate>
+                </local:PlantActionView>
+
+            </DataTemplate>
+
+        </phone:LongListSelector.ItemTemplate>
+
+        <phone:LongListSelector.ListFooterTemplate>
+            <DataTemplate>
+                <ContentControl Height="100" />
+            </DataTemplate>
+        </phone:LongListSelector.ListFooterTemplate>
+
+    </local:GSLongListSelector>
+
+
+</local:TimelineLongListSelectorViewBase>

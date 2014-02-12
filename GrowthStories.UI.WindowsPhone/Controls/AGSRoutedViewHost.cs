@@ -10,7 +10,6 @@ using ReactiveUI.Xaml;
 using ReactiveUI;
 using System.Reactive.Linq;
 using Growthstories.UI.ViewModel;
-
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 using System.Windows.Controls;
 using System.Reactive.Subjects;
@@ -18,6 +17,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using ReactiveUI.Mobile;
 using Growthstories.UI.Services;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -41,7 +41,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 var v = (IGSRoutingState)GetValue(RouterProperty);
                 return v;
-            }
+        }
             set
             {
                 SetValue(RouterProperty, value);
@@ -91,8 +91,12 @@ namespace Growthstories.UI.WindowsPhone
 
         public IViewLocator ViewLocator { get; set; }
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(AGSRoutedViewHost));
+
+
         public AGSRoutedViewHost()
         {
+
             HorizontalContentAlignment = HorizontalAlignment.Stretch;
             VerticalContentAlignment = VerticalAlignment.Stretch;
 
@@ -154,9 +158,9 @@ namespace Growthstories.UI.WindowsPhone
                 if (x == null || x is IMainViewModel || x is IPlantSingularViewModel)
                 {
                     if (Content != DefaultContent)
-                    {
+                {
                         //Content = null;
-                        Content = DefaultContent;
+                    Content = DefaultContent;
                     }
                     if (AppVM != null)
                     {
@@ -164,7 +168,7 @@ namespace Growthstories.UI.WindowsPhone
                     }
                     return;
                 }
-
+                
                 var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
                 var view = viewLocator.ResolveView(x, null);
 
@@ -173,13 +177,22 @@ namespace Growthstories.UI.WindowsPhone
                     throw new Exception(String.Format("Couldn't find view for '{0}'.", x));
                 }
                 view.ViewModel = x;
+                try
+                {
                 Content = view;
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn("could not set content for viewModel {0}, view {1}", view.ViewModel, view); 
+                }
 
                 if (AppVM != null)
                 {
                     AppVM.NavigatingBack = false;
                 }
 
+                Growthstories.Core.MemoryHelper.CollectGarbageForTesting();
+                
             }, ex => RxApp.DefaultExceptionHandler.OnNext(ex));
         }
     }
@@ -262,7 +275,11 @@ namespace Growthstories.UI.WindowsPhone
                 view.ViewModel = x;
                 Content = view;
             });
+        }
 
+        public void CleanUp()
+        {
+            subscription.Dispose();
         }
 
         private IViewLocator ViewLocator;

@@ -10,6 +10,9 @@ using Microsoft.Phone.Shell;
 using System.ComponentModel;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+using System.Reactive.Linq;
+using EventStore.Logging;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -19,48 +22,55 @@ namespace Growthstories.UI.WindowsPhone
     {
 
     }
+
+
     public partial class GardenPivotView : GardenPivotViewBase
     {
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(GardenPivotView));
+
+
+        static ReactiveCommand Constructed = new ReactiveCommand();
+        
 
         public GardenPivotView()
         {
             InitializeComponent();
 
+            Logger.Info("initializing new gardenpivotview");
+
+            Constructed.Execute(null);
+            Constructed.Take(1).Subscribe(_ => CleanUp());
         }
+
 
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {
             //base.OnViewModelChanged(vm);
-            //vm.Log().Info("GardenPivotView: OnViewModelChanged");
-
+            vm.Log().Info("GardenPivotView: OnViewModelChanged");
         }
 
 
-        private void Plants_LoadedPivotItem(object sender, PivotItemEventArgs e)
+        public void CleanUp()
         {
-            //var pvm = e.Item.Content as IPlantViewModel;
-            //pvm.ResetAnimationsCommand.Execute(null);
-        }
-
-
-        private void Plants_Loaded(object sender, RoutedEventArgs e)
-        {
-            //foreach (var pvm in ViewModel.Plants)
+            ViewModel.Log().Info("cleaning up gardenpivotview {0}", ViewModel.Username);
+            //Plants.SelectedItem = null;
+            Plants.ItemsSource = null;
+            ViewHelpers.ClearPivotDependencyValues(Plants);
+            ViewHost.CleanUp();
+            //LayoutRoot.Children.Clear();
+            //
+            //foreach (var p in ViewModel.Plants)
             //{
-            //    pvm.ResetAnimationsCommand.Execute(null);
+            //    p.ShouldBeFullyLoaded = false;
             //}
         }
 
-
-        //private void PlantActionView_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        //{
-        //    var plantActionView = (PlantActionView)sender;
-        //    var plant = ViewModel.SelectedItem;
-        //    plant.ActionTapped.Execute(plantActionView.ViewModel);
-        //}
-
-
+        
+        ~GardenPivotView()
+        {
+            NotifyDestroyed("");
+        }
 
     }
 }

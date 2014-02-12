@@ -39,61 +39,42 @@ namespace Growthstories.UI.WindowsPhone
         public GardenPlantTileView()
         {
             InitializeComponent();
-            Img.CacheMode = null;
         }
 
-
-        private IDisposable subscription;
-
-
+        IDisposable subs = Disposable.Empty;
+        
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
             //ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
             //ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
             //ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
 
-            if (subscription != null)
-            {
-                subscription.Dispose();
-            }
+            subs = Observable.CombineLatest(
+                vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x),
+                vm.WhenAnyValue(z => z.Loaded).Where(z => z))
 
-            subscription = vm.WhenAnyValue(x => x.ShowPlaceHolder).Subscribe(x =>
+                .Take(1).Subscribe(_ =>
             {
-                if (x)
+                if (vm.ShowPlaceHolder)
                 {
-                    //ViewModel.Log().Info("GardenPlantTileView: fading in placeholder for " + ViewModel.Name);
-                    FadeIn();
+                    _FadeIn();
+                }
+                else if (vm.Loaded)
+                {
+                    if (Opened)
+                    {
+                        ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
+                        _FadeIn();
+                    }
+
+                    if (!ViewModel.HasWriteAccess)
+                    {
+                        ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
+                        LoadingPhoto.Visibility = Visibility.Visible;
+                    }
                 }
             });
-            
-            vm.WhenAnyValue(x => x.Loaded).Subscribe(x =>
-            {
-                if (Opened)
-                {
-                    ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
-                    FadeIn();
-                }
-
-                if (!ViewModel.HasWriteAccess)
-                {
-                    ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
-                    LoadingPhoto.Visibility = Visibility.Visible;
-                }
-            });    
         }
-
-
-        //private void ResetImage(Image i)
-        //{
-        //    //ViewModel.Log().Info("GardenPlantTileView: resetting image");
-        //    var bitmapImage = i.Source as BitmapImage;
-           
-        //    if (bitmapImage != null)
-        //    {
-        //        bitmapImage.UriSource = null;
-        //        i.Source = null;
-        //    }
-        //}
 
 
         private bool Opened = false;
@@ -115,12 +96,16 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        
+        private void FadeIn()
+        {
+            _FadeIn();
+            subs.Dispose();
+        }
 
         // Fade the content in if not already faded/fading in
         //
         //
-        private void FadeIn()
+        private void _FadeIn()
         {
             LoadingFailed.Visibility = Visibility.Collapsed;
             LoadingPhoto.Opacity = 0.0;
@@ -149,6 +134,8 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
+
+            
         }
 
 
@@ -195,6 +182,17 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        ~GardenPlantTileView()
+        {
+            NotifyDestroyed("");
+        }
+
+
+        private void LayoutRoot_Unloaded(object sender, RoutedEventArgs e)
+        {
+            trexStoryboard.Stop();
+        }
+    
     }
 
 

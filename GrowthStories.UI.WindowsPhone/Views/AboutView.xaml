@@ -15,7 +15,6 @@
 		Title="about" 
 		Style="{StaticResource NoScroll}">
 
-
             <Grid x:Name="ContentPanel" Grid.Row="1">
 
             <Grid.RowDefinitions>
@@ -45,7 +44,6 @@
                 Style="{StaticResource GSButtonStyle}" 
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Left"
-                Command="{Binding SynchronizeCommand}"
                 toolkit:TiltEffect.IsTiltEnabled="True"
                 Padding="0,0,0,0"
                 Margin="-6,30,0,12"
@@ -55,12 +53,10 @@
             </Button>
 
 
-
             <Button Grid.Row="3"
                 Style="{StaticResource GSButtonStyle}" 
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Left"
-                Command="{Binding SynchronizeCommand}"
                 toolkit:TiltEffect.IsTiltEnabled="True"
                 Padding="0,0,0,0"
                 Margin="-6,0,0,12"
