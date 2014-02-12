@@ -227,7 +227,6 @@
     </Compile>
     <Compile Include="Services\ViewHelpers.cs" />
     <Compile Include="ViewModels\ClientAppViewModel.cs" />
-    <Compile Include="ViewModels\ClientAddEditPlantViewModel.cs" />
     <Compile Include="ViewModels\ClientPlantActionViewModel.cs" />
     <Compile Include="Views\AboutView.xaml.cs">
       <DependentUpon>AboutView.xaml</DependentUpon>

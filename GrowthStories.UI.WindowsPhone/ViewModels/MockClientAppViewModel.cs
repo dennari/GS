@@ -1,6 +1,5 @@
 
 using System;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using EventStore;
 using EventStore.Persistence;
@@ -9,12 +8,8 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
-using GrowthStories.UI.WindowsPhone.BA;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using Windows.Devices.Geolocation;
-using Windows.Foundation;
-using Microsoft.Phone.Info;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -414,6 +409,19 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         public IGSViewModel DefaultVM
         {
             get { return null; }
+        }
+
+
+        public IPlantViewModel SelectedPlant
+        {
+            get
+            {
+                return null;
+            }
+            set
+            {
+
+            }
         }
     }
 
