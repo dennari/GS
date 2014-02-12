@@ -43,7 +43,9 @@
 
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <local:GardenView ViewModel="{Binding}" CleanUpOnUnload="TRUE" MainScrollerHeight="660" />
+                    <local:GardenView 
+                        OwnGarden="FALSE"
+                        ViewModel="{Binding}" CleanUpOnUnload="TRUE" MainScrollerHeight="660" />
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
 

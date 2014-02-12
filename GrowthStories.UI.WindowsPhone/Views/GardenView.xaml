@@ -139,12 +139,11 @@
             </Grid.RowDefinitions>
 
         <telerikPrimitives:RadBusyIndicator 
-            
-            Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
+            x:Name="BusyIndicator"
             ContentPosition="Right"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
-            IsRunning="{Binding IsLoaded, Converter={StaticResource InverseBoolean}}"
+            IsRunning="True"
             AnimationStyle="AnimationStyle7"
             Foreground="WhiteSmoke"
             Margin="12,24,0,0"
@@ -169,9 +168,9 @@
             </telerikPrimitives:RadBusyIndicator.ContentTemplate>
         </telerikPrimitives:RadBusyIndicator>
 
-        <StackPanel Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibility}}">
+        <StackPanel x:Name="OnceLoadedContainer" Visibility="Collapsed">
 
-            <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}}">
+            <StackPanel x:Name="OwnGardenPlaceHolder" Visibility="Collapsed">
                 <TextBlock 
                     Style="{StaticResource GSPlaceholderTextBlockStyle}"
                     Text="You don't have any plants yet." 
@@ -197,7 +196,7 @@
                     />
             </StackPanel>
 
-            <StackPanel Visibility="{Binding OwnGarden, Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
+            <StackPanel x:Name="NonOwnGardenPlaceHolder" Visibility="Collapsed">
                 <TextBlock 
                     Style="{StaticResource GSPlaceholderTextBlockStyle}"
                     Text="This user has no shared plants." 

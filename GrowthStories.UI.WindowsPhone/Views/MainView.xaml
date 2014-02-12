@@ -109,7 +109,8 @@
                 x:Name="mygardenItem"
                 Style="{StaticResource GSPanoramaItemStyle}">
                 <Grid Visibility="{Binding GardenVM, Converter={StaticResource NullToVisibility}}">
-                    <local:GardenView 
+                    <local:GardenView
+                        OwnGarden="TRUE"
                         DataContext="{Binding GardenVM}"
                         ViewModel="{Binding GardenVM}"                                        
                         x:Name="GardenView"/>
