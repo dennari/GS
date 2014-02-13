@@ -1,9 +1,9 @@
 ﻿
+using System;
 using Growthstories.Core;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using Growthstories.UI.ViewModel;
-using System;
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -25,13 +25,13 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected override void HandleUnhandledExceptions(object sender, System.Windows.ApplicationUnhandledExceptionEventArgs ee)
-        {
-            // tries to log
-            base.HandleUnhandledExceptions(sender, ee);
-            // don't crash
-            ee.Handled = true;
-        }
+        //protected override void HandleUnhandledExceptions(object sender, System.Windows.ApplicationUnhandledExceptionEventArgs ee)
+        //{
+        //    // tries to log
+        //    base.HandleUnhandledExceptions(sender, ee);
+        //    // don't crash
+        //    ee.Handled = true;
+        //}
 
 
         protected override void AppConfiguration()

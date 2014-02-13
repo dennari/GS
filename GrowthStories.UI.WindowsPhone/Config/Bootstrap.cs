@@ -1,28 +1,23 @@
 ﻿
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.IO.IsolatedStorage;
+using System.Windows;
 using System.Windows.Media;
-
+using EventStore.Logging;
+using Growthstories.Configuration;
+using Growthstories.Core;
 using Growthstories.Domain;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using Growthstories.UI.ViewModel;
 using Growthstories.UI.WindowsPhone.ViewModels;
+using Microsoft.Phone.Controls;
 using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using System.Windows;
 using Windows.Storage;
-using System.IO;
-using Growthstories.Configuration;
-using Growthstories.Domain.Services;
-using Growthstories.Core;
-using Microsoft.Phone.Controls;
-using System.Collections.Generic;
-using EventStore.Logging;
-using System.IO.IsolatedStorage;
-using SQLite;
-using System.Reactive.Disposables;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -43,17 +38,21 @@ namespace Growthstories.UI.WindowsPhone
             //PhoneApp.RootVisual.D
             //Deployment.Current.Dispatcher.
 
-            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
-            {
-                PhoneApp.UnhandledException += HandleUnhandledExceptions;
-                return Disposable.Empty;
-            });
+            //            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
+            //            {
+            //<<<<<<< Updated upstream
+            //                PhoneApp.UnhandledException += HandleUnhandledExceptions;
+            //                return Disposable.Empty;
+            //            });
 
-            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
-            {
-                ApplyGSAccentColor();
-                return Disposable.Empty;
-            });
+            //            RxApp.MainThreadScheduler.Schedule(PhoneApp, (sched, state) =>
+            //            {
+            //                ApplyGSAccentColor();
+            //=======
+            //                state.UnhandledException += HandleUnhandledExceptions;
+            //>>>>>>> Stashed changes
+            //                return Disposable.Empty;
+            //            });
         }
 
 
@@ -86,32 +85,25 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected virtual void HandleUnhandledExceptions(object sender, ApplicationUnhandledExceptionEventArgs ee)
+        public static void HandleUnhandledExceptions(Exception e, GSAutoSuspendApplication app)
         {
             // try to log the Exception
+
             try
             {
                 var settings = IsolatedStorageSettings.ApplicationSettings;
-                if (ee != null && ee.ExceptionObject != null)
-                {
-                settings["lastException"] = ee.ExceptionObject.ToStringExtended();
-                }
-                else
-                {
-                    settings["lastException"] = "no exception provided in ApplicationUnhandledExceptionEventArgs";
-                }
+                settings["lastException"] = e.ToStringExtended();
                 settings.Save();
+                app.Log().DebugExceptionExtended("Unhandled", e);
 
-                if (ee != null && ee.ExceptionObject != null)
-                {
-                PhoneApp.Log().DebugExceptionExtended("Unhandled", ee.ExceptionObject);
+
+
             }
-                else
-                {
-                    PhoneApp.Log().Warn("ee or ee.ExceptionObject was null when crashing");
-                }
+            catch (Exception)
+            {
+                if (Debugger.IsAttached)
+                    Debugger.Break();
             }
-            catch { }
         }
 
 
@@ -161,21 +153,24 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private void ApplyGSAccentColor()
+        public static void ApplyGSAccentColor(ResourceDictionary r)
         {
+            if (r == null)
+                return;
             try
             {
                 ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
                 ThemeManager.ToDarkTheme();
 
-                PhoneApp.Resources.Remove("PhoneAccentColor");
-                PhoneApp.Resources.Add("PhoneAccentColor", PhoneApp.Resources["GSAccentColor"]);
 
-                var ab = (SolidColorBrush)PhoneApp.Resources["PhoneAccentBrush"];
-                var ac = (Color)PhoneApp.Resources["PhoneAccentColor"];
+                r.Remove("PhoneAccentColor");
+                r.Add("PhoneAccentColor", r["GSAccentColor"]);
+
+                var ab = (SolidColorBrush)r["PhoneAccentBrush"];
+                var ac = (Color)r["PhoneAccentColor"];
                 ab.Color = ac;
 
-                var ebb = (SolidColorBrush)PhoneApp.Resources["PhoneTextBoxEditBorderBrush"];
+                var ebb = (SolidColorBrush)r["PhoneTextBoxEditBorderBrush"];
                 ebb.Color = ac;
             }
             catch

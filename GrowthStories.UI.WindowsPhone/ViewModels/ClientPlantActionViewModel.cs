@@ -83,6 +83,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             if (p.LocalFullPath != null)
                 return new Uri(p.LocalFullPath, UriKind.RelativeOrAbsolute);
             var remoteUri = p.RemoteUri;
+            if (remoteUri == null)
+                return null;
 
             if (remoteUri.Contains("ggpht"))
             {
