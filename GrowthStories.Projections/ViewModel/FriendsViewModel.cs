@@ -145,7 +145,7 @@ namespace Growthstories.UI.ViewModel
             this.ItemTappedCommand = new ReactiveCommand(isNotThisObs);
             this.ItemTappedCommand.Subscribe(_ => this.Navigate(this));
 
-            isNotThisObs.Subscribe(x =>
+            subs.Add(isNotThisObs.Subscribe(x =>
             {
                 if (!x)
                 {
@@ -157,7 +157,7 @@ namespace Growthstories.UI.ViewModel
                     this.AppBarButtons = this.MainViewButtons;
 
                 }
-            });
+            }));
 
             this.UnFollowCommand = new ReactiveCommand();
 
@@ -262,10 +262,13 @@ namespace Growthstories.UI.ViewModel
 
         public override void Dispose()
         {
+            base.Dispose();
+
             foreach (var friend in this.Friends)
             {
                 friend.Dispose();
             }
+            _Friends.Clear();
         }
     }
 

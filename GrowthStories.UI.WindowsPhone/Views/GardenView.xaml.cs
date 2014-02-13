@@ -163,10 +163,11 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ViewRoot_Unloaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Log().Info("gardenview unloaded for {0}, CleanUpOnUnload is {1}", ViewModel.Username, CleanUpOnUnload);
+
+            Logger.Info("gardenview unloaded for {0}, CleanUpOnUnload is {1}", ViewModel.Username, CleanUpOnUnload);
             if (CleanUpOnUnload != null && CleanUpOnUnload.Equals("TRUE"))
             {
-                ViewModel.Log().Info("cleaning up gardenview {0}", ViewModel.Username);
+                Logger.Info("cleaning up gardenview {0}", ViewModel.Username);
                 PlantsSelector.IsSelectionEnabled = false;
                 PlantsSelector.ItemsSource = null;
                 PlantsSelector.SelectionChanged -= PlantsSelector_SelectionChanged;

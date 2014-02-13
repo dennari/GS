@@ -92,9 +92,6 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }
 
-
-
-
         }
 
 

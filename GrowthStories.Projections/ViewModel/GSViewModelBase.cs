@@ -56,7 +56,7 @@ namespace Growthstories.UI.ViewModel
 
         public virtual void Dispose()
         {
-            this.Log().Info("disposing {0}", this.GetType().Name);
+            //this.Log().Info("disposing {0}", this.GetType().Name);
             foreach (var s in subs)
             {
                 s.Dispose();

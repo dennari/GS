@@ -228,17 +228,9 @@ namespace Growthstories.UI.ViewModel
         {
             IsLoaded = false;
 
-
-
-
-
             this.SettingsF = settings;
             this.AddPlantViewModelF = addPlant;
             this.IAP = iap;
-            //this.Id = iid;
-
-
-
 
             SelectedItemsChanged = new ReactiveCommand();
             SelectedItemsChanged.Subscribe(p =>
@@ -260,16 +252,8 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
-
-            //this.GetPlantCommand = new ReactiveCommand();
-            //this.GetPlantPipe = this.GetPlantCommand
-            //    .RegisterAsyncFunction((id) => pvmFactory((Guid)id, this), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-
-
             TryAddPlantCommand = new ReactiveCommand();
             TryAddPlantCommand.RegisterAsyncTask(_ => TryAddPlant());
-
 
             this.ShowDetailsCommand = new ReactiveCommand();
             this.ShowDetailsCommand
@@ -308,8 +292,6 @@ namespace Growthstories.UI.ViewModel
                     this.IsPlantSelectionEnabled = false;
 
                 });
-
-
 
 
             this.MultiDeleteCommand = new ReactiveCommand(this.IsNotInProgress);
@@ -594,7 +576,7 @@ namespace Growthstories.UI.ViewModel
                   });
 
 
-                this.ListenTo<AggregateDeleted>()
+                subs.Add(this.ListenTo<AggregateDeleted>()
                    .Where(x => x.Kind == "plant")
                    .Select(x => this.Plants.FirstOrDefault(y => y.Id == x.AggregateId))
                    .Where(x => x != null)
@@ -610,7 +592,7 @@ namespace Growthstories.UI.ViewModel
                        if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
                            this.NavigateBack();
                        //deleteSubscription.Dispose();
-                   });
+                   }));
 
 
                 //this.SettingsF.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
@@ -831,7 +813,8 @@ namespace Growthstories.UI.ViewModel
             foreach (var p in Plants)
             {
                 p.Dispose();
-            }   
+            }
+            _Plants.Clear();
         }
 
 

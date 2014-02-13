@@ -417,53 +417,55 @@ namespace Growthstories.UI.ViewModel
                 AppBarMenuItems = OwnerMenuItems;
             AppBarIsVisible = HasWriteAccess;
 
-            this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
+            subs.Add(this.ListenTo<NameSet>(this.State.Id).Select(x => x.Name)
                 .StartWith(state.Name)
                 .Subscribe(x =>
                 {
                     this.Name = x;
-                });
+                }));
 
+            subs.Add(
             this.ListenTo<SpeciesSet>(this.State.Id).Select(x => x.Species)
                 .StartWith(state.Species)
-                .Subscribe(x => this.Species = x);
+                .Subscribe(x => this.Species = x));
 
             this.WhenAnyValue(x => x.ProfilePictureActionId).Subscribe(x => HandleNewProfilePictureActionId(x));
 
             ProfilePictureActionId = this.State.ProfilepictureActionId;
-            this.ListenTo<ProfilepictureSet>(this.State.Id)
+            
+            subs.Add(this.ListenTo<ProfilepictureSet>(this.State.Id)
                 .Select(x => x.PlantActionId)
                 .Subscribe(x =>
                 {
                     this.ProfilePictureActionId = x;
-                });
+                }));
 
-            this.ListenTo<MarkedPlantPublic>(this.State.Id)
-                .Subscribe(x => this.IsShared = true);
+            subs.Add(this.ListenTo<MarkedPlantPublic>(this.State.Id)
+                .Subscribe(x => this.IsShared = true));
 
-            this.ListenTo<MarkedPlantPrivate>(this.State.Id)
-                .Subscribe(x => this.IsShared = false);
+            subs.Add(this.ListenTo<MarkedPlantPrivate>(this.State.Id)
+                .Subscribe(x => this.IsShared = false));
 
-            this.ListenTo<ScheduleToggled>(this.State.Id)
+            subs.Add(this.ListenTo<ScheduleToggled>(this.State.Id)
                 .Subscribe(x =>
                 {
                     if (x.Type == ScheduleType.WATERING)
                         this.IsWateringScheduleEnabled = x.IsEnabled;
                     else
                         this.IsFertilizingScheduleEnabled = x.IsEnabled;
-                });
+                }));
 
-            this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
+            subs.Add(this.ListenTo<TagsSet>(this.State.Id).Select(x => (IList<string>)x.Tags.ToList())
                 .StartWith(state.Tags)
-                .Subscribe(x => this.Tags = new ReactiveList<string>(x));
+                .Subscribe(x => this.Tags = new ReactiveList<string>(x)));
 
-            this.ListenTo<LocationSet>(this.State.Id)
+            subs.Add(this.ListenTo<LocationSet>(this.State.Id)
                 .Select(x => x.Location)
                 .StartWith(state.Location)
                 .Subscribe(x =>
             {
                 Location = x;
-            });
+            }));
 
             subs.Add(this.App.FutureSchedules(state.Id)
             .Subscribe(x =>
@@ -521,10 +523,10 @@ namespace Growthstories.UI.ViewModel
 
                 var actionsPipe = App.FuturePlantActions(this.State.Id);
                 //var actionsPipe = current.Concat(App.FuturePlantActions(this.State.Id));
-                actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+                subs.Add(actionsPipe.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
                     HandleAction(x);
-                });
+                }));
 
             });
 
@@ -758,15 +760,14 @@ namespace Growthstories.UI.ViewModel
                 a.ActionIndex++;
             }
 
-            x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x));
+            subs.Add(x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x)));
 
-            x.DeleteCommand.Subscribe(_ =>
+            subs.Add(x.DeleteCommand.Subscribe(_ =>
             {
                 HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
-            });
+            }));
 
-
-            this.ListenTo<AggregateDeleted>(x.PlantActionId)
+            subs.Add(this.ListenTo<AggregateDeleted>(x.PlantActionId)
                 .Subscribe(y =>
             {
                 _Actions.Remove(x);
@@ -776,7 +777,7 @@ namespace Growthstories.UI.ViewModel
                 // from the UI by the user, not for example when running events pulled
                 // from server when signing in (*)
                 // HandlePossibleProfilePhotoRemove(x as IPlantPhotographViewModel);
-            });
+            }));
 
             var photo = x as IPlantPhotographViewModel;
             if (photo != null)
@@ -968,7 +969,6 @@ namespace Growthstories.UI.ViewModel
             {
                 return _Chart ?? (_Chart = App.YAxisShitViewModelFactory(this));
             }
-
         }
 
 
@@ -992,10 +992,10 @@ namespace Growthstories.UI.ViewModel
             var pa = vm as IPlantPhotographViewModel;
             if (pa != null)
             {
-                pa.ActionAddedCommand.OfType<Guid>().Subscribe(guid =>
+                subs.Add(pa.ActionAddedCommand.OfType<Guid>().Subscribe(guid =>
                 {
                     PossiblySetAsProfilePhoto(guid);
-                });
+                }));
             }
         }
 
@@ -1393,8 +1393,12 @@ namespace Growthstories.UI.ViewModel
         {
             base.Dispose();
 
-            // allows garbage collection of actions
-            // in case plantviewmodel is not garbage collected
+            // allows garbage collection of actions in case plantviewmodel 
+            // is not properly garbage collected
+            foreach (var a in Actions)
+            {
+                a.Dispose();
+            }
             _Actions.Clear();
         }
 
