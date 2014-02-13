@@ -216,7 +216,7 @@
 	                    ItemsSource="{Binding Plants, Mode=OneWay}"
 	                    ItemTemplate="{StaticResource C4fTile}"
                         ItemContainerStyle="{StaticResource TileSelectionStyle2}"
-                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=OneWay}"
+                        IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
                         SelectionChanged="PlantsSelector_SelectionChanged"
 	                    GridCellSize="198,272"
                         LayoutMode="Grid"            

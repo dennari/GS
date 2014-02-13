@@ -400,7 +400,7 @@ namespace Growthstories.UI.WindowsPhone
         private static void UpdateTileAndInfo(IPlantViewModel pvm)
         {
             pvm.Log().Info("updating tile and info for {0} in thread {1}", pvm.Name, Thread.CurrentThread.Name);
-            throw new Exception("moroo");
+            //throw new Exception("moroo");
 
             var vm = (PlantViewModel)pvm;
             if (vm.State.IsDeleted)

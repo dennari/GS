@@ -4,13 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
-using System.Reactive.Disposables;
-using System.Threading.Tasks;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -243,9 +243,17 @@ namespace Growthstories.UI.ViewModel
                 var ar = p as Tuple<IList, IList>;
                 if (ar != null)
                 {
-                    _SelectedPlants.AddRange(ar.Item1.Cast<IPlantViewModel>());
-                    foreach (var plant in ar.Item2.Cast<IPlantViewModel>())
-                        _SelectedPlants.Remove(plant);
+
+                    if (ar.Item1 != null && ar.Item1.Count > 0)
+                    {
+                        var add = ar.Item1.Cast<IPlantViewModel>();
+                        _SelectedPlants.AddRange(add);
+                    }
+                    if (ar.Item2 != null && ar.Item2.Count > 0)
+                    {
+                        foreach (var plant in ar.Item2.Cast<IPlantViewModel>())
+                            _SelectedPlants.Remove(plant);
+                    }
                 }
             });
 
@@ -380,7 +388,7 @@ namespace Growthstories.UI.ViewModel
             });
         }
 
-        
+
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
             string msg;
