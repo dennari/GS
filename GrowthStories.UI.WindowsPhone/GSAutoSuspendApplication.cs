@@ -1,20 +1,17 @@
-﻿using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Ninject;
-using ReactiveUI;
-using ReactiveUI.Mobile;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
+using Ninject;
+using ReactiveUI;
+using ReactiveUI.Mobile;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -178,6 +175,8 @@ namespace Growthstories.UI.WindowsPhone
             UnhandledException += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
+                if (e.ExceptionObject != null)
+                    Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
             };
 
             RootFrame.NavigationFailed += (o, e) =>
@@ -185,6 +184,15 @@ namespace Growthstories.UI.WindowsPhone
                 if (Debugger.IsAttached) Debugger.Break();
             };
 
+            TaskScheduler.UnobservedTaskException += (o, e) =>
+            {
+                if (Debugger.IsAttached) Debugger.Break();
+
+                if (e.Exception != null)
+                    Bootstrap.HandleUnhandledExceptions(e.Exception, this);
+
+
+            };
             Task.Run(() =>
             {
                 //var xamlElapsed = stopwatch.Elapsed;

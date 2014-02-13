@@ -1,16 +1,10 @@
-﻿using Growthstories.UI.WindowsPhone.Resources;
-using Microsoft.Phone.Shell;
-using Ninject;
-using ReactiveUI;
-using ReactiveUI.Mobile;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Markup;
-using System.Windows.Navigation;
-using Growthstories.UI.WindowsPhone.ViewModels;
-using Growthstories.Core;
-using System.Threading.Tasks;
+using Growthstories.UI.WindowsPhone.Resources;
+using Microsoft.Phone.Shell;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -60,6 +54,8 @@ namespace Growthstories.UI.WindowsPhone
 
 
             //this.Log().Info("XAML init: {0}, kernel init {1}, AppVM init {2}", xamlElapsed.Milliseconds, kernelElapsed.Milliseconds, appVmElapsed.Milliseconds);
+
+            Bootstrap.ApplyGSAccentColor(this.Resources);
 
             this.Log().Info("App.xaml.cs constructor end {0}", LifeTimer.ElapsedMilliseconds);
         }
