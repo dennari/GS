@@ -45,8 +45,6 @@ namespace Growthstories.UI.WindowsPhone
                 Height = Double.NaN;
             }
 
-            MainScroller.Height = MainScrollerHeight;
-
             if (OwnGarden == null || OwnGarden.Equals("TRUE"))
             {
                 Logger.Info("owngardenplaceholder to visible");
@@ -115,6 +113,12 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
+           vm.Log().Info("settings mainscroller height to {0}", MainScrollerHeight);
+           MainScroller.Height = MainScrollerHeight;
+
+           OnceLoadedContainer.Visibility = Visibility.Collapsed;
+           BusyIndicator.Visibility = Visibility.Visible;
+           BusyIndicator.IsRunning = true;
 
            var gvm = vm as GardenViewModel;
            gvm.WhenAnyValue(x => x.IsLoaded).Where(x => x).Take(1).Subscribe(_ =>

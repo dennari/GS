@@ -42,10 +42,10 @@
 
         <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
             
-            <telerikPrimitives:RadContextMenu.ContextMenu >
+            <telerikPrimitives:RadContextMenu.ContextMenu>
 
                 <telerikPrimitives:RadContextMenu
-                        IsEnabled="{Binding HasWriteAccess}"
+                        Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
                         IsFadeEnabled="True"
                         IsZoomEnabled="False"
                         Background="WhiteSmoke"
