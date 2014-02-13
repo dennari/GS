@@ -52,8 +52,9 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        private IDisposable loadSubscription = Disposable.Empty;
-        private IDisposable unfollowedSubscription = Disposable.Empty;
+        //private IDisposable loadSubscription = Disposable.Empty;
+        //private IDisposable unfollowedSubscription = Disposable.Empty;
+        
         void LoadFriends()
         {
 
@@ -66,20 +67,20 @@ namespace Growthstories.UI.ViewModel
             else
                 obs = obs.Concat(App.FuturePYFs());
 
-            loadSubscription = obs.ObserveOn(RxApp.MainThreadScheduler)
+            subs.Add(obs.ObserveOn(RxApp.MainThreadScheduler)
                .Subscribe(x =>
                {
                    _Friends.Add(x);
-               });
+               }));
 
-            unfollowedSubscription = this.ListenTo<UnFollowed>(App.User.Id)
+            subs.Add(this.ListenTo<UnFollowed>(App.User.Id)
             .Subscribe(x =>
             {
                 IGardenViewModel friend = Friends.FirstOrDefault(y => y.UserId == x.Target);
                 if (friend != null)
                     _Friends.Remove(friend);
                 //this._Friends.RemoveAt()
-            });
+            }));
 
             //// currentgardens, really? -- JOJ
             //this.loadSubscription = App.CurrentGardens()
@@ -138,7 +139,6 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.SelectedFriend = x);
 
             this.TrySearchUsersCommand = new ReactiveCommand();
-
 
             var isNotThisObs = App.WhenAnyObservable(x => x.Router.CurrentViewModel).Select(x => x != this);
 
@@ -260,12 +260,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        public void Dispose()
+        public override void Dispose()
         {
-            this.loadSubscription.Dispose();
-            this.unfollowedSubscription.Dispose();
             foreach (var friend in this.Friends)
+            {
                 friend.Dispose();
+            }
         }
     }
 

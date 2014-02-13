@@ -5,13 +5,18 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Growthstories.Core;
 using ReactiveUI;
+using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Growthstories.UI.ViewModel
 {
 
-    public abstract class GSViewModelBase : ReactiveObject, IGSViewModel
+    public abstract class GSViewModelBase : ReactiveObject, IGSViewModel, IDisposable
     {
         protected readonly IGSAppViewModel App;
+        public List<IDisposable> subs = new List<IDisposable>();
+
 
         public GSViewModelBase(IGSAppViewModel app)
         {
@@ -49,6 +54,21 @@ namespace Growthstories.UI.ViewModel
                 return allEvents.Where(x => x.AggregateId == id);
         }
 
+        public virtual void Dispose()
+        {
+            this.Log().Info("disposing {0}", this.GetType().Name);
+            foreach (var s in subs)
+            {
+                s.Dispose();
+            }
+        }
+
+        ~GSViewModelBase()
+        {
+            var name = this.GetType().Name;
+            this.Log().Info(string.Format("DESTROYING VM {0}\n", name));
+        }
+
 
     }
 
@@ -77,7 +97,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
+        
     }
 
 

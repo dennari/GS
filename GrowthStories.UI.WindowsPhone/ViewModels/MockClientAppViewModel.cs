@@ -33,7 +33,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
         }
 
-
+        public void Dispose() { }
 
 
         public MockClientAppViewModel(

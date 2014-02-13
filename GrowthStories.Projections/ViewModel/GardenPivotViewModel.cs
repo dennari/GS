@@ -87,7 +87,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             // when orientation changes to landscape, show current plant's chart
-            Observable.CombineLatest(
+            subs.Add(Observable.CombineLatest(
                 this.App.WhenAnyValue(y => y.Orientation),
                 this.App.Router.CurrentViewModel,
                 (o, v) => Tuple.Create(o, v)
@@ -117,14 +117,14 @@ namespace Growthstories.UI.ViewModel
                             this.AppBarIsVisible = this.SelectedPlant.AppBarIsVisible;
                     }
                     //App.Router.Navigate.Execute(this.CurrentChartViewModel);
-                });
+                }));
 
-            App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
+            subs.Add(App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
             {
                 this.Log().Info("resetting selected plant");
                 App.SelectedPlant = null;
                 App.SelectedPlant = this.SelectedPlant;
-            });            
+            }));            
         }
 
 
@@ -262,11 +262,9 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-
-
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             Vm.Dispose();
         }
     }

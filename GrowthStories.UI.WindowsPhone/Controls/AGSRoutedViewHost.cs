@@ -284,6 +284,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private IViewLocator ViewLocator;
 
+
         public GSMultiViewHost()
         {
 
@@ -291,8 +292,6 @@ namespace Growthstories.UI.WindowsPhone
             HorizontalContentAlignment = System.Windows.HorizontalAlignment.Stretch;
             VerticalContentAlignment = System.Windows.VerticalAlignment.Stretch;
             //Content = DefaultContent;
-
-
         }
 
         //protected override 

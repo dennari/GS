@@ -26,7 +26,7 @@ namespace Growthstories.UI.ViewModel
         IObservable<IPlantViewModel> CreatedPlants { get; }
     }
 
-    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect, IDisposable
+    public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect
     {
         IReadOnlyReactiveList<IGardenViewModel> Friends { get; }
         IGardenViewModel SelectedFriend { get; }
@@ -172,7 +172,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems, IDisposable
+    public interface IGardenViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar, IHasMenuItems
     {
         Guid Id { get; }
         Guid UserId { get; }
@@ -232,7 +232,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator, IDisposable
+    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator
     {
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }
@@ -501,6 +501,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface IGSViewModel : IReactiveNotifyPropertyChanged
     {
+        void Dispose();
         //IGSAppViewModel App { get; }
     }
 

@@ -201,6 +201,8 @@ namespace Growthstories.UI.ViewModel
                 App.WhenAnyValue(x => x.IsRegistered),
                 (a, b) => a && b);
             this.ShareCommand = new ReactiveCommand(canShare);
+            subs.Add(this.ShareCommand);
+
             this.DeleteCommand = new ReactiveCommand();
             this.DeleteRequestedCommand = Observable.Return(true).ToCommandWithSubscription(_ =>
                         {
@@ -243,7 +245,7 @@ namespace Growthstories.UI.ViewModel
             });
 
 
-            Observable.CombineLatest(
+            subs.Add(Observable.CombineLatest(
                      App.WhenAnyValue(x => x.User),
                      stateObservable,
                      (x, y) => Tuple.Create(x, y)
@@ -319,7 +321,7 @@ namespace Growthstories.UI.ViewModel
                 this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled, x => x.FertilizingScheduler, (x, y) => x && y != null)
                     .ToProperty(this, x => x.ShowFertilizingScheduler, out _ShowFertilizingScheduler);
 
-            });
+            }));
 
             DifferentUsersPlantSelected = App
                 .WhenAnyValue(x => x.SelectedPlant).Where(x => x != null && x.UserId != this.UserId);
@@ -463,14 +465,14 @@ namespace Growthstories.UI.ViewModel
                 Location = x;
             });
 
-            this.App.FutureSchedules(state.Id)
+            subs.Add(this.App.FutureSchedules(state.Id)
             .Subscribe(x =>
             {
                 if (x.Type == ScheduleType.WATERING)
                     this.WateringSchedule = x;
                 else
                     this.FertilizingSchedule = x;
-            });
+            }));
 
             this.WhenAnyValue(x => x.Loaded).Subscribe(_ => UpdateShowPlaceHolder());
             this.WhenAnyValue(x => x.Photo).Subscribe(x =>
@@ -1386,6 +1388,18 @@ namespace Growthstories.UI.ViewModel
             };
         }
 
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            // allows garbage collection of actions
+            // in case plantviewmodel is not garbage collected
+            _Actions.Clear();
+        }
+
+
+
     }
 
 
@@ -1402,6 +1416,7 @@ namespace Growthstories.UI.ViewModel
 
         public IObservable<IPlantViewModel> DifferentUsersPlantSelected { get; set; }
 
+        public void Dispose() { }
 
         public void NotifyImageDownloadFailed()
         {
