@@ -1,11 +1,10 @@
 ﻿namespace GrowthStories.Core
 {
     using System;
-
+    using EventStore;
     using EventStore.Dispatcher;
     using EventStore.Logging;
     using EventStore.Persistence;
-    using EventStore;
 
     public class GSDispatchScheduler : IScheduleDispatches
     {
@@ -19,7 +18,7 @@
             this.dispatcher = dispatcher;
             this.persistence = persistence;
 
-            //this.Start();
+            this.Start();
         }
 
         public void Dispose()
@@ -53,7 +52,7 @@
 
         public virtual void ScheduleDispatch(Commit commit)
         {
-            Start();
+            //Start(); DON'T DO THIS!!!
             this.DispatchImmediately(commit);
             this.MarkAsDispatched(commit);
         }

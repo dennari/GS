@@ -261,19 +261,19 @@ namespace Growthstories.UI.ViewModel
 
             MainWindowLoadedCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
-                var mvm = x as IMainViewModel;
-                if (mvm != null)
-                    MainVM = mvm;
-                var svm = x as IPlantSingularViewModel;
-                if (svm != null)
-                    PlantSingularVM = svm;
+                    var mvm = x as IMainViewModel;
+                    if (mvm != null)
+                        MainVM = mvm;
+                    var svm = x as IPlantSingularViewModel;
+                    if (svm != null)
+                        PlantSingularVM = svm;
 
-                if (!Bootstrapped)
-                {
-                    Bootstrapped = true;
-                    Bootstrap(x as IGSViewModel);
-                }
-            });
+                    if (!Bootstrapped)
+                    {
+                        Bootstrapped = true;
+                        Bootstrap(x as IGSViewModel);
+                    }
+                });
 
             Initialize();
 
@@ -283,7 +283,7 @@ namespace Growthstories.UI.ViewModel
             //this.Router.NavigateAndReset.Subscribe(_ =>
             // {
             //     this.Log().Info("navigate and reset");
-                 //NavigateAndResetStopwatch.Restart();
+            //NavigateAndResetStopwatch.Restart();
             // });
 
         }
@@ -352,8 +352,8 @@ namespace Growthstories.UI.ViewModel
                         return (IGSViewModel)MainVM;
                     return (IGSViewModel)PlantSingularVM;
                 })
-                .DistinctUntilChanged()
-                .Do(x => this.Log().Info("Router ViewModel changed to {0}", x));
+                .DistinctUntilChanged();
+            //.Do(x => this.Log().Info("Router ViewModel changed to {0}", x));
 
 
 
@@ -361,14 +361,14 @@ namespace Growthstories.UI.ViewModel
                .OfType<IControlsAppBar>()
                .Select(x => x.WhenAnyValue(y => y.AppBarMode))
                .Switch()
-               .Do(x => this.Log().Info("ApplicationBarMode {0}", x))
+                //   .Do(x => this.Log().Info("ApplicationBarMode {0}", x))
                .ToProperty(this, x => x.AppBarMode, out this._AppBarMode, ApplicationBarMode.MINIMIZED);
 
             vmChanged
                  .OfType<IControlsAppBar>()
                  .Select(x => x.WhenAnyValue(y => y.AppBarIsVisible))
                  .Switch()
-                 .Do(x => this.Log().Info("AppBarIsVisible {0}", x))
+                //    .Do(x => this.Log().Info("AppBarIsVisible {0}", x))
                  .ToProperty(this, x => x.AppBarIsVisible, out this._AppBarIsVisible, true);
 
             vmChanged
@@ -384,10 +384,7 @@ namespace Growthstories.UI.ViewModel
                 .Switch()
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .DistinctUntilChanged()
-                .Do(x =>
-                {
-                    this.Log().Info("AppBarButtons changed, count={0}", x != null ? x.Count : 0);
-                })
+                //.Do(x =>this.Log().Info("AppBarButtons changed, count={0}", x != null ? x.Count : 0))
                 .ToProperty(this, x => x.AppBarButtons, out _AppBarButtons);
             //.Subscribe(x => this.UpdateAppBar(x ?? ));
 

@@ -21,7 +21,7 @@ namespace Growthstories.Sync
 
         HttpClient Client;
         private static ILog Logger = LogFactory.BuildLogger(typeof(SyncHttpClient));
-        public const int NormalTimeout = 10;
+        public const int NormalTimeout = 30;
         public const int UploadTimeout = 300;
 
 
