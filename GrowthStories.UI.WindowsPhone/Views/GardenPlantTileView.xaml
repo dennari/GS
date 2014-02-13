@@ -194,19 +194,16 @@
     </StackPanel>
 
 
-        <StackPanel Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}">
-        <StackPanel Visibility="{Binding Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"> 
-        
         <telerikPrimitives:RadBusyIndicator 
             Grid.Row="0"
             x:Name="LoadingPhoto"
-            Visibility="Collapsed"
+            Visibility="Visible"
             ContentPosition="Bottom"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
-            IsRunning="{Binding Loaded, Converter={StaticResource InverseBoolean}}"
+            IsRunning="True"
             AnimationStyle="AnimationStyle7"
             Foreground="WhiteSmoke"
             Margin="0,0,0,0"
@@ -231,9 +228,6 @@
                 </DataTemplate>
             </telerikPrimitives:RadBusyIndicator.ContentTemplate>
         </telerikPrimitives:RadBusyIndicator>
-            
-        </StackPanel>
-        </StackPanel>
         
     </Grid>
 
