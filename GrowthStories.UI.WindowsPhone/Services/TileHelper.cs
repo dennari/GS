@@ -1,4 +1,11 @@
-﻿using EventStore.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.IO.IsolatedStorage;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
+using EventStore.Logging;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.UI.ViewModel;
@@ -6,12 +13,6 @@ using GrowthStories.UI.WindowsPhone.BA;
 using Microsoft.Phone.Shell;
 using Newtonsoft.Json;
 using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -46,7 +47,7 @@ namespace Growthstories.UI.WindowsPhone
             var tile = Current;
             if (tile != null)
             {
-                TilesHelper.UpdateTileAndInfoAfterDelay(Vm);
+                TilesHelper.UpdateTileCommand.Execute(Vm);
 
             }
             else
@@ -190,7 +191,7 @@ namespace Growthstories.UI.WindowsPhone
         private void TriggerTileUpdate()
         {
             //this.Log().Info("triggered update of tileinfo for {0}", Vm.Name);
-            TilesHelper.UpdateTileAndInfoAfterDelay(Vm);
+            TilesHelper.UpdateTileCommand.Execute(Vm);
         }
 
 
@@ -422,30 +423,37 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        private static Dictionary<IPlantViewModel, IReactiveCommand> UpdateCommands
-            = new Dictionary<IPlantViewModel, IReactiveCommand>();
-
-
-        public static void UpdateTileAndInfoAfterDelay(IPlantViewModel pvm)
+        static IReactiveCommand _UpdateTileCommand;
+        public static IReactiveCommand UpdateTileCommand
         {
-            if (!UpdateCommands.ContainsKey(pvm))
+            get
             {
-                var cmd = new ReactiveCommand();
+                if (_UpdateTileCommand == null)
+                {
+                    _UpdateTileCommand = new ReactiveCommand();
+                    _UpdateTileCommand
+                        .OfType<IPlantViewModel>()
+                        .Throttle(TimeSpan.FromMilliseconds(750), RxApp.TaskpoolScheduler)
+                        .Subscribe(x =>
+                        {
+                            try
+                            {
+                                UpdateTileAndInfo(x);
 
-                // updating tiles is probably a pretty expensive operation, 
-                // so we wish to throttle it. this would be relavant especially
-                // when signing in
-                //
-                // however, it the immediately exits the 
-                // app, we will not be able to update the tile
-                //
-                // therefore we cannot throttle for too much, one seconds seems to be
-                // appropriate (though if really trying it is still possible to exit too quickly)
-                cmd.Throttle(TimeSpan.FromMilliseconds(750))
-                    .ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ => UpdateTileAndInfo(pvm));
-                UpdateCommands.Add(pvm, cmd);
+                            }
+                            catch (Exception ex)
+                            {
+                                RxApp.MainThreadScheduler.Schedule(() =>
+                                {
+                                    throw ex;
+                                });
+
+                            }
+                        });
+                }
+
+                return _UpdateTileCommand;
             }
-            UpdateCommands[pvm].Execute(null);
         }
 
 
