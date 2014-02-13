@@ -171,10 +171,12 @@ namespace Growthstories.UI.ViewModel
         private bool _ShouldBeFullyLoaded;
         public bool ShouldBeFullyLoaded
         {
-            get {
+            get
+            {
                 return _ShouldBeFullyLoaded;
             }
-            set {
+            set
+            {
                 this.RaiseAndSetIfChanged(ref _ShouldBeFullyLoaded, value);
             }
         }
@@ -247,8 +249,8 @@ namespace Growthstories.UI.ViewModel
                      (x, y) => Tuple.Create(x, y)
                  )
              .Where(x => x.Item1 != null && x.Item2 != null)
+             .Take(1)
              .ObserveOn(RxApp.MainThreadScheduler)
-             .SubscribeOn(RxApp.TaskpoolScheduler)
              .Subscribe(zz =>
             {
                 this.Init(zz.Item2, zz.Item1);
@@ -619,7 +621,7 @@ namespace Growthstories.UI.ViewModel
             // 
             //
             var tmp = Actions;
-        
+
         }
 
 

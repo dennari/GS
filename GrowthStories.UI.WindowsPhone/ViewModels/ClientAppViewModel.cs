@@ -9,12 +9,10 @@ using Growthstories.Domain;
 using Growthstories.Domain.Entities;
 using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
-using GrowthStories.UI.WindowsPhone.BA;
+using Microsoft.Phone.Info;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Devices.Geolocation;
-using Windows.Foundation;
-using Microsoft.Phone.Info;
 
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
@@ -282,7 +280,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
         public override IAddEditPlantViewModel EditPlantViewModelFactory(IPlantViewModel pvm)
         {
-            return new ClientAddEditPlantViewModel(this, this.WhenAnyValue(x => x.MyGarden).Where(x => x != null), pvm);
+            return new ClientAddEditPlantViewModel(
+                this,
+                this.WhenAnyValue(x => x.MyGarden).Where(x => x != null),
+                (t) => PlantViewModelFactory(Observable.Return(t)),
+                pvm);
         }
 
         public override IYAxisShitViewModel YAxisShitViewModelFactory(IPlantViewModel pvm)

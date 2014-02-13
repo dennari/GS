@@ -69,9 +69,12 @@ namespace Growthstories.UI.ViewModel
                 SubscribeForNestedIsLoaded();
             });
 
-            FuturePlantsSubscription = App.FuturePlants(u.Id)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => IntroducePlant(x));
+            if (!OwnGarden) // future plants to own garden are added directly by the return value of AddEditPlantViewModel
+            {
+                FuturePlantsSubscription = App.FuturePlants(u.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => IntroducePlant(x));
+            }
         }
 
 
@@ -484,7 +487,9 @@ namespace Growthstories.UI.ViewModel
             if (bought)
             {
                 //this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
-                this.Navigate(App.EditPlantViewModelFactory(null));
+                var addPlantVM = App.EditPlantViewModelFactory(null);
+                addPlantVM.CreatedPlants.Take(1).Subscribe(IntroducePlant);
+                this.Navigate(addPlantVM);
 
             }
             // else, user did not buy anything so

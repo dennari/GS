@@ -22,6 +22,8 @@ namespace Growthstories.UI.ViewModel
         IScheduleViewModel WateringSchedule { get; }
         IScheduleViewModel FertilizingSchedule { get; }
         string Title { get; }
+
+        IObservable<IPlantViewModel> CreatedPlants { get; }
     }
 
     public interface IFriendsViewModel : IGSRoutableViewModel, IHasAppBarButtons, IControlsAppBar, ICanSelect, IDisposable

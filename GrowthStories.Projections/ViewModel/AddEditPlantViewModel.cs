@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
@@ -23,13 +24,14 @@ namespace Growthstories.UI.ViewModel
 
         public IPlantViewModel Current { get; protected set; }
         protected readonly HashSet<string> TagSet;
+        private Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> PlantF;
 
         public AddEditPlantViewModel(
             IGSAppViewModel app,
-
             IObservable<IGardenViewModel> gardenObservable,
-
-            IPlantViewModel current = null)
+            Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> plantF,
+            IPlantViewModel current = null
+            )
             : base(app)
         {
 
@@ -51,12 +53,14 @@ namespace Growthstories.UI.ViewModel
                 this.IsFertilizingScheduleEnabled = current.IsFertilizingScheduleEnabled;
                 this.Location = current.Location;
 
+
             }
             else
             {
                 this.Title = "new plant";
                 this.TagSet = new HashSet<string>();
                 this.Tags = new ReactiveList<string>();
+                this.PlantF = plantF;
 
                 if (App.PhoneLocationServicesEnabled && App.GSLocationServicesEnabled)
                 {
@@ -411,6 +415,10 @@ namespace Growthstories.UI.ViewModel
         public async Task<Guid> AddTask()
         {
 
+            PlantState plantState = null;
+            ScheduleState wateringScheduleState = null;
+            ScheduleState fertilizingScheduleState = null;
+
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
 
             IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
@@ -418,7 +426,7 @@ namespace Growthstories.UI.ViewModel
             if (this.Current == null)
             {
 
-                await App.HandleCommand(new CreatePlant(plantId, this.Name, App.User.GardenId, App.User.Id));
+                plantState = ((Plant)(await App.HandleCommand(new CreatePlant(plantId, this.Name, App.User.GardenId, App.User.Id)))).State;
                 await App.HandleCommand(new AddPlant(App.User.GardenId, plantId, App.User.Id, this.Name));
             }
             else if (current.Name != this.Name)
@@ -452,14 +460,14 @@ namespace Growthstories.UI.ViewModel
             IScheduleViewModel schedule = this.FertilizingSchedule;
             if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsFertilizingScheduleEnabled)
             {
-                var r = await schedule.Create();
-                await App.HandleCommand(new SetFertilizingSchedule(plantId, r.Id));
+                fertilizingScheduleState = (await schedule.Create()).State;
+                await App.HandleCommand(new SetFertilizingSchedule(plantId, fertilizingScheduleState.Id));
             }
             schedule = this.WateringSchedule;
             if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsWateringScheduleEnabled)
             {
-                var r = await schedule.Create();
-                await App.HandleCommand(new SetWateringSchedule(plantId, r.Id));
+                wateringScheduleState = (await schedule.Create()).State;
+                await App.HandleCommand(new SetWateringSchedule(plantId, wateringScheduleState.Id));
             }
 
             if (this.Photo != null && current.Photo != this.Photo)
@@ -481,9 +489,25 @@ namespace Growthstories.UI.ViewModel
             }
 
             //if (this.App.Router.NavigationStack.Count > 1)
+            if (plantState != null)
+            {
+                CreatedPlantsSubject.OnNext(PlantF(Tuple.Create(plantState, wateringScheduleState, fertilizingScheduleState)));
+            }
+
             this.App.Router.NavigateBack.Execute(null);
             return plantId;
         }
+
+
+        Subject<IPlantViewModel> CreatedPlantsSubject = new Subject<IPlantViewModel>();
+
+        public IObservable<IPlantViewModel> CreatedPlants
+        {
+            get { return CreatedPlantsSubject; }
+        }
+
+
+
 
         public override string UrlPathSegment
         {

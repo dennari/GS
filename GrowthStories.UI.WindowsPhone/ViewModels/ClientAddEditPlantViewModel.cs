@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Growthstories.Sync;
+using Growthstories.Domain.Entities;
 using Growthstories.UI.ViewModel;
-using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
 using ReactiveUI;
-
 
 namespace Growthstories.UI.WindowsPhone.ViewModels
 {
@@ -21,8 +17,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
 
-        public ClientAddEditPlantViewModel(IGSAppViewModel app, IObservable<IGardenViewModel> gardenObservable, IPlantViewModel current = null)
-            : base(app, gardenObservable, current)
+        public ClientAddEditPlantViewModel(
+            IGSAppViewModel app,
+            IObservable<IGardenViewModel> gardenObservable,
+            Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> plantF,
+            IPlantViewModel current = null)
+            : base(app, gardenObservable, plantF, current)
         {
 
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());
