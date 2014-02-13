@@ -39,10 +39,34 @@ namespace Growthstories.UI.WindowsPhone
         public GardenPlantTileView()
         {
             InitializeComponent();
+
+            LoadingPhoto.Visibility = Visibility.Visible;
+
+            //if (OwnGarden != null || OwnGarden.Equals("FALSE"))
+            //{
+            //}
+
         }
 
         IDisposable subs = Disposable.Empty;
-        
+
+
+        //public static readonly DependencyProperty OwnGardenProperty =
+        //     DependencyProperty.Register("OwnGarden", typeof(string), typeof(GardenView), new PropertyMetadata("TRUE"));
+
+        //public string OwnGarden
+        //{
+        //    get
+        //    {
+        //        return (string)GetValue(OwnGardenProperty);
+        //    }
+        //    set
+        //    {
+        //        SetValue(OwnGardenProperty, value);
+        //    }
+        //}
+
+
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
             //ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
@@ -66,12 +90,6 @@ namespace Growthstories.UI.WindowsPhone
                     {
                         ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
                         _FadeIn();
-                    }
-
-                    if (!ViewModel.HasWriteAccess)
-                    {
-                        ViewModel.Log().Info("GardenPlantTileView: showing loading for garden plant tile " + ViewModel.Name);
-                        LoadingPhoto.Visibility = Visibility.Visible;
                     }
                 }
             });

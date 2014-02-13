@@ -68,9 +68,7 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(480));
 
 
-        public static readonly DependencyProperty OwnGardenProperty =
-            DependencyProperty.Register("OwnGarden", typeof(string), typeof(GardenView), new PropertyMetadata("TRUE"));
-
+     
         
         public string CleanUpOnUnload
         {
@@ -97,6 +95,9 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+
+        public static readonly DependencyProperty OwnGardenProperty =
+             DependencyProperty.Register("OwnGarden", typeof(string), typeof(GardenView), new PropertyMetadata("TRUE"));
 
         public string OwnGarden
         {
