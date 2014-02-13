@@ -64,8 +64,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
         public const string SETTINGS_KEY = "periodicTaskInfo";
         public const string SETTINGS_MUTEX = "GSSettingsMutex";
-        public const string DELETE_MUTEX = "GSTileUtilsDeleteMutex";
-
+        public const string SHELL_MUTEX = "GShellTileMutex";
+        
 
         /**
         * Update tiles based on TileUpdateInfos
@@ -86,7 +86,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
 
             using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
             {
-
                 try { mutex.WaitOne(); }
                 catch { } // catch exceptions associated with abandoned mutexes
 
@@ -116,13 +115,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
             return ret;
         }
 
-
-        public static ShellTile GetShellTile(string urlPathSegment)
-        {
-            return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));
-        }
-
-
+     
         public static string GetSettingsKey(TileUpdateInfo info)
         {
             return SETTINGS_KEY + info.UrlPath;
@@ -193,7 +186,6 @@ namespace GrowthStories.UI.WindowsPhone.BA
                     {
                         wideContent = nextWc;
                     }
-
                 }
             }
 
@@ -231,9 +223,8 @@ namespace GrowthStories.UI.WindowsPhone.BA
             };
 
             var appTile = ShellTile.ActiveTiles.First();
-            appTile.Update(td);
+            SafelyUpdateTile(appTile, td);
         }
-
 
 
         private static void UpdateTiles(HashSet<TileUpdateInfo> infos)
@@ -243,6 +234,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 UpdateTile(info);
             }
         }
+
 
         public static CycleTileData GetTileData(TileUpdateInfo info)
         {
@@ -276,7 +268,7 @@ namespace GrowthStories.UI.WindowsPhone.BA
                 try
                 {
                     ClearTile(tile);
-                    tile.Update(tileData);
+                    SafelyUpdateTile(tile, tileData);
                 }
                 catch
                 {
@@ -292,7 +284,44 @@ namespace GrowthStories.UI.WindowsPhone.BA
             // from http://social.msdn.microsoft.com/Forums/wpapps/en-US/700b13e0-fc4d-401e-92c7-936379c23a1f/cycle-tile-clearing-previous-images?forum=wpdevelop
             //
             var clearTileData = new CycleTileData("<?xml version=\"1.0\" encoding=\"utf-8\"?><wp:Notification xmlns:wp=\"WPNotification\" Version=\"2.0\"> <wp:Tile Id=\"TileID\" Template=\"CycleTile\"> <wp:SmallBackgroundImage Action=\"Clear\" /> <wp:CycleImage1 Action=\"Clear\" /> <wp:CycleImage2 Action=\"Clear\" /> <wp:CycleImage3 Action=\"Clear\" /> <wp:CycleImage4 Action=\"Clear\" /> <wp:CycleImage5 Action=\"Clear\" /> <wp:CycleImage6 Action=\"Clear\" /> <wp:CycleImage7 Action=\"Clear\" /> <wp:CycleImage8 Action=\"Clear\" /> <wp:CycleImage9 Action=\"Clear\" /> <wp:Count Action=\"Clear\" /> <wp:Title Action=\"Clear\" /> </wp:Tile></wp:Notification>");
-            tile.Update(clearTileData);
+            SafelyUpdateTile(tile, clearTileData);
+        }
+
+
+        public static void SafelyUpdateTile(ShellTile tile, ShellTileData data)
+        {
+            using (Mutex mutex = new Mutex(false, SHELL_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    tile.Update(data);
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+        }
+
+
+        public static ShellTile GetShellTile(string urlPathSegment)
+        {
+            using (Mutex mutex = new Mutex(false, SHELL_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+                try
+                {
+                    return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
         }
 
 

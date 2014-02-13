@@ -398,9 +398,9 @@ namespace Growthstories.UI.WindowsPhone
 
         private static void UpdateTileAndInfo(IPlantViewModel pvm)
         {
-
+            throw new Exception("moroo");
             var vm = (PlantViewModel)pvm;
-            vm.Log().Info("updatating tile and info for {0} in thread {1}", pvm.Name, Thread.CurrentThread.Name);
+            vm.Log().Info("updating tile and info for {0} in thread {1}", pvm.Name, Thread.CurrentThread.Name);
 
             if (vm.State.IsDeleted)
             {
@@ -441,7 +441,8 @@ namespace Growthstories.UI.WindowsPhone
                 //
                 // therefore we cannot throttle for too much, one seconds seems to be
                 // appropriate (though if really trying it is still possible to exit too quickly)
-                cmd.Throttle(TimeSpan.FromMilliseconds(750)).Subscribe(_ => UpdateTileAndInfo(pvm));
+                cmd.Throttle(TimeSpan.FromMilliseconds(750))
+                    .ObserveOn(RxApp.TaskpoolScheduler).Subscribe(_ => UpdateTileAndInfo(pvm));
                 UpdateCommands.Add(pvm, cmd);
             }
             UpdateCommands[pvm].Execute(null);
@@ -453,11 +454,10 @@ namespace Growthstories.UI.WindowsPhone
             var t = GetShellTile(pvm);
             if (t != null)
             {
-                t.Delete();
+                SafelyDeleteTile(t);
                 // the plant takes care of this itself
                 //pvm.HasTile = false;
             }
-
             // no need to update infos
         }
 
@@ -470,13 +470,31 @@ namespace Growthstories.UI.WindowsPhone
                 // application tile is first 
                 if (cnt != 0)
                 {
-                    tile.Delete();
+                    SafelyDeleteTile(tile);
                 }
                 cnt++;
             }
             ClearAllTileUpdateInfos();
         }
 
+
+        public static void SafelyDeleteTile(ShellTile tile)
+        {
+            using (Mutex mutex = new Mutex(false, GSTileUtils.SHELL_MUTEX))
+            {
+                try { mutex.WaitOne(); }
+                catch { } // catch exceptions associated with abandoned mutexes
+
+                try
+                {
+                    tile.Delete();
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
+        }
 
     }
 

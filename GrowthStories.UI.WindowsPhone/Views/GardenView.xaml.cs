@@ -16,9 +16,11 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using Growthstories.Core;
 using Growthstories.UI.WindowsPhone.ViewModels;
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
+
 
     public class GardenViewBase : GSView<IGardenViewModel>
     {
@@ -43,6 +45,17 @@ namespace Growthstories.UI.WindowsPhone
                 Height = Double.NaN;
             }
 
+            if (OwnGarden == null || OwnGarden.Equals("TRUE"))
+            {
+                Logger.Info("owngardenplaceholder to visible");
+                OwnGardenPlaceHolder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Logger.Info("nonowngardenplaceholder to visible");
+                NonOwnGardenPlaceHolder.Visibility = Visibility.Visible;
+            }
+
             Logger.Info("initialized garden view");
         }
 
@@ -55,6 +68,10 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(480));
 
 
+        public static readonly DependencyProperty OwnGardenProperty =
+            DependencyProperty.Register("OwnGarden", typeof(string), typeof(GardenView), new PropertyMetadata("TRUE"));
+
+        
         public string CleanUpOnUnload
         {
             get
@@ -81,25 +98,36 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        public string OwnGarden
+        {
+            get
+            {
+                return (string)GetValue(OwnGardenProperty);
+            }
+            set
+            {
+                SetValue(OwnGardenProperty, value);
+            }
+        }
+
+
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
-            MainScroller.Height = MainScrollerHeight;
+           vm.Log().Info("settings mainscroller height to {0}", MainScrollerHeight);
+           MainScroller.Height = MainScrollerHeight;
 
-            //var gvm = vm as GardenViewModel;
-            //if (gvm != null)
-            //{
-            //    gvm.WhenAnyValue(x => x.OwnGarden).Subscribe(own =>
-            //    {
-            //        if (own)
-            //        {
-            //            MainScroller.Height = 480;
-            //        }
-            //        else
-            //        {
-            //            MainScroller.Height = 480 + 180;
-            //        }
-            //    });
-            //}
+           OnceLoadedContainer.Visibility = Visibility.Collapsed;
+           BusyIndicator.Visibility = Visibility.Visible;
+           BusyIndicator.IsRunning = true;
+
+           var gvm = vm as GardenViewModel;
+           gvm.WhenAnyValue(x => x.IsLoaded).Where(x => x).Take(1).Subscribe(_ =>
+           {
+               OnceLoadedContainer.Visibility = Visibility.Visible;
+               BusyIndicator.Visibility = Visibility.Collapsed;
+               BusyIndicator.IsRunning = false;
+           });
+            
         }
 
 

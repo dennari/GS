@@ -405,6 +405,7 @@ namespace Growthstories.UI.ViewModel
             this.IsFertilizingScheduleEnabled = state.IsFertilizingScheduleEnabled;
             this.IsWateringScheduleEnabled = state.IsWateringScheduleEnabled;
 
+            this.Log().Info("haswriteaccess for {2} state.UserId {0}, appUser.Id {1}", state.UserId, appUser.Id, state.Name);
             this.HasWriteAccess = state.UserId == appUser.Id;
 
             AppBarButtons = HasWriteAccess ? GetOwnerButtons() : GetFollowerButtons();
