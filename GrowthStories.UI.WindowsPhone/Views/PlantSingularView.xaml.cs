@@ -41,7 +41,9 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.OnViewModelChanged(vm);
 
-            vm.WhenAnyValue(x => x.Plant.Name).Where(x => x != null).Take(1).Subscribe(x =>
+            // should not be Take(1) as that prevents name from updating if user
+            // goes to edit plant and changes the name
+            vm.WhenAnyValue(x => x.Plant.Name).Where(x => x != null).Subscribe(x =>
             {
                 ViewGrid.Title = x;
                 ThePlantView.Visibility = Visibility.Visible;
