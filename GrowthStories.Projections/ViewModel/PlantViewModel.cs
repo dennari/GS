@@ -185,7 +185,7 @@ namespace Growthstories.UI.ViewModel
         public PlantViewModel(IObservable<Tuple<PlantState, ScheduleState, ScheduleState>> stateObservable, IGSAppViewModel app)
             : base(app)
         {
-            Name = "loading";
+            //Name = "loading";
             Loaded = false;
             ShowPlaceHolder = false;
 
@@ -432,7 +432,7 @@ namespace Growthstories.UI.ViewModel
             this.WhenAnyValue(x => x.ProfilePictureActionId).Subscribe(x => HandleNewProfilePictureActionId(x));
 
             ProfilePictureActionId = this.State.ProfilepictureActionId;
-            
+
             subs.Add(this.ListenTo<ProfilepictureSet>(this.State.Id)
                 .Select(x => x.PlantActionId)
                 .Subscribe(x =>

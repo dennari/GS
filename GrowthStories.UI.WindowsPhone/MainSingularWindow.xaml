@@ -79,7 +79,7 @@
                             Opacity="1.0"
                             >
                             <local:GSMultiViewHost.DefaultContent>
-                                <local:PlantSingularView ViewModel="{Binding}" />
+                                <local:PlantSingularView DataContext="{Binding}" />
                             </local:GSMultiViewHost.DefaultContent>
                         </local:GSMultiViewHost>
 

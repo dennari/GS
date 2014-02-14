@@ -241,8 +241,8 @@ namespace Growthstories.UI.ViewModel
 
                     if (ar.Item1 != null && ar.Item1.Count > 0)
                     {
-                        var add = ar.Item1.Cast<IPlantViewModel>();
-                        _SelectedPlants.AddRange(add);
+                        foreach (var plant in ar.Item1.Cast<IPlantViewModel>())
+                            _SelectedPlants.Add(plant);
                     }
                     if (ar.Item2 != null && ar.Item2.Count > 0)
                     {
@@ -290,6 +290,8 @@ namespace Growthstories.UI.ViewModel
                     this.Log().Info("MultiWatering ended");
                     MultiCommandInFlight = false;
                     this.IsPlantSelectionEnabled = false;
+                    this._SelectedPlants.Clear();
+
 
                 });
 
@@ -314,17 +316,22 @@ namespace Growthstories.UI.ViewModel
                 .SelectMany(x =>
                 {
                     this.Log().Info("MultiDelete started");
+
+                    return x.list.ToObservable()
+                        .Do(y => y.DeleteCommand.Execute(null))
+                        .Aggregate(0, (c, y) => c++);
+
                     //await App.HandleCommand(new DeleteAggregate(x.el.Id, "plant"));
 
                     //x.el.DeleteCommand.Execute(null);
                     //return this.ListenTo<AggregateDeleted>(x.el.Id).Take(1).Select(_ => x);
                     //foreach(var plant in x.)
                     //return x;
-                    return Observable.Merge(x.list.Select(y =>
-                    {
-                        y.DeleteCommand.Execute(null);
-                        return this.ListenTo<AggregateDeleted>(y.Id).Take(1);
-                    })).Aggregate(0, (c, y) => c++);
+                    //return Observable.Merge(x.list.Select(y =>
+                    //{
+                    //    y.DeleteCommand.Execute(null);
+                    //    return this.ListenTo<AggregateDeleted>(y.Id).Take(1);
+                    //})).Aggregate(0, (c, y) => c++);
                     //return Observable.Concat()
                 })
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -332,12 +339,18 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.IsPlantSelectionEnabled = false;
                     MultiCommandInFlight = false;
+                    this._SelectedPlants.Clear();
                     this.Log().Info("MultiDelete ended");
 
                 });
 
+            this.WhenAnyValue(x => x.IsPlantSelectionEnabled).Subscribe(x =>
+            {
+                if (x)
+                    _SelectedPlants.Clear();
+            });
 
-            var notInProgressAndSelected = this.IsNotInProgress.CombineLatest(this.SelectedPlants.CountChanged, (x, y) => x && y > 0);
+            var notInProgressAndSelected = this.IsNotInProgress.CombineLatest(this._SelectedPlants.IsEmptyChanged, (x, y) => x && !y);
             this.DeletePlantsButtonCommand = new ReactiveCommand(notInProgressAndSelected, false);
             this.DeletePlantsButtonCommand.Subscribe(_ => this.MultiDeleteCommand.Execute(null));
             this.WaterPlantsButtonCommand = new ReactiveCommand(notInProgressAndSelected, false);
@@ -542,15 +555,21 @@ namespace Growthstories.UI.ViewModel
                     DeletePlantsButton
                 };
 
-                var afterPlantsLoaded = this.WhenAnyValue(x => x.PlantsLoaded).Where(x => x).Take(1);
-                var afterPlantsLoadedCount = afterPlantsLoaded.SelectMany(_ => Plants.CountChanged.StartWith(Plants.Count));
-                var afterPlantsLoadedEmptyChanged = afterPlantsLoaded.SelectMany(_ => _Plants.IsEmptyChanged).Select(x => _Plants.Count);
+                //var afterPlantsLoaded = this.WhenAnyValue(x => x.PlantsLoaded).Where(x => x).Take(1);
+                //var afterPlantsLoadedCount = afterPlantsLoaded.SelectMany(_ => Plants.CountChanged.StartWith(Plants.Count));
+                //var afterPlantsLoadedEmptyChanged = afterPlantsLoaded.SelectMany(_ => _Plants.IsEmptyChanged).Select(x => _Plants.Count);
 
                 //var moreThanZeroChanged = Observable.Zip(afterPlantsLoadedCount, afterPlantsLoadedCount.Skip(1), (x, y) => new { current = x, prev = y })
                 //   .Where(x => x.current + x.prev == 1).Select(x => x.current - x.prev)
-                afterPlantsLoadedEmptyChanged.Subscribe(x =>
+
+
+                IDisposable shouldAddMultiselectButtonSubscription = this.WhenAnyValue(x => x.PlantsLoaded)
+                    .Where(x => x)
+                    .Take(1)
+                    .SelectMany(_ => _Plants.IsEmptyChanged.StartWith(_Plants.IsEmpty))
+                    .Subscribe(x =>
                     {
-                        currentTileModeDefaultButtons = x > 0 ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
+                        currentTileModeDefaultButtons = !x ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
                         if (!IsPlantSelectionEnabled)
                         {
                             this.AppBarButtons = currentTileModeDefaultButtons;
@@ -558,7 +577,7 @@ namespace Growthstories.UI.ViewModel
                     });
 
                 //.Do(x => prevCount = x).Where(x => (x > 1 && prevCount <= 1) || ()
-                afterPlantsLoaded.SelectMany(_ => this.WhenAnyValue(x => x.IsPlantSelectionEnabled))
+                this.WhenAnyValue(x => x.IsPlantSelectionEnabled)
                   .Subscribe(x =>
                   {
                       if (x)
@@ -585,7 +604,19 @@ namespace Growthstories.UI.ViewModel
                    {
                        if (_Plants.Count == 1)
                        {
-                           Plants = new ReactiveList<IPlantViewModel>();
+                           var p = new ReactiveList<IPlantViewModel>();
+                           shouldAddMultiselectButtonSubscription.Dispose();
+                           shouldAddMultiselectButtonSubscription = p.IsEmptyChanged.StartWith(true).Subscribe(y =>
+                           {
+                               currentTileModeDefaultButtons = !y ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
+                               if (!IsPlantSelectionEnabled)
+                               {
+                                   this.AppBarButtons = currentTileModeDefaultButtons;
+                               }
+                           });
+
+                           Plants = p;
+
                            //Selecte
                        }
                        else

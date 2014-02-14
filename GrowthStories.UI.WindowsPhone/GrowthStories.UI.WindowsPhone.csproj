@@ -301,7 +301,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\PlantSingularView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SignInRegisterView.xaml">
