@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using Growthstories.UI.Services;
 using ReactiveUI;
+
+using AsyncLock = Growthstories.Core.AsyncLock;
 
 
 namespace Growthstories.UI.ViewModel
@@ -265,7 +268,7 @@ namespace Growthstories.UI.ViewModel
 
             // COMMANDS
 
-            MainWindowLoadedCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
+            MainWindowLoadedCommand.Subscribe(x =>
                 {
 
                     var mvm = x as IMainViewModel;
@@ -281,6 +284,8 @@ namespace Growthstories.UI.ViewModel
                         Bootstrap(x as IGSViewModel);
                     }
                 });
+
+
 
             Initialize();
 
@@ -561,6 +566,16 @@ namespace Growthstories.UI.ViewModel
             get
             {
                 return _MainWindowLoadedCommand ?? (_MainWindowLoadedCommand = new ReactiveCommand());
+            }
+
+        }
+
+        private IReactiveCommand _ResetCommand;
+        protected IReactiveCommand ResetCommand
+        {
+            get
+            {
+                return _ResetCommand ?? (_ResetCommand = new ReactiveCommand());
             }
 
         }
@@ -1096,11 +1111,7 @@ namespace Growthstories.UI.ViewModel
             {
                 await this.Initialize();
                 app = this.Model;
-                var mvm = CreateMainViewModel();
-
-                Router.Reset();
-
-                this.MainWindowLoadedCommand.Execute(mvm);
+                Reset();
             }
             else
             {
@@ -1236,9 +1247,7 @@ namespace Growthstories.UI.ViewModel
                     }
                 }
 
-                var mvm = CreateMainViewModel();
-                Router.Reset();
-                this.MainWindowLoadedCommand.Execute(mvm);
+                Reset();
 
                 return SignInResponse.success;
             }
@@ -1246,6 +1255,18 @@ namespace Growthstories.UI.ViewModel
             {
                 SetDismissPopupAllowedCommand.Execute(true);
             }
+
+        }
+
+        private void Reset()
+        {
+
+            RxApp.MainThreadScheduler.Schedule(() =>
+            {
+                this.MainVM = CreateMainViewModel();
+                Router.Reset();
+            });
+
 
         }
 
@@ -1640,7 +1661,7 @@ namespace Growthstories.UI.ViewModel
 
 
         public void Dispose() { } // never going to happen
-    
+
     }
 
 

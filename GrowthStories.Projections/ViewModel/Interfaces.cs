@@ -232,7 +232,7 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator, IDisposable, IEnableLogger
+    public interface IMainViewModel : IMultipageViewModel, IControlsSystemTray, IControlsProgressIndicator, IEnableLogger
     {
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }

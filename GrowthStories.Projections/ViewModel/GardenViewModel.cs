@@ -71,10 +71,11 @@ namespace Growthstories.UI.ViewModel
 
             //if (!OwnGarden) // future plants to own garden are added directly by the return value of AddEditPlantViewModel
             //{
-                subs.Add(App.FuturePlants(u.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => IntroducePlant(x)));
+            subs.Add(App.FuturePlants(u.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => IntroducePlant(x)));
             //}
+        }
 
 
         public bool ShouldPlantBeFullyLoaded(IPlantViewModel plant, IPlantViewModel selectedPlant)
@@ -811,14 +812,14 @@ namespace Growthstories.UI.ViewModel
             // allows for GC of plants in case
             // garden is not GC:d
             foreach (var p in Plants)
-        {
+            {
                 p.Dispose();
             }
             _Plants.Clear();
         }
 
 
-        }
+    }
 
 
 
