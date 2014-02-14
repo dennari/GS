@@ -1638,6 +1638,9 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+
+        public void Dispose() { } // never going to happen
+    
     }
 
 

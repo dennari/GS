@@ -108,6 +108,10 @@ namespace Growthstories.UI.WindowsPhone
 
         public void NotifyDestroyed(String msg)
         {
+            
+            //var name = this.GetType().Name;
+            //Logger.Info(string.Format("DESTROYING {0},{1}\n", name, msg));
+
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 var name = this.GetType().Name;

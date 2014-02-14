@@ -180,10 +180,11 @@ namespace Growthstories.UI.ViewModel
                 this.Time = state.Created.ToString("t");
                 this.PlantActionId = state.Id;
                 this.Created = state.Created;
-                this.ListenTo<PlantActionPropertySet>(state.Id).Subscribe(x =>
+
+                subs.Add(this.ListenTo<PlantActionPropertySet>(state.Id).Subscribe(x =>
                 {
                     SetProperty(x);
-                });
+                }));
 
                 this.NoState = false;
 

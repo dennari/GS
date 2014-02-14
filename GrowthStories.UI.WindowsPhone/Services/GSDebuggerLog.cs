@@ -12,7 +12,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-    public class GSRemoteLog : IGSLog, ILogger
+    public class GSDebuggerLog : IGSLog, ILogger
     {
         private readonly Type Type;
         public static int Port;
@@ -29,7 +29,7 @@ namespace Growthstories.UI.WindowsPhone
         private static bool IsConnected = false;
 
 
-        public GSRemoteLog(Type type = null, Func<Type, string, bool> filter = null)
+        public GSDebuggerLog(Type type = null, Func<Type, string, bool> filter = null)
         {
             this.Type = type;
             this.Filter = filter;
@@ -37,13 +37,6 @@ namespace Growthstories.UI.WindowsPhone
 
         private void Send(string level, string message, params object[] values)
         {
-
-            // useful to do this check before doing heavy string operations
-            if (Tried >= MaxTries)
-            {
-                return;
-            }
-
 
             if (Filter != null && !Filter(Type, message))
                 return;
@@ -58,40 +51,10 @@ namespace Growthstories.UI.WindowsPhone
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             //Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);
 
-            //if (Debugger.IsAttached)
-            //{
-            //    System.Diagnostics.Debug.WriteLine(msg);
-            //}
-
-            if (Tried < MaxTries)
+            if (Debugger.IsAttached)
             {
-                lock (Socket)
-                {
-
-                    try
-                    {
-                        if (!IsConnected || Socket.Information.RemoteHostName == null)
-                        {
-                            Socket.Control.KeepAlive = true;
-                            Socket.ConnectAsync(new HostName(Host), Port.ToString()).AsTask().Wait(TimeOut);
-                            Writer = new DataWriter(Socket.OutputStream);
-                            IsConnected = true;
-                        }
-
-                        Writer.WriteString(msg);
-                        Writer.StoreAsync().AsTask().Wait(TimeOut);
-                    }
-                    catch (Exception e)
-                    {
-                        Tried++;
-                        if (Debugger.IsAttached)
-                        {
-                            System.Diagnostics.Debug.WriteLine("Couldn't connect remote-logger: {0}", e);
-                        }
-                    }
-                }
+                System.Diagnostics.Debug.WriteLine(msg);
             }
-
         }
 
 

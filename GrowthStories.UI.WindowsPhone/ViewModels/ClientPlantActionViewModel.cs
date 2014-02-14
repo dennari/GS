@@ -175,20 +175,4 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -75,7 +75,6 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_GardenVM == null && LoadingGarden == null)
                 {
-
                     LoadingGarden = InitGardenVM();
                 }
                 return _GardenVM;
@@ -187,8 +186,9 @@ namespace Growthstories.UI.ViewModel
             get { return false; }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             if (this.FriendsVM != null)
                 this.FriendsVM.Dispose();
             if (this.GardenVM != null)

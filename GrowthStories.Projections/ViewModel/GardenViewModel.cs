@@ -51,7 +51,7 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-        IDisposable FuturePlantsSubscription = Disposable.Empty;
+
         private void LoadPlants(IAuthUser u)
         {
 
@@ -71,11 +71,10 @@ namespace Growthstories.UI.ViewModel
 
             //if (!OwnGarden) // future plants to own garden are added directly by the return value of AddEditPlantViewModel
             //{
-            FuturePlantsSubscription = App.FuturePlants(u.Id)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x => IntroducePlant(x));
+                subs.Add(App.FuturePlants(u.Id)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(x => IntroducePlant(x)));
             //}
-        }
 
 
         public bool ShouldPlantBeFullyLoaded(IPlantViewModel plant, IPlantViewModel selectedPlant)
@@ -228,17 +227,9 @@ namespace Growthstories.UI.ViewModel
         {
             IsLoaded = false;
 
-
-
-
-
             this.SettingsF = settings;
             this.AddPlantViewModelF = addPlant;
             this.IAP = iap;
-            //this.Id = iid;
-
-
-
 
             SelectedItemsChanged = new ReactiveCommand();
             SelectedItemsChanged.Subscribe(p =>
@@ -260,16 +251,8 @@ namespace Growthstories.UI.ViewModel
                 }
             });
 
-
-            //this.GetPlantCommand = new ReactiveCommand();
-            //this.GetPlantPipe = this.GetPlantCommand
-            //    .RegisterAsyncFunction((id) => pvmFactory((Guid)id, this), RxApp.InUnitTestRunner() ? RxApp.MainThreadScheduler : RxApp.TaskpoolScheduler);
-
-
-
             TryAddPlantCommand = new ReactiveCommand();
             TryAddPlantCommand.RegisterAsyncTask(_ => TryAddPlant());
-
 
             this.ShowDetailsCommand = new ReactiveCommand();
             this.ShowDetailsCommand
@@ -308,8 +291,6 @@ namespace Growthstories.UI.ViewModel
                     this.IsPlantSelectionEnabled = false;
 
                 });
-
-
 
 
             this.MultiDeleteCommand = new ReactiveCommand(this.IsNotInProgress);
@@ -361,16 +342,14 @@ namespace Growthstories.UI.ViewModel
             this.WaterPlantsButtonCommand = new ReactiveCommand(notInProgressAndSelected, false);
             this.WaterPlantsButtonCommand.Subscribe(_ => this.MultiWateringCommand.Execute(null));
 
-
-
-            App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
+            subs.Add(App.BackKeyPressedCommand.OfType<CancelEventArgs>().Subscribe(x =>
             {
                 if (this.IsPlantSelectionEnabled)
                 {
                     x.Cancel = true;
                     this.IsPlantSelectionEnabled = false;
                 }
-            });
+            }));
 
             stateObservable
                 .Where(x => x != null)
@@ -380,7 +359,7 @@ namespace Growthstories.UI.ViewModel
                 Init(x, isOwn);
             });
 
-            App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null).Subscribe(x =>
+            subs.Add(App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null).Subscribe(x =>
             {
                 foreach (var p in Plants)
                 {
@@ -388,7 +367,7 @@ namespace Growthstories.UI.ViewModel
                     //this.Log().Info("should plant {0} be fully loaded is now {1}", p.Name, should);
                     p.ShouldBeFullyLoaded = should;
                 }
-            });
+            }));
         }
 
 
@@ -597,7 +576,7 @@ namespace Growthstories.UI.ViewModel
                   });
 
 
-                this.ListenTo<AggregateDeleted>()
+                subs.Add(this.ListenTo<AggregateDeleted>()
                    .Where(x => x.Kind == "plant")
                    .Select(x => this.Plants.FirstOrDefault(y => y.Id == x.AggregateId))
                    .Where(x => x != null)
@@ -613,7 +592,7 @@ namespace Growthstories.UI.ViewModel
                        if (!MultiDeleteList.Contains(x) && SelfDeleteList.Contains(x))
                            this.NavigateBack();
                        //deleteSubscription.Dispose();
-                   });
+                   }));
 
 
                 //this.SettingsF.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x => this.SettingsViewModel = x);
@@ -825,14 +804,21 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-
-        public void Dispose()
+        public override void Dispose()
         {
-            this.FuturePlantsSubscription.Dispose();
+            base.Dispose();
+
+            // allows for GC of plants in case
+            // garden is not GC:d
+            foreach (var p in Plants)
+        {
+                p.Dispose();
+            }
+            _Plants.Clear();
         }
 
 
-    }
+        }
 
 
 

@@ -98,7 +98,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
                 });
 
-            this.WhenAnyValue(x => x.Id)
+            subs.Add(this.WhenAnyValue(x => x.Id)
                 .Where(x => x != default(Guid))
                 .SelectMany(x => this.ListenTo<AggregateDeleted>(x).Take(1))
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -106,7 +106,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 {
                     TileHelper.DeleteTile();
                     //TileHelper.
-                });
+                }));
 
             this.WhenAnyValue(x => x.ProfilePictureAction).Subscribe(x =>
             {
