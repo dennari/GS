@@ -175,6 +175,7 @@ namespace Growthstories.UI.WindowsPhone
             UnhandledException += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
+                e.Handled = true;
                 if (e.ExceptionObject != null)
                     Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
             };
@@ -186,11 +187,11 @@ namespace Growthstories.UI.WindowsPhone
 
             TaskScheduler.UnobservedTaskException += (o, e) =>
             {
+                e.SetObserved();
                 if (Debugger.IsAttached) Debugger.Break();
 
                 if (e.Exception != null)
                     Bootstrap.HandleUnhandledExceptions(e.Exception, this);
-
 
             };
             Task.Run(() =>

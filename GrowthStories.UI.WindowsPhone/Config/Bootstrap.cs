@@ -97,7 +97,6 @@ namespace Growthstories.UI.WindowsPhone
                 app.Log().DebugExceptionExtended("Unhandled", e);
 
 
-
             }
             catch (Exception)
             {

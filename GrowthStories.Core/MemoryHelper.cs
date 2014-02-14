@@ -11,7 +11,7 @@ namespace Growthstories.Core
 
         public static void CollectGarbageForTesting()
         {
-            GC.Collect(2, GCCollectionMode.Forced, true); // useful for testing
+            //GC.Collect(2, GCCollectionMode.Forced, true); // useful for testing
         }
 
     }

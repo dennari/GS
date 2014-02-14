@@ -109,6 +109,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             UpdatePhoneLocationServicesEnabled();
         }
 
+
         public void LogMemory()
         {
             this.Log().Info(
