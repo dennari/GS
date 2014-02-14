@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
 
-using Microsoft.Phone.Tasks;
 using Growthstories.UI.ViewModel;
-using ReactiveUI;
-using Growthstories.UI.WindowsPhone.ViewModels;
-using System.Reactive.Disposables;
-using Telerik.Windows.Controls;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -42,7 +32,8 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(ISignInRegisterViewModel vm)
         {
             base.OnViewModelChanged(vm);
-
+            if (vm == null)
+                return;
             // unfocus any textbox when submitted
             vm.OKCommand.Subscribe(_ => this.Focus());
         }

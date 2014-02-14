@@ -107,6 +107,12 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        IReactiveCommand _NotifyOfPlantCommand;
+        protected IReactiveCommand NotifyOfPlantCommand
+        {
+            get { return _NotifyOfPlantCommand ?? (_NotifyOfPlantCommand = new ReactiveCommand()); }
+        }
+
         protected virtual Task<GSLocation> DoGetLocation()
         {
             throw new NotImplementedException();
@@ -261,6 +267,7 @@ namespace Growthstories.UI.ViewModel
 
             MainWindowLoadedCommand.ObserveOn(RxApp.MainThreadScheduler).Subscribe(x =>
                 {
+
                     var mvm = x as IMainViewModel;
                     if (mvm != null)
                         MainVM = mvm;
@@ -493,7 +500,13 @@ namespace Growthstories.UI.ViewModel
 
                });
 
+
+            NotifyOfPlantCommand.OfType<Guid>().Subscribe(x => FuturePlantBlackList.Add(x));
+
         }
+
+
+        HashSet<Guid> FuturePlantBlackList = new HashSet<Guid>();
 
         #region COMMANDS
 
@@ -1408,7 +1421,7 @@ namespace Growthstories.UI.ViewModel
                .OfType<PlantCreated>()
                .Where(x =>
                {
-                   return x.UserId == userId && !SignInInProgress;
+                   return x.UserId == userId && !SignInInProgress && !FuturePlantBlackList.Contains(x.AggregateId);
                })
                .Select(x =>
                {

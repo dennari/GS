@@ -26,6 +26,9 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(ISearchUsersViewModel vm)
         {
 
+            if (vm == null)
+                return;
+
             var box = UserListBox;
 
             vm.WhenAnyValue(x => x.ProgressIndicatorIsVisible).Subscribe(x =>

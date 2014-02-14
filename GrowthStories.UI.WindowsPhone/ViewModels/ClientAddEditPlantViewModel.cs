@@ -21,8 +21,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             IGSAppViewModel app,
             IObservable<IGardenViewModel> gardenObservable,
             Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> plantF,
+            IReactiveCommand NotifyOfPlantCommand,
             IPlantViewModel current = null)
-            : base(app, gardenObservable, plantF, current)
+            : base(app, gardenObservable, plantF, NotifyOfPlantCommand, current)
         {
 
             this.ChooseProfilePictureCommand.Subscribe(_ => this.PhotoChooser.Show());

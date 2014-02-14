@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using Telerik.Windows.Controls;
-using ReactiveUI.Xaml;
-using ReactiveUI;
-using System.Reactive.Linq;
-using Growthstories.UI.ViewModel;
-using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
-using System.Windows.Controls;
-using System.Reactive.Subjects;
-using System.Reactive;
 using System.Reactive.Disposables;
-using ReactiveUI.Mobile;
-using Growthstories.UI.Services;
+using System.Reactive.Linq;
+using System.Windows;
+using System.Windows.Controls;
 using EventStore.Logging;
+using Growthstories.UI.Services;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
+using Telerik.Windows.Controls;
+using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -41,7 +32,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 var v = (IGSRoutingState)GetValue(RouterProperty);
                 return v;
-        }
+            }
             set
             {
                 SetValue(RouterProperty, value);
@@ -158,9 +149,9 @@ namespace Growthstories.UI.WindowsPhone
                 if (x == null || x is IMainViewModel || x is IPlantSingularViewModel)
                 {
                     if (Content != DefaultContent)
-                {
+                    {
                         //Content = null;
-                    Content = DefaultContent;
+                        Content = DefaultContent;
                     }
                     if (AppVM != null)
                     {
@@ -168,7 +159,7 @@ namespace Growthstories.UI.WindowsPhone
                     }
                     return;
                 }
-                
+
                 var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
                 var view = viewLocator.ResolveView(x, null);
 
@@ -179,11 +170,11 @@ namespace Growthstories.UI.WindowsPhone
                 view.ViewModel = x;
                 try
                 {
-                Content = view;
+                    Content = view;
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn("could not set content for viewModel {0}, view {1}", view.ViewModel, view); 
+                    Logger.Warn("could not set content for viewModel {0}, view {1}", view.ViewModel, view);
                 }
 
                 if (AppVM != null)
@@ -192,7 +183,7 @@ namespace Growthstories.UI.WindowsPhone
                 }
 
                 Growthstories.Core.MemoryHelper.CollectGarbageForTesting();
-                
+
             }, ex => RxApp.DefaultExceptionHandler.OnNext(ex));
         }
     }

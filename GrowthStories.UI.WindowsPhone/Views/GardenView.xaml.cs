@@ -1,22 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
 using System.Windows.Data;
 using EventStore.Logging;
-using System.Windows.Media.Animation;
-using System.Windows.Media;
-using Growthstories.Core;
-using Growthstories.UI.WindowsPhone.ViewModels;
-using System.Reactive.Linq;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -60,7 +49,7 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        public static readonly DependencyProperty CleanUpOnUnloadProperty = 
+        public static readonly DependencyProperty CleanUpOnUnloadProperty =
             DependencyProperty.Register("CleanUpOnUnload", typeof(string), typeof(GardenView), new PropertyMetadata("FALSE"));
 
 
@@ -68,8 +57,8 @@ namespace Growthstories.UI.WindowsPhone
             DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(480));
 
 
-     
-        
+
+
         public string CleanUpOnUnload
         {
             get
@@ -114,21 +103,24 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IGardenViewModel vm)
         {
-           vm.Log().Info("settings mainscroller height to {0}", MainScrollerHeight);
-           MainScroller.Height = MainScrollerHeight;
+            if (vm == null)
+                return;
 
-           OnceLoadedContainer.Visibility = Visibility.Collapsed;
-           BusyIndicator.Visibility = Visibility.Visible;
-           BusyIndicator.IsRunning = true;
+            vm.Log().Info("settings mainscroller height to {0}", MainScrollerHeight);
+            MainScroller.Height = MainScrollerHeight;
 
-           var gvm = vm as GardenViewModel;
-           gvm.WhenAnyValue(x => x.IsLoaded).Where(x => x).Take(1).Subscribe(_ =>
-           {
-               OnceLoadedContainer.Visibility = Visibility.Visible;
-               BusyIndicator.Visibility = Visibility.Collapsed;
-               BusyIndicator.IsRunning = false;
-           });
-            
+            OnceLoadedContainer.Visibility = Visibility.Collapsed;
+            BusyIndicator.Visibility = Visibility.Visible;
+            BusyIndicator.IsRunning = true;
+
+            var gvm = vm as GardenViewModel;
+            gvm.WhenAnyValue(x => x.IsLoaded).Where(x => x).Take(1).Subscribe(_ =>
+            {
+                OnceLoadedContainer.Visibility = Visibility.Visible;
+                BusyIndicator.Visibility = Visibility.Collapsed;
+                BusyIndicator.IsRunning = false;
+            });
+
         }
 
 
@@ -170,7 +162,7 @@ namespace Growthstories.UI.WindowsPhone
                 PlantsSelector.IsSelectionEnabled = false;
                 PlantsSelector.ItemsSource = null;
                 PlantsSelector.SelectionChanged -= PlantsSelector_SelectionChanged;
-                
+
                 ViewHelpers.ClearLongListMultiSelectorDependencyValues(PlantsSelector);
             }
         }

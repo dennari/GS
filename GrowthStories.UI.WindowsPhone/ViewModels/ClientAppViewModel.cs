@@ -284,6 +284,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 this,
                 this.WhenAnyValue(x => x.MyGarden).Where(x => x != null),
                 (t) => PlantViewModelFactory(Observable.Return(t)),
+                NotifyOfPlantCommand,
                 pvm);
         }
 

@@ -19,6 +19,7 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IMainViewModel vm)
         {
+            
             base.OnViewModelChanged(vm);
         }
     }

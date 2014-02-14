@@ -69,12 +69,12 @@ namespace Growthstories.UI.ViewModel
                 SubscribeForNestedIsLoaded();
             });
 
-            if (!OwnGarden) // future plants to own garden are added directly by the return value of AddEditPlantViewModel
-            {
-                FuturePlantsSubscription = App.FuturePlants(u.Id)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(x => IntroducePlant(x));
-            }
+            //if (!OwnGarden) // future plants to own garden are added directly by the return value of AddEditPlantViewModel
+            //{
+            FuturePlantsSubscription = App.FuturePlants(u.Id)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => IntroducePlant(x));
+            //}
         }
 
 
@@ -481,14 +481,15 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
+        private IDisposable CreatedPlantsSubscription = Disposable.Empty;
         protected void AfterIAP(bool bought)
         {
             if (bought)
             {
                 //this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
                 var addPlantVM = App.EditPlantViewModelFactory(null);
-                addPlantVM.CreatedPlants.Take(1).Subscribe(IntroducePlant);
+                CreatedPlantsSubscription.Dispose();
+                CreatedPlantsSubscription = addPlantVM.CreatedPlants.Take(1).Subscribe(IntroducePlant);
                 this.Navigate(addPlantVM);
 
             }
@@ -827,16 +828,10 @@ namespace Growthstories.UI.ViewModel
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            this.FuturePlantsSubscription.Dispose();
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                this.FuturePlantsSubscription.Dispose();
 
-        }
     }
 
 

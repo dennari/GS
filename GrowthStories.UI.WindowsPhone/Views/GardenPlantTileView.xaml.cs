@@ -1,25 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media.Animation;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
-using System.Reactive.Disposables;
-using Microsoft.Phone.Tasks;
-using System.Windows.Media.Animation;
-using System.Windows.Media;
-using GrowthStories.UI.WindowsPhone.BA;
-using EventStore.Logging;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Imaging;
-using Growthstories.UI.WindowsPhone.ViewModels;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -72,6 +58,8 @@ namespace Growthstories.UI.WindowsPhone
             //ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
             //ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
             //ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
+            if (vm == null)
+                return;
 
             subs.Dispose();
             subs = Observable.CombineLatest(
@@ -131,7 +119,7 @@ namespace Growthstories.UI.WindowsPhone
 
             DoubleAnimation wa = new DoubleAnimation();
             wa.Duration = new Duration(TimeSpan.FromSeconds(1.2));
-            wa.BeginTime = TimeSpan.FromSeconds(0.2); 
+            wa.BeginTime = TimeSpan.FromSeconds(0.2);
             wa.From = 0;
             wa.To = 1.0;
             wa.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseInOut };
@@ -154,7 +142,7 @@ namespace Growthstories.UI.WindowsPhone
                 ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
 
-            
+
         }
 
 
@@ -211,7 +199,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             trexStoryboard.Stop();
         }
-    
+
     }
 
 

@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Growthstories.UI.ViewModel;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 using System.Reactive.Disposables;
-using ReactiveUI;
 using System.Reactive.Linq;
+using System.Windows;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -36,6 +29,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
         {
+            if (vm == null)
+                return;
             subs =
                 vm.FilteredActions
                     .ItemsAdded
@@ -93,7 +88,7 @@ namespace Growthstories.UI.WindowsPhone
 
             }
         }
-        
+
 
         ~TimelineLongListSelectorView()
         {

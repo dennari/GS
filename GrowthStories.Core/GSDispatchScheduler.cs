@@ -44,7 +44,7 @@
                 return;
 
             _Started = true;
-            //this.persistence.Initialize();
+            this.persistence.Initialize();
 
             foreach (var commit in this.persistence.GetUndispatchedCommits())
                 this.ScheduleDispatch(commit);

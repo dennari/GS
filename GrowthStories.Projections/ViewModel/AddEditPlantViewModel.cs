@@ -24,12 +24,14 @@ namespace Growthstories.UI.ViewModel
 
         public IPlantViewModel Current { get; protected set; }
         protected readonly HashSet<string> TagSet;
-        private Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> PlantF;
+        private readonly Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> PlantF;
+        private readonly IReactiveCommand NotifyOfPlantCommand;
 
         public AddEditPlantViewModel(
             IGSAppViewModel app,
             IObservable<IGardenViewModel> gardenObservable,
             Func<Tuple<PlantState, ScheduleState, ScheduleState>, IPlantViewModel> plantF,
+            IReactiveCommand NotifyOfPlantCommand,
             IPlantViewModel current = null
             )
             : base(app)
@@ -61,7 +63,7 @@ namespace Growthstories.UI.ViewModel
                 this.TagSet = new HashSet<string>();
                 this.Tags = new ReactiveList<string>();
                 this.PlantF = plantF;
-
+                this.NotifyOfPlantCommand = NotifyOfPlantCommand;
                 if (App.PhoneLocationServicesEnabled && App.GSLocationServicesEnabled)
                 {
                     this.Location = App.LastLocation;
@@ -420,6 +422,9 @@ namespace Growthstories.UI.ViewModel
             ScheduleState fertilizingScheduleState = null;
 
             var plantId = Current == null ? Guid.NewGuid() : Current.Id;
+
+            if (Current == null && NotifyOfPlantCommand != null)
+                NotifyOfPlantCommand.Execute(plantId);
 
             IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
 
