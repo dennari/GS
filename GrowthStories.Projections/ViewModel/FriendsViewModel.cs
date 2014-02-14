@@ -163,12 +163,12 @@ namespace Growthstories.UI.ViewModel
 
             this.TrySearchUsersCommand.Subscribe(_ =>
             {
-                if (Friends.Count >= 7)
+                if (Friends.Count >= 5)
                 {
                     var pvm = new PopupViewModel()
                     {
                         Caption = "Can't follow more users",
-                        Message = "You can only follow 7 users at a time. Please remove some followed users before adding new users to follow.",
+                        Message = "You can only follow 5 users at a time. Please remove some followed users before adding new users to follow.",
                         IsLeftButtonEnabled = true,
                         LeftButtonContent = "OK",
                     };
