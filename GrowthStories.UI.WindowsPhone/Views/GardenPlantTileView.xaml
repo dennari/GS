@@ -38,13 +38,12 @@
 
     </local:GardenPlantTileViewBase.Resources>
 
+
     <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True" x:Name="LayoutRoot" Unloaded="LayoutRoot_Unloaded">
 
-        <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
-            
-            <telerikPrimitives:RadContextMenu.ContextMenu>
+        <telerikPrimitives:RadContextMenu.ContextMenu>
 
-                <telerikPrimitives:RadContextMenu
+            <telerikPrimitives:RadContextMenu
                         Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
                         IsFadeEnabled="True"
                         IsZoomEnabled="False"
@@ -78,6 +77,9 @@
             </telerikPrimitives:RadContextMenu>
         </telerikPrimitives:RadContextMenu.ContextMenu>
 
+
+        <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
+            
 <!--
             Click="Button_Click"
             Tap="Button_Tap"

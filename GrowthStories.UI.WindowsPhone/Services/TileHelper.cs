@@ -168,6 +168,7 @@ namespace Growthstories.UI.WindowsPhone
             }));
 
             subs.Add(Vm.WhenAnyValue(a => a.Photo).Subscribe(_ => TriggerTileUpdate()));
+            subs.Add(Vm.WhenAnyValue(a => a.Name).Subscribe(_ => TriggerTileUpdate()));
 
             // this implementation could not deal with the wateringscheduler
             // being switched
@@ -234,53 +235,6 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }
         }
-
-
-        //public static void SubscribeForTileUpdates(IGardenViewModel garden)
-        //{
-        //    // subscribe to changes of each watering scheduler
-
-        //    garden.Plants.ItemsAdded
-        //        .Subscribe(x =>
-        //        {
-        //            //  watch for watering scheduler updates
-        //            x.WhenAnyValue(z => z.WateringScheduler).Subscribe(u =>
-        //            {
-        //                u.WhenAnyValue(y => y.Missed)
-        //                    .Subscribe(_ =>
-        //                    {
-        //                        UpdateTileAndInfoAfterDelay(x);
-        //                    });
-        //            });
-
-        //            // watch for watering schedule enabled updates
-        //            x.WhenAnyValue(w => w.IsWateringScheduleEnabled).Subscribe(u =>
-        //            {
-        //                UpdateTileAndInfoAfterDelay(x);
-        //            });
-
-
-        //            x.Actions.ItemsAdded.Subscribe(a =>
-        //            {
-        //                if (a.ActionType == PlantActionType.PHOTOGRAPHED)
-        //                {
-        //                    UpdateTileAndInfoAfterDelay(x);
-        //                }
-        //            });
-
-        //            x.Actions.ItemsRemoved.Subscribe(a =>
-        //            {
-        //                if (a.ActionType == PlantActionType.WATERED || a.ActionType == PlantActionType.FERTILIZED)
-        //                {
-        //                    UpdateTileAndInfoAfterDelay(x);
-        //                }
-        //            });
-
-        //            x.WhenAnyValue(a => a.Photo).Subscribe(_ => UpdateTileAndInfoAfterDelay(x));
-        //        });
-
-        //    garden.Plants.ItemsRemoved.Subscribe(x => ClearTileUpdateInfo(x));
-        //}
 
 
         //
