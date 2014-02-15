@@ -88,6 +88,7 @@ namespace Growthstories.UI.WindowsPhone
         public static readonly DependencyProperty OwnGardenProperty =
              DependencyProperty.Register("OwnGarden", typeof(string), typeof(GardenView), new PropertyMetadata("TRUE"));
 
+
         public string OwnGarden
         {
             get
@@ -106,7 +107,7 @@ namespace Growthstories.UI.WindowsPhone
             if (vm == null)
                 return;
 
-            vm.Log().Info("settings mainscroller height to {0}", MainScrollerHeight);
+            vm.Log().Info("setting mainscroller height to {0}", MainScrollerHeight);
             MainScroller.Height = MainScrollerHeight;
 
             OnceLoadedContainer.Visibility = Visibility.Collapsed;
@@ -121,6 +122,11 @@ namespace Growthstories.UI.WindowsPhone
                 BusyIndicator.IsRunning = false;
             });
 
+            gvm.CanBeUnloadedObservable
+                .Take(1)
+                .Delay(TimeSpan.FromMilliseconds(2000)) // allow some time for animation
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => PossiblyCleanUp());
         }
 
 
@@ -155,8 +161,16 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ViewRoot_Unloaded(object sender, RoutedEventArgs e)
         {
+            //Logger.Info("gardenview unloaded for {0}, CleanUpOnUnload is {1}", ViewModel.Username, CleanUpOnUnload);
+        }
 
-            Logger.Info("gardenview unloaded for {0}, CleanUpOnUnload is {1}", ViewModel.Username, CleanUpOnUnload);
+
+        private void PossiblyCleanUp()
+        {
+            Logger.Info("possibly cleaning up gardenview {0}", ViewModel.Username);
+            
+            // the check should be redundant not that this is triggered via the 
+            // observable that has a similar check, but just to be sure
             if (CleanUpOnUnload != null && CleanUpOnUnload.Equals("TRUE"))
             {
                 Logger.Info("cleaning up gardenview {0}", ViewModel.Username);

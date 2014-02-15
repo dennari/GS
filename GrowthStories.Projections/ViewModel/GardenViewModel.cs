@@ -382,9 +382,18 @@ namespace Growthstories.UI.ViewModel
                     p.ShouldBeFullyLoaded = should;
                 }
             }));
+
+            var curr = App.Router.GetCurrentViewModel();
+
+            CanBeUnloadedObservable = App.Router.CurrentViewModel.Where(x => !(x is IFriendsViewModel));
         }
 
 
+        // Signal that the view corresponding to this viewmodel can be unloaded
+        //
+        public IObservable<IRoutableViewModel> CanBeUnloadedObservable { get; set; }
+
+        
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
             string msg;
