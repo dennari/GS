@@ -64,6 +64,26 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            var viewPort = this.GetTemplateChild("Scroller");
+
+            if (viewPort != null)
+            {
+                var vp = viewPort as ScrollViewer;
+                if (vp != null)
+                {
+                    this.ScrollViewer = vp;
+                }
+            }
+        }
+
+
+
+        public ScrollViewer ScrollViewer { get; protected set; }
     }
 
     public class GSListPicker : ListPicker

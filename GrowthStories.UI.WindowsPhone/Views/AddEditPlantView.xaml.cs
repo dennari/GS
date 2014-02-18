@@ -48,6 +48,22 @@ namespace Growthstories.UI.WindowsPhone
             SIPHelper.SIPGotHidden(SIPPlaceHolder);
         }
 
+        protected override void OnViewModelChanged(IAddEditPlantViewModel vm)
+        {
+            //base.OnViewModelChanged(vm);
+
+            //this.ViewGrid.
+        }
+
+        private void ViewGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            var scroller = this.ViewGrid.ScrollViewer;
+            if (scroller != null)
+            {
+                scroller.ScrollToVerticalOffset(0);
+            }
+        }
+
 
         /*
         private void TagBox_IconTapped(object sender, EventArgs e)

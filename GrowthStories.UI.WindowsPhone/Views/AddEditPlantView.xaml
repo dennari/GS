@@ -129,9 +129,11 @@
 
 
     <local:GSViewGrid
+        x:Name="ViewGrid"
         TopTitle="GROWTH STORIES"
 		Title="{Binding Title}"
         Margin="0,0,0,72"
+        Loaded="ViewGrid_Loaded"
         >
 
         <!-- 

@@ -344,7 +344,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Hidden">
+                        <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Hidden" x:Name="Scroller">
                                 <Grid Margin="24,20,24,24" HorizontalAlignment="Stretch">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>

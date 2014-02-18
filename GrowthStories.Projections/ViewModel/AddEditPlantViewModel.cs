@@ -153,8 +153,29 @@ namespace Growthstories.UI.ViewModel
                     this.FertilizingSchedule.Changed)
                 .Select(_ => this.IsValid());
 
-            this.AddCommand.RegisterAsyncTask((_) => this.AddTask()).Publish().Connect();
+
+            this.AddPlantCommand = new ReactiveCommand(CanExecute, false);
+            this.AddPlantCommand.Subscribe(_ => Counter++);
+            this.AddPlantCommand.RegisterAsyncTask((_) => this.AddTask()).Subscribe(x =>
+            {
+
+                if (Counter > 1) // only allow a single execution
+                    return;
+
+                if (x != null)
+                    CreatedPlantsSubject.OnNext(PlantF(x));
+
+
+                this.App.Router.NavigateBack.Execute(null);
+                this.Log().Info("AddTask end");
+            });
+
+
         }
+
+        private int Counter = 0;
+
+        public ReactiveCommand AddPlantCommand { get; protected set; }
 
 
         private bool _ShowLocation;
@@ -226,6 +247,8 @@ namespace Growthstories.UI.ViewModel
 
         protected bool IsValid()
         {
+            if (Counter > 0)
+                return false;
             int valid = 0;
             if (!string.IsNullOrWhiteSpace(Name))
                 valid++;
@@ -414,93 +437,95 @@ namespace Growthstories.UI.ViewModel
         public override void AddCommandSubscription(object p)
         { }
 
-        public async Task<Guid> AddTask()
+        public Task<Tuple<PlantState, ScheduleState, ScheduleState>> AddTask()
         {
-
-            PlantState plantState = null;
-            ScheduleState wateringScheduleState = null;
-            ScheduleState fertilizingScheduleState = null;
-
-            var plantId = Current == null ? Guid.NewGuid() : Current.Id;
-
-            if (Current == null && NotifyOfPlantCommand != null)
-                NotifyOfPlantCommand.Execute(plantId);
-
-            IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
-
-            if (this.Current == null)
+            if (Counter > 1) return Task.FromResult((Tuple<PlantState, ScheduleState, ScheduleState>)null);
+            var task = Task.Run(async () =>
             {
+                this.Log().Info("AddTask start");
+                PlantState plantState = null;
+                ScheduleState wateringScheduleState = null;
+                ScheduleState fertilizingScheduleState = null;
 
-                plantState = ((Plant)(await App.HandleCommand(new CreatePlant(plantId, this.Name, App.User.GardenId, App.User.Id)))).State;
-                await App.HandleCommand(new AddPlant(App.User.GardenId, plantId, App.User.Id, this.Name));
-            }
-            else if (current.Name != this.Name)
-            {
-                await App.HandleCommand(new SetName(plantId, this.Name));
-            }
+                var plantId = Current == null ? Guid.NewGuid() : Current.Id;
 
-            if (current.Species != this.Species)
-            {
-                await App.HandleCommand(new SetSpecies(plantId, this.Species));
-            }
-            if (current.IsShared != this.IsShared)
-            {
-                if (this.IsShared == true)
+                if (Current == null && NotifyOfPlantCommand != null)
+                    NotifyOfPlantCommand.Execute(plantId);
+
+                IPlantViewModel current = Current ?? EmptyPlantViewModel.Instance; // just to have some default values to compare to
+
+                if (this.Current == null)
                 {
-                    await App.HandleCommand(new MarkPlantPublic(plantId));
 
+                    plantState = ((Plant)(await App.HandleCommand(new CreatePlant(plantId, this.Name, App.User.GardenId, App.User.Id)))).State;
+                    await App.HandleCommand(new AddPlant(App.User.GardenId, plantId, App.User.Id, this.Name));
                 }
-                else
+                else if (current.Name != this.Name)
                 {
-                    await App.HandleCommand(new MarkPlantPrivate(plantId));
-
+                    await App.HandleCommand(new SetName(plantId, this.Name));
                 }
-            }
-            if (current.IsWateringScheduleEnabled != this.IsWateringScheduleEnabled)
-                await App.HandleCommand(new ToggleSchedule(plantId, this.IsWateringScheduleEnabled, ScheduleType.WATERING));
 
-            if (current.IsFertilizingScheduleEnabled != this.IsFertilizingScheduleEnabled)
-                await App.HandleCommand(new ToggleSchedule(plantId, this.IsFertilizingScheduleEnabled, ScheduleType.FERTILIZING));
+                if (current.Species != this.Species)
+                {
+                    await App.HandleCommand(new SetSpecies(plantId, this.Species));
+                }
+                if (current.IsShared != this.IsShared)
+                {
+                    if (this.IsShared == true)
+                    {
+                        await App.HandleCommand(new MarkPlantPublic(plantId));
 
-            IScheduleViewModel schedule = this.FertilizingSchedule;
-            if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsFertilizingScheduleEnabled)
-            {
-                fertilizingScheduleState = (await schedule.Create()).State;
-                await App.HandleCommand(new SetFertilizingSchedule(plantId, fertilizingScheduleState.Id));
-            }
-            schedule = this.WateringSchedule;
-            if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsWateringScheduleEnabled)
-            {
-                wateringScheduleState = (await schedule.Create()).State;
-                await App.HandleCommand(new SetWateringSchedule(plantId, wateringScheduleState.Id));
-            }
+                    }
+                    else
+                    {
+                        await App.HandleCommand(new MarkPlantPrivate(plantId));
 
-            if (this.Photo != null && current.Photo != this.Photo)
-            {
-                var plantActionId = Guid.NewGuid();
-                await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
-                await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
-                await App.HandleCommand(new SetProfilepicture(plantId, plantActionId));
-            }
+                    }
+                }
+                if (current.IsWateringScheduleEnabled != this.IsWateringScheduleEnabled)
+                    await App.HandleCommand(new ToggleSchedule(plantId, this.IsWateringScheduleEnabled, ScheduleType.WATERING));
 
-            if (!this.TagSet.SetEquals(this.Tags))
-            {
-                await App.HandleCommand(new SetTags(plantId, new HashSet<string>(this.Tags)));
-            }
+                if (current.IsFertilizingScheduleEnabled != this.IsFertilizingScheduleEnabled)
+                    await App.HandleCommand(new ToggleSchedule(plantId, this.IsFertilizingScheduleEnabled, ScheduleType.FERTILIZING));
 
-            if (this.Location != null && current.Location != this.Location)
-            {
-                await App.HandleCommand(new SetLocation(plantId, this.Location));
-            }
+                IScheduleViewModel schedule = this.FertilizingSchedule;
+                if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsFertilizingScheduleEnabled)
+                {
+                    fertilizingScheduleState = (await schedule.Create()).State;
+                    await App.HandleCommand(new SetFertilizingSchedule(plantId, fertilizingScheduleState.Id));
+                }
+                schedule = this.WateringSchedule;
+                if ((!schedule.Id.HasValue || schedule.HasChanged) && this.IsWateringScheduleEnabled)
+                {
+                    wateringScheduleState = (await schedule.Create()).State;
+                    await App.HandleCommand(new SetWateringSchedule(plantId, wateringScheduleState.Id));
+                }
 
-            //if (this.App.Router.NavigationStack.Count > 1)
-            if (plantState != null)
-            {
-                CreatedPlantsSubject.OnNext(PlantF(Tuple.Create(plantState, wateringScheduleState, fertilizingScheduleState)));
-            }
+                if (this.Photo != null && current.Photo != this.Photo)
+                {
+                    var plantActionId = Guid.NewGuid();
+                    await App.HandleCommand(new CreatePlantAction(plantActionId, App.User.Id, plantId, PlantActionType.PHOTOGRAPHED, null) { Photo = this.Photo });
+                    await App.HandleCommand(new SchedulePhotoUpload(this.Photo, plantActionId));
+                    await App.HandleCommand(new SetProfilepicture(plantId, plantActionId));
+                }
 
-            this.App.Router.NavigateBack.Execute(null);
-            return plantId;
+                if (!this.TagSet.SetEquals(this.Tags))
+                {
+                    await App.HandleCommand(new SetTags(plantId, new HashSet<string>(this.Tags)));
+                }
+
+                if (this.Location != null && current.Location != this.Location)
+                {
+                    await App.HandleCommand(new SetLocation(plantId, this.Location));
+                }
+
+                //if (this.App.Router.NavigationStack.Count > 1)
+
+
+                return plantState != null ? Tuple.Create(plantState, wateringScheduleState, fertilizingScheduleState) : null;
+            });
+            task.ConfigureAwait(continueOnCapturedContext: false);
+            return task;
         }
 
 
@@ -511,7 +536,24 @@ namespace Growthstories.UI.ViewModel
             get { return CreatedPlantsSubject; }
         }
 
-
+        protected new ReactiveList<IButtonViewModel> _AppBarButtons;
+        public new IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
+        {
+            get
+            {
+                if (_AppBarButtons == null)
+                    _AppBarButtons = new ReactiveList<IButtonViewModel>()
+                    {
+                        new ButtonViewModel(null)
+                        {
+                            Text = "save",
+                            IconType = IconType.CHECK,
+                            Command = AddPlantCommand
+                        }
+                    };
+                return _AppBarButtons;
+            }
+        }
 
 
         public override string UrlPathSegment

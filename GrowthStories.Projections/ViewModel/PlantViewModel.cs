@@ -239,7 +239,7 @@ namespace Growthstories.UI.ViewModel
                 vm.WhenAnyValue(x => x.Photo).Subscribe(x =>
                 {
                     if (x != null)
-                        vm.AddCommand.Execute(null);
+                        vm.AddCommand.Execute(true);
                 });
                 //vm.AddCommand.Execute(null);
             });
@@ -531,7 +531,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             var emptyWatering = CreateEmptyActionVM(PlantActionType.WATERED);
-            this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(null));
+            this.WateringCommand.Subscribe(_ => emptyWatering.AddCommand.Execute(true));
 
 
             if (HasWriteAccess)

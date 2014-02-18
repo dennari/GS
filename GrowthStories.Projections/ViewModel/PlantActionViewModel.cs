@@ -9,6 +9,7 @@ using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
+using System.Reactive.Subjects;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -174,6 +175,7 @@ namespace Growthstories.UI.ViewModel
             if (state != null)
             {
                 this.Note = state.Note;
+                this.OriginalNote = this.Note;
                 this.TimelineFirstLine = state.Note;
                 this.WeekDay = SharedViewHelpers.FormatWeekDay(state.Created);
                 this.Date = state.Created.ToString("d");
@@ -187,6 +189,10 @@ namespace Growthstories.UI.ViewModel
                 }));
 
                 this.NoState = false;
+                this.CanExecute = this.WhenAnyValue(x => x.Note, x => x.Count, (x, y) => x).Select(x =>
+                {
+                    return x != OriginalNote && (type != PlantActionType.COMMENTED || (x != null && x.Length > 0));
+                });
 
             }
             else
@@ -197,6 +203,8 @@ namespace Growthstories.UI.ViewModel
                 this.Time = now.ToString("t");
                 this.Created = now;
                 this.NoState = true;
+                this.CanExecute = this.WhenAnyValue(x => x.Note, x => x.Count, (x, y) => x).Select(x => type != PlantActionType.COMMENTED || (x != null && x.Length > 0));
+
 
                 // I wonder if setting Created here is a problem,
                 // for some reason it has been avoided before
@@ -276,11 +284,30 @@ namespace Growthstories.UI.ViewModel
                     break;
             }
 
+            App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
+            {
+                if (this.Note != null)
+                {
+                    char[] c = new char[Note.Length];
+
+                    for (int i = 0; i < Note.Length; i++)
+                    {
+                        c[i] = Note[i];
+                    }
+                    this.OriginalNote = new String(c);
+
+                }
+                this.Count = 0;
+
+            });
+
             this.DeleteCommand
                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.PlantActionId, kind)))
                .Publish()
                .Connect();
+
         }
+
 
 
 
@@ -330,9 +357,50 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_AddCommand == null)
                 {
-                    _AddCommand = new ReactiveCommand(this.CanExecute == null ? Observable.Return(true) : this.CanExecute, false);
+
+                    var canExecute = this.CanExecute == null ? Observable.Return(true) : this.CanExecute;
+                    var canExecuteAndNotBusy = Observable.CombineLatest(canExecute, InFlight.StartWith(false), (a, b) => a && !b).DistinctUntilChanged();
+                    canExecuteAndNotBusy.Subscribe(x =>
+                    {
+                        this.Log().Info("CanExecuteAndNotBusy {0}", x);
+                    });
+
+                    _AddCommand = new ReactiveCommand(canExecuteAndNotBusy, this.State != null ? false : true);
                     _AddCommand.Subscribe(this.AddCommandSubscription);
-                    var obs = _AddCommand.RegisterAsyncTask(AsyncAddCommand).Publish();
+
+                    //var obs = _AddCommand.RegisterAsyncTask(AsyncAddCommand).Publish();
+                    var obs = _AddCommand
+                        .Where(x =>
+                        {
+
+                            // if the command has been called with "true", we'll skip the multicreate test
+                            try
+                            {
+                                var xx = (bool)x;
+                                if (xx)
+                                    return true;
+                            }
+                            catch { }
+                            return Count == 0;
+
+                        })
+                        .Do(_ => Count++)
+                        .SelectMany(async x =>
+                        {
+                            IGSAggregate R = null;
+                            using (await ALock.LockAsync())
+                            {
+
+                                this.InFlight.OnNext(true);
+                                R = await AsyncAddCommand(x);
+                                this.InFlight.OnNext(false);
+
+                            }
+                            return R;
+
+                        })
+                        .Publish();
+
                     this.AsyncAddObservable = obs.Select(_ => this);
                     obs.Connect();
 
@@ -341,7 +409,22 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
+        private int _Count;
+        protected int Count
+        {
+            get
+            {
+                return _Count;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Count, value);
+            }
+        }
 
+
+        protected AsyncLock ALock = new AsyncLock();
+        protected Subject<bool> InFlight = new Subject<bool>();
 
         protected virtual Task<IGSAggregate> AsyncAddCommand(object _)
         {
@@ -370,7 +453,7 @@ namespace Growthstories.UI.ViewModel
             {
                 return App.HandleCommand(new SetPlantActionProperty(this.PlantActionId)
                 {
-                    Note = this.Note == State.Note ? null : this.Note,
+                    Note = this.Note == OriginalNote ? null : this.Note,
                     Photo = this.Photo == State.Photo ? null : this.Photo,
                     Value = this.Value == State.Value ? null : this.Value,
                     MeasurementType = this.MeasurementType
@@ -388,6 +471,9 @@ namespace Growthstories.UI.ViewModel
             if (prop.Note != null)
                 this.Note = prop.Note;
         }
+
+
+        protected string OriginalNote;
 
         protected string _Note;
         public string Note
@@ -590,16 +676,15 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x => this.Value = dValue);
             PreviousMeasurement = null;
 
-            this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, x => x.Note, (x, y, z) => Tuple.Create(x, y, z))
-              .Select(x =>
-              {
+            if (state == null) // when we're editing, the baseclass stuff is just fine
+            {
 
-                  if (state != null) // we are editing
+                this.CanExecute = this.WhenAnyValue(x => x.Value, x => x.MeasurementType, (x, y) => Tuple.Create(x, y))
+                  .Select(x =>
                   {
-                      return x.Item3 != state.Note; // check if note has been changed
-                  }
-                  return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
-              });
+                      return x.Item1.HasValue && x.Item2 != MeasurementType.NOTYPE;
+                  });
+            }
 
 
             var defaultMeasurementType = MeasurementTypeHelper.Options[state != null ? state.MeasurementType : MeasurementType.LENGTH];
@@ -949,11 +1034,7 @@ namespace Growthstories.UI.ViewModel
                 throw new InvalidCastException();
             this.Icon = IconType.PHOTO;
 
-            this.CanExecute = Observable.CombineLatest(
-                this.WhenAnyValue(x => x.Photo),
-                this.WhenAnyValue(x => x.Note),
-                (x, y) => state != null ? (x != null && (x != state.Photo || y != state.Note)) : x != null
-            );
+
 
             if (state != null)
             {
@@ -971,6 +1052,10 @@ namespace Growthstories.UI.ViewModel
                 }
                 CanChooseNewPhoto = false;
                 this.Photo = photo;
+            }
+            else
+            {
+                this.CanExecute = this.WhenAnyValue(x => x.Photo).Select(x => x != null);
             }
 
             this.OpenZoomView.Subscribe(x =>

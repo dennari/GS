@@ -393,7 +393,7 @@ namespace Growthstories.UI.ViewModel
         //
         public IObservable<IRoutableViewModel> CanBeUnloadedObservable { get; set; }
 
-        
+
         public IPopupViewModel MultiDeleteConfirmation(int count)
         {
             string msg;
@@ -491,7 +491,7 @@ namespace Growthstories.UI.ViewModel
                 //this.WhenAnyValue(x => x.AddPlantViewModel).Take(1).Subscribe(this.Navigate);
                 var addPlantVM = App.EditPlantViewModelFactory(null);
                 CreatedPlantsSubscription.Dispose();
-                CreatedPlantsSubscription = addPlantVM.CreatedPlants.Take(1).Subscribe(IntroducePlant);
+                CreatedPlantsSubscription = addPlantVM.CreatedPlants.Take(1).ObserveOn(RxApp.MainThreadScheduler).Subscribe(IntroducePlant);
                 this.Navigate(addPlantVM);
 
             }
