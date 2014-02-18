@@ -39,7 +39,7 @@
     </local:GardenPlantTileViewBase.Resources>
 
 
-    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True" x:Name="LayoutRoot" Unloaded="LayoutRoot_Unloaded">
+    <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True" x:Name="LayoutRoot" Unloaded="LayoutRoot_Unloaded" Loaded="LayoutRoot_Loaded">
 
         <telerikPrimitives:RadContextMenu.ContextMenu>
 

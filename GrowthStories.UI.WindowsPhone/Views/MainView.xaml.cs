@@ -80,5 +80,11 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private void TextBlock_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            //ViewModel.FriendsVM.ItemTappedCommand.Execute(null);
+        }
+
+
     }
 }

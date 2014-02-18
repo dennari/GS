@@ -14,6 +14,8 @@ using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using System.Reactive.Disposables;
 using System.Windows.Input;
+using EventStore.Logging;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
