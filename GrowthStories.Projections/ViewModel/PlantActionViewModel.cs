@@ -284,7 +284,7 @@ namespace Growthstories.UI.ViewModel
                     break;
             }
 
-            App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
+            subs.Add(App.Router.CurrentViewModel.Where(x => x == this).Subscribe(_ =>
             {
                 if (this.Note != null)
                 {
@@ -299,7 +299,7 @@ namespace Growthstories.UI.ViewModel
                 }
                 this.Count = 0;
 
-            });
+            }));
 
             this.DeleteCommand
                .RegisterAsyncTask((_) => App.HandleCommand(new DeleteAggregate(this.PlantActionId, kind)))

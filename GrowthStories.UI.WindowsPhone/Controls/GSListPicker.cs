@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using EventStore.Logging;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -65,19 +66,27 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        private static ILog Logger = LogFactory.BuildLogger(typeof(GSViewGrid));
+
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-
-            var viewPort = this.GetTemplateChild("Scroller");
-
-            if (viewPort != null)
+            try
             {
-                var vp = viewPort as ScrollViewer;
-                if (vp != null)
+                var viewPort = this.GetTemplateChild("Scroller");
+
+                if (viewPort != null)
                 {
-                    this.ScrollViewer = vp;
+                    var vp = viewPort as ScrollViewer;
+                    if (vp != null)
+                    {
+                        this.ScrollViewer = vp;
+                    }
                 }
+            }
+            catch
+            {
+                Logger.Warn("could not get scroller for gslistpicker");
             }
         }
 
@@ -253,6 +262,9 @@ namespace Growthstories.UI.WindowsPhone
 
     public class GSLongListSelector : LongListSelector
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(GSLongListSelector));
+
         public GSLongListSelector()
         {
             SelectionChanged += LongListSelector_SelectionChanged;
@@ -331,17 +343,25 @@ namespace Growthstories.UI.WindowsPhone
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-
-            var viewPort = this.GetTemplateChild("ViewportControl");
-
-            if (viewPort != null)
+            try
             {
-                var vp = viewPort as ViewportControl;
-                if (vp != null)
+                var viewPort = this.GetTemplateChild("ViewportControl");
+
+                if (viewPort != null)
                 {
-                    this.ViewPort = vp;
+                    var vp = viewPort as ViewportControl;
+                    if (vp != null)
+                    {
+                        this.ViewPort = vp;
+                    }
                 }
+
             }
+            catch
+            {
+                Logger.Warn("could not get viewport for longlistselector");
+            }
+            
         }
 
         //protected override 
