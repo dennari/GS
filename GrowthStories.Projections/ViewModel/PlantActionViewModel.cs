@@ -1116,9 +1116,11 @@ namespace Growthstories.UI.ViewModel
         public override void SetProperty(PlantActionPropertySet prop)
         {
             base.SetProperty(prop);
-            this.Photo = prop.Photo;
+            if (prop.Photo != null)
+            {
+                this.Photo = prop.Photo;
+            }
         }
-
 
 
         public IReactiveCommand PhotoTimelineTap { get; protected set; }
