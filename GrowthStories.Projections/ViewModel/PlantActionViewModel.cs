@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using Growthstories.Sync;
 using ReactiveUI;
-using System.Reactive.Subjects;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -569,7 +569,19 @@ namespace Growthstories.UI.ViewModel
 
 
 
-        public IObservable<IPlantActionViewModel> AsyncAddObservable { get; protected set; }
+        private IObservable<IPlantActionViewModel> _AsyncAddObservable;
+        public IObservable<IPlantActionViewModel> AsyncAddObservable
+        {
+            get
+            {
+                return _AsyncAddObservable;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AsyncAddObservable, value);
+            }
+        }
+
     }
 
 

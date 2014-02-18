@@ -760,7 +760,13 @@ namespace Growthstories.UI.ViewModel
                 a.ActionIndex++;
             }
 
-            subs.Add(x.AddCommand.Subscribe(_ => this.PlantActionEdited.Execute(x)));
+            subs.Add(x.WhenAnyValue(y => y.AsyncAddObservable)
+                .Where(y => y != null)
+                .Take(1)
+                .Merge()
+                .Where(y => y != null)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => this.NavigateBack()));
 
             subs.Add(x.DeleteCommand.Subscribe(_ =>
             {
