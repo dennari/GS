@@ -143,7 +143,10 @@ namespace Growthstories.UI.ViewModel
             var isNotThisObs = App.WhenAnyObservable(x => x.Router.CurrentViewModel).Select(x => x != this);
 
             this.ItemTappedCommand = new ReactiveCommand(isNotThisObs);
-            this.ItemTappedCommand.Subscribe(_ => this.Navigate(this));
+            this.ItemTappedCommand.Subscribe(_ => 
+                
+                this.Navigate(this)
+                );
 
             subs.Add(isNotThisObs.Subscribe(x =>
             {

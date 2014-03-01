@@ -200,6 +200,16 @@ namespace Growthstories.UI.WindowsPhone
             trexStoryboard.Stop();
         }
 
+
+        private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (Opened)
+            {
+                trexStoryboard.Begin();
+            }
+        }
+ 
+
     }
 
 

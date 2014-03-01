@@ -18,6 +18,7 @@
     <UserControl.Resources>
         <DataTemplate x:Key="ListUsersTemplate">
             <TextBlock 
+            Tap="TextBlock_Tap"
             Style="{StaticResource GSTextBlockStyle}"
             Foreground="White"
             Text="{Binding Username}"               
@@ -185,8 +186,8 @@
                         x:Name="FriendsSelector"
                         ItemsSource="{Binding Friends}"
                         ItemTemplate="{StaticResource ListUsersTemplate}"                        
-                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
                         ItemTappedCommand="{Binding ItemTappedCommand, Converter={StaticResource WeakCommandBinding}}"
+                        SelectedItem="{Binding SelectedItem,Mode=TwoWay}" 
                         Visibility="{Binding Friends.Count, Converter={StaticResource NonZeroToVisibility}}"                        
                         />
 

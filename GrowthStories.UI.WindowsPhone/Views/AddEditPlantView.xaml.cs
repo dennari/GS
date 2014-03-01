@@ -14,6 +14,8 @@ using ReactiveUI;
 using Growthstories.UI.WindowsPhone.ViewModels;
 using System.Reactive.Disposables;
 using System.Windows.Input;
+using EventStore.Logging;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -26,6 +28,9 @@ namespace Growthstories.UI.WindowsPhone
 
     public partial class AddPlantView : AddPlantViewBase
     {
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(AddPlantView));
+
 
         public AddPlantView()
         {
@@ -55,13 +60,18 @@ namespace Growthstories.UI.WindowsPhone
             //this.ViewGrid.
         }
 
+
         private void ViewGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            var scroller = this.ViewGrid.ScrollViewer;
-            if (scroller != null)
+            try
             {
-                scroller.ScrollToVerticalOffset(0);
+                var scroller = this.ViewGrid.ScrollViewer;
+                if (scroller != null)
+                {
+                    scroller.ScrollToVerticalOffset(0);
+                }
             }
+            catch { Logger.Warn("could not scroll addeditplantview"); }
         }
 
 
