@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-
-using Microsoft.Phone.Tasks;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
-using Growthstories.UI.WindowsPhone.ViewModels;
-using System.Reactive.Disposables;
-using System.Windows.Input;
 using EventStore.Logging;
+using Growthstories.UI.ViewModel;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -55,14 +45,13 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void OnViewModelChanged(IAddEditPlantViewModel vm)
         {
-            //base.OnViewModelChanged(vm);
 
-            //this.ViewGrid.
+
         }
 
-
-        private void ViewGrid_Loaded(object sender, RoutedEventArgs e)
+        private async Task ScrollToTopAfterDelay(TimeSpan delay)
         {
+            await Task.Delay(delay);
             try
             {
                 var scroller = this.ViewGrid.ScrollViewer;
@@ -72,6 +61,21 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }
             catch { Logger.Warn("could not scroll addeditplantview"); }
+        }
+
+
+        private void ViewGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Schedule_Click(object sender, RoutedEventArgs e)
+        {
+            var s = sender as FrameworkElement;
+            if (s != null)
+            {
+                this.ViewModel.ScheduleIntervalTappedCommand.Execute(s.DataContext);
+            }
         }
 
 

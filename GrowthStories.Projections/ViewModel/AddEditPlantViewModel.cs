@@ -132,14 +132,14 @@ namespace Growthstories.UI.ViewModel
             //this.WhenAny(x => x.Name, x => x.Species, (name, species) => this.FormatPlantTitle(name.GetValue(), species.GetValue()))
             //    .ToProperty(this, x => x.PlantTitle, out this._PlantTitle, null);
 
-            this.WhenAnyValue(x => x.IsWateringScheduleEnabled)
-                .Skip(1)
-                .Where(x => x)
-                .Subscribe(_ => this.Navigate(this.WateringSchedule));
-            this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled)
-                .Skip(1)
-                .Where(x => x)
-                .Subscribe(_ => this.Navigate(this.FertilizingSchedule));
+            //this.WhenAnyValue(x => x.IsWateringScheduleEnabled)
+            //    .Skip(1)
+            //    .Where(x => x)
+            //    .Subscribe(_ => this.Navigate(this.WateringSchedule));
+            //this.WhenAnyValue(x => x.IsFertilizingScheduleEnabled)
+            //    .Skip(1)
+            //    .Where(x => x)
+            //    .Subscribe(_ => this.Navigate(this.FertilizingSchedule));
 
             UpdateShowLocation();
 
@@ -170,12 +170,18 @@ namespace Growthstories.UI.ViewModel
                 this.Log().Info("AddTask end");
             });
 
+            this.ScheduleIntervalTappedCommand = new ReactiveCommand();
+            this.ScheduleIntervalTappedCommand
+                .Where(x => x != null)
+                .OfType<IRoutableViewModel>()
+                .Subscribe(x => this.Navigate(x));
 
         }
 
         private int Counter = 0;
 
         public ReactiveCommand AddPlantCommand { get; protected set; }
+        public IReactiveCommand ScheduleIntervalTappedCommand { get; protected set; }
 
 
         private bool _ShowLocation;

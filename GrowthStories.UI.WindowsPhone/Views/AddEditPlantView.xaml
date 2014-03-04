@@ -93,13 +93,24 @@
                         Text="On" 
                         Grid.Column="0" 
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                <Button 
+                    Grid.Column="1"
+                    toolkit:TiltEffect.IsTiltEnabled="True"
+                    Click="Schedule_Click"
+                    Style="{StaticResource GSButtonStyle}"
+                    Margin="0,4,0,0"
+                    >
                     <TextBlock 
-                        TextAlignment="Left"
+                        FontFamily="{StaticResource GSAppTitleFont}"
+                        FontSize="24"
+                        TextAlignment="Left"                        
                         HorizontalAlignment="Left"
-                        Text="{Binding IntervalLabel}" 
-                        Grid.Column="1"
+                        VerticalAlignment="Bottom"
+                        Text="{Binding IntervalLabel}"                        
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                </Button>
                 </Grid>
+            <!-- Text="{Binding IntervalLabel}" -->
         </DataTemplate>
 
         <DataTemplate x:Key="IsSharedTemplate">
@@ -186,64 +197,80 @@
                 Label="location" 
                 Margin="0,6,0,0" >
 
-                <Grid>
+                <Grid Margin="0,24,0,12">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="70" />
                     </Grid.ColumnDefinitions>
-                      
-                    <StackPanel Margin="0,18,0,0" Grid.Column="0">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                        <!--<StackPanel Margin="0,18,0,0" Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">-->
                             <TextBlock 
-                                Style="{StaticResource GSTextBlockStyle}"
+                                Grid.Column="0"
+                                Grid.Row="0"
+                                Foreground="WhiteSmoke"
+                                Margin="0,0,0,0"
+                                FontSize="32"
+                                FontFamily="{StaticResource GSInputLabelFont}"
+                                HorizontalAlignment="Stretch"
+                                Text="Lat."
+                                />
+
+                            <TextBlock 
+                                Grid.Column="1"
                                 Foreground="WhiteSmoke"
                                 Margin="0,0,0,0"
                                 FontSize="24"
-                                FontWeight="Bold"
-                                HorizontalAlignment="Stretch"
-                                Text="Latitude"
-                                />
-
-                            <TextBlock 
-                                Style="{StaticResource GSTextBlockStyle}"
-                                Foreground="WhiteSmoke"
-                                Margin="12,0,0,0"
-                                FontSize="24"
                                 FontWeight="Normal"
-                                HorizontalAlignment="Stretch"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
                                 Text="{Binding Location, Converter={StaticResource LocationToFriendlyLatitude}}"
                                 />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock 
-                                Style="{StaticResource GSTextBlockStyle}"
+                            <!-- 
+                                Text="{Binding Location, Converter={StaticResource LocationToFriendlyLatitude}}"
+                            
+                            -->
+                        <!--</StackPanel>
+                        <StackPanel Orientation="Horizontal">-->
+                            <TextBlock
+                                Grid.Row="1"
                                 Foreground="WhiteSmoke"
-                                Margin="0,0,0,32"
-                                FontSize="24"
-                                FontWeight="Bold"
+                                Margin="0,0,0,0"
+                                FontSize="32"
+                                FontFamily="{StaticResource GSInputLabelFont}"
                                 HorizontalAlignment="Stretch"
-                                Text="Longitude"
+                                Text="Long."
                                 />
                             <TextBlock 
-                                Style="{StaticResource GSTextBlockStyle}"
+                                Grid.Row="1"
+                                Grid.Column="1"
                                 Foreground="WhiteSmoke"
-                                Margin="12,0,0,32"
+                                Margin="0,0,0,0"
                                 FontSize="24"
-                                FontWeight="Normal"
-                                HorizontalAlignment="Stretch"
-                                Text="{Binding Location, Converter={StaticResource LocationToFriendlyLongitude}}"
+                                FontWeight="Normal"                                
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                 Text="{Binding Location, Converter={StaticResource LocationToFriendlyLongitude}}"
                                 />
-                        </StackPanel>
-                    </StackPanel>
+                        <!--</StackPanel>
+                    </StackPanel>-->
 
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" Margin="0,18,0,0" VerticalAlignment="Top">
-                        <Button 
-                        Command="{Binding UpdateLocationCommand}"
+                    <!--<StackPanel Grid.Column="1" HorizontalAlignment="Right" Margin="0,18,0,0" VerticalAlignment="Top">-->
+                        <Button
+                            Grid.RowSpan="2"
+                            Grid.Column="2"
+                            Command="{Binding UpdateLocationCommand}"
                             toolkit:TiltEffect.IsTiltEnabled="True"
-                        Height="70" Width="70" Style="{StaticResource GSRoundButtonStyle}" Grid.Column="1" BorderThickness="3" BorderBrush="White">
+                            Height="70" Width="70" 
+                            Style="{StaticResource GSRoundButtonStyle}" 
+                            BorderThickness="3" BorderBrush="White">
                             <Image Source="/Assets/Icons/icon_refresh.png" Stretch="Uniform"/>
                         </Button>
-                    </StackPanel>
+                    <!--</StackPanel>-->
 
                 </Grid>
           
@@ -349,6 +376,8 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="White"
+                                        FontFamily="{StaticResource GSAppTitleFont}"
+                                        FontSize="24"
                                         Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
                                         />
                                 <Border BorderThickness="3" IsHitTestVisible="False">

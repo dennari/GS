@@ -18,6 +18,7 @@ namespace Growthstories.UI.ViewModel
         IReactiveCommand AddTag { get; }
         IReactiveCommand RemoveTag { get; }
         IReactiveCommand ChooseFertilizingSchedule { get; }
+        IReactiveCommand ScheduleIntervalTappedCommand { get; }
         IReactiveList<string> Tags { get; }
         IScheduleViewModel WateringSchedule { get; }
         IScheduleViewModel FertilizingSchedule { get; }
