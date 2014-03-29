@@ -92,7 +92,6 @@ namespace Growthstories.Sync
         public async Task<GSStatusCode> PrepareAuthorizedUser(SyncHead head)
         {
 
-
             // if we have not yet pushed the CreateUser event,
             // do that before obtaining auth token
             var res = RequestF.GetNextPushEvent(head);
@@ -156,6 +155,13 @@ namespace Growthstories.Sync
         {
             var request = await CreateSyncRequest(appState);
 
+            if (request.Status == SyncStatus.AUTH_ERROR)
+            {
+                this.Log().Warn("Aborting synchronize as authentication failed");
+                request.Code = GSStatusCode.FAIL;
+                return request;
+            }
+
             try
             {
                 var ret = await _Synchronize(request, appState);
@@ -196,7 +202,7 @@ namespace Growthstories.Sync
             bool handlePull = false;
             IPhotoDownloadRequest[] downloadRequests = s.PhotoDownloadRequests;
 
-            if (!s.PullReq.IsEmpty)
+            if (s.PullReq != null && !s.PullReq.IsEmpty)
             {
                 var pullResp = await s.Pull();
                 if (pullResp != null
@@ -228,7 +234,7 @@ namespace Growthstories.Sync
             }
 
 
-            if (!s.PushReq.IsEmpty)
+            if (s.PushReq != null && !s.PushReq.IsEmpty)
             {
                 if (handlePull)
                 {
@@ -265,7 +271,7 @@ namespace Growthstories.Sync
             }
 
 
-            if (s.PhotoUploadRequests.Length > 0 && appState != null)
+            if (s.PhotoUploadRequests != null && s.PhotoUploadRequests.Length > 0 && appState != null)
             {
                 var responses = await s.UploadPhotos();
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)
@@ -282,7 +288,7 @@ namespace Growthstories.Sync
             }
 
 
-            if (downloadRequests.Length > 0 && appState != null)
+            if (downloadRequests != null && downloadRequests.Length > 0 && appState != null)
             {
                 var responses = await s.DownloadPhotos(downloadRequests);
                 var successes = responses.Where(x => x.StatusCode == GSStatusCode.OK)

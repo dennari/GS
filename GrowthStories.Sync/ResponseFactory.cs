@@ -46,39 +46,47 @@ namespace Growthstories.Sync
 
             if (r.StatusCode == GSStatusCode.OK)
             {
-                var helper = jFactory.Deserialize<HelperPullResponse>(resp.Item2);
-                //r.SyncStamp = helper.SyncStamp;
-
-                if (helper.Streams != null && helper.Streams.Count > 0)
+                try
                 {
+                    var helper = jFactory.Deserialize<HelperPullResponse>(resp.Item2);
+                    //r.SyncStamp = helper.SyncStamp;
 
-                    r.Projections = helper.Streams
-                        .Where(x => x.ErrorCode == "OK")
-                        .Select(x =>
-                        {
-                            try
+                    if (helper.Streams != null && helper.Streams.Count > 0)
+                    {
+
+                        r.Projections = helper.Streams
+                            .Where(x => x.ErrorCode == "OK")
+                            .Select(x =>
                             {
-                                x.Stream.Segments = Translator.In(x.DTOs)
-                                    .Select(y => (IStreamSegment)(new StreamSegment(y)))
-                                    .ToDictionary(y => y.AggregateId);
+                                try
+                                {
+                                    x.Stream.Segments = Translator.In(x.DTOs)
+                                        .Select(y => (IStreamSegment)(new StreamSegment(y)))
+                                        .ToDictionary(y => y.AggregateId);
 
-                                x.Stream.NextSince = x.NextSince;
-                                return x.Stream;
+                                    x.Stream.NextSince = x.NextSince;
+                                    return x.Stream;
 
-                            }
-                            catch
-                            {
-                                Logger.Info("skipping out-of-sequence stream {0} {1}", x.Stream.StreamId, x.Stream.AncestorId);
+                                }
+                                catch
+                                {
+                                    Logger.Info("skipping out-of-sequence stream {0} {1}", x.Stream.StreamId, x.Stream.AncestorId);
 
-                            }
-                            // TODO/JOJ: is empty try catch and returning null a good idea?
-                            return null;
-                        })
-                        .Where(x => x != null)
-                        .ToArray();
-
-                    //r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();
+                                }
+                                // TODO/JOJ: is empty try catch and returning null a good idea?
+                                return null;
+                            })
+                            .Where(x => x != null)
+                            .ToArray();
+                        //r.Streams = r.Projections.SelectMany(x => x.Segments.Values).ToArray();
+                    }
                 }
+                catch
+                {
+                    Logger.Warn("Invalid pull response");
+                    r.StatusCode = GSStatusCode.FAIL;
+                }
+
             }
             //r.Translate = () => r.Streams = Translator.In(r.DTOs);
             return r;
@@ -90,11 +98,11 @@ namespace Growthstories.Sync
             try
             {
                 var ret = jFactory.Deserialize<HttpPushResponse>(resp.Item2);
-
                 return ret;
             }
             catch
             {
+                Logger.Warn("Invalid push response");
                 return new HttpPushResponse()
                 {
                     StatusCode = GSStatusCode.FAIL
@@ -109,13 +117,23 @@ namespace Growthstories.Sync
 
             if (r.StatusCode == GSStatusCode.OK)
             {
-                r.AuthToken = jFactory.Deserialize<AuthToken>(resp.Item2);
-                if (string.IsNullOrWhiteSpace(r.AuthToken.AccessToken)
-                    || string.IsNullOrWhiteSpace(r.AuthToken.RefreshToken)
-                    || r.AuthToken.ExpiresIn < 60)
-                    throw new InvalidOperationException();
+                try
+                {
+                    r.AuthToken = jFactory.Deserialize<AuthToken>(resp.Item2);
+                    if (string.IsNullOrWhiteSpace(r.AuthToken.AccessToken)
+                        || string.IsNullOrWhiteSpace(r.AuthToken.RefreshToken)
+                        || r.AuthToken.ExpiresIn < 60)
+                    {
+                        Logger.Warn("Invalid auth response");
+                        r.StatusCode = GSStatusCode.FAIL;
+                    }
+                }
+                catch
+                {
+                    Logger.Warn("Invalid auth response (could not parse json)");
+                    r.StatusCode = GSStatusCode.FAIL;
+                }
             }
-
             return r;
         }
 
@@ -126,7 +144,15 @@ namespace Growthstories.Sync
 
             if (r.StatusCode == GSStatusCode.OK)
             {
-                r.Users = jFactory.Deserialize<List<RemoteUser>>(resp.Item2);
+                try
+                {
+                    r.Users = jFactory.Deserialize<List<RemoteUser>>(resp.Item2);
+                }
+                catch
+                {
+                    Logger.Warn("Invalid user list response");
+                    r.StatusCode = GSStatusCode.FAIL;
+                }
             }
 
             return r;
@@ -139,13 +165,21 @@ namespace Growthstories.Sync
 
             if (resp.Item1.IsSuccessStatusCode)
             {
-                ret = jFactory.Deserialize<APIRegisterResponse>(resp.Item2);
-
+                try
+                {
+                    ret = jFactory.Deserialize<APIRegisterResponse>(resp.Item2);
+                }
+                catch
+                {
+                    Logger.Info("Received invalid register response");
+                    ret = new APIRegisterResponse();
+                    ret.HttpStatus = HttpStatusCode.InternalServerError;
+                    return ret;
+                }
             }
             else
             {
                 ret = new APIRegisterResponse();
-
             }
             ret.HttpStatus = resp.Item1.StatusCode;
 
@@ -158,6 +192,7 @@ namespace Growthstories.Sync
             //var r = CreateWithStatusCode<UserListResponse>(resp.Item1);
             if (resp.Item1.IsSuccessStatusCode)
             {
+                // TODO: what if serialization fails?
                 return jFactory.Deserialize<RemoteUser>(resp.Item2);
             }
 
@@ -165,10 +200,9 @@ namespace Growthstories.Sync
             throw new FileNotFoundException("Error occured when trying to retrieve info for user");
         }
 
+
         T CreateWithStatusCode<T>(HttpResponseMessage resp) where T : HttpResponse, new()
         {
-
-
             return new T()
             {
                 StatusCode = GetGSStatusCode(resp.StatusCode)
@@ -235,11 +269,16 @@ namespace Growthstories.Sync
                 r.PlantActionId = req.PlantActionId;
                 r.Photo.BlobKey = resp.Item2;
                 r.BlobKey = resp.Item2;
+
+                if (resp.Item2 == null || resp.Item2.Length < 5)
+                {
+                    Logger.Info("Photo upload response was invalid");
+                    r.StatusCode = GSStatusCode.FAIL;
+                }
             }
             return r;
-
-
         }
+
 
         public IPhotoDownloadResponse CreatePhotoDownloadResponse(IPhotoDownloadRequest req, HttpResponseMessage resp)
         {
@@ -261,11 +300,7 @@ namespace Growthstories.Sync
                     StatusCode = sc
                 };
             }
-
-
             return R;
-
-
         }
 
 

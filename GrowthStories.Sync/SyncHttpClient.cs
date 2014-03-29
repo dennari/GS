@@ -132,12 +132,10 @@ namespace Growthstories.Sync
 
         public async Task<APIRegisterResponse> RegisterAsync(string username, string email, string password)
         {
-
             Tuple<HttpResponseMessage, string> response = null;
             using (var rrequest = new HttpRequestMessage(HttpMethod.Post, Endpoint.RegisterUri(username, email, password)))
             using ((response = await SendAndGetBodyAsync(rrequest)).Item1)
                 return ResponseFactory.CreateRegisterResponse(response);
-
         }
 
 
@@ -174,7 +172,10 @@ namespace Growthstories.Sync
                 {
                     StatusCode = GSStatusCode.FAIL
                 };
-                if (response.Item1.IsSuccessStatusCode)
+                if (response.Item1.IsSuccessStatusCode 
+                    && response.Item2 != null 
+                    && response.Item2.StartsWith("http") 
+                    && response.Item2.Length > 10)
                 {
                     r.PhotoUri = new Uri(response.Item2, UriKind.Absolute);
                     r.StatusCode = GSStatusCode.OK;
