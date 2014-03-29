@@ -426,6 +426,9 @@
     <Content Include="Assets\Icons\icon_soil_humidity_appbar.png" />
     <Content Include="Assets\Icons\NoImage.png" />
     <Content Include="Assets\Icons\NoImageNoText.png" />
+    <Content Include="SplashScreenImage.Screen-720p.jpg" />
+    <Content Include="SplashScreenImage.Screen-WVGA.jpg" />
+    <Content Include="SplashScreenImage.Screen-WXGA.jpg" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>

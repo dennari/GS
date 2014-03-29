@@ -39,7 +39,11 @@ namespace Growthstories.UI.WindowsPhone.Services
                 if (IsWvga) return Resolutions.WVGA;
                 else if (IsWxga) return Resolutions.WXGA;
                 else if (IsHD) return Resolutions.HD;
-                else throw new InvalidOperationException("Unknown resolution");
+
+                // is this not fucking dangerous?
+                //else throw new InvalidOperationException("Unknown resolution");
+
+                else return Resolutions.HD;
             }
         }
 

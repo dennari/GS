@@ -87,7 +87,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <phone:Panorama.Background>
-                <ImageBrush Stretch="UniformToFill" >
+                <ImageBrush>
                     <ImageBrush.ImageSource>
                         <BitmapImage 
                                     UriSource="/Assets/Bg/garden_all.jpg"

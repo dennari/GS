@@ -65,7 +65,7 @@
                 <local:PlantSingularViewBase
                     DataContext="{Binding PlantSingularVM}">
 
-                    <Grid Height="800">
+                    <Grid>
 
                         <Grid.Background>
                             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>

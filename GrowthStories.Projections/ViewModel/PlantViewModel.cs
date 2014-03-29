@@ -1277,7 +1277,7 @@ namespace Growthstories.UI.ViewModel
                         },
                         new ButtonViewModel(null)
                         {
-                            Text = "photograph",
+                            Text = "photo",
                             IconType = IconType.PHOTO,
                             Command = this.PhotoCommand
                         },

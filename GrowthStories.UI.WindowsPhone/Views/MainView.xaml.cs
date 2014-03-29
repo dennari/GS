@@ -11,10 +11,10 @@ namespace Growthstories.UI.WindowsPhone
 
     public class MainViewBase : GSView<IMainViewModel>
     {
+
         public MainViewBase()
         {
             this.SetBinding(ViewModelProperty, new Binding());
-
         }
 
         protected override void OnViewModelChanged(IMainViewModel vm)

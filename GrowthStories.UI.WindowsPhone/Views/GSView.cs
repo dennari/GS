@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using EventStore.Logging;
-
+using Growthstories.UI.WindowsPhone.Services;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -50,11 +50,19 @@ namespace Growthstories.UI.WindowsPhone
             // set Height = Double.NaN, which sets height to Auto
             //
             //  -- JOJ 22.12.2013
-            if ((int)Math.Round(Height) != 800)
+
+            var supposedHeight = 800;
+            switch (ResolutionHelper.CurrentResolution)
             {
-                Height = 800;
+                case Resolutions.HD:
+                    supposedHeight = 854;
+                    break;
             }
 
+            if ((int)Math.Round(Height) != supposedHeight)
+            {
+                Height = supposedHeight;
+            }
         }
 
 

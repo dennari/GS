@@ -125,20 +125,22 @@
             AppVM="{Binding}"
             Transition="{StaticResource GSTurnStile}">
 	
+            
+            
             <local:AGSRoutedViewHost.DefaultContent>
 
-                <local:MainViewBase x:Name="MainView" DataContext="{Binding MainVM}">
-                       <!--LayoutRoot contains the root grid where all other page content is placed-->
-                    <Grid x:Name="LayoutRoot">
-                        <phone:Panorama Grid.Row="1" x:Name="MyPanorama">
+                <local:MainViewBase x:Name="MainView" DataContext="{Binding MainVM}" Background="Blue" VerticalAlignment="Stretch">
+                        
+                    <phone:Panorama Grid.Row="1" x:Name="MyPanorama" VerticalAlignment="Stretch">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
                                     <i:InvokeCommandAction Command="{Binding PageChangedCommand, Mode=OneWay}"
 												CommandParameter="{Binding SelectedIndex, ElementName=MyPanorama, Mode=OneWay}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
+                           
                             <phone:Panorama.Background>
-                                <ImageBrush Stretch="UniformToFill" >
+                                <ImageBrush>
                                     <ImageBrush.ImageSource>
                                         <BitmapImage 
                                     UriSource="/Assets/Bg/garden_all.jpg"
@@ -147,6 +149,7 @@
                                     </ImageBrush.ImageSource>
                                 </ImageBrush>
                             </phone:Panorama.Background>
+                            
                             <phone:Panorama.Title>
                                 <Image 
 					Source="/Assets/Bg/panorama_logo.png" 
@@ -241,9 +244,9 @@
 
                         </phone:Panorama>
 
-
+                    <!--
                     </Grid>
-
+                    -->
                 </local:MainViewBase>
 
             </local:AGSRoutedViewHost.DefaultContent>
