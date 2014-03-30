@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
@@ -146,6 +147,7 @@ namespace Growthstories.UI.WindowsPhone
             {
 
                 this.IsBackTransition = AppVM != null && AppVM.NavigatingBack;
+
                 if (x == null || x is IMainViewModel || x is IPlantSingularViewModel)
                 {
                     if (Content != DefaultContent)
@@ -160,13 +162,36 @@ namespace Growthstories.UI.WindowsPhone
                     return;
                 }
 
-                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
-                var view = viewLocator.ResolveView(x, null);
 
-                if (view == null)
+                var viewLocator = ViewLocator ?? ReactiveUI.ViewLocator.Current;
+
+                IViewFor view = null;
+                try
                 {
-                    throw new Exception(String.Format("Couldn't find view for '{0}'.", x));
+                    view = viewLocator.ResolveView(x, null);
+                    if (view == null)
+                    {
+                        throw new Exception(String.Format("Couldn't find view for '{0}'.", x));
+                    }
+
                 }
+                catch (Exception ee)
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                    }
+                    Logger.Warn("could not resolve view for {0}: {1}", x, ee.Message);
+                    var c = this.Router.NavigationStack.Count;
+                    if (c > 0)
+                    {
+                        // Let's remove the failed navigation attempt from the stack
+                        this.Router.NavigationStack.RemoveAt(c - 1);
+                    }
+                    return;
+                }
+
+
                 view.ViewModel = x;
                 try
                 {

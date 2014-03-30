@@ -18,8 +18,6 @@ using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Storage;
-using System.Reactive;
-using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -251,6 +249,9 @@ namespace Growthstories.UI.WindowsPhone
             //RxUIResolver.RegisterLazySingleton(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
             RxUIResolver.Register(() => new FriendsPivotView(), typeof(IViewFor<IFriendsViewModel>));
 
+            //Task.Run(async () =>
+            //{
+            //    await Task.Delay(12000);
             GSViewLocator.Instance.ViewModelToViewModelInterfaceFunc = T =>
             {
                 if (T is IGardenPivotViewModel)
@@ -286,6 +287,7 @@ namespace Growthstories.UI.WindowsPhone
                 return T.GetType();
 
             };
+            //});
 
             Logger.Info("gsviewlocator viewmodeltoviewmodelinterfacefunc is now set");
         }
