@@ -1,12 +1,7 @@
-﻿using ReactiveUI;
-using System;
+﻿using System;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Runtime.Serialization;
-using System.Windows.Input;
+using ReactiveUI;
 
 namespace Growthstories.UI.Services
 {
@@ -87,7 +82,9 @@ namespace Growthstories.UI.Services
                     throw new Exception("Navigate must be called on an IRoutableViewModel");
                 }
 
-                NavigationStack.Add(vm);
+
+                if (vm != NavigationStack.LastOrDefault())
+                    NavigationStack.Add(vm);
             });
 
             NavigateAndReset = new NavigationReactiveCommand();
