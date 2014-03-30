@@ -199,6 +199,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\GSLocalLog.cs" />
     <Compile Include="Services\GSDebuggerLog.cs" />
     <Compile Include="Services\ResolutionHelper.cs" />
     <Compile Include="ViewModels\MockClientAppViewModel.cs" />

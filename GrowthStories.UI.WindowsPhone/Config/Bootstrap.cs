@@ -18,6 +18,8 @@ using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Storage;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -64,6 +66,12 @@ namespace Growthstories.UI.WindowsPhone
 
             BAConfiguration();
             ViewModelConfiguration();
+
+            // delay viewconfiguration for debugging purposes
+            //var cmd = new ReactiveCommand();
+            //cmd.Delay(TimeSpan.FromSeconds(5)).Subscribe(_ => ViewConfiguration());
+            //cmd.Execute(null);
+
             ViewConfiguration();
         }
 
@@ -216,7 +224,6 @@ namespace Growthstories.UI.WindowsPhone
 
 
 
-
         protected virtual void ViewConfiguration()
         {
 
@@ -279,6 +286,8 @@ namespace Growthstories.UI.WindowsPhone
                 return T.GetType();
 
             };
+
+            Logger.Info("gsviewlocator viewmodeltoviewmodelinterfacefunc is now set");
         }
     }
 

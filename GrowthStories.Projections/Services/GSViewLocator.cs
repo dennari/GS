@@ -16,6 +16,7 @@ namespace Growthstories.UI.Services
         {
             get { return _Instance ?? (_Instance = new GSViewLocator()); }
         }
+
         public GSViewLocator()
         {
 
@@ -38,9 +39,12 @@ namespace Growthstories.UI.Services
         public IViewFor ResolveView<T>(T viewModel, string contract = null)
             where T : class
         {
+            this.Log().Info("in resolveview for {0}, {1}", viewModel, contract);
+
             using (var ret = ResolveLock.LockAsync().Result)
             {
                 var viewType = typeof(IViewFor<>);
+                this.Log().Info("viewtype is {0}", viewType);
 
                 var gvm = viewModel as IGardenPivotViewModel;
                 if (gvm != null)
@@ -58,7 +62,14 @@ namespace Growthstories.UI.Services
                     return pivotViews[gvm];
                 }
 
-                return attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+                this.Log().Info("viewtype is {0}", viewType);
+                var vmif = ViewModelToViewModelInterfaceFunc(viewModel);
+                this.Log().Info("vmif is {0}", vmif);
+                var gt = viewType.MakeGenericType(vmif);
+                this.Log().Info("gt is {0}", gt);
+                var r = attemptToResolveView(gt, null);
+                this.Log().Info("r is {0}", r);
+                return r;
             }
         }
 

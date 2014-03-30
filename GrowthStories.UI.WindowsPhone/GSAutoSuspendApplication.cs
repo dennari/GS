@@ -201,8 +201,9 @@ namespace Growthstories.UI.WindowsPhone
                 //var kernelElapsed = stopwatch.Elapsed;
                 //stopwatch.Restart();
                 this.Kernel = new StandardKernel(Bootstrap.GetModule(this));
-
                 this.ViewModel = Kernel.Get<IApplicationRootState>();
+
+                this.Log().Info("Loaded?");
                 //var appVmElapsed = stopwatch.Elapsed;
                 //stopwatch.Stop();
             });
