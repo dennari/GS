@@ -1,14 +1,11 @@
-﻿using Growthstories.Domain.Messaging;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using ReactiveUI;
 using System.Reactive.Linq;
-using Growthstories.Domain.Entities;
-using Growthstories.Core;
 using System.Threading.Tasks;
+using Growthstories.Domain.Entities;
+using Growthstories.Domain.Messaging;
 using Growthstories.UI.Services;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -21,8 +18,9 @@ namespace Growthstories.UI.ViewModel
         private readonly ScheduleState ScheduleState;
         public Guid? Id { get; private set; }
 
+        protected ReactiveCommand _OtherScheduleSelected = new ReactiveCommand();
+        public ReactiveCommand OtherScheduleSelected { get { return _OtherScheduleSelected; } }
 
-        private TimeSpan? LastInterval;
 
         public ScheduleViewModel(ScheduleState state, ScheduleType scheduleType, IGSAppViewModel app)
             : base(app)
@@ -46,9 +44,8 @@ namespace Growthstories.UI.ViewModel
 
             });
 
-            this.WhenAny(x => x.SelectedCopySchedule, x => x.GetValue()).Where(x => x != null).OfType<Tuple<IPlantViewModel, IScheduleViewModel>>().Subscribe(x =>
+            OtherScheduleSelected.OfType<Tuple<IPlantViewModel, IScheduleViewModel>>().Subscribe(x =>
             {
-                LastInterval = x.Item2.Interval;
                 this.Interval = x.Item2.Interval;
             });
 
@@ -75,18 +72,6 @@ namespace Growthstories.UI.ViewModel
                 this.Id = state.Id;
         }
 
-
-        public void ScheduleSelected()
-        {
-            this.Interval = LastInterval;
-
-            //var schedule = SelectedCopySchedule as IScheduleViewModel;
-            //
-            //if (schedule != null)
-            //{
-            //    
-            //}
-        }
 
 
         protected TimeSpan? _Interval;

@@ -94,7 +94,7 @@ namespace Growthstories.UI.ViewModel
                 );
 
                 this.FertilizingSchedule.OtherSchedules = new ReactiveList<Tuple<IPlantViewModel, IScheduleViewModel>>(
-                 garden.Plants.Where(x => x.FertilizingSchedule != null && x.FertilizingSchedule.Interval.HasValue).Select(x => Tuple.Create(x, x.FertilizingSchedule))
+                 garden.Plants.Where(x => x.FertilizingSchedule != null && x.FertilizingSchedule.Interval.HasValue && (this.Current == null || this.Current.Id != x.Id)).Select(x => Tuple.Create(x, x.FertilizingSchedule))
                );
             });
 

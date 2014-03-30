@@ -88,11 +88,11 @@
                 Visibility="{Binding HasOtherSchedules, Converter={StaticResource BooleanToVisibility}}">
                 <local:GSLongListSelector
                     ItemsSource="{Binding OtherSchedules}"
-                    SelectedItem="{Binding SelectedCopySchedule, Mode=TwoWay}"
+                    ItemTappedCommand="{Binding OtherScheduleSelected}"
                     >
                     <local:GSLongListSelector.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="-12, 20, -12, 0" toolkit:TiltEffect.IsTiltEnabled="True" Tap="Grid_Tap">
+                            <Grid Margin="-12, 20, -12, 0" toolkit:TiltEffect.IsTiltEnabled="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="240" />
                                     <ColumnDefinition Width="*" />

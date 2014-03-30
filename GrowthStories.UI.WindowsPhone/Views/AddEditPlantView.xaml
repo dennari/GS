@@ -15,7 +15,7 @@
    
     mc:Ignorable="d">
     <UserControl.Resources>
-        
+
         <!--
         <ItemsPanelTemplate x:Key="TagsPanelTemplate">
             <StackPanel Orientation="Horizontal"/>
@@ -74,20 +74,20 @@
             </Grid>
         </ControlTemplate>
         -->
-        
+
         <DataTemplate x:Key="ScheduleTemplate">
-                <Grid Margin="0,0,0,10" Width="340">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock 
+            <Grid Margin="0,0,0,10" Width="340">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock 
                         TextAlignment="Left"
                         HorizontalAlignment="Left"
                         Text="Off" 
                         Grid.Column="0" 
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}, ConverterParameter=neg}"/>
-                    <TextBlock 
+                <TextBlock 
                         TextAlignment="Left"
                         HorizontalAlignment="Left"
                         Text="On" 
@@ -98,6 +98,7 @@
                     toolkit:TiltEffect.IsTiltEnabled="True"
                     Click="Schedule_Click"
                     Style="{StaticResource GSButtonStyle}"
+                    HorizontalContentAlignment="Left"
                     Margin="0,4,0,0"
                     >
                     <TextBlock 
@@ -109,7 +110,7 @@
                         Text="{Binding IntervalLabel}"                        
                         Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
                 </Button>
-                </Grid>
+            </Grid>
             <!-- Text="{Binding IntervalLabel}" -->
         </DataTemplate>
 
@@ -150,29 +151,29 @@
         <!-- 
         <local:GSViewGrid.Background>
             <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/plant_bg.jpg"/>
-        </local:GSViewGrid.Background> -->              
-                      
-            <StackPanel Grid.Row="1">
-                <!-- NAME -->
-                <local:GSLabel Label="name">
-                    <local:GSTextBox Text="{Binding Name, Mode=TwoWay}" 
+        </local:GSViewGrid.Background> -->
+
+        <StackPanel Grid.Row="1">
+            <!-- NAME -->
+            <local:GSLabel Label="name">
+                <local:GSTextBox Text="{Binding Name, Mode=TwoWay}" 
                             x:Name="NameTextBox"
                             GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus"
                             local:BindingUtility.UpdateSourceOnChange="True" Margin="-12,0,-12,0" />
-                </local:GSLabel>
-                   
-                <!-- GENUS -->
-                <local:GSLabel Label="species" Margin="0,6,0,0">
+            </local:GSLabel>
+
+            <!-- GENUS -->
+            <local:GSLabel Label="species" Margin="0,6,0,0">
                 <local:GSTextBox Text="{Binding Species, Mode=TwoWay}" 
                                 x:Name="SpeciesTextBox"
                                 GotFocus="GSTextBox_GotFocus" LostFocus="GSTextBox_LostFocus" 
                                 local:BindingUtility.UpdateSourceOnChange="True"
                                 Margin="-12,0,-12,0"     
                                      />
-                </local:GSLabel>
-                            
-                <!-- Tags -->
-                <!--
+            </local:GSLabel>
+
+            <!-- Tags -->
+            <!--
                 <local:GSLabel Label="tags">
                     <toolkit:AutoCompleteBox 
                         VerticalAlignment="Top" 
@@ -199,17 +200,17 @@
 
                 <Grid Margin="0,24,0,12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="90" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="70" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                        <!--<StackPanel Margin="0,18,0,0" Grid.Column="0">
+                    <!--<StackPanel Margin="0,18,0,0" Grid.Column="0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">-->
-                            <TextBlock 
+                    <TextBlock 
                                 Grid.Column="0"
                                 Grid.Row="0"
                                 Foreground="WhiteSmoke"
@@ -220,23 +221,23 @@
                                 Text="Lat."
                                 />
 
-                            <TextBlock 
+                    <TextBlock 
                                 Grid.Column="1"
                                 Foreground="WhiteSmoke"
-                                Margin="0,0,0,0"
+                                Margin="0"
                                 FontSize="24"
                                 FontWeight="Normal"
-                                HorizontalAlignment="Center"
+                                HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Text="{Binding Location, Converter={StaticResource LocationToFriendlyLatitude}}"
                                 />
-                            <!-- 
+                    <!-- 
                                 Text="{Binding Location, Converter={StaticResource LocationToFriendlyLatitude}}"
                             
                             -->
-                        <!--</StackPanel>
+                    <!--</StackPanel>
                         <StackPanel Orientation="Horizontal">-->
-                            <TextBlock
+                    <TextBlock
                                 Grid.Row="1"
                                 Foreground="WhiteSmoke"
                                 Margin="0,0,0,0"
@@ -245,64 +246,62 @@
                                 HorizontalAlignment="Stretch"
                                 Text="Long."
                                 />
-                            <TextBlock 
+                    <TextBlock 
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 Foreground="WhiteSmoke"
-                                Margin="0,0,0,0"
                                 FontSize="24"
                                 FontWeight="Normal"                                
-                                HorizontalAlignment="Center"
+                                HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
-                                 Text="{Binding Location, Converter={StaticResource LocationToFriendlyLongitude}}"
+                                Text="{Binding Location, Converter={StaticResource LocationToFriendlyLongitude}}"
                                 />
-                        <!--</StackPanel>
+                    <!--</StackPanel>
                     </StackPanel>-->
 
                     <!--<StackPanel Grid.Column="1" HorizontalAlignment="Right" Margin="0,18,0,0" VerticalAlignment="Top">-->
-                        <Button
+                    <Button
                             Grid.RowSpan="2"
                             Grid.Column="2"
                             Command="{Binding UpdateLocationCommand}"
-                            toolkit:TiltEffect.IsTiltEnabled="True"
-                            Height="70" Width="70" 
+                            toolkit:TiltEffect.IsTiltEnabled="True" 
                             Style="{StaticResource GSRoundButtonStyle}" 
-                            BorderThickness="3" BorderBrush="White">
-                            <Image Source="/Assets/Icons/icon_refresh.png" Stretch="Uniform"/>
-                        </Button>
+                            BorderThickness="3" BorderBrush="White" Margin="0,3">
+                        <Image Source="/Assets/Icons/icon_refresh.png" Stretch="Uniform"/>
+                    </Button>
                     <!--</StackPanel>-->
 
                 </Grid>
-          
+
             </local:GSLabel>
 
             <local:GSLabel Label="watering schedule" Margin="0,6,0,0">
-                        <local:GSToggleSwitch
+                <local:GSToggleSwitch
                             IsChecked="{Binding IsWateringScheduleEnabled, Mode=TwoWay}"
                             Content="{Binding WateringSchedule}"
                             ContentTemplate="{StaticResource ScheduleTemplate}"
                             VerticalContentAlignment="Center"
                             Margin="-12,0,-12,-12"
                             />
-                </local:GSLabel>
-                <local:GSLabel Label="nourishing schedule">
-                        <local:GSToggleSwitch 
+            </local:GSLabel>
+            <local:GSLabel Label="nourishing schedule">
+                <local:GSToggleSwitch 
                             IsChecked="{Binding IsFertilizingScheduleEnabled, Mode=TwoWay}"
                             Content="{Binding FertilizingSchedule}"
                             ContentTemplate="{StaticResource ScheduleTemplate}"
                             VerticalContentAlignment="Center"
                             Margin="-12,0,-12,-12"
                             />
-                </local:GSLabel>
-                <local:GSLabel Label="shared">
-                    <local:GSToggleSwitch 
+            </local:GSLabel>
+            <local:GSLabel Label="shared">
+                <local:GSToggleSwitch 
                                 IsChecked="{Binding IsShared, Mode=TwoWay}"
                                 Content="{Binding}"
                                 ContentTemplate="{StaticResource IsSharedTemplate}"
                                 VerticalContentAlignment="Center"
                                 Margin="-12,0,-12,-12"
                                 />
-                </local:GSLabel>
+            </local:GSLabel>
 
             <TextBlock 
                 Style="{StaticResource GSTextBlockStyle}"
@@ -314,14 +313,14 @@
                 TextWrapping="Wrap"
                 />
 
-     
+
             <!-- PROFILE PICTURE -->
-                 <local:GSLabel 
+            <local:GSLabel 
                      Label="profile photo"
                      Visibility="{Binding Current, Converter={StaticResource NullToVisibility}, ConverterParameter=inv}"
                      >
 
-                    <c4f:Tile
+                <c4f:Tile
                         BorderBrush="WhiteSmoke"
                         HorizontalAlignment="Left"
                         Width="198"
@@ -332,47 +331,47 @@
                         c4f:TiltEffect.IsTiltEnabled="True"
                         Background="Transparent">
 
-                            <Grid >
-                                <Grid.Triggers>
-                                    <EventTrigger RoutedEvent="Canvas.Loaded" >
-                                        <BeginStoryboard>
-                                            <Storyboard 
+                    <Grid >
+                        <Grid.Triggers>
+                            <EventTrigger RoutedEvent="Canvas.Loaded" >
+                                <BeginStoryboard>
+                                    <Storyboard 
 						    x:Name="trexStoryboard" 
 						    AutoReverse="True" 
 						    RepeatBehavior="Forever">
-                                                <DoubleAnimationUsingKeyFrames 
+                                        <DoubleAnimationUsingKeyFrames 
 							    Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)"
 							    Storyboard.TargetName="Img">
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:1"/>
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:30" Value="-198"/>
-                                                    <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198" />
-                                                </DoubleAnimationUsingKeyFrames>
-                                                <DoubleAnimationUsingKeyFrames 
+                                            <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                                            <SplineDoubleKeyFrame KeyTime="0:0:30" Value="-198"/>
+                                            <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames 
 							    Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)"
 							    Storyboard.TargetName="Img">
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:1"/>
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:30"/>
-                                                    <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198"/>
-                                                </DoubleAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Grid.Triggers>
+                                            <SplineDoubleKeyFrame KeyTime="0:0:1"/>
+                                            <SplineDoubleKeyFrame KeyTime="0:0:30"/>
+                                            <SplineDoubleKeyFrame KeyTime="0:1:0" Value="-198"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Grid.Triggers>
 
-                                <Canvas Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}">
-                                    <Image
+                        <Canvas Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}}">
+                            <Image
                                         x:Name="Img"
                                         Width="396" Height="396"
 	        		                    Source="{Binding Profilepicture}" 
                                         Stretch="UniformToFill"
                                         >
 
-                                        <Image.RenderTransform>
-                                            <CompositeTransform/>
-                                        </Image.RenderTransform>
-                                    </Image>
-                                </Canvas>
-                                <TextBlock Text="select" 
+                                <Image.RenderTransform>
+                                    <CompositeTransform/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </Canvas>
+                        <TextBlock Text="select" 
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Foreground="White"
@@ -380,26 +379,26 @@
                                         FontSize="24"
                                         Visibility="{Binding Photo, Converter={StaticResource NullToVisibility}, ConverterParameter=neg}"
                                         />
-                                <Border BorderThickness="3" IsHitTestVisible="False">
-                                    <Border.BorderBrush>
-                                        <SolidColorBrush Color="WhiteSmoke"/>
-                                    </Border.BorderBrush>
-                                </Border>
+                        <Border BorderThickness="3" IsHitTestVisible="False">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="WhiteSmoke"/>
+                            </Border.BorderBrush>
+                        </Border>
 
-                            </Grid>
+                    </Grid>
 
-                        </c4f:Tile>
-                    </local:GSLabel>
+                </c4f:Tile>
+            </local:GSLabel>
 
             <!-- placeholder to help with scrolling when SIP is open -->
             <ContentControl x:Name="SIPPlaceHolder" Style="{StaticResource SIPPlaceHolderStyle}" />
 
         </StackPanel>
-       
+
         <!--             
        <Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />
         -->
 
     </local:GSViewGrid>
-    
+
 </local:AddPlantViewBase>
