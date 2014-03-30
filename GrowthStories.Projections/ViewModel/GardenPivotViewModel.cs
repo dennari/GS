@@ -48,8 +48,11 @@ namespace Growthstories.UI.ViewModel
                 .Subscribe(x =>
                 {
                     this.SelectedPlant = x;
-                    App.SelectedPlant = x;
-                    this.Log().Info("SelectedPlant changed to {0}", x.Name);
+                    if (App.Router.CurrentViewModel == this)
+                    {
+                        App.SelectedPlant = x;
+                        this.Log().Info("SelectedPlant changed to {0}", x.Name);
+                    }
                 });
 
             vm.WhenAnyValue(x => x.Plants)
@@ -93,11 +96,12 @@ namespace Growthstories.UI.ViewModel
                 (o, v) => Tuple.Create(o, v)
              ).Subscribe(xx =>
                 {
-                    if (xx.Item2 != this)
-                    {
-                        this.Log().Info("skipping orientation change stuff");
-                        return;
-                    }
+
+                    //if (xx.Item2 != this)
+                    //{
+                    //    this.Log().Info("skipping orientation change stuff");
+                    //    return;
+                    //}
 
                     //this.NavigateInterface = typeof(IYAxisShitViewModel);
                     var o = xx.Item1;

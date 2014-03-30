@@ -374,7 +374,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             subs.Add(App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null).Subscribe(x =>
-            {
+            {                   
                 foreach (var p in Plants)
                 {
                     var should = ShouldPlantBeFullyLoaded(p, x);

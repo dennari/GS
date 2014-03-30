@@ -186,17 +186,25 @@ namespace Growthstories.Sync
             return ret;
         }
 
-
+        //
+        // if this fails, it returns a FileNotFoundException
+        // not sure why it is not a different exception -- JOJ
+        // 
         public RemoteUser CreateUserInfoResponse(Tuple<HttpResponseMessage, string> resp)
         {
             //var r = CreateWithStatusCode<UserListResponse>(resp.Item1);
             if (resp.Item1.IsSuccessStatusCode)
             {
-                // TODO: what if serialization fails?
-                return jFactory.Deserialize<RemoteUser>(resp.Item2);
+                try
+                {
+                    return jFactory.Deserialize<RemoteUser>(resp.Item2);
+                }
+                catch
+                {
+                    throw new FileNotFoundException("Error occured when trying to retrieve info for user (json deserialise failed)");
+                }
             }
 
-            // why is this a FileNotFoundException ? -- JOJ
             throw new FileNotFoundException("Error occured when trying to retrieve info for user");
         }
 

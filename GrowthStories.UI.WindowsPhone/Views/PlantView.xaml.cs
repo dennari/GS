@@ -98,6 +98,7 @@ namespace Growthstories.UI.WindowsPhone
                 }
                 else
                 {
+                    //ViewModel.Log().Info("should no more be fully loaded {0}", ViewModel.Name);
                     _RemoveLongListSelector();
                 }
             });
