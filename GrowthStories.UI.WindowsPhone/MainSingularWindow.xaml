@@ -25,13 +25,11 @@
 
 
     <phone:PhoneApplicationPage.Resources>
-       
-         
         <telerikPrimitives:RadTurnstileTransition x:Key="GSTurnStile" />
-     
-     
-
     </phone:PhoneApplicationPage.Resources>
+    
+    
+    
     <local:MainWindowBase.ApplicationBar>
         <shell:ApplicationBar 
             Mode="Default"
@@ -40,7 +38,7 @@
             IsVisible="False"
             />
     </local:MainWindowBase.ApplicationBar>
-
+    
 
     <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">
         <Grid.Background>
@@ -93,12 +91,17 @@
 
       
     </Grid>
+
+    <!--
+    -->
     
     <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar		
 			ButtonsSource="{Binding AppBarButtons}"
 			MenuItemsSource="{Binding AppBarMenuItems}"
-			IsVisible="{Binding AppBarIsVisible}"            
+            IsVisible="{Binding AppBarShouldReallyBeVisible}"
+            BackgroundColor="White"
+            ForegroundColor="#fffa6800"
 			>
             <bar:BindableApplicationBar.ButtonTemplate>
                 <DataTemplate>

@@ -114,9 +114,9 @@ namespace Growthstories.UI.ViewModel
                 {
                     this.Log().Info("Garden and its plants are loaded");
                     IsLoaded = true;
+                    App.AppPrettyMuchLoaded = true;
                 });
         }
-
 
 
         protected ReactiveList<IPlantViewModel> _Plants;

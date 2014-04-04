@@ -170,6 +170,9 @@ namespace Growthstories.UI.ViewModel
 
         // Stopwatch NavigateAndResetStopwatch {get; }
         IPlantViewModel SelectedPlant { get; set; }
+
+        bool AppPrettyMuchLoaded { get; set; }
+
     }
 
 

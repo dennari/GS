@@ -53,15 +53,24 @@ namespace Growthstories.UI.WindowsPhone
 
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             var LogFile = "localLog.txt";
-           
-            using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+            try
             {
-                using (IsolatedStorageFileStream fs = storage.OpenFile(LogFile, FileMode.Append))
+                using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    using (StreamWriter w = new StreamWriter(fs))
+                    using (IsolatedStorageFileStream fs = storage.OpenFile(LogFile, FileMode.Append))
                     {
-                        w.Write(msg);
+                        using (StreamWriter w = new StreamWriter(fs))
+                        {
+                            w.Write(msg);
+                        }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
                 }
             }
 

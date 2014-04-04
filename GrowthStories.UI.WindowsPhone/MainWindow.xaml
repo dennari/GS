@@ -50,8 +50,6 @@
                 Text="{Binding NotificationText}"
                 TextWrapping="Wrap"
                 />
-
-
             </StackPanel>
         </DataTemplate>
 
@@ -92,6 +90,7 @@
 
     </phone:PhoneApplicationPage.Resources>
     
+    
     <local:MainWindowBase.ApplicationBar>
         <shell:ApplicationBar 
             Mode="Minimized"
@@ -100,7 +99,8 @@
             IsVisible="False"
             />
     </local:MainWindowBase.ApplicationBar>
-
+    
+    
     <!--<shell:SystemTray.ProgressIndicator>
         <shell:ProgressIndicator 
             IsIndeterminate="True" 
@@ -242,7 +242,42 @@
                             </phone:PanoramaItem>
 
 
-                        </phone:Panorama>
+                        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
+                            <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
+                                <ScrollViewer>
+                                    <StackPanel Orientation="Vertical" Margin="0,0,0,50">
+
+                                        <Button  Command="{Binding CreateLocalDataCommand}" Content="Create local data"/>
+
+                                        <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
+
+                                        <Button  Command="{Binding PushRemoteUserCommand}" Content="Push remote user"/>
+
+                                        <Button  Command="{Binding ClearDBCommand}" Content="Clear DB"/>
+
+                                        <Button  Command="{Binding SyncCommand}" Content="Sync"/>
+
+                                        <Button  Command="{Binding PushCommand}" Content="Push"/>
+
+                                        <Button  Command="{Binding RegisterCommand}" Content="Register"/>
+
+                                        <Button Tap="LaunchBackgroundAgent"  Content="launch ba" />
+
+                                        <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
+
+                                        <Button Tap="CauseException" Content="Cause Exception" />
+
+                                        <Button Tap="ClearMockIAP"  Content="Clear mock IAPs" />
+
+
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Grid>
+                        </phone:PanoramaItem>
+
+
+
+                    </phone:Panorama>
 
                     <!--
                     </Grid>
@@ -255,12 +290,15 @@
 
     </Grid>
     
+    
     <bar:Bindable.ApplicationBar>
         <bar:BindableApplicationBar
-			Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"			
+            Mode="{Binding AppBarMode, Converter={StaticResource AppBarModeToString}}"			
 			ButtonsSource="{Binding AppBarButtons}"
 			MenuItemsSource="{Binding AppBarMenuItems}"
-			IsVisible="{Binding AppBarIsVisible}"            
+			IsVisible="{Binding AppBarShouldReallyBeVisible}"
+            BackgroundColor="White"
+            ForegroundColor="#fffa6800"
 			>
             <bar:BindableApplicationBar.ButtonTemplate>
                 <DataTemplate>
@@ -275,4 +313,6 @@
             </bar:BindableApplicationBar.ButtonTemplate>
         </bar:BindableApplicationBar>
     </bar:Bindable.ApplicationBar>
+    
+ 
 </local:MainWindowBase>

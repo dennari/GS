@@ -23,6 +23,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             this.Log().Info("MainSingularWindow constructor");
             InitializeComponent();
+            this.IsEnabled = false;
         }
 
 
@@ -101,6 +102,27 @@ namespace Growthstories.UI.WindowsPhone
             {
                 UIAndVMLoaded();
             }
+
+
+            var avm = vm as AppViewModel;
+            if (avm != null)
+            {
+                avm.WhenAnyValue(x => x.AppPrettyMuchLoaded)
+                    .Where(x => x == true)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+                    {
+                        avm.Log().Info("setting isEnabled for mainWindow to true");
+                        this.IsEnabled = true;
+                    }
+                    );
+
+                Pvm.WhenAnyValue(x => x.Loaded)
+                    .Where(x => x == true)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    //.Delay(TimeSpan.FromMilliseconds(250))
+                    .Subscribe(_ => avm.AppPrettyMuchLoaded = true);
+            }
         }
 
 
@@ -115,7 +137,7 @@ namespace Growthstories.UI.WindowsPhone
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
 
-            this.ApplicationBar.IsVisible = true;
+            //this.ApplicationBar.IsVisible = true;
 
             //this.MainView.ViewModel = MainViewModel;
 

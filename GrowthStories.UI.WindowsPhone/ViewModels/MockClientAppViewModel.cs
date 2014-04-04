@@ -100,7 +100,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         }
 
 
-
+        public bool AppPrettyMuchLoaded { get; set; }
 
         public IGardenViewModel MyGarden
         {

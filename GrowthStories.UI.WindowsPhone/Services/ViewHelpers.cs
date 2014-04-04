@@ -20,6 +20,8 @@ using Growthstories.Sync;
 using System.Windows.Media.Imaging;
 using Microsoft.Phone.Controls;
 using System.Windows.Controls;
+using EventStore.Logging;
+using Growthstories.Core;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -28,6 +30,7 @@ namespace Growthstories.UI.WindowsPhone
 
     public static class ViewHelpers
     {
+
 
 
         private static Regex _hexColorMatchRegex = new Regex("^#?(?<a>[a-z0-9][a-z0-9])?(?<r>[a-z0-9][a-z0-9])(?<g>[a-z0-9][a-z0-9])(?<b>[a-z0-9][a-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -419,6 +422,10 @@ namespace Growthstories.UI.WindowsPhone
     public class BAUtils
     {
 
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(BAUtils));
+
+
         public const string TASK_NAME = "tileupdate";
 
 
@@ -448,6 +455,7 @@ namespace Growthstories.UI.WindowsPhone
             try
             {
                 ScheduledActionService.Add(task);
+                Logger.Info("added scheduled task");
             }
 
             catch (InvalidOperationException exception)
@@ -461,10 +469,12 @@ namespace Growthstories.UI.WindowsPhone
                     // global count for scheduledactions is too large, user should disable
                     // background agents for less cool applications
                 }
+                Logger.Info("failed to add scheduled task: {0}", exception.ToStringExtended());
 
             }
-            catch (SchedulerServiceException)
+            catch (SchedulerServiceException e)
             {
+                Logger.Warn("failed to add scheduled task: {0}", e.ToStringExtended());
                 // unclear when this happens
             }
 

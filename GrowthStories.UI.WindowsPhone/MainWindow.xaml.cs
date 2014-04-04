@@ -10,6 +10,8 @@ using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
 using ReactiveUI;
 using ReactiveUI.Mobile;
+using Microsoft.Phone.Scheduler;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -86,8 +88,7 @@ namespace Growthstories.UI.WindowsPhone
             //}
         }
 
-
-
+  
         #region POPUP
 
         private void DismissPopup(PopupResult result = PopupResult.None)
@@ -324,8 +325,8 @@ namespace Growthstories.UI.WindowsPhone
             this.Log().Info("MainWindow constructor");
             InitializeComponent();
 
+            this.IsEnabled = false;
         }
-
 
 
         private bool UILoaded = false;
@@ -340,13 +341,24 @@ namespace Growthstories.UI.WindowsPhone
             base.OnViewModelChanged(vm);
             if (UILoaded)
             {
-
                 UIAndVMLoaded();
-
             }
 
-
+            var avm = vm as AppViewModel;
+            if (avm != null)
+            {
+                avm.WhenAnyValue(x => x.AppPrettyMuchLoaded)
+                    .Where(x => x == true)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => 
+                        {
+                            avm.Log().Info("setting isEnabled for mainWindow to true");
+                            this.IsEnabled = true;
+                        }
+                    );
+            }
         }
+
 
         IMainViewModel MainViewModel;
 
@@ -355,7 +367,8 @@ namespace Growthstories.UI.WindowsPhone
 
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
-            this.ApplicationBar.IsVisible = true;
+            
+            //this.ApplicationBar.IsVisible = true;
             //this.MainView.ViewModel = MainViewModel;
 
             //this.DataContext = ViewModel;
@@ -377,6 +390,31 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
+        private void CauseException(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            e = null;
+            var a = e.Handled;
+        }
+
+
+        private void ClearMockIAP(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            #if DEBUG
+            MockIAPLib.MockIAP.ClearCache();
+            #endif
+        }
+
+        private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            BAUtils.RegisterScheduledTask();
+            ScheduledActionService.LaunchForTest(BAUtils.TASK_NAME, TimeSpan.FromSeconds(10));
+        }
+
+
+        private void ConfigureBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            BAUtils.RegisterScheduledTask();
+        }
 
 
     }

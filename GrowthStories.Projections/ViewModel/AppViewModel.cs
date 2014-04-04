@@ -249,6 +249,8 @@ namespace Growthstories.UI.ViewModel
             IMessageBus bus
          )
         {
+            this.AppPrettyMuchLoaded = false;
+            this.AppBarShouldReallyBeVisible = false;
 
             //this.Log().Info("AppViewModel constructor begins {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
 
@@ -505,9 +507,21 @@ namespace Growthstories.UI.ViewModel
 
                });
 
+            this.WhenAnyValue(x => x.AppBarIsVisible)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => UpdateShouldAppBarReallyBeVisible());
+            
+            this.WhenAnyValue(x => x.AppPrettyMuchLoaded)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => UpdateShouldAppBarReallyBeVisible());
 
             NotifyOfPlantCommand.OfType<Guid>().Subscribe(x => FuturePlantBlackList.Add(x));
+        }
 
+
+        private void UpdateShouldAppBarReallyBeVisible()
+        {
+            AppBarShouldReallyBeVisible = this.AppBarIsVisible && this.AppPrettyMuchLoaded;
         }
 
 
@@ -1371,6 +1385,34 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private bool _AppPrettyMuchLoaded;
+        public bool AppPrettyMuchLoaded
+        {
+            get
+            {
+                return _AppPrettyMuchLoaded;
+            }
+            set
+            {
+                this.Log().Info("setting appPrettyMuchLoaded to {0}", value);
+                this.RaiseAndSetIfChanged(ref _AppPrettyMuchLoaded, value);
+            }
+        }
+
+        private bool _AppBarShouldReallyBeVisible;
+
+
+        public bool AppBarShouldReallyBeVisible
+        {
+            get
+            {
+                return _AppBarShouldReallyBeVisible;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _AppBarShouldReallyBeVisible, value);
+            }
+        }
 
 
         public IObservable<IPlantActionViewModel> CurrentPlantActions(
