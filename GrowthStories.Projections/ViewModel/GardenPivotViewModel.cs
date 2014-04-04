@@ -47,12 +47,23 @@ namespace Growthstories.UI.ViewModel
                 .OfType<IPlantViewModel>()
                 .Subscribe(x =>
                 {
+                    this.Log().Info("SelectedPlant changed to {0}", x.Name);
+                   
                     this.SelectedPlant = x;
-                    if (App.Router.CurrentViewModel == this)
+                    if (x.UserId == this.UserId)
                     {
                         App.SelectedPlant = x;
-                        this.Log().Info("SelectedPlant changed to {0}", x.Name);
                     }
+
+                    //if (App.Router.CurrentViewModel == this)
+                    //{
+                    //    App.SelectedPlant = x;
+                    //    this.Log().Info("currentviewmodel is this, selectedPlant changed to {0}", x.Name);
+                    //}
+                    //else
+                    //{
+                    //    this.Log().Info("currentviewmodel is {0}", x.Name);
+                    //}
                 });
 
             vm.WhenAnyValue(x => x.Plants)
