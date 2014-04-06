@@ -16,6 +16,7 @@
 
 
     <local:GSViewGrid
+        
         x:Name="ViewGrid"
         TopTitle="GROWTH STORIES"
         Title="loading..."
