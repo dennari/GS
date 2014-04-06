@@ -34,7 +34,10 @@ namespace Growthstories.UI.WindowsPhone
             subs =
                 vm.FilteredActions
                     .ItemsAdded
-                    .Throttle(TimeSpan.FromMilliseconds(300))
+                    // only scroll when new actions are added by the user,
+                    // not when we are loading old actions
+                    .Where(x => new TimeSpan(Math.Abs(DateTime.Now.Ticks - x.Created.Ticks)).TotalMilliseconds < 2000) 
+                    .Throttle(TimeSpan.FromMilliseconds(100))
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x =>
                 {
