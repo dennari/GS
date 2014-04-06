@@ -1,10 +1,8 @@
 
 using System;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.Serialization;
-using ReactiveUI;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -156,20 +154,20 @@ namespace Growthstories.UI.ViewModel
             CheckIfAllLoaded();
         }
 
-        private TestingViewModel _TestingVM;
+        //private TestingViewModel _TestingVM;
 
-        public TestingViewModel TestingVM
-        {
-            get
-            {
-                var vm = _TestingVM ?? (_TestingVM = App.Resolver.GetService<TestingViewModel>());
+        //public TestingViewModel TestingVM
+        //{
+        //    get
+        //    {
+        //        var vm = _TestingVM ?? (_TestingVM = App.Resolver.GetService<TestingViewModel>());
 
-                //vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
-                //vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+        //        //vm.AddTestDataCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
+        //        //vm.ClearDBCommandAsync.Subscribe(_ => GardenVM = App.GardenFactory(App.Context.CurrentUser.Id));
 
-                return vm;
-            }
-        }
+        //        return vm;
+        //    }
+        //}
 
         public override string UrlPathSegment
         {

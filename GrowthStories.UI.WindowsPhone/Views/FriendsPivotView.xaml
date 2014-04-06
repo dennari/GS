@@ -20,7 +20,6 @@
          
         <phone:Pivot 
 			x:Name="Friends" 
-			ItemsSource="{Binding Friends, Mode=OneWay}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
             <phone:Pivot.TitleTemplate>

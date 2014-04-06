@@ -286,10 +286,6 @@
       <DependentUpon>YAxisShitView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GSView.cs" />
-    <Compile Include="Views\MainView.xaml.cs">
-      <DependentUpon>MainView.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -360,7 +356,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\GardenPivotView.xaml">
-      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\GardenView.xaml">
@@ -390,10 +386,6 @@
     <Page Include="Views\YAxisShitView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\MainView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -217,7 +217,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return KernelInstance.GetService(typeof(IAddEditPlantViewModel));
             }, typeof(IAddEditPlantViewModel));
-            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(TestingViewModel)), typeof(TestingViewModel));
+            //RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(TestingViewModel)), typeof(TestingViewModel));
         }
 
 
@@ -225,7 +225,7 @@ namespace Growthstories.UI.WindowsPhone
         protected virtual void ViewConfiguration()
         {
 
-            RxUIResolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
+            //RxUIResolver.RegisterLazySingleton(() => new MainView(), typeof(IViewFor<MainViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new ScheduleView(), typeof(IViewFor<IScheduleViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new SignInRegisterView(), typeof(IViewFor<ISignInRegisterViewModel>));
             RxUIResolver.RegisterLazySingleton(() => new SettingsView(), typeof(IViewFor<ISettingsViewModel>));
@@ -303,7 +303,7 @@ namespace Growthstories.UI.WindowsPhone
     }
 
 
- 
+
     public class BootstrapDesign : NinjectModule
     {
 

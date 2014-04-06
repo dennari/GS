@@ -5,16 +5,33 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Navigation;
 using Growthstories.UI.ViewModel;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Scheduler;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-using Microsoft.Phone.Scheduler;
 
 
 namespace Growthstories.UI.WindowsPhone
 {
+
+
+    public class MainViewBase : GSView<IMainViewModel>
+    {
+
+        public MainViewBase()
+        {
+            this.SetBinding(ViewModelProperty, new Binding());
+        }
+
+        protected override void OnViewModelChanged(IMainViewModel vm)
+        {
+
+            base.OnViewModelChanged(vm);
+        }
+    }
 
     public class MainWindowBase : GSPage<IGSAppViewModel>, IEnableLogger
     {
@@ -88,7 +105,7 @@ namespace Growthstories.UI.WindowsPhone
             //}
         }
 
-  
+
         #region POPUP
 
         private void DismissPopup(PopupResult result = PopupResult.None)
@@ -351,7 +368,7 @@ namespace Growthstories.UI.WindowsPhone
                     .Where(x => x == true)
                     .Take(1)
                     .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ => 
+                    .Subscribe(_ =>
                         {
                             avm.Log().Info("setting isEnabled for mainWindow to true");
                             this.IsEnabled = true;
@@ -368,7 +385,7 @@ namespace Growthstories.UI.WindowsPhone
 
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
-            
+
             //this.ApplicationBar.IsVisible = true;
             //this.MainView.ViewModel = MainViewModel;
 
@@ -400,9 +417,9 @@ namespace Growthstories.UI.WindowsPhone
 
         private void ClearMockIAP(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            #if DEBUG
+#if DEBUG
             MockIAPLib.MockIAP.ClearCache();
-            #endif
+#endif
         }
 
         private void LaunchBackgroundAgent(object sender, System.Windows.Input.GestureEventArgs e)
