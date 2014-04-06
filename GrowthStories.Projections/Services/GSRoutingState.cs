@@ -83,8 +83,14 @@ namespace Growthstories.UI.Services
                 }
 
 
-                if (vm != NavigationStack.LastOrDefault())
+                if (NavigationStack.LastOrDefault() == null
+                    || vm.GetType() != NavigationStack.LastOrDefault().GetType())
+                {
                     NavigationStack.Add(vm);
+                }
+
+                //if (vm != NavigationStack.LastOrDefault())
+                //    NavigationStack.Add(vm);
             });
 
             NavigateAndReset = new NavigationReactiveCommand();
