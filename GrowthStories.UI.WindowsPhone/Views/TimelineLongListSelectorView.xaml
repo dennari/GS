@@ -102,7 +102,7 @@
     </local:TimelineLongListSelectorViewBase.Resources>
 
     <local:GSLongListSelector
-            Height="636"
+            Height="689"
             ListHeader="{Binding}"
             ScrollViewer.VerticalScrollBarVisibility="Disabled"
             x:Name="TimeLine" 
@@ -153,7 +153,7 @@
 
         <phone:LongListSelector.ListFooterTemplate>
             <DataTemplate>
-                <ContentControl Height="100" />
+                <ContentControl Height="153" />
             </DataTemplate>
         </phone:LongListSelector.ListFooterTemplate>
 

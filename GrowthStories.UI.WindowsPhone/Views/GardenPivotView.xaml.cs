@@ -48,6 +48,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             //base.OnViewModelChanged(vm);
             vm.Log().Info("GardenPivotView: OnViewModelChanged");
+            
         }
 
 

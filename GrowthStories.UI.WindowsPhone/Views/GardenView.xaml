@@ -209,7 +209,7 @@
                     />
             </StackPanel>
 
-            <ScrollViewer Height="480" ScrollViewer.VerticalScrollBarVisibility="Hidden" x:Name="MainScroller">
+            <ScrollViewer Height="533" ScrollViewer.VerticalScrollBarVisibility="Hidden" x:Name="MainScroller">
                 <StackPanel>
                     <toolkit:LongListMultiSelector
                         x:Name="PlantsSelector"
@@ -226,7 +226,7 @@
                         />
                     
                     <!-- placeholder -->
-                    <ContentControl Height="85"></ContentControl>
+                    <ContentControl Height="138"></ContentControl>
                 </StackPanel>
             </ScrollViewer>
 

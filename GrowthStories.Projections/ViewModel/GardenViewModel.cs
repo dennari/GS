@@ -104,6 +104,7 @@ namespace Growthstories.UI.ViewModel
             if (count == 0)
             {
                 IsLoaded = true;
+                App.AppPrettyMuchLoaded = true;
                 return;
             }
 

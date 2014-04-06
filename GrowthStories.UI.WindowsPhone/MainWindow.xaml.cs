@@ -349,6 +349,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 avm.WhenAnyValue(x => x.AppPrettyMuchLoaded)
                     .Where(x => x == true)
+                    .Take(1)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(_ => 
                         {

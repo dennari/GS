@@ -54,7 +54,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         public static readonly DependencyProperty MainScrollerHeightProperty =
-            DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(480));
+            DependencyProperty.Register("MainScrollerHeight", typeof(int), typeof(GardenView), new PropertyMetadata(533));
 
 
 
