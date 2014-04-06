@@ -9,7 +9,66 @@ namespace Growthstories.UI.Services
     public class GSViewLocator : IViewLocator
     {
 
-        public Func<object, Type> ViewModelToViewModelInterfaceFunc { get; set; }
+
+        //private Func<object, Type> _ViewModelToViewModelInterfaceFunc;
+
+        //public Func<object, Type> ViewModelToViewModelInterfaceFunc 
+        //{
+        //    get
+        //    {
+        //        return _ViewModelToViewModelInterfaceFunc;
+        //    }
+        //    set
+        //    {
+        //        this.Log().Info("setting ViewModelTolViewModelInterfacefunc to {0} for viewlocator {1}", value, id);
+        //        _ViewModelToViewModelInterfaceFunc = value;
+        //        if (ViewModelToViewModelInterfaceFunc == null)
+        //        {
+        //            this.Log().Info("viewlocator setter: viewmodeltoviewmodelinterfacefunc is null, {0}", id);
+        //        }
+        //        else
+        //        {
+        //            this.Log().Info("viewlocator setter: viewmodeltoviewmodelinterfacefunc is not null, {0}", id);
+        //        }
+        //    }
+        //}
+
+
+        public Type ViewModelToViewModelInterfaceFunc(object T)
+        {
+            if (T is IGardenPivotViewModel)
+                return typeof(IGardenPivotViewModel);
+            if (T is ISettingsViewModel)
+                return typeof(ISettingsViewModel);
+            if (T is IAboutViewModel)
+                return typeof(IAboutViewModel);
+            if (T is IAddEditPlantViewModel)
+                return typeof(IAddEditPlantViewModel);
+            if (T is ISignInRegisterViewModel)
+                return typeof(ISignInRegisterViewModel);
+            if (T is IPhotoListViewModel)
+                return typeof(IPhotoListViewModel);
+            if (T is IPlantActionViewModel)
+                return typeof(IPlantActionViewModel);
+            if (T is IYAxisShitViewModel)
+                return typeof(IYAxisShitViewModel);
+            if (T is IScheduleViewModel)
+                return typeof(IScheduleViewModel);
+            if (T is ISearchUsersViewModel)
+                return typeof(ISearchUsersViewModel);
+            if (T is IGardenViewModel)
+                return typeof(IGardenViewModel);
+            if (T is IPlantViewModel)
+                return typeof(IPlantViewModel);
+            if (T is IPlantSingularViewModel)
+                return typeof(IPlantSingularViewModel);
+            if (T is IFriendsViewModel)
+                return typeof(IFriendsViewModel);
+            if (T is IPlantActionListViewModel)
+                return typeof(IPlantActionListViewModel);
+            return T.GetType();
+        }
+
 
         private static GSViewLocator _Instance;
         public static GSViewLocator Instance
@@ -17,9 +76,12 @@ namespace Growthstories.UI.Services
             get { return _Instance ?? (_Instance = new GSViewLocator()); }
         }
 
+        public int id;
+
         public GSViewLocator()
         {
-
+            id = new Random().Next(0, 10000);
+            this.Log().Info("instantiating new gsviewlocator {0}", id);
         }
 
 
@@ -63,6 +125,16 @@ namespace Growthstories.UI.Services
                 }
 
                 this.Log().Info("viewtype is {0}", viewType);
+
+                //if (ViewModelToViewModelInterfaceFunc == null)
+                //{
+                //    this.Log().Info("viewlocator: viewmodeltoviewmodelinterfacefunc is null, {0}", id);
+                //}
+                //else
+                //{
+                //    this.Log().Info("viewlocator: viewmodeltoviewmodelinterfacefunc is not null, {0}", id);
+                //}
+
                 var vmif = ViewModelToViewModelInterfaceFunc(viewModel);
                 this.Log().Info("vmif is {0}", vmif);
                 var gt = viewType.MakeGenericType(vmif);

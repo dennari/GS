@@ -10,6 +10,7 @@ using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using Telerik.Windows.Controls;
 using AppViewModel = Growthstories.UI.WindowsPhone.ViewModels.ClientAppViewModel;
+using Growthstories.Core;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -181,7 +182,7 @@ namespace Growthstories.UI.WindowsPhone
                     {
                         Debugger.Break();
                     }
-                    Logger.Warn("could not resolve view for {0}: {1}", x, ee.Message);
+                    Logger.Warn("could not resolve view for {0}: {1}", x, ee.ToStringExtended());
                     var c = this.Router.NavigationStack.Count;
                     if (c > 0)
                     {

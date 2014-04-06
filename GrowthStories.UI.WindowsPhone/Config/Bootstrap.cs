@@ -252,48 +252,58 @@ namespace Growthstories.UI.WindowsPhone
             //Task.Run(async () =>
             //{
             //    await Task.Delay(12000);
-            GSViewLocator.Instance.ViewModelToViewModelInterfaceFunc = T =>
-            {
-                if (T is IGardenPivotViewModel)
-                    return typeof(IGardenPivotViewModel);
-                if (T is ISettingsViewModel)
-                    return typeof(ISettingsViewModel);
-                if (T is IAboutViewModel)
-                    return typeof(IAboutViewModel);
-                if (T is IAddEditPlantViewModel)
-                    return typeof(IAddEditPlantViewModel);
-                if (T is ISignInRegisterViewModel)
-                    return typeof(ISignInRegisterViewModel);
-                if (T is IPhotoListViewModel)
-                    return typeof(IPhotoListViewModel);
-                if (T is IPlantActionViewModel)
-                    return typeof(IPlantActionViewModel);
-                if (T is IYAxisShitViewModel)
-                    return typeof(IYAxisShitViewModel);
-                if (T is IScheduleViewModel)
-                    return typeof(IScheduleViewModel);
-                if (T is ISearchUsersViewModel)
-                    return typeof(ISearchUsersViewModel);
-                if (T is IGardenViewModel)
-                    return typeof(IGardenViewModel);
-                if (T is IPlantViewModel)
-                    return typeof(IPlantViewModel);
-                if (T is IPlantSingularViewModel)
-                    return typeof(IPlantSingularViewModel);
-                if (T is IFriendsViewModel)
-                    return typeof(IFriendsViewModel);
-                if (T is IPlantActionListViewModel)
-                    return typeof(IPlantActionListViewModel);
-                return T.GetType();
+            //GSViewLocator.Instance.ViewModelToViewModelInterfaceFunc = T =>
+            //{
+            //    if (T is IGardenPivotViewModel)
+            //        return typeof(IGardenPivotViewModel);
+            //    if (T is ISettingsViewModel)
+            //        return typeof(ISettingsViewModel);
+            //    if (T is IAboutViewModel)
+            //        return typeof(IAboutViewModel);
+            //    if (T is IAddEditPlantViewModel)
+            //        return typeof(IAddEditPlantViewModel);
+            //    if (T is ISignInRegisterViewModel)
+            //        return typeof(ISignInRegisterViewModel);
+            //    if (T is IPhotoListViewModel)
+            //        return typeof(IPhotoListViewModel);
+            //    if (T is IPlantActionViewModel)
+            //        return typeof(IPlantActionViewModel);
+            //    if (T is IYAxisShitViewModel)
+            //        return typeof(IYAxisShitViewModel);
+            //    if (T is IScheduleViewModel)
+            //        return typeof(IScheduleViewModel);
+            //    if (T is ISearchUsersViewModel)
+            //        return typeof(ISearchUsersViewModel);
+            //    if (T is IGardenViewModel)
+            //        return typeof(IGardenViewModel);
+            //    if (T is IPlantViewModel)
+            //        return typeof(IPlantViewModel);
+            //    if (T is IPlantSingularViewModel)
+            //        return typeof(IPlantSingularViewModel);
+            //    if (T is IFriendsViewModel)
+            //        return typeof(IFriendsViewModel);
+            //    if (T is IPlantActionListViewModel)
+            //        return typeof(IPlantActionListViewModel);
+            //    return T.GetType();
 
-            };
+            //};
             //});
 
-            Logger.Info("gsviewlocator viewmodeltoviewmodelinterfacefunc is now set");
+            //Logger.Info("gsviewlocator viewmodeltoviewmodelinterfacefunc is now set");
+            //if (GSViewLocator.Instance.ViewModelToViewModelInterfaceFunc == null)
+            //{
+            //    Logger.Info("bootstrap: viewmodeltoviewmodelinterfacefunc is null, {0}", GSViewLocator.Instance.id);
+            //}
+            //else
+            //{
+            //    Logger.Info("bootstrap: viewmodeltoviewmodelinterfacefunc is not null, {0}", GSViewLocator.Instance.id);
+            //}
         }
+
     }
 
 
+ 
     public class BootstrapDesign : NinjectModule
     {
 
