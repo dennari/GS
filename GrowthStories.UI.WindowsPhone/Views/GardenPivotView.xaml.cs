@@ -90,7 +90,6 @@ namespace Growthstories.UI.WindowsPhone
             //};
 
 
-
             this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
             {
                 this.Plants.ItemsSource = null;
@@ -107,6 +106,7 @@ namespace Growthstories.UI.WindowsPhone
             Constructed.Take(1).Subscribe(_ => CleanUp());
         }
 
+       
 
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {

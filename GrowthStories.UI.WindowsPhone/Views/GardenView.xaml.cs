@@ -169,7 +169,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             Logger.Info("possibly cleaning up gardenview {0}", ViewModel.Username);
             
-            // the check should be redundant not that this is triggered via the 
+            // the check should be redundant now that this is triggered via the 
             // observable that has a similar check, but just to be sure
             if (CleanUpOnUnload != null && CleanUpOnUnload.Equals("TRUE"))
             {

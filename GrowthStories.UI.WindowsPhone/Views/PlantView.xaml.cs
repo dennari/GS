@@ -18,7 +18,7 @@ using System.Windows.Media;
 using GrowthStories.UI.WindowsPhone.BA;
 using EventStore.Logging;
 using System.Windows.Controls.Primitives;
-
+using Growthstories.Core;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -47,7 +47,9 @@ namespace Growthstories.UI.WindowsPhone
             }
         }
 
-        private IDisposable subs;
+        private List<IDisposable> subs = new List<IDisposable>();
+        
+        public static Dictionary<Guid, PlantView> views = new Dictionary<Guid, PlantView>();
 
 
         protected override void OnViewModelChanged(IPlantViewModel vm)
@@ -90,7 +92,7 @@ namespace Growthstories.UI.WindowsPhone
             //    catch { }
             //});
            
-            subs = vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
+            subs.Add(vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
             {
                 if (x)
                 {
@@ -101,18 +103,47 @@ namespace Growthstories.UI.WindowsPhone
                     //ViewModel.Log().Info("should no more be fully loaded {0}", ViewModel.Name);
                     _RemoveLongListSelector();
                 }
-            });
+            }));
 
-            // when selected plant is no more one of this user, clean up subscription
+            // when selected plant is no more one of this user, clean up 
+            // the plantview so it can be garbage collected
             vm.DifferentUsersPlantSelected.Take(1).Subscribe(x =>
             {
-                ViewModel.Log().Info("cleaning up plantview for {0}", ViewModel.Name);
-                subs.Dispose();
-                _RemoveLongListSelector();
+                CleanUp();
             });
+
+            try
+            {
+                if (views.ContainsKey(vm.Id))
+                {
+                    views[vm.Id].CleanUp();
+                }
+            }
+            catch (Exception ex)
+            { 
+                // just in case this destroys something 
+                ViewModel.Log().Warn("{0}", ex.ToStringExtended());
+            }
+            
+            views[vm.Id] = this;
         }
 
 
+        public void CleanUp()
+        {
+            ViewModel.Log().Info("Cleaning up plantview for {0}", ViewModel.Name);
+            clearSubs();
+            _RemoveLongListSelector();
+        }
+
+        
+        private void clearSubs()
+        {
+            foreach (var s in subs)
+            {
+                s.Dispose();
+            }
+        }
 
 
         private void _RemoveLongListSelector()
@@ -137,7 +168,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private void _AddLongListSelector()
-            {
+        {
             var lls = new TimelineLongListSelectorView();
             lls.ViewModel = this.ViewModel;
 
@@ -146,7 +177,7 @@ namespace Growthstories.UI.WindowsPhone
                 ViewModel.Log().Info("adding longlistselector for {0}", this.ViewModel.Name);
                 TimelineContainer.Children.Add(lls);
             }
-            }
+        }
 
 
         private void TimelineContainer_Loaded(object sender, RoutedEventArgs e)
