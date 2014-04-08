@@ -29,6 +29,7 @@
         >
         
         <Grid>
+            
             <telerikPrimitives:RadBusyIndicator 
             x:Name="LoadingPhoto"
             Visibility="Visible"
@@ -69,7 +70,8 @@
                 Margin="0,0,0,0"
                 Width="200"
                 x:Name="LoadingFailed" />
-
+            
+            
             <Image  
                 Opacity="0.0"
                 x:Name="ImageControl"

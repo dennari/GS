@@ -47,6 +47,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewGrid.Title = x;
                 ThePlantView.Visibility = Visibility.Visible;
+
             });
 
 

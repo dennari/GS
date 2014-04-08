@@ -127,7 +127,7 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }
             TimelineContainer.Children.Clear();
-                }
+        }
 
 
         private void TimelineContainer_Unloaded(object sender, RoutedEventArgs e)

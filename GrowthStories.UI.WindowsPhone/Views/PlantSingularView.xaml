@@ -16,19 +16,19 @@
 
 
     <local:GSViewGrid
-        
         x:Name="ViewGrid"
         TopTitle="GROWTH STORIES"
         Title="loading..."
         Style="{StaticResource NoScroll}">
 
-        <Grid Margin="-10,0,-24,-36">
+        <Grid Margin="-10,0,-10,-36" HorizontalAlignment="Stretch">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
+            <!--
             <telerikPrimitives:RadBusyIndicator
                 Grid.Row="0"
                 Visibility="{Binding Plant.Loaded, Converter={StaticResource BooleanToVisibility}, ConverterParameter=inv}"
@@ -58,15 +58,18 @@
                     </DataTemplate>
                 </telerikPrimitives:RadBusyIndicator.ContentTemplate>
             </telerikPrimitives:RadBusyIndicator>
-
+            -->
+            
             <local:PlantView 
                 x:Name="ThePlantView"
-                Grid.Row="1"
+                Grid.Row="0"
                 Visibility="Collapsed"
                 ViewModel="{Binding Plant}" 
                 VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch"    
+                HorizontalAlignment="Stretch"  
+                HorizontalContentAlignment="Stretch"
                 />
+            
 
         </Grid>
 
