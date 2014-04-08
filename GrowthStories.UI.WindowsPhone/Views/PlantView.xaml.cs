@@ -20,6 +20,7 @@ using EventStore.Logging;
 using System.Windows.Controls.Primitives;
 using Growthstories.Core;
 
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -114,7 +115,7 @@ namespace Growthstories.UI.WindowsPhone
 
             try
             {
-                if (views.ContainsKey(vm.Id))
+                if (views.ContainsKey(vm.Id) && views[vm.Id] != this)
                 {
                     views[vm.Id].CleanUp();
                 }
@@ -164,7 +165,7 @@ namespace Growthstories.UI.WindowsPhone
         private void TimelineContainer_Unloaded(object sender, RoutedEventArgs e)
         {
             //_RemoveLongListSelector();
-            }
+        }
 
 
         private void _AddLongListSelector()

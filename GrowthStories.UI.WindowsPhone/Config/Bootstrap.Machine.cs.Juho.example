@@ -5,14 +5,16 @@ using Growthstories.Sync;
 using Growthstories.UI.Services;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
+
+
 namespace Growthstories.UI.WindowsPhone
 {
+
     public class BootstrapMachine : Bootstrap
     {
 
 
-        private const string BACKENDHOST = "192.168.0.51";
-        private const int BACKENDPORT = 8080;
+       
         private const string LOGHOST = "192.168.0.51";
         private const int LOGPORT = 28777;
 
@@ -24,11 +26,22 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
+        protected override Uri BaseUri()
+        {
+            return new Uri("https://gs-prod.appspot.com");
+            //return new Uri("http://192.168.0.51:8080");
+        }
+
+
         protected override void LogConfiguration()
         {
             GSRemoteLog.Host = LOGHOST;
             GSRemoteLog.Port = LOGPORT;
 
+            //RxUIResolver.Register(() => new GSLocalLog(null, Filter), typeof(ILogger));
+            //LogFactory.BuildLogger = type => new GSLocalLog(type, Filter);
+            //GSLogFactory.BuildLogger = type => new GSLocalLog(type, Filter);
+       
             RxUIResolver.Register(() => new GSRemoteLog(null, Filter), typeof(ILogger));
             LogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
             GSLogFactory.BuildLogger = type => new GSRemoteLog(type, Filter);
@@ -37,10 +50,19 @@ namespace Growthstories.UI.WindowsPhone
 
         protected override void AppConfiguration()
         {
+            //Bind<IIAPService>().To<GSIAP>().InSingletonScope();
+
             Bind<IIAPService>().To<GSIAPMock>().InSingletonScope();
+
+            //Bind<IScheduleService>().To<GardenScheduler>()
+            //    .InSingletonScope()
+            //    .WithConstructorArgument(new TimeSpan(0, 0, 60));
+
             Bind<IScheduleService>().To<GardenScheduler>()
                 .InSingletonScope()
-                .WithConstructorArgument(new TimeSpan(0, 0, 60));
+                .WithConstructorArgument(new TimeSpan(1, 0, 60));
+
+            //Bind<ISynchronizer>().To<NonAutoSyncingSynchronizer>();
 
             Bind<ISynchronizer>().To<AutoSyncingSynchronizer>();
         }
@@ -75,11 +97,6 @@ namespace Growthstories.UI.WindowsPhone
             return true;
         }
 
-
-        protected override void HttpConfiguration(string host = "default.lan", int port = 80)
-        {
-            base.HttpConfiguration(BACKENDHOST, BACKENDPORT);
-        }
 
     }
 
