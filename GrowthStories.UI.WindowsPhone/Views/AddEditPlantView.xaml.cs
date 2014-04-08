@@ -46,6 +46,7 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnViewModelChanged(IAddEditPlantViewModel vm)
         {
 
+            Task future = ScrollToTopAfterDelay(TimeSpan.FromMilliseconds(300));
 
         }
 

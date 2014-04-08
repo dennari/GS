@@ -14,101 +14,62 @@
     xmlns:telerikCore="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Core"             
     mc:Ignorable="d">
 
-
-
     <local:GSMultiViewHost
         ViewModel="{Binding}"
         x:Name="ViewHost"
         VerticalContentAlignment="Stretch"
         HorizontalContentAlignment="Stretch"
         >
-        <local:GSMultiViewHost.DefaultContent>
-            <Grid x:Name="LayoutRoot" Margin="0,0,0,0">
-                <Grid.Background>
-                    <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
-                </Grid.Background>
+            <local:GSMultiViewHost.DefaultContent>
+                <Grid x:Name="LayoutRoot" Margin="0,0,0,0">
+                    <Grid.Background>
+                        <ImageBrush Stretch="UniformToFill" ImageSource="/Assets/Bg/timeline_all.jpg"/>
+                    </Grid.Background>
 
-                <!--
-                
-                <TextBlock 
-                    Style="{StaticResource GSAppTitleStyle}"
-                    Text="GROWTH STORIES" 
-                    Margin="0,4,0,8" />
 
-                <telerikPrimitives:RadSlideView x:Name="Plants" 
-                    SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                    ItemsSource="{Binding Plants}" ItemRealizationMode="Default"
-                    FontFamily="{StaticResource GSPageTitleFont}">
-                    
-                    <telerikPrimitives:RadSlideView.ItemTemplate>
-                        <DataTemplate>
-                            <local:PlantView 
-                                ViewModel="{Binding}" 
-                                Margin="0,0,0,0" 
-                                VerticalAlignment="Stretch" />
-                        </DataTemplate>
-                        
-                    </telerikPrimitives:RadSlideView.ItemTemplate>
-                    
-                    <telerikPrimitives:RadSlideView.ItemPreviewTemplate>
-                        <DataTemplate>
-                            <ContentControl />                            
-                        </DataTemplate>
-                    </telerikPrimitives:RadSlideView.ItemPreviewTemplate>
-                
-                    <telerikPrimitives:RadSlideView.OverlayContentTemplate>
-                        <DataTemplate>
-                            <TextBlock 
-                               Style="{StaticResource GSPageTitleStyle}"
-                               Text="{Binding Name}"  />
-                        </DataTemplate>
-                    </telerikPrimitives:RadSlideView.OverlayContentTemplate>
-                    
-                </telerikPrimitives:RadSlideView>
-                -->
-                
-                <phone:Pivot 
-			    x:Name="Plants" 
-			    ItemsSource="{Binding Plants}"
-                SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-			    Title="{Binding Username}"
-                Foreground="White"
-                FontFamily="{StaticResource GSPageTitleFont}"
-                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+
+                    <phone:Pivot 
+			            x:Name="Plants" 
+                        SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+			            Title="{Binding Username}"
+                        Foreground="White"
+                        FontFamily="{StaticResource GSPageTitleFont}"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
                     >
 
-                    <phone:Pivot.TitleTemplate>
-                        <DataTemplate>
-                            <TextBlock 
+                        <phone:Pivot.TitleTemplate>
+                            <DataTemplate>
+                                <TextBlock 
                                 Style="{StaticResource GSAppTitleStyle}"
                                 Text="GROWTH STORIES" 
                                 Margin="0,4,0,8" />
-                        </DataTemplate>
-                        
-                    </phone:Pivot.TitleTemplate>
-                    
-                    <phone:Pivot.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock 
+                            </DataTemplate>
+
+                        </phone:Pivot.TitleTemplate>
+
+                        <phone:Pivot.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock 
                                Style="{StaticResource GSPageTitleStyle}"
                                Text="{Binding Name}"  />
-                       </DataTemplate>
+                            </DataTemplate>
 
-                    </phone:Pivot.HeaderTemplate>
+                        </phone:Pivot.HeaderTemplate>
 
-                    <phone:Pivot.ItemTemplate>
-                        <DataTemplate>
-                            <local:PlantView 
+                        <phone:Pivot.ItemTemplate>
+                            <DataTemplate>
+                                <local:PlantView 
                                 ViewModel="{Binding}" 
                                 Margin="0,0,0,0" 
-                                VerticalAlignment="Stretch" />
-                        </DataTemplate>
-                    </phone:Pivot.ItemTemplate>
+                                VerticalAlignment="Stretch" 
+                                    />
+                            </DataTemplate>
+                        </phone:Pivot.ItemTemplate>
 
-                </phone:Pivot>
-                
+                    </phone:Pivot>
 
-            </Grid>
-        </local:GSMultiViewHost.DefaultContent>
-    </local:GSMultiViewHost>
+
+                </Grid>
+            </local:GSMultiViewHost.DefaultContent>
+        </local:GSMultiViewHost>
 </local:GardenPivotViewBase>

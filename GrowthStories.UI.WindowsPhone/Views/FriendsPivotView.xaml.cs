@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
 using System.Reactive.Linq;
 using EventStore.Logging;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -37,7 +29,19 @@ namespace Growthstories.UI.WindowsPhone
             InitializeComponent();
 
             Logger.Info("initializing new friendspivotview {0}", id);
-       
+
+            this.WhenAnyValue(x => x.ViewModel.Friends).Where(x => x != null).Subscribe(x =>
+            {
+                this.Friends.ItemsSource = null;
+                this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
+            });
+
+            this.WhenAnyObservable(x => x.ViewModel.Friends.CountChanged).Subscribe(x =>
+            {
+                this.Friends.ItemsSource = null;
+                this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
+            });
+
             Constructed.Execute(null);
             Constructed.Take(1).Subscribe(_ => CleanUp());
         }
@@ -46,11 +50,11 @@ namespace Growthstories.UI.WindowsPhone
         private void CleanUp()
         {
             this.ViewModel.Log().Info("cleaning up friendspivot {0}", id);
-            
+
             Friends.ItemsSource = null;
             //Friends.SelectedItem = null;
             ViewHelpers.ClearPivotDependencyValues(Friends);
-            
+
             //LayoutRoot.Children.Clear();
         }
 

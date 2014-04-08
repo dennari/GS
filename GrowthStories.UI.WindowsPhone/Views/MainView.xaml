@@ -197,7 +197,7 @@
             
             <!-- TESTING -->
             
-            <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
+            <!--<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                 <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                     <ScrollViewer>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
@@ -228,7 +228,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
-            </phone:PanoramaItem>
+            </phone:PanoramaItem>-->
                    
             
         </phone:Panorama>

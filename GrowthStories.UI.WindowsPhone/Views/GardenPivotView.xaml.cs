@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using System.ComponentModel;
-using Growthstories.UI.ViewModel;
-using ReactiveUI;
 using System.Reactive.Linq;
 using EventStore.Logging;
+using Growthstories.UI.ViewModel;
+using ReactiveUI;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -31,13 +23,85 @@ namespace Growthstories.UI.WindowsPhone
 
 
         static ReactiveCommand Constructed = new ReactiveCommand();
-        
 
+        private ReactiveList<string> LogItems;
         public GardenPivotView()
         {
             InitializeComponent();
 
             Logger.Info("initializing new gardenpivotview");
+
+
+            //Logg.ItemsSource = LogItems;
+            //Logg.ItemRealized += (s, e) =>
+            //{
+            //    //e.Container.
+            //};
+            //Plants.Unloaded += (s, e) =>
+            //{
+            //    LogItemsAdd(string.Format("Unloaded whole Pivot"));
+
+            //};
+            //Plants.Loaded += (s, e) =>
+            //{
+            //    LogItemsAdd(string.Format("Loaded whole Pivot"));
+
+            //};
+
+            //Plants.LoadingPivotItem += (s, e) =>
+            //{
+            //    var plant = e.Item.DataContext as IPlantViewModel;
+            //    if (plant != null)
+            //        LogItemsAdd(string.Format("Loading {0}", plant.Name));
+
+            //    //e.Item.Content.
+            //};
+            //Plants.LoadedPivotItem += (s, e) =>
+            //{
+            //    var plant = e.Item.DataContext as IPlantViewModel;
+            //    //e.Item.ContentTemplate.LoadContent();
+            //    if (plant != null)
+            //    {
+            //        var item = string.Format("Loaded {0}", plant.Name);
+            //        LogItemsAdd(item);
+
+            //    }
+
+
+            //};
+            //Plants.UnloadingPivotItem += (s, e) =>
+            //{
+            //    var plant = e.Item.DataContext as IPlantViewModel;
+            //    if (plant != null)
+            //        LogItemsAdd(string.Format("Unloading {0}", plant.Name));
+
+
+            //};
+            //Plants.UnloadedPivotItem += (s, e) =>
+            //{
+            //    var plant = e.Item.DataContext as IPlantViewModel;
+            //    if (plant != null)
+            //    {
+            //        var item = string.Format("Unloaded {0}", plant.Name);
+            //        LogItemsAdd(item);
+            //    }
+
+
+            //};
+
+
+
+            this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
+            {
+                this.Plants.ItemsSource = null;
+                this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+            });
+
+            this.WhenAnyObservable(x => x.ViewModel.Plants.CountChanged).Subscribe(x =>
+            {
+                this.Plants.ItemsSource = null;
+                this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+            });
 
             Constructed.Execute(null);
             Constructed.Take(1).Subscribe(_ => CleanUp());
@@ -48,7 +112,11 @@ namespace Growthstories.UI.WindowsPhone
         {
             //base.OnViewModelChanged(vm);
             vm.Log().Info("GardenPivotView: OnViewModelChanged");
-            
+
+
+
+
+
         }
 
 
@@ -67,11 +135,31 @@ namespace Growthstories.UI.WindowsPhone
             //}
         }
 
-        
+
         ~GardenPivotView()
         {
             NotifyDestroyed("");
         }
+
+        //private void PlantView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        //{
+        //    var p = sender as PlantView;
+        //    LogItemsAdd(string.Format("Loaded PlantView for plant {0}", p.ViewModel.Name));
+        //}
+
+        //private void PlantView_Unloaded(object sender, System.Windows.RoutedEventArgs e)
+        //{
+        //    var p = sender as PlantView;
+        //    LogItemsAdd(string.Format("Unloaded PlantView for plant {0}", p.ViewModel.Name));
+        //}
+
+        //private void LogItemsAdd(string p)
+        //{
+        //    var item = string.Format(p + ", {0:HH:mm:ss.fff}", DateTime.Now);
+        //    this.LogItems.Add(item);
+        //    //this.Logg.ScrollTo(item);
+        //    //this.Logg.ViewPort.
+        //}
 
     }
 }
