@@ -47,13 +47,24 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                     return null;
                 }
 
+                //if (Photo == null || Photo.Width > Photo.Height)
+                //{
+                //    return new BitmapImage(PhotoUri)
+                //    {
+                //        CreateOptions = BitmapCreateOptions.DelayCreation,
+                //        DecodePixelType = DecodePixelType.Logical,
+                //        DecodePixelHeight = 220
+                //    };
+                //}
+                //else
+                //{
                 return new BitmapImage(PhotoUri)
                 {
                     CreateOptions = BitmapCreateOptions.DelayCreation,
                     DecodePixelType = DecodePixelType.Logical,
-                    DecodePixelHeight = 220,
-                    //DecodePixelWidth = 450
+                    DecodePixelWidth = 456
                 };
+                //}
             }
         }
 
