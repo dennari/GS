@@ -40,7 +40,6 @@ namespace Growthstories.UI.ViewModel
         {
             this.Vm = vm;
 
-
             // when changing pivot pages, change current plant
             this.WhenAny(x => x.SelectedPage, x => x.GetValue())
                 .Where(x => x != null)
@@ -50,8 +49,9 @@ namespace Growthstories.UI.ViewModel
                     this.Log().Info("SelectedPlant changed to {0}", x.Name);
                    
                     this.SelectedPlant = x;
-                    if (x.UserId == this.UserId)
+                    if (x.UserId == this.UserId && App.Router.GetCurrentViewModel() == this)
                     {
+                        this.Log().Info("App.SelectedPlant changed to {0}", x.Name);                  
                         App.SelectedPlant = x;
                     }
 
@@ -226,7 +226,7 @@ namespace Growthstories.UI.ViewModel
                         },
                         new ButtonViewModel(null)
                         {
-                            Text = "photograph",
+                            Text = "photo",
                             IconType = IconType.PHOTO,
                             Command = this.PhotoCommand
                         },
