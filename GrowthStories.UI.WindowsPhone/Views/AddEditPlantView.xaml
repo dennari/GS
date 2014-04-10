@@ -100,6 +100,7 @@
                     Style="{StaticResource GSButtonStyle}"
                     HorizontalContentAlignment="Left"
                     Margin="0,4,0,0"
+                    Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"
                     >
                     <TextBlock 
                         FontFamily="{StaticResource GSAppTitleFont}"
@@ -108,7 +109,7 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Bottom"
                         Text="{Binding IntervalLabel}"                        
-                        Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibility}}"/>
+                        />
                 </Button>
             </Grid>
             <!-- Text="{Binding IntervalLabel}" -->
