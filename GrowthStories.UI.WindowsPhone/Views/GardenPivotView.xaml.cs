@@ -3,7 +3,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using EventStore.Logging;
 using Growthstories.UI.ViewModel;
+using Growthstories.Domain;
 using ReactiveUI;
+using System.Diagnostics;
 
 
 namespace Growthstories.UI.WindowsPhone
@@ -90,10 +92,25 @@ namespace Growthstories.UI.WindowsPhone
             //};
 
 
-            this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
+            this.WhenAnyValue(x => x.ViewModel.Plants)
+                .Where(x => x != null)
+                .Throttle(TimeSpan.FromMilliseconds(300), RxApp.TaskpoolScheduler)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
             {
-                this.Plants.ItemsSource = null;
-                this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+
+                try
+                {
+                    this.Plants.ItemsSource = null;
+                    this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+                }
+                catch (Exception e)
+                {
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+                    ViewModel.Log().DebugExceptionExtended("Refreshing Plants.ItemsSource threw exception", e);
+                }
+
             });
 
             this.WhenAnyObservable(x => x.ViewModel.Plants.CountChanged).Subscribe(x =>
@@ -106,7 +123,7 @@ namespace Growthstories.UI.WindowsPhone
             Constructed.Take(1).Subscribe(_ => CleanUp());
         }
 
-       
+
 
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {
