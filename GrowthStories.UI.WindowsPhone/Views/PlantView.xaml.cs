@@ -113,6 +113,7 @@ namespace Growthstories.UI.WindowsPhone
                 CleanUp();
             });
 
+            // clean up any plantviews previously instantiated for the same plant
             try
             {
                 if (views.ContainsKey(vm.Id) && views[vm.Id] != this)
@@ -132,7 +133,7 @@ namespace Growthstories.UI.WindowsPhone
 
         public void CleanUp()
         {
-            ViewModel.Log().Info("Cleaning up plantview for {0}", ViewModel.Name);
+            ViewModel.Log().Info("cleaning up plantview for {0}", ViewModel.Name);
             clearSubs();
             _RemoveLongListSelector();
         }

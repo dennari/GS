@@ -3,6 +3,10 @@ using System;
 using Growthstories.UI.ViewModel;
 using System.Collections.Generic;
 using Growthstories.Core;
+using System.Reactive.Disposables;
+using System.Reactive;
+using System.Reactive.Linq;
+
 
 namespace Growthstories.UI.Services
 {
@@ -89,6 +93,7 @@ namespace Growthstories.UI.Services
 
         private AsyncLock ResolveLock = new AsyncLock();
 
+        private IDisposable subs = Disposable.Empty;
 
         /// <summary>
         /// Returns the View associated with a ViewModel, deriving the name of
@@ -116,6 +121,22 @@ namespace Growthstories.UI.Services
                         this.Log().Info("creating new gardenpivotviewmodel for {0}", gvm.Username);
                         pivotViews.Clear(); // only cache the latest one, as otherwise we will use too much memory
                         pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+                        subs.Dispose();
+                        
+                        // re-instantiation is needed when items are removed or added as pivot 
+                        // creates all kinds of problems otherwise
+                        gvm.WhenAnyValue(x => x.Plants).Where(x => x != null).Take(1).Subscribe(__ =>
+                        {
+                            subs = gvm.Plants.CountChanged.Subscribe(_ =>
+                            {
+                                this.Log().Info("gardenpivotviewmodel for {0} will be re-instantiated", gvm.Username);
+                                pivotViews.Clear();
+
+                                //pivotViews[gvm] = attemptToResolveView(viewType.MakeGenericType(ViewModelToViewModelInterfaceFunc(viewModel)), null);
+                            }
+
+                            );
+                        });
                     }
                     else
                     {

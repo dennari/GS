@@ -25,6 +25,7 @@ namespace Growthstories.UI.WindowsPhone
         static ReactiveCommand Constructed = new ReactiveCommand();
 
         private ReactiveList<string> LogItems;
+
         public GardenPivotView()
         {
             InitializeComponent();
@@ -86,9 +87,7 @@ namespace Growthstories.UI.WindowsPhone
             //        LogItemsAdd(item);
             //    }
 
-
             //};
-
 
             this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
             {
@@ -96,12 +95,16 @@ namespace Growthstories.UI.WindowsPhone
                 this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
             });
 
-            this.WhenAnyObservable(x => x.ViewModel.Plants.CountChanged).Subscribe(x =>
-            {
-                this.Plants.ItemsSource = null;
-                this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
-            });
+            // no more necessary because the whole gardenpivotview is reinstantiated
+            // after items are changed
 
+            //this.WhenAnyObservable(x => x.ViewModel.Plants.CountChanged).Subscribe(x =>
+            //{
+            //    this.Plants.ItemsSource = null;
+            //    this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+            //});
+
+            // this will allways cleanup the previous gardenpivotview
             Constructed.Execute(null);
             Constructed.Take(1).Subscribe(_ => CleanUp());
         }
@@ -112,11 +115,6 @@ namespace Growthstories.UI.WindowsPhone
         {
             //base.OnViewModelChanged(vm);
             vm.Log().Info("GardenPivotView: OnViewModelChanged");
-
-
-
-
-
         }
 
 
