@@ -168,7 +168,7 @@ namespace Growthstories.UI.ViewModel
                         && y.AggregateId != App.User.Id
                         && y.Garden != null
                         && y.Garden.Plants != null
-                        && y.PlantCount > 0 
+                        && y.PlantCount > 0
                         ).ToArray();
 
                     if (filtered.Length > 0)
@@ -273,19 +273,9 @@ namespace Growthstories.UI.ViewModel
 
             this.SyncResults.Publish().Connect();
 
-            //this.SyncResults.Subscribe(x =>
+            //this.SyncResults.Where(x => x == AllSyncResult.AllSynced).Subscribe(x =>
             //{
-            //    if (x.Item1 == Sync.AllSyncResult.Error)
-            //    {
-            //        PopupViewModel pvm = new PopupViewModel()
-            //        {
-            //            Caption = "Failed to load data",
-            //            Message = "Could not load (all) information on followed user. Please try again later.",
-            //            IsLeftButtonEnabled = true,
-            //            LeftButtonContent = "OK"
-            //        };
-            //        App.ShowPopup.Execute(pvm);
-            //    }
+            //    Search = "";
             //});
         }
 

@@ -86,6 +86,13 @@ namespace Growthstories.UI.WindowsPhone
             UserSelector.Height = 560;
         }
 
+        private void UserListBox_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            UserListBox.Text = "";
+            this.ViewModel.Search = null;
+
+        }
+
 
     }
 }
