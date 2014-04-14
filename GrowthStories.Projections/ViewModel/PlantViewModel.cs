@@ -48,6 +48,10 @@ namespace Growthstories.UI.ViewModel
 
         #endregion
 
+        public override string ToString()
+        {
+            return string.Format("Plant {0} (instance of class {1})", this.Name, "PlantViewModel");
+        }
 
         private Guid _Id;
         public Guid Id

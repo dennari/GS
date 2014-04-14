@@ -19,7 +19,8 @@
         </Grid.Background>
          
         <phone:Pivot 
-			x:Name="Friends" 
+			x:Name="Friends"
+            ItemsSource="{Binding Friends}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
 
             <phone:Pivot.TitleTemplate>

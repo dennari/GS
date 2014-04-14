@@ -227,7 +227,7 @@
                     />
                                     </StackPanel>
 
-                                    <local:GSLongListSelector
+                      <local:GSLongListSelector
                         Margin="-2,-12,0,0"
                         x:Name="FriendsSelector"
                         ItemsSource="{Binding Friends}"

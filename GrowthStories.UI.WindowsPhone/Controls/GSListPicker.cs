@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using EventStore.Logging;
+using System;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -334,9 +335,24 @@ namespace Growthstories.UI.WindowsPhone
         protected override void OnTap(System.Windows.Input.GestureEventArgs e)
         {
             base.OnTap(e);
-            object item = ((FrameworkElement)e.OriginalSource).DataContext;
+
+            if (this.ItemsSource == null || this.ItemsSource.Count == 0)
+                return;
+            Type ItemType = this.ItemsSource[0].GetType();
+
+            var source = e.OriginalSource as FrameworkElement;
+            if (source == null)
+                return;
+            var tappedItem = source.DataContext;
+
+            if (tappedItem == null)
+                return;
+
+            if (tappedItem.GetType() != ItemType)
+                return;
+
             if (ItemTappedCommand != null)
-                ItemTappedCommand.Execute(item);
+                ItemTappedCommand.Execute(tappedItem);
 
         }
 
@@ -361,7 +377,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 Logger.Warn("could not get viewport for longlistselector");
             }
-            
+
         }
 
         //protected override 

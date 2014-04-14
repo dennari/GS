@@ -30,17 +30,17 @@ namespace Growthstories.UI.WindowsPhone
 
             Logger.Info("initializing new friendspivotview {0}", id);
 
-            this.WhenAnyValue(x => x.ViewModel.Friends).Where(x => x != null).Subscribe(x =>
-            {
-                this.Friends.ItemsSource = null;
-                this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
-            });
+            //this.WhenAnyValue(x => x.ViewModel.Friends).Where(x => x != null).Subscribe(x =>
+            //{
+            //    this.Friends.ItemsSource = null;
+            //    this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
+            //});
 
-            this.WhenAnyObservable(x => x.ViewModel.Friends.CountChanged).Subscribe(x =>
-            {
-                this.Friends.ItemsSource = null;
-                this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
-            });
+            //this.WhenAnyObservable(x => x.ViewModel.Friends.CountChanged).Subscribe(x =>
+            //{
+            //    this.Friends.ItemsSource = null;
+            //    this.Friends.ItemsSource = this.ViewModel.Friends.ToArray();
+            //});
 
             Constructed.Execute(null);
             Constructed.Take(1).Subscribe(_ => CleanUp());

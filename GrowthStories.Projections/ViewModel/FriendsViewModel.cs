@@ -54,7 +54,7 @@ namespace Growthstories.UI.ViewModel
 
         //private IDisposable loadSubscription = Disposable.Empty;
         //private IDisposable unfollowedSubscription = Disposable.Empty;
-        
+
         void LoadFriends()
         {
 
@@ -143,10 +143,11 @@ namespace Growthstories.UI.ViewModel
             var isNotThisObs = App.WhenAnyObservable(x => x.Router.CurrentViewModel).Select(x => x != this);
 
             this.ItemTappedCommand = new ReactiveCommand(isNotThisObs);
-            this.ItemTappedCommand.Subscribe(_ => 
-                
-                this.Navigate(this)
-                );
+            subs.Add(this.ItemTappedCommand
+                .Where(x => x != null)
+                .OfType<IGardenViewModel>()
+                .Do(x => SelectedItem = x)
+                .Subscribe(_ => Navigate(this)));
 
             subs.Add(isNotThisObs.Subscribe(x =>
             {

@@ -20,6 +20,12 @@ namespace Growthstories.UI.ViewModel
     {
 
 
+
+        public override string ToString()
+        {
+            return string.Format("Garden of user {0} (instance of class {1})", this.Username, "GardenViewModel");
+        }
+
         private bool _PlantsLoaded;
         public bool PlantsLoaded
         {
@@ -375,7 +381,7 @@ namespace Growthstories.UI.ViewModel
             });
 
             subs.Add(App.WhenAnyValue(x => x.SelectedPlant).Where(x => x != null).Subscribe(x =>
-            {                   
+            {
                 foreach (var p in Plants)
                 {
                     var should = ShouldPlantBeFullyLoaded(p, x);
