@@ -257,6 +257,12 @@ namespace Growthstories.UI.WindowsPhone
 
             //Storyboard.SetTarget(borderBrushAnimation,)
         }
+
+        public void SetHintVisible(bool isVisible)
+        {
+            this.HintContentElement.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
     }
 
 

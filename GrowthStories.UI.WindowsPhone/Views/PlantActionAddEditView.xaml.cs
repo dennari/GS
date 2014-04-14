@@ -40,7 +40,7 @@ namespace Growthstories.UI.WindowsPhone
             base.OnViewModelChanged(vm);
         }
 
-        
+
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             //App.RootFrame.RenderTransform = new CompositeTransform();
@@ -84,7 +84,18 @@ namespace Growthstories.UI.WindowsPhone
             sv.ScrollToVerticalOffset(800);
         }
 
-        
+        private void GSChatTextBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            GSChatTextBox box = sender as GSChatTextBox;
+            if (box == null)
+                return;
+
+
+            box.SetHintVisible(string.IsNullOrWhiteSpace(box.Text));
+
+        }
+
+
 
     }
 }

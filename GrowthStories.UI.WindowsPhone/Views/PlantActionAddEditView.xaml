@@ -264,7 +264,9 @@
                 c4fBinding:TextBinding.UpdateSourceOnChange="True"
 				VerticalAlignment="Top"						
 				Text="{Binding Note, Mode=TwoWay}" 		
-				Visibility="{Binding NoteVisibility}" />
+				Visibility="{Binding NoteVisibility}"
+                Loaded="GSChatTextBox_Loaded"
+                />
 
 
 
