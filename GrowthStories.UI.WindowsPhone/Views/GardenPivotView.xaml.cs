@@ -89,11 +89,11 @@ namespace Growthstories.UI.WindowsPhone
 
             //};
 
-            this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
-            {
-                this.Plants.ItemsSource = null;
-                this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
-            });
+            //this.WhenAnyValue(x => x.ViewModel.Plants).Where(x => x != null).Subscribe(x =>
+            //{
+            //    this.Plants.ItemsSource = null;
+            //    this.Plants.ItemsSource = this.ViewModel.Plants.ToArray();
+            //});
 
             // no more necessary because the whole gardenpivotview is reinstantiated
             // after items are changed
@@ -109,7 +109,7 @@ namespace Growthstories.UI.WindowsPhone
             Constructed.Take(1).Subscribe(_ => CleanUp());
         }
 
-       
+
 
         protected override void OnViewModelChanged(IGardenPivotViewModel vm)
         {

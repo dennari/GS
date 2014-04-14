@@ -30,6 +30,7 @@
 
                     <phone:Pivot 
 			            x:Name="Plants" 
+                        ItemsSource="{Binding Plants}"
                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
 			            Title="{Binding Username}"
                         Foreground="White"
