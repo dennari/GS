@@ -338,47 +338,24 @@ namespace Growthstories.UI.ViewModel
         //
         private void SubscribeForActionRemovedSchedulerUpdates()
         {
-            Actions.ItemsRemoved.Where(r => r.ActionType == PlantActionType.WATERED).Subscribe(r =>
+
+            Actions.ItemsRemoved
+                .Where(r => (r.ActionType == PlantActionType.FERTILIZED && this.FertilizingScheduler != null) ||
+                           ((r.ActionType == PlantActionType.WATERED && this.WateringScheduler != null)))
+                .Select(x => x.ActionType == PlantActionType.FERTILIZED
+                    ? Tuple.Create(this.FertilizingScheduler, GetLatestAction(x.ActionType))
+                    : Tuple.Create(this.WateringScheduler, GetLatestAction(x.ActionType)))
+                .Subscribe(x =>
             {
-                var action = GetLatestAction(PlantActionType.WATERED);
-                if (this.WateringScheduler != null)
-                {
-                    if (action != null)
-                    {
-                        this.WateringScheduler.LastActionTime = action.Created;
-                    }
-                    else
-                    {
-                        this.WateringScheduler = null;
-                    }
-                }
-            });
-            Actions.ItemsRemoved.Where(r => r.ActionType == PlantActionType.FERTILIZED).Subscribe(r =>
-            {
-                var action = GetLatestAction(PlantActionType.WATERED);
-                if (this.FertilizingScheduler != null)
-                {
-                    if (action != null)
-                    {
-                        this.FertilizingScheduler.LastActionTime = action.Created;
-                    }
-                    else
-                    {
-                        this.FertilizingScheduler = null;
-                    }
-                }
+                x.Item1.LastActionTime = x.Item2 != null ? x.Item2.Created : (DateTimeOffset?)null;
             });
         }
 
 
         private IPlantActionViewModel GetLatestAction(PlantActionType type)
         {
-            var ret = Actions.Where(x => x.ActionType == type).OrderBy(x => x.ActionIndex).Take(1);
-            if (ret.Count() == 0)
-            {
-                return null;
-            }
-            return ret.First();
+            return Actions.Where(x => x.ActionType == type).OrderBy(x => x.ActionIndex).FirstOrDefault();
+
         }
 
 
@@ -415,6 +392,13 @@ namespace Growthstories.UI.ViewModel
 
             this.Log().Info("haswriteaccess for {2} state.UserId {0}, appUser.Id {1}", state.UserId, appUser.Id, state.Name);
             this.HasWriteAccess = state.UserId == appUser.Id;
+
+
+            ////////////////////////////////////////////////////////
+            /// WE LOAD THE ACTIONS EAGERLY (FOR NOTIFICATIONS)/////
+            ////////////////////////////////////////////////////////
+
+            var actions = this.Actions; // this just sets the flag and creates an empty list
 
             AppBarButtons = HasWriteAccess ? GetOwnerButtons() : GetFollowerButtons();
             if (HasWriteAccess)
@@ -621,14 +605,6 @@ namespace Growthstories.UI.ViewModel
                         this.ShareCommand.Execute(null);
                     });
             }
-
-            // kludge:
-            //
-            // needs to be done to make sure that
-            // this.Photo and isLoaded gets set
-            // 
-            //
-            var tmp = Actions;
 
         }
 

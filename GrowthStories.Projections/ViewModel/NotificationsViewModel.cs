@@ -72,16 +72,12 @@ namespace Growthstories.UI.ViewModel
     public class NotificationsViewModel : RoutableViewModel, INotificationsViewModel
     {
 
-        private IGardenViewModel _Garden;
+        private ObservableAsPropertyHelper<IGardenViewModel> _Garden;
         private IGardenViewModel Garden
         {
             get
             {
-                return _Garden;
-            }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _Garden, value);
+                return _Garden == null ? null : _Garden.Value;
             }
         }
 
@@ -100,8 +96,23 @@ namespace Growthstories.UI.ViewModel
                         IconType = IconType.ADD,
                         Command = g.TryAddPlantCommand
                     }
-                );       
-           }
+                );
+            }
+        }
+
+        private ObservableAsPropertyHelper<IReactiveDerivedList<IPlantViewModel>> _ScheduledPlants;
+        private IReactiveDerivedList<IPlantViewModel> ScheduledPlants
+        {
+            get
+            {
+                return _ScheduledPlants != null ? _ScheduledPlants.Value : null;
+            }
+        }
+
+
+        public bool IsScheduled(IPlantViewModel x)
+        {
+            return (x.IsFertilizingScheduleEnabled && x.FertilizingScheduler != null) || (x.IsWateringScheduleEnabled && x.WateringScheduler != null);
         }
 
 
@@ -111,65 +122,75 @@ namespace Growthstories.UI.ViewModel
         {
 
 
-            garden.Subscribe(x =>
-            {
-                Garden = x;
+            garden
+                .Where(x => x != null)
+                .ToProperty(this, x => x.Garden, out _Garden);
 
-                SetupAppBarButtons();
+            var sub0 = this.WhenAnyValue(x => x.Garden)
+                .Where(x => x != null)
+                .Subscribe(_ => SetupAppBarButtons());
 
-                var currentAndFuturePlants = Garden.Plants.ItemsAdded.StartWith(Garden.Plants);
-
-                IReadOnlyReactiveList<IPlantActionViewModel> latestActions = null;
-                currentAndFuturePlants.Subscribe(plant =>
+            this.WhenAnyValue(x => x.Garden.Plants)
+                .Where(x => x != null)
+                .Select(x =>
                 {
-                    // this forces the actions to load eagerly, 
-                    // in order to get the notifications in the start
-                    latestActions = plant.Actions;
+                    return x.CreateDerivedCollection(y => y, IsScheduled);
+                })
+                .ToProperty(this, x => x.ScheduledPlants, out _ScheduledPlants);
 
-                    plant
-                        .WhenAnyValue(y => y.WateringScheduler)
-                        .Where(y => y != null)
-                        .Subscribe(z =>
-                        {
-                            z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
-                            {
-                                UpdateWateringNotification(plant);
-                            });
-                        });
+            var plantStream = this.WhenAnyValue(x => x.ScheduledPlants)
+                .Where(x => x != null)
+                .Select(x =>
+                {
+                    return x.ItemsAdded.StartWith(x);
+                })
+                .Switch();
 
-                    plant
-                        .WhenAnyValue(y => y.FertilizingScheduler)
-                        .Where(y => y != null)
-                        .Subscribe(z =>
-                        {
-                            z.WhenAnyValue(ws => ws.Missed).Subscribe(_ =>
-                            {
-                                UpdateFertilizingNotification(plant);
-                            });
-                        });
 
-                    plant.WhenAnyValue(y => y.IsWateringScheduleEnabled).Subscribe(_ => UpdateWateringNotification(plant));
-                    plant.WhenAnyValue(y => y.IsFertilizingScheduleEnabled).Subscribe(_ => UpdateFertilizingNotification(plant));
+            var sub1 = plantStream.Where(x => x.IsFertilizingScheduleEnabled && x.FertilizingScheduler != null)
+               .SelectMany(x =>
+                   Observable.Merge(
+                       x.WhenAny(y => y.FertilizingScheduler.Missed, y => 1),
+                       x.WhenAnyValue(y => y.FertilizingScheduler.LastActionTime).Where(y => y == null).Select(y => 1) // lastActionTime is null if there are no actions of the correct type
+                       ).Select(y => x)
+                )
+               .Subscribe(x => UpdateFertilizingNotification(x));
 
-                    latestActions.ItemsRemoved.Where(z => z.ActionType == PlantActionType.WATERED).Subscribe(_ =>
-                    {
-                        UpdateWateringNotification(plant);
-                    });
+            var sub2 = plantStream.Where(x =>
+            {
+                return x.IsWateringScheduleEnabled && x.WateringScheduler != null;
+            })
+               .SelectMany(x =>
+                   Observable.Merge(
+                       x.WhenAny(y => y.WateringScheduler.Missed, y => 1),
+                       x.WhenAnyValue(y => y.WateringScheduler.LastActionTime).Where(y => y == null).Select(y => 1)
+                       ).Select(y => x)
+                )
+               .Subscribe(x => UpdateWateringNotification(x));
 
-                    latestActions.ItemsRemoved.Where(z => z.ActionType == PlantActionType.FERTILIZED).Subscribe(_ =>
-                    {
-                        UpdateFertilizingNotification(plant);
-                    });
-
-                });
-
-                Garden.Plants.ItemsRemoved.Subscribe(pvm =>
+            var sub3 = this.WhenAnyValue(x => x.ScheduledPlants)
+                .Where(x => x != null)
+                .Select(x => x.ItemsRemoved)
+                .Switch()
+                .Subscribe(pvm =>
                 {
                     TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
                     TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
                 });
 
-            });
+            var sub4 = this.WhenAnyValue(x => x.ScheduledPlants)
+                .Where(x => x != null && x.Count == 0)
+                .Subscribe(_ =>
+                {
+                    this.Notifications.RemoveAll(this.Notifications.ToArray());
+                });
+
+            subs.Add(sub0);
+            subs.Add(sub1);
+            subs.Add(sub2);
+            subs.Add(sub3);
+            subs.Add(sub4);
+
 
         }
 
@@ -255,15 +276,7 @@ namespace Growthstories.UI.ViewModel
 
             Notifications.Sort(CompareNotifications);
 
-            //var key = Tuple.Create(notification.Id, NotificationType.WATERING_SCHEDULE);
-            //int? index = null;
-            //if (NotificationsForPlant.TryGetValue(key, out index))
-            //{
-            //    Notifications.RemoveAt(index.Value);
-            //}
-            //NotificationsForPlant[key] = Notifications.Count - 1;
 
-            //Notifications.Sort();           
         }
 
 

@@ -133,7 +133,10 @@ namespace Growthstories.UI.ViewModel
             {
                 if (_Plants == null)
                 {
-                    _Plants = new ReactiveList<IPlantViewModel>();
+                    _Plants = new ReactiveList<IPlantViewModel>()
+                    {
+                        ChangeTrackingEnabled = true
+                    };
                     if (this.User != null)
                     {
                         LoadPlants(this.User);
@@ -582,7 +585,9 @@ namespace Growthstories.UI.ViewModel
                 IDisposable shouldAddMultiselectButtonSubscription = this.WhenAnyValue(x => x.PlantsLoaded)
                     .Where(x => x)
                     .Take(1)
-                    .SelectMany(_ => _Plants.IsEmptyChanged.StartWith(_Plants.IsEmpty))
+                    .SelectMany(_ => this.WhenAnyValue(x => x.Plants).Select(x => (ReactiveList<IPlantViewModel>)x))
+                    .Select(x => x.IsEmptyChanged.StartWith(x.IsEmpty))
+                    .Switch()
                     .Subscribe(x =>
                     {
                         currentTileModeDefaultButtons = !x ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
@@ -620,18 +625,21 @@ namespace Growthstories.UI.ViewModel
                    {
                        if (_Plants.Count == 1)
                        {
-                           var p = new ReactiveList<IPlantViewModel>();
-                           shouldAddMultiselectButtonSubscription.Dispose();
-                           shouldAddMultiselectButtonSubscription = p.IsEmptyChanged.StartWith(true).Subscribe(y =>
-                           {
-                               currentTileModeDefaultButtons = !y ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
-                               if (!IsPlantSelectionEnabled)
-                               {
-                                   this.AppBarButtons = currentTileModeDefaultButtons;
-                               }
-                           });
+                           //var p =
+                           //shouldAddMultiselectButtonSubscription.Dispose();
+                           //shouldAddMultiselectButtonSubscription = p.IsEmptyChanged.StartWith(true).Subscribe(y =>
+                           //{
+                           //    currentTileModeDefaultButtons = !y ? TileModeDefaultButtonsWithSelection : TileModeDefaultButtons;
+                           //    if (!IsPlantSelectionEnabled)
+                           //    {
+                           //        this.AppBarButtons = currentTileModeDefaultButtons;
+                           //    }
+                           //});
 
-                           Plants = p;
+                           Plants = new ReactiveList<IPlantViewModel>()
+                           {
+                               ChangeTrackingEnabled = true
+                           };
 
                            //Selecte
                        }
