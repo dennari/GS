@@ -32,6 +32,8 @@ namespace Growthstories.UI.WindowsPhone.Services
             }
         }
 
+     
+
         public static Resolutions CurrentResolution
         {
             get
@@ -46,6 +48,24 @@ namespace Growthstories.UI.WindowsPhone.Services
                 else return Resolutions.HD;
             }
         }
+
+    
+        public static int CurrentHeight
+        {
+            get 
+            {
+                switch (CurrentResolution)
+                {
+                    case Resolutions.WVGA:
+                    case Resolutions.WXGA:
+                    return 800;
+                }
+              
+                // hd or some previously unknown resolution
+                return 854;
+            }
+        }
+        
 
         public static Size CurrentResolutionDimensions
         {

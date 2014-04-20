@@ -55,9 +55,8 @@
         Title="follow user"
         Style="{StaticResource NoScroll}"
         >
-
  
-        <StackPanel Grid.Row="0">
+        <StackPanel Grid.Row="0" Margin="0,0,0,-24">
 
             <Grid Height="130" Margin="0,-40,0,0">
                 <telerikPrimitives:RadTextBox 
@@ -77,43 +76,24 @@
                       
                 />
             </Grid>
-            <!--
-            <local:GSTextBox
-                    x:Name="UserListBox"
-                    BorderThickness="3" Margin="-12,0,-12,12"
-                    KeyUp="UserListBox_KeyUp"
-              />
-                -->
-            
-          
-            <!--
-            <StackPanel
-                Visibility="{Binding ProgressIndicatorIsVisible, Converter={StaticResource BooleanToVisibility}}">
-                <TextBlock
-                    Style="{StaticResource GSPlaceholderTextBlockStyle}"
-                    Text="Searching..." 
-                    FontWeight="Normal"
-                    Margin="0,0,0,24"
-                    HorizontalAlignment="Left"
-                    Width="400"                   
-                  />
-                <ProgressBar IsIndeterminate="True" IsEnabled="True" Foreground="White" />
-            </StackPanel>
-            -->
+        
+            <phone:LongListSelector 
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                x:Name="UserSelector"
+                ItemsSource="{Binding List}" 
+                ItemTemplate="{StaticResource ListUsersTemplate}"
+                SelectionChanged="UserSelector_SelectionChanged"
+                Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
+                Height="613"
+                        >
+                <phone:LongListSelector.ListFooterTemplate>
+                    <DataTemplate>
+                        <ContentControl Height="60" />
+                    </DataTemplate>
+                </phone:LongListSelector.ListFooterTemplate>
 
-            <ScrollViewer>
-                <StackPanel x:Name="ContentPanel" Margin="0,0,0,0">
-                    <phone:LongListSelector 
-                        x:Name="UserSelector"
-                        ItemsSource="{Binding List}" 
-                        ItemTemplate="{StaticResource ListUsersTemplate}"
-                        SelectionChanged="UserSelector_SelectionChanged"
-                        Visibility="{Binding List.Count, Converter={StaticResource NonZeroToVisibility}}" 
-                        Height="560"
-                        />
-                </StackPanel>
-            </ScrollViewer>
-
+            </phone:LongListSelector>
+    
             <StackPanel Visibility="{Binding ProgressIndicatorIsVisible, 
                     Converter={StaticResource BooleanToVisibility}, ConverterParameter=invert}">
 
