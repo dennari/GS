@@ -100,19 +100,34 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-        private ObservableAsPropertyHelper<IReactiveDerivedList<IPlantViewModel>> _ScheduledPlants;
-        private IReactiveDerivedList<IPlantViewModel> ScheduledPlants
+        private ObservableAsPropertyHelper<IReactiveDerivedList<IPlantViewModel>> _WateringScheduledPlants;
+        private IReactiveDerivedList<IPlantViewModel> WateringScheduledPlants
         {
             get
             {
-                return _ScheduledPlants != null ? _ScheduledPlants.Value : null;
+                return _WateringScheduledPlants != null ? _WateringScheduledPlants.Value : null;
             }
         }
 
 
-        public bool IsScheduled(IPlantViewModel x)
+        public bool IsWateringScheduled(IPlantViewModel x)
         {
-            return (x.IsFertilizingScheduleEnabled && x.FertilizingScheduler != null) || (x.IsWateringScheduleEnabled && x.WateringScheduler != null);
+            return (x.IsWateringScheduleEnabled && x.WateringScheduler != null);
+        }
+
+        private ObservableAsPropertyHelper<IReactiveDerivedList<IPlantViewModel>> _FertilizingScheduledPlants;
+        private IReactiveDerivedList<IPlantViewModel> FertilizingScheduledPlants
+        {
+            get
+            {
+                return _FertilizingScheduledPlants != null ? _FertilizingScheduledPlants.Value : null;
+            }
+        }
+
+
+        public bool IsFertilizingScheduled(IPlantViewModel x)
+        {
+            return (x.IsFertilizingScheduleEnabled && x.FertilizingScheduler != null);
         }
 
 
@@ -134,61 +149,71 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x != null)
                 .Select(x =>
                 {
-                    return x.CreateDerivedCollection(y => y, IsScheduled);
+                    return x.CreateDerivedCollection(y => y, IsWateringScheduled);
                 })
-                .ToProperty(this, x => x.ScheduledPlants, out _ScheduledPlants);
+                .ToProperty(this, x => x.WateringScheduledPlants, out _WateringScheduledPlants);
 
-            var plantStream = this.WhenAnyValue(x => x.ScheduledPlants)
+            this.WhenAnyValue(x => x.Garden.Plants)
+                .Where(x => x != null)
+                .Select(x =>
+                {
+                    return x.CreateDerivedCollection(y => y, IsFertilizingScheduled);
+                })
+                .ToProperty(this, x => x.FertilizingScheduledPlants, out _FertilizingScheduledPlants);
+
+            var sub1 = this.WhenAnyValue(x => x.WateringScheduledPlants)
                 .Where(x => x != null)
                 .Select(x =>
                 {
                     return x.ItemsAdded.StartWith(x);
                 })
-                .Switch();
+                .Switch()
+                .SelectMany(x => x.WhenAny(y => y.WateringScheduler.Missed, y => x))
+                .Subscribe(x => UpdateWateringNotification(x));
 
 
-            var sub1 = plantStream.Where(x => x.IsFertilizingScheduleEnabled && x.FertilizingScheduler != null)
-               .SelectMany(x =>
-                   Observable.Merge(
-                       x.WhenAny(y => y.FertilizingScheduler.Missed, y => 1),
-                       x.WhenAnyValue(y => y.FertilizingScheduler.LastActionTime).Where(y => y == null).Select(y => 1) // lastActionTime is null if there are no actions of the correct type
-                       ).Select(y => x)
-                )
-               .Subscribe(x => UpdateFertilizingNotification(x));
+            var sub2 = this.WhenAnyValue(x => x.FertilizingScheduledPlants)
+                .Where(x => x != null)
+                .Select(x =>
+                {
+                    return x.ItemsAdded.StartWith(x);
+                })
+                .Switch()
+                .SelectMany(x => x.WhenAny(y => y.FertilizingScheduler.Missed, y => x))
+                .Subscribe(x => UpdateFertilizingNotification(x));
 
-            var sub2 = plantStream.Where(x =>
-            {
-                return x.IsWateringScheduleEnabled && x.WateringScheduler != null;
-            })
-               .SelectMany(x =>
-                   Observable.Merge(
-                       x.WhenAny(y => y.WateringScheduler.Missed, y => 1),
-                       x.WhenAnyValue(y => y.WateringScheduler.LastActionTime).Where(y => y == null).Select(y => 1)
-                       ).Select(y => x)
-                )
-               .Subscribe(x => UpdateWateringNotification(x));
 
-            var sub3 = this.WhenAnyValue(x => x.ScheduledPlants)
+
+            var sub3 = this.WhenAnyValue(x => x.WateringScheduledPlants)
+                .Where(x => x != null)
+                .Select(x => x.ItemsRemoved)
+                .Switch()
+                .Subscribe(pvm =>
+                {
+                    TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
+                });
+
+            var sub31 = this.WhenAnyValue(x => x.FertilizingScheduledPlants)
                 .Where(x => x != null)
                 .Select(x => x.ItemsRemoved)
                 .Switch()
                 .Subscribe(pvm =>
                 {
                     TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
-                    TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
                 });
 
-            var sub4 = this.WhenAnyValue(x => x.ScheduledPlants)
-                .Where(x => x != null && x.Count == 0)
-                .Subscribe(_ =>
-                {
-                    this.Notifications.RemoveAll(this.Notifications.ToArray());
-                });
+            var sub4 = this.WhenAnyValue(x => x.WateringScheduledPlants) // it's enough to listen to either one
+                       .Where(x => x != null && x.Count == 0)
+                       .Subscribe(_ =>
+                        {
+                            this.Notifications.RemoveAll(this.Notifications.ToArray());
+                        });
 
             subs.Add(sub0);
             subs.Add(sub1);
             subs.Add(sub2);
             subs.Add(sub3);
+            subs.Add(sub31);
             subs.Add(sub4);
 
 

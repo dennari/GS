@@ -343,11 +343,25 @@ namespace Growthstories.UI.ViewModel
                 .Where(r => (r.ActionType == PlantActionType.FERTILIZED && this.FertilizingScheduler != null) ||
                            ((r.ActionType == PlantActionType.WATERED && this.WateringScheduler != null)))
                 .Select(x => x.ActionType == PlantActionType.FERTILIZED
-                    ? Tuple.Create(this.FertilizingScheduler, GetLatestAction(x.ActionType))
-                    : Tuple.Create(this.WateringScheduler, GetLatestAction(x.ActionType)))
+                    ? Tuple.Create(this.FertilizingScheduler, GetLatestAction(x.ActionType), x.ActionType)
+                    : Tuple.Create(this.WateringScheduler, GetLatestAction(x.ActionType), x.ActionType))
                 .Subscribe(x =>
             {
-                x.Item1.LastActionTime = x.Item2 != null ? x.Item2.Created : (DateTimeOffset?)null;
+                if (x.Item2 == null) // this was the last action of that type, set the scheduler to null
+                {
+                    if (x.Item3 == PlantActionType.FERTILIZED)
+                    {
+                        this.FertilizingScheduler = null;
+                    }
+                    else
+                    {
+                        this.WateringScheduler = null;
+                    }
+                }
+                else
+                {
+                    x.Item1.LastActionTime = x.Item2.Created;
+                }
             });
         }
 
