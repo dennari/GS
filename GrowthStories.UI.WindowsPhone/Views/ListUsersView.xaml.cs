@@ -4,6 +4,10 @@ using Growthstories.Sync;
 using Growthstories.UI.ViewModel;
 using ReactiveUI;
 using Telerik.Windows.Controls.PhoneTextBox;
+using Growthstories.UI.WindowsPhone.Services;
+using EventStore.Logging;
+using System.Reactive.Disposables;
+
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -16,12 +20,19 @@ namespace Growthstories.UI.WindowsPhone
     public partial class ListUsersView : ListUsersViewBase
     {
 
+
+        private static ILog Logger = LogFactory.BuildLogger(typeof(ListUsersView));
+
+
         public ListUsersView()
         {
             InitializeComponent();
             UserSelector.SelectedItem = null;
+            Logger.Info("initializing new listusersview");
         }
 
+
+        private IDisposable subs = Disposable.Empty;
 
         protected override void OnViewModelChanged(ISearchUsersViewModel vm)
         {
@@ -31,7 +42,8 @@ namespace Growthstories.UI.WindowsPhone
 
             var box = UserListBox;
 
-            vm.WhenAnyValue(x => x.ProgressIndicatorIsVisible).Subscribe(x =>
+            subs.Dispose();
+            subs = vm.WhenAnyValue(x => x.ProgressIndicatorIsVisible).Subscribe(x =>
             {
                 if (x)
                 {
@@ -43,6 +55,10 @@ namespace Growthstories.UI.WindowsPhone
                 }
             });
 
+            vm.Log().Info("onviewmodelchanged for listusersview");
+
+            UserListBox.Text = "";
+            this.ViewModel.Search = null;
         }
 
 
@@ -61,8 +77,6 @@ namespace Growthstories.UI.WindowsPhone
             this.ViewModel.SearchCommand.Execute(UserListBox.Text);
         }
 
-
-
         private void UserSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
@@ -74,23 +88,31 @@ namespace Growthstories.UI.WindowsPhone
             UserSelector.SelectedItem = null;
         }
 
+        private int getUserListBoxHeight()
+        {
+            if (ResolutionHelper.CurrentHeight == 854)
+            {
+                return 560 + 53;
+            }
+            return 560;
+        }
+
 
         private void UserListBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
         {
-            UserSelector.Height = 560 - SIPHelper.GetSipHeight();
+            UserSelector.Height = getUserListBoxHeight() - SIPHelper.GetSipHeight();
         }
 
 
         private void UserListBox_LostFocus(object sender, System.Windows.RoutedEventArgs e)
         {
-            UserSelector.Height = 560;
+            UserSelector.Height = getUserListBoxHeight();
         }
 
         private void UserListBox_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            UserListBox.Text = "";
-            this.ViewModel.Search = null;
-
+            //UserListBox.Text = "";
+            //this.ViewModel.Search = null
         }
 
 
