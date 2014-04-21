@@ -304,18 +304,13 @@ namespace Growthstories.UI.ViewModel
 
 
         private AsyncLock UpdateLock = new AsyncLock();
-        
 
-        private async void UpdateList(Notification notification)
+
+        private void UpdateList(Notification notification)
         {
-            using (var res = await UpdateLock.LockAsync())
-            {
-                //this.Log().Info("updatelist starting for {0}", notification.Id);
-                TryRemove(notification.Id, notification.Type);
-                Notifications.Add(notification);
-                Notifications.Sort(CompareNotifications);
-                //this.Log().Info("updatelist ending for {0}", notification.Id);
-            };
+            TryRemove(notification.Id, notification.Type);
+            Notifications.Add(notification);
+            Notifications.Sort(CompareNotifications);
         }
 
 

@@ -174,14 +174,31 @@ namespace Growthstories.UI.WindowsPhone
 
             UnhandledException += (o, e) =>
             {
+             
                 if (Debugger.IsAttached) Debugger.Break();
                 e.Handled = true;
                 if (e.ExceptionObject != null)
+                {
                     Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
+                }
+                else
+                {
+                    this.Log().Info("UnhandledException with null exception object");
+                }
             };
-
+ 
             RootFrame.NavigationFailed += (o, e) =>
             {
+                //e.Handled = true;
+                this.Log().Info("Navigation failed");
+                if (e.Exception != null)
+                {
+                    Bootstrap.HandleUnhandledExceptions(e.Exception, this);
+                }
+                else
+                {
+                    this.Log().Info("RootFrame.NavigationFailed with null exception object");
+                }
                 if (Debugger.IsAttached) Debugger.Break();
             };
 
@@ -191,9 +208,20 @@ namespace Growthstories.UI.WindowsPhone
                 if (Debugger.IsAttached) Debugger.Break();
 
                 if (e.Exception != null)
+                {
                     Bootstrap.HandleUnhandledExceptions(e.Exception, this);
-
+                }
+                else
+                {
+                    this.Log().Info("TaskScheduler.UnobservedTaskException with null exception object");
+                }
             };
+
+            LifeTimeHelper.Closing += (o, e) =>
+            {
+                this.Log().Info("LifeTimeHelper.Closing");
+            };
+
             Task.Run(() =>
             {
                 //var xamlElapsed = stopwatch.Elapsed;
@@ -209,7 +237,7 @@ namespace Growthstories.UI.WindowsPhone
             });
         }
 
-
+       
 
         public void SetupDefaultSuspendResume(ISuspensionDriver driver = null)
         {

@@ -93,22 +93,28 @@ namespace Growthstories.UI.WindowsPhone
 
         public static void HandleUnhandledExceptions(Exception e, GSAutoSuspendApplication app)
         {
-            // try to log the Exception
-
             try
-            {
+            {   
                 var settings = IsolatedStorageSettings.ApplicationSettings;
                 settings["lastException"] = e.ToStringExtended();
                 settings.Save();
-                app.Log().DebugExceptionExtended("Unhandled", e);
-
-
             }
             catch (Exception)
             {
                 if (Debugger.IsAttached)
                     Debugger.Break();
+                try
+                {
+                    app.Log().Info("could not save last exception");
+                } catch { }
             }
+
+            try
+            {
+                app.Log().Info("trying to log an unhandled exception");
+                app.Log().DebugExceptionExtended("Unhandled", e);
+            }
+            catch { }
         }
 
 
@@ -166,7 +172,6 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ThemeManager.OverrideOptions = ThemeManagerOverrideOptions.SystemTrayColors;
                 ThemeManager.ToDarkTheme();
-
 
                 r.Remove("PhoneAccentColor");
                 r.Add("PhoneAccentColor", r["GSAccentColor"]);

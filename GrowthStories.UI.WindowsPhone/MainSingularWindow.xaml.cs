@@ -95,7 +95,6 @@ namespace Growthstories.UI.WindowsPhone
 
             MainViewModel = new PlantSingularViewModel(Pvm, vm);
             base.OnViewModelChanged(vm);
-            vm.Log().Info("setting selected plant to {0}");
             Pvm.ShouldBeFullyLoaded = true;
             
             if (UILoaded)

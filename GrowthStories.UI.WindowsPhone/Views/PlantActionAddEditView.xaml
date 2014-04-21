@@ -20,11 +20,14 @@
 	<local:GSViewGrid
             Loaded="GSViewGrid_Loaded"
 			TopTitle="GROWTH STORIES"
-			Title="{Binding Label}"
-			Background="{Binding Background}"
 			Margin="0,0,0,72"
-			>
+            Title="{Binding Label}"
+        >
 
+        <!--
+        -->
+        <!--Background="{Binding Background}" -->
+		
 		<StackPanel>
 
 			<StackPanel Margin="-12,25,-12,16">
@@ -263,12 +266,13 @@
 				Hint="Enter comment / note"		
                 c4fBinding:TextBinding.UpdateSourceOnChange="True"
 				VerticalAlignment="Top"						
-				Text="{Binding Note, Mode=TwoWay}" 		
-				Visibility="{Binding NoteVisibility}"
-                Loaded="GSChatTextBox_Loaded"
+				Text="{Binding Note, Mode=TwoWay}" 		 
+				Loaded="GSChatTextBox_Loaded"
                 />
 
-
+            <!--
+            Visibility="{Binding NoteVisibility}"
+            -->
 
             <ContentControl x:Name="SIPExtraPlaceHolder" Height="100" />
             
