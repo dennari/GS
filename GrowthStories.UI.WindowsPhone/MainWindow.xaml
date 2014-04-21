@@ -242,13 +242,15 @@
                             </phone:PanoramaItem>
 
 
-                        <!--<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
+                        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
                             <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                                 <ScrollViewer>
                                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
 
                                         <Button  Command="{Binding CreateLocalDataCommand}" Content="Create local data"/>
 
+                                        <Button  Command="{Binding MultideleteAllCommand}" Content="Multidelete all"/>
+                                        
                                         <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
 
                                         <Button  Command="{Binding PushRemoteUserCommand}" Content="Push remote user"/>
@@ -273,7 +275,7 @@
                                     </StackPanel>
                                 </ScrollViewer>
                             </Grid>
-                        </phone:PanoramaItem>-->
+                        </phone:PanoramaItem>
 
 
 

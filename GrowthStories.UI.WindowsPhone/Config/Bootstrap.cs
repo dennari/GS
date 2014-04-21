@@ -217,7 +217,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return KernelInstance.GetService(typeof(IAddEditPlantViewModel));
             }, typeof(IAddEditPlantViewModel));
-            //RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(TestingViewModel)), typeof(TestingViewModel));
+            RxUIResolver.RegisterLazySingleton(() => KernelInstance.GetService(typeof(TestingViewModel)), typeof(TestingViewModel));
         }
 
 

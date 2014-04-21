@@ -20,6 +20,7 @@ using Ninject.Modules;
 using ReactiveUI;
 using SQLite;
 using GrowthStories.Core;
+using Growthstories.UI.WindowsPhone.ViewModels;
 //using Windows.Storage;
 
 
