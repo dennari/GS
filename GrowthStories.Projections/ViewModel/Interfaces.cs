@@ -202,7 +202,7 @@ namespace Growthstories.UI.ViewModel
 
     public interface INotificationsViewModel : IGSViewModel, IHasAppBarButtons, IControlsAppBar
     {
-
+        ReactiveList<Notification> Notifications { get; }
     }
 
     public interface ISearchUsersViewModel : IGSRoutableViewModel, IControlsAppBar, IControlsProgressIndicator, IControlsSystemTray, IRequiresNetworkConnection

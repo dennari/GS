@@ -12,7 +12,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Scheduler;
 using ReactiveUI;
 using ReactiveUI.Mobile;
-
+using System.Linq;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -93,6 +93,8 @@ namespace Growthstories.UI.WindowsPhone
                 {
                     SetDismissPopupAllowed(x);
                 });
+
+        
         }
 
         protected override void OnOrientationChanged(OrientationChangedEventArgs e)
@@ -375,6 +377,8 @@ namespace Growthstories.UI.WindowsPhone
                         }
                     );
             }
+
+
         }
 
 
@@ -391,6 +395,26 @@ namespace Growthstories.UI.WindowsPhone
 
             //this.DataContext = ViewModel;
             //this.DataContext = ViewModel;
+
+            MainViewModel.WhenAnyValue(x => x.NotificationsVM.Notifications)
+                .Where(x => x != null)
+                .Subscribe(y => y.Changed
+                    .Throttle(TimeSpan.FromMilliseconds(250))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+            {
+                NotificationsList.ItemsSource 
+                    = MainViewModel.NotificationsVM.Notifications.ToArray();
+            }
+            ));
+
+            //MainViewModel.NotificationsVM.Notifications.CountChanged.Subscribe(_ =>
+            //{
+            //    NotificationsList.ItemsSource 
+            //        = MainViewModel.NotificationsVM.Notifications.ToArray();
+            //}
+            //);
+            
         }
 
 
