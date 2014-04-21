@@ -98,7 +98,7 @@ namespace Growthstories.UI.ViewModel
                 this._Pages.Add(_GardenVM);
                 this._Pages.Add(_NotificationsVM);
                 this._Pages.Add(_FriendsVM);
-                this._Pages.Add(TestingVM);
+                //this._Pages.Add(TestingVM);
                 this.SelectedPage = _GardenVM;
             }
         }

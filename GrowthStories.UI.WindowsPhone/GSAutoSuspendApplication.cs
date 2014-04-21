@@ -201,7 +201,7 @@ namespace Growthstories.UI.WindowsPhone
             UnhandledException += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
-                //e.Handled = true; // DON'T SET TO TRUE WHEN TESTING
+                e.Handled = true; // DON'T SET TO TRUE WHEN TESTING
                 if (e.ExceptionObject != null)
                     Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
             };
