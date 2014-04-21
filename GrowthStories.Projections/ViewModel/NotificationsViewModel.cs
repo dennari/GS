@@ -169,6 +169,7 @@ namespace Growthstories.UI.ViewModel
                 })
                 .Switch()
                 .SelectMany(x => x.WhenAny(y => y.WateringScheduler.Missed, y => x))
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => UpdateWateringNotification(x));
 
 
@@ -180,6 +181,7 @@ namespace Growthstories.UI.ViewModel
                 })
                 .Switch()
                 .SelectMany(x => x.WhenAny(y => y.FertilizingScheduler.Missed, y => x))
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => UpdateFertilizingNotification(x));
 
 
@@ -188,6 +190,7 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x != null)
                 .Select(x => x.ItemsRemoved)
                 .Switch()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(pvm =>
                 {
                     TryRemove(pvm.Id, NotificationType.WATERING_SCHEDULE);
@@ -197,6 +200,7 @@ namespace Growthstories.UI.ViewModel
                 .Where(x => x != null)
                 .Select(x => x.ItemsRemoved)
                 .Switch()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(pvm =>
                 {
                     TryRemove(pvm.Id, NotificationType.FERTILIZING_SCHEDULE);
@@ -204,6 +208,7 @@ namespace Growthstories.UI.ViewModel
 
             var sub4 = this.WhenAnyValue(x => x.WateringScheduledPlants) // it's enough to listen to either one
                        .Where(x => x != null && x.Count == 0)
+                       .ObserveOn(RxApp.MainThreadScheduler)
                        .Subscribe(_ =>
                         {
                             this.Notifications.RemoveAll(this.Notifications.ToArray());

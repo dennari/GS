@@ -34,9 +34,9 @@ namespace Growthstories.UI.WindowsPhone
             subs =
                 vm.FilteredActions
                     .ItemsAdded
-                    // only scroll when new actions are added by the user,
-                    // not when we are loading old actions
-                    .Where(x => new TimeSpan(Math.Abs(DateTime.Now.Ticks - x.Created.Ticks)).TotalMilliseconds < 2000) 
+                // only scroll when new actions are added by the user,
+                // not when we are loading old actions
+                    .Where(x => new TimeSpan(Math.Abs(DateTime.Now.Ticks - x.Created.Ticks)).TotalMilliseconds < 2000)
                     .Throttle(TimeSpan.FromMilliseconds(100))
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(x =>
@@ -80,9 +80,10 @@ namespace Growthstories.UI.WindowsPhone
 
             try
             {
-                if (TimeLine.ItemsSource.Count > 0)
+                if (TimeLine.ItemsSource.Count > 0 && VisualTreeHelper.GetChildrenCount(TimeLine) > 0)
                 {
                     var sb = ((FrameworkElement)VisualTreeHelper.GetChild(TimeLine, 0)).FindName("VerticalScrollBar") as ScrollBar;
+
                     sb.Margin = new Thickness(0, 0, -10, 0);
                 }
             }
