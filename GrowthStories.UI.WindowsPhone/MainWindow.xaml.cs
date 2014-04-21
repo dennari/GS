@@ -94,7 +94,7 @@ namespace Growthstories.UI.WindowsPhone
                     SetDismissPopupAllowed(x);
                 });
 
-        
+
         }
 
         protected override void OnOrientationChanged(OrientationChangedEventArgs e)
@@ -386,6 +386,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void UIAndVMLoaded()
         {
+            HockeyApp.CrashHandler.Instance.HandleCrashes();
 
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
@@ -396,17 +397,18 @@ namespace Growthstories.UI.WindowsPhone
             //this.DataContext = ViewModel;
             //this.DataContext = ViewModel;
 
-            MainViewModel.WhenAnyValue(x => x.NotificationsVM.Notifications)
-                .Where(x => x != null)
-                .Subscribe(y => y.Changed
-                    .Throttle(TimeSpan.FromMilliseconds(250))
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ =>
-            {
-                NotificationsList.ItemsSource 
-                    = MainViewModel.NotificationsVM.Notifications.ToArray();
-            }
-            ));
+            //MainViewModel.WhenAnyValue(x => x.NotificationsVM.Notifications)
+            //    .Where(x => x != null)
+            //    .Subscribe(y => y.Changed
+            //        .Throttle(TimeSpan.FromMilliseconds(250))
+            //        .ObserveOn(RxApp.MainThreadScheduler)
+            //        .Subscribe(_ =>
+            //{
+            //    NotificationsList.ItemsSource
+            //        = MainViewModel.NotificationsVM.Notifications.ToArray();
+            //}
+            //));
+
 
             //MainViewModel.NotificationsVM.Notifications.CountChanged.Subscribe(_ =>
             //{
@@ -414,7 +416,7 @@ namespace Growthstories.UI.WindowsPhone
             //        = MainViewModel.NotificationsVM.Notifications.ToArray();
             //}
             //);
-            
+
         }
 
 

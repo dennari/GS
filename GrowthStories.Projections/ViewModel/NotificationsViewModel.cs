@@ -216,12 +216,19 @@ namespace Growthstories.UI.ViewModel
                     this.Log().Info("removed all notifications");
                 });
 
+            var sub5 = this.Notifications.Changed
+                .Throttle(TimeSpan.FromMilliseconds(250), RxApp.TaskpoolScheduler)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Select(_ => this.Notifications.ToArray())
+                .ToProperty(this, x => x.NotificationsItemsSource, out _NotificationsItemsSource);
+
             subs.Add(sub0);
             subs.Add(sub1);
             subs.Add(sub2);
             subs.Add(sub3);
             subs.Add(sub31);
             subs.Add(sub4);
+            subs.Add(sub5);
         }
 
 
@@ -304,7 +311,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private AsyncLock UpdateLock = new AsyncLock();
-        
+
 
         private async void UpdateList(Notification notification)
         {
@@ -319,7 +326,8 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private Dictionary<Tuple<Guid, NotificationType>, int?> NotificationsForPlant = new Dictionary<Tuple<Guid, NotificationType>, int?>();
+
+
 
         private ReactiveList<Notification> _Notifications = new ReactiveList<Notification>();
         public ReactiveList<Notification> Notifications
@@ -330,6 +338,16 @@ namespace Growthstories.UI.ViewModel
             }
 
         }
+
+        private ObservableAsPropertyHelper<Notification[]> _NotificationsItemsSource;
+        public Notification[] NotificationsItemsSource
+        {
+            get
+            {
+                return _NotificationsItemsSource != null ? _NotificationsItemsSource.Value : null;
+            }
+        }
+
 
         protected ReactiveList<IButtonViewModel> _AppBarButtons = new ReactiveList<IButtonViewModel>();
         public IReadOnlyReactiveList<IButtonViewModel> AppBarButtons
@@ -360,6 +378,9 @@ namespace Growthstories.UI.ViewModel
                 this.RaiseAndSetIfChanged(ref _AppBarIsVisible, value);
             }
         }
+
+
+
 
 
     }

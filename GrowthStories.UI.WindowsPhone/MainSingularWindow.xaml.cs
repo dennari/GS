@@ -97,7 +97,7 @@ namespace Growthstories.UI.WindowsPhone
             base.OnViewModelChanged(vm);
             vm.Log().Info("setting selected plant to {0}");
             Pvm.ShouldBeFullyLoaded = true;
-            
+
             if (UILoaded)
             {
                 UIAndVMLoaded();
@@ -134,8 +134,12 @@ namespace Growthstories.UI.WindowsPhone
         private void UIAndVMLoaded()
         {
 
+            HockeyApp.CrashHandler.Instance.HandleCrashes();
+
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
+
+
 
             //this.ApplicationBar.IsVisible = true;
 

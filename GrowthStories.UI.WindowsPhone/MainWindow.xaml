@@ -188,9 +188,10 @@
 
                                     <phone:LongListSelector
                                         x:Name="NotificationsList"
-                                               ItemTemplate="{StaticResource NotificationTemplate}"
+                        ItemTemplate="{StaticResource NotificationTemplate}"
                         Visibility="{Binding Notifications.Count, Converter={StaticResource NonZeroToVisibility}}"
-                        />
+                        ItemsSource="{Binding NotificationsItemsSource}"
+                                        />
 
                             <!--    ItemsSource="{Binding Notifications}" -->
 
@@ -251,7 +252,19 @@
                                 <ScrollViewer>
                                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
 
+                                        
                                         <Button  Command="{Binding CreateLocalDataCommand}" Content="Create local data"/>
+
+                                        <Button  Command="{Binding MultideleteAllCommand}" Content="Multidelete all"/>
+
+                                        <Button 
+                                            Command="{Binding ThrowExceptionCommand}" 
+                                            Content="Cause Exception"
+                                            />
+                                        <local:GSLabel Label="Exception type (normal,async,asyncvoid)">
+                                            <local:GSTextBox Text="{Binding ExceptionType, Mode=TwoWay}"                                  
+                                            local:BindingUtility.UpdateSourceOnChange="True" Margin="-12,0,-12,0" />
+                                        </local:GSLabel>
 
                                         <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
 
@@ -269,7 +282,7 @@
 
                                         <Button Tap="ConfigureBackgroundAgent"  Content="configure ba" />
 
-                                        <Button Tap="CauseException" Content="Cause Exception" />
+                                       
 
                                         <Button Tap="ClearMockIAP"  Content="Clear mock IAPs" />
 
