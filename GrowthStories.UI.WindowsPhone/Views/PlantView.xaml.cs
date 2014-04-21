@@ -93,7 +93,10 @@ namespace Growthstories.UI.WindowsPhone
             //    catch { }
             //});
            
-            subs.Add(vm.WhenAnyValue(x => x.ShouldBeFullyLoaded).Subscribe(x =>
+            subs.Add(vm.WhenAnyValue(x => x.ShouldBeFullyLoaded)
+                .Throttle(TimeSpan.FromMilliseconds(150))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
             {
                 if (x)
                 {

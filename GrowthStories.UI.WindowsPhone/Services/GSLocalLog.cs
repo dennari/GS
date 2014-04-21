@@ -39,8 +39,7 @@ namespace Growthstories.UI.WindowsPhone
             this.Filter = filter;
         }
 
-        private AsyncLock FileLock = new AsyncLock();
-
+        private static AsyncLock FileLock = new AsyncLock();
 
 
         private void Send(string level, string message, params object[] values)

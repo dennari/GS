@@ -141,7 +141,7 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return Visibility.Visible;
             }
-
+            
             int i = (int)value;
 
             if (i == 0)

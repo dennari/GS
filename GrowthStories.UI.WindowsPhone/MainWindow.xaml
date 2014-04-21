@@ -186,12 +186,16 @@
                         Visibility="{Binding Notifications.Count, Converter={StaticResource ZeroToVisibility}}"
                         />
 
-                                    <phone:LongListSelector 
-                        ItemsSource="{Binding Notifications}"
-                        ItemTemplate="{StaticResource NotificationTemplate}"
+                                    <phone:LongListSelector
+                                        x:Name="NotificationsList"
+                                               ItemTemplate="{StaticResource NotificationTemplate}"
                         Visibility="{Binding Notifications.Count, Converter={StaticResource NonZeroToVisibility}}"
                         />
-                                </Grid>
+
+                            <!--    ItemsSource="{Binding Notifications}" -->
+
+
+                            </Grid>
                             </phone:PanoramaItem>
                             <!-- FRIENDS -->
                             <phone:PanoramaItem 

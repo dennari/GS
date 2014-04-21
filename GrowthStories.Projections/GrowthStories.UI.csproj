@@ -133,6 +133,7 @@
     <Compile Include="ViewModel\SearchUsersViewModel.cs" />
     <Compile Include="ViewModel\PlantActionViewModel.cs" />
     <Compile Include="ViewModel\ScheduleViewModel.cs" />
+    <Compile Include="ViewModel\TestingViewModel.cs" />
     <Compile Include="ViewModel\YAxisShitViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs">
       <SubType>Code</SubType>

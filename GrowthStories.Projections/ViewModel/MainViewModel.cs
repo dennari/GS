@@ -196,8 +196,5 @@ namespace Growthstories.UI.ViewModel
     }
 
 
-
-
-
 }
 

@@ -207,12 +207,14 @@ namespace Growthstories.UI.ViewModel
                 });
 
             var sub4 = this.WhenAnyValue(x => x.WateringScheduledPlants) // it's enough to listen to either one
-                       .Where(x => x != null && x.Count == 0)
-                       .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(_ =>
-                        {
-                            this.Notifications.RemoveAll(this.Notifications.ToArray());
-                        });
+                .Where(x => x != null && x.Count == 0)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    this.Log().Info("removing all notifications");
+                    this.Notifications.RemoveAll(this.Notifications.ToArray());
+                    this.Log().Info("removed all notifications");
+                });
 
             subs.Add(sub0);
             subs.Add(sub1);
@@ -220,8 +222,6 @@ namespace Growthstories.UI.ViewModel
             subs.Add(sub3);
             subs.Add(sub31);
             subs.Add(sub4);
-
-
         }
 
 
@@ -275,9 +275,14 @@ namespace Growthstories.UI.ViewModel
 
         private void TryRemove(Guid id, NotificationType type)
         {
+            //this.Log().Info("tryRemove for {0}", id);
             var found = this.Notifications.FirstOrDefault(y => y.Id == id && y.Type == type);
             if (found != null)
+            {
+                //this.Log().Info("found is not null, {0}", id); 
                 this.Notifications.Remove(found);
+                //this.Log().Info("remove ok, {0}", id); 
+            }
         }
 
 
@@ -301,9 +306,9 @@ namespace Growthstories.UI.ViewModel
         private AsyncLock UpdateLock = new AsyncLock();
         
 
-        private void UpdateList(Notification notification)
+        private async void UpdateList(Notification notification)
         {
-            using (var res = UpdateLock.LockAsync().Result)
+            using (var res = await UpdateLock.LockAsync())
             {
                 //this.Log().Info("updatelist starting for {0}", notification.Id);
                 TryRemove(notification.Id, notification.Type);
