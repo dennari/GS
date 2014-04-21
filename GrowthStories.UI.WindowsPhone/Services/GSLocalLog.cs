@@ -10,6 +10,7 @@ using System.IO.IsolatedStorage;
 using System.IO;
 
 
+
 namespace Growthstories.UI.WindowsPhone
 {
 
@@ -38,6 +39,9 @@ namespace Growthstories.UI.WindowsPhone
             this.Filter = filter;
         }
 
+        private AsyncLock FileLock = new AsyncLock();
+
+
 
         private void Send(string level, string message, params object[] values)
         {
@@ -53,15 +57,19 @@ namespace Growthstories.UI.WindowsPhone
 
             var msg = string.Format("+log|{0}|{1}|{2}|{4:HH:mm:ss.fff} <{5}>\n{3}\r\n", StreamName, NodeName, level, content, DateTime.Now, Type == null ? "#" : Type.Name);
             var LogFile = "localLog.txt";
+
             try
             {
-                using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+                using (var res = FileLock.LockAsync().Result)
                 {
-                    using (IsolatedStorageFileStream fs = storage.OpenFile(LogFile, FileMode.Append))
+                    using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        using (StreamWriter w = new StreamWriter(fs))
+                        using (IsolatedStorageFileStream fs = storage.OpenFile(LogFile, FileMode.Append))
                         {
-                            w.Write(msg);
+                            using (StreamWriter w = new StreamWriter(fs))
+                            {
+                                w.Write(msg);
+                            }
                         }
                     }
                 }
