@@ -70,7 +70,6 @@
                 HorizontalContentAlignment="Stretch"
                 />
             
-
         </Grid>
 
     </local:GSViewGrid>

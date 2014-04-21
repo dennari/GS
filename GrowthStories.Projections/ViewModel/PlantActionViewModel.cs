@@ -308,14 +308,17 @@ namespace Growthstories.UI.ViewModel
 
         }
 
-
+        // need to have this here to prevent some broken bindings
+        // that the runtime tries to resolve even when an element
+        // is not visible
+        public IReactiveCommand SetAsProfilePictureCommand { get; protected set; }
 
 
         //
         // Not exactly elegant to have this here
         //
         // Best option would be to populate context menu items
-        // based completely dynamically, but will not bother
+        // completely dynamically, but will not bother
         // to refactor now.
         //
         //  -- JOJ 17.1.2014
@@ -376,9 +379,12 @@ namespace Growthstories.UI.ViewModel
                             // if the command has been called with "true", we'll skip the multicreate test
                             try
                             {
-                                var xx = (bool)x;
-                                if (xx)
-                                    return true;
+                                if (x != null)
+                                {
+                                    var xx = (bool)x;
+                                    if (xx)
+                                        return true;
+                                }
                             }
                             catch { }
                             return Count == 0;
@@ -1031,8 +1037,6 @@ namespace Growthstories.UI.ViewModel
             }
         }
 
-
-        public IReactiveCommand SetAsProfilePictureCommand { get; protected set; }
 
         //public override IObservable<bool> CanExecute { get; protected set; }
 

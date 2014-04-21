@@ -25,7 +25,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock 
-                Style="{Binding GSTextBlockStyle}"
+                Style="{StaticResource GSTextBlockStyle}"
                 Text="{Binding Username}"               
                 FontSize="34"
                 toolkit:TiltEffect.IsTiltEnabled="True"
@@ -37,7 +37,7 @@
 
                 <TextBlock 
                     Grid.Column="1"
-                    Style="{Binding GSTextBlockStyle}"
+                    Style="{StaticResource GSTextBlockStyle}"
                     Foreground="White"
                     Text="{Binding FriendlyPlantCount}"               
                     FontSize="34"

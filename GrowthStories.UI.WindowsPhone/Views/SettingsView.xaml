@@ -194,27 +194,6 @@
             </Button>
 
          
-
-
-
-            <TextBlock 
-               Style="{StaticResource GSTextBlockStyle}"
-               Text="{Binding Name, Converter={StaticResource ToUpperOrLowerCase}}" HorizontalAlignment="Left"
-               VerticalAlignment="Top" Margin="0,8,0,0"
-               FontWeight="Bold"              
-                FontSize="18"
-                Foreground="WhiteSmoke"
-            />
-
-            <TextBlock 
-               Style="{StaticResource GSTextBlockStyle}"
-               Text="{Binding Species}" HorizontalAlignment="Left"
-               VerticalAlignment="Top" Margin="0,-2,0,0"
-               FontWeight="Normal"              
-               FontSize="18"
-               Foreground="WhiteSmoke"
-            />
-
             <!-- placeholder -->
             <ContentControl Height="100"></ContentControl>
             

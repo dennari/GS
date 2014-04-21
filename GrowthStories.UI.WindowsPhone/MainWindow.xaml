@@ -284,6 +284,8 @@
 
                                        
 
+                                        <Button Tap="CauseStackOverFlow" Content="Cause StackOverFlow" />
+
                                         <Button Tap="ClearMockIAP"  Content="Clear mock IAPs" />
 
 

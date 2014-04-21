@@ -430,14 +430,19 @@ namespace Growthstories.UI.WindowsPhone
             {
                 UIAndVMLoaded();
             }
-
-
         }
 
         private void CauseException(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            e = null;
-            var a = e.Handled;
+            //e = null;
+            //var a = e.Handled;
+
+            throw new Exception("test exception");
+        }
+
+        private void CauseStackOverFlow(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            CauseStackOverFlow(sender, e);
         }
 
 
