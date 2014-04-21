@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -12,6 +13,9 @@ using Microsoft.Phone.Shell;
 using Ninject;
 using ReactiveUI;
 using ReactiveUI.Mobile;
+using System.Threading;
+using HockeyApp;
+using System.IO.IsolatedStorage;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -50,6 +54,8 @@ namespace Growthstories.UI.WindowsPhone
 
         protected GSAutoSuspendApplication()
         {
+
+            //"fe617508-961a-4981-a3c6-71e35e48b703"
 
             LifeTimer.Start();
 
@@ -172,10 +178,30 @@ namespace Growthstories.UI.WindowsPhone
                 }
             });
 
+
+            // SET UP HOCKEYAPP
+            HockeyApp.CrashHandler.Instance.Configure(this, "edaad6a078ea7a024e0c50661ac8a64a", RootFrame);
+
+            // SET UP CUSTOM SYNC CONTEXT
+            //var sContext = AsyncSynchronizationContext.Register();
+            //sContext.Handler = e =>
+            //{
+            //    if (Debugger.IsAttached) Debugger.Break();
+            //    //e.Handled = true;
+            //    RxApp.MainThreadScheduler.Schedule(() =>
+            //    {
+            //        throw e;
+            //    });
+            //    if (e != null)
+            //        Bootstrap.HandleUnhandledExceptions(e, this);
+
+            //};
+
+
             UnhandledException += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
-                //e.Handled = true;
+                //e.Handled = true; // DON'T SET TO TRUE WHEN TESTING
                 if (e.ExceptionObject != null)
                     Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
             };
@@ -187,11 +213,13 @@ namespace Growthstories.UI.WindowsPhone
 
             TaskScheduler.UnobservedTaskException += (o, e) =>
             {
-                //e.SetObserved();
-                if (Debugger.IsAttached) Debugger.Break();
 
-                if (e.Exception != null)
-                    Bootstrap.HandleUnhandledExceptions(e.Exception, this);
+
+                RxApp.MainThreadScheduler.Schedule(() =>
+                {
+                    throw e.Exception;
+                });
+
 
             };
             Task.Run(() =>
@@ -238,7 +266,82 @@ namespace Growthstories.UI.WindowsPhone
             //    ViewModel = RxApp.DependencyResolver.GetService<IApplicationRootState>();
             //});
         }
+
     }
 
+    public class AsyncSynchronizationContext : SynchronizationContext
+    {
 
+        public Action<Exception> Handler = null;
+
+        public static AsyncSynchronizationContext Register()
+        {
+            var syncContext = Current;
+            if (syncContext == null)
+                throw new InvalidOperationException("Ensure a synchronization context exists before calling this method.");
+
+            var customSynchronizationContext = syncContext as AsyncSynchronizationContext;
+
+            if (customSynchronizationContext == null)
+            {
+                customSynchronizationContext = new AsyncSynchronizationContext(syncContext);
+                SetSynchronizationContext(customSynchronizationContext);
+            }
+
+            return customSynchronizationContext;
+        }
+
+        private readonly SynchronizationContext _syncContext;
+
+        public AsyncSynchronizationContext(SynchronizationContext syncContext)
+        {
+            _syncContext = syncContext;
+        }
+
+        public override SynchronizationContext CreateCopy()
+        {
+            return new AsyncSynchronizationContext(_syncContext.CreateCopy());
+        }
+
+        public override void OperationCompleted()
+        {
+            _syncContext.OperationCompleted();
+        }
+
+        public override void OperationStarted()
+        {
+            _syncContext.OperationStarted();
+        }
+
+        public override void Post(SendOrPostCallback d, object state)
+        {
+            _syncContext.Post(WrapCallback(d), state);
+        }
+
+        public override void Send(SendOrPostCallback d, object state)
+        {
+            _syncContext.Send(d, state);
+        }
+
+        private SendOrPostCallback WrapCallback(SendOrPostCallback sendOrPostCallback)
+        {
+            return state =>
+            {
+                Exception exception = null;
+
+                try
+                {
+                    sendOrPostCallback(state);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                if (exception != null && Handler != null)
+                    Handler(exception);
+
+            };
+        }
+    }
 }

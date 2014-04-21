@@ -533,6 +533,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Coding4Fun.Toolkit.Controls.2.0.7\lib\windowsphone8\Coding4Fun.Toolkit.Controls.dll</HintPath>
     </Reference>
+    <Reference Include="HockeyApp">
+      <HintPath>..\packages\HockeySDK.WP.2.1.0-beta3\lib\wp8\HockeyApp.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeyAppPCL">
+      <HintPath>..\packages\HockeySDK.Core.2.1.0-beta3\lib\portable-net45+win8+wp8\HockeyAppPCL.dll</HintPath>
+    </Reference>
     <Reference Include="JeffWilcox.PhoneThemeManager">
       <HintPath>..\packages\PhoneThemeManager.2.0\lib\windowsphone8\JeffWilcox.PhoneThemeManager.dll</HintPath>
     </Reference>
