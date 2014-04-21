@@ -143,7 +143,7 @@ namespace Growthstories.Sync
         {
             Tuple<HttpResponseMessage, string> response = null;
 
-            using (var request = new HttpRequestMessage(HttpMethod.Get, Endpoint.PhotoUploadUri))
+            using (var request = new HttpRequestMessage(HttpMethod.Post, Endpoint.PhotoUploadUri))
             using ((response = await SendAndGetBodyAsync(request)).Item1)
             {
                 var r = new PhotoUriResponse()

@@ -25,7 +25,7 @@ namespace Growthstories.UI.WindowsPhone
         private readonly static StreamSocket Socket = new StreamSocket();
         private static DataWriter Writer;
         private static int Tried = 0;
-        private static int MaxTries = 10;
+        public static int MaxTries = 10;
         private static bool IsConnected = false;
 
 
@@ -35,6 +35,7 @@ namespace Growthstories.UI.WindowsPhone
             this.Filter = filter;
         }
 
+
         private void Send(string level, string message, params object[] values)
         {
 
@@ -43,7 +44,6 @@ namespace Growthstories.UI.WindowsPhone
             {
                 return;
             }
-
 
             if (Filter != null && !Filter(Type, message))
                 return;
