@@ -194,10 +194,5 @@ namespace Growthstories.UI.ViewModel
                 this.GardenVM.Dispose();
         }
     }
-
-
-
-
-
 }
 

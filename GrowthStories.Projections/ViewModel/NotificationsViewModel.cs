@@ -6,7 +6,7 @@ using Growthstories.Domain.Messaging;
 using Growthstories.UI.Services;
 using ReactiveUI;
 using Growthstories.Domain.Entities;
-
+using Growthstories.Core;
 
 namespace Growthstories.UI.ViewModel
 {
@@ -298,15 +298,19 @@ namespace Growthstories.UI.ViewModel
         }
 
 
+        private AsyncLock UpdateLock = new AsyncLock();
+        
 
         private void UpdateList(Notification notification)
         {
-            TryRemove(notification.Id, notification.Type);
-            Notifications.Add(notification);
-
-            Notifications.Sort(CompareNotifications);
-
-
+            using (var res = UpdateLock.LockAsync().Result)
+            {
+                //this.Log().Info("updatelist starting for {0}", notification.Id);
+                TryRemove(notification.Id, notification.Type);
+                Notifications.Add(notification);
+                Notifications.Sort(CompareNotifications);
+                //this.Log().Info("updatelist ending for {0}", notification.Id);
+            };
         }
 
 
