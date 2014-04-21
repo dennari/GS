@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -20,8 +21,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
     public sealed class ClientTestingViewModel : TestingViewModel
     {
         private readonly IDispatchCommands Handler;
-        private SQLitePersistenceEngine Store;
-        private SQLiteUIPersistence UIStore;
+        //private SQLitePersistenceEngine Store;
+        //private SQLiteUIPersistence UIStore;
         private GSRepository Repo;
         private OptimisticPipelineHook Pipelinehook;
         private ITranslateEvents Translator;
@@ -31,10 +32,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
 
         public ClientTestingViewModel(
-            SQLitePersistenceEngine store,
-            SQLiteUIPersistence uiStore,
-            GSRepository repo,
-            OptimisticPipelineHook pipelinehook,
+            //SQLitePersistenceEngine store,
+            //SQLiteUIPersistence uiStore,
+            //GSRepository repo,
+            //OptimisticPipelineHook pipelinehook,
             IDispatchCommands handler,
             ITranslateEvents translator,
             ITransportEvents transporter,
@@ -45,10 +46,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
 
             this.Handler = handler;
-            this.Store = store;
-            this.UIStore = uiStore;
-            this.Repo = repo;
-            this.Pipelinehook = pipelinehook;
+            //this.Store = store;
+            //this.UIStore = uiStore;
+            //this.Repo = repo;
+            //this.Pipelinehook = pipelinehook;
             this.Translator = translator;
             this.Transporter = transporter;
             this.HttpClient = httpclient;
@@ -60,7 +61,25 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             this.SyncCommand.RegisterAsyncTask(_ => SyncAll()).Publish().Connect();
             //this.PushCommand.RegisterAsyncTask(_ => PushAll()).Publish().Connect();
 
+
             this.ClearDBCommand.Subscribe(_ => this.ClearDB());
+
+
+            this.MultideleteAllCommand.Subscribe(_ => this.MultideleteAll());
+
+
+        }
+
+        private void MultideleteAll()
+        {
+            var garden = App.MyGarden as GardenViewModel;
+            if (garden == null)
+                return;
+
+
+            garden.SelectedItemsChanged.Execute(Tuple.Create((IList)garden.Plants, (IList)null));
+
+            garden.MultiDeleteCommand.Execute(null);
 
         }
 
@@ -98,7 +117,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             }
             else
             {
-                _CreateLocalTestData2();
+                _CreateLocalTestData();
             }
         }
 
@@ -106,7 +125,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private void _CreateLocalTestData2()
         {
 
-            for (var i = 1; i <= 25; i++)
+            for (var i = 1; i <= 7; i++)
             {
 
                 var localPlant = new CreatePlant(Guid.NewGuid(), "Jare" + i, App.User.GardenId, App.User.Id);
@@ -172,7 +191,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 //    photo = App.MyGarden.Plants.First().Photo;
                 //}
                 //catch { }
-                
+
                 //Handler.Handle(
                 //    new CreatePlantAction(
                 //        Guid.NewGuid(),
@@ -193,10 +212,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         private void _CreateLocalTestData()
         {
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 1; i <= 7; i++)
             {
 
-                var localPlant = new CreatePlant(Guid.NewGuid(), "RemoteJare " + i, App.User.GardenId, App.User.Id);
+                var localPlant = new CreatePlant(Guid.NewGuid(), "LocalJare " + i, App.User.GardenId, App.User.Id);
                 Handler.Handle(localPlant);
 
 
@@ -211,16 +230,20 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                 var localPlantProperty = new MarkPlantPublic(localPlant.AggregateId);
                 Handler.Handle(localPlantProperty);
 
-                Handler.Handle(new AddPlant(App.User.GardenId, localPlant.AggregateId, App.User.Id, "Jare " + i));
+                Handler.Handle(new AddPlant(App.User.GardenId, localPlant.AggregateId, App.User.Id, localPlant.Name));
 
 
-                var wateringSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 2 * 3600);
+                var wateringSchedule = new CreateSchedule(Guid.NewGuid(), 3600);
                 Handler.Handle(wateringSchedule);
                 Handler.Handle(new SetWateringSchedule(localPlant.AggregateId, wateringSchedule.AggregateId));
+                Handler.Handle(new ToggleSchedule(localPlant.AggregateId, true, ScheduleType.WATERING));
 
-                var FertilizingSchedule = new CreateSchedule(Guid.NewGuid(), 24 * 50 * 3600);
+
+                var FertilizingSchedule = new CreateSchedule(Guid.NewGuid(), 3600);
                 Handler.Handle(FertilizingSchedule);
                 Handler.Handle(new SetFertilizingSchedule(localPlant.AggregateId, FertilizingSchedule.AggregateId));
+                Handler.Handle(new ToggleSchedule(localPlant.AggregateId, true, ScheduleType.FERTILIZING));
+
 
                 Handler.Handle(
                         new CreatePlantAction(
@@ -230,10 +253,11 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                             PlantActionType.COMMENTED,
                             "Hello local world " + i));
 
+                var profilepicId = Guid.NewGuid();
 
                 Handler.Handle(
                     new CreatePlantAction(
-                        Guid.NewGuid(),
+                        profilepicId,
                         App.User.Id,
                         localPlant.AggregateId,
                         PlantActionType.PHOTOGRAPHED,
@@ -244,6 +268,8 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
                             RemoteUri = @"http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"
                         }
                     });
+
+                Handler.Handle(new SetProfilepicture(localPlant.AggregateId, profilepicId));
 
                 Handler.Handle(
                     new CreatePlantAction(
@@ -527,9 +553,9 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
         {
 
 
-            Store.ReInitialize();
+            //Store.ReInitialize();
 
-            UIStore.ReInitialize();
+            //UIStore.ReInitialize();
 
             Repo.ClearCaches();
 
