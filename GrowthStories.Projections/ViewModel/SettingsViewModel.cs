@@ -84,7 +84,7 @@ namespace Growthstories.UI.ViewModel
         }
 
 
-        private async void DisableGSLocationServices()
+        private async Task DisableGSLocationServices()
         {
             await App.HandleCommand(new SetLocationEnabled(App.User.Id, false));
 
