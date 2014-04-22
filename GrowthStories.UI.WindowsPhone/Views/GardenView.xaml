@@ -213,7 +213,7 @@
                 <StackPanel>
                     <toolkit:LongListMultiSelector
                         x:Name="PlantsSelector"
-	                    ItemsSource="{Binding Plants, Mode=OneWay}"
+                        ItemsSource="{Binding PlantsItemsSource, Mode=OneWay}"
 	                    ItemTemplate="{StaticResource C4fTile}"
                         ItemContainerStyle="{StaticResource TileSelectionStyle2}"
                         IsSelectionEnabled="{Binding IsPlantSelectionEnabled, Mode=TwoWay}"
@@ -224,7 +224,11 @@
                         BorderBrush="{StaticResource GSAccentBrush}"
                         Visibility="{Binding Plants.Count, Converter={StaticResource NonZeroToVisibility}}"
                         />
-                    
+
+                    <!--
+                    ItemsSource="{Binding Plants, Mode=OneWay}"
+                    -->
+
                     <!-- placeholder -->
                     <ContentControl Height="138"></ContentControl>
                 </StackPanel>

@@ -11,6 +11,8 @@ using Growthstories.Core;
 using Growthstories.Domain.Entities;
 using Growthstories.Domain.Messaging;
 using ReactiveUI;
+using Growthstories.UI.Services;
+
 
 namespace Growthstories.UI.ViewModel
 {
@@ -41,6 +43,16 @@ namespace Growthstories.UI.ViewModel
 
         private HashSet<IPlantViewModel> MultiDeleteList = new HashSet<IPlantViewModel>();
         private HashSet<IPlantViewModel> SelfDeleteList = new HashSet<IPlantViewModel>();
+
+
+        private ObservableAsPropertyHelper<IPlantViewModel[]> _PlantsItemsSource;
+        public IPlantViewModel[] PlantsItemsSource
+        {
+            get
+            {
+                return _PlantsItemsSource != null ? _PlantsItemsSource.Value : null;
+            }
+        }
 
 
         private void IntroducePlant(IPlantViewModel x)
@@ -145,7 +157,6 @@ namespace Growthstories.UI.ViewModel
                     {
                         this.WhenAny(x => x.User, x => x.GetValue()).Where(x => x != null).Take(1).Subscribe(x => LoadPlants(x));
                     }
-
                 }
                 return _Plants;
             }
@@ -396,8 +407,19 @@ namespace Growthstories.UI.ViewModel
             var curr = App.Router.GetCurrentViewModel();
 
             CanBeUnloadedObservable = App.Router.CurrentViewModel.Where(x => !(x is IFriendsViewModel));
+
+            subs.Add(this.WhenAnyValue(x => x.Plants).Where(x => x != null).Subscribe(__ =>
+            {
+                PlantsItemsSourceSubs.Dispose();
+                PlantsItemsSourceSubs = this.Plants.Changed
+                   .Throttle(TimeSpan.FromMilliseconds(250), RxApp.TaskpoolScheduler)
+                   .ObserveOn(RxApp.MainThreadScheduler)
+                   .Select(_ => this.Plants.ToArray())
+                   .ToProperty(this, y => y.PlantsItemsSource, out _PlantsItemsSource);
+            }));
         }
 
+        private IDisposable PlantsItemsSourceSubs = Disposable.Empty;
 
         // Signal that the view corresponding to this viewmodel can be unloaded
         //
