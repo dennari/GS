@@ -281,6 +281,11 @@ namespace Growthstories.UI.WindowsPhone
 
             base.OnBackKeyPress(e);
 
+            if (e.Cancel == true)
+            {
+                return;
+            }
+
             if (Popup != null)
             {
                 this.Log().Info("backbutton pressed, dismissOnBackButton is " + Popup.DismissOnBackButton);
@@ -297,6 +302,11 @@ namespace Growthstories.UI.WindowsPhone
                 e.Cancel = true;
                 this.Log().Info("dialog is shown, canceling ");
 
+                return;
+            }
+
+            if (e.Cancel == true)
+            {
                 return;
             }
 
@@ -324,9 +334,6 @@ namespace Growthstories.UI.WindowsPhone
                 this.Log().Info("preventing back navigation");
             }
         }
-
-
-
 
         #endregion
 

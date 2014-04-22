@@ -20,6 +20,42 @@
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,0,24,12">
 
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu 
+                        Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
+                        IsZoomEnabled="False" 
+                        IsFadeEnabled="True" 
+                        Background="WhiteSmoke" 
+                        Foreground="{StaticResource GSAccentBrush}">
+
+                    <toolkit:MenuItem
+                            Header="Edit" 
+                            Command="{Binding EditCommand, Converter={StaticResource WeakCommandBinding}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding IsEditEnabled}"
+                            Foreground="{StaticResource GSAccentBrush}"              
+                                />
+
+                    <toolkit:MenuItem
+                            Header="Delete" 
+                            Command="{Binding DeleteCommand, Converter={StaticResource WeakCommandBinding}}"
+                            CommandParameter="{Binding}"
+                                IsEnabled="{Binding IsEditEnabled}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+
+                    <toolkit:MenuItem
+                                Visibility="{Binding ShowSetAsProfilePicture, Converter={StaticResource BooleanToVisibility}}"
+                                Header="Set as profile picture" 
+                                Command="{Binding SetAsProfilePictureCommand, Converter={StaticResource WeakCommandBinding}}"
+                                CommandParameter="{Binding}"
+                                Foreground="{StaticResource GSAccentBrush}"
+                                />
+                        </toolkit:ContextMenu>
+
+                </toolkit:ContextMenuService.ContextMenu>
+
+                <!--
                 <telerikPrimitives:RadContextMenu.ContextMenu>
                     <telerikPrimitives:RadContextMenu 
                             Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
@@ -53,7 +89,7 @@
                                 />
                     </telerikPrimitives:RadContextMenu>
                 </telerikPrimitives:RadContextMenu.ContextMenu>
-
+                -->
 
                 <ContentPresenter 
 						DataContext="{Binding}"

@@ -231,6 +231,8 @@ namespace Growthstories.UI.WindowsPhone
 
             TaskScheduler.UnobservedTaskException += (o, e) =>
             {
+                if (Debugger.IsAttached) Debugger.Break();
+
                 Bootstrap.PossiblyMarkExceptionHandled(e);
                 RxApp.MainThreadScheduler.Schedule(() =>
                 {
