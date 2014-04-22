@@ -41,7 +41,7 @@
 
     <Grid Tap="Button_Tap" toolkit:TiltEffect.IsTiltEnabled="True" x:Name="LayoutRoot" Unloaded="LayoutRoot_Unloaded" Loaded="LayoutRoot_Loaded">
 
-        
+        <!--
         <toolkit:ContextMenuService.ContextMenu>
             <toolkit:ContextMenu 
                 Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
@@ -77,12 +77,14 @@
             </toolkit:ContextMenu>
 
         </toolkit:ContextMenuService.ContextMenu>
+        -->
         
         
-        <!--
         <telerikPrimitives:RadContextMenu.ContextMenu>
 
             <telerikPrimitives:RadContextMenu
+                        Opened="RadContextMenu_Opened"
+                        Closed="RadContextMenu_Closed"
                         Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
                         IsFadeEnabled="False"
                         IsZoomEnabled="False"
@@ -115,7 +117,7 @@
 
             </telerikPrimitives:RadContextMenu>
         </telerikPrimitives:RadContextMenu.ContextMenu>
-        -->
+        
 
         <StackPanel x:Name="panel" Opacity="0.0" Grid.Row="0">
             

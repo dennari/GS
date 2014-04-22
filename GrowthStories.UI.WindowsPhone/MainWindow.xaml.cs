@@ -266,18 +266,21 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.OnNavigatedTo(e);
             this.Log().Info("OnNavigatedTo");
-
-
         }
-
-
 
 
         private bool IsDialogShown;
 
+        public static bool ContextMenuOpen = false;
+
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
+            if (ContextMenuOpen)
+            {
+                e.Cancel = true;
+                return;
+            }
 
             base.OnBackKeyPress(e);
 
@@ -286,12 +289,7 @@ namespace Growthstories.UI.WindowsPhone
                 return;
             }
 
-            if (Popup != null)
-            {
-                this.Log().Info("backbutton pressed, dismissOnBackButton is " + Popup.DismissOnBackButton);
-            }
-
-            if (IsDialogShown && Popup != null && Popup.DismissOnBackButton)
+             if (IsDialogShown && Popup != null && Popup.DismissOnBackButton)
             {
                 // popups have their own subscription to the backkeypress,
                 // so there is no need to call this here
@@ -302,11 +300,6 @@ namespace Growthstories.UI.WindowsPhone
                 e.Cancel = true;
                 this.Log().Info("dialog is shown, canceling ");
 
-                return;
-            }
-
-            if (e.Cancel == true)
-            {
                 return;
             }
 

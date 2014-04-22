@@ -19,7 +19,8 @@
 
         <ControlTemplate TargetType="local:PlantActionView" x:Name="TimelineActionTemplate">
             <StackPanel Orientation="Vertical" Visibility="{TemplateBinding Visibility}" Margin="24,0,24,12">
-
+                
+                <!--
                 <toolkit:ContextMenuService.ContextMenu>
                     <toolkit:ContextMenu 
                         Visibility="{Binding HasWriteAccess, Converter={StaticResource BooleanToVisibility}}"
@@ -54,10 +55,12 @@
                         </toolkit:ContextMenu>
 
                 </toolkit:ContextMenuService.ContextMenu>
-
-                <!--
+                -->
+                
                 <telerikPrimitives:RadContextMenu.ContextMenu>
                     <telerikPrimitives:RadContextMenu 
+                            Opened="RadContextMenu_Opened"
+                            Closed="RadContextMenu_Closed"
                             Visibility="{Binding OwnAction, Converter={StaticResource BooleanToVisibility}}"
                             IsFadeEnabled="True"
                             IsZoomEnabled="False"
@@ -89,7 +92,7 @@
                                 />
                     </telerikPrimitives:RadContextMenu>
                 </telerikPrimitives:RadContextMenu.ContextMenu>
-                -->
+                
 
                 <ContentPresenter 
 						DataContext="{Binding}"

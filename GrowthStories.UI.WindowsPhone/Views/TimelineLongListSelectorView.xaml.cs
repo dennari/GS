@@ -99,6 +99,16 @@ namespace Growthstories.UI.WindowsPhone
             NotifyDestroyed("");
         }
 
+        private void RadContextMenu_Opened(object sender, EventArgs e)
+        {
+            MainWindowBase.ContextMenuOpen = true;
+        }
+
+        private void RadContextMenu_Closed(object sender, EventArgs e)
+        {
+            MainWindowBase.ContextMenuOpen = false;
+        }
+
 
     }
 
