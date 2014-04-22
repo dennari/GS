@@ -197,31 +197,54 @@ namespace Growthstories.UI.WindowsPhone
 
             //};
 
-
             UnhandledException += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
-                e.Handled = true; // DON'T SET TO TRUE WHEN TESTING
+                Bootstrap.PossiblyMarkExceptionHandled(e);
+
                 if (e.ExceptionObject != null)
+                {
                     Bootstrap.HandleUnhandledExceptions(e.ExceptionObject, this);
+                }
+                else
+                {
+                    Bootstrap.HandleUnhandledExceptions(
+                        new Exception("exceptionobject was null for unhandledexception"), this);
+                }
             };
 
             RootFrame.NavigationFailed += (o, e) =>
             {
                 if (Debugger.IsAttached) Debugger.Break();
+
+                Bootstrap.PossiblyMarkExceptionHandled(e);
+                if (e.Exception != null)
+                {
+                    Bootstrap.HandleUnhandledExceptions(e.Exception, this);
+                }
+                else
+                {
+                    Bootstrap.HandleUnhandledExceptions(
+                        new Exception("exceptionobject was null for unhandledexception"), this);
+                }
             };
 
             TaskScheduler.UnobservedTaskException += (o, e) =>
             {
-
-
+                Bootstrap.PossiblyMarkExceptionHandled(e);
                 RxApp.MainThreadScheduler.Schedule(() =>
                 {
-                    throw e.Exception;
+                    if (e.Exception != null)
+                    {
+                        throw e.Exception;
+                    }
+                    else
+                    {
+                        throw new Exception("exceptionobject was null for unobservedtaskexception");
+                    }
                 });
-
-
             };
+
             Task.Run(() =>
             {
                 //var xamlElapsed = stopwatch.Elapsed;
@@ -236,7 +259,6 @@ namespace Growthstories.UI.WindowsPhone
                 //stopwatch.Stop();
             });
         }
-
 
 
         public void SetupDefaultSuspendResume(ISuspensionDriver driver = null)

@@ -311,6 +311,12 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
              );
         }
 
+        public override IMainViewModel CreateMainViewModel()
+        {
+            IMainViewModel ret = base.CreateMainViewModel();
+            ret.ShowTestingStuff = Growthstories.UI.WindowsPhone.Bootstrap.ShowTestingStuff;
+            return ret;
+        }
 
         protected override void ClearDB()
         {

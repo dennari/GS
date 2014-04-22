@@ -208,7 +208,7 @@ namespace Growthstories.UI.WindowsPhone
                     AppVM.NavigatingBack = false;
                 }
 
-                Growthstories.Core.MemoryHelper.CollectGarbageForTesting();
+                Bootstrap.PossiblyCollectGarbage();
 
             }, ex => RxApp.DefaultExceptionHandler.OnNext(ex));
         }

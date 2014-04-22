@@ -38,6 +38,7 @@ namespace Growthstories.UI.ViewModel
             this.MyGardenF = myGardenF;
             this.NotificationsF = notificationsF;
             this.FriendsF = friendsF;
+            this.ShowTestingStuff = false;
 
             //this.Log().Info("Constructor start");
             //myGarden.ObserveOn(RxApp.MainThreadScheduler).Do(x =>
@@ -89,6 +90,19 @@ namespace Growthstories.UI.ViewModel
             CheckIfAllLoaded();
         }
 
+        private bool _ShowTestingStuff;
+        public bool ShowTestingStuff
+        {
+            get
+            {
+                return _ShowTestingStuff;
+            }
+            set 
+            {
+                this.RaiseAndSetIfChanged(ref _ShowTestingStuff, value);
+            }
+        }
+
         private void CheckIfAllLoaded()
         {
             if (_GardenVM != null && _NotificationsVM != null && _FriendsVM != null)
@@ -98,7 +112,10 @@ namespace Growthstories.UI.ViewModel
                 this._Pages.Add(_GardenVM);
                 this._Pages.Add(_NotificationsVM);
                 this._Pages.Add(_FriendsVM);
-                //this._Pages.Add(TestingVM);
+                if (ShowTestingStuff)
+                {
+                    this._Pages.Add(TestingVM);
+                }
                 this.SelectedPage = _GardenVM;
             }
         }

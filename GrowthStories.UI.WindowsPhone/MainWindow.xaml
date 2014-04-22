@@ -247,7 +247,9 @@
                             </phone:PanoramaItem>
 
 
-                        <!--<phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" Header="Testing" x:Name="testItem">
+                        <phone:PanoramaItem Style="{StaticResource GSPanoramaItemStyle}" 
+                                            Header="Testing" x:Name="testItem"
+                                            Visibility="{Binding ShowTestingStuff}">
                             <Grid x:Name="ContentPanel4"  DataContext="{Binding TestingVM}">
                                 <ScrollViewer>
                                     <StackPanel Orientation="Vertical" Margin="0,0,0,50">
@@ -265,6 +267,8 @@
                                             <local:GSTextBox Text="{Binding ExceptionType, Mode=TwoWay}"                                  
                                             local:BindingUtility.UpdateSourceOnChange="True" Margin="-12,0,-12,0" />
                                         </local:GSLabel>
+
+                                        <Button Tap="GarbageCollect"  Content="Garbage collect" />
 
                                         <Button  Command="{Binding CreateRemoteDataCommand}" Content="Create remote data"/>
 
@@ -292,7 +296,7 @@
                                     </StackPanel>
                                 </ScrollViewer>
                             </Grid>
-                        </phone:PanoramaItem>-->
+                        </phone:PanoramaItem>
 
 
 

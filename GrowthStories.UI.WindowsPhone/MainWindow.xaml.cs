@@ -374,6 +374,7 @@ namespace Growthstories.UI.WindowsPhone
                         {
                             avm.Log().Info("setting isEnabled for mainWindow to true");
                             this.IsEnabled = true;
+                            HockeyApp.CrashHandler.Instance.HandleCrashes(Bootstrap.SendCrashReportsAutomatically);
                         }
                     );
             }
@@ -386,7 +387,6 @@ namespace Growthstories.UI.WindowsPhone
 
         private void UIAndVMLoaded()
         {
-            HockeyApp.CrashHandler.Instance.HandleCrashes();
 
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);
@@ -430,6 +430,12 @@ namespace Growthstories.UI.WindowsPhone
             {
                 UIAndVMLoaded();
             }
+        }
+
+
+        private void GarbageCollect(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            GC.Collect(2, GCCollectionMode.Forced, true);
         }
 
         private void CauseException(object sender, System.Windows.Input.GestureEventArgs e)

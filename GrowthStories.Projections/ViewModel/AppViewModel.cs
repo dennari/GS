@@ -663,7 +663,7 @@ namespace Growthstories.UI.ViewModel
 
 
         private IMainViewModel _CurrentMainViewModel = null;
-        public IMainViewModel CreateMainViewModel()
+        public virtual IMainViewModel CreateMainViewModel()
         {
 
             Func<IGardenViewModel> gardenF = () =>

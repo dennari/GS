@@ -18,6 +18,7 @@ using Ninject.Modules;
 using ReactiveUI;
 using ReactiveUI.Mobile;
 using Windows.Storage;
+using System.Threading.Tasks;
 
 namespace Growthstories.UI.WindowsPhone
 {
@@ -90,6 +91,45 @@ namespace Growthstories.UI.WindowsPhone
             settings.Save();
         }
 
+        public static bool ShowTestingStuff = false;
+        
+        public static bool MarkUnhandledExceptionsHandled = true;
+
+        public static bool CollectGarbageOften = false;
+
+        public static bool SendCrashReportsAutomatically = true;
+
+        public static void PossiblyMarkExceptionHandled(ApplicationUnhandledExceptionEventArgs e)
+        {
+            if (MarkUnhandledExceptionsHandled)
+            {
+                e.Handled = true;
+            }
+        }
+
+        public static void PossiblyMarkExceptionHandled(UnobservedTaskExceptionEventArgs e)
+        {
+            if (MarkUnhandledExceptionsHandled)
+            {
+                e.SetObserved();
+            }
+        }
+
+        public static void PossiblyMarkExceptionHandled(System.Windows.Navigation.NavigationFailedEventArgs e)
+        {
+            if (MarkUnhandledExceptionsHandled)
+            {
+                e.Handled = true;
+            }
+        }
+
+        public static void PossiblyCollectGarbage()
+        {
+            if (CollectGarbageOften)
+            {
+                GC.Collect(2, GCCollectionMode.Forced, true);
+            }
+        }
 
         public static void HandleUnhandledExceptions(Exception e, GSAutoSuspendApplication app)
         {

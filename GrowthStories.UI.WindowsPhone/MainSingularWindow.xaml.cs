@@ -111,8 +111,9 @@ namespace Growthstories.UI.WindowsPhone
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(_ =>
                     {
-                        avm.Log().Info("setting isEnabled for mainWindow to true");
+                        avm.Log().Info("setting isEnabled for mainSingularWindow to true");
                         this.IsEnabled = true;
+                        HockeyApp.CrashHandler.Instance.HandleCrashes(Bootstrap.SendCrashReportsAutomatically);
                     }
                     );
 
@@ -133,7 +134,6 @@ namespace Growthstories.UI.WindowsPhone
         private void UIAndVMLoaded()
         {
 
-            HockeyApp.CrashHandler.Instance.HandleCrashes();
 
             ViewModel.Log().Info("MainWindow Loaded in {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
             ViewModel.MainWindowLoadedCommand.Execute(MainViewModel);

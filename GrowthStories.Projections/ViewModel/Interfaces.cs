@@ -241,6 +241,7 @@ namespace Growthstories.UI.ViewModel
         IGardenViewModel GardenVM { get; }
         INotificationsViewModel NotificationsVM { get; }
         FriendsViewModel FriendsVM { get; }
+        bool ShowTestingStuff { get; set; }
     }
 
     public interface ICommandViewModel : IGSRoutableViewModel, IHasAppBarButtons
