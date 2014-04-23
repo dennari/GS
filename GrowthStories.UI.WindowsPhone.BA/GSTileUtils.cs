@@ -74,21 +74,30 @@ namespace GrowthStories.UI.WindowsPhone.BA
         public static void UpdateTiles()
         {
             var pti = ReadTileUpdateInfos();
-            UpdateTiles(pti);
+            if (pti == null)
+            {
+                return;
+            }
 
+            UpdateTiles(pti);
             UpdateApplicationTile();
         }
 
 
-        public static HashSet<TileUpdateInfo> ReadTileUpdateInfos()
+        private static HashSet<TileUpdateInfo> ReadTileUpdateInfos()
         {
             var ret = new HashSet<TileUpdateInfo>();
 
             using (Mutex mutex = new Mutex(false, SETTINGS_MUTEX))
             {
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
-
+                catch (AbandonedMutexException ex) { if (Debugger.IsAttached) { Debugger.Break(); }  }
+                catch (Exception ex) 
+                {
+                    if (Debugger.IsAttached) { Debugger.Break(); }
+                    return null;
+                }
+                
                 try
                 {
                     foreach (var pair in IsolatedStorageSettings.ApplicationSettings)
@@ -125,6 +134,10 @@ namespace GrowthStories.UI.WindowsPhone.BA
         public static void UpdateApplicationTile()
         {
             var pti = ReadTileUpdateInfos();
+            if (pti == null)
+            {
+                return;
+            }
 
             uint maxCount = 0;
 
@@ -293,7 +306,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
             using (Mutex mutex = new Mutex(false, SHELL_MUTEX))
             {
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
+                catch (AbandonedMutexException ex) { if (Debugger.IsAttached) { Debugger.Break(); }  }
+                catch (Exception ex) 
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                    }
+                    return; 
+                }
 
                 try
                 {
@@ -312,7 +333,15 @@ namespace GrowthStories.UI.WindowsPhone.BA
             using (Mutex mutex = new Mutex(false, SHELL_MUTEX))
             {
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
+                catch (AbandonedMutexException ex) { if (Debugger.IsAttached) { Debugger.Break(); }  }
+                catch (Exception ex)
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                        return null;
+                    }
+                }
                 try
                 {
                     return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(urlPathSegment));

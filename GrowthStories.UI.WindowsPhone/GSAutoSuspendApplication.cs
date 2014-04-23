@@ -107,6 +107,8 @@ namespace Growthstories.UI.WindowsPhone
 
             SuspensionHost = host;
 
+
+
             SuspensionHost.IsLaunchingNew.Subscribe(_ =>
             {
                 //ViewModel = RxApp.DependencyResolver.GetService<IApplicationRootState>();
@@ -245,6 +247,11 @@ namespace Growthstories.UI.WindowsPhone
                         throw new Exception("exceptionobject was null for unobservedtaskexception");
                     }
                 });
+            };
+
+            LifeTimeHelper.Closing += (o, e) =>
+            {
+                this.Log().Info("Application closing cleanly (LifeTimeHelper.Closing)");
             };
 
             Task.Run(() =>

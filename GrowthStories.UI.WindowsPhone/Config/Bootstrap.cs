@@ -61,7 +61,7 @@ namespace Growthstories.UI.WindowsPhone
         {
             base.Load();
 
-            PrintLastUnhandledException();
+            //PrintLastUnhandledException();
 
             BAConfiguration();
             ViewModelConfiguration();
@@ -75,21 +75,24 @@ namespace Growthstories.UI.WindowsPhone
         }
 
 
-        protected virtual void PrintLastUnhandledException()
-        {
-            var settings = IsolatedStorageSettings.ApplicationSettings;
-            if (settings.Contains("lastException"))
-            {
-                PhoneApp.Log().Info("Exception on last crash was: " + settings["lastException"]);
-            }
-            else
-            {
-                PhoneApp.Log().Info("No crashes recorded");
-            }
+        // disabled to prevent any cross-thread access issues
+        // regarding IsolatedStorageSettings
 
-            settings.Remove("lastException");
-            settings.Save();
-        }
+        //protected virtual void PrintLastUnhandledException()
+        //{
+        //    var settings = IsolatedStorageSettings.ApplicationSettings;
+        //    if (settings.Contains("lastException"))
+        //    {
+        //        PhoneApp.Log().Info("Exception on last crash was: " + settings["lastException"]);
+        //    }
+        //    else
+        //    {
+        //        PhoneApp.Log().Info("No crashes recorded");
+        //    }
+
+        //    settings.Remove("lastException");
+        //    settings.Save();
+        //}
 
         public static bool ShowTestingStuff = false;
         
@@ -98,6 +101,8 @@ namespace Growthstories.UI.WindowsPhone
         public static bool CollectGarbageOften = false;
 
         public static bool SendCrashReportsAutomatically = true;
+
+        public static bool RecordMemoryUsage = false;
 
         public static void PossiblyMarkExceptionHandled(ApplicationUnhandledExceptionEventArgs e)
         {
@@ -133,21 +138,21 @@ namespace Growthstories.UI.WindowsPhone
 
         public static void HandleUnhandledExceptions(Exception e, GSAutoSuspendApplication app)
         {
-            try
-            {   
-                var settings = IsolatedStorageSettings.ApplicationSettings;
-                settings["lastException"] = e.ToStringExtended();
-                settings.Save();
-            }
-            catch (Exception)
-            {
-                if (Debugger.IsAttached)
-                    Debugger.Break();
-                try
-                {
-                    app.Log().Info("could not save last exception");
-                } catch { }
-            }
+            //try
+            //{   
+            //    var settings = IsolatedStorageSettings.ApplicationSettings;
+            //    settings["lastException"] = e.ToStringExtended();
+            //    settings.Save();
+            //}
+            //catch (Exception)
+            //{
+            //    if (Debugger.IsAttached)
+            //        Debugger.Break();
+            //    try
+            //    {
+            //        app.Log().Info("could not save last exception");
+            //    } catch { }
+            //}
 
             try
             {

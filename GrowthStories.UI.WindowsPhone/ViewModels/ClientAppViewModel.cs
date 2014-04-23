@@ -70,7 +70,6 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             bus
             )
         {
-
             this.Log().Info("ClientAppViewModel constructor begins {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
 
             this.Store = store;
@@ -79,7 +78,10 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
 
             this.Log().Info("ClientAppViewModel constructor ends {0}", GSAutoSuspendApplication.LifeTimer.ElapsedMilliseconds);
 
-            //BeginRecording();
+            if (Growthstories.UI.WindowsPhone.Bootstrap.RecordMemoryUsage)
+            {
+                BeginRecording();
+            }
         }
 
 

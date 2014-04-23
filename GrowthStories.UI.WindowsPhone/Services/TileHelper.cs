@@ -39,9 +39,11 @@ namespace Growthstories.UI.WindowsPhone
 
             vm.WhenAnyValue(x => x.Id).Where(x => x != default(Guid))
                 .Take(1).Subscribe(x => this.HasTile = Current != null);
+
+            UpdateHasTile();
         }
 
-
+        // only call from RxApp.MainThreadScheduler thread
         public bool CreateOrUpdateTile()
         {
             var tile = Current;
@@ -64,12 +66,19 @@ namespace Growthstories.UI.WindowsPhone
 
         public void UpdateHasTile()
         {
-            _Current = null;
-            HasTile = Current != null;
-            this.Log().Info("updating has tile to {0}", HasTile);
+            var k = new ReactiveCommand();
+            k.ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+            {
+                _Current = TilesHelper.GetShellTile(Vm);
+                HasTile = Current != null;
+                this.Log().Info("updating has tile to {0}", HasTile);
+            });
+
+            k.Execute(null);
         }
 
-
+        // only call from RxApp.MainThreadScheduler thread
         public bool DeleteTile()
         {
             if (HasTile)
@@ -83,7 +92,7 @@ namespace Growthstories.UI.WindowsPhone
 
 
         private ShellTile _Current;
-        private ShellTile Current { get { return _Current ?? (_Current = TilesHelper.GetShellTile(Vm)); } }
+        private ShellTile Current { get { return _Current; } } 
 
 
         private bool _HasTile;
@@ -215,9 +224,17 @@ namespace Growthstories.UI.WindowsPhone
         {
             using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
             {
-
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
+                catch (AbandonedMutexException ex)
+                {
+                    Logger.Info("WriteTileUpdateInfo / Abandoned mutex: {0}", ex.ToStringExtended());
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info("WriteTileUpdateInfo / Unexpected exception in mutex.WaitOne {0}", ex.ToStringExtended());
+                    return;
+                }
 
                 try
                 {
@@ -242,23 +259,37 @@ namespace Growthstories.UI.WindowsPhone
         //
         public static void ClearAllTileUpdateInfos()
         {
-            using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
+            var kludge = new ReactiveCommand();
+            kludge.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =>
             {
-                try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
-
-                try
+                using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
                 {
-                    var settings = IsolatedStorageSettings.ApplicationSettings;
-                    settings.Clear();
+                    try { mutex.WaitOne(); }
+                    catch (AbandonedMutexException ex)
+                    {
+                        Logger.Info("ClearAllTileUpdateInfos / Abandoned mutex: {0}", ex.ToStringExtended());
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Info("ClearAllTileUpdateInfos / Unexpected exception in mutex.WaitOne {0}", ex.ToStringExtended());
+                        return;
+                    }
 
+                    try
+                    {
+                        var settings = IsolatedStorageSettings.ApplicationSettings;
+                        settings.Clear();
+
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
                 }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
-            }
-            GSTileUtils.UpdateTiles();
+                GSTileUtils.UpdateTiles();
+            });
+            kludge.Execute(null);
         }
 
 
@@ -270,7 +301,16 @@ namespace Growthstories.UI.WindowsPhone
             using (Mutex mutex = new Mutex(false, GSTileUtils.SETTINGS_MUTEX))
             {
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
+                catch (AbandonedMutexException ex)
+                {
+                    Logger.Info("ClearTileUpdateInfo / Abandoned mutex: {0}", ex.ToStringExtended());
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info("ClearTileUpdateInfo / Unexpected exception in mutex.WaitOne {0}", ex.ToStringExtended());
+                    return;
+                }
 
                 try
                 {
@@ -388,12 +428,12 @@ namespace Growthstories.UI.WindowsPhone
                     _UpdateTileCommand
                         .OfType<IPlantViewModel>()
                         .Throttle(TimeSpan.FromMilliseconds(750), RxApp.TaskpoolScheduler)
+                        .ObserveOn(RxApp.MainThreadScheduler)
                         .Subscribe(x =>
                         {
                             try
                             {
                                 UpdateTileAndInfo(x);
-
                             }
                             catch (Exception ex)
                             {
@@ -401,7 +441,6 @@ namespace Growthstories.UI.WindowsPhone
                                 {
                                     throw ex;
                                 });
-
                             }
                         });
                 }
@@ -445,7 +484,16 @@ namespace Growthstories.UI.WindowsPhone
             using (Mutex mutex = new Mutex(false, GSTileUtils.SHELL_MUTEX))
             {
                 try { mutex.WaitOne(); }
-                catch { } // catch exceptions associated with abandoned mutexes
+                catch (AbandonedMutexException ex)
+                {
+                    Logger.Info("SafelyDeleteTile / Abandoned mutex: {0}", ex.ToStringExtended());
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info("SafelyDeleteTile / Unexpected exception in mutex.WaitOne {0}", ex.ToStringExtended());
+                    return;
+                }
 
                 try
                 {

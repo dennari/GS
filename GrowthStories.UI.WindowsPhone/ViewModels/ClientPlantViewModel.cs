@@ -85,6 +85,7 @@ namespace Growthstories.UI.WindowsPhone.ViewModels
             //this.WhenAnyValue(x => x.HasTile).Where(x => x).Subscribe(_ => TileHelper.SubscribeToUpdates());
 
             PinCommand
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
                     if (TileHelper.HasTile)
