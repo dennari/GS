@@ -249,7 +249,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Opened || ViewModel.HasWriteAccess)
+            if (Opened)
             {
                 if (trexStoryboard != null)
                 {
