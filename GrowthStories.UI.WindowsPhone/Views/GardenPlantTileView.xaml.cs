@@ -87,7 +87,12 @@ namespace Growthstories.UI.WindowsPhone
                 }
             }));
 
-            subs.Add(vm.WhenAnyValue(x => x.HasWriteAccess).Where(x => x).Subscribe(_ =>
+            // this is only to take care of some cases where some plants
+            // fail to fire the Opened event for some reason for user's own plant photos
+            subs.Add(vm.WhenAnyValue(x => x.HasWriteAccess).Where(x => x)
+                .Throttle(TimeSpan.FromMilliseconds(1000))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
             {
                 ViewModel.Log().Info("GardenPlantTileView: plant has writeaccess, fading in plant " + ViewModel.Name);
                 FadeIn();
