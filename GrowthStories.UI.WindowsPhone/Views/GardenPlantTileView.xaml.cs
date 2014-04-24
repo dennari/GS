@@ -58,7 +58,7 @@ namespace Growthstories.UI.WindowsPhone
 
         private void DisposeSubs()
         {
-            foreach (var s in subs)
+            foreach (var s in new List<IDisposable>(subs))
             {
                 s.Dispose();
             }
@@ -249,6 +249,7 @@ namespace Growthstories.UI.WindowsPhone
         private void LayoutRoot_Unloaded(object sender, RoutedEventArgs e)
         {
             trexStoryboard.Stop();
+            DisposeSubs(); 
         }
 
 
