@@ -34,7 +34,7 @@ namespace Growthstories.UI.WindowsPhone
 
         }
 
-        IDisposable subs = Disposable.Empty;
+        //IDisposable subs = Disposable.Empty;
 
 
         //public static readonly DependencyProperty OwnGardenProperty =
@@ -53,34 +53,79 @@ namespace Growthstories.UI.WindowsPhone
         //}
 
 
-        protected override void OnViewModelChanged(IPlantViewModel vm)
+        List<IDisposable> subs = new List<IDisposable>();
+
+
+        private void DisposeSubs()
         {
-            //ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
-            //ViewModel.Log().Info("GardenPlantTileView: plant loaded is " + vm.Loaded);
-            //ViewModel.Log().Info("GardenPlantTileView: vw has writeaccess is " + vm.HasWriteAccess);
+            foreach (var s in subs)
+            {
+                s.Dispose();
+            }
+            subs.Clear();
+        }
+
+
+        protected override void OnViewModelChanged(IPlantViewModel vm)
+        { 
             if (vm == null)
                 return;
 
-            subs.Dispose();
-            subs = Observable.CombineLatest(
-                vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x),
-                vm.WhenAnyValue(z => z.Loaded).Where(z => z))
-
-                .Take(1).Subscribe(_ =>
+            ViewModel.Log().Info("GardenPlantTileView: onviewmodelchanged gardenplanttileview " + vm.Name);
+           
+            subs.Add(vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x).Subscribe(_ =>
             {
-                if (vm.ShowPlaceHolder)
+                FadeIn();
+            }));
+
+            subs.Add(vm.WhenAnyValue(x => x.Loaded).Where(x => x).Subscribe(_ =>
+            {
+                if (Opened)
                 {
-                    _FadeIn();
+                    ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
+                    FadeIn();
                 }
-                else if (vm.Loaded)
-                {
-                    if (Opened)
-                    {
-                        ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
-                        _FadeIn();
-                    }
-                }
-            });
+            }));
+
+            subs.Add(vm.WhenAnyValue(x => x.HasWriteAccess).Where(x => x).Subscribe(_ =>
+            {
+                ViewModel.Log().Info("GardenPlantTileView: plant has writeaccess, fading in plant " + ViewModel.Name);
+                FadeIn();
+            }));
+
+
+            //subs.Dispose();
+            //subs = Observable.CombineLatest(
+            //    vm.WhenAnyValue(x => x.ShowPlaceHolder).Where(x => x),
+            //    vm.WhenAnyValue(z => z.Loaded).Where(z => z && Opened),
+            //    vm.WhenAnyValue(y => y.HasWriteAccess).Where(y => y))
+
+            //    .Take(1).Subscribe(_ =>
+            //{
+            //    ViewModel.Log().Info("GardenPlantTileView: in combined observable for " + ViewModel.Name);
+
+            //    if (vm.ShowPlaceHolder)
+            //    {
+            //        _FadeIn();
+            //    }
+            //    else if (vm.Loaded)
+            //    {
+            //        if (Opened)
+            //        {
+            //            ViewModel.Log().Info("GardenPlantTileView: plant loading ready, fading in plant " + ViewModel.Name);
+            //            _FadeIn();
+            //        }
+            //        else
+            //        {
+            //            ViewModel.Log().Info("GardenPlantTileView: plant loaded but not opened yet " + ViewModel.Name);
+            //        }
+            //    }
+            //    else if (vm.HasWriteAccess)
+            //    {
+            //        ViewModel.Log().Info("GardenPlantTileView: plant has writeaccess, fading in plant " + ViewModel.Name);
+            //        _FadeIn();
+            //    }
+            //});
         }
 
 
@@ -106,7 +151,9 @@ namespace Growthstories.UI.WindowsPhone
         private void FadeIn()
         {
             _FadeIn();
-            subs.Dispose();
+            ViewModel.Log().Info("disposing subs " + ViewModel.Name);
+            DisposeSubs();
+            //subs.Dispose();
         }
 
         // Fade the content in if not already faded/fading in
@@ -141,7 +188,6 @@ namespace Growthstories.UI.WindowsPhone
             {
                 ViewModel.Log().Info("GardenPlantTileView: skipping fadein for " + ViewModel.Name);
             }
-
 
         }
 
@@ -203,9 +249,12 @@ namespace Growthstories.UI.WindowsPhone
 
         private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Opened)
+            if (Opened || ViewModel.HasWriteAccess)
             {
-                trexStoryboard.Begin();
+                if (trexStoryboard != null)
+                {
+                    trexStoryboard.Begin();
+                }
             }
         }
 
