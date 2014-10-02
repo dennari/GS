@@ -1,1 +1,0 @@
-<Playlist Version="1.0"><Add Test="Growthstories.DomainTests.AuthTest.TestAuth" /><Add Test="Growthstories.DomainTests.AuthTest.TestAddRelationship" /><Add Test="Growthstories.DomainTests.AuthTest.TestStagingSync" /></Playlist>

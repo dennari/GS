@@ -132,3 +132,4 @@ backend
 
 /GrowthStories.UI.WindowsPhone/Views/Page1.xaml
 /GrowthStories.UI.WindowsPhone/Views/Page1.xaml.cs
+*.userprefs
