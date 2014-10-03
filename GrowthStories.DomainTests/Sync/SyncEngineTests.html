@@ -1,0 +1,818 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.DomainTests/Sync/SyncEngineTests</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="GrowthStories.DomainTests/Sync/SyncEngineTests"><meta name="groc-project-path" content="GrowthStories.DomainTests/Sync/SyncEngineTests.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.DomainTests/Sync/SyncEngineTests.cs">GrowthStories.DomainTests/Sync/SyncEngineTests.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> Growthstories.Core;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Entities;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Messaging;
+<span class="hljs-keyword">using</span> Growthstories.Sync;
+<span class="hljs-keyword">using</span> Growthstories.UI.ViewModel;
+<span class="hljs-keyword">using</span> Ninject;
+<span class="hljs-comment">//using NUnit.Framework;</span>
+<span class="hljs-preprocessor">#<span class="hljs-keyword">if</span> WINDOWS_PHONE</span>
+<span class="hljs-keyword">using</span> Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+<span class="hljs-keyword">using</span> Windows.Storage;
+
+<span class="hljs-preprocessor">#<span class="hljs-keyword">else</span></span>
+<span class="hljs-keyword">using</span> Microsoft.VisualStudio.TestTools.UnitTesting;
+
+<span class="hljs-preprocessor">#<span class="hljs-keyword">endif</span></span>
+<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.IO;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> ReactiveUI;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+
+
+namespace Growthstories.DomainTests
+{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="syncenginetests">SyncEngineTests</h2>
+<p>Contains system tests for different synchronization situations.
+The tests are run locally with FakeHttpClient. </p></div></div><div class="code"><div class="wrapper">    [TestClass]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> SyncEngineTests
+    {
+
+        IKernel Kernel;
+        IGSAppViewModel App;
+        GSAppState AppState;
+        IGSRepository Repository;
+        FakeHttpClient Transporter;
+
+        <span class="hljs-keyword">public</span> Task&lt;ISyncInstance&gt; <span class="hljs-title">SingleSync</span>()
+        {
+            <span class="hljs-keyword">return</span> Synchronizer.Synchronize(AppState);
+        }
+
+        [TestInitialize]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetUp</span>()
+        {
+
+            RxApp.InUnitTestRunnerOverride = <span class="hljs-keyword">true</span>;
+            <span class="hljs-keyword">if</span> (Kernel != <span class="hljs-keyword">null</span>)
+                Kernel.Dispose();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create a new Ninject DI container with the wiring from <a href="SyncEngineTestsSetup.html">SyncEngineTestsSetup</a></p></div></div><div class="code"><div class="wrapper">            Kernel = <span class="hljs-keyword">new</span> StandardKernel(<span class="hljs-keyword">new</span> SyncEngineTestsSetup());
+            <span class="hljs-keyword">var</span> app = Kernel.Get&lt;IGSAppViewModel&gt;();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Wait synchronously for the asynchronous initialization </p></div></div><div class="code"><div class="wrapper">            TestUtils.WaitForTask(app.Initialize());
+            <span class="hljs-keyword">this</span>.App = app;
+            <span class="hljs-keyword">this</span>.AppState = app.Model.State;
+            Transporter = Kernel.Get&lt;FakeHttpClient&gt;();
+            Repository = Kernel.Get&lt;IGSRepository&gt;();
+        }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>In order to reduce some complexities from the synchronization,
+we only push a single event per push-request. This tests tries to ensure 
+that this really happens.</p></div></div><div class="code"><div class="wrapper">        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPushesOnlyOneAtATime2</span>()
+        {
+            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> newName = <span class="hljs-string">"Jaakko"</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>AssignAppUser command issues only &quot;private&quot; events</p></div></div><div class="code"><div class="wrapper">            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> AssignAppUser(u.Id, u.Username, u.Password, u.Email)));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Try to synchronize</p></div></div><div class="code"><div class="wrapper">            ISyncInstance R = TestUtils.WaitForTask(SingleSync());</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Assert that there was nothing to synchronize (since our fake-endpoint is also returning nothing for the pull-request)</p></div></div><div class="code"><div class="wrapper">            Assert.IsNull(R);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Send commands to establish a new user and to change its name</p></div></div><div class="code"><div class="wrapper">            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> MultiCommand(
+                <span class="hljs-keyword">new</span> CreateUser(u.Id, u.Username, u.Password, u.Email),
+                <span class="hljs-keyword">new</span> SetUsername(u.Id, newName))));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Try to synchronize and assert that this time we had a push-request</p></div></div><div class="code"><div class="wrapper">            R = TestUtils.WaitForTask(SingleSync());
+            Assert.IsFalse(R.PushReq.IsEmpty);
+            </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Ensures that the push request contains a single stream with a single event
+of the type UserCreated (would throw otherwise)</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> e1 = (UserCreated)R.PushReq.Streams.Single().Single();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Assert that the aggregate-id&#39;s match (Guid)</p></div></div><div class="code"><div class="wrapper">            Assert.AreEqual(u.Id, e1.AggregateId);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Synchronize again</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R2 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsFalse(R2.PushReq.IsEmpty);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Again ensure that there&#39;s a single stream and event</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> e2 = (UsernameSet)R2.PushReq.Streams.Single().Single();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>See that the properties of the event match</p></div></div><div class="code"><div class="wrapper">            Assert.AreEqual(u.Id, e2.AggregateId);
+            Assert.AreEqual(newName, e2.Username);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Try to synchronize yet again and ensure that there&#39;s nothing to synchronize</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R3 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsTrue(R3.PushReq.IsEmpty);
+
+        }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Test that simulates a situation, where we receive an event
+from the backend. We should not try to push it back on subsequent
+synchronizations.</p></div></div><div class="code"><div class="wrapper">        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestWontPushPulled</span>()
+        {
+            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> newName = <span class="hljs-string">"Jaakko"</span>;
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"Jomppe"</span>;
+
+            <span class="hljs-keyword">var</span> plantId = Guid.NewGuid();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create a new user</p></div></div><div class="code"><div class="wrapper">            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreateUser(u.Id, u.Username, u.Password, u.Email)));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Synchronize the single event that resulted</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            Assert.IsFalse(R.PushReq.IsEmpty);
+            <span class="hljs-keyword">var</span> e1 = (UserCreated)R.PushReq.Streams.Single().Single();
+            Assert.AreEqual(u.Id, e1.AggregateId);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Specify the response we&#39;re getting for the next pull-request, i.e a UserNameSet event</p></div></div><div class="code"><div class="wrapper">            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER,
+                <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                })
+            };</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>synchronize and ensure that there we tried to pull and not push</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R22 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsTrue(R22.PushReq.IsEmpty);
+            Assert.IsFalse(R22.PullReq.IsEmpty);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>assert that the pull-response got handled and the name was changed</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> uu = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(remoteName, uu.State.Username);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>no pull-response on next sync</p></div></div><div class="code"><div class="wrapper">            Transporter.PullResponseFactory = <span class="hljs-keyword">null</span>;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>do another username-change</p></div></div><div class="code"><div class="wrapper">            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SetUsername(u.Id, newName)));
+            Assert.AreEqual(newName, uu.State.Username);
+            </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>What we should see at this point, is that the event we received on the previous
+sync is not getting pushed back when synchronized</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R2 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsFalse(R2.PushReq.IsEmpty);
+            </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>assert that the evet we&#39;re pushing is the one we created locally</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> e2 = (UsernameSet)R2.PushReq.Streams.Single().Single();
+            Assert.AreEqual(u.Id, e2.AggregateId);
+            Assert.AreEqual(newName, e2.Username);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>assert that there&#39;s nothing more to push</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> R3 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsTrue(R3.PushReq.IsEmpty);
+        }</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="commenting-ends">Commenting ends</h2></div></div></div><div class="segment"><div class="code"><div class="wrapper">        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> IStreamSegment[] <span class="hljs-title">CreateStreams</span>(<span class="hljs-keyword">params</span> IMessage[] msgs)
+        {
+            <span class="hljs-keyword">return</span> msgs.GroupBy(x =&gt; x.AggregateId).Select(x =&gt; <span class="hljs-keyword">new</span> StreamSegment(x)).ToArray();
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> PullStream[] <span class="hljs-title">CreatePullStream</span>(Guid id, PullStreamType type, <span class="hljs-keyword">params</span> IMessage[] msgs)
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span>[] {<span class="hljs-keyword">new</span> PullStream(id, type)
+            {
+                Segments = msgs
+                    .GroupBy(x =&gt; x.AggregateId)
+                    .Select(x =&gt; <span class="hljs-keyword">new</span> StreamSegment(x))
+                    .ToDictionary(x =&gt; x.AggregateId, x =&gt; (IStreamSegment)x)
+            }};
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> PullStream[] <span class="hljs-title">CreatePullStream</span>(UserCreated u)
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span>[] {<span class="hljs-keyword">new</span> PullStream(u.AggregateId, PullStreamType.USER)
+            {
+                Segments = CreateStreams(u).ToDictionary(x =&gt; x.AggregateId)
+            }};
+        }
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPullCanCreateStream</span>()
+        {
+
+            <span class="hljs-keyword">var</span> remoteUser = TestUtils.CreateUserFromName(<span class="hljs-string">"Jorma"</span>);
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(remoteUser)
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER)));
+
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+
+            <span class="hljs-keyword">var</span> RemoteUser = Repository.GetById(remoteUser.AggregateId);
+            Assert.IsInstanceOfType(RemoteUser, <span class="hljs-keyword">typeof</span>(User));
+            Assert.AreEqual(<span class="hljs-number">1</span>, RemoteUser.Version);
+
+        }
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestDeletedPlantIsNotPulled</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> plantId = Guid.NewGuid();
+            <span class="hljs-comment">//var gardenId = Guid.NewGuid();</span>
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreateUser(u.Id, u.Username, u.Password, u.Email)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreateGarden(u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> AddGarden(u.Id, u.GardenId)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> AssignAppUser(u.Id, u.Username, u.Password, u.Email)));
+            <span class="hljs-keyword">var</span> plant = (Plant)TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreatePlant(plantId, <span class="hljs-string">"Jare"</span>, u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> AddPlant(u.GardenId, plantId, u.Id, <span class="hljs-keyword">null</span>)));
+            Assert.IsFalse(plant.State.IsDeleted);
+
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+
+            Assert.AreEqual(R.PullReq.Streams.First(x =&gt; x.StreamId == plantId).Type, PullStreamType.PLANT);
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> DeleteAggregate(plantId, <span class="hljs-string">"plant"</span>)));
+
+            <span class="hljs-keyword">var</span> R2 = TestUtils.WaitForTask(SingleSync());
+            Assert.IsNull(R2.PullReq.Streams.FirstOrDefault(x =&gt; x.StreamId == plantId));
+            Assert.IsTrue(plant.State.IsDeleted);
+
+
+
+        }
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPullRemembersSince</span>()
+        {
+
+            <span class="hljs-keyword">var</span> remoteUser = TestUtils.CreateUserFromName(<span class="hljs-string">"Jorma"</span>);
+            <span class="hljs-keyword">long</span> nextSince = <span class="hljs-number">45</span>;
+            Transporter.PullResponseFactory = (r) =&gt;
+            {
+
+                <span class="hljs-keyword">var</span> streamSegment = <span class="hljs-keyword">new</span> StreamSegment(remoteUser.AggregateId, remoteUser);
+                <span class="hljs-keyword">var</span> projection = <span class="hljs-keyword">new</span> PullStream(
+                    remoteUser.AggregateId,
+                    PullStreamType.USER,
+                    <span class="hljs-keyword">new</span> Dictionary&lt;Guid, IStreamSegment&gt;() { { remoteUser.AggregateId, streamSegment } },
+                    nextSince
+                );
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpPullResponse()
+                {
+                    StatusCode = GSStatusCode.OK,
+                    Projections = <span class="hljs-keyword">new</span>[] { projection }
+                };
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreateSyncStream(remoteUser.AggregateId, PullStreamType.USER)));
+
+
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
+            R = TestUtils.WaitForTask(SingleSync());
+            Assert.IsFalse(R.PullReq.IsEmpty);
+
+            <span class="hljs-keyword">var</span> pullStream = R.PullReq.Streams.Single();
+            Assert.AreEqual(pullStream.Since, nextSince);
+
+
+
+        }
+
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestCommutativeConflict</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> BecameFollower(<span class="hljs-keyword">new</span> BecomeFollower(u.Id, remoteTarget))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                })
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> BecomeFollower(u.Id, localTarget)));
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+            <span class="hljs-comment">//Assert.IsTrue(R.PushReq.IsEmpty);</span>
+            <span class="hljs-keyword">var</span> pushStream = R.PushReq.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pushStream.Count);
+
+            <span class="hljs-keyword">var</span> translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">3</span>, translated[<span class="hljs-number">0</span>].AggregateVersion + <span class="hljs-number">1</span>); <span class="hljs-comment">// backend starts counting from zero</span>
+
+
+            <span class="hljs-keyword">var</span> User = Repository.GetById(u.Id);
+            Assert.IsInstanceOfType(User, <span class="hljs-keyword">typeof</span>(User));
+            Assert.AreEqual(<span class="hljs-number">3</span>, User.Version);
+
+        }
+
+
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestNonCommutativeConflict</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"JeppeRemote"</span>;
+            <span class="hljs-keyword">var</span> localName = <span class="hljs-string">"JeppeLocal"</span>;
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                })
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SetUsername(u.Id, localName)));
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+
+            <span class="hljs-keyword">var</span> pushStream = R.PushReq.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pushStream.Count);
+            Assert.IsInstanceOfType(pushStream.Single(), <span class="hljs-keyword">typeof</span>(INullEvent));
+
+            <span class="hljs-keyword">var</span> translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">3</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+
+            <span class="hljs-keyword">var</span> pullStream = R.PullResp.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pullStream.Count);
+            Assert.IsInstanceOfType(pullStream.Single(), <span class="hljs-keyword">typeof</span>(UsernameSet));
+
+            <span class="hljs-keyword">var</span> User = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(<span class="hljs-number">3</span>, User.Version);
+
+            Assert.AreEqual(remoteName, User.State.Username);
+
+
+
+        }
+
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestNonCommutativeConflict2</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"JeppeRemote"</span>;
+            <span class="hljs-keyword">var</span> localName = <span class="hljs-string">"JeppeLocal"</span>;
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>),
+                    MessageId = Guid.NewGuid()
+                })
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SetUsername(u.Id, localName)));
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+            <span class="hljs-comment">//Assert.IsTrue(R.PushReq.IsEmpty);</span>
+            <span class="hljs-keyword">var</span> pushStream = R.PushReq.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pushStream.Count);
+            Assert.IsInstanceOfType(pushStream.Single(), <span class="hljs-keyword">typeof</span>(UsernameSet));
+
+
+            <span class="hljs-keyword">var</span> translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">3</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            <span class="hljs-keyword">var</span> pullStream = R.PullResp.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pullStream.Count);
+            Assert.IsInstanceOfType(pullStream.Single(), <span class="hljs-keyword">typeof</span>(INullEvent));
+
+
+            <span class="hljs-keyword">var</span> User = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(<span class="hljs-number">3</span>, User.Version);
+
+            Assert.AreEqual(localName, User.State.Username);
+
+
+
+        }
+
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestNonCommutativeConflictWithMultipleConflicts</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"JeppeRemote"</span>;
+            <span class="hljs-keyword">var</span> newerRemoteName = <span class="hljs-string">"JeppeRemoteNewer"</span>;
+            <span class="hljs-keyword">var</span> localName = <span class="hljs-string">"JeppeLocal"</span>;
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> BecameFollower(<span class="hljs-keyword">new</span> BecomeFollower(u.Id, remoteTarget))
+                {
+                    AggregateVersion = <span class="hljs-number">3</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, newerRemoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">4</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                }
+                )
+
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SetUsername(u.Id, localName)));
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+            <span class="hljs-comment">//Assert.IsTrue(R.PushReq.IsEmpty);</span>
+            <span class="hljs-keyword">var</span> pushStream = R.PushReq.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pushStream.Count);
+            Assert.IsInstanceOfType(pushStream.Single(), <span class="hljs-keyword">typeof</span>(INullEvent));
+
+
+            <span class="hljs-keyword">var</span> translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">5</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            <span class="hljs-comment">//var pullStream = R.PullResp.Streams.Single();</span>
+            <span class="hljs-comment">//Assert.AreEqual(1, pullStream.Count);</span>
+            <span class="hljs-comment">//Assert.IsInstanceOf&lt;INullEvent&gt;(pullStream.Single());</span>
+
+
+            <span class="hljs-keyword">var</span> User = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(<span class="hljs-number">5</span>, User.Version);
+
+            Assert.AreEqual(newerRemoteName, User.State.Username);
+
+
+
+        }
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestNonCommutativeConflictWithMultipleConflicts2</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"JeppeRemote"</span>;
+            <span class="hljs-keyword">var</span> newerRemoteName = <span class="hljs-string">"JeppeRemoteNewer"</span>;
+            <span class="hljs-keyword">var</span> localName = <span class="hljs-string">"JeppeLocal"</span>;
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>),
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> BecameFollower(<span class="hljs-keyword">new</span> BecomeFollower(u.Id, remoteTarget))
+                {
+                    AggregateVersion = <span class="hljs-number">3</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, newerRemoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">4</span>,
+                    Created = DateTimeOffset.UtcNow,
+                    MessageId = Guid.NewGuid()
+                }
+                )
+
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SetUsername(u.Id, localName)));
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+            <span class="hljs-comment">//Assert.IsTrue(R.PushReq.IsEmpty);</span>
+            <span class="hljs-keyword">var</span> pushStream = R.PushReq.Streams.Single();
+            Assert.AreEqual(<span class="hljs-number">1</span>, pushStream.Count);
+            Assert.IsInstanceOfType(pushStream.Single(), <span class="hljs-keyword">typeof</span>(INullEvent));
+
+
+            <span class="hljs-keyword">var</span> translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">5</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            <span class="hljs-comment">//var pullStream = R.PullResp.Streams.Single();</span>
+            <span class="hljs-comment">//Assert.AreEqual(1, pullStream.Count);</span>
+            <span class="hljs-comment">//Assert.IsInstanceOf&lt;INullEvent&gt;(pullStream.Single());</span>
+
+
+            <span class="hljs-keyword">var</span> User = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(<span class="hljs-number">5</span>, User.Version);
+
+            Assert.AreEqual(newerRemoteName, User.State.Username);
+
+
+
+        }
+
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestNonCommutativeConflictWithMultipleConflicts3</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            Guid localTarget = Guid.NewGuid();
+            Guid remoteTarget = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> remoteName = <span class="hljs-string">"JeppeRemote"</span>;
+            <span class="hljs-keyword">var</span> newerRemoteName = <span class="hljs-string">"JeppeRemoteNewer"</span>;
+            <span class="hljs-keyword">var</span> localName = <span class="hljs-string">"JeppeLocal"</span>;
+            <span class="hljs-keyword">var</span> newerLocalName = <span class="hljs-string">"JeppeLocalNewer"</span>;
+
+            TestPushIncludesPublicEvents();
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.USER, <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, remoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">2</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>),
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> BecameFollower(<span class="hljs-keyword">new</span> BecomeFollower(u.Id, remoteTarget))
+                {
+                    AggregateVersion = <span class="hljs-number">3</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                    MessageId = Guid.NewGuid()
+                },
+                <span class="hljs-keyword">new</span> UsernameSet(<span class="hljs-keyword">new</span> SetUsername(u.Id, newerRemoteName))
+                {
+                    AggregateVersion = <span class="hljs-number">4</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>),
+                    MessageId = Guid.NewGuid()
+                }
+                )
+
+            };
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> MultiCommand(
+                <span class="hljs-keyword">new</span> SetUsername(u.Id, localName),
+                <span class="hljs-keyword">new</span> BecomeFollower(u.Id, remoteTarget),
+                <span class="hljs-keyword">new</span> SetUsername(u.Id, newerLocalName)
+            )));
+
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
+            IEventDTO[] translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">5</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            Transporter.PullResponseFactory = <span class="hljs-keyword">null</span>;
+
+            R = TestUtils.WaitForTask(SingleSync());
+            translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">6</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            R = TestUtils.WaitForTask(SingleSync());
+            translated = ((HttpPushRequest)R.PushReq).Events.ToArray();
+            Assert.AreEqual(<span class="hljs-number">7</span>, translated.Single().AggregateVersion + <span class="hljs-number">1</span>);
+
+            R = TestUtils.WaitForTask(SingleSync());
+            Assert.IsTrue(R.PushReq.IsEmpty);
+
+
+            <span class="hljs-keyword">var</span> User = (User)Repository.GetById(u.Id);
+            Assert.AreEqual(<span class="hljs-number">7</span>, User.Version);
+
+            Assert.AreEqual(localName, User.State.Username);
+
+
+
+        }
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPhotoUpload</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> plantId = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> plantActionId = Guid.NewGuid();
+
+            <span class="hljs-keyword">var</span> photo = <span class="hljs-keyword">new</span> Photo()
+            {
+                LocalFullPath = <span class="hljs-string">@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.UI.WindowsPhone\Assets\Bg\plant_bg.jpg"</span>,
+                LocalUri = <span class="hljs-string">"plant_bg.jpg"</span>,
+                FileName = <span class="hljs-string">"plant_bg.jpg"</span>,
+                Width = <span class="hljs-number">500</span>,
+                Height = <span class="hljs-number">500</span>,
+                Size = <span class="hljs-number">500</span> * <span class="hljs-number">500</span> * <span class="hljs-number">3</span>
+            };
+
+            <span class="hljs-comment">//TestPushIncludesPublicEvents();</span>
+
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreatePlant(plantId, <span class="hljs-string">"Jare"</span>, u.GardenId, u.Id)));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, <span class="hljs-string">"Just a photo"</span>)
+                {
+                    Photo = photo
+                }
+            ));
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> SchedulePhotoUpload(photo, plantActionId)));
+
+
+            Assert.AreEqual(Tuple.Create(photo, plantActionId), AppState.PhotoUploads.Values.Single());
+
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+            <span class="hljs-comment">//var R = Rs[0];</span>
+
+            Assert.IsNotNull(R.PhotoUploadRequests);
+
+            Assert.AreEqual(<span class="hljs-number">0</span>, AppState.PhotoUploads.Count);
+
+
+        }
+
+        [TestMethod]
+        [Ignore] <span class="hljs-comment">// photodownloads disabled for now</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPhotoDownload</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> plantId = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> plantActionId = Guid.NewGuid();
+
+
+
+            <span class="hljs-keyword">var</span> photo = <span class="hljs-keyword">new</span> Photo()
+            {
+                BlobKey = <span class="hljs-string">"skdjdlgdfg"</span>,
+                LocalFullPath = <span class="hljs-string">@"C:\Users\Ville\Documents\Visual Studio 2012\Projects\GrowthStories\GrowthStories.DomainTests\Data\img_download_test.jpg"</span>,
+                LocalUri = <span class="hljs-string">"img_download_test.jpg"</span>,
+                FileName = <span class="hljs-string">"img_download_test.jpg"</span>,
+                Width = <span class="hljs-number">500</span>,
+                Height = <span class="hljs-number">500</span>,
+                Size = <span class="hljs-number">500</span> * <span class="hljs-number">500</span> * <span class="hljs-number">3</span>
+            };
+
+<span class="hljs-preprocessor">#<span class="hljs-keyword">if</span> WINDOWS_PHONE</span>
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">var</span> folderTask = ApplicationData.Current.LocalFolder.CreateFolderAsync(WP8PhotoHandler.IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                <span class="hljs-keyword">var</span> folder = TestUtils.WaitForTask(folderTask.AsTask());
+                TestUtils.WaitForTask(folder.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask());
+
+
+            }
+            <span class="hljs-keyword">catch</span> { }
+<span class="hljs-preprocessor">#<span class="hljs-keyword">else</span></span>
+            <span class="hljs-keyword">try</span>
+            {
+                File.Delete(photo.LocalFullPath);
+            }
+            <span class="hljs-keyword">catch</span> { }
+            Assert.IsFalse(File.Exists(photo.LocalFullPath));
+<span class="hljs-preprocessor">#<span class="hljs-keyword">endif</span></span>
+
+
+            TestUtils.WaitForTask(App.HandleCommand(<span class="hljs-keyword">new</span> CreatePlant(plantId, <span class="hljs-string">"Jare"</span>, u.GardenId, u.Id)));
+
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(plantId, PullStreamType.PLANT, <span class="hljs-keyword">new</span> PlantActionCreated(<span class="hljs-keyword">new</span> CreatePlantAction(plantActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, <span class="hljs-string">"Just a photo"</span>)
+                {
+                    Photo = photo
+                })
+                {
+                    AggregateVersion = <span class="hljs-number">1</span>,
+                    Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>),
+                    MessageId = Guid.NewGuid()
+                }
+                )
+
+            };
+
+            Transporter.PhotoDownloadUriResponseFactory = (blobKey) =&gt; <span class="hljs-keyword">new</span> PhotoUriResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                PhotoUri = <span class="hljs-keyword">new</span> Uri(<span class="hljs-string">"http://upload.wikimedia.org/wikipedia/commons/e/e3/CentaureaCyanus-bloem-kl.jpg"</span>)
+            };
+
+            Transporter.PhotoDownloadResponseFactory = (req) =&gt;
+            {
+                <span class="hljs-keyword">var</span> client = Kernel.Get&lt;SyncHttpClient&gt;();
+                <span class="hljs-keyword">return</span> client.RequestPhotoDownload(req);
+
+            };
+
+            <span class="hljs-keyword">var</span> R = TestUtils.WaitForTask(SingleSync());
+
+
+            Assert.AreEqual(<span class="hljs-number">0</span>, AppState.PhotoDownloads.Count);
+
+            <span class="hljs-keyword">var</span> PhotoAction = (PlantAction)Repository.GetById(plantActionId);
+
+            Assert.AreEqual(photo, PhotoAction.State.Photo);
+
+
+
+<span class="hljs-preprocessor">#<span class="hljs-keyword">if</span> WINDOWS_PHONE</span>
+            <span class="hljs-keyword">var</span> folderFound = <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">var</span> fileFound = <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">var</span> folderTask = ApplicationData.Current.LocalFolder.CreateFolderAsync(WP8PhotoHandler.IMG_FOLDER, CreationCollisionOption.OpenIfExists);
+                <span class="hljs-keyword">var</span> folder = TestUtils.WaitForTask(folderTask.AsTask());
+                folderFound = <span class="hljs-keyword">true</span>;
+                <span class="hljs-keyword">var</span> file = TestUtils.WaitForTask(folder.CreateFileAsync(photo.FileName, CreationCollisionOption.FailIfExists).AsTask());
+                Assert.Fail(<span class="hljs-string">"Image didn't exist"</span>);
+
+            }
+            <span class="hljs-keyword">catch</span>
+            {
+                fileFound = <span class="hljs-keyword">true</span>;
+
+            }
+            Assert.IsTrue(folderFound);
+            Assert.IsTrue(fileFound);
+<span class="hljs-preprocessor">#<span class="hljs-keyword">else</span></span>
+            Assert.IsTrue(File.Exists(photo.LocalFullPath));
+<span class="hljs-preprocessor">#<span class="hljs-keyword">endif</span></span>
+
+        }
+
+
+        [TestMethod]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">TestPullPlantProjectionStream</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>ARRANGE</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> u = App.User;
+            <span class="hljs-keyword">var</span> plantId = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> photoActionId = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> commentActionId = Guid.NewGuid();
+            <span class="hljs-keyword">var</span> measurementActionId = Guid.NewGuid();
+            <span class="hljs-keyword">string</span> remoteName = <span class="hljs-string">"Jore"</span>;
+            <span class="hljs-keyword">string</span> remoteSpecies = <span class="hljs-string">"A. Vera"</span>;
+
+            App.HandleCommand(<span class="hljs-keyword">new</span> CreateSyncStream(plantId, PullStreamType.PLANT, u.Id));
+
+            Transporter.PullResponseFactory = (r) =&gt; <span class="hljs-keyword">new</span> HttpPullResponse()
+            {
+                StatusCode = GSStatusCode.OK,
+                Projections = CreatePullStream(u.Id, PullStreamType.PLANT,
+                    <span class="hljs-keyword">new</span> PlantCreated(<span class="hljs-keyword">new</span> CreatePlant(plantId, remoteName, u.GardenId, u.Id))
+                    {
+                        AggregateVersion = <span class="hljs-number">1</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>),
+                        MessageId = Guid.NewGuid()
+                    },
+                    <span class="hljs-keyword">new</span> SpeciesSet(<span class="hljs-keyword">new</span> SetSpecies(plantId, remoteSpecies))
+                    {
+                        AggregateVersion = <span class="hljs-number">3</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                        MessageId = Guid.NewGuid()
+                    },
+                    <span class="hljs-keyword">new</span> ProfilepictureSet(<span class="hljs-keyword">new</span> SetProfilepicture(plantId, <span class="hljs-keyword">null</span>, photoActionId))
+                    {
+                        AggregateVersion = <span class="hljs-number">3</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                        MessageId = Guid.NewGuid()
+                    },
+                    <span class="hljs-keyword">new</span> PlantActionCreated(<span class="hljs-keyword">new</span> CreatePlantAction(photoActionId, u.Id, plantId, PlantActionType.PHOTOGRAPHED, <span class="hljs-string">"photo"</span>)
+                    {
+                        Photo = <span class="hljs-keyword">new</span> Photo()
+                    })
+                    {
+                        AggregateVersion = <span class="hljs-number">1</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                        MessageId = Guid.NewGuid()
+                    },
+                    <span class="hljs-keyword">new</span> PlantActionCreated(<span class="hljs-keyword">new</span> CreatePlantAction(commentActionId, u.Id, plantId, PlantActionType.COMMENTED, <span class="hljs-string">"comment"</span>))
+                    {
+                        AggregateVersion = <span class="hljs-number">1</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                        MessageId = Guid.NewGuid()
+                    },
+                    <span class="hljs-keyword">new</span> PlantActionCreated(<span class="hljs-keyword">new</span> CreatePlantAction(measurementActionId, u.Id, plantId, PlantActionType.MEASURED, <span class="hljs-string">"measurement"</span>)
+                    {
+                        Value = <span class="hljs-number">22</span>,
+                        MeasurementType = MeasurementType.AIR_HUMIDITY
+                    })
+                    {
+                        AggregateVersion = <span class="hljs-number">1</span>,
+                        Created = DateTimeOffset.UtcNow - <span class="hljs-keyword">new</span> TimeSpan(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">15</span>),
+                        MessageId = Guid.NewGuid()
+                    }
+                )
+
+            };
+
+            ISyncInstance R = TestUtils.WaitForTask(SingleSync());
+            Assert.IsNotNull(R.PullReq);
+            Assert.IsNotNull(R.PullResp);
+
+            Assert.AreEqual(GSStatusCode.OK, R.PullResp.StatusCode);
+
+            Plant plant = (Plant)Repository.GetById(plantId);
+
+            Assert.AreEqual(<span class="hljs-number">3</span>, plant.Version);
+            Assert.AreEqual(remoteName, plant.State.Name);
+            Assert.AreEqual(remoteSpecies, plant.State.Species);
+            Assert.AreEqual(photoActionId, plant.State.ProfilepictureActionId);
+
+            PlantAction photo = (PlantAction)Repository.GetById(photoActionId);
+            Assert.AreEqual(PlantActionType.PHOTOGRAPHED, photo.State.Type);
+
+            PlantAction comment = (PlantAction)Repository.GetById(commentActionId);
+            Assert.AreEqual(PlantActionType.COMMENTED, comment.State.Type);
+
+            PlantAction measurement = (PlantAction)Repository.GetById(measurementActionId);
+            Assert.AreEqual(PlantActionType.MEASURED, measurement.State.Type);
+            Assert.AreEqual(<span class="hljs-number">22</span>, measurement.State.Value);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> <span class="hljs-title">toJSON</span>(<span class="hljs-keyword">object</span> o) { <span class="hljs-keyword">return</span> Kernel.Get&lt;IJsonFactory&gt;().Serialize(o); }
+        <span class="hljs-keyword">public</span> T fromJSON&lt;T&gt;(<span class="hljs-keyword">string</span> s) { <span class="hljs-keyword">return</span> Kernel.Get&lt;IJsonFactory&gt;().Deserialize&lt;T&gt;(s); }
+
+        <span class="hljs-keyword">public</span> SynchronizerService Synchronizer { <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> Kernel.Get&lt;SynchronizerService&gt;(); } }
+
+        <span class="hljs-keyword">protected</span> ITranslateEvents Translator
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> Kernel.Get&lt;ITranslateEvents&gt;();
+            }
+        }
+
+    }
+}</div></div></div></div></body></html>

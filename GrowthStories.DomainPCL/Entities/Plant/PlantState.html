@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.DomainPCL/Entities/Plant/PlantState</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="GrowthStories.DomainPCL/Entities/Plant/PlantState"><meta name="groc-project-path" content="GrowthStories.DomainPCL/Entities/Plant/PlantState.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.DomainPCL/Entities/Plant/PlantState.cs">GrowthStories.DomainPCL/Entities/Plant/PlantState.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> CommonDomain;
+<span class="hljs-keyword">using</span> Growthstories.Core;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Messaging;
+<span class="hljs-keyword">using</span> Growthstories.Sync;
+<span class="hljs-keyword">using</span> Newtonsoft.Json;
+<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> EventStore.Logging;
+
+
+namespace Growthstories.Domain.Entities
+{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="plantstate">PlantState</h2>
+<p>Handles plants events (basically translating them to properties).
+Can be serialized, persisted and used as a snapshot (a way to prevent always loading the event stream from the start). </p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">class</span> PlantState : AggregateState&lt;PlantCreated&gt;
+    {
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ILog Logger = LogFactory.BuildLogger(<span class="hljs-keyword">typeof</span>(PlantState));
+
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> Public { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid UserId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid GardenId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid? WateringScheduleId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> IsWateringScheduleEnabled { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid? FertilizingScheduleId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> IsFertilizingScheduleEnabled { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> IList&lt;<span class="hljs-keyword">string</span>&gt; Tags { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Species { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid? ProfilepictureActionId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> GSLocation Location { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">PlantState</span>()
+        {
+            <span class="hljs-keyword">this</span>.Tags = <span class="hljs-keyword">new</span> List&lt;<span class="hljs-keyword">string</span>&gt;();
+            <span class="hljs-keyword">this</span>.Public = <span class="hljs-keyword">false</span>;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">PlantState</span>(PlantCreated @<span class="hljs-keyword">event</span>)
+            : <span class="hljs-title">this</span>()
+        {
+            <span class="hljs-keyword">this</span>.Apply(@<span class="hljs-keyword">event</span>);
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(PlantCreated @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">base</span>.Apply(@<span class="hljs-keyword">event</span>);
+
+            <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.UserId == <span class="hljs-keyword">default</span>(Guid))
+            {
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"empty_id"</span>, <span class="hljs-string">"UserId is required"</span>);
+            }
+ 
+            <span class="hljs-keyword">this</span>.Name = @<span class="hljs-keyword">event</span>.Name;
+            <span class="hljs-keyword">this</span>.UserId = @<span class="hljs-keyword">event</span>.UserId;
+            <span class="hljs-keyword">this</span>.GardenId = @<span class="hljs-keyword">event</span>.GardenId;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(MarkedPlantPublic @<span class="hljs-keyword">event</span>)
+        {
+            Public = <span class="hljs-keyword">true</span>;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(MarkedPlantPrivate @<span class="hljs-keyword">event</span>)
+        {
+            Public = <span class="hljs-keyword">false</span>;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(ProfilepictureSet @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-comment">//this.Profilepicture = @event.Profilepicture;</span>
+            <span class="hljs-keyword">this</span>.ProfilepictureActionId = @<span class="hljs-keyword">event</span>.PlantActionId;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(ScheduleSet @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.Type == ScheduleType.WATERING)
+                <span class="hljs-keyword">this</span>.WateringScheduleId = @<span class="hljs-keyword">event</span>.ScheduleId;
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-keyword">this</span>.FertilizingScheduleId = @<span class="hljs-keyword">event</span>.ScheduleId;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(ScheduleToggled @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.Type == ScheduleType.WATERING)
+                <span class="hljs-keyword">this</span>.IsWateringScheduleEnabled = @<span class="hljs-keyword">event</span>.IsEnabled;
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-keyword">this</span>.IsFertilizingScheduleEnabled = @<span class="hljs-keyword">event</span>.IsEnabled;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(TagsSet @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">this</span>.Tags = @<span class="hljs-keyword">event</span>.Tags.ToList();
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(NameSet @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">this</span>.Name = @<span class="hljs-keyword">event</span>.Name;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(SpeciesSet @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">this</span>.Species = @<span class="hljs-keyword">event</span>.Species;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(LocationSet @<span class="hljs-keyword">event</span>)
+        {
+            Location = @<span class="hljs-keyword">event</span>.Location;
+        }
+
+
+    }
+}</div></div></div></div></body></html>

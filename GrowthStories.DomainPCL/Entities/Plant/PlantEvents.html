@@ -1,0 +1,641 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.DomainPCL/Entities/Plant/PlantEvents</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="GrowthStories.DomainPCL/Entities/Plant/PlantEvents"><meta name="groc-project-path" content="GrowthStories.DomainPCL/Entities/Plant/PlantEvents.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.DomainPCL/Entities/Plant/PlantEvents.cs">GrowthStories.DomainPCL/Entities/Plant/PlantEvents.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> Growthstories.Core;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Entities;
+<span class="hljs-keyword">using</span> Growthstories.Sync;
+<span class="hljs-keyword">using</span> Newtonsoft.Json;
+<span class="hljs-keyword">using</span> Newtonsoft.Json.Linq;
+<span class="hljs-keyword">using</span> EventStore.Logging;
+
+namespace Growthstories.Domain.Messaging
+{
+
+
+
+    <span class="hljs-preprocessor">#<span class="hljs-keyword">region</span> Plant</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h3 id="plantcreated-event">PlantCreated event</h3>
+<p>Events are immutable messages that are always <code>aggregate</code> specific.
+Taken from the the aggregate&#39;s perspective, they form an ordered series or a stream,
+which enables an aggregate to build its state.
+They are also json-serializable, so can be used as over-the-wire DTO&#39;s.</p></div></div><div class="code"><div class="wrapper">    [DTOObject(DTOType.createPlant)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> PlantCreated : EventBase, ICreateMessage, IAggregateEvent&lt;PlantState&gt;
+    {
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid UserId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid GardenId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+
+        [JsonIgnore]
+        <span class="hljs-keyword">private</span> Type _AggregateType;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Messages implementing the <code>ICreateMessage</code> interface
+must be able to specify a concrete aggregate-type.
+Since an event stream always starts with an <code>ICreateMessage</code>, 
+this enables generic instantiation only based on the <code>Id</code>, e.g. when loading
+an aggregate from the event-store.</p></div></div><div class="code"><div class="wrapper">        [JsonIgnore]
+        <span class="hljs-keyword">public</span> Type AggregateType
+        {
+            <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> _AggregateType == <span class="hljs-keyword">null</span> ? _AggregateType = <span class="hljs-keyword">typeof</span>(Plant) : _AggregateType; }
+        }
+
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">PlantCreated</span>() { }
+        <span class="hljs-keyword">public</span> <span class="hljs-title">PlantCreated</span>(Guid entityId, <span class="hljs-keyword">string</span> name, Guid userId)
+            : <span class="hljs-title">base</span>(entityId)
+        {
+            <span class="hljs-keyword">if</span> (name == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ArgumentNullException(<span class="hljs-string">"a name has to be provided"</span>);
+            }
+            <span class="hljs-keyword">if</span> (userId == <span class="hljs-keyword">default</span>(Guid))
+            {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ArgumentNullException(<span class="hljs-string">"userId has to be provided"</span>);
+            }
+            Name = name;
+            UserId = userId;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">PlantCreated</span>(CreatePlant cmd) :
+            <span class="hljs-title">base</span>(cmd)
+        {
+
+            <span class="hljs-keyword">if</span> (cmd.Name == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ArgumentNullException(<span class="hljs-string">"a name has to be provided"</span>);
+            }
+            <span class="hljs-keyword">if</span> (cmd.GardenId == <span class="hljs-keyword">default</span>(Guid))
+            {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ArgumentNullException(<span class="hljs-string">"GardenId has to be provided"</span>);
+            }
+            <span class="hljs-keyword">if</span> (cmd.UserId == <span class="hljs-keyword">default</span>(Guid))
+            {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ArgumentNullException(<span class="hljs-string">"UserId has to be provided"</span>);
+            }
+            <span class="hljs-keyword">this</span>.Name = cmd.Name;
+            <span class="hljs-keyword">this</span>.UserId = cmd.UserId;
+            <span class="hljs-keyword">this</span>.GardenId = cmd.GardenId;
+
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Created plant {0}, {1}"</span>, Name, AggregateId);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ICreatePlantDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.Name = <span class="hljs-keyword">this</span>.Name;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ICreatePlantDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.Name = D.Name;
+
+            <span class="hljs-keyword">base</span>.FromDTO(D);
+
+            <span class="hljs-keyword">this</span>.UserId = <span class="hljs-keyword">this</span>.AncestorId ?? <span class="hljs-keyword">default</span>(Guid);
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+        }
+
+        <span class="hljs-keyword">public</span> PlantState AggregateState { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+    }
+
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> ProfilepictureSet : EventBase
+    {
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ILog Logger = LogFactory.BuildLogger(<span class="hljs-keyword">typeof</span>(ProfilepictureSet));
+
+        <span class="hljs-comment">//[JsonProperty]</span>
+        <span class="hljs-comment">//public Photo Profilepicture { get; private set; }</span>
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid PlantActionId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">ProfilepictureSet</span>() { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">ProfilepictureSet</span>(Guid entityId, Guid plantActionId)
+            : <span class="hljs-title">base</span>(entityId)
+        {
+            <span class="hljs-comment">//this.Profilepicture = profilepicture;</span>
+            <span class="hljs-keyword">this</span>.PlantActionId = plantActionId;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">ProfilepictureSet</span>(SetProfilepicture cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-comment">//this.Profilepicture = cmd.Profilepicture;</span>
+            <span class="hljs-keyword">this</span>.PlantActionId = cmd.PlantActionId;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Profilepicture changed to {0}"</span>, PlantActionId);
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">base</span>.FillDTO(D);
+
+            D.PropertyName = <span class="hljs-string">"photo"</span>;
+            D.PropertyValue = <span class="hljs-keyword">new</span> JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = <span class="hljs-keyword">this</span>.AncestorId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = <span class="hljs-keyword">this</span>.PlantActionId.ToString();
+            D.EntityType = DTOType.plant;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.PropertyName != <span class="hljs-string">"photo"</span>)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">var</span> val = (JObject)D.PropertyValue;
+                <span class="hljs-keyword">this</span>.PlantActionId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                <span class="hljs-comment">//this.AggregateId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());</span>
+             
+            }
+            <span class="hljs-keyword">catch</span>
+            {
+                Logger.Warn(<span class="hljs-string">"Could not parse plantActionId"</span>);
+            }
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+        }
+
+
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">class</span> MarkedPlantPublic : EventBase
+    {
+        <span class="hljs-keyword">private</span> <span class="hljs-title">MarkedPlantPublic</span>() { }
+        <span class="hljs-comment">//public MarkedPlantPublic(Guid entityId) : base(entityId) { }</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-title">MarkedPlantPublic</span>(MarkPlantPublic cmd) : <span class="hljs-title">base</span>(cmd) { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Marked plant {0} public"</span>, AggregateId);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.PropertyName = Language.SHARED;
+            D.PropertyValue = <span class="hljs-keyword">true</span>;
+            D.EntityType = DTOType.plant;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.PropertyName != Language.SHARED)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">bool</span>)D.PropertyValue != <span class="hljs-keyword">true</span>)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+
+        }
+
+
+
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">class</span> MarkedPlantPrivate : EventBase
+    {
+        <span class="hljs-keyword">private</span> <span class="hljs-title">MarkedPlantPrivate</span>() { }
+        <span class="hljs-comment">//public MarkedPlantPrivate(Guid entityId) : base(entityId) { }</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-title">MarkedPlantPrivate</span>(MarkPlantPrivate cmd) : <span class="hljs-title">base</span>(cmd) { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Marked plant {0} private"</span>, AggregateId);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.PropertyName = Language.SHARED;
+            D.PropertyValue = <span class="hljs-keyword">false</span>;
+            D.EntityType = DTOType.plant;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.PropertyName != Language.SHARED)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">bool</span>)D.PropertyValue != <span class="hljs-keyword">false</span>)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+
+        }
+
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">class</span> ScheduleToggled : EventBase
+    {
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> IsEnabled { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> ScheduleType Type { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-title">ScheduleToggled</span>() { }
+        <span class="hljs-comment">//public MarkedPlantPrivate(Guid entityId) : base(entityId) { }</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-title">ScheduleToggled</span>(ToggleSchedule cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.IsEnabled = cmd.IsEnabled;
+            <span class="hljs-keyword">this</span>.Type = cmd.Type;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"{0} schedule set to {1}"</span>, Type, IsEnabled);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.PropertyName = Type == ScheduleType.WATERING ? Language.WATERINGSCHEDULE_ENABLED : Language.FERTILIZINGSCHEDULE_ENABLED;
+            D.PropertyValue = IsEnabled;
+            D.EntityType = DTOType.plant;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.PropertyName != Language.WATERINGSCHEDULE_ENABLED &amp;&amp; D.PropertyName != Language.FERTILIZINGSCHEDULE_ENABLED)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant)
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.Type = D.PropertyName == Language.WATERINGSCHEDULE_ENABLED ? ScheduleType.WATERING : ScheduleType.FERTILIZING;
+            <span class="hljs-keyword">this</span>.IsEnabled = (<span class="hljs-keyword">bool</span>)D.PropertyValue;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+
+        }
+
+    }
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> ScheduleType
+    {
+        WATERING,
+        FERTILIZING
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> ScheduleSet : EventBase
+    {
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid? ScheduleId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">protected</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> ScheduleType Type { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">protected</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">ScheduleSet</span>() { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">ScheduleSet</span>(SetWateringSchedule cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.ScheduleId = cmd.ScheduleId;
+            <span class="hljs-keyword">this</span>.Type = ScheduleType.WATERING;
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">ScheduleSet</span>(SetFertilizingSchedule cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.ScheduleId = cmd.ScheduleId;
+            <span class="hljs-keyword">this</span>.Type = ScheduleType.FERTILIZING;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Schedule of type {2} set to {1} for plant {0}."</span>, AggregateId, ScheduleId, Type);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.EntityType = DTOType.plant;
+            D.PropertyName = <span class="hljs-keyword">this</span>.Type == ScheduleType.WATERING ? <span class="hljs-string">"wateringSchedule"</span> : <span class="hljs-string">"fertilizingSchedule"</span>;
+            D.PropertyValue = <span class="hljs-keyword">new</span> JObject();
+            D.PropertyValue[Language.PROPERTY_ANCESTOR_ID] = <span class="hljs-keyword">this</span>.AncestorId.ToString();
+            D.PropertyValue[Language.PROPERTY_ENTITY_ID] = <span class="hljs-keyword">this</span>.ScheduleId.ToString();
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant || (D.PropertyName != <span class="hljs-string">"wateringSchedule"</span> &amp;&amp; D.PropertyName != <span class="hljs-string">"fertilizingSchedule"</span>))
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.Type = D.PropertyName == <span class="hljs-string">"wateringSchedule"</span> ? ScheduleType.WATERING : ScheduleType.FERTILIZING;
+
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">var</span> val = (JObject)D.PropertyValue;
+                <span class="hljs-keyword">this</span>.ScheduleId = Guid.Parse(val[Language.PROPERTY_ENTITY_ID].ToString());
+                <span class="hljs-comment">//this.AncestorId = Guid.Parse(val[Language.PROPERTY_ANCESTOR_ID].ToString());</span>
+            }
+            <span class="hljs-keyword">catch</span>
+            {
+                <span class="hljs-comment">//return false;</span>
+            }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+        }
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> LocationSet : EventBase
+    {
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> GSLocation Location;
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">LocationSet</span>() { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">LocationSet</span>(SetLocation cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.Location = cmd.Location;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Location set for plant {0}"</span>, <span class="hljs-keyword">this</span>.AggregateId);
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+
+            D.EntityType = DTOType.plant;
+            D.PropertyName = <span class="hljs-string">"location"</span>;
+            D.PropertyValue = <span class="hljs-keyword">new</span> JObject();
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.Location != <span class="hljs-keyword">null</span>)
+            {
+                D.PropertyValue[<span class="hljs-string">"latitude"</span>] = <span class="hljs-keyword">this</span>.Location.latitude;
+                D.PropertyValue[<span class="hljs-string">"longitude"</span>] = <span class="hljs-keyword">this</span>.Location.longitude;
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                D.PropertyValue[<span class="hljs-string">"latitude"</span>] = <span class="hljs-number">0.0</span>;
+                D.PropertyValue[<span class="hljs-string">"longitude"</span>] = <span class="hljs-number">0.0</span>;
+            }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant || (D.PropertyName != <span class="hljs-string">"location"</span>))
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            }
+
+            <span class="hljs-keyword">this</span>.Location = <span class="hljs-keyword">null</span>;
+
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">if</span> (D.PropertyValue != <span class="hljs-keyword">null</span>)
+                {
+                    <span class="hljs-keyword">var</span> val = (JObject)D.PropertyValue;
+
+                    <span class="hljs-keyword">if</span> (val != <span class="hljs-keyword">null</span> &amp;&amp; val.HasValues)
+                    {
+                        <span class="hljs-keyword">var</span> la = val[<span class="hljs-string">"latitude"</span>].ToObject&lt;<span class="hljs-keyword">float</span>&gt;();
+                        <span class="hljs-keyword">var</span> lo = val[<span class="hljs-string">"longitude"</span>].ToObject&lt;<span class="hljs-keyword">float</span>&gt;();
+                        <span class="hljs-keyword">this</span>.Location = <span class="hljs-keyword">new</span> GSLocation(la, lo);
+                    }
+                }
+            }
+            <span class="hljs-keyword">catch</span> { }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+        }
+
+
+
+    }
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> TagsSet : EventBase
+    {
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> HashSet&lt;<span class="hljs-keyword">string</span>&gt; Tags { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">TagsSet</span>() { }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">TagsSet</span>(SetTags cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.Tags = cmd.Tags;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Tags set for plant {0}."</span>, AggregateId);
+        }
+
+    }
+
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> NameSet : EventBase
+    {
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">NameSet</span>() { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">NameSet</span>(SetName cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.Name = cmd.Name;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Name set to {1} for plant {0}."</span>, AggregateId, Name);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.EntityType = DTOType.plant;
+            D.PropertyName = <span class="hljs-string">"name"</span>;
+            D.PropertyValue = <span class="hljs-keyword">this</span>.Name;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant || (D.PropertyName != <span class="hljs-string">"name"</span>))
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+
+            <span class="hljs-keyword">this</span>.Name = D.PropertyValue;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+        }
+
+
+    }
+
+    [DTOObject(DTOType.setProperty)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> SpeciesSet : EventBase
+    {
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Species { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">SpeciesSet</span>() { }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title">SpeciesSet</span>(SetSpecies cmd)
+            : <span class="hljs-title">base</span>(cmd)
+        {
+            <span class="hljs-keyword">this</span>.Species = cmd.Species;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Species set to {1} for plant {0}."</span>, AggregateId, Species);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.EntityType = DTOType.plant;
+            D.PropertyName = <span class="hljs-string">"species"</span>;
+            D.PropertyValue = <span class="hljs-keyword">this</span>.Species;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> ISetPropertyDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">if</span> (D.EntityType != DTOType.plant || (D.PropertyName != <span class="hljs-string">"species"</span>))
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+
+            <span class="hljs-keyword">this</span>.Species = D.PropertyValue;
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+        }
+    }
+
+
+
+    [DTOObject(DTOType.addFBComment)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> FBCommentAdded : EventBase
+    {
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> String FbId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> Uid { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> String Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> FirstName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> String LastName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> String Note { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">FBCommentAdded</span>() { }
+        <span class="hljs-keyword">public</span> <span class="hljs-title">FBCommentAdded</span>(Guid entityId) : <span class="hljs-title">base</span>(entityId) { }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> <span class="hljs-title">ToString</span>()
+        {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">@"Added water to plant {0}"</span>, AggregateId);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FillDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> IAddFBCommentDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            D.FbId = <span class="hljs-keyword">this</span>.FbId;
+            D.Uid = <span class="hljs-keyword">this</span>.Uid;
+            D.Name = <span class="hljs-keyword">this</span>.Name;
+            D.FirstName = <span class="hljs-keyword">this</span>.FirstName;
+            D.LastName = <span class="hljs-keyword">this</span>.LastName;
+            D.Note = <span class="hljs-keyword">this</span>.Note;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FillDTO(D);
+            <span class="hljs-comment">//D.</span>
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">FromDTO</span>(IEventDTO Dto)
+        {
+            <span class="hljs-keyword">var</span> D = Dto <span class="hljs-keyword">as</span> IAddFBCommentDTO; <span class="hljs-keyword">if</span> (Dto == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.FbId = D.FbId;
+            <span class="hljs-keyword">this</span>.Uid = D.Uid;
+            <span class="hljs-keyword">this</span>.Name = D.Name;
+            <span class="hljs-keyword">this</span>.FirstName = D.FirstName;
+            <span class="hljs-keyword">this</span>.LastName = D.LastName;
+            <span class="hljs-keyword">this</span>.Note = D.Note;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">base</span>.FromDTO(D);
+
+        }
+    }
+
+
+
+    <span class="hljs-preprocessor">#<span class="hljs-keyword">endregion</span></span>
+
+
+}</div></div></div></div></body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.Core/AggregateState</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="GrowthStories.Core/AggregateState"><meta name="groc-project-path" content="GrowthStories.Core/AggregateState.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.Core/AggregateState.cs">GrowthStories.Core/AggregateState.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> CommonDomain;
+<span class="hljs-keyword">using</span> Microsoft.CSharp.RuntimeBinder;
+<span class="hljs-keyword">using</span> Newtonsoft.Json;
+<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Linq.Expressions;
+<span class="hljs-keyword">using</span> System.Runtime.CompilerServices;
+<span class="hljs-keyword">using</span> System.Text;
+
+namespace Growthstories.Core
+{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="aggregatestate">AggregateState</h2>
+<p>Base class for handling events by overloading the Apply method.
+Contains implementations for handling Create and Delete events.</p></div></div><div class="code"><div class="wrapper">   <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> AggregateState&lt;TCreateEvent&gt; : AggregateState <span class="hljs-keyword">where</span> TCreateEvent : ICreateMessage
+    {
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> IsDeleted { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> applying = <span class="hljs-keyword">false</span>;
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> HashSet&lt;Guid&gt; AppliedEventIds = <span class="hljs-keyword">new</span> HashSet&lt;Guid&gt;();
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">AggregateState</span>() : <span class="hljs-title">base</span>()
+        {
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(TCreateEvent @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">if</span> (Version != <span class="hljs-number">0</span>)
+            {
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"rebirth"</span>, <span class="hljs-string">"Can't create aggregate that already exists"</span>);
+            }
+            <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.AggregateId == <span class="hljs-keyword">default</span>(Guid))
+            {
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"empty_id"</span>, <span class="hljs-string">"AggregateId is required"</span>);
+            }
+            Id = @<span class="hljs-keyword">event</span>.AggregateId;
+            Created = @<span class="hljs-keyword">event</span>.Created;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(IDeleteEvent @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">this</span>.IsDeleted = <span class="hljs-keyword">true</span>;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(IEvent @<span class="hljs-keyword">event</span>)
+        {
+            <span class="hljs-keyword">if</span> (!(@<span class="hljs-keyword">event</span> <span class="hljs-keyword">is</span> TCreateEvent))
+            {
+                <span class="hljs-keyword">if</span> (Version == <span class="hljs-number">0</span>)
+                {
+                    <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"premature"</span>, <span class="hljs-string">"Aggregate hasn't been created yet"</span>);
+                }
+                <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.AggregateId != <span class="hljs-keyword">this</span>.Id)
+                {
+                    <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"ALIEN_ID"</span>, <span class="hljs-string">"Nonmatching AggregateId"</span>);
+                }
+            }
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.applying)
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"nohandler"</span>, <span class="hljs-string">"Can't find handler for event {0}"</span>, @<span class="hljs-keyword">event</span>.GetType().ToString());
+            <span class="hljs-keyword">if</span> (IsDuplicate(@<span class="hljs-keyword">event</span>))
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"duplicate_event"</span>, <span class="hljs-string">"Event {0} of type {1} has already been applied"</span>, @<span class="hljs-keyword">event</span>.MessageId, @<span class="hljs-keyword">event</span>.GetType().ToString());
+            <span class="hljs-keyword">if</span> (@<span class="hljs-keyword">event</span>.AggregateVersion != <span class="hljs-keyword">this</span>.Version + <span class="hljs-number">1</span>)
+                <span class="hljs-keyword">throw</span> DomainError.Named(<span class="hljs-string">"version_mismatch"</span>, <span class="hljs-string">"Won't apply remote event with nonconsecutive version."</span>);
+
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">if</span> (!(@<span class="hljs-keyword">event</span> <span class="hljs-keyword">is</span> INullEvent))
+                {
+                    <span class="hljs-keyword">this</span>.applying = <span class="hljs-keyword">true</span>;
+                    ((dynamic)<span class="hljs-keyword">this</span>).Apply((dynamic)@<span class="hljs-keyword">event</span>);
+                    <span class="hljs-keyword">this</span>.applying = <span class="hljs-keyword">false</span>;
+                }
+                Version++;
+                AppliedEventIds.Add(@<span class="hljs-keyword">event</span>.MessageId);
+
+            }
+            <span class="hljs-keyword">catch</span> (RuntimeBinderException)
+            {
+                <span class="hljs-keyword">throw</span>;
+            }
+
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsDuplicate</span>(IMessage x)
+        {
+            <span class="hljs-keyword">return</span> AppliedEventIds.Contains(x.MessageId);
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Merge</span>(IMessage local, IMessage remote, <span class="hljs-keyword">out</span> IMessage localNew, <span class="hljs-keyword">out</span> IMessage remoteNew)
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>do nothing by default</p></div></div><div class="code"><div class="wrapper">            localNew = local;
+            remoteNew = remote;
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> IAggregateState : IMemento
+    {
+        Type AggregateType { <span class="hljs-keyword">get</span>; }
+        <span class="hljs-keyword">void</span> Merge(IMessage incoming, IMessage outgoing, <span class="hljs-keyword">out</span> IMessage incomingNew, <span class="hljs-keyword">out</span> IMessage outgoingNew);
+        <span class="hljs-keyword">bool</span> IsDuplicate(IMessage x);
+
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> AggregateState : IAggregateState, IAppliesEvents
+    {
+
+        [JsonIgnore]
+        <span class="hljs-keyword">public</span> Type AggregateType { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> Guid Id { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">protected</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> Version { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">protected</span> <span class="hljs-keyword">set</span>; }
+
+        [JsonProperty]
+        <span class="hljs-keyword">public</span> DateTimeOffset Created { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">protected</span> <span class="hljs-keyword">set</span>; }
+
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-title">AggregateState</span>()
+        {
+            Version = <span class="hljs-number">0</span>;
+        }
+
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(IEvent @<span class="hljs-keyword">event</span>);
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Apply</span>(IDeleteEvent @<span class="hljs-keyword">event</span>);
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Merge</span>(IMessage local, IMessage remote, <span class="hljs-keyword">out</span> IMessage localNew, <span class="hljs-keyword">out</span> IMessage remoteNew);
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsDuplicate</span>(IMessage x);
+
+
+    }
+
+}</div></div></div></div></body></html>

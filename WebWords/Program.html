@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="en"><head><title>WebWords/Program</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="WebWords/Program"><meta name="groc-project-path" content="WebWords/Program.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/WebWords/Program.cs">WebWords/Program.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net.Http;
+<span class="hljs-keyword">using</span> System.Reactive.Linq;
+<span class="hljs-keyword">using</span> System.Reactive;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Reactive.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Text.RegularExpressions;
+
+namespace WebWords
+{
+  </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="webwords">WebWords</h2>
+<p>Hakee nettisivuja asynkronisesti ja laskee niissä esiintyyvien sanojen frekvenssit.
+Yrittää lisäksi kellottaa webrequestien kestoja.</p></div></div><div class="code"><div class="wrapper">  class MainClass
+  {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span> (<span class="hljs-keyword">string</span>[] args)
+    {
+      
+      <span class="hljs-keyword">var</span> pages = <span class="hljs-keyword">new</span>[] {
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/Finland"</span>,
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/Sweden"</span>,
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/Germany"</span>,
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/Italy"</span>,
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/France"</span>,
+        <span class="hljs-string">"http://en.wikipedia.org/wiki/Norway"</span>
+      };
+      </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>asynkroninen netticlientti</p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">var</span> Client = <span class="hljs-keyword">new</span> HttpClient()
+      {
+        Timeout = TimeSpan.FromSeconds(<span class="hljs-number">10</span>)
+      };
+
+      <span class="hljs-keyword">var</span> start = DateTimeOffset.Now;
+      
+
+      pages</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>IEnumerable -&gt; IObservable (pull -&gt; push)</p></div></div><div class="code"><div class="wrapper">        .ToObservable ()</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Wrappaa putkesta tulevat elementit Timestamped struktuuriin</p></div></div><div class="code"><div class="wrapper">        .Timestamp()</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Tulosta tähän asti käytetty aika millisekunteina.
+Näiden pitäisi olla lähellä toisiaan, jos requestit lähetetään rinnakkain.</p></div></div><div class="code"><div class="wrapper">        .Do (x =&gt; Console.WriteLine (<span class="hljs-string">"GET {0} [{1}]"</span>, x.Value, (x.Timestamp-start).Milliseconds))
+        .Select(x =&gt; x.Value)</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>muodostaa jokaista webrequestia kohden uuden IObservable putken ja jää kuuntelemaan niitä jokaista
+päästäen läpi palautumisjärjestyksessä (responset menevät putkesta läpi siis sitä mukaa kun saapuvat, usein
+siis eri järjestyksessä kuin requestit lähetettiin)</p></div></div><div class="code"><div class="wrapper">        .SelectMany (<span class="hljs-keyword">async</span> x =&gt; {
+          <span class="hljs-keyword">var</span> ms = DateTimeOffset.Now;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>requesti lähetetään</p></div></div><div class="code"><div class="wrapper">          <span class="hljs-keyword">var</span> s = <span class="hljs-keyword">await</span> Client.GetStringAsync (<span class="hljs-keyword">new</span> Uri (x));</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>palauttaa anonyymin olion, jossa on transformoidut tulokset ja requestin tietoja</p></div></div><div class="code"><div class="wrapper">          <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> {Uri = x, Content = Transform (s), Delay = (DateTimeOffset.Now-ms), Length = s.Length};
+        })
+        .Do (x =&gt; Console.WriteLine (<span class="hljs-string">"\n{1} [{2}ms, {3:F0}k]\n{0}\n______"</span>,x.Content,x.Uri,x.Delay.Milliseconds,x.Length/<span class="hljs-number">1000</span>))</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>tällä konsoliohjelman suoritus ei pääty ennen kuin kaikki vastaukset on saatu</p></div></div><div class="code"><div class="wrapper">        .ToTask ()
+        .Wait ();
+
+
+    
+    }
+
+
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">string</span> <span class="hljs-title">Transform</span>(<span class="hljs-keyword">string</span> s)
+    {
+      <span class="hljs-keyword">string</span> noHTML = Regex.Replace(s, <span class="hljs-string">@"&lt;[^&gt;]+&gt;|&amp;[^;]+;"</span>, <span class="hljs-string">""</span>).Trim();
+      <span class="hljs-keyword">string</span> noHTMLNormalised = Regex.Replace(noHTML, <span class="hljs-string">@"\s{2,}"</span>, <span class="hljs-string">" "</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>palauttaa 15 suurifrekvenssisintä yli 5 merkkiä pitkää sanaa </p></div></div><div class="code"><div class="wrapper">      <span class="hljs-keyword">var</span> g = noHTMLNormalised
+        .Split(<span class="hljs-string">' '</span>)
+        .GroupBy(x =&gt; x.Trim())
+        .Where(x =&gt; x.Key.Length &gt; <span class="hljs-number">5</span>)
+        .Select(x =&gt; <span class="hljs-keyword">new</span> {W = x.Key, C = x.Count()})
+        .OrderByDescending(x =&gt; x.C)
+        .Take(<span class="hljs-number">15</span>);
+
+         
+
+      <span class="hljs-keyword">return</span> g.Aggregate (<span class="hljs-string">""</span>, (a, x) =&gt; <span class="hljs-keyword">string</span>.Format (<span class="hljs-string">"{0}\n{1,5} {2}"</span>, a, x.C, x.W));
+    }
+  }
+}</div></div></div></div></body></html>

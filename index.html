@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/README.md">README.md</a></div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="hei">Hei!</h1>
+<p>Kuten puhuttiin, niin seuraavassa vähän arkkitehtuuri ja kooditason
+katsausta <a href="http://www.growthstories.com">Growth Storiesiin</a>.</p>
+<h3 id="eventing">Eventing</h3>
+<p>Eli tosiaan aika aikaisessa vaiheessa päätettiin, että applikaatiota pitää pystyä
+käyttämään siedettävästi offline-tilassa ja onlineen tultuaan kykenee synkronisoimaan
+itsensä (occasionally connected client). Ts. applikaation pitää koko ajan tietää mitä muutoksia
+sen tilaan on tapahtunut edellisen synkronisoinnin jälkeen.</p>
+<p>Synkronisointi oli tärkeää useasta syystä:</p>
+<ul>
+<li>syystä tai toisesta applikaation lokaali tila nollautuu (uusi puhelin, appi uninstalloidaan)
+eikä vaivalla kasattua kasvinkasvatustietoa haluta menettää (backup perspektiivi)</li>
+<li>halutaan käyttää samanaikaisesti useampaa clienttia (esim. puhelinappi ja selainpohjainen sovellus)</li>
+<li>halutaan mahdollistaa toisten käyttäjien kasvien <em>seuraaminen</em> (Twitter tyyliin)</li>
+</ul>
+<p>Näiden vaatimusten vuoksi päädyin tutkimaan <a href="http://martinfowler.com/bliki/CQRS.html">CQRS</a>:ää (Command Query Responsibility Segregation) ja 
+<a href="https://github.com/eventstore/eventstore/wiki/Event-Sourcing-Basics">Event Sourcing</a>:ia.
+Loppujen lopuksi CQRS (erilliset read- ja write-mallit) oli varmaan vähän overkill ja pelkkä Event Sourcing olisi ehkä ollut ihan
+riittävä. </p>
+<p>Taisin muuten mainita jossain vaiheessa näihin asioihin liittyen <a href="http://goodenoughsoftware.net">Greg Youngin</a> (myös <a href="http://geteventstore.com">Event Store</a>, jonka tulevan kirjan esittelytekstissä
+puhutaan mielestäni aika houkuttelevaan sävyyn näistä tekniikoista: <a href="http://www.amazon.com/Event-Centric-Simplicity-Addison-Wesley-Signature/dp/0321768221">Event Centric</a>.</p>
+<p>Seuraavassa on linkkejä tätä presentaatiota varten kommentoituihin source filuihin. Osa filuista
+on pitkiä ja sisältää tämän presentaatiotarkoituksen kannalta vähän relevanttia kamaa ja paljon epärelevanttia kamaa.
+Olen yrittänyt auttaa kommentoimalla (jostain syystä englanniksi) vain mielestäni relevantteja kohtia (tämän demonstraation kannalta). 
+Joissain tapauksissa voi joutua skrollailemaan
+ennen kuin edes törmää ensimmäisiin kommentteihin, mutta jokaisessa tiedostossa niitä kyllä on.</p>
+<p>Joka tapauksessa:</p>
+<ul>
+<li><a href="GrowthStories.Core/AggregateBase.html">AggregateBase</a> ja <a href="GrowthStories.Core/AggregateState.html">AggregateState</a> implementoivat
+Commandeihin ja Eventteihin perustuvan tilan hallitsemisen</li>
+<li><a href="GrowthStories.DomainPCL/Entities/Plant/Plant.html">Plant</a> ja <a href="GrowthStories.DomainPCL/Entities/Plant/PlantState.html">PlantState</a> 
+ovat esimerkkejä vastaavista konkreettisista implementaatiosta</li>
+<li><a href="GrowthStories.DomainPCL/Entities/Plant/PlantEvents.html">PlantEvents</a> sisältää Plantille määritellyt eventit</li>
+</ul>
+<h3 id="ui">UI</h3>
+<p>Jossain vaiheessa innostuin aika paljon <a href="https://rx.codeplex.com">Reactive Extensionseista (Rx)</a>:</p>
+<blockquote>
+<p>Rx.NET: The Reactive Extensions (Rx) is a library for composing asynchronous and 
+event-based programs using observable sequences and LINQ-style query operators.</p>
+</blockquote>
+<p>Kun lisäksi törmäsin <a href="https://github.com/reactiveui/ReactiveUI">ReactiveUI</a>:hin: </p>
+<blockquote>
+<p>Use the Reactive Extensions for .NET to create elegant, testable User Interfaces 
+that run on any mobile or desktop platform.</p>
+</blockquote>
+<p>niin GrowthStoriesin UI puolen ratkaisut olivat selvillä.</p>
+<p>Mielestäni Rx:n ja ReactiveUI:n hyödyt näyttäytyvät esimerkiksi tässä: <a href="GrowthStories.Projections/ViewModel/SearchUsersViewModel.html">SearchUsersViewModel</a>.</p>
+<h3 id="testattavuus-ja-di">Testattavuus ja DI</h3>
+<p>Dependency Injectionin ja decouplatun arkkitehtuurin ansiosta erilaiset testiskenaariot olivat toteutettavissa.
+Esimerkiksi <a href="GrowthStories.DomainTests/Sync/SyncEngineTests.html">SyncEngineTests</a> testaa 
+synkronointilogiikkaa lokaalisti. <a href="GrowthStories.DomainTests/Sync/SyncEngineTestsSetup.html">SyncEngineTestsSetup</a>
+sisältää interface -&gt; concrete class mäppäyksiä tätä testiskenaariota varten.</p>
+<h3 id="bonus">Bonus</h3>
+<p>Minua jäi hiukan kaihertamaan se harjoitustehtävä, jossa piti laskea webbisivujen sanojen frekvenssejä.
+Päätin tehdä sen vielä kunnolla Rx:a hyödyntäen: <a href="WebWords/Program.html">WebWords</a>.</p>
+<h3 id="bonus-2">Bonus 2</h3>
+<p>Mun <a href="http://scholar.google.com/scholar?cluster=4710550646290068307&amp;hl=en&amp;as_sdt=0,5&amp;sciodt=0,5">diplomityö</a> :) .</p></div></div></div></div></body></html>

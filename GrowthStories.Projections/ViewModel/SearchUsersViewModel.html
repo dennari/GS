@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.Projections/ViewModel/SearchUsersViewModel</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="GrowthStories.Projections/ViewModel/SearchUsersViewModel"><meta name="groc-project-path" content="GrowthStories.Projections/ViewModel/SearchUsersViewModel.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.Projections/ViewModel/SearchUsersViewModel.cs">GrowthStories.Projections/ViewModel/SearchUsersViewModel.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Reactive.Linq;
+<span class="hljs-keyword">using</span> System.Reactive.Threading.Tasks;
+<span class="hljs-keyword">using</span> EventStore.Logging;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Messaging;
+<span class="hljs-keyword">using</span> Growthstories.Sync;
+<span class="hljs-keyword">using</span> ReactiveUI;
+
+namespace Growthstories.UI.ViewModel
+{
+
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">sealed</span> <span class="hljs-keyword">class</span> SearchUsersViewModel : RoutableViewModel, ISearchUsersViewModel
+    {
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> ITransportEvents Transporter;
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">readonly</span> IObservable&lt;IUserListResponse&gt; SearchResults;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">readonly</span> IObservable&lt;List&lt;CreateSyncStream&gt;&gt; SyncStreams;
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ILog Logger = LogFactory.BuildLogger(<span class="hljs-keyword">typeof</span>(SearchUsersViewModel));
+
+
+        <span class="hljs-keyword">private</span> ReactiveList&lt;RemoteUser&gt; _List;
+        <span class="hljs-keyword">public</span> IReadOnlyReactiveList&lt;RemoteUser&gt; List { <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> _List; } }
+        <span class="hljs-keyword">public</span> IReactiveCommand SearchCommand { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+        <span class="hljs-keyword">public</span> IReactiveCommand UserSelectedCommand { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">private</span> IPopupViewModel _NoConnectionAlert;
+        <span class="hljs-keyword">public</span> IPopupViewModel NoConnectionAlert
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">if</span> (_NoConnectionAlert == <span class="hljs-keyword">null</span>)
+                {
+                    _NoConnectionAlert = <span class="hljs-keyword">new</span> PopupViewModel()
+                    {
+                        Caption = <span class="hljs-string">"No data connection available"</span>,
+                        Message = <span class="hljs-string">"Following users requires a data connection. Please enable a data connection and try again."</span>,
+                        IsLeftButtonEnabled = <span class="hljs-keyword">true</span>,
+                        LeftButtonContent = <span class="hljs-string">"OK"</span>
+                    };
+                    _NoConnectionAlert.DismissedObservable.Take(<span class="hljs-number">1</span>).Select(_ =&gt; <span class="hljs-keyword">new</span> <span class="hljs-keyword">object</span>()).Subscribe(App.Router.NavigateBack.Execute);
+
+                }
+                <span class="hljs-keyword">return</span> _NoConnectionAlert;
+
+            }
+        }
+
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> _InProgress;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> ProgressIndicatorIsVisible
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> _InProgress;
+            }
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>
+            {
+                <span class="hljs-keyword">this</span>.RaiseAndSetIfChanged(<span class="hljs-keyword">ref</span> _InProgress, <span class="hljs-keyword">value</span>);
+            }
+        }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> _ValidSearch;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> ValidSearch
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> _ValidSearch;
+            }
+
+            <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>
+            {
+                <span class="hljs-keyword">this</span>.RaiseAndSetIfChanged(<span class="hljs-keyword">ref</span> _ValidSearch, <span class="hljs-keyword">value</span>);
+            }
+        }
+
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">string</span> _Search;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Search
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> _Search;
+            }
+            <span class="hljs-keyword">set</span>
+            {
+                <span class="hljs-keyword">this</span>.RaiseAndSetIfChanged(<span class="hljs-keyword">ref</span> _Search, <span class="hljs-keyword">value</span>);
+                ValidSearch = !<span class="hljs-keyword">string</span>.IsNullOrWhiteSpace(<span class="hljs-keyword">value</span>) &amp;&amp; <span class="hljs-keyword">value</span>.Length &gt;= <span class="hljs-number">2</span>;
+                SearchFinished = <span class="hljs-keyword">false</span>;
+            }
+        }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> _SearchFinished;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> SearchFinished
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> _SearchFinished;
+            }
+            <span class="hljs-keyword">set</span>
+            {
+                <span class="hljs-keyword">this</span>.RaiseAndSetIfChanged(<span class="hljs-keyword">ref</span> _SearchFinished, <span class="hljs-keyword">value</span>);
+            }
+        }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> _NotReachable;
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> NotReachable
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">return</span> _NotReachable;
+            }
+            <span class="hljs-keyword">set</span>
+            {
+                <span class="hljs-keyword">this</span>.RaiseAndSetIfChanged(<span class="hljs-keyword">ref</span> _NotReachable, <span class="hljs-keyword">value</span>);
+            }
+        }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> IFriendsViewModel FriendsVM;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="searchusersviewmodel">SearchUsersViewModel</h2>
+<p>Model for a View, where a user types into a searchbox and a search is made and results
+are shown on every keystroke</p></div></div><div class="code"><div class="wrapper">        <span class="hljs-keyword">public</span> <span class="hljs-title">SearchUsersViewModel</span>(ITransportEvents transporter, IFriendsViewModel friendsVM, IGSAppViewModel app)
+            : <span class="hljs-title">base</span>(app)
+        {
+
+            SearchFinished = <span class="hljs-keyword">false</span>;
+            Transporter = transporter;
+            _List = <span class="hljs-keyword">new</span> ReactiveList&lt;RemoteUser&gt;();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>the command is invoked (here the term is related to the 
+<a href="http://en.wikipedia.org/wiki/Command_pattern">command pattern</a>, not to Event Sourcing or CQRS)
+through Data Binding in XAML </p></div></div><div class="code"><div class="wrapper">            SearchCommand = <span class="hljs-keyword">new</span> ReactiveCommand();
+            ProgressIndicatorIsVisible = <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.FriendsVM = friendsVM;</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>accept only long-enough strings
+and throttle (only the newest event in a window of 400ms gets through)
+to prevent unnecessary web requests</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> input = SearchCommand
+                .OfType&lt;<span class="hljs-keyword">string</span>&gt;()
+                .Where(x =&gt; !<span class="hljs-keyword">string</span>.IsNullOrWhiteSpace(x) &amp;&amp; x.Length &gt;= <span class="hljs-number">2</span>)
+                .Throttle(TimeSpan.FromMilliseconds(<span class="hljs-number">400</span>))
+                .DistinctUntilChanged();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>here we continue with the stream of search strings and 
+proceed to launch web requests asynchronously</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-keyword">var</span> results = input
+                .Select(s =&gt;
+                {
+                    <span class="hljs-keyword">return</span> transporter.ListUsersAsync(s).ToObservable();
+                })
+                .Merge()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Publish()
+                .RefCount();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>before every web request, display the progress indicator</p></div></div><div class="code"><div class="wrapper">            input.ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ =&gt; ProgressIndicatorIsVisible = <span class="hljs-keyword">true</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>the subscribe block here is run (in the UI thread) every time the async requests returns results</p></div></div><div class="code"><div class="wrapper">            results.Subscribe(x =&gt;
+            {
+                ProgressIndicatorIsVisible = <span class="hljs-keyword">false</span>;
+                SearchFinished = <span class="hljs-keyword">true</span>;
+
+                NotReachable = x.StatusCode != GSStatusCode.OK;
+
+                _List.Clear();
+                <span class="hljs-keyword">if</span> (x.Users != <span class="hljs-keyword">null</span> &amp;&amp; x.Users.Count &gt; <span class="hljs-number">0</span>)
+                {
+
+                    <span class="hljs-keyword">var</span> filtered = x.Users.Where(y =&gt;
+                        FriendsVM.Friends.FirstOrDefault(z =&gt; z.UserId == y.AggregateId) == <span class="hljs-keyword">null</span>
+                        &amp;&amp; y.AggregateId != App.User.Id
+                        &amp;&amp; y.Garden != <span class="hljs-keyword">null</span>
+                        &amp;&amp; y.Garden.Plants != <span class="hljs-keyword">null</span>
+                        &amp;&amp; y.PlantCount &gt; <span class="hljs-number">0</span>
+                        ).ToArray();
+
+                    <span class="hljs-keyword">if</span> (filtered.Length &gt; <span class="hljs-number">0</span>)
+                    {
+                        Logger.Info(<span class="hljs-string">"Listed {0} users"</span>, filtered.Length);
+                        _List.AddRange(filtered);
+                    }
+                }
+            });
+
+            <span class="hljs-keyword">this</span>.SearchResults = results;
+
+            UserSelectedCommand = <span class="hljs-keyword">new</span> ReactiveCommand();
+            
+            PopupViewModel pp = <span class="hljs-keyword">new</span> ProgressPopupViewModel()
+            {
+                Caption = <span class="hljs-string">"Following user"</span>,
+                IsLeftButtonEnabled = <span class="hljs-keyword">false</span>
+            };
+
+
+            pp.DismissedObservable.Subscribe(x =&gt;
+            {
+                <span class="hljs-keyword">this</span>.Log().Info(<span class="hljs-string">"followed popup dismissed: "</span> + x);
+                <span class="hljs-keyword">var</span> pr = (PopupResult)x;
+
+                FollowCanceled = <span class="hljs-keyword">true</span>;
+
+                <span class="hljs-keyword">if</span> (CleanDismiss)
+                {
+                    <span class="hljs-keyword">if</span> (App.Router.NavigationStack.Count &gt; <span class="hljs-number">0</span>)
+                        App.Router.NavigateBack.Execute(<span class="hljs-keyword">null</span>);
+                }
+            });
+
+
+            UserSelectedCommand.Subscribe(_ =&gt; App.ShowPopup.Execute(pp));
+
+
+            <span class="hljs-keyword">this</span>.SyncResults = UserSelectedCommand
+                .RegisterAsyncTask(<span class="hljs-keyword">async</span> (xx) =&gt;
+                {
+                    CleanDismiss = <span class="hljs-keyword">false</span>;
+                    FollowCanceled = <span class="hljs-keyword">false</span>;
+
+                    <span class="hljs-keyword">var</span> x = xx <span class="hljs-keyword">as</span> RemoteUser;
+                    <span class="hljs-keyword">if</span> (x == <span class="hljs-keyword">null</span>)
+                        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+
+                    Logger.Info(<span class="hljs-string">"Before BecomeFollower"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>do not add the same followed user twice</p></div></div><div class="code"><div class="wrapper">                    <span class="hljs-keyword">if</span> (FriendsVM.Friends.FirstOrDefault(z =&gt; z.UserId == x.AggregateId) == <span class="hljs-keyword">null</span>)
+                    {
+                        <span class="hljs-keyword">await</span> App.HandleCommand(<span class="hljs-keyword">new</span> BecomeFollower(App.User.Id, x.AggregateId));
+                    }
+
+                    Logger.Info(<span class="hljs-string">"Before SyncAll"</span>);</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>(1) we get the user stream AND info on the plants
+(2) now we get the plants too
+(3) as we have the push filtering problem,
+    it is good to do one extra sync just to be sure</p></div></div><div class="code"><div class="wrapper">                    AllSyncResult? syncRes = <span class="hljs-keyword">null</span>;
+                    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+                    {
+                        syncRes = (<span class="hljs-keyword">await</span> App.Synchronize()).Item1;
+                        <span class="hljs-keyword">if</span> (syncRes == AllSyncResult.Error)
+                        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>stop on error, so we don&#39;t need to wait for 
+request timeout * 3 until we get error message</p></div></div><div class="code"><div class="wrapper">                            <span class="hljs-keyword">break</span>;
+                        }
+                    }
+
+                    CleanDismiss = <span class="hljs-keyword">true</span>;
+                    App.ShowPopup.Execute(<span class="hljs-keyword">null</span>);
+
+                    Logger.Info(<span class="hljs-string">"follow canceled is "</span> + FollowCanceled);
+
+                    <span class="hljs-keyword">if</span> (!FollowCanceled)
+                    {
+                        <span class="hljs-keyword">if</span> (syncRes == Sync.AllSyncResult.Error)
+                        {
+                            Logger.Info(<span class="hljs-string">"follow was not canceled and received sync error"</span>);
+                            PopupViewModel pvm = <span class="hljs-keyword">new</span> PopupViewModel()
+                            {
+                                Caption = <span class="hljs-string">"Failed to load data"</span>,
+                                Message = <span class="hljs-string">"Could not load (all) information on followed user. Please try again later."</span>,
+                                IsLeftButtonEnabled = <span class="hljs-keyword">true</span>,
+                                LeftButtonContent = <span class="hljs-string">"OK"</span>,
+                            };
+                            App.ShowPopup.Execute(pvm);
+                        }
+                    }
+
+                    <span class="hljs-keyword">return</span> syncRes;
+                });
+
+            <span class="hljs-keyword">this</span>.SyncResults.Publish().Connect();
+
+            <span class="hljs-comment">//this.SyncResults.Where(x =&gt; x == AllSyncResult.AllSynced).Subscribe(x =&gt;</span>
+            <span class="hljs-comment">//{</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>   Search = &quot;&quot;;</p></div></div><div class="code"><div class="wrapper">            <span class="hljs-comment">//});</span>
+        }
+
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> CleanDismiss;
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> FollowCanceled;
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span> UrlPathSegment
+        {
+            <span class="hljs-keyword">get</span> { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> NotImplementedException(); }
+        }
+
+        <span class="hljs-keyword">public</span> ApplicationBarMode AppBarMode
+        {
+            <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> ApplicationBarMode.MINIMIZED; }
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> AppBarIsVisible
+        {
+            <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>; }
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">bool</span> SystemTrayIsVisible
+        {
+            <span class="hljs-keyword">get</span> { <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>; }
+        }
+
+
+
+        <span class="hljs-keyword">public</span> IObservable&lt;AllSyncResult?&gt; SyncResults { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">private</span> <span class="hljs-keyword">set</span>; }
+    }
+
+
+}</div></div></div></div></body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head><title>GrowthStories.DomainTests/Sync/SyncEngineTestsSetup</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="GrowthStories.DomainTests/Sync/SyncEngineTestsSetup"><meta name="groc-project-path" content="GrowthStories.DomainTests/Sync/SyncEngineTestsSetup.cs"><meta name="groc-github-url" content="https://github.com/dennari/GS"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path"><a href="https://github.com/dennari/GS/blob/master/GrowthStories.DomainTests/Sync/SyncEngineTestsSetup.cs">GrowthStories.DomainTests/Sync/SyncEngineTestsSetup.cs</a></div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper">﻿<span class="hljs-keyword">using</span> CommonDomain;
+<span class="hljs-keyword">using</span> CommonDomain.Core;
+<span class="hljs-keyword">using</span> CommonDomain.Persistence;
+<span class="hljs-keyword">using</span> CommonDomain.Persistence.EventStore;
+<span class="hljs-keyword">using</span> EventStore;
+<span class="hljs-keyword">using</span> EventStore.Dispatcher;
+<span class="hljs-keyword">using</span> EventStore.Logging;
+<span class="hljs-keyword">using</span> EventStore.Persistence;
+<span class="hljs-keyword">using</span> EventStore.Persistence.SqlPersistence;
+<span class="hljs-keyword">using</span> EventStore.Serialization;
+<span class="hljs-keyword">using</span> Growthstories.Core;
+<span class="hljs-comment">//using Growthstories.Core;</span>
+<span class="hljs-keyword">using</span> Growthstories.Domain;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Messaging;
+<span class="hljs-comment">//using Growthstories.Domain.Entities;</span>
+<span class="hljs-comment">//using Growthstories.Domain.Messaging;</span>
+<span class="hljs-keyword">using</span> Growthstories.Domain.Services;
+<span class="hljs-keyword">using</span> Growthstories.Sync;
+<span class="hljs-keyword">using</span> Growthstories.UI;
+<span class="hljs-keyword">using</span> Growthstories.UI.Persistence;
+
+
+<span class="hljs-keyword">using</span> Ninject;
+<span class="hljs-keyword">using</span> Ninject.Modules;
+<span class="hljs-keyword">using</span> SQLite;
+<span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.IO;
+<span class="hljs-keyword">using</span> System.Reflection;
+<span class="hljs-keyword">using</span> System.Reactive.Linq;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> Growthstories.UI.ViewModel;
+<span class="hljs-comment">//using GalaSoft.MvvmLight.Messaging;</span>
+<span class="hljs-keyword">using</span> ReactiveUI;
+<span class="hljs-keyword">using</span> EventStore.Persistence.InMemoryPersistence;
+<span class="hljs-keyword">using</span> Growthstories.Domain.Entities;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> Growthstories.UI.Services;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+
+
+namespace Growthstories.DomainTests
+{</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="syncenginetestssetup">SyncEngineTestsSetup</h2>
+<p>Binds interfaces to concrete implementations for running
+the <a href="SyncEngineTests.html">SyncEngineTests</a>.</p></div></div><div class="code"><div class="wrapper">    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> SyncEngineTestsSetup : TestModule
+    {
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">HttpConfiguration</span>(<span class="hljs-keyword">string</span> host = <span class="hljs-string">"default.lan"</span>, <span class="hljs-keyword">int</span> port = <span class="hljs-number">80</span>)
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>User a mocked http client</p></div></div><div class="code"><div class="wrapper">            Bind&lt;IHttpClient, ITransportEvents, FakeHttpClient&gt;().To&lt;FakeHttpClient&gt;().InSingletonScope();</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use a mocked endpoint</p></div></div><div class="code"><div class="wrapper">            Bind&lt;IEndpoint, FakeEndpoint&gt;().To&lt;FakeEndpoint&gt;().InSingletonScope();
+            Bind&lt;IRequestFactory, RequestFactory&gt;().To&lt;RequestFactory&gt;().InSingletonScope();
+            Bind&lt;IResponseFactory, ResponseFactory&gt;().To&lt;ResponseFactory&gt;().InSingletonScope();
+
+
+        }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">PersistenceConfiguration</span>()
+        {</div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use actual SQLite persistence, but empty it on activation.</p></div></div><div class="code"><div class="wrapper">            Bind&lt;IPersistSyncStreams, IPersistStreams&gt;()
+                .To&lt;SQLitePersistenceEngine&gt;()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =&gt;
+                {
+                    eng.ReInitialize();
+                });
+
+
+            Bind&lt;IUIPersistence&gt;().To&lt;SQLiteUIPersistence&gt;()
+                .InSingletonScope()
+                .OnActivation((ctx, eng) =&gt;
+                {
+                    eng.ReInitialize();
+                });
+
+        }
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">UserConfiguration</span>()
+        {
+            Bind&lt;IUserService&gt;().To&lt;TestUserService&gt;().InSingletonScope();
+        }
+
+
+
+
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> SignInTestsSetup : SyncEngineTestsSetup
+    {
+
+
+        <span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">UserConfiguration</span>()
+        {
+            Bind&lt;IUserService&gt;().To&lt;AppUserService&gt;().InSingletonScope();
+        }
+
+
+
+
+    }
+
+
+
+
+}</div></div></div></div></body></html>
